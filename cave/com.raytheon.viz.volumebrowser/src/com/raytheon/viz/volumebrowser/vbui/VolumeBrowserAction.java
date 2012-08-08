@@ -30,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * 
- * Volume Browser action class.
+ * Action to bring up the Volume Browser Dialog.
  * 
  * <pre>
  * 

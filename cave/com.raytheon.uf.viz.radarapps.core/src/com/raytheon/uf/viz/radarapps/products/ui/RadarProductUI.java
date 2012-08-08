@@ -53,14 +53,6 @@ public class RadarProductUI extends BaseRadarProductUI {
     }
 
     @Override
-    protected String[] getPointList() {
-        ArrayList<String> pointNames = new ArrayList<String>(PointsDataManager
-                .getInstance().getPointNames());
-        Collections.sort(pointNames);
-        return pointNames.toArray(new String[pointNames.size()]);
-    }
-
-    @Override
     protected float[] getBaselineLatLon(String which) {
         maybeAddPrefListener();
         Coordinate[] c = ToolsDataManager.getInstance().getBaseline(which)
@@ -106,7 +98,7 @@ public class RadarProductUI extends BaseRadarProductUI {
     @Override
     protected float[] getPointLatLon(String which) {
         maybeAddPrefListener();
-        Coordinate c = PointsDataManager.getInstance().getPoint(which);
+        Coordinate c = PointsDataManager.getInstance().getCoordinate(which);
         if (c != null) {
             float[] result = { (float) c.y, (float) c.x };
             return result;
