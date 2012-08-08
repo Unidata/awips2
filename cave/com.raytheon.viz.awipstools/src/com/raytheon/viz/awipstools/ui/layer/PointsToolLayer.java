@@ -22,10 +22,17 @@ package com.raytheon.viz.awipstools.ui.layer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.MessageBox;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -39,12 +46,15 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.uf.viz.points.data.Point;
+import com.raytheon.uf.viz.points.data.PointNameChangeException;
+import com.raytheon.viz.awipstools.ui.dialog.PointEditDialog;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 
 /**
  * Implements the points bearing functionality.
@@ -70,6 +80,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                       Owned By The Super Class.
  *  02-08-11     #8214       bkowal      Points now have the Magnification
  *                                       capability.
+ *  07-31-2012   #875        rferrel     Converted to use points.
  * 
  * </pre>
  * 
@@ -83,42 +94,75 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
 
     private AbstractRightClickAction deleteElementAction;
 
+    private AbstractRightClickAction editElementAction;
+
+    private AbstractRightClickAction hideElementAction;
+
     private AbstractRightClickAction moveElementAction;
 
-    private PointsDataManager dataManager = PointsDataManager.getInstance();
+    private AbstractRightClickAction createElementAction;
+
+    private PointsDataManager dataManager;
 
     private static GeometryFactory gf = new GeometryFactory();
 
-    private IFont font = null;
+    Map<Integer, IFont> fonts;
 
     public PointsToolLayer(
             AwipsToolsResourceData<PointsToolLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
+        this.dataManager = PointsDataManager.getInstance();
         deleteElementAction = new AbstractRightClickAction() {
             @Override
             public void run() {
-                deleteSelected();
+                deletePoint(selectedObject);
             }
         };
-        deleteElementAction.setText("Delete Entire Element");
+        deleteElementAction.setText("Delete Point");
+
+        editElementAction = new AbstractRightClickAction() {
+            @Override
+            public void run() {
+                editPoint(selectedObject);
+            }
+        };
+        editElementAction.setText("Edit Point...");
+
+        hideElementAction = new AbstractRightClickAction() {
+            @Override
+            public void run() {
+                hidePoint(selectedObject);
+            }
+        };
+        hideElementAction.setText("Hide Point");
+
         moveElementAction = new AbstractRightClickAction() {
             @Override
             public void run() {
                 makeSelectedLive();
             }
         };
-        moveElementAction.setText("Move Entire Element");
+        moveElementAction.setText("Move Point");
+
+        createElementAction = new AbstractRightClickAction() {
+            @Override
+            public void run() {
+                createPoint();
+            }
+        };
+        createElementAction.setText("New Point...");
 
         this.rightClickMovesToCoord = true;
         this.resourceData.addChangeListener(this);
+        this.fonts = new HashMap<Integer, IFont>();
     }
 
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
         dataManager.removePointsChangedListener(this);
-        if (font != null) {
+        for (IFont font : fonts.values()) {
             font.dispose();
         }
         this.resourceData.removeChangeListener(this);
@@ -134,14 +178,12 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     private void resetPoints() {
         Object selectedLabel = null;
         if (selectedObject != null) {
-            selectedLabel = selectedObject.getUserData();
+            selectedLabel = selectedObject.getName();
         }
         Point selectedPoint = null;
         Collection<Point> points = new ArrayList<Point>();
-        for (String name : dataManager.getPointNames()) {
-            Coordinate coordinate = dataManager.getPoint(name);
-            Point point = gf.createPoint(coordinate);
-            point.setUserData(name);
+        for (String name : dataManager.getVisiblePointNames()) {
+            Point point = dataManager.getPoint(name);
             points.add(point);
             if (name.equals(selectedLabel)) {
                 selectedPoint = point;
@@ -155,14 +197,18 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             Point point, SelectionStatus status) throws VizException {
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        RGB color = point.getColor();
         if (status == SelectionStatus.SELECTED) {
             color = GRAY;
+        } else if (color == null || !point.isColorActive()) {
+            color = getCapability(ColorableCapability.class).getColor();
         }
+
         double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
-        String label = (String) point.getUserData();
-        double[] center = descriptor.worldToPixel(new double[] { point.getX(),
-                point.getY() });
+        String label = point.getName();
+        Coordinate coordinate = point.getCoordinate();
+        double[] center = descriptor.worldToPixel(new double[] { coordinate.x,
+                coordinate.y });
 
         // Outer unfilled circle
         DrawableCircle dc = new DrawableCircle();
@@ -172,7 +218,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         dc.basics.color = color;
         dc.lineWidth = 1;
 
-        // Inner filled cicle
+        // Inner filled circle
         DrawableCircle dfc = new DrawableCircle();
         dfc.basics.x = center[0];
         dfc.basics.y = center[1];
@@ -186,21 +232,23 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
 
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
+
+        int fontSize = point.getFontSize().getFontSize();
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
+        Integer fontKey = fontSize;
+        IFont font = fonts.get(fontKey);
+
         if (font == null) {
-            float defaultSize = target.getDefaultFont().getFontSize();
-            font = target.initializeFont(target.getDefaultFont().getFontName(),
-                    (float) (defaultSize * magnification), target
-                            .getDefaultFont().getStyle());
+            font = target.getDefaultFont().deriveWithSize(
+                    (float) (fontSize * magnification));
+            fonts.put(fontKey, font);
         }
 
         DrawableString parameters = new DrawableString(label, color);
         parameters.font = font;
         parameters.setCoordinates(labelLoc[0], labelLoc[1]);
-        // parameters.magnification = magnification; // magnification handled by
-        // // font
         target.drawStrings(parameters);
     }
 
@@ -209,12 +257,59 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         return DEFAULT_NAME;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.cmenu.IContextMenuContributor#addContextMenuItems
+     * (org.eclipse.jface.action.IMenuManager, int, int)
+     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
-        if (isEditable() && selectedObject != null) {
-            menuManager.add(deleteElementAction);
-            menuManager.add(moveElementAction);
+        if (isEditable()) {
+            selectedObject = null;
+            selectObjectAtMouse(x, y, -1);
+            if (selectedObject != null) {
+                menuManager.add(editElementAction);
+                menuManager.add(hideElementAction);
+                menuManager.add(deleteElementAction);
+                if (selectedObject.isMovable()) {
+                    menuManager.add(moveElementAction);
+                }
+            } else {
+                menuManager.add(createElementAction);
+            }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
+     * .uf.common.geospatial.ReferencedCoordinate)
+     */
+    @Override
+    public String inspect(ReferencedCoordinate coord) throws VizException {
+        if (isEditable()) {
+            Coordinate point = null;
+            IDisplayPaneContainer container = getResourceContainer();
+            try {
+                double[] pixelLoc = container.translateInverseClick(coord
+                        .asLatLon());
+                point = new Coordinate(pixelLoc[0], pixelLoc[1]);
+            } catch (TransformException e) {
+                throw new VizException(e.getMessage());
+            } catch (FactoryException e) {
+                throw new VizException(e.getMessage());
+            }
+            for (Point object : objects) {
+                if (isClicked(getResourceContainer(), point, object)) {
+                    return object.getName() + " Movable: " + object.isMovable();
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -223,15 +318,23 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         issueRefresh();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.awipstools.ui.layer.AbstractMovableToolLayer#isClicked
+     * (com.raytheon.uf.viz.core.IDisplayPaneContainer,
+     * com.vividsolutions.jts.geom.Coordinate, java.lang.Object)
+     */
     @Override
     protected boolean isClicked(IDisplayPaneContainer container,
             Coordinate mouseLoc, Point point) {
         endpointClicked = false;
         double[] pixelLoc = container.translateInverseClick(point
                 .getCoordinate());
-        Point pixelPoint = gf.createPoint(new Coordinate(pixelLoc[0],
-                pixelLoc[1]));
-        Point clickPoint = gf.createPoint(mouseLoc);
+        com.vividsolutions.jts.geom.Point pixelPoint = gf
+                .createPoint(new Coordinate(pixelLoc[0], pixelLoc[1]));
+        com.vividsolutions.jts.geom.Point clickPoint = gf.createPoint(mouseLoc);
         if (pixelPoint.isWithinDistance(clickPoint, MAGIC_CLICK_DISTANCE)) {
             endpointClicked = true;
             return true;
@@ -242,28 +345,31 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
 
     @Override
     protected Point makeLive(Point object) {
-        return (Point) object.clone();
+        return new Point(object);
     }
 
     @Override
     protected Point move(Coordinate lastClickedCoordinate, Coordinate clickLoc,
             Point point) {
-        if (clickLoc == null) {
-            clickLoc = lastClickedCoordinate;
-            // Get The Current Coordinates Of The "Point".
-            lastClickedCoordinate = this.dataManager.getPoint(point
-                    .getUserData().toString());
-        }
+        if (point.isMovable()) {
+            if (clickLoc == null) {
+                clickLoc = lastClickedCoordinate;
+                // Get The Current Coordinates Of The "Point".
+                lastClickedCoordinate = this.dataManager.getCoordinate(point
+                        .getName());
+            }
 
-        Point newPoint = gf.createPoint(clickLoc);
-        newPoint.setUserData(point.getUserData());
-        return newPoint;
+            Point newPoint = new Point(point);
+            newPoint.setCoordinate(clickLoc);
+            return newPoint;
+        }
+        return point;
     }
 
     @Override
     protected void save(Point oldPoint, Point point) {
-        String label = (String) point.getUserData();
-        dataManager.setPoint(label, point.getCoordinate());
+        String label = point.getName();
+        dataManager.setCoordinate(label, point.getCoordinate());
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
     }
 
@@ -271,12 +377,81 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.CAPABILITY) {
             if (object instanceof MagnificationCapability) {
-                if (font != null) {
+                for (IFont font : fonts.values()) {
                     font.dispose();
-                    font = null;
                 }
+                fonts.clear();
             }
         }
         this.issueRefresh();
+    }
+
+    public void addPoint(Point point) {
+        if (point != null) {
+            dataManager.addPoint(point);
+        }
+    }
+
+    public void hidePoint(Point point) {
+        if (point != null) {
+            point.setHidden(true);
+            dataManager.addPoint(point);
+        }
+    }
+
+    public void deletePoint(Point point) {
+        if (point != null) {
+            MessageBox d = new MessageBox(getResourceContainer()
+                    .getActiveDisplayPane().getDisplay().getActiveShell(),
+                    SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
+            if (point.isGroup()) {
+                d.setMessage("Click OK to delete the group:\n"
+                        + point.getGroup()
+                        + "\nand all points and sub-groups\nit contains.");
+            } else {
+                d.setMessage("Click OK to delete point " + point.getName()
+                        + "?");
+            }
+            int status = d.open();
+            if (status == SWT.OK) {
+                dataManager.deletePoint(point);
+            }
+        }
+    }
+
+    public void editPoint(Point point) {
+        Point em = PointEditDialog.editPointViaDialog(this, point);
+        if (em != null) {
+            dataManager.addPoint(em);
+        }
+    }
+
+    private void createPoint() {
+        Point point = new Point("", lastMouseLoc.y, lastMouseLoc.x, false,
+                true, false, new RGB(0, 0, 0), "");
+
+        Point em = PointEditDialog.createNewPointViaDialog(this, point);
+        if (em != null) {
+            dataManager.addPoint(em);
+        }
+    }
+
+    /**
+     * This is used to change everything on the point except for its unique
+     * name. This throws an exception if the point does not exist.
+     * 
+     * @param point
+     * @throws PointNameChangeException
+     */
+    public void updatePoint(Point point) throws PointNameChangeException {
+        dataManager.updatePoint(point);
+    }
+
+    public void updateChildrenHidden(IPointNode node, boolean state) {
+        dataManager.updateChildrenHidden(node, state);
+    }
+
+    public void updateChildrenMovable(IPointNode node, boolean state) {
+        dataManager.updateChildrenMovable(node, state);
     }
 }
