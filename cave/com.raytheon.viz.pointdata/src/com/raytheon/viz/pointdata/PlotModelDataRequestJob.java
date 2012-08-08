@@ -145,6 +145,9 @@ public class PlotModelDataRequestJob extends Job {
             // TODO need to determine if this type of plot is a combination or
             // not
             combineData(stationQuery);
+            if (monitor.isCanceled()) {
+                break;
+            }
 
             for (PlotInfo[] infos : stationQuery) {
                 // schedule next work for other jobs
@@ -341,8 +344,12 @@ public class PlotModelDataRequestJob extends Job {
 
     public void shutdown() {
         this.cancel();
+        try {
+            join();
+        } catch (InterruptedException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         this.generatorJob.shutdown();
-        this.generatorJob.clearImageCache();
     }
 
 }
