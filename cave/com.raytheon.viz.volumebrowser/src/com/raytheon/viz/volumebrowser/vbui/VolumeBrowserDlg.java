@@ -33,7 +33,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Event;
@@ -49,11 +48,13 @@ import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
+import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.core.slice.request.HeightScales;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.PointsMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
@@ -66,6 +67,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2009 #2161      lvenable     Initial creation
+ * Jul 21, 2012 #875       rferrel     Now uses points.
  * 
  * </pre>
  * 
@@ -805,31 +807,62 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         // Create the "Points" menu
         // -------------------------------------
         pointsMI = new MenuItem(menuBar, SWT.CASCADE);
-        pointsMI.setText(PointsMenu.POINT_A.displayString);
-        pointsMI.setData(PointsMenu.POINT_A);
 
-        // Create the "Points" menu item
         Menu pntsMenu = new Menu(menuBar);
         pointsMI.setMenu(pntsMenu);
+        IPointNode firstPoint = populatePointsMenu(pntsMenu, null);
+        pointsMI.setText("Point " + firstPoint.getName());
+        pointsMI.setData(firstPoint);
 
-        for (PointsMenu pointsItem : PointsMenu.values()) {
-            final MenuItem menuItem = new MenuItem(pntsMenu, SWT.NONE);
-            menuItem.setText(pointsItem.displayString);
-            menuItem.setData(pointsItem);
-            menuItem.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    MenuItem mi = (MenuItem) event.getSource();
-                    updateMenu(mi);
-                    dialogSettings.setPointsSelection(mi);
-                    getProductTable().clearProductTable();
-                    listTableComp.addProductsToTable();
-                    listTableComp.updateMenuInventory();
+        dialogSettings.setPointsSelection((Point) pointsMI.getData());
+    }
+
+    /**
+     * Place in a menu the children of a node. When a child of the node is a
+     * group create a menu for it and populate it.
+     * 
+     * @param pntsMenu
+     *            - the menu to add items to
+     * @param node
+     *            - add the children of this node (may be null)
+     * @return firstPoint
+     */
+    private IPointNode populatePointsMenu(Menu pntsMenu, IPointNode node) {
+        IPointNode firstPoint = null;
+        IPointNode point = null;
+        for (IPointNode child : PointsDataManager.getInstance().getChildren(
+                node)) {
+            if (child.isGroup()) {
+                if (PointsDataManager.getInstance().getChildren(child).size() > 0) {
+                    MenuItem menuItem = new MenuItem(pntsMenu, SWT.CASCADE);
+                    menuItem.setText(child.getName());
+                    menuItem.setData(child);
+                    Menu nodeMenu = new Menu(pntsMenu);
+                    menuItem.setMenu(nodeMenu);
+                    point = populatePointsMenu(nodeMenu, child);
                 }
-            });
+            } else {
+                point = child;
+                final MenuItem menuItem = new MenuItem(pntsMenu, SWT.NONE);
+                menuItem.setText("Point " + child.getName());
+                menuItem.setData(child);
+                menuItem.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent event) {
+                        MenuItem mi = (MenuItem) event.getSource();
+                        updateMenu(mi);
+                        dialogSettings.setPointsSelection(mi);
+                        getProductTable().clearProductTable();
+                        listTableComp.addProductsToTable();
+                        listTableComp.updateMenuInventory();
+                    }
+                });
+            }
+            if (firstPoint == null) {
+                firstPoint = point;
+            }
         }
-
-        dialogSettings.setPointsSelection((PointsMenu) pointsMI.getData());
+        return firstPoint;
     }
 
     /**
@@ -844,10 +877,15 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             System.out.println("Data is null");
         }
 
+        Menu menu = mi.getParent();
+        while (menu.getParentMenu() != menuBar) {
+            menu = menu.getParentMenu();
+        }
+
         // Change the text of the menu item in the menu bar.
         // Set the data of the menu item in the menu bar.
-        mi.getParent().getParentItem().setText(mi.getText());
-        mi.getParent().getParentItem().setData(mi.getData());
+        menu.getParentItem().setText(mi.getText());
+        menu.getParentItem().setData(mi.getData());
     }
 
     /**
@@ -857,8 +895,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
      *            Flag indicating the shell must be packed.
      */
     private void updateToolbarMenus(boolean packShellFlag) {
-        shell.setMinimumSize(new Point(10, 10));
-        shell.setSize(new Point(10, 10));
+        shell.setMinimumSize(new org.eclipse.swt.graphics.Point(10, 10));
+        shell.setSize(new org.eclipse.swt.graphics.Point(10, 10));
 
         ViewMenu setting = (ViewMenu) settingsMI.getData();
         SpaceTimeMenu spaceTime = null;
