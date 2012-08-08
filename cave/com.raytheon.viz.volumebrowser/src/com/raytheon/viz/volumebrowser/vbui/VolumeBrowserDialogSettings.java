@@ -21,14 +21,15 @@ package com.raytheon.viz.volumebrowser.vbui;
 
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.PointsMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
- * TODO Add Description
+ * This is a container class to keep the various values used for the dialog.
  * 
  * <pre>
  * 
@@ -36,6 +37,7 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2010            jelkins     Initial creation
+ * Jul 31, 2012 #875       rferrel     Now uses markers.
  * 
  * </pre>
  * 
@@ -51,7 +53,7 @@ public class VolumeBrowserDialogSettings {
 
     private LeftRightMenu timeDirectionSelection;
 
-    private PointsMenu pointsSelection;
+    private IPointNode pointsSelection;
 
     private HeightScale heightScale;
 
@@ -98,11 +100,11 @@ public class VolumeBrowserDialogSettings {
         return timeDirectionSelection;
     }
 
-    public void setPointsSelection(PointsMenu pointsSelection) {
+    public void setPointsSelection(IPointNode pointsSelection) {
         this.pointsSelection = pointsSelection;
     }
 
-    public PointsMenu getPointsSelection() {
+    public IPointNode getPointsSelection() {
         return pointsSelection;
     }
 
@@ -114,7 +116,7 @@ public class VolumeBrowserDialogSettings {
      * @param event
      */
     public void setPointsSelection(MenuItem mi) {
-        pointsSelection = getSelectionData(PointsMenu.class, mi);
+        pointsSelection = getSelectionData(Point.class, mi);
     }
 
     /**
