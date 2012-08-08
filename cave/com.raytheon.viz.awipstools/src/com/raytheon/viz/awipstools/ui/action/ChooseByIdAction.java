@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.tools.map.AbstractMapTool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06Dec2007    #576        Eric Babin Initial Creation
+ * 31Jul2012    #875       rferrel     Added checks for disposed dialgos.
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class ChooseByIdAction extends AbstractMapTool {
         super.execute(arg0);
 
         if (editor.getActiveDisplayPane().getDescriptor() instanceof MapDescriptor) {
-            if (chooseByIdDialog == null) {
+            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
                 chooseByIdDialog = new ChooseByIdDialog(PlatformUI
                         .getWorkbench().getActiveWorkbenchWindow().getShell());
 
@@ -124,7 +125,7 @@ public class ChooseByIdAction extends AbstractMapTool {
             AbstractEditor mapEditor = UiUtil.createOrOpenEditor(
                     VizMapEditor.EDITOR_ID, display);
 
-            if (chooseByIdDialog == null) {
+            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
                 chooseByIdDialog = new ChooseByIdDialog(PlatformUI
                         .getWorkbench().getActiveWorkbenchWindow().getShell());
                 chooseByIdDialog.setHomeResource(getResource(
