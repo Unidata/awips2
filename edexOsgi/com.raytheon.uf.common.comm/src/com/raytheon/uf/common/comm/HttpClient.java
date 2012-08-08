@@ -520,6 +520,7 @@ public class HttpClient {
     private void postStreamingEntity(String address, AbstractHttpEntity entity,
             IStreamHandler handlerCallback) throws CommunicationException {
         HttpPost put = new HttpPost(address);
+        put.setEntity(entity);
         HttpClientResponse resp = process(put, handlerCallback);
         checkStatusCode(resp);
     }
