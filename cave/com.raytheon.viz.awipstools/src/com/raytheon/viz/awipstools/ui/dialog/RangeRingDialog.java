@@ -26,6 +26,7 @@ import java.util.Collection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
@@ -39,6 +40,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
@@ -48,10 +51,12 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.RangeRing;
 import com.raytheon.viz.awipstools.common.RangeRing.RangeRingType;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.widgets.MenuButton;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -64,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  10-21-09     #732       bsteffen   Fixed Many issues
  *  07-11-12     #875       rferrel    Bug fix for check box on
  *                                      unapplied points.
+ *  07-31-12     #875       rferrel    Use MenuButton to show points in groups.
  * 
  * </pre>
  * 
@@ -143,6 +149,8 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
     private Collection<MovableRingRow> movableRings = new ArrayList<MovableRingRow>();
 
+    private int rowIdWidth = SWT.DEFAULT;
+
     public Widget lastActiveWidget;
 
     private FocusListener lastActiveListener = new FocusListener() {
@@ -199,7 +207,10 @@ public class RangeRingDialog extends CaveJFACEDialog implements
     }
 
     private void createFixedRingsComposite(Composite topComposite) {
+        GridData gd = null;
         new Label(topComposite, SWT.NONE).setText("Fixed Rings");
+        gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        topComposite.setLayoutData(gd);
         fixedRingsComposite = new Composite(topComposite, SWT.BORDER);
         fixedRingsComposite.setLayoutData(new GridData(
                 GridData.HORIZONTAL_ALIGN_FILL));
@@ -238,40 +249,59 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         createComposite.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER,
                 true, true, 1, 1));
         new Label(createComposite, SWT.NONE).setText("New at: ");
-        Combo combo = new Combo(createComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-        Collection<String> points = pointsDataManager.getPointNames();
+
+        MenuButton menuButton = new MenuButton(createComposite);
+        Menu menu = new Menu(menuButton);
+        MenuItem mi0 = new MenuItem(menu, SWT.PUSH);
+        mi0.setText("Select One");
+
         ArrayList<String> items = new ArrayList<String>();
-        items.add(LATLON);
-        for (String point : points) {
-            items.add("Point " + point);
-        }
+
+        // Determine rings to place at the top of the menu.
         Collection<RangeRing> rangeRings = toolsDataManager.getRangeRings();
         for (RangeRing ring : rangeRings) {
             if (ring.getType() == RangeRingType.FIXED) {
                 items.add(ring.getId());
-            } else {
+            }
+        }
+        items.add(LATLON);
+        String[] itemsArray = items.toArray(new String[items.size()]);
+        Arrays.sort(itemsArray);
+        MenuItem mi = null;
+        for (String item : itemsArray) {
+            mi = new MenuItem(menu, SWT.PUSH);
+            mi.setText(item);
+        }
+        mi = new MenuItem(menu, SWT.SEPARATOR);
+
+        // Now add in the points organized in groups.
+        menuButton.setMinimumSize(SWT.DEFAULT, SWT.DEFAULT);
+        populatePoints(menu, null);
+
+        menuButton.setMenu(menu);
+        menuButton.setSelectedItem(mi0);
+
+        // Determine the maximum row.id's width
+        rowIdWidth = menuButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+
+        for (RangeRing ring : rangeRings) {
+            if (ring.getType() != RangeRingType.FIXED) {
                 MovableRingRow row = getNewMovableRow();
                 fillMovableRow(row, ring);
             }
         }
-        String[] itemsArray = items.toArray(new String[items.size()]);
-        Arrays.sort(itemsArray);
-        combo.setItems(itemsArray);
-        combo.add("Select One", 0);
-        combo.select(0);
-        combo.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                widgetSelected(e);
-            }
+
+        menuButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Combo combo = (Combo) e.widget;
-                addMovableRing(combo.getText());
-                ((Combo) e.widget).select(0);
+                MenuButton menuButton = (MenuButton) e.widget;
+                MenuItem mi = menuButton.getSelectedItem();
+                addMovableRing(mi.getText());
+                menuButton.setSelectedItem("Select One");
             }
         });
+
         Button delete = new Button(createComposite, SWT.PUSH);
         delete.setText("Delete");
         delete.addListener(SWT.Selection, new Listener() {
@@ -279,6 +309,23 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 deleteMovableRing();
             }
         });
+    }
+
+    private void populatePoints(Menu menu, IPointNode root) {
+        for (IPointNode node : pointsDataManager.getChildren(root)) {
+            if (!node.isGroup()) {
+                MenuItem mi = new MenuItem(menu, SWT.PUSH);
+                mi.setText("Point " + node.getName());
+                mi.setData(node);
+            } else {
+                if (pointsDataManager.getChildren(node).size() > 0) {
+                    MenuItem mi = new MenuItem(menu, SWT.CASCADE);
+                    mi.setText(node.getName());
+                    mi.setMenu(new Menu(menu));
+                    populatePoints(mi.getMenu(), node);
+                }
+            }
+        }
     }
 
     private void addMovableRing(String selection) {
@@ -298,24 +345,21 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             }
             row.id.setText(id);
         } else {
-            Collection<String> points = pointsDataManager.getPointNames();
-            String selectedPoint = null;
-            for (String point : points) {
-                if (selection.equals("Point " + point)) {
-                    selectedPoint = point;
-                    break;
-                }
+            Coordinate loc = null;
+            if (selection.startsWith("Point ")) {
+                String selectedPoint = selection.substring("Point ".length());
+                loc = pointsDataManager.getCoordinate(selectedPoint);
             }
-            if (selectedPoint != null) {
+
+            if (loc != null) {
                 row.id.setText(selection);
-                Coordinate loc = pointsDataManager.getPoint(selectedPoint);
                 row.lon.setText(String.valueOf(loc.x));
                 row.lat.setText(String.valueOf(loc.y));
             } else {
                 for (FixedRingRow fixedRow : fixedRings) {
                     if (fixedRow.ring.getId().equals(selection)) {
                         row.id.setText(selection);
-                        Coordinate loc = fixedRow.ring.getCenterCoordinate();
+                        loc = fixedRow.ring.getCenterCoordinate();
                         row.lon.setText(String.valueOf(loc.x));
                         row.lat.setText(String.valueOf(loc.y));
                         break;
@@ -358,15 +402,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
     private MovableRingRow getNewMovableRow() {
         final MovableRingRow row = new MovableRingRow();
         int width6 = convertWidthInCharsToPixels(6);
-        int width8 = convertWidthInCharsToPixels(8);
         int height = convertHeightInCharsToPixels(1);
         row.enabled = new Button(movableRingsComposite, SWT.CHECK);
-        row.enabled.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                widgetSelected(e);
-            }
-
+        row.enabled.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (row.ring != null) {
@@ -374,12 +412,27 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 }
             }
         });
+
+        GridData gd = null;
         row.id = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.id.setLayoutData(new GridData(width8, height));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd.minimumHeight = height;
+        gd.minimumWidth = rowIdWidth;
+        row.id.setLayoutData(gd);
         row.lat = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.lat.setLayoutData(new GridData(width8, height));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd.minimumHeight = height;
+        row.lat.setLayoutData(gd);
+        row.lat.setText("-999.000000");
+        int width = row.lat.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        row.lat.setText("");
+        gd.minimumWidth = width;
+        row.lat.setLayoutData(gd);
         row.lon = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.lon.setLayoutData(new GridData(width8, height));
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd.minimumHeight = height;
+        gd.minimumWidth = width;
+        row.lon.setLayoutData(gd);
         row.radius = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
         row.radius.setLayoutData(new GridData(width6, height));
         row.label = new Combo(movableRingsComposite, SWT.DROP_DOWN

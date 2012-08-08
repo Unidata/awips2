@@ -35,8 +35,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -83,7 +81,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
- * TODO Add Description
+ * Dialog for selecting points
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -93,6 +91,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 23Jul2010    #5948      bkowal      Added the ability to move
  *                                     a point to the location of a
  *                                     &quot;mesocyclone&quot;.
+ * 31Jul2012    #875       rferrel     Let preopen initialize components.
  * 
  * </pre>
  * 
@@ -194,7 +193,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         }
 
         private boolean isPoint() {
-            return (!isBaseline && PointsDataManager.getInstance().getPoint(
+            return (!isBaseline && PointsDataManager.getInstance().getCoordinate(
                     idName) != null);
         }
 
@@ -308,7 +307,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         private void updatePosition(List<Coordinate> stationCoordinates) {
 
             if (isPoint()) {
-                PointsDataManager.getInstance().setPoint(idName,
+                PointsDataManager.getInstance().setCoordinate(idName,
                         stationCoordinates.get(0));
                 refreshToolLayer(pointsToolLayer);
 
@@ -521,7 +520,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
             } else if (isPoint()) {
                 Coordinate pointCoordinate = PointsDataManager.getInstance()
-                        .getPoint(idName);
+                        .getCoordinate(idName);
 
                 stationLocationHasChanged = (!pointCoordinate
                         .equals(stationCoordinates.get(0)));
@@ -584,17 +583,6 @@ public class ChooseByIdDialog extends CaveSWTDialog {
             }
         });
 
-        // closing the dialog doesn't really close it
-        shell.addShellListener(new ShellAdapter() {
-
-            @Override
-            public void shellClosed(ShellEvent e) {
-                ChooseByIdDialog.this.shell.setVisible(false);
-                e.doit = false;
-            }
-
-        });
-
         // remove registered listeners when closing the dialog
         shell.addDisposeListener(new DisposeListener() {
 
@@ -603,9 +591,6 @@ public class ChooseByIdDialog extends CaveSWTDialog {
                 unregisterListeners();
             }
         });
-
-        // Initialize all of the menus, controls, and layouts
-        initializeComponents();
 
         shell.pack();
         shell.setMinimumSize(new Point(340, 570));
@@ -669,6 +654,13 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
             baselineStationIdTextFields.add(text2);
         }
+    }
+
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        initializeComponents();
+        shell.pack();
     }
 
     private void createBottomBar() {

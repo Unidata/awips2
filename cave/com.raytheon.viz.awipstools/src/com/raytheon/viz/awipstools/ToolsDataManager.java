@@ -74,9 +74,7 @@ import com.vividsolutions.jts.geom.LineString;
 
 /**
  * A Single class responsible for generating, storing, and loading any data used
- * by various tools. This includes baselines, points, home, range rings, and
- * distance bearings. The home is also managed in localization preferences,
- * however the two should match.
+ * by various tools. This includes baselines, range rings and distance bearings.
  * 
  * <pre>
  * 

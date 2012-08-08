@@ -19,10 +19,14 @@
  ******************************************************************************************/
 package com.raytheon.viz.awipstools;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -35,12 +39,15 @@ import com.raytheon.uf.viz.core.rsc.IPointsToolContainer;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
+import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * TODO Add Description
+ * This class generates the alternate bundle's contributions for points and
+ * lines.
  * 
  * <pre>
  * 
@@ -49,7 +56,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
- * Jul 11, 2012 #875       rferrel     Bug fix.
+ * Aug 08, 2012 #875       rferrel     Generate menu entries for points.
  * 
  * 
  * </pre>
@@ -98,10 +105,12 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
         Arrays.sort(points);
 
-        String[] pointsValues = new String[points.length + 2];
-        pointsValues[0] = ProcedureDlg.ORIGINAL;
-        pointsValues[1] = ProcedureDlg.CURRENT;
-        System.arraycopy(points, 0, pointsValues, 2, points.length);
+        List<String> pointsList = new ArrayList<String>();
+        pointsList.add(ProcedureDlg.ORIGINAL);
+        pointsList.add(ProcedureDlg.CURRENT);
+        pointsList.add(IAlterBundleContributor.MI_SEPARATOR);
+        pointsList.addAll(createChildrenList(pdm, null));
+        String[] pointsValues = pointsList.toArray(new String[0]);
 
         String[] linesValues = new String[lines.length + 2];
         linesValues[0] = ProcedureDlg.ORIGINAL;
@@ -112,6 +121,32 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         alterables.put(POINTS_KEY, pointsValues);
 
         return alterables;
+    }
+
+    private final static Pattern pat = Pattern.compile(File.separator + "+");
+
+    private List<String> createChildrenList(PointsDataManager pdm,
+            IPointNode parent) {
+        List<String> childrenList = new ArrayList<String>();
+        for (IPointNode node : pdm.getChildren(parent)) {
+            if (node.isGroup()) {
+                String value = node.getGroup().replace(
+                        PointUtilities.DELIM_CHAR, ' ')
+                        + File.separator;
+                value = pat.matcher(value).replaceAll(
+                        IAlterBundleContributor.MENU_SEPARATOR);
+                childrenList.add(value);
+                childrenList.addAll(createChildrenList(pdm, node));
+            } else {
+                String value = (node.getGroup() + File.separator
+                        + POINTS_PREFIX + node.getName()).replace(
+                        PointUtilities.DELIM_CHAR, ' ');
+                value = pat.matcher(value).replaceAll(
+                        IAlterBundleContributor.MENU_SEPARATOR);
+                childrenList.add(value);
+            }
+        }
+        return childrenList;
     }
 
     /*
@@ -200,7 +235,7 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
      */
     private void alterContainer(IPointsToolContainer container,
             String selectedString) {
-        Coordinate point = PointsDataManager.getInstance().getPoint(
+        Coordinate point = PointsDataManager.getInstance().getCoordinate(
                 selectedString);
         container.setPointCoordinate(point);
         container.setPointLetter(selectedString);
