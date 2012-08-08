@@ -6,6 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.ui.menus.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.volumebrowser
+Eclipse-BuddyPolicy: registered
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.expressions,

@@ -21,8 +21,8 @@ package com.raytheon.viz.volumebrowser.vbui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +51,11 @@ import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
+import com.raytheon.uf.common.menus.xml.CommonMenuContribution;
+import com.raytheon.uf.common.menus.xml.CommonSubmenuContribution;
+import com.raytheon.uf.common.menus.xml.CommonTitleContribution;
+import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -58,6 +63,8 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
 import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
@@ -82,6 +89,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2009 #2161      lvenable     Initial creation
+ * Jul 31, 2012 #875       rferrel     Now uses markers.
  * 
  * </pre>
  * 
@@ -828,17 +836,26 @@ public class DataListsProdTableComp extends Composite implements
             tbContrib.xml.toolItemText = "Points";
             tbContrib.xml.id = "SoundingPointsButton";
             List<IContributionItem> items = new ArrayList<IContributionItem>();
-            List<String> points = new ArrayList<String>(PointsDataManager
-                    .getInstance().getPointNames());
-            Collections.sort(points);
-            for (String point : points) {
-                MenuContribution mContrib = new MenuContribution();
-                mContrib.xml.key = "Point" + point;
-                mContrib.xml.menuText = pointDisplayString + " " + point;
-                items.add(new MenuContributionItem(mContrib));
+
+            List<IPointNode> children = PointsDataManager.getInstance()
+                    .getChildren(null);
+
+            for (IPointNode child : children) {
+                if (child.isGroup()) {
+                    IContributionItem item = createSubmenuContributionItem(
+                            child, pointDisplayString);
+                    items.add(item);
+                } else {
+                    MenuContribution mContrib = new MenuContribution();
+                    mContrib.xml.key = "Point" + child.getName();
+                    mContrib.xml.menuText = pointDisplayString + " "
+                            + child.getName();
+                    items.add(new MenuContributionItem(mContrib));
+                }
             }
-            planeControl.toolbar.add(new ToolBarContributionItem(tbContrib,
-                    items.toArray(new IContributionItem[0])));
+            planeControl.toolbar.add(new PointToolAction("Points",
+                    pointDisplayString));
+
         }
 
         try {
@@ -846,6 +863,68 @@ public class DataListsProdTableComp extends Composite implements
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param parent
+     * @param pointDisplayString
+     * @return
+     */
+    private SubmenuContributionItem createSubmenuContributionItem(
+            IPointNode parent, String pointDisplayString) {
+        List<CommonAbstractMenuContribution> items = new ArrayList<CommonAbstractMenuContribution>();
+        List<IPointNode> children = PointsDataManager.getInstance()
+                .getChildren(parent);
+        for (IPointNode child : children) {
+            if (child.isGroup()) {
+                CommonSubmenuContribution submenu = new CommonSubmenuContribution();
+                submenu.menuText = child.getName();
+                submenu.id = child.getName();
+                submenu.contributions = createContributions(child,
+                        pointDisplayString);
+                items.add(submenu);
+            } else {
+                CommonMenuContribution menuCont = new CommonMenuContribution();
+                menuCont.key = "Point" + child.getName();
+                menuCont.menuText = pointDisplayString + " " + child.getName();
+                menuCont.id = child.getName();
+                items.add(menuCont);
+            }
+        }
+        SubmenuContributionItem item = new SubmenuContributionItem(
+                new VariableSubstitution[0], parent.getName(),
+                items.toArray(new CommonAbstractMenuContribution[0]),
+                new HashSet<String>());
+        return item;
+    }
+
+    private CommonAbstractMenuContribution[] createContributions(
+            IPointNode parent, String pointDisplayString) {
+        List<IPointNode> children = PointsDataManager.getInstance()
+                .getChildren(parent);
+
+        CommonAbstractMenuContribution[] contributions = new CommonAbstractMenuContribution[children
+                .size()];
+
+        int index = 0;
+        for (IPointNode child : children) {
+            CommonTitleContribution contribution = new CommonTitleContribution();
+            if (child.isGroup()) {
+                CommonSubmenuContribution submenu = new CommonSubmenuContribution();
+                submenu.menuText = child.getName();
+                submenu.id = child.getName();
+                submenu.contributions = createContributions(child,
+                        pointDisplayString);
+            } else {
+                contribution.titleText = pointDisplayString + " "
+                        + child.getName();
+                contribution.id = child.getName();
+                CommonMenuContribution menuCont = new CommonMenuContribution();
+            }
+            contributions[index] = contribution;
+            ++index;
+        }
+        return contributions;
     }
 
     /**
