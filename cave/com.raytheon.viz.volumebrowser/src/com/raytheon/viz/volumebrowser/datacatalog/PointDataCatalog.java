@@ -182,7 +182,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected SurfaceObsLocation getClosestStation(Coordinate coordinate,
             String sourceKey, Collection<String> ignore) {
         SurfaceObsLocation[] availableStations = getStationLocations(sourceKey);
-        if (availableStations == null || availableStations.length == 0) {
+        if (availableStations == null || availableStations.length == 0
+                || coordinate == null) {
             return null;
         }
 
@@ -451,7 +452,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                     .setPointCoordinate(closestCoord);
 
             String pointLetter = getPointLetter(catalogEntry);
-            PointsDataManager.getInstance().setPoint(pointLetter, closestCoord);
+            PointsDataManager.getInstance().setCoordinate(pointLetter,
+                    closestCoord);
             return resourceData;
         case CROSS_SECTION:
             resourceData = super.getResourceData(catalogEntry, resourceType);
@@ -538,9 +540,9 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         if (viewSelection == ViewMenu.PLANVIEW) {
             ;//
         } else if (viewSelection == ViewMenu.TIMESERIES) {
-            pointLetters.add(VolumeBrowserAction.getVolumeBrowserDlg()
-                    .getDialogSettings().getPointsSelection().toString()
-                    .replace("POINT_", ""));
+            String name = VolumeBrowserAction.getVolumeBrowserDlg()
+                    .getDialogSettings().getPointsSelection().getName();
+            pointLetters.add(name);
         } else {
             if (planes == null) {
                 return null;
@@ -570,7 +572,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 continue;
             }
             for (String letter : pointLetters) {
-                Coordinate c = PointsDataManager.getInstance().getPoint(letter);
+                Coordinate c = PointsDataManager.getInstance().getCoordinate(
+                        letter);
                 if (getClosestStation(c, source) != null) {
                     fileredSources.add(source);
                     break;
@@ -610,7 +613,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         Set<String> validPlanes = new HashSet<String>(sources.size());
         for (String source : sources) {
             for (String letter : pdm.getPointNames()) {
-                Coordinate c = pdm.getPoint(letter);
+                Coordinate c = pdm.getCoordinate(letter);
                 if (getClosestStation(c, source) != null) {
                     validPlanes.add("Point" + letter);
                 }

@@ -30,6 +30,7 @@ import java.util.Map;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 4, 2010            mschenke     Initial creation
+ * Aug 8, 2012  875        rferrel     Add separators for menu support.
  * 
  * </pre>
  * 
@@ -38,6 +39,35 @@ import java.util.Map;
  */
 
 public interface IAlterBundleContributor {
+
+    /**
+     * Used to separate menu from entries. This string can not be part of any
+     * name. An entry ending with this separator indicates a sub-menu. Entries
+     * not ending with the separator are menu items added to the desired menu.
+     * The top menu should always be created. Submenus should be create prior to
+     * adding entries to them. Entries should be displayed in menus in the order
+     * they are listed. Examples:
+     * 
+     * <pre>
+     * D2D->                  -- this is a sub-menu off the top menu named: D2D
+     * Original Contributions -- A menu item placed in the main menu.
+     * D2D->Point A           -- A menu item placed in the sub menu  name: Point A
+     * ->D2D->alt->           -- A sub-menu of D2D name: alt
+     * ->D2D->alt->Alt A      -- A menu item for the above sub-menu name: Alt A
+     * </pre>
+     */
+    public final static String MENU_SEPARATOR = "->";
+
+    /**
+     * When this is the menu item's name a menu item separator entry is
+     * generated in the desired menu. Examples:
+     * 
+     * <pre>
+     * <>            -- Place a menu item separator in the main menu.
+     * D2D-><>       -- Place a menu item separator in the D2D sub-menu
+     * </pre>
+     */
+    public final static String MI_SEPARATOR = "<>";
 
     /**
      * Get a mapping of key to alternate values for the key
