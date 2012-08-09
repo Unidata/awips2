@@ -47,9 +47,19 @@ class RefTimePointDataRetrieve(PointDataRetrieve.PointDataRetrieve):
         self.pdc = PointDataContainer.PointDataContainer(pdvDict, self.__javaPdc, self.refTime)            
 
     def __queryRefTimes(self):
-        from com.raytheon.uf.viz.core.catalog import CatalogQuery                        
-        return CatalogQuery.performQuery('dataTime.refTime', self._buildConstraints(None))
-    
+        from com.raytheon.uf.common.dataquery.requests import DbQueryRequest
+        from com.raytheon.uf.viz.core.requests import ThriftClient
+        request = DbQueryRequest()
+        request.setConstraints(self._buildConstraints(None))
+        request.addRequestField('dataTime.refTime')
+        request.setOrderByField('dataTime.refTime')
+        request.setDistinct(True)
+        response = ThriftClient.sendRequest(request).getResults()
+        timeList = []
+        for i in range(0,response.size()):
+            timeList.append(response.get(i).get('dataTime.refTime'))
+        return timeList
+
     def __requestData(self, availableTimes, parameters, maxSize):
         from com.raytheon.viz.pointdata import PointDataRequest
         from java.lang import String
