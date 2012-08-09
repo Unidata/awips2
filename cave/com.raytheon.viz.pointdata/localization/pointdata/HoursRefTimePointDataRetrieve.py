@@ -41,8 +41,7 @@ class HoursRefTimePointDataRetrieve(RefTimePointDataRetrieve.RefTimePointDataRet
         super(HoursRefTimePointDataRetrieve, self).__init__(pluginName, site, parameters, keyId, refTime, constraint, maxSize)     
 
     def _createJarray(self, availableTimes, numHours):  
-        from java.util import Date, TimeZone
-        from java.sql import Timestamp
+        from java.util import Date
         from com.raytheon.uf.common.time import DataTime
         import jep, time
         #Get a DataTime numHours from current time
@@ -52,15 +51,7 @@ class HoursRefTimePointDataRetrieve(RefTimePointDataRetrieve.RefTimePointDataRet
         length = len(availableTimes)
         xdts = []
         for i in range(length) :
-            # Timestamp must be used to parse the time because it correctly handles
-            # the fractional part of seconds instead of interpreting them as
-            # milliseconds directly. for example 11.62 is
-            # interpreted as 11 seconds and 620 milliseconds instead of
-            # 11 seconds and 62 milliseconds.
-            milliTime = Timestamp.valueOf(availableTimes[length-1-i]).getTime()
-            # Timestamp parses into the default timezone so we must offset it to get GMT.
-            milliTime += TimeZone.getDefault().getOffset(milliTime)
-            d = DataTime(Date(milliTime))
+            d = DataTime(availableTimes[length-1-i])
             if d.greaterThan(stDateTime) :
                 xdts.append(d)
             else :
