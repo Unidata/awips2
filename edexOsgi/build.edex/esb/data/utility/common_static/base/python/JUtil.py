@@ -20,8 +20,9 @@
 
 
 from java.lang import Integer, Float, Long, Boolean, String
-from java.util import HashMap, ArrayList
+from java.util import HashMap, LinkedHashMap, ArrayList
 from java.util import Collections
+from collections import OrderedDict
 
 #
 # Provides convenience methods for Java-Python bridging
@@ -72,15 +73,22 @@ def javaStringMapToPyDict(javaMap):
 def javaMapToPyDict(javaMap, customConverter=None):
     keys = javaMap.keySet()
     itr = keys.iterator()
-    pyDict = {}
+    if javaMap.jclassname == "java.util.LinkedHashMap":
+        pyDict = OrderedDict()
+    else:
+        pyDict = {}
     while itr.hasNext():
         key = itr.next()
         obj = javaMap.get(key)
         pyDict[javaObjToPyVal(key)] = javaObjToPyVal(obj, customConverter)
     return pyDict
 
-def pyDictToJavaMap(pyDict):    
-    jmap = HashMap()
+def pyDictToJavaMap(pyDict):
+    if isinstance(pyDict, OrderedDict):
+        jmap = LinkedHashMap()
+    else:
+        jmap = HashMap()
+        
     for key in pyDict:   
         jmap.put(pyValToJavaObj(key), pyValToJavaObj(pyDict[key]))
     return jmap
@@ -105,7 +113,7 @@ def pyValToJavaObj(val):
         for i in val:
             tempList.add(pyValToJavaObj(i))
         retObj = Collections.unmodifiableList(tempList)
-    elif valtype is dict:
+    elif issubclass(valtype, dict):
         retObj = pyDictToJavaMap(val)
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
