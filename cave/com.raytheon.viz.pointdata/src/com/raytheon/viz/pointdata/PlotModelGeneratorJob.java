@@ -32,7 +32,6 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -119,10 +118,15 @@ public class PlotModelGeneratorJob extends Job {
                         }
                     }
                 }
-                if (monitor.isCanceled()) {
-                    break;
+                synchronized (this) {
+                    if (monitor.isCanceled()) {
+                        if(image != null){
+                            image.dispose();
+                        }
+                        break;
+                    }
+                    caller.modelGenerated(infos, image);
                 }
-                caller.modelGenerated(infos, image);
             } catch (Exception e) {
                 statusHandler.error("Error creating plot", e);
             }
@@ -153,14 +157,9 @@ public class PlotModelGeneratorJob extends Job {
         return getState() != Job.RUNNING && getState() != Job.WAITING;
     }
 
-    protected void shutdown() {
+    protected synchronized void shutdown() {
         cancel();
         taskQueue.clear();
-        try {
-            join();
-        } catch (InterruptedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
         clearImageCache();
     }
 }
