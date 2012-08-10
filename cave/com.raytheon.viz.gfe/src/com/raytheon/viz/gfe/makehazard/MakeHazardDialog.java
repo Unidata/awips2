@@ -25,14 +25,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -1000,50 +998,33 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
         List<String> groups = new ArrayList<String>(getHazardsDictionary()
                 .keySet());
-        Collections.sort(groups);
         this.currentHazardType = "";
 
         SelectionAdapter selAdapt = new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                // org.eclipse.swt.widgets.List list =
-                // (org.eclipse.swt.widgets.List) e
-                // .getSource();
-                // String[] sel = list.getSelection();
-                // if (sel.length > 0) {
-                // setHazardType(sel[0]);
-                // }
-
-                Button b = (Button) e.getSource();
-                if (b.getSelection()) {
-                    String key = b.getText();
-                    setHazardType(key);
+                org.eclipse.swt.widgets.List list = (org.eclipse.swt.widgets.List) e
+                        .getSource();
+                String[] sel = list.getSelection();
+                if (sel.length > 0) {
+                    setHazardType(sel[0]);
                 }
             }
         };
 
-        // org.eclipse.swt.widgets.List hazardGroupList = new
-        // org.eclipse.swt.widgets.List(
-        // hazardTypeGroup, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-        // | SWT.SINGLE);
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // gd.heightHint = hazardGroupList.getItemHeight() * 12
-        // + hazardGroupList.getBorderWidth();
-        // hazardGroupList.setLayoutData(gd);
-        // hazardGroupList.addSelectionListener(selAdapt);
-        // for (String k : groups) {
-        // hazardGroupList.add(k);
-        // if (k.equals(this.defaultHazardType)) {
-        // hazardGroupList.select(hazardGroupList.getItemCount() - 1);
-        // }
-        // }
-
+        org.eclipse.swt.widgets.List hazardGroupList = new org.eclipse.swt.widgets.List(
+                hazardTypeGroup, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
+                        | SWT.SINGLE);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.heightHint = hazardGroupList.getItemHeight() * 12
+                + hazardGroupList.getBorderWidth();
+        hazardGroupList.setLayoutData(gd);
+        hazardGroupList.addSelectionListener(selAdapt);
         for (String k : groups) {
-            // add a radio button control to the radioComposite
-            Button radioButton = new Button(hazardTypeGroup, SWT.RADIO);
-            radioButton.setText(k);
-            radioButton.addSelectionListener(selAdapt);
-            radioButton.setSelection(k.equals(this.defaultHazardType));
+            hazardGroupList.add(k);
+            if (k.equals(this.defaultHazardType)) {
+                hazardGroupList.select(hazardGroupList.getItemCount() - 1);
+            }
         }
 
         etnSegNumberField = new Text(etnSegNumGroup, SWT.BORDER);
@@ -1237,33 +1218,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     }
 
     private Map<String, List<String>> getHazardsDictionary() {
-        if (hazardDict == null) {
-            hazardDict = new TreeMap<String, List<String>>();
-            hazardDict.put("Winter Weather", Arrays.asList("BZ.W", "BZ.A",
-                    "BS.Y", "ZR.Y", "HS.W", "IS.W", "LE.Y", "LE.W", "LE.A",
-                    "LB.Y", "IP.Y", "IP.W", "SN.Y", "SB.Y", "WC.Y", "WC.W",
-                    "WC.A", "WS.W", "WS.A", "WW.Y"));
-            hazardDict.put("Hydrology", Arrays.asList("FF.A", "FA.A"));
-            hazardDict.put("Fire Weather", Arrays.asList("FW.A", "FW.W"));
-            hazardDict.put("Convective Watches", Arrays.asList("SV.A", "TO.A"));
-            hazardDict.put("Coastal Flood", Arrays.asList("CF.S", "LS.S",
-                    "CF.Y", "CF.W", "CF.A", "SU.Y", "SU.W", "RP.S", "LS.Y",
-                    "LS.W", "LS.A"));
-            hazardDict.put("Non-Precipitation", Arrays.asList("AF.W", "AF.Y",
-                    "AS.Y", "DU.Y", "DS.W", "EH.W", "EH.A", "EC.W", "EC.A",
-                    "FG.Y", "FZ.W", "FZ.A", "HZ.W", "HZ.A", "ZF.Y", "FR.Y",
-                    "HT.Y", "HW.W", "HW.A", "LW.Y", "SM.Y", "WI.Y"));
-            hazardDict.put("Common Marine/NPW",
-                    Arrays.asList("AF.W", "AF.Y", "FG.Y", "SM.Y"));
-            hazardDict.put("Marine", Arrays.asList("MA.S", "MH.W", "MH.Y",
-                    "BW.Y", "UP.Y", "FG.Y", "GL.A", "GL.W", "SE.A", "SE.W",
-                    "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y",
-                    "RB.Y", "SI.Y", "SM.Y", "SR.A", "SR.W"));
-            hazardDict.put("Tropical Cyclone",
-                    Arrays.asList("HU.W", "HU.A", "HU.S", "TR.W", "TR.A"));
-            hazardDict.put("Tsunami", Arrays.asList("TS.A", "TS.W"));
-        }
-
         return hazardDict;
     }
 
