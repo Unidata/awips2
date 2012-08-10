@@ -39,49 +39,54 @@ def sortHazardList(dict):
 # change the order so that the most common values your site uses are
 # near the front of each list.  The key is the menu entry on the 
 # Make Hazard dialog, the values are the key values for Hazards.
-hazardDict = {
-    'Winter Weather' : ["BZ.W", "BZ.A", "ZR.Y", 
+
+# Using OrderedDict allows you to control the order in which the 
+# Hazard Types are displayed in the dialog
+#
+from collections import OrderedDict
+hazardDict = OrderedDict([
+    ('Winter Weather', ["BZ.W", "BZ.A", "ZR.Y", 
           "IS.W", "LE.Y", "LE.W", "LE.A",
-          "WC.Y", "WC.W", "WC.A", "WS.W", "WS.A", "WW.Y"],
-    'Hydrology' : ["FF.A", "FA.A"],
-    'Fire Weather' : ["FW.A", "FW.W"],
-    'Convective Watches' : ["SV.A", "TO.A"],
-    'Coastal Flood' : ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
-          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"],
-    'Non-Precipitation' : ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
+          "WC.Y", "WC.W", "WC.A", "WS.W", "WS.A", "WW.Y"]),
+    ('Hydrology', ["FF.A", "FA.A"]),
+    ('Fire Weather', ["FW.A", "FW.W"]),
+    ('Convective Watches', ["SV.A", "TO.A"]),
+    ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
+          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"]),
+    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
           "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
           "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
-          "LW.Y", "SM.Y", "WI.Y"],
-    'Marine' : ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
+          "LW.Y", "SM.Y", "WI.Y"]),
+    ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
           "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y", 
-          "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"],
-    'Tropical Cyclone' : ["HU.W", "HU.A", "HU.S", "TR.W", "TR.A"],
-    'Tsunami' : ["TS.A", "TS.W"],
+          "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"]),
+    ('Tropical Cyclone', ["HU.W", "HU.A", "HU.S", "TR.W", "TR.A"]),
+    ('Tsunami', ["TS.A", "TS.W"]),
       
-    #'Local' : ["TEST"],  #example of adding local hazards
+    # ('Local', ["TEST"]),  #example of adding local hazards
     # you can define your own groups of hazards by adding new categories
-    }
+    ])
 
 # for GUM use comment out the above definition and uncomment the one below
 
-#hazardDict = {
-#    'Hydrology' : ["FF.A", "FA.A"],
-#    'Fire Weather' : ["FW.A", "FW.W"],
-#    'Coastal Flood' : ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
-#          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"],
-#    'Non-Precipitation' : ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
+#hazardDict = OrderedDict([
+#    ('Hydrology', ["FF.A", "FA.A"]),
+#    ('Fire Weather', ["FW.A", "FW.W"]),
+#    ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
+#          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S"]),
+#    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
 #          "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
 #          "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
-#          "LW.Y", "SM.Y", "WI.Y"],
-#    'Marine' : ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
+#          "LW.Y", "SM.Y", "WI.Y"]),
+#    ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
 #          "GL.A", "GL.W", "SE.A", "SE.W", "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y", 
-#          "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"],
-#    'Typhoon' : ["TY.A", "TY.W", "TR.A", "TR.W", "HU.S"],
-#    'Tsunami' : ["TS.A", "TS.W"],
+#          "RB.Y", "SI.Y", "MS.Y", "SR.A", "SR.W"]),
+#    ('Typhoon', ["TY.A", "TY.W", "TR.A", "TR.W", "HU.S"]),
+#    ('Tsunami', ["TS.A", "TS.W"]),
 #      
-#    #'Local' : ["TEST"],  #example of adding local hazards
+#    # ('Local', ["TEST"]),  #example of adding local hazards
 #    # you can define your own groups of hazards by adding new categories
-#    }
+#    ])
 
 
 # This function sorts the hazards in the hazardDict by description.
@@ -140,7 +145,9 @@ tcmList = []  # Comment out for HLS sites
 #tcmList = ["TCMCP1", "TCMCP2", "TCMCP3", "TCMCP4", "TCMCP5"]
 
 # Dictionary mapping Hazard Types to applicable local effect areas 
-#    that can be intersected with the zone edit areas 
+#    that can be intersected with the zone edit areas. 
+# You should not define localEffectAreas entries for Tropical Cyclone
+# or Convective Watches.
 localEffectAreas = {}
 
 #localEffectAreas = {
