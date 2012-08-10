@@ -29,10 +29,6 @@ import numpy
 import LogStream
 import JUtil
 
-if sys.modules.has_key("MakeHazardConfig"):
-    sys.modules.__delitem__("MakeHazardConfig")
-import MakeHazardConfig
-
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
@@ -45,6 +41,9 @@ class Procedure (SmartScript.SmartScript):
 
 
     def setUpUI(self):
+        if sys.modules.has_key("MakeHazardConfig"):
+            sys.modules.__delitem__("MakeHazardConfig")
+        import MakeHazardConfig
 
         args = {}
         args['dataManager'] = self._dataManager
@@ -59,8 +58,18 @@ class Procedure (SmartScript.SmartScript):
         args['tcmList'] = MakeHazardConfig.tcmList
         args['tropicalHaz'] = self._tropicalHaz
         args['natlBaseETN'] = self._natlBaseETN
-        args['localEffectAreas'] = MakeHazardConfig.localEffectAreas
-        args['localAreaData'] = MakeHazardConfig.localAreaData
+        
+        if not hasattr(MakeHazardConfig, 'localEffectAreas') or \
+           MakeHazardConfig.localEffectAreas is None:
+            args['localEffectAreas'] = {}
+        else:
+            args['localEffectAreas'] = MakeHazardConfig.localEffectAreas
+        
+        if not hasattr(MakeHazardConfig, 'localAreaData') or \
+           MakeHazardConfig.localAreaData is None:
+            args['localAreaData'] = {}
+        else:
+            args['localAreaData'] = MakeHazardConfig.localAreaData
 
         # create the Java/SWT dialog and open it
         from com.raytheon.viz.gfe.makehazard import MakeHazardDialog
