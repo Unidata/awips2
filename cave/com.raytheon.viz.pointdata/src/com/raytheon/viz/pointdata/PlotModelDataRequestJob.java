@@ -145,26 +145,29 @@ public class PlotModelDataRequestJob extends Job {
             // TODO need to determine if this type of plot is a combination or
             // not
             combineData(stationQuery);
-            if (monitor.isCanceled()) {
-                break;
-            }
+            synchronized (this) {
+                if (monitor.isCanceled()) {
+                    break;
+                }
 
-            for (PlotInfo[] infos : stationQuery) {
-                // schedule next work for other jobs
-                // TODO investigate further, shouldn't be possible to get a null
-                // here, but somehow we do
-                if (infos[0].pdv != null) {
-                    switch (task.getRequestType()) {
-                    case PLOT_ONLY:
-                        this.generatorJob.enqueue(infos);
-                        break;
-                    case SAMPLE_ONLY:
-                        this.sampleJob.enqueue(infos);
-                        break;
-                    case PLOT_AND_SAMPLE:
-                        this.generatorJob.enqueue(infos);
-                        this.sampleJob.enqueue(infos);
-                        break;
+                for (PlotInfo[] infos : stationQuery) {
+                    // schedule next work for other jobs
+                    // TODO investigate further, shouldn't be possible to get a
+                    // null
+                    // here, but somehow we do
+                    if (infos[0].pdv != null) {
+                        switch (task.getRequestType()) {
+                        case PLOT_ONLY:
+                            this.generatorJob.enqueue(infos);
+                            break;
+                        case SAMPLE_ONLY:
+                            this.sampleJob.enqueue(infos);
+                            break;
+                        case PLOT_AND_SAMPLE:
+                            this.generatorJob.enqueue(infos);
+                            this.sampleJob.enqueue(infos);
+                            break;
+                        }
                     }
                 }
             }
@@ -342,13 +345,8 @@ public class PlotModelDataRequestJob extends Job {
                 && generatorJob.isDone();
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         this.cancel();
-        try {
-            join();
-        } catch (InterruptedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
         this.generatorJob.shutdown();
     }
 
