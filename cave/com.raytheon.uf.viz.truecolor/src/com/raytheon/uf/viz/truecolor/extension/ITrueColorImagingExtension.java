@@ -17,18 +17,19 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.drawables.ext;
-
-import java.util.Collection;
+package com.raytheon.uf.viz.truecolor.extension;
 
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
+import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * Interface extensions that return IImage objects should implement
+ * Imaging extension for "true color" images. Where a set of
+ * {@link IColormappedImage} images are assigned to each band of an RGB channel
+ * image
  * 
  * <pre>
  * 
@@ -36,7 +37,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke     Initial creation
+ * Aug 6, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -44,22 +45,31 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public interface IImagingExtension extends IGraphicsExtensionInterface {
+public interface ITrueColorImagingExtension extends IImagingExtension {
 
-    public static interface ImageProvider {
-        public Collection<DrawableImage> getImages(IGraphicsTarget target,
-                PaintProperties paintProps) throws VizException;
+    public static enum Channel {
+        RED, GREEN, BLUE;
+    }
+
+    public static interface ITrueColorImage extends IImage {
+
+        public void setImages(Channel channel, DrawableImage... images);
+
+        public void setSize(int[] bounds);
+
+        public void setImageExtent(IExtent extent);
+
     }
 
     /**
-     * Draw the images passed in
+     * Creates a true color image with the given imageBounds and imageExtent
      * 
-     * @param paintProps
-     * @param images
-     * @return whether all images were drawn or not
+     * @param imageBounds
+     * @param imageExtent
+     * @param params
+     * @return
      * @throws VizException
      */
-    public boolean drawRasters(PaintProperties paintProps,
-            DrawableImage... images) throws VizException;
-
+    public ITrueColorImage initializeRaster(int[] imageBounds,
+            IExtent imageExtent) throws VizException;
 }
