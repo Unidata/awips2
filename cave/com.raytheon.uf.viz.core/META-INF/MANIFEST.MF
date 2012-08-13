@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataquery;visibility:=reexport,
- com.raytheon.uf.viz.application;bundle-version="1.0.0"
+ com.raytheon.uf.viz.application;bundle-version="1.0.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level
@@ -72,6 +73,7 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.status,
  com.raytheon.uf.viz.core.style,
  com.raytheon.uf.viz.core.style.level,
+ com.raytheon.uf.viz.core.tile,
  com.raytheon.uf.viz.core.time,
  com.raytheon.uf.viz.core.topo,
  com.raytheon.uf.viz.core.velocity,
@@ -87,7 +89,6 @@ Import-Package: com.raytheon.edex.colormap,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.datastorage.records,
- com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.pointdata,
