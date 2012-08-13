@@ -23,6 +23,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
+
 /**
  * Capability for imaging features
  * 
@@ -41,6 +43,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class ImagingCapability extends AbstractCapability {
+
+    private ImageProvider provider;
 
     @XmlAttribute
     private float contrast = 1.0f;
@@ -144,9 +148,25 @@ public class ImagingCapability extends AbstractCapability {
         }
     }
 
+    /**
+     * @return the provider
+     */
+    public ImageProvider getProvider() {
+        return provider;
+    }
+
+    /**
+     * @param provider
+     *            the provider to set
+     */
+    public void setProvider(ImageProvider provider) {
+        this.provider = provider;
+    }
+
     @Override
     public AbstractCapability clone() {
         ImagingCapability ic = new ImagingCapability();
+        ic.provider = provider;
         ic.contrast = contrast;
         ic.brightness = brightness;
         ic.interpolationState = interpolationState;
