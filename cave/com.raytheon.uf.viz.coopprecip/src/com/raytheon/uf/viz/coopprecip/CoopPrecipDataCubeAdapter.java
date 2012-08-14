@@ -63,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            bsteffen     Initial creation
+ * Aug 14,2012   #1055    dgilling     Fix getData regression from
+ *                                     fxatext schema changes.
  * 
  * </pre>
  * 
@@ -177,7 +179,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
     private PointDataContainer getData(String nnnid) throws VizException {
         List<Object[]> queryResult = DirectDbQuery.executeQuery(
-                "select createtime, product from stdtextproducts where nnnid = '"
+                "select refTime, product from stdtextproducts where nnnid = '"
                         + nnnid + "'", "fxa", DirectDbQuery.QueryLanguage.SQL);
         List<Long> times = new ArrayList<Long>(queryResult.size());
         List<String> products = new ArrayList<String>(queryResult.size());
