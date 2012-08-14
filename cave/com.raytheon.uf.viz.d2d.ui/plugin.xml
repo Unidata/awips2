@@ -1400,6 +1400,11 @@
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.TimeOptionsAction"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction">
+				<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.LocateCursorAction"
@@ -1485,6 +1490,11 @@
 	     <handler
 	           class="com.raytheon.uf.viz.d2d.ui.actions.CopyOutAWIPSProcedure"
 	           commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure">
+	           <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
 	     </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.SetPerspectiveHandler"
@@ -1497,6 +1507,11 @@
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.ShowPrintDialog"
                commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog">
+				<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
             class="com.raytheon.uf.viz.d2d.ui.actions.IncreaseBlendAmount"
@@ -1509,6 +1524,11 @@
 	      <handler
             class="com.raytheon.uf.viz.d2d.ui.actions.ToggleTool"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.toggleTool">
+            	<activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
       		</handler>
 	      </extension>
       <extension
