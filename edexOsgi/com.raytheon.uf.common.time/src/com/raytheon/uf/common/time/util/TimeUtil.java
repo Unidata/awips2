@@ -49,10 +49,10 @@ public class TimeUtil {
     // is expensive the SimpleDateFormat class is not thread-safe,
     // so calling methods use synchronized
     private static SimpleDateFormat sdf = new SimpleDateFormat(
-            "yyyy-MM-dd_HH:mm:ss.SSS");
+            "yyyy-MM-dd_HH:mm:ss.S");
 
     private static SimpleDateFormat sqlSdf = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss.SSS");
+            "yyyy-MM-dd HH:mm:ss.S");
 
     static {
         sqlSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
