@@ -70,22 +70,47 @@
          <handler
                class="com.raytheon.viz.ui.tools.looping.CombinedFrameTool"
                commandId="com.raytheon.viz.ui.tools.looping.frameTool">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.viz.ui.tools.looping.LoopTool"
                commandId="com.raytheon.viz.ui.tools.looping.loop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.viz.ui.tools.looping.LoopPropertiesTool"
                commandId="com.raytheon.viz.ui.tools.looping.loopProperties">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.viz.ui.tools.looping.FasterLoopSpeedTool"
                commandId="com.raytheon.viz.ui.tools.looping.fasterLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.viz.ui.tools.looping.SlowerLoopSpeedTool"
                commandId="com.raytheon.viz.ui.tools.looping.slowerLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
          </handler>
       </extension>
    
