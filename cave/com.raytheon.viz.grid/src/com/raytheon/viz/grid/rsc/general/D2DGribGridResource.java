@@ -73,7 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
- * 06/19/2012   14988      D. Friedman Reproject based on conformality  
+ * 06/19/2012   14988      D. Friedman Reproject based on conformality
  * 
  * </pre>
  * 
@@ -124,7 +124,7 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
     @Override
     public GridGeometry2D getGridGeometry() {
         if (reprojectionInterpolation == null) {
-            return gribModel.getLocation().getGridGeometry();
+            return super.getGridGeometry();
         } else {
             return GridGeometry2D.wrap(reprojectionInterpolation
                     .getTargetGeometry());
@@ -156,13 +156,13 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
                 Interpolation interp = new BilinearInterpolation();
                 if (data.isVector()) {
                     DataSource source = new FloatBufferWrapper(
-                            data.getUComponent(), getGridGeometry());
+                            data.getUComponent(), super.getGridGeometry());
                     FloatArrayWrapper dest = new FloatArrayWrapper(
                             reprojectionInterpolation.getTargetGeometry());
                     float[] udata = reprojectionInterpolation.reprojectedGrid(
                             interp, source, dest).getArray();
                     source = new FloatBufferWrapper(data.getVComponent(),
-                            getGridGeometry());
+                            super.getGridGeometry());
                     dest = new FloatArrayWrapper(
                             reprojectionInterpolation.getTargetGeometry());
                     float[] vdata = reprojectionInterpolation.reprojectedGrid(
@@ -211,7 +211,7 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
 
                 } else {
                     DataSource source = new FloatBufferWrapper(
-                            data.getScalarData(), getGridGeometry());
+                            data.getScalarData(), super.getGridGeometry());
                     FloatArrayWrapper dest = new FloatArrayWrapper(
                             reprojectionInterpolation.getTargetGeometry());
                     float[] fdata = reprojectionInterpolation.reprojectedGrid(
@@ -278,9 +278,10 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
         if (location != null && location.getSpacingUnit().equals("degree")) {
             double dx = location.getDx();
             Integer nx = location.getNx();
-            //if (dx * nx >= 360) { // Test changed for DR 14988 to the following
-            
-            if (! ConformalityUtil.testConformality(location.getGridGeometry(), 
+            // if (dx * nx >= 360) { // Test changed for DR 14988 to the
+            // following
+
+            if (!ConformalityUtil.testConformality(location.getGridGeometry(),
                     descriptor.getGridGeometry())) {
                 try {
                     GridGeometry2D sourceGeometry = location.getGridGeometry();
