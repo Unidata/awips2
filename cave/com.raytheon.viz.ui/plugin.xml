@@ -451,10 +451,20 @@
    <handler
          class="com.raytheon.viz.ui.actions.SaveBundle"
          commandId="com.raytheon.viz.ui.saveBundle">
+ 		<activeWhen>
+       		<with variable="activeEditor">
+				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+			</with>
+       </activeWhen>
    </handler>
    <handler
          class="com.raytheon.viz.ui.actions.SaveProcedure"
          commandId="com.raytheon.viz.ui.saveProcedure">
+ 		<activeWhen>
+       		<with variable="activeEditor">
+				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+			</with>
+       </activeWhen>
    </handler>
    <handler
          class="com.raytheon.viz.ui.actions.LoadSerializedXml"
