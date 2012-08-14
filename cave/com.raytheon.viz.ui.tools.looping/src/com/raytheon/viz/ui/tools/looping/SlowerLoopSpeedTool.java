@@ -50,7 +50,9 @@ public class SlowerLoopSpeedTool extends AbstractTool {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         super.execute(arg0);
-        PageUpDownKey.handlePageDown(editor);
+        if (editor != null) {
+            PageUpDownKey.handlePageDown(editor);
+        }
         return null;
     }
 
