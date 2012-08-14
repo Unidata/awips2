@@ -80,9 +80,11 @@ public class RadarXYDisplay extends AbstractNonMapDisplay {
 
         // Plot the resource data on the graph
         for (ResourcePair rp : getDescriptor().getResourceList()) {
-            graphProps = (GraphProperties) calcPaintDataTime(graphProps,
-                    rp.getResource());
-            rp.getResource().paint(target, graphProps);
+            if (rp.getResource() != null) {
+                graphProps = (GraphProperties) calcPaintDataTime(graphProps,
+                        rp.getResource());
+                rp.getResource().paint(target, graphProps);
+            }
         }
     }
 
