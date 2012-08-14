@@ -68,6 +68,9 @@ public class TimeOptionsAction extends AbstractTool {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         super.execute(event);
+        if (this.editor == null) {
+            return null;
+        }
         IRenderableDisplay iDisplay = this.editor.getActiveDisplayPane()
                 .getRenderableDisplay();
         D2DTimeMatcher matcher = ((D2DTimeMatcher) iDisplay.getDescriptor()
