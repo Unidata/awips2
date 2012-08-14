@@ -208,6 +208,11 @@
       <handler
       		class="com.raytheon.viz.ui.actions.ImagePropertiesAction"
       		commandId="com.raytheon.viz.ui.imageProperties">
+      		<activeWhen>
+	       		<with variable="activeEditor">
+					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+				</with>
+       		</activeWhen>
       </handler>
     <handler
          class="com.raytheon.viz.ui.personalities.awips.ClosePerspectiveHandler"
