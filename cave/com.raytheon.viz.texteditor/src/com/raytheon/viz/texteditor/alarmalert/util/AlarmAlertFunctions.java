@@ -27,8 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
@@ -76,7 +74,7 @@ public class AlarmAlertFunctions {
     private static final AlarmAlertProduct.ProductType AA = AlarmAlertProduct.ProductType.Alarm_Alert;
 
     private static final AlarmAlertProduct.ProductType PA = AlarmAlertProduct.ProductType.Proximity_Alarm;
-    
+
     private static final Object configFileLock = new Object();
 
     private static final String ALARM_ALERT_PATH = "alarms" + File.separator;
@@ -130,50 +128,52 @@ public class AlarmAlertFunctions {
      */
     public static void isInAlarmList(AlarmAlertProduct prod) {
         AlarmAlertLists instance = AlarmAlertLists.getInstance();
-        
+
         List<AlarmAlertProduct> currentAlarms = instance.getFilteredProducts();
         boolean alarm = false;
-        List<AlarmAlertProduct> prods = findMatches(prod.getProductId(), currentAlarms);
+        List<AlarmAlertProduct> prods = findMatches(prod.getProductId(),
+                currentAlarms);
         // did we match anything?
         boolean alertAlarm = (prods.size() > 0);
-        if(alertAlarm) {
+        if (alertAlarm) {
             String pId = prods.get(0).getProductId();
-            // first go get the product. All of the matching product identifiers are
+            // first go get the product. All of the matching product identifiers
+            // are
             // the same so just get the first.
             List<StdTextProduct> prodList = getProduct(pId);
             AlarmAlertProduct productFound = null;
-            if(prodList.size() > 0) {
+            if (prodList.size() > 0) {
                 String s = prodList.get(0).getProduct();
-                for(AlarmAlertProduct p : prods) {
+                for (AlarmAlertProduct p : prods) {
                     String search = p.getSearchString();
-                    
+
                     boolean match = false;
-                    if((search != null) && (search.length() > 0)) {
-                        if(s.indexOf(search) >= 0) {
-                        	match = true;
+                    if ((search != null) && (search.length() > 0)) {
+                        if (s.indexOf(search) >= 0) {
+                            match = true;
                         }
                     } else {
-                    	match = true;
+                        match = true;
                     }
                     if (match) {
-	                    if (productFound == null)
-	                    	productFound = p;
-	                    if ("Alarm".equals(p.getAlarmType()) && p.isAlarm()) {
-	                        alarm = true;
-	                        productFound = p;
-	                    }
-	                    if (alarm)
-	                    	break;
+                        if (productFound == null)
+                            productFound = p;
+                        if ("Alarm".equals(p.getAlarmType()) && p.isAlarm()) {
+                            alarm = true;
+                            productFound = p;
+                        }
+                        if (alarm)
+                            break;
                     }
                 }
             }
-            if(productFound != null) {
+            if (productFound != null) {
                 prod.setAlarm(productFound.isAlarm());
                 prod.setAlarmType(productFound.getAlarmType());
-                
+
                 instance.getCurrentAlarms().add(prod);
                 instance.fireNewCurrentAlarmEvent(prod);
-                
+
                 ringBell(alarm);
             }
         }
@@ -184,46 +184,51 @@ public class AlarmAlertFunctions {
     }
 
     /**
-     * Retrieve a text product from the text database based on its productId.   
-     * @param productId AFOS ProductId to retrieve from the text database.
+     * Retrieve a text product from the text database based on its productId.
+     * 
+     * @param productId
+     *            AFOS ProductId to retrieve from the text database.
      * @return A list of text products. Will always return a not null reference.
      */
     private static List<StdTextProduct> getProduct(String productId) {
         List<StdTextProduct> productList = null;
-        
+
         ICommand command = CommandFactory.getAfosCommand(productId);
         try {
-            productList = command.executeCommand(TextEditorUtil.getTextDbsrvTransport());
+            productList = command.executeCommand(TextEditorUtil
+                    .getTextDbsrvTransport());
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        if(productList == null) {
+        if (productList == null) {
             productList = new ArrayList<StdTextProduct>();
         }
         return productList;
     }
-    
-    
+
     /**
      * Return a list of all alarms that match the incoming product identifier.
+     * 
      * @param productId
      * @param currentAlarms
      * @return
      */
-    private static List<AlarmAlertProduct> findMatches(String productId, List<AlarmAlertProduct> currentAlarms) {
+    private static List<AlarmAlertProduct> findMatches(String productId,
+            List<AlarmAlertProduct> currentAlarms) {
         List<AlarmAlertProduct> prods = new ArrayList<AlarmAlertProduct>();
-        if(productId != null) {
-            productId = productId.toUpperCase();
+        if (productId != null) {
+            productId = productId.trim().toUpperCase();
             for (AlarmAlertProduct a : currentAlarms) {
-                //**************
+                // **************
                 // TODO : For now disable Proximity Alerts
-                //**************
-                if(AA.equals(a.getProductType())) {
+                // **************
+                if (AA.equals(a.getProductType())) {
                     String s = a.getProductId();
-                    if(s != null) {
-                        s = s.toUpperCase();
-                        if(s.equals(productId)) {
-                            // Reset the productId so we know we're dealing with uppercase
+                    if (s != null) {
+                        s = s.trim().toUpperCase();
+                        if (s.equals(productId)) {
+                            // Reset the productId so we know we're dealing with
+                            // uppercase
                             a.setProductId(s);
                             prods.add(a);
                         }
@@ -233,8 +238,7 @@ public class AlarmAlertFunctions {
         }
         return prods;
     }
-    
-    
+
     /**
      * initialize the localization for user with the save/load functions
      * 

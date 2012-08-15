@@ -231,11 +231,13 @@ public abstract class AbstractCrossSectionResource extends
                 time = time.clone();
                 time.setLevelValue((double) i);
                 times.add(time);
+                sliceMap.put(time, null);
+                dataRetrievalJob.times.add(time);
             }
         }
         dataTimes = new ArrayList<DataTime>(times);
         Collections.sort(dataTimes);
-        sliceMap.clear();
+        dataRetrievalJob.schedule();
     }
 
     protected void loadSlice(DataTime time) throws VizException {
