@@ -27,15 +27,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.DescriptorMap;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -44,9 +42,11 @@ import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataD
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
+import com.raytheon.viz.radar.ui.xy.RadarGraphDescriptor;
 import com.raytheon.viz.radar.ui.xy.RadarGraphDisplay;
+import com.raytheon.viz.radar.ui.xy.RadarXYDescriptor;
 import com.raytheon.viz.radar.ui.xy.RadarXYDisplay;
-import com.raytheon.viz.ui.editor.EditorInput;
+import com.raytheon.viz.ui.UiUtil;
 
 /**
  * Product browser implementation for radar
@@ -174,40 +174,30 @@ public class RadarProductBrowserDataDefinition extends
         return new RadarResourceData();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.productbrowser.AbstractProductBrowserDataDefinition
-     * #getEditor()
-     */
     @Override
-    public void getEditor() {
+    protected IDisplayPaneContainer openNewEditor(String editorId) {
+        if (editorId.equals(DescriptorMap.getEditorId(RadarXYDescriptor.class
+                .getName()))) {
+            return UiUtil.createEditor(editorId, new RadarXYDisplay());
+        } else if (editorId.equals(DescriptorMap
+                .getEditorId(RadarGraphDescriptor.class.getName()))) {
+            return UiUtil.createEditor(editorId, new RadarGraphDisplay());
+        } else {
+            return super.openNewEditor(editorId);
+        }
+    }
+
+    @Override
+    public Class<? extends IDescriptor> getDescriptorClass() {
         int prodCode = Integer.parseInt((resourceData).getMetadataMap()
                 .get("productCode").getConstraintValue());
         String format = infoDict.getInfo(prodCode).getFormat();
         if ("XY".equals(format)) {
-            String editor = "com.raytheon.viz.radar.ui.xy.RadarXYEditor";
-            EditorInput cont = new EditorInput(
-                    (IRenderableDisplay) new RadarXYDisplay());
-            try {
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                        .getActivePage().openEditor(cont, editor, true);
-            } catch (PartInitException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to open editor : " + editor, e);
-            }
+            return RadarXYDescriptor.class;
         } else if ("Graph".equals(format)) {
-            String editor = "com.raytheon.viz.radar.ui.xy.RadarGraphEditor";
-            EditorInput cont = new EditorInput(
-                    (IRenderableDisplay) new RadarGraphDisplay());
-            try {
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                        .getActivePage().openEditor(cont, editor, true);
-            } catch (PartInitException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to open editor : " + editor, e);
-            }
+            return RadarGraphDescriptor.class;
+        } else {
+            return super.getDescriptorClass();
         }
     }
 
