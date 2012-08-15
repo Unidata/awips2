@@ -529,9 +529,9 @@
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="MDL MOS">
-			<contribute xsi:type="menuItem" menuText="Max Temp" key="MxT"
+			<contribute xsi:type="menuItem" menuText="Max Temp" key="MxT12hr"
 				 indentText="false" />
-			<contribute xsi:type="menuItem" menuText="Min Temp" key="MnT"
+			<contribute xsi:type="menuItem" menuText="Min Temp" key="MnT12hr"
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="POP 6hr" key="POP6hr"
 				 indentText="false" />
