@@ -68,14 +68,7 @@ public class WarnGenMathTool extends MathTool {
 	 * if it's less than 100
 	 */
 	public static String roundAndPad(double direction) {
-		int num = (int)Math.rint(direction);
-		if (num < 10)
-			return String.format ("00%s",num);
-		else 
-			if (num < 100)
-				return  String.format ("0%s",num);
-			else
-				return String.format ("%s",num);
+		return String.format("%03d",Math.round(direction));
 	}
 	
 }
