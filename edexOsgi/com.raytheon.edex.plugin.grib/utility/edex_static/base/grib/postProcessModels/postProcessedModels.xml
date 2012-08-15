@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<postProcessedModels>
+
+	<!-- Post Processor definitions for models containing grids needing to be 
+		stitched together -->
+	<postProcessedModel>
+		<modelName>UKMET[0-9]{2}|ECMF[0-9]{2}|ENSEMBLE[0-9]{2}|AVN[0-9]{2}
+		</modelName>
+		<processorName>EnsembleGridAssembler</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definitions for models which disseminate updated grids 
+		containing identical metadata. This data is primarily from RFCs. The overwrite 
+		post processor is used to prevent updated data from being discarded as duplicates. -->
+	<postProcessedModel>
+		<modelName>HPCqpfNDFD</modelName>
+		<processorName>OverwriteGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>RFCqpf</modelName>
+		<processorName>OverwriteGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>HPCqpf</modelName>
+		<processorName>OverwriteGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>MPE-.*|QPE-.*</modelName>
+		<processorName>OverwriteGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for FFG grids. Similar to the models using 
+		the overwrite post processor, FFG gridded data is also updated without changing 
+		the associated metadata. In this case, the previous updates need to be retained. -->
+	<postProcessedModel>
+		<modelName>FFG-[A-Z]{3}</modelName>
+		<processorName>FFGGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definitions for models using the lifted index post processor -->
+	<postProcessedModel>
+		<modelName>ETA218</modelName>
+		<processorName>LiftedIndexPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>GFS212</modelName>
+		<processorName>LiftedIndexPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>GFS213</modelName>
+		<processorName>GFSProcessor</processorName>
+		<processorName>LiftedIndexPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>ETA242</modelName>
+		<processorName>LiftedIndexPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the RTMA model -->
+	<postProcessedModel>
+		<modelName>RTMA</modelName>
+		<processorName>RTMAGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the ECMWF-HiRes model -->
+	<postProcessedModel>
+		<modelName>ECMWF-HiRes</modelName>
+		<processorName>ECMWFHiResProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the MSAS model -->
+	<postProcessedModel>
+		<modelName>MSAS</modelName>
+		<processorName>MSASPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the ETA (NAM80) model -->
+	<postProcessedModel>
+		<modelName>ETA</modelName>
+		<processorName>Nam80PostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the RUC236 model -->
+	<postProcessedModel>
+		<modelName>RUC236</modelName>
+		<processorName>RUC236GribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the CPCoutlook211 model -->
+	<postProcessedModel>
+		<modelName>CPCoutlook211</modelName>
+		<processorName>CPCoutlookGribPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definitions for the Canadian models -->
+	<postProcessedModel>
+		<modelName>Canadian-NH</modelName>
+		<processorName>CanadianNHPostProcessor</processorName>
+	</postProcessedModel>
+
+	<postProcessedModel>
+		<modelName>Canadian-Reg</modelName>
+		<processorName>CanadianRegPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the LAPS model -->
+	<postProcessedModel>
+		<modelName>LAPS</modelName>
+		<processorName>LapsPostProcessor</processorName>
+	</postProcessedModel>
+
+	<!-- Post processor definition for the RUC130 model -->
+	<postProcessedModel>
+		<modelName>RUC130</modelName>
+		<processorName>RUC130GribPostProcessor</processorName>
+	</postProcessedModel>
+
+</postProcessedModels>
+

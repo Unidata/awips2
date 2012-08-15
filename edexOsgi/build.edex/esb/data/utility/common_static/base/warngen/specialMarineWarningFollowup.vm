@@ -10,6 +10,7 @@
 ## Cleaned up wind coding for version 1.4          ##
 ## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##
 ## BY MGAMAZAYCHIKOV	-- JUL 20 2012	DR15006    ##
+## BY QINGLU LIN           7-31-2012 DR 15217 use roundAndPad ##
 #####################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
@@ -563,7 +564,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
@@ -976,7 +977,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
@@ -1402,7 +1403,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${now}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

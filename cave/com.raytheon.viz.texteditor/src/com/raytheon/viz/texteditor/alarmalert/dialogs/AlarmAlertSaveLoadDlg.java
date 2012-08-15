@@ -20,6 +20,7 @@
 package com.raytheon.viz.texteditor.alarmalert.dialogs;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -37,6 +38,10 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -49,6 +54,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2009            mnash     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 07/25/2012          953 jkorman     Modified file "search" to return LocalizationFile
+ * instead of File so references are deleted in all locations.
  * 
  * </pre>
  * 
@@ -57,6 +66,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AlarmAlertSaveLoadDlg.class);
 
     private Font font;
 
@@ -136,13 +148,21 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         lists.setLayoutData(gd);
         LocalizationContext lc = AlarmAlertFunctions.initUserLocalization();
-        LocalizationFile fileDir = PathManagerFactory.getPathManager()
-                .getLocalizationFile(lc, "alarms");
-        File file = fileDir.getFile();
-        final File[] fileList = file.listFiles();
-        for (File locFile : fileList) {
-            if (locFile.getName().endsWith(".xml")) {
-                lists.add(locFile.getName());
+        
+        // Get a list of localization files!
+        LocalizationFile[] fList = PathManagerFactory.getPathManager()
+                .listFiles(lc, "alarms", new String[] { "xml" }, false, true);
+
+        final java.util.List<LocalizationFile> fileList = new ArrayList<LocalizationFile>();
+        for (LocalizationFile locFile : fList) {
+            // We only want the filename in the display list.
+            String[] s = locFile.getName().split("/");
+            // Make sure we have some data!
+            if (s.length > 0) {
+                // The last element is the filename.
+                lists.add(s[s.length - 1]);
+                // Complete file reference here.
+                fileList.add(locFile);
             }
         }
 
@@ -170,17 +190,30 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
         // loads the
         loadButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+                // Set the filename to be returned through getFileName()
                 fileName = lists.getSelection()[0];
-                // TODO load the file
                 shell.close();
             }
         });
 
-        // delete the file from the list and from the file system
+        // delete the file from the display list and from the file system
         deleteButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 int num = lists.getSelectionIndex();
-                fileList[num].delete();
+                LocalizationFile f = fileList.get(num);
+                try {
+                    if (!f.delete()) {
+                        String msg = String.format(
+                                "ALARM/ALERT:Failed deleting file %s", f
+                                        .getFile().getPath());
+                        statusHandler.handle(Priority.PROBLEM, msg);
+                    }
+                } catch (LocalizationOpFailedException e) {
+                    String msg = String.format(
+                            "ALARM/ALERT:Failed deleting file %s", f.getFile()
+                                    .getPath());
+                    statusHandler.handle(Priority.PROBLEM, msg, e);
+                }
                 lists.remove(num);
             }
         });
@@ -250,8 +283,8 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
         // get the file name
         saveButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+                // Set the filename to be returned through getFileName()
                 fileName = textBox.getText();
-                // TODO load the file
                 shell.close();
             }
         });
