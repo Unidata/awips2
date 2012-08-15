@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
+import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.warning.config.AreaConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
@@ -70,7 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                         MarineZones shapefiles have no FE_AREA.
  *    Apr 13, 2012 #14691      Qinglu lin  Added code for two more fe_area: er and nr.
  *    May  4, 2012 #14887      Qinglu lin  Changed 0.25 to 0.60 for DEFAULT_PORTION_TOLERANCE; 
- *                                         added code to pass a Envelope calculatePortion(). 
+ *                                         added code to pass a Envelope calculatePortion().
  * 
  * </pre>
  * 
@@ -172,8 +173,9 @@ public class Area {
 
         List<String> uniqueFips = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
+        GeodeticCalculator gc = new GeodeticCalculator();
         for (GeospatialData regionFeature : countyMap.values()) {
-        	Geometry regionGeom = regionFeature.geometry;
+            Geometry regionGeom = regionFeature.geometry;
             AffectedAreas area = new AffectedAreas();
             area.name = regionFeature.attributes.get(areaField).toString();
             area.fips = regionFeature.attributes.get(fipsField).toString();
@@ -217,7 +219,8 @@ public class Area {
                     * DEFAULT_PORTION_TOLERANCE;
             if (areaIntersection < tolerCheck) {
                 area.partOfArea = GisUtil.asStringList(GisUtil
-                        .calculatePortion(regionGeom, intersection, area.suppress));
+                        .calculatePortion(regionGeom, intersection, gc,
+                                area.suppress));
             }
 
             // Search the parent region
@@ -225,66 +228,67 @@ public class Area {
             if (parentRegion != null) {
                 area.parentRegion = String.valueOf(parentRegion.attributes
                         .get(parentAreaField));
-                String feArea = (String)regionFeature.attributes.get("FE_AREA"); 
-                final List<String> partList = new ArrayList<String>(); 
+                String feArea = (String) regionFeature.attributes
+                        .get("FE_AREA");
+                final List<String> partList = new ArrayList<String>();
                 if (feArea == null) {
-                	// Marine warnings
-                	partList.add("");
+                    // Marine warnings
+                    partList.add("");
                 } else {
-                	if (feArea.equals("pa"))
-                		partList.add("PA");
-                	else if(feArea.equals("mi"))
-                		partList.add("MI");
-                	else if(feArea.equals("pd"))
-                		partList.add("PD");
-                	else if(feArea.equals("up"))
-                		partList.add("UP");
-                	else if(feArea.equals("bb"))
-                		partList.add("BB");
-                	else if(feArea.equals("er"))
-                		partList.add("ER");
-                	else if(feArea.equals("eu"))
-                		partList.add("EU");
-                	else if(feArea.equals("sr"))
-                		partList.add("SR");
-                	else if(feArea.equals("nr"))
-                		partList.add("NR");
-                	else if(feArea.equals("wu"))
-                		partList.add("WU");
-                	else if(feArea.equals("ds"))
-                		partList.add("DS");
-                	else if(feArea.equals("ne"))
-                		partList.add("NE");
-                	else if(feArea.equals("nw"))
-                		partList.add("NW");
-                	else if(feArea.equals("se"))
-                		partList.add("SE");
-                	else if(feArea.equals("sw"))
-                		partList.add("SW");
-                	else {
-                		for (int i=0; i<feArea.length(); i++) {
-                			char c = feArea.charAt(i);
-                			switch (c) {
-                			case 'c':
-                				partList.add("CENTRAL");
-                				break;
-                			case 'w':
-                				partList.add("WEST");
-                				break;
-                			case 'n':
-                				partList.add("NORTH");
-                				break;
-                			case 'e':
-                				partList.add("EAST");
-                				break;
-                			case 's':
-                				partList.add("SOUTH");
-                				break;
-                			default:
-                				break;
-                			}
-                		}
-                	}
+                    if (feArea.equals("pa"))
+                        partList.add("PA");
+                    else if (feArea.equals("mi"))
+                        partList.add("MI");
+                    else if (feArea.equals("pd"))
+                        partList.add("PD");
+                    else if (feArea.equals("up"))
+                        partList.add("UP");
+                    else if (feArea.equals("bb"))
+                        partList.add("BB");
+                    else if (feArea.equals("er"))
+                        partList.add("ER");
+                    else if (feArea.equals("eu"))
+                        partList.add("EU");
+                    else if (feArea.equals("sr"))
+                        partList.add("SR");
+                    else if (feArea.equals("nr"))
+                        partList.add("NR");
+                    else if (feArea.equals("wu"))
+                        partList.add("WU");
+                    else if (feArea.equals("ds"))
+                        partList.add("DS");
+                    else if (feArea.equals("ne"))
+                        partList.add("NE");
+                    else if (feArea.equals("nw"))
+                        partList.add("NW");
+                    else if (feArea.equals("se"))
+                        partList.add("SE");
+                    else if (feArea.equals("sw"))
+                        partList.add("SW");
+                    else {
+                        for (int i = 0; i < feArea.length(); i++) {
+                            char c = feArea.charAt(i);
+                            switch (c) {
+                            case 'c':
+                                partList.add("CENTRAL");
+                                break;
+                            case 'w':
+                                partList.add("WEST");
+                                break;
+                            case 'n':
+                                partList.add("NORTH");
+                                break;
+                            case 'e':
+                                partList.add("EAST");
+                                break;
+                            case 's':
+                                partList.add("SOUTH");
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                    }
                 }
                 area.partOfParentRegion = partList;
             }
@@ -333,7 +337,9 @@ public class Area {
                     for (int i = 0; i < warnArea.getNumGeometries(); i++) {
                         Geometry geom = warnArea.getGeometryN(i);
                         if (f.geometry.intersects(geom)) {
-                            GeometryUtil.buildGeometryList(geoms, f.geometry);
+                            Geometry intersect = f.geometry.intersection(geom);
+                            intersect.setUserData(f.geometry.getUserData());
+                            GeometryUtil.buildGeometryList(geoms, intersect);
                             break;
                         }
                     }
