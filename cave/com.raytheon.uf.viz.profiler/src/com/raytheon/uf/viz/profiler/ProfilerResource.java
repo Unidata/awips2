@@ -67,9 +67,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       replaced deprecated function calls
  *                                       replaced deprecated function calls
  * Feb  10, 2011    8030     bkowal      access to the plots ArrayList is now synchronized
- * Feb  15, 2011    8036     bkowal      magnification only affects the x-axis, wind bards, and
+ * Feb  15, 2011    8036     bkowal      magnification only affects the x-axis, wind barbs, and
  *                                       the color bar.
- * 
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/10/2012         1035 jkorman     Changed number of 'staffs' from 12 to 13 and changed time
+ *                                     display to match AWIPS I.
  * </pre>
  * 
  * @author dhladky
@@ -81,6 +84,8 @@ public class ProfilerResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProfilerResource.class);
 
+    private static final int NUM_PROFILE_STAFFS = 13;
+    
     /* Graphic target */
     private IGraphicsTarget target = null;
 
@@ -137,7 +142,7 @@ public class ProfilerResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.target = target;
         dataTimes = new ArrayList<DataTime>();
-        incX = (ProfilerUtils.profilerRectangle.width / 12);
+        incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
 
         incYheight = ProfilerUtils.profilerRectangle.height / maxY;
 
@@ -222,7 +227,7 @@ public class ProfilerResource extends
                 earliestTime = Math.min(earliestTime, validTime);
                 latestTime = Math.max(latestTime, validTime);
             }
-            long earliestRequestTime = earliestTime - 12 * 3600000;
+            long earliestRequestTime = earliestTime - NUM_PROFILE_STAFFS * 3600000;
             List<DataTime> requestTimes = new ArrayList<DataTime>();
             for (DataTime time : resourceData.getAvailableTimes()) {
                 long validTime = time.getValidTime().getTimeInMillis();
@@ -343,7 +348,7 @@ public class ProfilerResource extends
             if (x < 0) {
                 continue;
             }
-            if (x >= 12) {
+            if (x >= NUM_PROFILE_STAFFS) {
                 continue;
             }
             ArrayList<PlotObject> plots = entry.getValue();
@@ -463,9 +468,10 @@ public class ProfilerResource extends
             }
 
             Calendar c = paintProps.getDataTime().getValidTime();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < NUM_PROFILE_STAFFS; i++) {
 
-                String d = String.format("%1$tH:%1$tM", c);
+//                String d = String.format("%1$tH:%1$tM", c);
+                String d = String.format("%1$tH", c);
                 parameters.setText(d, ProfilerUtils.GRAPH_COLOR);
                 parameters.basics.x = ProfilerUtils.profilerRectangle.x
                         + (i * incX) + (incX / 2);
