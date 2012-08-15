@@ -8,6 +8,8 @@
 ##                        11-04-2011 OB11.9-3 (DRs)           ## 
 ##                         2-24-2012 OB12.2.1 CLEANUP         ##
 ##       BY QINGLU LIN     6-18-2012 DR 15043 use duration    ##
+##       BY QINGLU LIN     7-31-2012 DR 15217 use roundAndPad ##
+##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime     ##
 ################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -474,8 +476,8 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

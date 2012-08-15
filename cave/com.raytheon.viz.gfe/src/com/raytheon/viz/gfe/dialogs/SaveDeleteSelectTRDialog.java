@@ -41,17 +41,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.time.SelectTimeRange;
-import com.raytheon.viz.gfe.core.time.SelectTimeRange.Mode;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.SpinScale;
 
@@ -64,6 +62,7 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 7, 2009            randerso     Initial creation
+ * Aug 1, 2012   #965     dgilling     Change location of SelectTimeRange.
  * 
  * </pre>
  * 
@@ -72,7 +71,8 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  */
 
 public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SaveDeleteSelectTRDialog.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SaveDeleteSelectTRDialog.class);
 
     private DataManager dataManager;
 

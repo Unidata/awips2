@@ -79,12 +79,12 @@ public abstract class AbstractGridData implements IGridData {
 
     protected boolean iscCapable = true;
 
-    protected Date lastAccessTime;
+    protected long lastAccessTime;
 
     protected Grid2DBit changedPoints;
 
     protected AbstractGridData(Parm aParm, IGridSlice aSlice) {
-        this.lastAccessTime = SimulatedTime.getSystemTime().getTime();
+        this.lastAccessTime = System.currentTimeMillis();
         this.parm = aParm;
         this.gridSlice = aSlice;
         // this.gridSlice.setUseCache(true);
@@ -135,7 +135,7 @@ public abstract class AbstractGridData implements IGridData {
     }
 
     @Override
-    public Date getLastAccessTime() {
+    public long getLastAccessTime() {
         return this.lastAccessTime;
     }
 
@@ -184,7 +184,7 @@ public abstract class AbstractGridData implements IGridData {
             }
         }
 
-        this.lastAccessTime = SimulatedTime.getSystemTime().getTime();
+        this.lastAccessTime = System.currentTimeMillis();
     }
 
     @Override
@@ -458,7 +458,7 @@ public abstract class AbstractGridData implements IGridData {
     public boolean applyDelta(Date time, float delta, boolean taper,
             Grid2DBit pointsToChange) {
         if (delta == 0.0) {
-            return false; // nothing to change
+            return true; // nothing to change
         }
         populate();
         checkOkayForEdit();
@@ -863,12 +863,12 @@ public abstract class AbstractGridData implements IGridData {
             if (!this.isPopulated()) {
                 return;
             }
-            String msg = "Depopulating " + getParm().getParmID() + " tr="
-                    + getGridTime();
-            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
-                    + msg));
+            // String msg = "Depopulating " + getParm().getParmID() + " tr="
+            // + getGridTime();
+            // statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+            // + msg));
 
-            this.lastAccessTime = SimulatedTime.getSystemTime().getTime();
+            this.lastAccessTime = 0;
             setGridSliceDataToNull();
         }
     }
