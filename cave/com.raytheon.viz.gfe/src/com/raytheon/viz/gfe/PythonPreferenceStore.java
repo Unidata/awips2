@@ -34,6 +34,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -76,7 +77,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
 
     private String configName;
 
-    @SuppressWarnings("unchecked")
     public PythonPreferenceStore(String configName) {
         this.propertyChangeListeners = new ArrayList<IPropertyChangeListener>();
         this.configurationChangeListeners = new ArrayList<IConfigurationChangeListener>();
@@ -84,7 +84,8 @@ public class PythonPreferenceStore implements IPreferenceStore,
         this.loadConfiguration(configName);
     }
         
-    public void loadConfiguration(String configName) {
+    @SuppressWarnings("unchecked")
+	public void loadConfiguration(String configName) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         String utilityDir = pathMgr.getFile(
                 pathMgr.getContext(LocalizationType.CAVE_STATIC,
@@ -92,23 +93,14 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 com.raytheon.uf.common.util.FileUtil.join("gfe", "utility"))
                 .getPath();
 
-        String configDir = com.raytheon.uf.common.util.FileUtil.join("gfe",
-                "userPython", "gfeConfig");
-        String baseDir = pathMgr.getFile(
-                pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE), configDir).getPath();
-        String siteDir = pathMgr.getFile(
-                pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.SITE), configDir).getPath();
-        String userDir = pathMgr.getFile(
-                pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.USER), configDir).getPath();
+        String configPath = GfePyIncludeUtil.getConfigIncludePath();
+        String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
 
         PythonScript py = null;
         try {
             py = new PythonScript(
                     utilityDir + File.separator + "loadConfig.py",
-                    PyUtil.buildJepIncludePath(userDir, siteDir, baseDir));
+                    PyUtil.buildJepIncludePath(configPath, vtecPath));
         } catch (JepException e) {
             statusHandler.handle(Priority.CRITICAL,
                     "Unable to load GFE config", e);

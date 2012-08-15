@@ -22,22 +22,6 @@
 	<contribute xsi:type="titleItem" titleText="------ Z/SRM8 Combo ------"
 		id="${icao}TerminalZSRM8Combo" />
 	<contribute xsi:type="bundleItem"
-		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="${elev0} Z/SRM8"
-		id="${icao}${elev0}ZSRM8" suppressErrors="${suppressErrors0}" >
-		<substitute key="icao" value="${icao}" />
-		<substitute key="product1" value="180" />
-		<substitute key="product2" value="181" />
-		<substitute key="product3" value="" />
-		<substitute key="product4" value="" />
-		<substitute key="mode1" value="" />
-		<substitute key="product5" value="182" />
-		<substitute key="product6" value="" />
-		<substitute key="product7" value="" />
-		<substitute key="product8" value="" />
-		<substitute key="mode2" value="SRM8" />
-		<substitute key="elevation" value="${elev0}--${elev0}" />
-	</contribute>
-	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="${elev1} Z/SRM8"
 		id="${icao}${elev1}ZSRM8" suppressErrors="${suppressErrors1}">
 		<substitute key="icao" value="${icao}" />
@@ -443,22 +427,6 @@
 	<contribute xsi:type="separator" id="BelowTerminalZSRM8Tilts" />
 	<contribute xsi:type="titleItem" titleText="------ Z/V Combo ------"
 		id="${icao}TerminallZVCombo" />
-	<contribute xsi:type="bundleItem"
-		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="${elev0} Z/V"
-		id="${icao}${elev0}ZV" suppressErrors="${suppressErrors0}">
-		<substitute key="icao" value="${icao}" />
-		<substitute key="product1" value="180" />
-		<substitute key="product2" value="181" />
-		<substitute key="product3" value="" />
-		<substitute key="product4" value="" />
-		<substitute key="mode1" value="" />
-		<substitute key="product5" value="182" />
-		<substitute key="product6" value="183" />
-		<substitute key="product7" value="" />
-		<substitute key="product8" value="" />
-		<substitute key="mode2" value="" />
-		<substitute key="elevation" value="${elev0}--${elev0}" />
-	</contribute>
 	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="${elev1} Z/V"
 		id="${icao}${elev1}ZV" suppressErrors="${suppressErrors1}">

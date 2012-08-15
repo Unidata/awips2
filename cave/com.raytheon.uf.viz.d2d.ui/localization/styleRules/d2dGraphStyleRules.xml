@@ -498,4 +498,13 @@
   </graphStyle>
 </styleRule>
 
+<styleRule>
+	<paramLevelMatches>
+		<parameter>MTV</parameter>
+	</paramLevelMatches>
+	<graphStyle>
+		<displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
+	</graphStyle>
+</styleRule>
+
 </styleRuleset>

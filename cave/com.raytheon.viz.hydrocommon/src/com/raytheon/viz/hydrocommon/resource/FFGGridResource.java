@@ -141,7 +141,7 @@ public class FFGGridResource extends
         String user_id = System.getProperty("user.name");
         this.duration = data.getDuration();
         colorSet = HydroDisplayManager.getInstance().getFFGColorMap(user_id,
-                "FFG", duration * 60 * 1000);
+                "FFG", duration);
 
         loadData();
     }
@@ -260,7 +260,7 @@ public class FFGGridResource extends
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         int hours = this.resourceData.getDuration()
-                / HydroConstants.MILLIS_PER_HOUR;
+                / HydroConstants.SECONDS_PER_HOUR;
         String hourStr = "hour";
         if (hours != 1) {
             hourStr = hourStr.concat("s");
