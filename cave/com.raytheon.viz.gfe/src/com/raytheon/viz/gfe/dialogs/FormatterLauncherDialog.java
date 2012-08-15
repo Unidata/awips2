@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  *                                     practice and test modes
  * Sep 16, 2010 6831       ryu         Show same product for different areas on a sub-menu
  * Nov 22, 2011 8781       mli		   remove Processor menu
+ * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
  * 
  * </pre>
  * 
@@ -776,6 +777,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
             ProductDefinition prodDef = textProductMgr
                     .getProductDefinition(productName);
             String dataSource = (String) prodDef.get("database");
+            if (dataSource == null)
+                dataSource = "Official";
 
             if (dataSource.equals("ISC")) {
                 selectedDataSource = getIscDataSource();

@@ -136,6 +136,7 @@ buildRPM "Installer.edex-configuration"
 buildRPM "Installer.edex-shapefiles"
 # For, now edex-native is always a 32-bit rpm.
 export TARGET_BUILD_ARCH="i386"
+buildRPM "Installer.edex-ost"
 buildRPM "Installer.edex-native"
 # Reset the target architecture for the remaining rpms.
 setTargetArchitecture

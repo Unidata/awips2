@@ -61,7 +61,6 @@ import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.rmr.RmrEvent;
 import com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.preferences.JMSPreferences;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 // TODO: use of queueSession outside synchronized(stateLock) could cause
@@ -69,6 +68,23 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 // TODO: conflicts over setting fatalMsg
 
+/**
+ * Manages client connection to RadarServer 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- ------------ --------------------------
+ * ????                    D. Friedman  Initial version
+ * 2012-07-27   DR 14896   D. Friedman  Fix even topic name
+ * 
+ * </pre>
+ * 
+ * @author dfriedma
+ * @version 1.0
+ */
 public class RcmClient implements MessageListener, ExceptionListener {
 
     private String connectionURL;
@@ -211,6 +227,11 @@ public class RcmClient implements MessageListener, ExceptionListener {
             return;
         }
 
+        /*
+         * TODO: ActiveMQ is hard-coded. If switching to Qpid or another
+         * service, it may be necessary to use JMSPreferences.getPolicyString on
+         * the topic name below.
+         */
         ActiveMQConnectionFactory connFac = new ActiveMQConnectionFactory(uri);
         // This stuff can block...
         try {
@@ -238,8 +259,7 @@ public class RcmClient implements MessageListener, ExceptionListener {
             topicConn.setExceptionListener(this);
             topicSession = topicConn.createTopicSession(false,
                     Session.AUTO_ACKNOWLEDGE);
-            topic = topicSession.createTopic(JMSPreferences
-                    .getPolicyString("RadarEvents"));
+            topic = topicSession.createTopic("RadarEvents");
 
             queueConn.start();
             topicConn.start();
