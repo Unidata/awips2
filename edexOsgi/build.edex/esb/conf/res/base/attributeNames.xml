@@ -241,7 +241,5 @@
     <ARCHIVEDIR>archiveDir</ARCHIVEDIR>
     <SVCBACKUP>svcBackupDir</SVCBACKUP>
     <MHS_DATA>mhsData</MHS_DATA>
-    <REQUEST_TIME_FILTER>requestTimeLogFilter</REQUEST_TIME_FILTER>
-    <RESPONSE_SIZE_FILTER>responseSizeLogFilter</RESPONSE_SIZE_FILTER>
 </properties>
 

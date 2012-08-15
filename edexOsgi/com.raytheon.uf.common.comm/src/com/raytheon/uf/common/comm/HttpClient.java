@@ -283,9 +283,10 @@ public class HttpClient {
             }
             int currentCount = ongoing.incrementAndGet();
             if (currentCount > getMaxConnectionsPerHost()) {
-                statusHandler.debug(currentCount + " ongoing http requests to "
-                        + host
-                        + ".  Likely waiting for free connection from pool.");
+                String msg = currentCount + " ongoing http requests to " + host
+                        + ".  Likely waiting for free connection from pool.";
+                statusHandler.debug(msg);
+                System.out.println(msg);
             }
             while (retry) {
                 retry = false;

@@ -30,6 +30,8 @@ Date            Ticket#        Engineer    Description
 Jun 23, 2008    1180           jelkins     Initial creation
 Jul 08, 2008    1222           jelkins     Modified for use within Java
 Jul 09, 2008    1222           jelkins     Split command line loader from class
+Jul 24, 2012    #944           dgilling    Refactored to support separate
+                                           generation of products and utilities.
 
 @author: jelkins
 """
@@ -78,6 +80,20 @@ LOG = logging.getLogger("Generator")
 # List of protected files
 fileList = []
 
+#Installation information for product formatters.
+#Directories to Process, src/dest
+ProcessDirectories = [
+  {
+     'src': "textproducts/templates/product",
+     'dest': "textProducts"
+  },
+  {
+     'src': "textproducts/templates/utility",
+     'dest': "textUtilities/regular"
+  },
+  ]
+
+
 class Generator():
     """Generates site specific text products from base template files.
     
@@ -86,11 +102,8 @@ class Generator():
     
     def __init__(self):
         """Class constructor"""
-        
-        # self.setSiteId(siteId)
-        # self.setDestination(destinationDir)
-        
-        self.setTemplate(TEMPLATE_DIR)
+        self.__destination = None
+        self.__siteId = None
         
     def setSiteId(self,siteId):
         """Set the site ID
@@ -106,25 +119,6 @@ class Generator():
             self.__siteId = siteId
         else:
             raise LookupError, ' unknown WFO: ' + siteId
-
-    def setTemplate(self, value):
-        """Set this generator's source directory
-        
-        Verifies the directory exists and is readable
-        
-        @param value: this value should be a fully qualified path
-        @type value: string
-        
-        @raise IOError: when the directory is not found
-        """
-        from os import access
-        from os import R_OK
-        
-        if access(value,R_OK):
-            self.__template = value
-        else:
-            LOG.debug("Attempted to use templates from: %s" % value)
-            raise IOError, 'directory not readable'
 
     def setDestination(self, value):
         """Set this generator's output directory
@@ -155,14 +149,6 @@ class Generator():
         """
         return self.__siteId
 
-    def getTemplate(self):
-        """The template directory location
-        
-        @return: the template directory location
-        @rtype: string
-        """
-        return self.__template
-
     def getDestination(self):
         """The directory into which the generated files are placed
         
@@ -185,7 +171,10 @@ class Generator():
         
         self.__delete()
         self.__createPilDictionary(self.__siteId)
-        created = self.__create()
+        
+        created = 0
+        for dirInfo in ProcessDirectories:
+            created += self.__create(dirInfo['src'], dirInfo['dest'])
         LOG.info("%d text products created" % created)
         LOG.debug("Configuration of Text Products Finish")
     
@@ -199,12 +188,12 @@ class Generator():
         
         # ---- Delete Empty Directory -----------------------------------------
         
-        try:
-            from os import rmdir
-            rmdir(self.getDestination())
-        except OSError, description: 
-            LOG.warn("unable to remove directory (%s)" % description)
-            pass
+        for dirInfo in ProcessDirectories:
+            try:
+                os.rmdir(os.path.join(self.getDestination(), dirInfo['dest']))
+            except OSError, description: 
+                LOG.warn("unable to remove directory (%s)" % description)
+                pass
         
     def info(self):
         """Text product information for this site"""
@@ -311,23 +300,23 @@ class Generator():
             from preferences.configureTextProducts import ProductToStandardMapping
             
             subDict = {}
-            subDict['<site>'] = siteid
-            subDict['<region>'] = SITE_INFO[siteid]['region']
-            subDict['<wfoCityState>'] = SITE_INFO[siteid]['wfoCityState']
-            subDict['<wfoCity>'] = SITE_INFO[siteid]['wfoCity']
-            subDict['<fullStationID>'] = SITE_INFO[siteid]['fullStationID']
-            subDict['<state>'] = SITE_INFO[siteid]['state']
+            subDict['<site>'] = siteid.strip()
+            subDict['<region>'] = SITE_INFO[siteid]['region'].strip()
+            subDict['<wfoCityState>'] = SITE_INFO[siteid]['wfoCityState'].strip()
+            subDict['<wfoCity>'] = SITE_INFO[siteid]['wfoCity'].strip()
+            subDict['<fullStationID>'] = SITE_INFO[siteid]['fullStationID'].strip()
+            subDict['<state>'] = SITE_INFO[siteid]['state'].strip()
             if product is not None:
-                subDict['<product>'] = product
+                subDict['<product>'] = product.strip()
                 if ProductToStandardMapping.has_key(product):
-                    subDict['<standard>'] = ProductToStandardMapping[product]
+                    subDict['<standard>'] = ProductToStandardMapping[product].strip()
                 else:
-                    subDict['<standard>'] = product
+                    subDict['<standard>'] = product.strip()
             if pilInfo is not None:
                 for k in pilInfo.keys():
-                    subDict['<' + k + '>'] = pilInfo[k]
+                    subDict['<' + k + '>'] = pilInfo[k].strip()
             if pilInfo is not None and pilInfo.has_key("pil") and multiPilFlag:
-                subDict['<MultiPil>'] = pilInfo["pil"][3:6]#pil=nnnxxx, want xxx
+                subDict['<MultiPil>'] = pilInfo["pil"][3:6].strip() #pil=nnnxxx, want xxx
             else:
                 subDict['_<MultiPil>'] = ""   #no multiple pils
         
@@ -350,33 +339,27 @@ class Generator():
             pilInfo = self.__pilInfo
             
             subDict = {}
-            subDict['Site'] = siteid
-            subDict['Region'] = SITE_INFO[siteid]['region']
+            subDict['Site'] = siteid.strip()
+            subDict['Region'] = SITE_INFO[siteid]['region'].strip()
             if product is not None:
-                subDict['Product'] = product
+                subDict['Product'] = product.strip()
             if pilInfo is not None and pilInfo.has_key("pil") and multiPilFlag:
-                subDict['MultiPil'] = pilInfo["pil"][3:6]  #xxx of nnnxxx
+                subDict['MultiPil'] = pilInfo["pil"][3:6].strip()  #xxx of nnnxxx
             else:
                 subDict['_MultiPil'] = ""   #no pil information, remove entry
             
             return self.substituteKeywords(subDict,fileName)
     
-    def __getTemplateFiles(self):
+    def __getTemplateFiles(self, srcDir):
         """Get a list of all template files
         
         @return: a list of all template files
         @rtype: list
         """
+        
         pathMgr = PathManagerFactory.getPathManager()
         edexStaticBase = pathMgr.getContext(LocalizationType.EDEX_STATIC, LocalizationLevel.BASE)
-        templateFiles = pathMgr.listFiles(edexStaticBase, "textproducts/templates", None, True, True)
-
-#        templateFiles = []
-#        
-#        from os import walk
-#        for root,dirs,files in walk(TEMPLATE_DIR):
-#            map(lambda fileName:templateFiles.append(join(root,fileName)),files)
-            
+        templateFiles = pathMgr.listFiles(edexStaticBase, srcDir, None, False, True)
         return templateFiles
     
     def __printPilDictionary(self, pillist):
@@ -503,7 +486,7 @@ class Generator():
         LOG.error("Unknown Product: %s" % regularNameBase)
         return None
 
-    def __create(self):
+    def __create(self, srcDir, destDir):
         """Build the formatters for this site
         
         Substitute the appropriate values into the templates.  Name and place
@@ -519,11 +502,11 @@ class Generator():
         
         # ---- Gather a list of all template Files --------------------------
         
-        templateFiles = self.__getTemplateFiles()
+        templateFiles = self.__getTemplateFiles(srcDir)
         
         # ---- Process the files ---------------------------------------------
         
-        import os, stat, string
+        import stat, string
         for lf in templateFiles:
 
             fileName = str(lf.getFile().getAbsolutePath())
@@ -604,7 +587,7 @@ class Generator():
                     
                     # ---- Output to File -----------------------------------
                     
-                    destFilename = join(self.getDestination(),destName)+regNameExt
+                    destFilename = join(self.getDestination(), destDir, destName) + regNameExt
                     LOG.debug("       ---> %s" % destFilename)
         
                     try:
@@ -679,60 +662,59 @@ class Generator():
             allProducts.append(p)
         for p in templateProds:
             allProducts.append(p)
+            
+        for dirInfo in ProcessDirectories:
+            templateFiles = self.__getTemplateFiles(dirInfo['src'])
     
-        templateFiles = self.__getTemplateFiles()
+            #determine potential files, based on the template files
+            for lf in templateFiles:
+                tf = str(lf.getFile().getAbsolutePath())
     
-        #determine potential files, based on the template files
-        for lf in templateFiles:
-            tf = str(lf.getFile().getAbsolutePath())
-
-            LOG.debug("Template= %s" % basename(tf))
-            mname = basename(tf)
-            globExpressions = []
-
-            #wildcard the Site
-            mname = string.replace(mname, "Site", "???")   #always 3 chars
-
-            #wildcard the Region
-            mname = string.replace(mname, "Region", "??")  #always 2 chars
-
-            #wildcard the _MultiPil
-            wcards = []
-            if string.find(mname, "_MultiPil") != -1:
-                wcards.append(string.replace(mname, "_MultiPil", ""))
-                wcards.append(string.replace(mname, "_MultiPil", "_?"))
-                wcards.append(string.replace(mname, "_MultiPil", "_??"))
-                wcards.append(string.replace(mname, "_MultiPil", "_???"))
-            else:
-                wcards.append(mname)
-
-            #wildcard the Product
-            if string.find(mname, "Product") == 0:
-                for wc in wcards:
-                    for prd in allProducts:
-                        ge = prd + wc[7:]   #Product is first 7 characters
-                        globExpressions.append(ge)
-
-            #simple case - Product does not need to be expanded
-            else:
-                for wc in wcards:
-                    globExpressions.append(wc)
-
-            for g in globExpressions:
-                
-                searchString = join(self.getDestination(),g)
-                
-                delfiles = glob.glob(searchString)
-                
-                for fn in delfiles:
-                    #delete any existing file
-                    try:
-                        os.chmod(fn, 0644)
-                        os.remove(fn)
-                        LOG.debug("   DEL---> %s" % fn)
-                        productsRemoved += 1
-                    except:
-                        pass
+                LOG.debug("Template= %s" % basename(tf))
+                mname = basename(tf)
+                globExpressions = []
+    
+                #wildcard the Site
+                mname = string.replace(mname, "Site", "???")   #always 3 chars
+    
+                #wildcard the Region
+                mname = string.replace(mname, "Region", "??")  #always 2 chars
+    
+                #wildcard the _MultiPil
+                wcards = []
+                if string.find(mname, "_MultiPil") != -1:
+                    wcards.append(string.replace(mname, "_MultiPil", ""))
+                    wcards.append(string.replace(mname, "_MultiPil", "_?"))
+                    wcards.append(string.replace(mname, "_MultiPil", "_??"))
+                    wcards.append(string.replace(mname, "_MultiPil", "_???"))
+                else:
+                    wcards.append(mname)
+    
+                #wildcard the Product
+                if string.find(mname, "Product") == 0:
+                    for wc in wcards:
+                        for prd in allProducts:
+                            ge = prd + wc[7:]   #Product is first 7 characters
+                            globExpressions.append(ge)
+    
+                #simple case - Product does not need to be expanded
+                else:
+                    for wc in wcards:
+                        globExpressions.append(wc)
+    
+                for g in globExpressions:
+                    searchString = join(self.getDestination(), dirInfo['dest'], g)
+                    delfiles = glob.glob(searchString)
+                    
+                    for fn in delfiles:
+                        #delete any existing file
+                        try:
+                            os.chmod(fn, 0644)
+                            os.remove(fn)
+                            LOG.debug("   DEL---> %s" % fn)
+                            productsRemoved += 1
+                        except:
+                            pass
     
         LOG.debug("     Deleting Existing Baseline Templates Finished........")
         

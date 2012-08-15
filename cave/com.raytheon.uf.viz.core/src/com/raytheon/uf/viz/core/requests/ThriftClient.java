@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.UUID;
 
 import javax.jws.WebService;
 
@@ -20,6 +21,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.serialization.comm.RemoteServiceRequest;
+import com.raytheon.uf.common.serialization.comm.RequestWrapper;
 import com.raytheon.uf.common.serialization.comm.ServiceException;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.serialization.comm.util.ExceptionWrapper;
@@ -50,9 +52,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  **/
 
 /**
- * The thrift client. used to send requests to the RemoteReqeustServer. Make
+ * The thrift client. used to send requests to the RemoteRequestServer. Make
  * sure request type has registered a handler to handle the request on the
- * server
+ * server.
  * 
  * <pre>
  * 
@@ -60,6 +62,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2009            mschenke     Initial creation
+ * Jul 24, 2012             njensen         Enhanced logging
  * 
  * </pre>
  * 
@@ -272,9 +275,12 @@ public class ThriftClient {
     private static Object sendRequest(IServerRequest request,
             String httpAddress, String uri) throws VizException {
         httpAddress += uri;
+        String uniqueId = UUID.randomUUID().toString();
+        RequestWrapper wrapper = new RequestWrapper(request, VizApp.getWsId(),
+                uniqueId);
         byte[] message;
         try {
-            message = SerializationUtil.transformToThrift(request);
+            message = SerializationUtil.transformToThrift(wrapper);
         } catch (SerializationException e) {
             throw new VizException("unable to serialize request object", e);
         }
@@ -286,8 +292,8 @@ public class ThriftClient {
                     .postBinary(httpAddress, message);
             long time = System.currentTimeMillis() - t0;
             if (time >= SIMPLE_LOG_TIME) {
-                System.out.println("Took " + time + "ms to run request "
-                        + request);
+                System.out.println("Took " + time + "ms to run request id["
+                        + uniqueId + "] " + request.toString());
             }
             if (time >= BAD_LOG_TIME) {
                 new Exception() {
