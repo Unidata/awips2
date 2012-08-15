@@ -53,6 +53,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteArrayWrapper;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -148,33 +149,48 @@ public class SatelliteDao extends PluginDao {
                     SatelliteRecord.SAT_FILL_VALUE, 0.0f);
 
             SatMapCoverage coverage = satRecord.getCoverage();
-            GridDownscaler downScaler = createDownscaler(coverage,
-                    storageRecord, fillValue);
+            AbstractDataWrapper dataSource = getSource(storageRecord,
+                    coverage.getNx(), coverage.getNy());
+            dataSource.setFillValue(fillValue);
+            GridDownscaler downScaler = new GridDownscaler(
+                    MapUtil.getGridGeometry(coverage));
 
             // How many interpolation levels do we need for this data?
             int levels = downScaler.getNumberOfDownscaleLevels();
             // set the number of levels in the 'parent' satellite data.
             // Subtract one for the base level data.
             satRecord.setInterpolationLevels(levels - 1);
+
+            // How many interpolation levels do we need for this data? Includes
+            // the base level!
+            // Subtract one for the base level data.
+            int downScaleLevels = downScaler.getNumberOfDownscaleLevels() - 1;
+            // set the number of downscale levels in the satellite metadata.
+            satRecord.setInterpolationLevels(downScaleLevels);
             if (DataStoreFactory.isInterpolated(levels)) {
-                for (int downscaleLevel = 1; downscaleLevel <= levels; downscaleLevel++) {
+                for (int level = 0; level < downScaleLevels; level++) {
+                    int downScaleLevel = level + 1;
                     Rectangle size = downScaler
-                            .getDownscaleSize(downscaleLevel);
+                            .getDownscaleSize(downScaleLevel);
 
                     AbstractDataWrapper dest = getDestination(storageRecord,
                             size);
                     dest.setFillValue(fillValue);
                     try {
-                        downScaler.downscale(downscaleLevel, dest);
+                        // Downscale from previous level
+                        downScaler.downscale(downScaleLevel - 1,
+                                downScaleLevel, dataSource, dest);
 
                         IDataRecord dr = createDataRecord(satRecord, dest,
-                                downscaleLevel, size);
+                                downScaleLevel, size);
                         // Set the attributes and properties from the parent
                         // data.
                         dr.setDataAttributes(attributes);
                         dr.setProperties(props);
                         dataStore.addDataRecord(dr);
 
+                        // Set source to current level
+                        dataSource = dest;
                     } catch (TransformException e) {
                         throw new StorageException(
                                 "Error creating downscaled data",
@@ -403,7 +419,7 @@ public class SatelliteDao extends PluginDao {
         AbstractDataWrapper dest = null;
 
         if (rec instanceof ByteDataRecord) {
-            dest = new ByteArrayWrapper(size.width, size.height);
+            dest = new UnsignedByteArrayWrapper(size.width, size.height);
         } else if (rec instanceof ShortDataRecord) {
             dest = new ShortArrayWrapper(size.width, size.height);
         }
@@ -427,7 +443,7 @@ public class SatelliteDao extends PluginDao {
 
         if (rec instanceof ByteDataRecord) {
             byte[] b = ((ByteDataRecord) rec).getByteData();
-            source = new ByteArrayWrapper(b, nx, ny);
+            source = new UnsignedByteArrayWrapper(b, nx, ny);
         } else if (rec instanceof ShortDataRecord) {
             short[] s = ((ShortDataRecord) rec).getShortData();
             source = new ShortArrayWrapper(s, nx, ny);
@@ -468,31 +484,6 @@ public class SatelliteDao extends PluginDao {
                 SatelliteRecord.SAT_DATASET_NAME, true));
 
         return rec;
-    }
-
-    /**
-     * Create a down scaler for the given data.
-     * 
-     * @param coverage
-     *            Satellite Map Coverage for the source data.
-     * @param rec
-     *            The original data that will be down-scaled.
-     * @param fillValue
-     *            The declared fill value for the data.
-     * @return
-     */
-    private GridDownscaler createDownscaler(SatMapCoverage coverage,
-            IDataRecord rec, double fillValue) {
-        GridDownscaler downScaler = null;
-
-        AbstractDataWrapper dataSource = getSource(rec, coverage.getNx(),
-                coverage.getNy());
-        dataSource.setFillValue(fillValue);
-
-        downScaler = new GridDownscaler(MapUtil.getGridGeometry(coverage),
-                dataSource);
-
-        return downScaler;
     }
 
     /**
