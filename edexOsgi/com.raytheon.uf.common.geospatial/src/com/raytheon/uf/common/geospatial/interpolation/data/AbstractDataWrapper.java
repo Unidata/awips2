@@ -86,7 +86,7 @@ public abstract class AbstractDataWrapper implements DataSource,
     public double getDataValue(int x, int y) {
         if (y < 0 || y > ny - 1) {
             // outside y range
-            return Float.NaN;
+            return Double.NaN;
         } else if (x < 0 || x > nx - 1) {
             // outside x range
             if (wrapX > 0) {
