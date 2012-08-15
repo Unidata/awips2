@@ -19,13 +19,15 @@
  **/
 package com.raytheon.viz.texteditor.print;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -39,6 +41,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2011 10557      rferrel     Initial creation
+ * Jul 17, 2012 14274      rferrel     Now use eclipse Printer instead of awt.
+ *                                      Text is printed using same font as the GUI
  * 
  * </pre>
  * 
@@ -47,107 +51,182 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class PrintDisplay {
-    /**
-     * Print the text/document to the default print.
-     * 
-     * @param autoPrint
-     *            true send text directly to printer without prompting user for
-     *            selecting a different printer.
-     * @param printedText
-     *            the text to print.
-     */
-    public static void print(boolean autoPrint, String printedText,
+    public static void print(final String printedText, final FontData fontData,
             IUFStatusHandler statusHandler) {
-        if (printedText == null || printedText.trim().length() == 0) {
-            // Do not waste paper on blank text.
+        PrinterData data = Printer.getDefaultPrinterData();
+        if (data == null) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "No default printer specified.");
             return;
         }
 
-        PrintDisplay printer = new PrintDisplay(autoPrint, statusHandler);
-        printer.printIt(printedText);
+        if (printedText == null || printedText.trim().length() == 0) {
+            // Do not waste paper when nothing to print.
+            return;
+        }
+
+        final Printer printer = new Printer(data);
+        PrintDisplay pd = new PrintDisplay(printer, printedText, fontData);
+        pd.printJob();
     }
 
-    private boolean autoPrint;
+    private Printer printer;
 
-    private IUFStatusHandler statusHandler;
+    private String textToPrint;
 
-    private PrintDisplay(boolean autoPrint, IUFStatusHandler statusHandler) {
-        this.autoPrint = autoPrint;
-        this.statusHandler = statusHandler;
+    private FontData printerFontData;
+
+    private int leftMargin;
+
+    private int rightMargin;
+
+    private int topMargin;
+
+    private int bottomMargin;
+
+    private String tabs;
+
+    private GC gc;
+
+    private int tabWidth;
+
+    private int lineHeight;
+
+    StringBuilder wordBuffer;
+
+    int x;
+
+    int y;
+
+    int index;
+
+    int end;
+
+    private PrintDisplay(Printer printer, String text, FontData fontData) {
+        this.printer = printer;
+        this.textToPrint = text;
+        this.printerFontData = fontData;
     }
 
-    private void printIt(String printedText) {
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
-
-        if (autoPrint || printerJob.printDialog()) {
-            printerJob.setPrintable(new Document(printedText));
-            try {
-                printerJob.print();
-            } catch (PrinterException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+    private void printJob() {
+        Thread thread = new Thread("Printing") {
+            public void run() {
+                printIt();
+                printer.dispose();
             }
+        };
+        thread.start();
+    }
+
+    private void printIt() {
+        if (printer.startJob("Text")) { // the string is the job name - shows up
+                                        // in the printer's job list
+            Rectangle clientArea = printer.getClientArea();
+            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+            Point dpi = printer.getDPI();
+
+            // one inch from left side of paper
+            leftMargin = dpi.x + trim.x;
+            // one inch from right side of paper
+            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
+            topMargin = dpi.y + trim.y; // one inch from top edge of paper
+            // one inch from bottom edge of paper
+            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
+
+            // Create a buffer for computing tab width.
+            int tabSize = 4;
+            StringBuilder tabBuffer = new StringBuilder(tabSize);
+            for (int i = 0; i < tabSize; i++)
+                tabBuffer.append(' ');
+            tabs = tabBuffer.toString();
+
+            /*
+             * Create printer GC, and create and set the printer font &
+             * foreground color.
+             */
+            gc = new GC(printer);
+            Font printerFont = new Font(printer, printerFontData);
+            Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
+            Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
+                    255));
+
+            gc.setFont(printerFont);
+            gc.setForeground(printerForegroundColor);
+            gc.setBackground(printerBackgroundColor);
+            tabWidth = gc.stringExtent(tabs).x;
+            lineHeight = gc.getFontMetrics().getHeight();
+
+            // Print text to current gc using word wrap
+            printText();
+            printer.endJob();
+
+            // Cleanup graphics resources used in printing
+            printerFont.dispose();
+            printerForegroundColor.dispose();
+            printerBackgroundColor.dispose();
+            gc.dispose();
         }
     }
 
-    private class Document implements Printable {
-
-        private final String[] printedText;
-
-        private int numPages = 0;
-
-        public Document(String printedText) {
-            super();
-            this.printedText = printedText.split("\n");
+    private void printText() {
+        printer.startPage();
+        wordBuffer = new StringBuilder();
+        x = leftMargin;
+        y = topMargin;
+        index = 0;
+        end = textToPrint.length();
+        while (index < end) {
+            char c = textToPrint.charAt(index);
+            index++;
+            if (c != 0) {
+                if (c == 0x0a || c == 0x0d) {
+                    if (c == 0x0d && index < end
+                            && textToPrint.charAt(index) == 0x0a) {
+                        index++; // if this is cr-lf, skip the lf
+                    }
+                    printWordBuffer();
+                    newline();
+                } else {
+                    if (c != '\t') {
+                        wordBuffer.append(c);
+                    }
+                    if (Character.isWhitespace(c)) {
+                        printWordBuffer();
+                        if (c == '\t') {
+                            x += tabWidth;
+                        }
+                    }
+                }
+            }
         }
+        if (y + lineHeight <= bottomMargin) {
+            printer.endPage();
+        }
+    }
 
-        @Override
-        public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
-                throws PrinterException {
-            // --- Create the Graphics2D object
-            Graphics2D g2d = (Graphics2D) graphics;
-
-            // --- Set the drawing color to black
-            g2d.setPaint(Color.black);
-            java.awt.Font font = g2d.getFont();
-            String name = font.getName();
-            int style = font.getStyle();
-            int size = font.getSize();
-
-            g2d.setFont(new java.awt.Font(name, style, size - 2));
-
-            // --- Translate the origin to 0,0 for the top left corner
-            g2d.translate(pageFormat.getImageableX(),
-                    pageFormat.getImageableY());
-
-            // Determine the lines per page and number of pages to print.
-            java.awt.FontMetrics metrics = g2d.getFontMetrics();
-            int lineHeight = metrics.getHeight();
-            int linesPerPage = (int) Math.floor(pageFormat.getImageableHeight()
-                    / lineHeight);
-            numPages = ((printedText.length - 1) / linesPerPage) + 1;
-
-            // Calculate the start line for this page.
-            int startLine = pageIndex * linesPerPage;
-            int endLine = startLine + linesPerPage - 1;
-            if (endLine >= printedText.length) {
-                endLine = printedText.length - 1;
+    private void printWordBuffer() {
+        if (wordBuffer.length() > 0) {
+            String word = wordBuffer.toString();
+            int wordWidth = gc.stringExtent(word).x;
+            if (x + wordWidth > rightMargin) {
+                // word doesn't fit on current line, so wrap
+                newline();
             }
+            gc.drawString(word, x, y, false);
+            x += wordWidth;
+            wordBuffer.setLength(0);
+        }
+    }
 
-            // Tell the PrinterJob if the page number is not a legal one.
-            if (pageIndex >= numPages) {
-                return NO_SUCH_PAGE;
+    private void newline() {
+        x = leftMargin;
+        y += lineHeight;
+        if (y + lineHeight > bottomMargin) {
+            printer.endPage();
+            if (index + 1 < end) {
+                y = topMargin;
+                printer.startPage();
             }
-
-            int y = 0;
-            for (int i = startLine; i <= endLine; i++) {
-                y += lineHeight;
-                g2d.drawString(printedText[i], 0, y);
-            }
-
-            g2d.dispose();
-            // --- Validate the page
-            return (PAGE_EXISTS);
         }
     }
 }
