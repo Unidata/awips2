@@ -19,5 +19,16 @@
         further_licensing_information.
     -->
 <requestPatterns xmlns:ns2="group">
-    <regex>TI.... ....</regex>
+    <!-- 
+    This pattern excludes the current "prototype" WMO headers for future GOES-R data.
+    Point of contact
+    Brian M. Rapp
+    Communications Software Team Lead
+    Raytheon AWIPS Team
+    
+    Brian.Rapp@noaa.gov
+    Office: (301) 495-2221
+    Cell: (301) 787-9925
+     -->
+    <regex>TI[^RS]... ....</regex>
 </requestPatterns>

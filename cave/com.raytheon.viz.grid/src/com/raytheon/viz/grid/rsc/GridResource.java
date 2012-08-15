@@ -307,11 +307,12 @@ public class GridResource extends
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
-                 GridReprojection reproj = new GridReprojection(realGridGeometry,
-                         expectedGridGeometry);
-                 com.raytheon.uf.common.geospatial.interpolation.Interpolation interp;
+                GridReprojection reproj = new GridReprojection(
+                        realGridGeometry, expectedGridGeometry);
+                com.raytheon.uf.common.geospatial.interpolation.Interpolation interp;
 
-                if (getCapability(ImagingCapability.class).isInterpolationState()) {
+                if (getCapability(ImagingCapability.class)
+                        .isInterpolationState()) {
                     BilinearInterpolation blInterp = new BilinearInterpolation();
                     blInterp.setMissingThreshold(1.0f);
                     interp = blInterp;
@@ -849,11 +850,11 @@ public class GridResource extends
                     baseTileEntry.setValue(combinedResourceData);
                 }
             }
-            DataTime[] primaryDataTimes = descriptor.getTimeMatchingMap().get(
-                    this);
-            for (int i = 0; i < primaryDataTimes.length; i++) {
+            DataTime[] primaryDataTimes = tileSet.keySet().toArray(
+                    new DataTime[0]);
+            for (DataTime primaryDataTime : primaryDataTimes) {
                 Map<Float, GridMemoryBasedTileSet> map = tileSet
-                        .get(primaryDataTimes[i]);
+                        .get(primaryDataTime);
                 if (map != null) {
                     for (Map.Entry<Float, GridMemoryBasedTileSet> tile : map
                             .entrySet()) {
@@ -861,7 +862,7 @@ public class GridResource extends
                             if (combineResources) {
                                 Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
                                 map2.put(tile.getKey(), tile.getValue());
-                                combinedSet.put(primaryDataTimes[i], map2);
+                                combinedSet.put(primaryDataTime, map2);
                             }
                             continue;
                         }
@@ -873,7 +874,7 @@ public class GridResource extends
                                     .getValue());
                             Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
                             map2.put(tile.getKey(), combinedResourceData);
-                            combinedSet.put(primaryDataTimes[i], map2);
+                            combinedSet.put(primaryDataTime, map2);
                         }
                     }
                 }
@@ -1520,7 +1521,8 @@ public class GridResource extends
                 // TODO: check if interpolation state really changed
                 try {
                     if (descriptor != null)
-                        project(descriptor.getGridGeometry().getCoordinateReferenceSystem());
+                        project(descriptor.getGridGeometry()
+                                .getCoordinateReferenceSystem());
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error updating grid resource imaging", e);
