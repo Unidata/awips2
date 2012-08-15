@@ -402,11 +402,11 @@ public class PlotResource2 extends
 
     @Override
     protected void disposeInternal() {
+        resourceData.getPlotInfoRetriever().cancel();
+        progressiveDisclosure.shutdown();
         if (generator != null) {
             generator.shutdown();
         }
-        resourceData.getPlotInfoRetriever().cancel();
-        progressiveDisclosure.shutdown();
         clearImages();
     }
 
