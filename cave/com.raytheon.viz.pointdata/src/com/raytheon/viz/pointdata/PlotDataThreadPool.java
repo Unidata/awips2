@@ -184,8 +184,11 @@ public class PlotDataThreadPool {
     }
 
     public void shutdown() {
+        List<PlotModelDataRequestJob> jobListCopy = new ArrayList<PlotModelDataRequestJob>(
+                jobList);
+        jobList.clear();
         stationQueue.clear();
-        for (PlotModelDataRequestJob job : jobList) {
+        for (PlotModelDataRequestJob job : jobListCopy) {
             job.shutdown();
         }
     }
