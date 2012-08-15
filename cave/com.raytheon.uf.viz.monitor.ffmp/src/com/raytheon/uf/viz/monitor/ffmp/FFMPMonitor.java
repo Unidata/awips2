@@ -820,20 +820,15 @@ public class FFMPMonitor extends ResourceMonitor {
 					populateFFMPRecord(product, siteKey, dataKey, sourceName,
 							ptime, phuc, retrieveNew);
 				}
-			} else {
-				// special case where FFG is the primary source
-				// check for special case with dual stand alone and table
-				// display loaded
-				SourceXML sourcexml = getSourceConfig().getSource(sourceName);
+            } else {
+                // special case where FFG is the primary source
+                // check for special case with dual stand alone and table
+                // display loaded
 
-				if (sourcexml.getSourceType().equals(
-						SOURCE_TYPE.GUIDANCE.getSourceType())) {
-					sourceName = sourcexml.getDisplayName();
-				} else {
-					populateFFMPRecord(product, siteKey, dataKey, sourceName,
-							ptime, phuc, retrieveNew);
-				}
-			}
+                populateFFMPRecord(product, siteKey, dataKey, sourceName,
+                        ptime, phuc, retrieveNew);
+
+            }
 
 			record = ffmpData.get(siteKey).get(sourceName);
 		}
@@ -1109,6 +1104,8 @@ public class FFMPMonitor extends ResourceMonitor {
 		}
 
 		resourceListeners.remove(listener);
+		// clean up if we can
+		System.gc();
 	}
 
 	public ArrayList<IFFMPResourceListener> getResourceListenerList() {

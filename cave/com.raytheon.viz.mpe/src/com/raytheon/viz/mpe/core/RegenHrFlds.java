@@ -54,6 +54,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2008            snaples     Initial creation
+ * Aug 8, 2012   15271	   snaples     Updated hourly slot
  * </pre>
  * 
  * @author snaples
@@ -301,7 +302,7 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
-            MPEDataManager.getInstance().readGageData(datetime);
+            MPEDataManager.getInstance().readGageData(datetime, datetime);
             /* Read radar data */
             MPEDataManager.getInstance().readRadarData(datetime);
             MPEDataManager.getInstance().clearEditGages();

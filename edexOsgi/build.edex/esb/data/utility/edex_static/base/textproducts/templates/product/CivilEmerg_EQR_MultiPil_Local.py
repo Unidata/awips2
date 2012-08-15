@@ -80,8 +80,6 @@ class TextProduct(CivilEmerg.TextProduct):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"
 
         fcst = fcst + "AN EARTHQUAKE HAS BEEN FELT " + self._felt + " BY " +\
           self._extent + " " + "IN THE |*enter area*| AREA. " + \

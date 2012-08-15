@@ -40,7 +40,7 @@ import java.util.TimeZone;
  * @version 1.0
  */
 
-public class RatingCurveShiftData {
+public class RatingCurveShiftData implements Comparable<RatingCurveShiftData> {
 
     private String lid = null;
 
@@ -90,17 +90,33 @@ public class RatingCurveShiftData {
     public String getLid() {
         return lid;
     }
+    
+    public void setLid(String lid) {
+    	this.lid = lid;
+    }
 
     public Calendar getDate() {
         return date;
+    }
+    
+    public void setDate(Calendar date) {
+    	this.date = date;
     }
 
     public double getValue() {
         return value;
     }
 
+    public void setValue(double value) {
+    	this.value = value;
+    }
+    
     public boolean isActive() {
         return active;
+    }
+    
+    public void setActive(boolean active) {
+    	this.active = active;
     }
 
     /**
@@ -125,4 +141,16 @@ public class RatingCurveShiftData {
         
         return sb.toString();
     }
+
+    @Override
+	public int compareTo(RatingCurveShiftData o) {
+		if (this.date.getTime().equals(o.getDate().getTime())) {
+			return 0;
+		} else if (this.date.getTime().before(o.getDate().getTime())) {
+			return 1;
+		} else if (this.date.getTime().after(o.getDate().getTime())) {
+			return -1;
+		}
+		return 0;
+	}
 }

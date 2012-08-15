@@ -70,6 +70,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    5/17/10      #5901       njensen        Moved to common
  *    03/02/11      #8045       rferrel     Add connect reestablished message.
  *    07/17/12    #911         njensen    Refactored significantly
+ *    08/09/12     15307        snaples   Added putEntitiy in postStreamingEntity.
  * 
  * </pre>
  * 
@@ -291,9 +292,9 @@ public class HttpClient {
             }
             int currentCount = ongoing.incrementAndGet();
             if (currentCount > getMaxConnectionsPerHost()) {
-                statusHandler.debug(currentCount + " ongoing http requests to "
-                        + host
-                        + ".  Likely waiting for free connection from pool.");
+                String msg = currentCount + " ongoing http requests to " + host
+                        + ".  Likely waiting for free connection from pool.";
+                statusHandler.debug(msg);
             }
             while (retry) {
                 retry = false;

@@ -50,7 +50,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
- * Creates uEngine scripts on the fly.
+ * Creates uEngine scripts on the fly. DEPRECATED: Requests from viz should go
+ * through ThriftClient to the thrift service instead of using ScriptCreator and
+ * then going to the uengine service. The thrift service performs faster and is
+ * more maintainable. Use ThriftClient.
  * 
  * <pre>
  * 
@@ -73,6 +76,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * @author brockwoo
  * @version 1
  */
+@Deprecated
 public class ScriptCreator {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScriptCreator.class);
