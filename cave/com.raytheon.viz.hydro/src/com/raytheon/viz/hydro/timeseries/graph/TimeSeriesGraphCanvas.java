@@ -62,7 +62,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Apr 18, 2011 8963       jpiatt     Removed Left Scale call to scale manager.
  * July 12 2011 9709       djingtao   draw right Y axis for showPP is true. add new 
  *                                    function adjust_pcymax()
- * Aug. 10, 2011 10457     djingtao   allow the red rubberband box to be drawn for setMissing in Edit                                    
+ * Aug. 10, 2011 10457     djingtao   allow the red rubberband box to be drawn for setMissing in Edit  
+ * Jul. 24, 2012 15195     mpduff     Fix x axis scales.                                  
  * 
  * </pre>
  * 
@@ -492,7 +493,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		}
 		
 		// Check canvas width.  if small then need to skip extra days
-		if (this.canvasWidth < 600) {
+		if (this.canvasWidth < 500) {
 			daysSkip++;
 		}
 
@@ -537,8 +538,8 @@ public class TimeSeriesGraphCanvas extends Canvas {
 					/* ******************** */
 					/* Hour annotation */
 					/* ******************** */
-					dy = 10;
-					if (ndays < 4) {
+				    dy = 10;
+					if (ndays < 8 && this.canvasWidth > 450) {
 						if (hour < 10) {
 							gc.drawText("0" + hour, x + leftBorder - dx, bottomBorder + 22);
 						} else {

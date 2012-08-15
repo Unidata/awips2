@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28 FEB 2008  938        lvenable    Initial creation.
  * 4/15/2009    1982       grichard    Provide feedback when saving a working TAF.
  * 12/08/2011   11745      rferrel     Updated header time to transmission time.
+ * 08AUG2012    15613      zhao        Determine proper BBB for transmission
  * 
  * </pre>
  * 
@@ -364,7 +365,7 @@ public class SendDialog extends CaveSWTDialog {
         String siteWmoId = tabComp.getWmoId();
         // WMO Site
         String siteNode = null;
-        java.util.List<String> stationIds = new ArrayList<String>();
+        //java.util.List<String> stationIds = new ArrayList<String>();
 
         ArrayList<String> tafs = new ArrayList<String>();
         ArrayList<String> updatedTafs = new ArrayList<String>();
@@ -402,6 +403,16 @@ public class SendDialog extends CaveSWTDialog {
             // Site ID
             String siteId = fourLetterId.substring(1);
 
+            /*
+             * If "AAX" or "CCX" or "RRX", determine BBB for transmission
+             */
+            String xmitBbb = bbb;
+            if ( bbb.equals("AAX") || bbb.equals("CCX") || bbb.equals("RRX") ) {
+            	String type = bbb.substring(0, 2);
+            	xmitBbb = getXmitBbb( type, siteId); 
+            }
+            
+
             // Update Header Time to transmission time.
             tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
                     xmitTimestamp);
@@ -418,7 +429,7 @@ public class SendDialog extends CaveSWTDialog {
             }
 
             TafQueueRecord record = new TafQueueRecord(forecasterId,
-                    xmitTime.getTime(), tafText, bbb, siteId, siteWmoId,
+                    xmitTime.getTime(), tafText, xmitBbb, siteId, siteWmoId,
                     siteNode, xmitTime.getTime());
             records.add(record);
         }
@@ -455,4 +466,41 @@ public class SendDialog extends CaveSWTDialog {
         tabComp.setTafSent(tafsQeueued);
         shell.dispose();
     }
+
+	@SuppressWarnings("unchecked")
+	private String getXmitBbb(String type, String siteId) {
+		
+		try {
+			TafQueueRequest request = new TafQueueRequest(); 
+			request.setType(Type.GET_LIST);
+			request.setState(TafQueueRecord.TafQueueState.SENT);
+			ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient.sendRequest(request);
+			java.util.List<String> payload = response.getPayload();
+			String [] records = (String []) payload.toArray(new String[0]);
+			int numRecords = records.length;
+			for ( int i = numRecords-1; i >=0; i-- ) {
+				if ( records[i].contains(siteId) ) {
+					String [] texts = records[i].split("-");
+					String bbb = texts[texts.length-2];
+					if ( bbb.equals("   ") ) {
+						return type+"A";
+					}
+					if ( bbb.subSequence(0, 2).equals(type) ) {
+						char[] newX = new char[] { bbb.charAt(2) };
+						if ( newX[0] == 'X' ) {
+							newX[0] = 'A';
+						} else {
+							newX[0]++;
+						}
+						return type + new String( newX );
+					}
+				}
+			}
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return type + "A";
+	}
 }

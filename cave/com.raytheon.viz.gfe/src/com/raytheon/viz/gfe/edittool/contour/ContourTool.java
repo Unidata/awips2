@@ -115,6 +115,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Jul 29, 2009            randerso    Initial creation
  * Jul 02, 2010 6285       mpduff      Fixed contours to update after 
  *                                     drawing and calculating new grid.
+ * Aug 08, 2012 #621       dgilling    Fix ConcurrentModificationException
+ *                                     in handling of renderables field.
  * 
  * </pre>
  * 
@@ -323,6 +325,9 @@ public class ContourTool extends AbstractFreeformTool implements
      */
     private void replaceCLines(List<CLine> contours) {
         clearRenderables();
+
+        List<IRenderable> renderables = new ArrayList<IRenderable>(
+                this.renderables);
         renderables.add(freeformRenderable);
 
         if (currentGrid != null) {
@@ -353,26 +358,34 @@ public class ContourTool extends AbstractFreeformTool implements
                 }
             }
             renderables.add(renderable);
-            refresh();
         }
+
+        this.renderables = renderables;
+        refresh();
     }
 
     private void disposeRenderables() {
+        List<IRenderable> renderables = new ArrayList<IRenderable>(
+                this.renderables);
         for (IRenderable renderable : renderables) {
             if (renderable instanceof JTSRenderable) {
                 ((JTSRenderable) renderable).dispose();
             }
         }
         renderables.clear();
+        this.renderables = renderables;
     }
 
     private void clearRenderables() {
+        List<IRenderable> renderables = new ArrayList<IRenderable>(
+                this.renderables);
         for (IRenderable renderable : renderables) {
             if (renderable instanceof JTSRenderable) {
                 ((JTSRenderable) renderable).clear();
             }
         }
         renderables.clear();
+        this.renderables = renderables;
     }
 
     private void initializeContourData(IGridData grid) {
