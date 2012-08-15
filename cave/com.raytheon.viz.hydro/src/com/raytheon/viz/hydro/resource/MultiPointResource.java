@@ -119,7 +119,9 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Apr 5, 2011  8910        jpiatt      Adjusted resource coordinates.
  * 
  * May 16, 2011 9356        djingtao    When timeseries is disposed, launch a new timesereis after double click
- *                                      or right click to select TimeSeries
+ *                                      or right click to select TimeSeries.
+ * Jul 23, 2012 15167       mpduff      Sampling now displays for all stations that are very close
+ *                                      together or overlapping.
  * 
  * </pre>
  * 
@@ -946,6 +948,8 @@ public class MultiPointResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         try {
+        	StringBuilder buffer = new StringBuilder();
+        	boolean first = true;
             Envelope env = new Envelope(coord.asLatLon());
             List<?> elements = strTree.query(env);
             if (elements.size() > 0) {
@@ -953,10 +957,17 @@ public class MultiPointResource extends
                 while (iter.hasNext()) {
                     ArrayList<?> list = (ArrayList<?>) iter.next();
                     if (list.get(1) instanceof String) {
-                        return (String) list.get(1);
-                    } else {
-                        return null;
+                        if (!first) {
+                        	buffer.append("\n");
+                        }
+                        buffer.append((String) list.get(1));
+                    	first = false;
                     }
+                }
+                if (buffer.length() > 0) {
+                	return buffer.toString();
+                } else {
+                	return null;
                 }
             }
         } catch (Exception e) {

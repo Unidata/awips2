@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.auth.resp.ResponseFactory;
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2009            mschenke     Initial creation
  * 
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -53,8 +54,6 @@ import com.raytheon.uf.edex.auth.resp.ResponseFactory;
 public class RemoteRequestServer {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RemoteRequestServer.class);
-
-    private static final long LOG_TIME_THRESHOLD = 200; // milliseconds
 
     private static final RemoteRequestServer instance = new RemoteRequestServer();
 
@@ -131,16 +130,7 @@ public class RemoteRequestServer {
             }
         }
 
-        long t0 = System.currentTimeMillis();
-        String requestAsString = request.toString();
-        Object response = handler.handleRequest(request);
-        long t1 = System.currentTimeMillis();
-        long diff = t1 - t0;
-        if (diff > LOG_TIME_THRESHOLD) {
-            statusHandler.info("Handled " + requestAsString + " in " + diff
-                    + "ms");
-        }
-        return response;
+        return handler.handleRequest(request);
     }
 
     public void setRegistry(HandlerRegistry registry) {

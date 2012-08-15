@@ -1,8 +1,7 @@
 ##### UPDATED 3/2/12 12.2.1-4 BY EVAN BOOKBINDER
 #####         Qinglu Lin    04-04-2012 DR 14691.
 #####         Qinglu Lin    06-18-2012 DR 15043. Use duration in secondBullet.
-
-#*
+#####         Qinglu Lin    07-31-2012 DR 15217. Use roundAndPad for movement direction in DEG.
 ####################################################################################################
 Mile Marker Test Code                                     
 macro "mmarkers" use (called out of VM_global_library.vm):
@@ -330,7 +329,7 @@ ${mathUtil.abs(${mathUtil.round($v100)})}##
 #macro( tml $time $motdir $motspd $timeFormat $eventlocation )
 TIME...MOT...LOC ##
 ${dateUtil.format(${start}, ${timeFormat.time})}Z ##
-${mathUtil.round(${motdir})}DEG ##
+${mathUtil.roundAndPad(${motdir})}DEG ##
 ${mathUtil.round(${motspd})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

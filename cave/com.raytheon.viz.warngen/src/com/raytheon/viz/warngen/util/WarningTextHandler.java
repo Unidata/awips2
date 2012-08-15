@@ -441,6 +441,8 @@ public class WarningTextHandler {
                 		}
 
                 if (line.trim().length() == 0) {
+                    insideTML = false;
+                    insideLatLon = false;
                     headlineFound = false;
                     if (smwCan) {
                     	if (lockSmwCan)
@@ -694,7 +696,7 @@ public class WarningTextHandler {
                 // Locking LAT...LON
                 m = latLonPtrn.matcher(line);
                 if (m.find()) {
-                    sb.append(LOCK_START + line + "\n");
+                    sb.append(LOCK_START + line + "\n" + LOCK_END);
                     insideLatLon = true;
                     continue;
                 }
@@ -702,11 +704,10 @@ public class WarningTextHandler {
                 if (insideLatLon) {
                     m = subLatLonPtrn.matcher(line);
                     if (m.find()) {
-                        sb.append(line + "\n");
+                        sb.append(LOCK_START +line + "\n" + LOCK_END);
                         continue;
                     } else {
                         insideLatLon = false;
-                        sb.append(LOCK_END);
                     }
                 }
 
@@ -719,7 +720,7 @@ public class WarningTextHandler {
                 // Locking TIME...MOT..LOC
                 m = tmlPtrn.matcher(line);
                 if (m.find()) {
-                    sb.append(LOCK_START + line + "\n");
+                    sb.append(LOCK_START + line + "\n"+ LOCK_END);
                     insideTML = true;
                     continue;
                 }
@@ -727,11 +728,10 @@ public class WarningTextHandler {
                 if (insideTML) {
                     m = subTMLPtrn.matcher(line);
                     if (m.matches()) {
-                        sb.append(line + "\n");
+                        sb.append(LOCK_START + line + "\n" + LOCK_END);
                         continue;
                     } else {
                         insideTML = false;
-                        sb.append(LOCK_END);
                     }
 
                 }

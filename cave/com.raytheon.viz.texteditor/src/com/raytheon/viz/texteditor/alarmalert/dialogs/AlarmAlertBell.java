@@ -67,6 +67,7 @@ import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
  * Dec 23, 2010 7375       cjeanbap    Force dialog ON TOP of over Dialog/Windows.
  * 03/19/2012              D. Friedman Fix alarming.  Disable runloop in open().
  * May 18, 2012            jkorman     Added flashing alarm image.
+ * Jul 25, 2012 15122      rferrel     Add sound delay interval.
  * </pre>
  * 
  * @author mnash
@@ -75,10 +76,15 @@ import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
 
 public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         MouseListener {
-    
+
     // delay in milliseconds - flash every 1 1/2 seconds
     private static final int FLASH_DELAY = 1500;
-    
+
+    /**
+     * Repeat the alarm sound every minute.
+     */
+    private static final long SOUND_DELAY = 60 * 1000L;
+
     private Shell parentShell;
 
     private Shell alarmShell;
@@ -90,15 +96,15 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     private String bellPath;
 
     private FlashBellJob flasher;
-    
+
     private Image norm_bell;
 
     private Image revs_bell;
 
     private boolean invert = false;
-    
+
     private boolean active = false;
-    
+
     private Button button;
 
     private AlarmBeepJob abj = null;
@@ -196,9 +202,9 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     }
 
     public Object open(boolean alarm) {
-        if (alarm) {
+        if (alarm && abj == null) {
             // provides the beep to alert the user that an alarm has come in
-            abj = new AlarmBeepJob("AlarmBeepJob");
+            abj = new AlarmBeepJob("AlarmBeepJob", SOUND_DELAY);
             abj.schedule();
         }
 
@@ -216,28 +222,33 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         alarmShell.setActive();
         active = true;
         // Start a new flash job only if one isn't currently running!
-        if(flasher == null) {
+        if (flasher == null) {
             invert = false;
             flasher = new FlashBellJob("FlashBell", this, FLASH_DELAY);
         }
+
         return null;
     }
 
     /**
-     * Close the AlarmAlertBell and turn off the "flasher" job
-     * if running.
+     * Close the AlarmAlertBell and turn off the "flasher" and "abj" job if
+     * running.
      */
     public void close() {
-        if(!alarmShell.isDisposed()) {
+        if (!alarmShell.isDisposed()) {
             alarmShell.setVisible(false);
         }
         active = false;
-        if(flasher != null) {
+        if (flasher != null) {
             flasher.cancel();
             flasher = null;
         }
+        if (abj != null) {
+            abj.cancel();
+            abj = null;
+        }
     }
-    
+
     private void setInitialDialogLocation() {
         if (locationX < 0) {
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -263,7 +274,7 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         bellPath = imageFile.getFile().getAbsolutePath();
         norm_bell = new Image(display, bellPath);
         button = new Button(alarmShell, SWT.IMAGE_GIF);
-        if(norm_bell != null) {
+        if (norm_bell != null) {
             createInvertImage(bellPath);
             button.setImage(norm_bell);
         }
@@ -330,12 +341,12 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     private void createInvertImage(String path) {
         if (norm_bell != null) {
             ImageData id = new ImageData(path);
-            for(int i = 0;i < id.width;i++) {
-                for(int j = 0;j < id.height;j++) {
-                    if(id.getPixel(i,j) == 0) {
-                        id.setPixel(i,j,1);
+            for (int i = 0; i < id.width; i++) {
+                for (int j = 0; j < id.height; j++) {
+                    if (id.getPixel(i, j) == 0) {
+                        id.setPixel(i, j, 1);
                     } else {
-                        id.setPixel(i,j,0);
+                        id.setPixel(i, j, 0);
                     }
                 }
             }
@@ -345,17 +356,18 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
 
     /**
      * Check to see if the dialog is active.
+     * 
      * @return
      */
     public boolean isActive() {
         return active;
     }
-    
+
     /**
      * Alternate between normal and reverse images.
      */
     public void flash() {
-        if(invert) {
+        if (invert) {
             button.setImage(revs_bell);
         } else {
             button.setImage(norm_bell);
