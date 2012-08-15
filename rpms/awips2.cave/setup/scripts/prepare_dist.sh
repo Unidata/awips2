@@ -6,6 +6,10 @@
 # This script is started by the awips2.cave rpm build.sh script; so, it is able to get the workspace
 # directory from the environment as well as the build architecture.
 
+if [ "${UFRAME_ECLIPSE}" = "" ]; then
+   export UFRAME_ECLIPSE="/opt/uframe-eclipse"
+fi
+
 CAVE_RPM_DIST_DIR="${WORKSPACE}/rpms/awips2.cave/setup/dist"
 if [ ! -d ${CAVE_RPM_DIST_DIR} ]; then
    echo "ERROR: ${CAVE_RPM_DIST_DIR} does not exist."
@@ -33,7 +37,7 @@ fi
 
 # Execute the CAVE PDE Build.
 # The Sun JDK Build.
-time /bin/bash build.sh -eclipse=/opt/uframe-eclipse
+time /bin/bash build.sh -eclipse=${UFRAME_ECLIPSE}
 RC=$?
 
 if [ ${RC} -ne 0 ]; then
@@ -67,6 +71,7 @@ fi
 # Execute the P2 Repo PDE Build.
 # The Sun JDK Build.
 time /awips2/ant/bin/ant -f p2-build.xml \
+   -Declipse.dir=${UFRAME_ECLIPSE} \
    -Dbuild.version=${AWIPSII_VERSION} \
    -Dbuild.arch=${CAVE_BUILD_ARCH}
 RC=$?
