@@ -1,6 +1,8 @@
-#####################
+####################################################################
 ## CUSTOM TEMPLATE ##
-#####################
+## History
+## QINGLU LIN   8-14-2012 DR 14493 use corToNewMarker and TMLtime ##
+####################################################################
 ${WMOId} ${vtecOffice} 000000
 CUSTOM
 ${ugcline}
@@ -166,7 +168,11 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
+#if(${corToNewMarker})
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
+#else
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+#end
 ${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})

@@ -180,10 +180,6 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.uf.viz.alertviz.localization.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
 				value="com.raytheon.viz.radar.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
