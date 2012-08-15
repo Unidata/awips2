@@ -74,6 +74,11 @@ public abstract class AbstractGLColorMapDataFormat {
      */
     public abstract Number getValue(int x, int y, GLColorMapData data);
 
+    /**
+     * Get the number of bytes each pixel takes up
+     * 
+     * @return
+     */
     public abstract int getBytesPerPixel();
 
     /**
