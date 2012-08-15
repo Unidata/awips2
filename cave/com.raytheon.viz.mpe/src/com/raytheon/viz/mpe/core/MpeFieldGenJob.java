@@ -79,8 +79,8 @@ public class MpeFieldGenJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         final Integer[] mpeExitValue = new Integer[1];
 
-        String httpAddress = VizApp.getHttpServer();
-        String args = ENDPOINT_NAME + fieldGenArg;
+        String httpAddress = VizApp.getHttpServer() + ENDPOINT_NAME;
+        String args = fieldGenArg;
         byte[] ba = args.getBytes();
         
         try {
