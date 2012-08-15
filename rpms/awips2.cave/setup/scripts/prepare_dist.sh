@@ -66,7 +66,7 @@ fi
 
 # Execute the P2 Repo PDE Build.
 # The Sun JDK Build.
-time ant -f p2-build.xml -Dbuild.version=${BUILD_VERSION} \
+time /awips2/ant/bin/ant -f p2-build.xml -Dbuild.version=${BUILD_VERSION} \
    -Dbuild.arch=${CAVE_BUILD_ARCH}
 RC=$?
 
