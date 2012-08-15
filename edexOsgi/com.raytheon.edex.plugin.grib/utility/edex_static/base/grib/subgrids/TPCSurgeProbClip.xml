@@ -23,4 +23,8 @@
    <referenceModel>TPCSurgeProb</referenceModel>
    <nx>1300</nx>
    <ny>1200</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>

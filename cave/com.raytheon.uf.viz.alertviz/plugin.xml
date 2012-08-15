@@ -27,5 +27,79 @@
             id="com.raytheon.viz.notification.statusHandler">
       </statusHandler>
    </extension>
-
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Configurations"
+          value="alertViz/configurations" 
+          recursive="false"
+          extensionFilter=".xml">
+       </path>
+    </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Python"
+          value="alertViz/python" 
+          recursive="false"
+          extensionFilter=".py">
+       </path>
+    </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Audio"
+          value="alertVizAudio" 
+          recursive="false"
+          extensionFilter=".wav">
+       </path>
+    </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Monitor Icons"
+          value="monitorIcons" 
+          recursive="false"
+          extensionFilter=".png">
+       </path>
+    </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Forced configuration"
+          value="alertViz" 
+          recursive="false"
+          extensionFilter=".xml">
+       </path>
+    </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="Alertviz"
+          localizationType="CAVE_STATIC"
+          name="Custom Repository"
+          value="alertViz/customizations" 
+          recursive="false"
+          extensionFilter=".xml">
+       </path>
+    </extension>
+    <!--extension
+          point="org.eclipse.ui.editors">
+       <editor
+             default="true" 
+             id="com.raytheon.viz.alertviz.ui.configuration.editor"
+             name="AlertViz Configuration Editor" extensions="xml" 
+             class="com.raytheon.uf.viz.alertviz.localization.editor.AlertVizConfigurationEditorPart">
+       </editor>
+    </extension--> 
 </plugin>

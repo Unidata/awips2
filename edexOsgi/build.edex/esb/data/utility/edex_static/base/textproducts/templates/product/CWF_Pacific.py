@@ -1049,9 +1049,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         for key in varDict.keys():
             if type(key) is types.TupleType:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"            
+                exec "self._" + variable + "= varDict[key]"          
 
         self._language = argDict["language"]
         
