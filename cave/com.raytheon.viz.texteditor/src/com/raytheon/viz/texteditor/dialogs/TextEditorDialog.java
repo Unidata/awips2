@@ -281,6 +281,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 06/19/2012  14975        D.Friedman  Prevent zeroed-out WMO header times.
  * 18JUL2012   14457        rferrel     Add mouse listener to clear site's update obs when clicked on.
  * 25JUL2012   14459        rferrel     Strip WMH headers when getting all METARs.
+ * 13AUG2012   14613        M.Gamazaychikov	Ensured the WMO and MND header times are the same. 
  * </pre>
  * 
  * @author lvenable
@@ -4603,10 +4604,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
         boolean successful = false;
 
-        // Convert the text in the text editor to uppercase
-        String currentDate = getCurrentDate();
+        /*
+         * DR14613 - string currectDate is derived from Date now
+         * ensuring the same time in WMO heading and in the 
+         * MND heading.
+         */
+        Date now = SimulatedTime.getSystemTime().getTime();
+        String currentDate = getCurrentDate(now);
         TextDisplayModel tdmInst = TextDisplayModel.getInstance();
 
+     // Convert the text in the text editor to uppercase
         if (!isAutoSave) {
             if (!verifyRequiredFields()) {
                 return false;
@@ -4642,14 +4649,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 VtecObject vtecObj = VtecUtil.parseMessage(productText);
                 if (warnGenFlag) {
-                    // TODO: Pass in some flavor of currentDate to use to set
-                    // the
-                    // times. Currently roll over to the next minute between
-                    // getting
-                    // currentDate and getting the times in this method will
-                    // cause
-                    // them to be different.
-                    productText = updateVtecTimes(productText, vtecObj);
+                	/*
+                     * DR14613 - string currectDate is derived from Date now
+                     * ensuring the same time in WMO heading and in the 
+                     * MND heading.
+                     */
+                    productText = updateVtecTimes(productText, vtecObj, now);
+                    productText = updateHeaderTimes(productText, now);
                     // Update editor so the proper send times are displayed.
                     String[] b = productText.split("\n");
                     StringBuilder body = new StringBuilder();
@@ -5110,19 +5116,28 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         headerTF.setText("");
     }
 
-    private String getCurrentDate() {
-        Date now = SimulatedTime.getSystemTime().getTime();
+    private String getCurrentDate(Date now) {
+    	/*
+    	 * DR14613 - pass the Date now as an argument
+    	 */
         SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         return (formatter.format(now));
     }
 
-    private String updateVtecTimes(String product, VtecObject vtecObj) {
+    /**
+     * Update the VTEC time using the Date now.
+     * 
+     * @param product
+     * @param vtecObj
+     * @param now
+     * @return
+     */
+    private String updateVtecTimes(String product, VtecObject vtecObj, Date now) {
 
         if (vtecObj == null || vtecObj.getAction().equals("COR")) {
             return product;
         }
-        Date now = SimulatedTime.getSystemTime().getTime();
         // Update the vtec start time
         if (vtecObj.getAction().equals("NEW")) {
             SimpleDateFormat vtecFormatter = new SimpleDateFormat(
@@ -5131,9 +5146,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             product = product.replace(
                     vtecFormatter.format(vtecObj.getStartTime().getTime()),
                     vtecFormatter.format(now));
-        }
+        }        
 
-        // Update the header time
+        return product;
+    }
+    
+    /**
+     * Update the MND header time using the Date now.
+     * 
+     * @param product
+     * @param now
+     * @return
+     */
+    private String updateHeaderTimes(String product, Date now) {
+    	// Update the header time
         Matcher m = datePtrn.matcher(product);
         if (m.find()) {
             SimpleDateFormat headerFormat = new SimpleDateFormat(
@@ -5144,9 +5170,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             product = product.replace(m.group(1), headerFormat.format(now)
                     .toUpperCase());
         }
-
-        return product;
+    	return product;
     }
+    
 
     public void setCurrentWmoId(String wmoId) {
         TextDisplayModel.getInstance().setWmoId(token, wmoId);

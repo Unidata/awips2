@@ -8,6 +8,10 @@
       </layout> 
    </appender>
 
+   <appender name="asyncConsole" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="console" />
+   </appender> 
+
    <!-- ProductSrvRequest log --> 
    <appender name="ProductSrvRequestLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
@@ -19,6 +23,10 @@
       </layout> 
    </appender>    
    
+   <appender name="ProductSrvRequestLogAsync" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="ProductSrvRequestLog" />
+   </appender> 
+
    <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
    <appender name="ThriftSrvRequestLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
@@ -28,14 +36,14 @@
          <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
       </layout> 
    </appender>
-   
+
    <appender name="ThriftSrvRequestLogAsync" class="org.apache.log4j.AsyncAppender">            
       <appender-ref ref="ThriftSrvRequestLog" />
    </appender> 
-   
+
    <logger name="ProductSrvRequestLogger" additivity="false">
    		<level value="DEBUG"/>
-   		<appender-ref ref="ProductSrvRequestLog"/>
+   		<appender-ref ref="ProductSrvRequestLogAsync"/>
    </logger>    
 
    <logger name="ThriftSrvRequestLogger" additivity="false">
@@ -104,6 +112,6 @@
    <!-- default logging --> 
    <root> 
       <level value="INFO"/> 
-      <appender-ref ref="console"/> 
+      <appender-ref ref="asyncConsole"/> 
     </root> 
-</log4j:configuration> 
+</log4j:configuration>
