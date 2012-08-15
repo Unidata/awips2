@@ -708,10 +708,7 @@ public class DbParm extends Parm {
                     continue; // grid overlaps spatial editor time -- skip it
                 }
 
-                long lastAccess = 0;
-                if (grid.getLastAccessTime() != null) {
-                    lastAccess = grid.getLastAccessTime().getTime();
-                }
+                long lastAccess = grid.getLastAccessTime();
 
                 long delta = now - lastAccess;
                 if (delta < milliseconds) {
@@ -725,9 +722,10 @@ public class DbParm extends Parm {
 
                 // only deallocate unlocked grids
                 if (!locked) {
-                    String msg = "Deallocating " + getParmID() + " tr=" + gTime;
-                    statusHandler.handle(Priority.DEBUG, msg, new Exception(
-                            "Debug: " + msg));
+                    // String msg = "Deallocating " + getParmID() + " tr=" +
+                    // gTime;
+                    // statusHandler.handle(Priority.DEBUG, msg, new Exception(
+                    // "Debug: " + msg));
 
                     grid.depopulate();
                 }
