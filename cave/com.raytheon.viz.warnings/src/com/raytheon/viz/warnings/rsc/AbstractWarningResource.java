@@ -3,6 +3,7 @@ package com.raytheon.viz.warnings.rsc;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      in a given display frame
  * Jun 04, 2012 DR14992  mgamazaychikov Reversed the textToPrint array to
  * 										plot the strings in correct order
- * 
+ * Aug 09, 2012 DR 15166  D.Friedman    Plot only the most recent record for
+ *                                      an event.
  * </pre>
  * 
  * @author jsanchez
@@ -530,75 +532,92 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
             lastFrame = true;
         }
         synchronized (paintLock) {
-            for (String datauri : entryMap.keySet()) {
-                WarningEntry entry = entryMap.get(datauri);
-                AbstractWarningRecord record = entry.record;
+            HashMap<String, WarningEntry> candidates = 
+                new HashMap<String, AbstractWarningResource.WarningEntry>();
+            for (WarningEntry entry : entryMap.values()) {
                 if (matchesFrame(entry, paintProps.getDataTime(), framePeriod,
                         lastFrame)) {
+                    String key = getEventKey(entry);
+                    WarningEntry current = candidates.get(key);
+                    
+                    if (current == null || current.record.getIssueTime().
+                            before(entry.record.getIssueTime()) ||
+                            (current.record.getIssueTime().equals(entry.record.getIssueTime()) &&
+                                    current.record.getInsertTime().before(entry.record.getInsertTime()))
+                            )
+                        candidates.put(key, entry);
+                }
+            }
+            for (WarningEntry entry : candidates.values()) {
+                AbstractWarningRecord record = entry.record;
 
-                    // check shapes
-                    if (entry.project) {
-                        initShape(target, entry.record);
-                        entry.project = false;
-                    }
+                // check shapes
+                if (entry.project) {
+                    initShape(target, entry.record);
+                    entry.project = false;
+                }
 
-                    if (entry != null && entry.wireframeShape != null) {
-                        LineStyle lineStyle = (record.getProductClass() != null && record
-                                .getProductClass().equals("T")) ? LineStyle.DASHED
-                                : LineStyle.SOLID;
-                        target.drawWireframeShape(entry.wireframeShape,
-                                getCapability(ColorableCapability.class)
-                                        .getColor(),
-                                getCapability(OutlineCapability.class)
-                                        .getOutlineWidth(), lineStyle);
-                    } else if (entry != null && entry.shadedShape != null) {
-                        target.drawShadedShape(entry.shadedShape, 1);
-                    }
+                if (entry != null && entry.wireframeShape != null) {
+                    LineStyle lineStyle = (record.getProductClass() != null && record
+                            .getProductClass().equals("T")) ? LineStyle.DASHED
+                            : LineStyle.SOLID;
+                    target.drawWireframeShape(entry.wireframeShape,
+                            getCapability(ColorableCapability.class)
+                                    .getColor(),
+                            getCapability(OutlineCapability.class)
+                                    .getOutlineWidth(), lineStyle);
+                } else if (entry != null && entry.shadedShape != null) {
+                    target.drawShadedShape(entry.shadedShape, 1);
+                }
 
-                    if (record != null && record.getGeometry() != null) {
-                        // Calculate the upper left portion of the polygon
-                        Coordinate upperLeft = new Coordinate(180, -90);
+                if (record != null && record.getGeometry() != null) {
+                    // Calculate the upper left portion of the polygon
+                    Coordinate upperLeft = new Coordinate(180, -90);
 
-                        for (Coordinate c : record.getGeometry()
-                                .getCoordinates()) {
-                            if (c.y - c.x > upperLeft.y - upperLeft.x) {
-                                upperLeft = c;
-                            }
+                    for (Coordinate c : record.getGeometry()
+                            .getCoordinates()) {
+                        if (c.y - c.x > upperLeft.y - upperLeft.x) {
+                            upperLeft = c;
                         }
-
-                        double[] d = descriptor.worldToPixel(new double[] {
-                                upperLeft.x, upperLeft.y });
-                        d[0] -= paintProps.getZoomLevel() * 100;
-
-                        double mapWidth = descriptor.getMapWidth()
-                                * paintProps.getZoomLevel() / 1000;
-                        String[] textToPrint = getText(record, mapWidth);
-                        if (warningsFont == null) {
-                            warningsFont = target.getDefaultFont()
-                                    .deriveWithSize(11);
-                        }
-                        // DR14992: reverse the textToPrint array to plot the strings in correct order
-                        String [] textToPrintReversed = new String[textToPrint.length];
-                        for(int i = 0; i < textToPrint.length; i++) {
-							textToPrintReversed[i] = textToPrint[textToPrint.length
-									- i - 1];
-						}
-                        
-                        DrawableString params = new DrawableString(textToPrintReversed,
-                                color);
-                        params.font = warningsFont;
-                        params.setCoordinates(d[0], d[1]);
-                        params.textStyle = TextStyle.NORMAL;
-                        params.horizontalAlignment = HorizontalAlignment.RIGHT;
-                        params.verticallAlignment = VerticalAlignment.BOTTOM;
-                        params.magnification = getCapability(
-                                MagnificationCapability.class)
-                                .getMagnification();
-                        target.drawStrings(params);
                     }
+
+                    double[] d = descriptor.worldToPixel(new double[] {
+                            upperLeft.x, upperLeft.y });
+                    d[0] -= paintProps.getZoomLevel() * 100;
+
+                    double mapWidth = descriptor.getMapWidth()
+                            * paintProps.getZoomLevel() / 1000;
+                    String[] textToPrint = getText(record, mapWidth);
+                    if (warningsFont == null) {
+                        warningsFont = target.getDefaultFont()
+                                .deriveWithSize(11);
+                    }
+                    // DR14992: reverse the textToPrint array to plot the strings in correct order
+                    String [] textToPrintReversed = new String[textToPrint.length];
+                    for(int i = 0; i < textToPrint.length; i++) {
+						textToPrintReversed[i] = textToPrint[textToPrint.length
+								- i - 1];
+					}
+                    
+                    DrawableString params = new DrawableString(textToPrintReversed,
+                            color);
+                    params.font = warningsFont;
+                    params.setCoordinates(d[0], d[1]);
+                    params.textStyle = TextStyle.NORMAL;
+                    params.horizontalAlignment = HorizontalAlignment.RIGHT;
+                    params.verticallAlignment = VerticalAlignment.BOTTOM;
+                    params.magnification = getCapability(
+                            MagnificationCapability.class)
+                            .getMagnification();
+                    target.drawStrings(params);
                 }
             }
         }
+    }
+
+    private static String getEventKey(WarningEntry entry) {
+        AbstractWarningRecord r = entry.record;
+        return r.getOfficeid() + '.' + r.getPhensig() + '.' + r.getEtn();
     }
 
     protected boolean matchesFrame(WarningEntry entry, DataTime paintTime,

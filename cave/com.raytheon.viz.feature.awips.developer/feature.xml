@@ -51,10 +51,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.alertviz.localization.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.viz.radar.feature"
          version="0.0.0"/>
 

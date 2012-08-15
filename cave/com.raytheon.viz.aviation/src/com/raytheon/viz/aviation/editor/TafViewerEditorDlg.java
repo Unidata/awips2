@@ -213,6 +213,7 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 08/12/2011   10612       rferrel     saveFile will now always push file back to the server.
  * 11/29/2011   11612       rferrel     Added getViewerTabList.
  * 20JUL2012    14570       gzhang/zhao Highlight correct time groups in TAF Viewer
+ * 08AGU2012    15613       zhao        Modified highlightTAF()
  * 
  * </pre>
  * 
@@ -3674,8 +3675,11 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         }
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-        String taf = tafViewerStTxt.getText();			
+        String taf = tafViewerStTxt.getText();	
         int offset = taf.indexOf("TAF");
+        if ( showHeadersChk.getSelection() ) { 
+        	offset = taf.indexOf("TAF", offset + 3);
+        }
         try {
             int end = taf.indexOf("TAF", offset + 3);
             if (end > 0) {
@@ -3705,7 +3709,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         		for (String alertKey : tempoMap.keySet()) {
         			//System.out.println("2___alertKey: "+ alertKey);      	
         			for (String value : tempoMap.get(alertKey)) {
-        				System.out.println("3___value: "+ value);             	
+        				//System.out.println("3___value: "+ value);             	
         				str.setLength(1);
         				str.append(value);
         				int len = str.length();
@@ -3745,6 +3749,11 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         			str.setLength(len);
         			str.append("\n");
         			startIndex = taf.indexOf(str.toString());
+            		if (startIndex < 0) {
+            			str.setLength(len);
+            			str.append("=");
+            			startIndex = taf.indexOf(str.toString());
+            		}
         		}
 
         		if (startIndex >= 0 /*within the same line*/&& startIndex < endIndex) {
@@ -3983,11 +3992,11 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 // Only load the latest TAF, and assume it is the first one in
                 // the Viewer.
                 sb.append(TafUtil.safeFormatTaf(tafsInViewer[0], false));
-                String bbb = "";
+                String originalBbb = "";
                 String[] header = tafsInViewer[0].getWmoHeader().split(" ");
 
                 if (header.length > 3) {
-                    bbb = header[3];
+                    originalBbb = header[3];
                 }
 
                 ITafSiteConfig config = TafSiteConfigFactory.getInstance();
@@ -3997,6 +4006,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 String stationId = siteData.wmo.split(" ")[1];
                 String issueTime = header[2];
 
+                String bbb = "";
                 if (type == null) {
                     // Do nothing
                 } else if (type == TafSettings.OPEN_AMD) {
