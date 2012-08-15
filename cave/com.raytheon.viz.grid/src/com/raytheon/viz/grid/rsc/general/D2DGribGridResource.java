@@ -70,6 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
  * 06/19/2012   14988      D. Friedman Reproject based on conformality  
+ * 07/23/2012   14968     M. Porricelli Changed wording of streamline
+ *                                      legend
  * 
  * </pre>
  * 
@@ -247,7 +249,7 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
             // The default type does not display in the legend
             legendParams.type = "";
         } else if (displayType == DisplayType.STREAMLINE) {
-            legendParams.type = "Streamlines";
+            legendParams.type = "Strmlns";
         } else if (displayType == DisplayType.BARB) {
             legendParams.type = "Wind Barbs";
         } else if (displayType == DisplayType.ARROW) {

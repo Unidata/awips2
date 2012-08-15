@@ -47,6 +47,9 @@ public class PointSourceConfiguration {
     private String pointSource;
 
     @XmlElement
+    private Double geometryDecimationTolerance;
+
+    @XmlElement
     private String pointField;
 
     @XmlJavaTypeAdapter(value = RequestableMetadataMarshaller.class)
@@ -143,6 +146,15 @@ public class PointSourceConfiguration {
 
     public void setWithinPolygon(boolean withinPolygon) {
         this.withinPolygon = withinPolygon;
+    }
+
+    public Double getGeometryDecimationTolerance() {
+        return geometryDecimationTolerance;
+    }
+
+    public void setGeometryDecimationTolerance(
+            Double geometryDecimationTolerance) {
+        this.geometryDecimationTolerance = geometryDecimationTolerance;
     }
 
 }
