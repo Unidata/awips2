@@ -20,11 +20,18 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
-class GetActiveSitesRequest(object):
+class GetSelectTimeRangeRequest(object):
 
     def __init__(self):
+        self.name = None
         self.workstationID = None
         self.siteID = None
+
+    def getName(self):
+        return self.name
+
+    def setName(self, name):
+        self.name = name
 
     def getWorkstationID(self):
         return self.workstationID

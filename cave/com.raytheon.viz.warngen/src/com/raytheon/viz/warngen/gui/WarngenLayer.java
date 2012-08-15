@@ -1234,7 +1234,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             ((oldWarningPolygon.intersection(warningPolygon)
                                     .getArea() / oldWarningArea.getArea()) * 100))
                     .intValue();
-            if (oldWarningPolygon.intersects(warningPolygon) == false
+            if (GeometryUtil.intersects(oldWarningPolygon, warningPolygon) == false
                     && !state.isMarked()) {
                 // Snap back to polygon
                 state.setWarningPolygon(localToLatLon((Polygon) oldWarningPolygon));
@@ -1873,7 +1873,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         IDisplayPaneContainer container = getResourceContainer();
         Coordinate[] coords = warningPolygon.getExteriorRing().getCoordinates();
 
-        if (vertexId >= coords.length) {
+        if (vertexId >= coords.length || vertexId < 0) {
             return vertexId;
         }
         int rval = vertexId;

@@ -18,13 +18,6 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetActiveTableRequest" />
 		<constructor-arg ref="activeTableHandler" />
 	</bean>
-	<bean id="activeSitesHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.GetActiveSitesRequestHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.GetActiveSitesRequest" />
-		<constructor-arg ref="activeSitesHandler" />
-	</bean>
 	<bean id="GetASCIIGridsHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.GetASCIIGridsHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
@@ -297,6 +290,13 @@
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest" />
 		<constructor-arg ref="SaveCombinationsFileHandler" />
+	</bean>
+	<bean id="GetSelectTRHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.GetSelectTimeRangeHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.GetSelectTimeRangeRequest" />
+		<constructor-arg ref="GetSelectTRHandler" />
 	</bean>
 
 

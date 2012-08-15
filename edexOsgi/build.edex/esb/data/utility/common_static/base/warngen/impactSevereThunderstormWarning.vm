@@ -6,6 +6,7 @@
 ## VERSION AWIPS II 1.1 -- 2-29-2012 OB12.2.1-4               ##
 ## VERSION AWIPS II 1.2 -- 4-20-2012                          ##
 ##       BY QINGLU LIN     7-31-2012 DR 15217 use roundAndPad ##
+##          QINGLU LIN     8-14-2012 DR 14493 use TMLtime     ##
 ################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -656,7 +657,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
 ${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
