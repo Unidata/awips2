@@ -5167,16 +5167,16 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _surge_Watch_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  > water_dict.get("Extreme", 7):
+        if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
             damage="WIDESPREAD MAJOR"
             
-        elif info.surgeHtPlusTide > water_dict.get("High", 5):
+        elif info.surgeHtPlusTide >= water_dict.get("High", 5):
             damage="AREAS OF MAJOR"
             
-        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 3):
+        elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
             damage="AREAS OF MODERATE"
             
-        elif info.surgeHtPlusTide  > water_dict.get("Low", 1):
+        elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
             damage="AREAS OF MINOR"
         else:
             damage = None
@@ -5189,16 +5189,16 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _surge_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  > water_dict.get("Extreme", 7):
+        if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
             damage= self._totalWaterLevel_Extreme_stmt(info, segment)
             
-        elif info.surgeHtPlusTide > water_dict.get("High", 5):
+        elif info.surgeHtPlusTide >= water_dict.get("High", 5):
             damage= self._totalWaterLevel_High_stmt(info, segment)
             
-        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 3):
+        elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
             damage= self._totalWaterLevel_Moderate_stmt(info, segment)
             
-        elif info.surgeHtPlusTide  > water_dict.get("Low", 1):
+        elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
             damage= self._totalWaterLevel_Low_stmt(info, segment)
         else:
             damage ="MINOR COASTAL FLOOD DAMAGE"

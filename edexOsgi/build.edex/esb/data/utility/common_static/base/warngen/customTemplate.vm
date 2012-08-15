@@ -167,7 +167,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

@@ -202,9 +202,6 @@ public class WarngenUIManager extends InputAdapter {
             return super.handleMouseUp(x, y, mouseButton);
         }
 
-        if (mouseButton == 2 && !pointCreated) {
-            new DeleteVertexAction().run();
-        }
 
         if (mouseButton == 3) {
             Coordinate c = container.translateClick(x, y);
@@ -425,11 +422,14 @@ public class WarngenUIManager extends InputAdapter {
                 Coordinate toRemove = (Coordinate) coords[idx].clone();
                 GeometryFactory gf = new GeometryFactory();
                 List<Coordinate> coordList = new ArrayList<Coordinate>();
-
+                List<Coordinate> alreadyRemoved = new ArrayList<Coordinate>();
+                
                 for (int i = 0; i < coords.length; ++i) {
                     Coordinate toAdd = (Coordinate) coords[i].clone();
-                    if (!toAdd.equals(toRemove)) {
+                    if (!toAdd.equals(toRemove) || alreadyRemoved.contains(toAdd)) {
                         coordList.add(toAdd);
+                    } else {
+                        alreadyRemoved.add(toAdd);
                     }
                 }
 
