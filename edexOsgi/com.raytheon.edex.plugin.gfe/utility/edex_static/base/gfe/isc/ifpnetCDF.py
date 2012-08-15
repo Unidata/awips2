@@ -21,13 +21,13 @@
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
 import numpy
-import pupynere as NetCDF
-#try:
-#    # dev environment
-#    from Scientific.IO import NetCDF
-#except:
-#    # runtime we don't have the whole scientific package
-#    import NetCDF
+#import pupynere as NetCDF
+try:
+    # dev environment
+    from Scientific.IO import NetCDF
+except:
+    # runtime we don't have the whole scientific package
+    import NetCDF
 import JUtil
 import iscUtil
 

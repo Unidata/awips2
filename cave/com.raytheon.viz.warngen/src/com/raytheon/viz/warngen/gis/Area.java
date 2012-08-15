@@ -336,7 +336,9 @@ public class Area {
                     for (int i = 0; i < warnArea.getNumGeometries(); i++) {
                         Geometry geom = warnArea.getGeometryN(i);
                         if (f.geometry.intersects(geom)) {
-                            GeometryUtil.buildGeometryList(geoms, f.geometry);
+                            Geometry intersect = f.geometry.intersection(geom);
+                            intersect.setUserData(f.geometry.getUserData());
+                            GeometryUtil.buildGeometryList(geoms, intersect);
                             break;
                         }
                     }

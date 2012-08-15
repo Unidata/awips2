@@ -57,7 +57,7 @@ public class AddAWIPSProcedure extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Procedure procedure = new Procedure();
-        ProcedureDlg dlg = new ProcedureDlg(null, procedure,
+        ProcedureDlg dlg = ProcedureDlg.getOrCreateDialog(null, procedure,
                 HandlerUtil.getActiveShell(event));
         dlg.open();
 
