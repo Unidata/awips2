@@ -319,6 +319,22 @@ public class Area {
         return areas.toArray(new AffectedAreas[areas.size()]);
     }
 
+    /**
+     * Determines the affected areas that intersect the warnArea. This method
+     * should be used if the intersected areas are of a different area source
+     * compared to the hatched area source. Otherwise, the information in the
+     * warnArea can just be re-used in the template. If the area source of the
+     * intersect and the hatched are the same, then the configuration and
+     * template files are configured inefficiently.
+     * 
+     * @param config
+     * @param warnPolygon
+     * @param warnArea
+     * @param localizedSite
+     * @param warngenLayer
+     * @return
+     * @throws VizException
+     */
     public static Map<String, Object> findInsectingAreas(
             WarngenConfiguration config, Geometry warnPolygon,
             Geometry warnArea, String localizedSite, WarngenLayer warngenLayer)
@@ -335,8 +351,17 @@ public class Area {
                 for (GeospatialData f : warngenLayer.getGeodataFeatures(key)) {
                     for (int i = 0; i < warnArea.getNumGeometries(); i++) {
                         Geometry geom = warnArea.getGeometryN(i);
-                        if (f.geometry.intersects(geom)) {
-                            GeometryUtil.buildGeometryList(geoms, f.geometry);
+                        if (GeometryUtil.intersects(f.geometry, geom)) {
+                            Geometry intersect = f.geometry.intersection(geom);
+                            if (intersect != null && !intersect.isEmpty()) {
+                                for (int j = 0; j < intersect
+                                        .getNumGeometries(); j++) {
+                                    intersect.getGeometryN(j).setUserData(
+                                            f.geometry.getUserData());
+                                }
+                                GeometryUtil
+                                        .buildGeometryList(geoms, intersect);
+                            }
                             break;
                         }
                     }
