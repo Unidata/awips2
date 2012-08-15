@@ -119,12 +119,24 @@ class ParmID(object):
         if not self.parmLevel.isalnum():
             return False
         
-        return True
-        
+        return True  
     
     @staticmethod
     def defaultLevel():
         return "SFC"
+    
+    @staticmethod
+    def parmNameAndLevel(composite):
+        retValue = []
+        
+        pos = composite.find('_')
+        if pos != -1:
+            retValue.append(composite[:pos])
+            retValue.append(composite[pos+1:])
+        else:
+            retValue.append(composite)
+            retValue.append("SFC")
+        return retValue
     
     def __str__(self):
         return self.__repr__()

@@ -90,6 +90,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 01/26/2012   14468       D.Friedman  Fix initial BBB field selection.
  * 05/30/2012   15046       D.Friedman  Always set addressee field to ALL.
  * 06/19/2012   14975       D.Friedman  Run callback when dialog is dismissed.
+ * 07/26/2012   15171       rferrel     Disable editor's send and clear AFOS PIL fields when
+ *                                      invalid product Id and user want to edit it anyway,
  * </pre>
  * 
  * @author lvenable
@@ -202,11 +204,11 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             @Override
             public void widgetDisposed(DisposeEvent e) {
                 if (parentEditor != null)
-                    parentEditor.headerBlockDlgDismissed(
-                            Boolean.TRUE.equals(getReturnValue()));
+                    parentEditor.headerBlockDlgDismissed(Boolean.TRUE
+                            .equals(getReturnValue()));
             }
         });
-        
+
         setReturnValue(false);
 
         createWmoIdFields();
@@ -274,7 +276,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the message/indicator group combo box.
         gd = new GridData(70, SWT.DEFAULT);
-        bbbCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN|SWT.READ_ONLY);
+        bbbCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         bbbCboBx.setItems(BBB_LIST);
         bbbCboBx.select(3);
         bbbCboBx.setLayoutData(gd);
@@ -298,7 +300,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the message/indicator version group combo box.
         gd = new GridData(70, SWT.DEFAULT);
-        bbbVerCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN|SWT.READ_ONLY);
+        bbbVerCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         bbbVerCboBx.setItems(CHAR_LIST);
         bbbVerCboBx.select(0);
         bbbVerCboBx.setLayoutData(gd);
@@ -473,7 +475,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                         .getTextLimit()) {
                     wmoTtaaiiTF.setFocus();
                 }
-                
+
                 handleAddresseeModified();
             }
         });
@@ -595,6 +597,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         enterBtn.setEnabled(true);
         enterBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+                boolean sendEnabled = true;
                 if (!isProductValid()) {
                     // Notify the user that the product may not be valid.
                     //
@@ -614,15 +617,25 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     if (mb.open() == SWT.NO) {
                         return;
                     }
+                    parentEditor.enableSend(false);
+                    sendEnabled = false;
+                } else {
+                    parentEditor.enableSend(true);
                 }
 
                 // call the set methods
                 parentEditor.setCurrentWmoId(wmoTtaaiiTF.getText());
                 parentEditor.setCurrentSiteId(ccccTF.getText());
-                parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
-                parentEditor.setCurrentProdCategory(prodCatTF.getText());
-                parentEditor.setCurrentProdDesignator(prodDesignatorTF
-                        .getText());
+                if (sendEnabled) {
+                    parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
+                    parentEditor.setCurrentProdCategory(prodCatTF.getText());
+                    parentEditor.setCurrentProdDesignator(prodDesignatorTF
+                            .getText());
+                } else {
+                    parentEditor.setCurrentWsfoId("");
+                    parentEditor.setCurrentProdCategory("");
+                    parentEditor.setCurrentProdDesignator("");
+                }
                 parentEditor.setAddressee(addresseeTF.getText());
                 setBbbId();
                 setReturnValue(true);

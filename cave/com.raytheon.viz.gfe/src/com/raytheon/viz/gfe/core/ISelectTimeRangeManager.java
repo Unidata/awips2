@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.gfe.core;
 
-import com.raytheon.viz.gfe.core.time.SelectTimeRange;
-import com.raytheon.viz.gfe.core.time.SelectTimeRange.Mode;
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
 
 /**
  * TODO Add Description
@@ -31,6 +31,7 @@ import com.raytheon.viz.gfe.core.time.SelectTimeRange.Mode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009            randerso     Initial creation
+ * Aug 1, 2012   #965     dgilling     Change location of SelectTimeRange.
  * 
  * </pre>
  * 
