@@ -237,7 +237,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
     /**
      * The duration in millis being displayed.
      */
-    private int duration;
+    private int duration = 3600;
 
     /**
      * Holds the display string and insert time for later use.
@@ -1126,7 +1126,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         String day = parts[2];
         String date = parts[3];
         String hour = parts[4];
-        duration = Integer.parseInt(durationStr) * FFGConstants.MILLIS_PER_HOUR;
+        duration = Integer.parseInt(durationStr) * FFGConstants.SECONDS_PER_HOUR;
 
         String paramAbr = "FFG" + durationStr + "24hr";
 

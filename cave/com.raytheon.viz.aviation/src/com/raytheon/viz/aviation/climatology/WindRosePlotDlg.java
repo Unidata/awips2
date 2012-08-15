@@ -55,7 +55,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
-
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
@@ -80,6 +79,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 9/12/2008    1444       grichard    Accommodate separate message logs.
  * 3/31/2011    8774       rferrel     killProcess when doing a disposed
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
+ * 23JUL2012    15169      zhao        Use Combo for 'Month' and 'Number of Months'
+ *                                     & disabled site controls while drawing
  * 
  * </pre>
  * 
@@ -101,14 +102,14 @@ public class WindRosePlotDlg extends CaveSWTDialog {
     private List siteList;
 
     /**
-     * Month spinner.
+     * Month
      */
-    private Spinner monthSpnr;
+    private Combo monthCbo;
 
     /**
      * Number of months.
      */
-    private Spinner numMonthsSpnr;
+    private Combo numMonthsCbo;
 
     /**
      * Hours spinner.
@@ -427,20 +428,19 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         Label monthLbl = new Label(monthHourComp, SWT.NONE);
         monthLbl.setText("Month:");
 
-        gd = new GridData(40, SWT.DEFAULT);
-        monthSpnr = new Spinner(monthHourComp, SWT.BORDER);
-        monthSpnr.setDigits(0);
-        monthSpnr.setIncrement(1);
-        monthSpnr.setPageIncrement(3);
-        monthSpnr.setMinimum(1);
-        monthSpnr.setMaximum(12);
-        monthSpnr.setSelection(cal.get(Calendar.MONTH) + 1);
-        monthSpnr.setLayoutData(gd);
-        monthSpnr.addSelectionListener(new SelectionAdapter() {
+        gd = new GridData(66, SWT.DEFAULT);
+        monthCbo = new Combo(monthHourComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        monthCbo.setLayoutData(gd);
+        for ( int i = 1; i <= 12; i++ ) {
+        	monthCbo.add(""+i, i-1);
+        }
+        monthCbo.select(cal.get(Calendar.MONTH));
+        monthCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+            	//System.out.println(" ***************  monthsCbo.getText() = " + monthCbo.getText() );
                 if (autoRedrawChk.getSelection()) {
-                    redrawWindRose();
+            		redrawWindRose();
                 }
             }
         });
@@ -448,20 +448,19 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         Label numMonthLbl = new Label(monthHourComp, SWT.NONE);
         numMonthLbl.setText("Num Months:");
 
-        gd = new GridData(40, SWT.DEFAULT);
-        numMonthsSpnr = new Spinner(monthHourComp, SWT.BORDER);
-        numMonthsSpnr.setDigits(0);
-        numMonthsSpnr.setIncrement(1);
-        numMonthsSpnr.setPageIncrement(3);
-        numMonthsSpnr.setMinimum(1);
-        numMonthsSpnr.setMaximum(12);
-        numMonthsSpnr.setSelection(1);
-        numMonthsSpnr.setLayoutData(gd);
-        numMonthsSpnr.addSelectionListener(new SelectionAdapter() {
+        gd = new GridData(66, SWT.DEFAULT);
+        numMonthsCbo = new Combo(monthHourComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        numMonthsCbo.setLayoutData(gd);
+        for ( int i = 1; i <= 12; i++ ) {
+        	numMonthsCbo.add(""+i, i-1);
+        }
+        numMonthsCbo.select(0);
+        numMonthsCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+            	//System.out.println(" ***************  numMonthsCbo.getText() = " + numMonthsCbo.getText() );
                 if (autoRedrawChk.getSelection()) {
-                    redrawWindRose();
+            		redrawWindRose();
                 }
             }
         });
@@ -586,8 +585,10 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             generateWindRoseHeader();
 
             windRoseCanvasComp.updateAndRedraw(windRoseConfigData.cloneData(),
-                    windRoseHeader, monthSpnr.getText(),
-                    numMonthsSpnr.getText(), hourSpnr.getText(),
+                    windRoseHeader, 
+                    monthCbo.getText(),
+                    numMonthsCbo.getText(),
+                    hourSpnr.getText(),
                     numHoursSpnr.getText(), flightCatCbo.getSelectionIndex(),
                     siteList.getItem(siteList.getSelectionIndex()), this);
         }
@@ -599,11 +600,21 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         if (state == true) {
             ++busyCount;
             shell.setCursor(waitCursor);
+            monthCbo.setEnabled(false);
+            numMonthsCbo.setEnabled(false);
+            hourSpnr.setEnabled(false);
+            numHoursSpnr.setEnabled(false);
+            flightCatCbo.setEnabled(false);
             drawBtn.setEnabled(false);
         } else {
             --busyCount;
             if (busyCount == 0) {
                 shell.setCursor(defaultCursor);
+                monthCbo.setEnabled(true);
+                numMonthsCbo.setEnabled(true);
+                hourSpnr.setEnabled(true);
+                numHoursSpnr.setEnabled(true);
+                flightCatCbo.setEnabled(true);
                 drawBtn.setEnabled(true);
             }
         }
@@ -634,23 +645,21 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         header.append(siteList.getItem(siteList.getSelectionIndex()));
         header.append(" ");
 
-        header.append(MONTHS[monthSpnr.getSelection() - 1]);
+        header.append(MONTHS[monthCbo.getSelectionIndex()]);
 
-        if (numMonthsSpnr.getSelection() == 1) {
+        if ( numMonthsCbo.getSelectionIndex() == 0 ) {
             header.append(" ");
         } else {
             header.append("-");
 
             int endMonth = 0;
 
-            if (((numMonthsSpnr.getSelection() - 1) + monthSpnr.getSelection()) > 12) {
-                endMonth = (numMonthsSpnr.getSelection() - 1)
-                        + monthSpnr.getSelection() - 12;
-                header.append(MONTHS[endMonth - 1]);
+            if ( ( numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex() ) > 11 ) {
+                endMonth = numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex() - 12;
+                header.append(MONTHS[endMonth]);
             } else {
-                endMonth = (numMonthsSpnr.getSelection() - 1)
-                        + monthSpnr.getSelection();
-                header.append(MONTHS[endMonth - 1]);
+                endMonth = numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex();
+                header.append(MONTHS[endMonth]);
             }
             header.append(" ");
         }
