@@ -39,6 +39,13 @@ public class AreaSourceConfiguration {
     @XmlElement
     private AreaType type = AreaType.HATCHING;
 
+    /*
+     * TODO This is for 12.9 to be backwards compatible. This will be removed in
+     * 12.10
+     */
+    @XmlElement
+    private AreaType areaType;
+
     @XmlAttribute
     private String variable;
 
@@ -59,7 +66,7 @@ public class AreaSourceConfiguration {
 
     @XmlElement
     private String areaNotationTranslationFile;
-    
+
     @XmlElement
     private String timeZoneField;
 
@@ -268,6 +275,14 @@ public class AreaSourceConfiguration {
 
     public void setType(AreaType type) {
         this.type = type;
+    }
+
+    public AreaType getAreaType() {
+        return areaType;
+    }
+
+    public void setAreaType(AreaType areaType) {
+        this.areaType = areaType;
     }
 
 }
