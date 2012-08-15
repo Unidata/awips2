@@ -304,10 +304,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
                     continue;
                 } // grid overlaps spatial editor time -- skip it
 
-                long lastAccess = 0;
-                if (grid.getLastAccessTime() != null) {
-                    lastAccess = grid.getLastAccessTime().getTime();
-                }
+                long lastAccess = grid.getLastAccessTime();
 
                 long delta = now - lastAccess;
                 if (delta < milliseconds) {
