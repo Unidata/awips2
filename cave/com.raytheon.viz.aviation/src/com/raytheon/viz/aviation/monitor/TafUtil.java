@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 6, 2010  5792       rferrel    getLatestTafs now returns tafs
  *                                    sorted by issue date newest at
  *                                    the start of the array.
+ * 08AUG2012    15613      zhao       Modified safeFormatTaf() 
  * 
  * </pre>
  * 
@@ -161,12 +162,13 @@ public class TafUtil {
      */
     public static String safeFormatTaf(TafRecord t, boolean includeHeader) {
         StringBuilder sb = new StringBuilder();
-        if (includeHeader) {
-            sb.append(t.getWmoHeader());
-            sb.append(LINE_BREAK);
-        }
         if (t != null) {
             String[] text = t.getTafText().split("[\r\n]");
+            if (includeHeader) {
+                sb.append(t.getWmoHeader());
+                sb.append(LINE_BREAK);
+                sb.append("TAF").append(t.getStationId().substring(1,4)).append(LINE_BREAK);
+            }
             String firstLine = text[0];
             if (firstLine.startsWith("TAF AMD")
                     || firstLine.startsWith("TAF COR")) {
@@ -191,6 +193,7 @@ public class TafUtil {
                     sb.append(LINE_BREAK);
                 }
             }
+            sb.append(LINE_BREAK);
         }
         return sb.toString();
     }

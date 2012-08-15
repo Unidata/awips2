@@ -204,13 +204,8 @@ remDirectory1="netcdf-wfo"          # Directory where grids are stored on the
 mask=ISC_Send_Area
                                    
 # Parameter list for the netcdf file
-parmlist1="-p MaxT -p MinT -p MaxRH -p MinRH -p T -p Td -p RH -p WindChill -p HeatIndex -p ApparentT"
-parmlist2="-p PoP -p PoP12 -p Sky -p Wx -p Hazards -p SnowLevel -p QPF -p SnowAmt -p IceAccum -p Wind -p WindGust"
-parmlist3="-p ClearIndex -p FreeWind -p LAL -p Haines -p MixHgt -p VentRate -p TransWind -p Wind20ft -p CLRIndx"
-parmlist5=""
-parmlist6=""
-parmlist="$parmlist1 $parmlist2 $parmlist3 $parmlist4 $parmlist5 $parmlist6"
-parmlist=""                         #uncomment to send all parameters
+parmlist=""                         #send all parameters
+. ${IFPS_DATA}/rsync_parms.${1}
 
 creationAttempts=3                  # How many times do you want script to create and 
                                     # quality control netcdf files if bad netcdf files
@@ -237,11 +232,7 @@ FXA_BIN="/awips2/fxa/bin"
 CDSHOST="ec"
 CDSPORT="9581" 
 
-# It is possible that you may not have all of the parameters that your service backup sites
-# need sent to the webfarms. So if script is run for a backup site, then send all parameters.
-parmlist=" "
-
-# Setting up the infrastructure for a log file.
+# set current data and log file name
 currdate=$(date -u +%Y%m%d)
 export LOG_FILE="${DXwrkDir}/log/${currdate}/netcdf_rsync.log"
 
@@ -280,6 +271,12 @@ echo cleaning up orphaned files in the ${WRKDIR} directory at $(date) >> $LOG_FI
 find ${WRKDIR}/. -mmin +60 -exec rm {} -f \;
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
+
+if [ "$parmlist" != "" ]; then
+  echo "Will trim elements to $parmlist" >> $LOG_FILE
+else
+  echo "Will send all elements" >> $LOG_FILE
+fi
 
 # Determine the ifpnetCDF start and end times.
 start_time=$(date +%Y%m%d_%H00 -d "6 hours ago")

@@ -394,6 +394,9 @@ public class VizWorkbenchManager implements IPartListener, IPartListener2,
                 }
                 activeEditorMap
                         .put(part.getSite().getWorkbenchWindow(), active);
+                if (active instanceof IDisplayPaneContainer) {
+                    notifyListeners();
+                }
             }
         }
     }

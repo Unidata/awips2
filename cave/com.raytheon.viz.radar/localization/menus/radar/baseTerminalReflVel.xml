@@ -29,17 +29,7 @@
 	       	<substitute key="product2" value="187"/>
 	       	<substitute key="product3" value=""/>
 	       	<substitute key="product4" value=""/>
-			<substitute key="elevation" value="0.0--360.0" />
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
-			menuText="${elev0} Refl" id="${icao}Terminal${elev0}Refl" suppressErrors="${suppressErrors0}">
-			<substitute key="icao" value="${icao}" />
-	       	<substitute key="mode" value=""/>
-	       	<substitute key="product1" value="180"/>
-	       	<substitute key="product2" value="181"/>
-	       	<substitute key="product3" value=""/>
-	       	<substitute key="product4" value=""/>
-			<substitute key="elevation" value="${elev0}--${elev0}" />
+			<substitute key="elevation" value="0.5--360.0" />
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
 			menuText="${elev1} Refl" id="${icao}Terminal${elev1}Refl" suppressErrors="${suppressErrors1}">
@@ -289,20 +279,10 @@
 	       	<substitute key="product2" value="181"/>
 	       	<substitute key="product3" value=""/>
 	       	<substitute key="product4" value=""/>
-			<substitute key="elevation" value="0.0--360.0" />
+			<substitute key="elevation" value="0.5--360.0" />
 		</contribute>
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="${icao} Vel" id="${icao}TerminalVel">
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
-			menuText="${elev0} Vel" id="${icao}Terminal${elev0}Vel" suppressErrors="${suppressErrors0}">
-			<substitute key="icao" value="${icao}" />
-	       	<substitute key="mode" value=""/>
-	       	<substitute key="product1" value="182"/>
-	       	<substitute key="product2" value="183"/>
-	       	<substitute key="product3" value=""/>
-	       	<substitute key="product4" value=""/>
-			<substitute key="elevation" value="${elev0}--${elev0}" />
-		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
 			menuText="${elev1} Vel" id="${icao}Terminal${elev1}Vel" suppressErrors="${suppressErrors1}">
 			<substitute key="icao" value="${icao}" />
@@ -552,7 +532,7 @@
 	       	<substitute key="product2" value="183"/>
 	       	<substitute key="product3" value=""/>
 	       	<substitute key="product4" value=""/>
-			<substitute key="elevation" value="0.0--360.0" />
+			<substitute key="elevation" value="0.5--360.0" />
 		</contribute>
 	</contribute>
 </menuTemplate> 
