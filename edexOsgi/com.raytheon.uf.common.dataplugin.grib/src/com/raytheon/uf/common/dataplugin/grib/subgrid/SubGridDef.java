@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
@@ -38,7 +39,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2010            rjpeter     Initial creation
- * 
+ * Jul 25, 2012 977        rjpeter     Add optional centerLatitude/centerLongitude
  * </pre>
  * 
  * @author rjpeter
@@ -51,37 +52,39 @@ public class SubGridDef implements ISerializableObject {
     @XmlElement(required = true)
     @XmlList
     private List<String> modelNames;
-    
+
     @XmlElement(required = true)
     private String referenceModel;
 
+    @XmlElement(required = true)
+    private double nx;
+
+    @XmlElement(required = true)
+    private double ny;
+
+    // annotation on setter to enforce data constraints
+    private Double centerLatitude;
+
+    // annotation on setter to enforce data constraints
+    private Double centerLongitude;
+
     /** the lower left latitude */
-    @XmlElement
     private double lowerLeftLat;
 
     /** the lower left longitude */
-    @XmlElement
     private double lowerLeftLon;
 
     /** the upper right latitude */
-    @XmlElement
     private double upperRightLat;
 
     /** the upper right longitude */
-    @XmlElement
     private double upperRightLon;
-    
-    @XmlElement(required = true)
-    private double nx;
-    
-    @XmlElement(required = true)
-    private double ny;
 
     public List<String> getModelNames() {
         return modelNames;
     }
 
-    public void setModelNames(List<String> modelNames) {
+    public void setModelNames(final List<String> modelNames) {
         this.modelNames = modelNames;
     }
 
@@ -89,7 +92,7 @@ public class SubGridDef implements ISerializableObject {
         return lowerLeftLat;
     }
 
-    public void setLowerLeftLat(double lowerLeftLat) {
+    public void setLowerLeftLat(final double lowerLeftLat) {
         this.lowerLeftLat = lowerLeftLat;
     }
 
@@ -97,7 +100,7 @@ public class SubGridDef implements ISerializableObject {
         return lowerLeftLon;
     }
 
-    public void setLowerLeftLon(double lowerLeftLon) {
+    public void setLowerLeftLon(final double lowerLeftLon) {
         this.lowerLeftLon = lowerLeftLon;
     }
 
@@ -105,7 +108,7 @@ public class SubGridDef implements ISerializableObject {
         return upperRightLat;
     }
 
-    public void setUpperRightLat(double upperRightLat) {
+    public void setUpperRightLat(final double upperRightLat) {
         this.upperRightLat = upperRightLat;
     }
 
@@ -113,7 +116,7 @@ public class SubGridDef implements ISerializableObject {
         return upperRightLon;
     }
 
-    public void setUpperRightLon(double upperRightLon) {
+    public void setUpperRightLon(final double upperRightLon) {
         this.upperRightLon = upperRightLon;
     }
 
@@ -121,7 +124,7 @@ public class SubGridDef implements ISerializableObject {
         return nx;
     }
 
-    public void setNx(double nx) {
+    public void setNx(final double nx) {
         this.nx = nx;
     }
 
@@ -129,7 +132,7 @@ public class SubGridDef implements ISerializableObject {
         return ny;
     }
 
-    public void setNy(double ny) {
+    public void setNy(final double ny) {
         this.ny = ny;
     }
 
@@ -137,9 +140,33 @@ public class SubGridDef implements ISerializableObject {
         return referenceModel;
     }
 
-    public void setReferenceModel(String referenceModel) {
+    public void setReferenceModel(final String referenceModel) {
         this.referenceModel = referenceModel;
     }
-    
-    
+
+    public Double getCenterLatitude() {
+        return centerLatitude;
+    }
+
+    @XmlElement
+    public void setCenterLatitude(final Double centerLatitude) {
+        this.centerLatitude = centerLatitude;
+        if (this.centerLatitude != null) {
+            this.centerLatitude = new Double(MapUtil.correctLat(centerLatitude
+                    .doubleValue()));
+        }
+    }
+
+    public Double getCenterLongitude() {
+        return centerLongitude;
+    }
+
+    @XmlElement
+    public void setCenterLongitude(final Double centerLongitude) {
+        this.centerLongitude = centerLongitude;
+        if (this.centerLongitude != null) {
+            this.centerLongitude = new Double(
+                    MapUtil.correctLon(centerLongitude.doubleValue()));
+        }
+    }
 }

@@ -70,6 +70,12 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20090408            952 jsanchez    Updated getValue and getStrings methods.
  *                                      Added getMessageData method.
  * 20090521          2338  jsanchez    Changed the unit of the alititude.
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/09/2012         1011 jkorman     Added separate max icing level as well
+ * as separated code to generate distinct max icing/turbulence levels. Removed
+ * code that used "display" boolean to determine data access.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -138,7 +144,10 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     @Transient
-    private PirepLayerData maxPirepLayerData = null;
+    private PirepLayerData maxTurbcLayerData = null;
+
+    @Transient
+    private PirepLayerData maxIcingLayerData = null;
 
     @Transient
     private boolean display = true;
@@ -591,32 +600,31 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
      */
     @Override
     public Amount getValue(String paramName) {
+        findMaxIcingLayer();
+        findMaxTurbcLayer();
         Amount a = null;
 
         String pName = PARM_MAP.get(paramName);
-        if (display) {
-            if (SFC_TEMP.equals(pName) && (temp != null)) {
-                a = new Amount(temp, TEMPERATURE_UNIT);
-            } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-                a = new Amount(windSpeed, WIND_SPEED_UNIT);
-            } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-                a = new Amount(windDirection, WIND_DIR_UNIT);
-            } else if (STA_LAT.equals(pName)) {
-                a = new Amount(this.getLatitude(), LOCATION_UNIT);
-            } else if (STA_LON.equals(pName)) {
-                a = new Amount(this.getLongitude(), LOCATION_UNIT);
-            } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
-                a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-            } else if (UA_TOPHGT.equals(pName) && maxPirepLayerData != null
-                    && maxPirepLayerData.getTopLayerHeight() != null) {
-                a = new Amount(
-                        maxPirepLayerData.getTopLayerHeight().intValue(),
-                        ALTITUDE_UNIT);
-            } else if (UA_BOTHGT.equals(pName) && maxPirepLayerData != null
-                    && maxPirepLayerData.getBaseLayerHeight() != null) {
-                a = new Amount(maxPirepLayerData.getBaseLayerHeight()
-                        .intValue(), ALTITUDE_UNIT);
-            }
+        if (SFC_TEMP.equals(pName) && (temp != null)) {
+            a = new Amount(temp, TEMPERATURE_UNIT);
+        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
+            a = new Amount(windSpeed, WIND_SPEED_UNIT);
+        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
+            a = new Amount(windDirection, WIND_DIR_UNIT);
+        } else if (STA_LAT.equals(pName)) {
+            a = new Amount(this.getLatitude(), LOCATION_UNIT);
+        } else if (STA_LON.equals(pName)) {
+            a = new Amount(this.getLongitude(), LOCATION_UNIT);
+        } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
+            a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
+        } else if (UA_TOPHGT.equals(pName) && maxTurbcLayerData != null
+                && maxTurbcLayerData.getTopLayerHeight() != null) {
+            a = new Amount(maxTurbcLayerData.getTopLayerHeight().intValue(),
+                    ALTITUDE_UNIT);
+        } else if (UA_BOTHGT.equals(pName) && maxTurbcLayerData != null
+                && maxTurbcLayerData.getBaseLayerHeight() != null) {
+            a = new Amount(maxTurbcLayerData.getBaseLayerHeight().intValue(),
+                    ALTITUDE_UNIT);
         }
         return a;
     }
@@ -636,80 +644,84 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public String[] getStrings(String paramName) {
-        if ("ICI".matches(paramName)) {
-            int rank = -1;
-            String iceIntensity = null;
-            for (PirepLayerData layer : this.ancPirepData) {
-                String intensity = "";
-                if (layer.getLayerType().equals(PirepLayerData.LAYER_TYP_ICING)) {
-                    if (layer.getFirstValue() != null) {
-                        intensity = layer.getFirstValue();
-                    }
-                    if (layer.getSecondValue() != null) {
-                        intensity += layer.getSecondValue();
-                    }
+        findMaxIcingLayer();
+        findMaxTurbcLayer();
 
-                    if (ICING_MAP.get(intensity).intValue() > rank) {
-                        rank = ICING_MAP.get(intensity).intValue();
-                        iceIntensity = intensity;
-                        maxPirepLayerData = layer;
-                    }
+        String[] retData = null;
+        if ("ICI".matches(paramName)) {
+            if (maxIcingLayerData != null) {
+                String intensity = getIntensity(maxIcingLayerData);
+                if (intensity != null) {
+                    retData = new String[] { intensity };
                 }
             }
-            if (iceIntensity != null) {
-                String[] maxIntensity = { iceIntensity };
-                return maxIntensity;
-            } else {
-                display = false;
-            }
-        } else if ("ICT".matches(paramName) && maxPirepLayerData != null) {
-            if (maxPirepLayerData == null) {
-                findMaxTurbcLayer();
-            }
-            if (maxPirepLayerData != null) {
-                String type = maxPirepLayerData.getDataType();
+        } else if ("ICT".matches(paramName) && maxIcingLayerData != null) {
+            if (maxIcingLayerData != null) {
+                String type = maxIcingLayerData.getDataType();
                 if (type != null) {
-                    return new String[] { type, };
+                    retData = new String[] { type, };
                 }
             }
         } else if ("TBI".matches(paramName)) {
-            if (maxPirepLayerData == null) {
-                findMaxTurbcLayer();
-            }
-            if (maxPirepLayerData != null) {
-                String intensity = getIntensity(maxPirepLayerData);
+            if (maxTurbcLayerData != null) {
+                String intensity = getIntensity(maxTurbcLayerData);
                 if (intensity != null) {
-                    return new String[] { intensity, };
+                    retData = new String[] { intensity };
                 }
             }
         } else if ("TBF".matches(paramName)) {
-            if (maxPirepLayerData == null) {
-                findMaxTurbcLayer();
-            }
-            if (maxPirepLayerData != null) {
-                String freq = maxPirepLayerData.getFrequency();
+            findMaxTurbcLayer();
+            if (maxTurbcLayerData != null) {
+                String freq = maxTurbcLayerData.getFrequency();
                 if (freq != null) {
-                    return new String[] { freq, };
+                    retData = new String[] { freq, };
                 }
             }
         }
-        return null;
+        return retData;
+    }
+
+    private void findMaxIcingLayer() {
+        if (maxIcingLayerData == null) {
+            int rank = -1;
+            for (PirepLayerData layer : this.ancPirepData) {
+                if (layer.getLayerType().equals(PirepLayerData.LAYER_TYP_ICING)) {
+                    String intensity = getIntensity(layer);
+                    Integer n = ICING_MAP.get(intensity);
+                    if ((n != null) && (n > rank)) {
+                        rank = n;
+                        maxIcingLayerData = layer;
+                    }
+                }
+            }
+            if (maxIcingLayerData != null) {
+                display = (getIntensity(maxIcingLayerData) != null);
+            } else {
+                display = false;
+            }
+        }
     }
 
     /**
      * Find a turbulence layer with the greatest ordinal intensity.
      */
     private void findMaxTurbcLayer() {
-        int rank = -1;
-        for (PirepLayerData layer : this.ancPirepData) {
-            if (PirepLayerData.LAYER_TYP_TURBC.equals(layer.getLayerType())) {
-                String intensity = getIntensity(layer);
-                if (TURB_MAP.containsKey(intensity)) {
-                    if (TURB_MAP.get(intensity).intValue() > rank) {
-                        rank = TURB_MAP.get(intensity).intValue();
-                        maxPirepLayerData = layer;
+        if (maxTurbcLayerData == null) {
+            int rank = -1;
+            for (PirepLayerData layer : this.ancPirepData) {
+                if (PirepLayerData.LAYER_TYP_TURBC.equals(layer.getLayerType())) {
+                    String intensity = getIntensity(layer);
+                    Integer n = TURB_MAP.get(intensity);
+                    if ((n != null) && (n > rank)) {
+                        rank = n;
+                        maxTurbcLayerData = layer;
                     }
                 }
+            }
+            if (maxTurbcLayerData != null) {
+                display = (getIntensity(maxTurbcLayerData) != null);
+            } else {
+                display = false;
             }
         }
     }
@@ -787,37 +799,5 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         } else if (!getDataURI().equals(other.getDataURI()))
             return false;
         return true;
-    }
-
-    public static final void main(String[] args) {
-
-        PirepRecord rec = new PirepRecord();
-
-        PirepLayerData layer = new PirepLayerData(rec);
-        layer.setLayerType(PirepLayerData.LAYER_TYP_TURBC);
-        layer.setFrequency("OCN");
-        layer.setFirstValue("LGT");
-        layer.setSecondValue("MOD");
-        layer.setBaseLayerHeight(15000);
-        layer.setTopLayerHeight(20000);
-        rec.addLayer(layer);
-
-        layer = new PirepLayerData(rec);
-        layer.setLayerType(PirepLayerData.LAYER_TYP_TURBC);
-        layer.setFrequency("CON");
-        layer.setFirstValue("MOD");
-        layer.setSecondValue("SEV");
-        layer.setBaseLayerHeight(20000);
-        layer.setTopLayerHeight(22000);
-        rec.addLayer(layer);
-
-        String[] data = rec.getStrings("TBF");
-        if ((data != null) && (data.length > 0)) {
-            System.out.println(data[0]);
-        }
-        data = rec.getStrings("TBI");
-        if ((data != null) && (data.length > 0)) {
-            System.out.println(data[0]);
-        }
     }
 }
