@@ -19,13 +19,17 @@
  **/
 package com.raytheon.viz.warngen.config;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
@@ -35,6 +39,7 @@ import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.vividsolutions.jts.geom.Geometry;
@@ -96,21 +101,62 @@ public class DbPointSourceDataAdaptor implements IPointSourceDataAdaptor {
             }
         }
 
-        List<ClosestPoint> points = new ArrayList<ClosestPoint>();
+        List<ClosestPoint> points = null;
 
         try {
-            SpatialQueryResult[] ptFeatures = SpatialQueryFactory.create()
-                    .query(pointSource,
-                            ptFields.toArray(new String[ptFields.size()]),
-                            searchArea, filter, SearchMode.INTERSECTS);
+            SpatialQueryResult[] ptFeatures = null;
+            Double decimationTolerance = pointConfig
+                    .getGeometryDecimationTolerance();
+            String field = "the_geom";
+
+            if (decimationTolerance != null && decimationTolerance > 0) {
+                // find available tolerances
+                List<Double> results = DbMapQueryFactory.getMapQuery(
+                        "mapdata." + pointSource.toLowerCase(), field)
+                        .getLevels();
+                Collections.sort(results, Collections.reverseOrder());
+
+                boolean found = false;
+                for (Double val : results) {
+                    if (val <= decimationTolerance) {
+                        decimationTolerance = val;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    decimationTolerance = null;
+                }
+            }
+
+            if (decimationTolerance != null) {
+                DecimalFormat df = new DecimalFormat("0.######");
+                String suffix = "_"
+                        + StringUtils.replaceChars(
+                                df.format(decimationTolerance), '.', '_');
+                ptFeatures = SpatialQueryFactory.create().query(pointSource,
+                        field + suffix,
+                        ptFields.toArray(new String[ptFields.size()]),
+                        searchArea, filter, SearchMode.INTERSECTS);
+            } else {
+                ptFeatures = SpatialQueryFactory.create().query(pointSource,
+                        ptFields.toArray(new String[ptFields.size()]),
+                        searchArea, filter, SearchMode.INTERSECTS);
+            }
+
+            if (ptFeatures != null) {
+                points = new ArrayList<ClosestPoint>(ptFeatures.length);
+            } else {
+                points = new ArrayList<ClosestPoint>(0);
+            }
+
             for (SpatialQueryResult ptRslt : ptFeatures) {
                 if (ptRslt != null && ptRslt.geometry != null) {
                     Object nameObj = ptRslt.attributes.get(pointField);
                     if (nameObj != null) {
                         int population = 0;
                         int warngenlev = 0;
-                        ClosestPoint cp = new ClosestPoint();
-
                         if (ptFields.contains("population")) {
                             try {
                                 population = Integer.valueOf(String
