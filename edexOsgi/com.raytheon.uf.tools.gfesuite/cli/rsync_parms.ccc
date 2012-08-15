@@ -1,0 +1,8 @@
+# Parameter list for the netcdf file
+# Example: parmlist1="-p ClearIndex -p MaxT"
+parmlist1=""
+parmlist2=""
+parmlist3="" 
+parmlist5=""
+parmlist6=""
+parmlist="$parmlist1 $parmlist2 $parmlist3 $parmlist4 $parmlist5 $parmlist6"

@@ -21,13 +21,13 @@
 
 import os, stat, time, string, bisect, getopt, sys, traceback
 import LogStream, iscTime, iscUtil, mergeGrid
-import pupynere as NetCDF
-#try:
-#    # dev environment
-#    from Scientific.IO import NetCDF
-#except:
-#    # runtime we don't have the whole scientific package
-#    import NetCDF
+#import pupynere as NetCDF
+try:
+    # dev environment
+    from Scientific.IO import NetCDF
+except:
+    # runtime we don't have the whole scientific package
+    import NetCDF
 import numpy
 import JUtil
 

@@ -1,5 +1,14 @@
 package com.raytheon.uf.edex.plugin.ffmp.common;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -36,19 +45,32 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
  * @version 1.0
  */
 
-public class FFTIData {
-	
-	private Double gap = 0.0;
-	
-	private Double duration = 0.0;
-	
-	private String name = null;
-	
-	private String unit = null;
-	
-	private boolean isReset = true;
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public class FFTIData implements ISerializableObject {
 
-	/**
+    @DynamicSerializeElement
+    @XmlElement
+    private Double gap = 0.0;
+
+    @DynamicSerializeElement
+    @XmlElement
+    private Double duration = 0.0;
+
+    @DynamicSerializeElement
+    @XmlElement
+    private String name = null;
+
+    @DynamicSerializeElement
+    @XmlElement
+    private String unit = null;
+
+    @DynamicSerializeElement
+    @XmlElement
+    private boolean reset = true;
+
+    /**
      * @param name
      *            the name to set
      */
@@ -62,15 +84,15 @@ public class FFTIData {
     public String getName() {
         return name;
     }
-	
-	public Double getGap() {
+
+    public Double getGap() {
         return gap;
     }
 
     public void setGap(Double gap) {
         this.gap = gap;
     }
-    
+
     public Double getDuration() {
         return duration;
     }
@@ -78,7 +100,7 @@ public class FFTIData {
     public void setDuration(Double duration) {
         this.duration = duration;
     }
-        
+
     /**
      * @param unit
      *            the unit to set
@@ -93,21 +115,13 @@ public class FFTIData {
     public String getUnit() {
         return unit;
     }
-    
-    /**
-     * Change status
-     * @param isReset
-     */
-    public void reset(boolean isReset) {
-    	this.isReset = isReset;
-    }
-    
-    /**
-     * Check status
-     * @return
-     */
+
     public boolean isReset() {
-    	return isReset;
+        return reset;
+    }
+
+    public void setReset(boolean reset) {
+        this.reset = reset;
     }
 
 }
