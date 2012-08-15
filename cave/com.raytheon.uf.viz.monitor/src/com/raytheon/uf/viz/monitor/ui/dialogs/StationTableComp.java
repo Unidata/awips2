@@ -301,7 +301,7 @@ public class StationTableComp extends TableComp {
      * @param name
      */
     public void setIdLabel(String name) {
-        idLbl.setText("Zone/County: " + name);
+        idLbl.setText("Zone/County: "+ this.id +" - "+ name);
         controlComp.layout();
     }
 
