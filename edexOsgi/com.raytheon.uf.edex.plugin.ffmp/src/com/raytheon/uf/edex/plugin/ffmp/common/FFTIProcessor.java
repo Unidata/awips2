@@ -35,7 +35,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.FFTISourceXML;
-import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -54,7 +53,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky     Initial creation
- * 
+ * July 11, 2012            dhladky    Edited for FFTI work
  * </pre>
  * 
  * @author dhladky
@@ -71,18 +70,12 @@ public class FFTIProcessor {
 
     private FFMPGenerator ffmpgen = null;
 
-    private String wfo = null;
-
-    private Date ffgBarrierTime = null;
-
-    private FFMPDataContainer sourceContainer = null;
-
     /** Pattern for dates in radar */
     public static String datePattern = "yyyy-MM-dd HH:mm:ss";
-    
+
     /** 6 hour back time multiplier */
     public static long backTime = 3600 * 1000 * 6;
-    
+
     /** FFG back time multiplier */
     public static long ffgbackTime = 3600 * 1000 * 24;
 
@@ -100,321 +93,214 @@ public class FFTIProcessor {
         this.ffmpgen = ffmpgen;
         this.ffmpRec = ffmpRec;
         this.fftiSource = fftiSource;
-        this.wfo = ffmpRec.getWfo();
-        long curr = ffmpRec.getDataTime().getRefTime().getTime();
-        long fftiFFGBarrier = (long) (24.0 * 60.0 * 60.0 * 1000);
-        this.ffgBarrierTime = new Date(curr - fftiFFGBarrier);
     }
 
     /**
      * Process FFTI for this source
      */
     public void processFFTI() {
-		ArrayList<String> dispNameList = fftiSource.getDisplayNameList();
-		for (String sourceNameString : dispNameList) {
-		
-			String iSiteKey = ffmpRec.getSiteKey();
-			String iDataKey = ffmpRec.getDataKey();
-			String sourceString = sourceNameString;
-			
-			String[] parts = sourceNameString.split("-");
-			SourceXML source = null;
 
-			if (parts.length > 1) {
-				iSiteKey = parts[0];
-				String sourceName = parts[1];
-				source = FFMPSourceConfigurationManager.getInstance()
-						.getSource(sourceName);
-			} else {
-				// mosaic source
-				source = FFMPSourceConfigurationManager.getInstance()
-						.getSourceByDisplayName(sourceString);
-			}
+        ArrayList<String> dispNameList = fftiSource.getDisplayNameList();
+        String iSiteKey = ffmpRec.getSiteKey();
+        String iDataKey = ffmpRec.getDataKey();
 
-			if (source.getSourceType().equals(
-					FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
-							.getSourceType())) {
-				
-				sourceString = source.getDisplayName();
-				
-				// Mark all GUIDANCE related sources as dirty for FFTI
-				for (String fftiName: ffmpgen.getFFTIDataContainer().keySet()) {
-					if (fftiName.startsWith(sourceString)) {
-						System.out.println("Resetting FFTI source for processing!!!!! "+fftiName);
-						ffmpgen.getFFTIData(fftiName).reset(true);
-					}
-				}
-				
-			} else {
-				
-				sourceString = source.getDisplayName() + "-" + iSiteKey + "-"+ iDataKey;
-				
-				// Mark this source as dirty for FFTI
-				if (ffmpgen.isFFTI(sourceString)) {
-					//System.out.println("Resetting FFTI source for processing!!!!! "+sourceString);
-					ffmpgen.getFFTIData(sourceString).reset(true);
-					
-					// Mark associated sources as dirty for FFTI
-					for (String fftiName: ffmpgen.getFFTIDataContainer().keySet()) {
-						String[] name = fftiName.split("-");
-						if (name.length == 3) {
-							if (name[1].equals(source.getDisplayName()) && name[2].equals(iDataKey)) {
-								//System.out.println("Resetting FFTI source for processing!!!!! "+fftiName);
-								ffmpgen.getFFTIData(fftiName).reset(true);
-							}
-						}
-					}
-				}
-			}
-			
-			Date backDate = new Date(ffmpRec.getDataTime().getRefTime().getTime()
-					- (backTime));
-			ArrayList<String> hucs = new ArrayList<String>();
-			hucs.add("ALL");
+        for (String sourceNameString : dispNameList) {
 
-			sourceContainer = ffmpgen.getFFMPDataContainer(sourceString, hucs, backDate);
+            String sourceString = sourceNameString;
 
-			// we attempt to reload sources
-			// this is done to keep all of the clustered
-			// FFMP's in sync. otherwise one JVM would never
-			// be updated with what the other had processed.
-			if (sourceContainer == null) {
-				// first time being read
-				// check back this far for an existing file
-				boolean reload = false;
+            String[] parts = sourceNameString.split("-");
+            SourceXML source = null;
 
-				if (source.getSourceType()
-								.equals(FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
-										.getSourceType())) {
-					reload = true;
-				} 
+            if (parts.length > 1) {
+                iSiteKey = parts[0];
+                sourceString = parts[1];
+            }
 
-				if (reload) {
-					sourceContainer = new FFMPDataContainer(sourceString);
-				}
-			}
+            source = FFMPSourceConfigurationManager.getInstance()
+                    .getSourceByDisplayName(sourceString);
 
-			if (sourceContainer != null) {
-				
-				boolean write = false;
-				
-				if (source.getSourceType().equals(
-						SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            // System.out.println("Source XML: "+source.getDisplayName());
 
-					String primarySource = ffmpgen.fscm
-							.getPrimarySource(source);
-					ProductXML product = ffmpgen.fscm.getProduct(primarySource);
-					Date ffgBackDate = new Date(ffmpRec.getDataTime()
-							.getRefTime().getTime()
-							- (ffgbackTime));
+            if (source != null) {
 
-					// try to load any missing one's, other than the new one
-					for (SourceXML guidSource : product
-							.getGuidanceSourcesByType(source.getDisplayName())) {
-						if (!sourceContainer.containsKey(guidSource
-								.getSourceName())
-								&& !source.getSourceName().equals(
-										guidSource.getSourceName())) {
-									
-							sourceContainer = populateDataContainer(
-									sourceContainer, ffmpgen.template, null,
-									ffgBackDate, ffmpRec.getDataTime()
-											.getRefTime(), wfo, source,
-									iSiteKey);
-							
-							sourceContainer.setFilePath("" + FFMPGenerator.sharePath + ffmpRec.getWfo() + "/"+ sourceString);
-							write = true;
-						}
-					}
+                if (source.getSourceType().equals(
+                        FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
+                                .getSourceType())) {
 
-				} /*else {
+                    sourceString = source.getDisplayName();
 
-					Date newDate = sourceContainer.getNewest();
-					Date oldDate = sourceContainer.getOldest();
+                    // Mark all GUIDANCE related sources as dirty for FFTI
+                    for (String fftiName : ffmpgen.getFFTIDataContainer()
+                            .keySet()) {
+                        if (fftiName.startsWith(sourceString)) {
+                            // System.out
+                            // .println("Resetting FFTI source for processing!!!!! "
+                            // + fftiName);
+                            ffmpgen.getFFTIData(fftiName).setReset(true);
+                        }
+                    }
 
-					if (newDate != null && oldDate != null) {
-						if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
-								.getTime()) >= (source
-								.getExpirationMinutes(iSiteKey) * 60 * 1000)) {
-							// force a re-query back to the newest time in
-							// existing source container
-							sourceContainer = populateDataContainer(
-									sourceContainer, ffmpgen.template, null,
-									newDate,
-									ffmpRec.getDataTime().getRefTime(), wfo,
-									source, iSiteKey);
-							
-							sourceContainer.setFilePath("" + FFMPGenerator.sharePath + ffmpRec.getWfo() + "/"+ sourceString);
-							write = true;
-							
-						} else if (oldDate
-								.after(new Date(
-										barrierTime.getTime()
-												- (source
-														.getExpirationMinutes(iSiteKey) * 60 * 1000)))) {
-							// force a re-query back to barrierTime for
-							// existing source container
-							sourceContainer = populateDataContainer(
-									sourceContainer, ffmpgen.template, null,
-									barrierTime, oldDate, wfo, source, iSiteKey);
-							
-							sourceContainer.setFilePath("" + FFMPGenerator.sharePath + ffmpRec.getWfo() + "/"+ sourceString);
-							write = true;
-						}
-					} else {
-						// COMPLETELY EMPTY SOURCE CONTAINER
-						// force a re-query back to barrierTime from current
-						// refTime
-						sourceContainer = populateDataContainer(
-								sourceContainer, ffmpgen.template, null,
-								barrierTime,
-								ffmpRec.getDataTime().getRefTime(), wfo,
-								source, iSiteKey);
-						
-						sourceContainer.setFilePath("" + FFMPGenerator.sharePath + ffmpRec.getWfo() + "/"+ sourceString);
-						write = true;
-					}
-				}
-				
-				*/
-				
-				if (write) {
-					sourceContainer.purge(ffgBarrierTime);
-					//System.out.println("Writing from with in the FFTI Processor!!! "+sourceContainer.getFilePath());
-					ffmpgen.writeLoaderBuddyFiles(sourceContainer);
-				}
-			}
-		}
-	}
+                } else {
 
-	/**
-	 * Populates the FFTI Data back to the determined date
-	 * 
-	 * @param sourceContainer
-	 * @param template
-	 * @param startDate
-	 * @param endDate
-	 * @param wfo
-	 * @param source
-	 * @return
-	 */
-	public static FFMPDataContainer populateDataContainer(
-			FFMPDataContainer sourceContainer, FFMPTemplates template,
-			ArrayList<String> hucs, Date startDate, Date endDate, String wfo,
-			SourceXML source, String siteKey) {
+                    sourceString = source.getDisplayName() + "-" + iSiteKey
+                            + "-" + iDataKey;
 
-		ArrayList<String> uris = getUris(startDate, endDate, wfo, source,
-				siteKey);
-		// System.out.println("Number of Records querried: " + siteKey + " : "
-		// + uris.size());
+                    // Mark this source as dirty for FFTI
+                    if (ffmpgen.isFFTI(sourceString)) {
+                        // System.out
+                        // .println("Resetting FFTI source for processing!!!!! "
+                        // + sourceString);
+                        ffmpgen.getFFTIData(sourceString).setReset(true);
 
-		for (String uri : uris) {
+                        // Mark associated sources as dirty for FFTI
+                        for (String fftiName : ffmpgen.getFFTIDataContainer()
+                                .keySet()) {
+                            String[] name = fftiName.split("-");
+                            if (name.length == 3) {
+                                if (name[1].equals(source.getDisplayName())
+                                        && name[2].equals(iDataKey)) {
+                                    // System.out
+                                    // .println("Resetting FFTI source for processing!!!!! "
+                                    // + fftiName);
+                                    ffmpgen.getFFTIData(fftiName)
+                                            .setReset(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-			FFMPRecord rec = new FFMPRecord(uri);
+    /**
+     * Populates the FFTI Data back to the determined date
+     * 
+     * @param sourceContainer
+     * @param template
+     * @param startDate
+     * @param endDate
+     * @param wfo
+     * @param source
+     * @return
+     */
+    public static FFMPDataContainer populateDataContainer(
+            FFMPDataContainer sourceContainer, FFMPTemplates template,
+            ArrayList<String> hucs, Date startDate, Date endDate, String wfo,
+            SourceXML source, String siteKey) {
 
-			boolean contains = false;
+        ArrayList<String> uris = getUris(startDate, endDate, wfo, source,
+                siteKey);
+        // System.out.println("Number of Records querried: " + siteKey + " : "
+        // + uris.size());
 
-			if (source.getSourceType().equals(
-					SOURCE_TYPE.GUIDANCE.getSourceType())) {
-				contains = sourceContainer.containsKey(source.getSourceName());
-				// System.out.println("Processing FFG source!!!!!"
-				// + source.getSourceName());
-			} else {
-				contains = sourceContainer.containsKey(rec.getDataTime()
-						.getRefTime());
-			}
+        for (String uri : uris) {
 
-			if (!contains) {
-				try {
-					
-					if (hucs == null) {
-						hucs = new ArrayList<String>();
-						hucs.add("ALL");
-					}
-					
-					for (String huc : hucs) {
+            FFMPRecord rec = new FFMPRecord(uri);
 
-						rec = populateRecord(rec, huc, template);
-						FFMPBasinData newData = rec.getBasinData(huc);
-						sourceContainer.addFFMPEntry(rec.getDataTime()
-								.getRefTime(), source, newData, huc, siteKey);
+            boolean contains = false;
 
-					}
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                contains = sourceContainer.containsKey(source.getSourceName());
+                // System.out.println("Processing FFG source!!!!!"
+                // + source.getSourceName());
+            } else {
+                contains = sourceContainer.containsKey(rec.getDataTime()
+                        .getRefTime());
+            }
 
-					// System.out.println("Adding Time: "
-					// + rec.getDataTime().getRefTime());
+            if (!contains) {
+                try {
 
-				} catch (PluginException e) {
-					e.printStackTrace();
-					statusHandler.handle(Priority.ERROR,
-							"Source: " + source.getDisplayName() + "  domain: "
-									+ wfo
-									+ " : failed to retrieve FFMP/FFTI Data ");
-				}
-			}
-		}
+                    if (hucs == null) {
+                        hucs = new ArrayList<String>();
+                        hucs.add("ALL");
+                    }
 
-		return sourceContainer;
-	}
+                    for (String huc : hucs) {
 
-	/**
-	 * Get the uris for this FFTI source
-	 * 
-	 * @param startDate
-	 * @param endDate
-	 * @param wfo
-	 * @param source
-	 * @return
-	 */
-	public static ArrayList<String> getUris(Date startDate, Date endDate,
-			String wfo, SourceXML source, String siteKey) {
+                        rec = populateRecord(rec, huc, template);
+                        FFMPBasinData newData = rec.getBasinData(huc);
+                        sourceContainer.addFFMPEntry(rec.getDataTime()
+                                .getRefTime(), source, newData, huc, siteKey);
 
-		SimpleDateFormat datef = new SimpleDateFormat(datePattern);
-		datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
-		StringBuilder query = new StringBuilder(200);
+                    }
 
-		query.append("select datauri from ffmp where wfo = '");
-		query.append(wfo);
-		query.append("' and sourcename = '");
-		query.append(source.getSourceName());
-		query.append("' and sitekey = '");
-		query.append(siteKey);
-		if (!source.isMosaic()) {
-			query.append("' and datakey = '");
-			query.append(siteKey);
-		}
-		query.append("' and reftime >= '");
-		query.append(datef.format(startDate));
-		query.append("' and reftime < '");
-		query.append(datef.format(endDate));
+                    // System.out.println("Adding Time: "
+                    // + rec.getDataTime().getRefTime());
 
-		query.append("' order by reftime desc");
-		// System.out.println("URI query: " + query.toString());
+                } catch (PluginException e) {
+                    e.printStackTrace();
+                    statusHandler.handle(Priority.ERROR,
+                            "Source: " + source.getDisplayName() + "  domain: "
+                                    + wfo
+                                    + " : failed to retrieve FFMP/FFTI Data ");
+                }
+            }
+        }
 
-		ArrayList<String> uris = new ArrayList<String>();
+        return sourceContainer;
+    }
 
-		try {
-			CoreDao dao = new CoreDao(DaoConfig.forDatabase(FFMPUtils.META_DB));
-			Object[] results = dao.executeSQLQuery(query.toString());
+    /**
+     * Get the uris for this FFTI source
+     * 
+     * @param startDate
+     * @param endDate
+     * @param wfo
+     * @param source
+     * @return
+     */
+    public static ArrayList<String> getUris(Date startDate, Date endDate,
+            String wfo, SourceXML source, String siteKey) {
 
-			if (results.length > 0) {
-				for (int i = 0; i < results.length; i++) {
-					Object result = results[i];
-					if (result != null) {
-						/*
-						 * System.out.println("Adding URI to FFTI list: " +
-						 * (String) result);
-						 */
-						uris.add((String) result);
-					}
-				}
-			}
+        SimpleDateFormat datef = new SimpleDateFormat(datePattern);
+        datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
+        StringBuilder query = new StringBuilder(200);
 
-		} catch (Exception e) {
-			statusHandler.handle(Priority.ERROR,
-					"Source: " + source.getSourceName() + " domain: " + wfo
-							+ " : failed to query");
-		}
+        query.append("select datauri from ffmp where wfo = '");
+        query.append(wfo);
+        query.append("' and sourcename = '");
+        query.append(source.getSourceName());
+        query.append("' and sitekey = '");
+        query.append(siteKey);
+        if (!source.isMosaic()) {
+            query.append("' and datakey = '");
+            query.append(siteKey);
+        }
+        query.append("' and reftime >= '");
+        query.append(datef.format(startDate));
+        query.append("' and reftime < '");
+        query.append(datef.format(endDate));
+
+        query.append("' order by reftime desc");
+        // System.out.println("URI query: " + query.toString());
+
+        ArrayList<String> uris = new ArrayList<String>();
+
+        try {
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase(FFMPUtils.META_DB));
+            Object[] results = dao.executeSQLQuery(query.toString());
+
+            if (results.length > 0) {
+                for (int i = 0; i < results.length; i++) {
+                    Object result = results[i];
+                    if (result != null) {
+                        /*
+                         * System.out.println("Adding URI to FFTI list: " +
+                         * (String) result);
+                         */
+                        uris.add((String) result);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Source: " + source.getSourceName() + " domain: " + wfo
+                            + " : failed to query");
+        }
 
         return uris;
     }
