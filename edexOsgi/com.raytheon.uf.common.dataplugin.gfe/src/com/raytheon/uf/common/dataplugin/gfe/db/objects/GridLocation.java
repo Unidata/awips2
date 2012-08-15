@@ -524,17 +524,13 @@ public class GridLocation extends PersistableDataObject implements
         return ref.getGrid();
     }
 
-    public Coordinate gridCell(float lat, float lon) {
-        return gridCell(new Coordinate(lon, lat));
-    }
-
-    public Coordinate gridCell(Coordinate coord) {
-        return MapUtil.latLonToGridCoordinate(coord, PixelOrientation.CENTER,
-                this);
+    public Point gridCell(float lat, float lon) {
+        return gridCoordinate(new Coordinate(lon, lat));
     }
 
     public Point gridCoordinate(Coordinate lonLat) {
-        Coordinate gcf = gridCell(lonLat);
+        Coordinate gcf = MapUtil.latLonToGridCoordinate(lonLat,
+                PixelOrientation.CENTER, this);
         int x = (int) (gcf.x > -0.5 ? gcf.x + 0.5 : gcf.x - 0.5);
         int y = (int) (gcf.y > -0.5 ? gcf.y + 0.5 : gcf.y - 0.5);
         return new Point(x, y);
