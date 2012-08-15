@@ -1905,12 +1905,9 @@ class FWS_Overrides:
         # Get VariableList and _issuance_list variables
         varDict = argDict["varDict"]
         for key in varDict.keys():
-            print "key", key
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            elif type(key) is str:
-                exec "self._" + key + "= varDict[key]"
                             
         self._language = argDict["language"]
 

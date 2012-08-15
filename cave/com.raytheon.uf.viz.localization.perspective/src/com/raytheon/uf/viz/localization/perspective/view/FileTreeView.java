@@ -819,7 +819,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                     // We can import into true directories, not group datas
                     mgr.add(new Separator());
                     mgr.add(new ImportFileAction(fdata.getPathData().getType(),
-                            fdata.getPath()));
+                            fdata.getPath(), fdata.getPathData().getFilter()));
                 }
             }
         }

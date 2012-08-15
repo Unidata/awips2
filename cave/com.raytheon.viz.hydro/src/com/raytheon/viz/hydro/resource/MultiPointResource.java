@@ -305,9 +305,13 @@ public class MultiPointResource extends
         newDataMap.put(gage.getLid(), gage);
 
         /* Create a small envelope around the point */
-        Coordinate p1 = new Coordinate(gage.getLon() + .03, gage.getLat() + .05);
-        Coordinate p2 = new Coordinate(gage.getLon() - .03, gage.getLat() - .05);
-        Envelope env = new Envelope(p1, p2);
+        double shiftHeightValue = getShiftHeight(gage);
+        double shiftWidthValue = getShiftWidth(gage);
+
+        PixelExtent pe = getPixelExtent(gage, shiftWidthValue,
+                shiftHeightValue);
+
+        Envelope env = this.descriptor.pixelToWorld(pe);
         ArrayList<Object> data = new ArrayList<Object>();
         data.add(xy);
         data.add("GAGE: " + gage.getName() + " VALUE: " + gage.getGageValue());
@@ -776,13 +780,11 @@ public class MultiPointResource extends
     /**
      * Get the x direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the x direction
      */
-    private double getShiftWidth(PaintProperties props, GageData gage) {
+    private double getShiftWidth(GageData gage) {
         double shiftWidthValue = (gage.getX_shift() / 2.0)
                 / screenToWorldWidthRatio;
 
@@ -792,13 +794,11 @@ public class MultiPointResource extends
     /**
      * Get the y direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the y direction
      */
-    private double getShiftHeight(PaintProperties props, GageData gage) {
+    private double getShiftHeight(GageData gage) {
         double shiftHeightValue = (gage.getY_shift() / 2.0)
                 / screenToWorldHeightRatio;
 
@@ -886,8 +886,8 @@ public class MultiPointResource extends
             Coordinate c = gageData.getCoordinate();
             double[] pixel = descriptor.worldToPixel(new double[] { c.x, c.y });
 
-            double shiftHeightValue = getShiftHeight(paintProps, gageData);
-            double shiftWidthValue = getShiftWidth(paintProps, gageData);
+            double shiftHeightValue = getShiftHeight(gageData);
+            double shiftWidthValue = getShiftWidth(gageData);
 
             if (pixel != null) {
                 if (paintProps.getView().getExtent().contains(pixel)) {
@@ -918,9 +918,8 @@ public class MultiPointResource extends
         if (currentData != null) {
             List<GageData> siteList = pdcManager.getObsReportList();
             if ((siteList != null) && siteList.contains(currentData)) {
-                double shiftHeightValue = getShiftHeight(paintProps,
-                        currentData);
-                double shiftWidthValue = getShiftWidth(paintProps, currentData);
+                double shiftHeightValue = getShiftHeight(currentData);
+                double shiftWidthValue = getShiftWidth(currentData);
 
                 PixelExtent pe = getPixelExtent(currentData, shiftWidthValue,
                         shiftHeightValue);
