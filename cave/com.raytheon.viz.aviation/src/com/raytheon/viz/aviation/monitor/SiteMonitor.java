@@ -63,7 +63,7 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * May 13, 2011 8611       rferrel      Added type to help determine blink state.
  * Apr 30, 2012 14717      zhao         Indicators turn gray when Metar is outdated
  * 20JUL2012    14570      gzhang/zhao  Modified for highlighting correct time groups in TAF Viewer
- * 
+ * 11AUG2012    14570      zhao         Added 'cat' to alert_key_map
  * </pre>
  * 
  * @author lvenable
@@ -126,7 +126,8 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
      */
     private static final Map<String, String[]> ALERT_KEY_MAP = new HashMap<String, String[]>();
     {
-    	ALERT_KEY_MAP.put("tempo", new String[] { "wind", "vsby", "pcp", "obv", "vcnty", "sky" } ); // 14570
+    	ALERT_KEY_MAP.put("cat", new String[] { "vsby", "sky" }); // 14570
+    	//ALERT_KEY_MAP.put("tempo", new String[] { "wind", "vsby", "pcp", "obv", "vcnty", "sky" } ); // 14570
         ALERT_KEY_MAP.put("vsby", new String[] { "vsby" });
         ALERT_KEY_MAP.put("wind", new String[] { "wind" });
         ALERT_KEY_MAP.put("wx", new String[] { "pcp", "obv", "vcnty" });

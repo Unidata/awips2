@@ -8,6 +8,10 @@
       </layout> 
    </appender>
 
+   <appender name="asyncConsole" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="console" />
+   </appender> 
+
    <!-- radar log --> 
    <appender name="RadarLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
@@ -130,8 +134,8 @@
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.edex.log.ThreadBasedAppender">
       <param name="ThreadPatterns" value="RadarLog:radarThreadPool.*;SatelliteLog:satelliteThreadPool.*;ShefLog:shefThreadPool.*;TextLog:textThreadPool.*;SmartInitLog:smartInit.*"/>
-      <param name="DefaultAppender" value="console"/>
-      <appender-ref ref="console"/>
+      <param name="DefaultAppender" value="asyncConsole"/>
+      <appender-ref ref="asyncConsole"/>
       <appender-ref ref="RadarLog"/>
       <appender-ref ref="SatelliteLog"/>
       <appender-ref ref="ShefLog"/>
