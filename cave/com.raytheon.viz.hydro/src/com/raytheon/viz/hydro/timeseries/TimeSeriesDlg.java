@@ -111,6 +111,8 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  *                                     be ran as a standalone application
  *                                     without starting CAVE.
  * 01 June 2011 9499       djingtao    update openGraph() 
+ * 23 Jul 2012 15180       mpduff      Auto select the first group in the predefined group list
+ * 23 Jul 2012 15195       mpduff      Fix Group graphing to use the date widgets.                  
  * </pre>
  * 
  * @author lvenable
@@ -437,6 +439,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
     /** Holds the Group Information */
     private GroupInfo groupInfo;
+    
+    /** Holds the last graphed GroupInfo object */
+    private GroupInfo prevGroupInfo;
 
     /** Holds the page information */
     private PageInfo pageInfo = null;
@@ -1365,6 +1370,20 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
         endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
     }
+    
+    private void updateTimeButtons() {
+        beginYearBtn.setText(String.valueOf(beginCal.get(Calendar.YEAR)));
+        beginMonthBtn.setText(String.valueOf(beginCal.get(Calendar.MONTH) + 1));
+        beginDayBtn
+                .setText(String.valueOf(beginCal.get(Calendar.DAY_OF_MONTH)));
+        beginHourBtn
+                .setText(String.valueOf(beginCal.get(Calendar.HOUR_OF_DAY)));
+
+        endYearBtn.setText(String.valueOf(endCal.get(Calendar.YEAR)));
+        endMonthBtn.setText(String.valueOf(endCal.get(Calendar.MONTH) + 1));
+        endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
+        endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
+    }
 
     /**
      * Populates the station list box.
@@ -1962,7 +1981,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } else {
             // TODO log error here, invalid value
             System.err.println("Error in Group Definition Config file: " + line);
-        }              
+        }       
+        
+        // select the first item in the list 
+        if (groupDataList.getItemCount() > 0) {
+        	groupDataList.select(0);
+        }
     }
 
     /**
@@ -2225,32 +2249,26 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 GroupInfo groupInfo = groupList.get(groupDataList
                         .getSelectionIndex());
 
-                int pastHours = groupInfo.getPastHours();
-                int futureHours = groupInfo.getFutureHours();
-
-//                long beginMillis = beginDate.getTime();
-//                long endMillis = endDate.getTime();
-//                long currentMillis = SimulatedTime.getSystemTime().getTime().getTime();
-//                
-//                long hoursBack = (currentMillis - beginMillis) / (1000*60*60);
-//                long hoursAhead = (endMillis - currentMillis) / (1000*60*60);
-//                groupInfo.setPastHours((int) hoursBack);
-//                groupInfo.setFutureHours((int) hoursAhead);
-                groupInfo.setPastHours(pastHours);
-                groupInfo.setFutureHours(futureHours);
-                
-//                Calendar futureCal = Calendar.getInstance(TimeZone
-//                        .getTimeZone("GMT"));
-//                Date d = SimulatedTime.getSystemTime().getTime();
-//                futureCal.setTime(d);
-//                futureCal.add(Calendar.HOUR_OF_DAY, futureHours);
-//                Calendar pastCal = Calendar.getInstance(TimeZone
-//                        .getTimeZone("GMT"));
-//                pastCal.setTime(d);
-//                pastCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
-                
-               
+                if (prevGroupInfo == null || !prevGroupInfo.equals(groupInfo)) {
+	                int pastHours = groupInfo.getPastHours();
+	                int futureHours = groupInfo.getFutureHours();
+	                beginCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+	                beginCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
+	
+	                endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+	                endCal.add(Calendar.HOUR_OF_DAY, futureHours);
+	               
+	                beginDate = beginCal.getTime();
+	                endDate = endCal.getTime();
+	                
+	                updateTimeButtons();
+	
+	                groupInfo.setPastHours(pastHours);
+	                groupInfo.setFutureHours(futureHours);
+                }
                 timeSeriesDisplayDlg.setGroupInfo(groupInfo);
+                
+                prevGroupInfo = groupInfo;
             }
             timeSeriesDisplayDlg.setBeginDate(beginDate);
             timeSeriesDisplayDlg.setEndDate(endDate);
