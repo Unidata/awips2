@@ -2,6 +2,7 @@
 #####         Qinglu Lin    04-04-2012 DR 14691.
 #####         Qinglu Lin    06-18-2012 DR 15043. Use duration in secondBullet.
 #####         Qinglu Lin    07-31-2012 DR 15217. Use roundAndPad for movement direction in DEG.
+#####         Qinglu Lin    08-13-2012 DR 14493. Use corToNewMarker and corEventtime. 
 ####################################################################################################
 Mile Marker Test Code                                     
 macro "mmarkers" use (called out of VM_global_library.vm):
@@ -660,7 +661,11 @@ UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #end
 
 #macro(thirdBullet $dateUtil $eventtime $timeFormat $localtimezone $secondtimezone)
+#if(${corToNewMarker})
+AT ${corEventtime}##
+#else
 AT ${dateUtil.format(${eventtime}, ${timeFormat.clock}, ${localtimezone})}##
+#end
 #if(${secondtimezone})
  /${dateUtil.format(${eventtime}, ${timeFormat.clock}, ${secondtimezone})}/##
 #end

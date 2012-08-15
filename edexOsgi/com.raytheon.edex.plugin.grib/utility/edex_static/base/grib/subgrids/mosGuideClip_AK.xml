@@ -23,4 +23,8 @@
    <referenceModel>MOSGuide-AK</referenceModel>
    <nx>1649</nx>
    <ny>1105</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>
