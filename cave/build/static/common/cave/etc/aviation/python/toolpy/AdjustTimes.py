@@ -94,7 +94,7 @@
 #       
 #
 import logging, re, time
-import Avn, AvnLib, Busy, TafDecoder, AvnParser
+import Avn, AvnLib, TafDecoder, AvnParser
 
 _Logger = logging.getLogger(Avn.CATEGORY)
 _AmdPat = re.compile(r'(AFT|TIL)\s+(\d{6})|(\d{4}/\d{4})')
@@ -175,8 +175,7 @@ def updateTafs(bbb, fcsts):
             badidents.append(ident)
             
     if badidents:
-        Busy.showwarning('Could not update times for %s' % ' '.join(badidents),
-            master)
+        _Logger.warning('Could not update times for %s' % ' '.join(badidents))
         
     return fcsts
 

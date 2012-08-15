@@ -343,24 +343,21 @@ public class MultiPointResource extends
             Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
             gage.setCoordinate(xy);
 
-            double latInc = .05;
-            double lonInc = .03;
+            /* Create a small envelope around the point */
+            double shiftHeightValue = getShiftHeight(gage);
+            double shiftWidthValue = getShiftWidth(gage);
 
             if (existing != null) {
-                Coordinate p1 = new Coordinate(existing.getLon() + lonInc,
-                        existing.getLat() + latInc);
-                Coordinate p2 = new Coordinate(existing.getLon() - lonInc,
-                        existing.getLat() - latInc);
-                Envelope oldEnv = new Envelope(p1, p2);
+            	PixelExtent pe = getPixelExtent(existing, getShiftWidth(existing),
+            		getShiftHeight(existing));
+                Envelope oldEnv = descriptor.pixelToWorld(pe);
                 strTree.remove(oldEnv, existing);
             }
 
             /* Create a small envelope around the point */
-            Coordinate p1 = new Coordinate(gage.getLon() + lonInc,
-                    gage.getLat() + latInc);
-            Coordinate p2 = new Coordinate(gage.getLon() - lonInc,
-                    gage.getLat() - latInc);
-            Envelope newEnv = new Envelope(p1, p2);
+            PixelExtent pe = getPixelExtent(gage, getShiftWidth(gage),
+            	getShiftHeight(gage));
+            Envelope newEnv = descriptor.pixelToWorld(pe);
 
             strTree.insert(newEnv, gage);
             dataMap.put(lid, gage);
@@ -871,12 +868,19 @@ public class MultiPointResource extends
             Envelope env = new Envelope(coord.asLatLon());
             List<?> elements = strTree.query(env);
             if (elements.size() > 0) {
+            	StringBuffer sb = new StringBuffer();
+            	boolean first = true;
                 Iterator<?> iter = elements.iterator();
                 while (iter.hasNext()) {
                     GageData gage = (GageData) iter.next();
-                    return "GAGE: " + gage.getName() + " VALUE: "
-                            + gage.getGageValue();
+                    if (!first) {
+                    	sb.append("\n");
+                    }
+                    sb.append("GAGE: " + gage.getName() + " VALUE: "
+                            + gage.getGageValue());
+                    first = false;
                 }
+                return sb.toString();
             }
         } catch (Exception e) {
             throw new VizException(e);
