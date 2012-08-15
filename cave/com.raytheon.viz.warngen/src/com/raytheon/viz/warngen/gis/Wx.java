@@ -53,6 +53,8 @@ import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration.SearchMethod;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
+import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
 import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
@@ -264,6 +266,7 @@ public class Wx {
                 Date start = DateUtil.roundDate(new Date(wwaStartTime + delta),
                         pathcastConfiguration.getInterval());
                 Date stormTime = new Date(wwaStartTime);
+                DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                 while (start.getTime() <= wwaStopTime) {
                     PathCast cast = new PathCast();
                     cast.time = new Date(start.getTime());
@@ -277,7 +280,6 @@ public class Wx {
                     Coordinate[] pathCoords = new Coordinate[stormLocations.length];
                     for (int i = 0; i < pathCoords.length; ++i) {
                         Coordinate loc = stormLocations[i];
-                        DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                         gc.setStartingGeographicPoint(loc.x, loc.y);
                         long time = (cast.time.getTime() - stormTime.getTime()) / 1000;
                         double distance = stormTrackState.speed * time;
@@ -363,11 +365,9 @@ public class Wx {
                         null, false, SearchMode.INTERSECTS);
             }
 
-            SpatialQueryResult[] timeZoneFeatures = SpatialQueryFactory
-                    .create().query(timezoneTable,
-                            new String[] { timezoneField },
-                            bufferedPathCastArea, null, false,
-                            SearchMode.INTERSECTS);
+            // timeZones are limited, use data for whole CWA and further
+            // intersection later
+            GeospatialData[] timeZones = GeospatialFactory.getTimezones();
 
             Map<PathCast, List<ClosestPoint>> pcPoints = new HashMap<PathCast, List<ClosestPoint>>();
             for (PathCast pc : pathcasts) {
@@ -383,7 +383,8 @@ public class Wx {
                 Point centroid = pcGeom != null ? pcGeom.getCentroid()
                         : warningPolygon.getCentroid();
 
-                SpatialQueryResult myArea = null, myTz = null;
+                SpatialQueryResult myArea = null;
+                GeospatialData myTz = null;
 
                 if (areaFeatures != null) {
                     // Find area and parent area
@@ -395,13 +396,13 @@ public class Wx {
                     }
                 }
 
-                if (timeZoneFeatures != null) {
+                if (timeZones != null) {
                     // Find time zone
-                    if (timeZoneFeatures.length == 1) {
-                        myTz = timeZoneFeatures[0];
+                    if (timeZones.length == 1) {
+                        myTz = timeZones[0];
                     } else {
-                        for (SpatialQueryResult tzResult : timeZoneFeatures) {
-                            if (tzResult.geometry.contains(centroid)) {
+                        for (GeospatialData tzResult : timeZones) {
+                            if (tzResult.prepGeom.contains(centroid)) {
                                 myTz = tzResult;
                                 break;
                             }
@@ -435,7 +436,9 @@ public class Wx {
                 }
 
                 // Find closest points
-                List<ClosestPoint> points = new ArrayList<ClosestPoint>();
+                GeodeticCalculator gc = new GeodeticCalculator();
+                List<ClosestPoint> points = new ArrayList<ClosestPoint>(
+                        ptFeatures.length);
                 for (SpatialQueryResult pointRslt : ptFeatures) {
                     Geometry localPt = (Geometry) pointRslt.attributes
                             .get(transformedKey);
@@ -467,7 +470,6 @@ public class Wx {
                         cp.distance = minDist;
                         cp.roundedDistance = (int) metersToDistance
                                 .convert(minDist);
-                        GeodeticCalculator gc = new GeodeticCalculator();
                         gc.setStartingGeographicPoint(cp.point.x, cp.point.y);
                         gc.setDestinationGeographicPoint(closestCoord.x,
                                 closestCoord.y);
@@ -529,8 +531,7 @@ public class Wx {
             // check for same point in other pathcast objects. If same point
             // exists, remove from which ever pathcast is furthest away
             Set<String> closestPtNames = new HashSet<String>(30);
-            List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(
-                    maxCount);
+            List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(maxCount);
             Queue<PathCast> tmp = new ArrayDeque<PathCast>(pathcasts);
             while (tmp.isEmpty() == false) {
                 PathCast pc = tmp.remove();
@@ -560,14 +561,14 @@ public class Wx {
 
                 tmpPoints.clear();
                 for (int i = 0; i < points.size() && i < maxCount; ++i) {
-                	ClosestPoint point = points.get(i);
-                	String name = point.getName();
-                	if (!closestPtNames.contains(name)) {
-                		// To prevent duplicate cities in pathcast,
-                		// only unused point is added to tmpPoints
-                		tmpPoints.add(point);
-                		closestPtNames.add(name);
-                	}
+                    ClosestPoint point = points.get(i);
+                    String name = point.getName();
+                    if (!closestPtNames.contains(name)) {
+                        // To prevent duplicate cities in pathcast,
+                        // only unused point is added to tmpPoints
+                        tmpPoints.add(point);
+                        closestPtNames.add(name);
+                    }
                 }
                 if (tmpPoints.size() > 0) {
                     pc.points = tmpPoints.toArray(new ClosestPoint[tmpPoints
@@ -711,7 +712,7 @@ public class Wx {
 
         // Sort by fields should have been validated to be same as well
         List<String> fields = pointConfigs[0].getSortBy() != null ? Arrays
-                .asList(pointConfigs[0].getSortBy()) : new ArrayList<String>();
+                .asList(pointConfigs[0].getSortBy()) : new ArrayList<String>(0);
 
         Geometry searchArea = null;
         double bufferVal = thresholdInMeters;
@@ -734,9 +735,9 @@ public class Wx {
                         stormCoords.length + endStormCoords.length);
                 allCoords.addAll(Arrays.asList(stormCoords));
                 long time = (wwaStopTime - wwaStartTime) / 1000;
+                DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                 for (int i = stormCoords.length - 1; i >= 0; --i) {
                     Coordinate loc = stormCoords[i];
-                    DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                     gc.setStartingGeographicPoint(loc.x, loc.y);
                     double distance = stormTrackState.speed * time;
                     gc.setDirection(StormTrackDisplay
@@ -769,25 +770,32 @@ public class Wx {
 
         List<ClosestPoint> availablePoints = new ArrayList<ClosestPoint>();
         for (PointSourceConfiguration pointConfig : pointConfigs) {
+            long t0 = System.currentTimeMillis();
             availablePoints.addAll(DataAdaptorFactory.createPointSource(
                     pointConfig).getData(config, pointConfig,
                     bufferedSearchArea, localizedSite));
+            long t1 = System.currentTimeMillis();
+            System.out.println("getClosestPoint.dbQuery took " + (t1 - t0)
+                    + " for point source " + pointConfig.getPointSource());
         }
 
         // Convert searchArea to a local projection
         Geometry localSearchArea = JTS.transform(searchArea, latLonToLocal);
 
-        List<List<ClosestPoint>> points = new ArrayList<List<ClosestPoint>>();
         Coordinate[] localCoords = localSearchArea.getCoordinates();
         Coordinate[] coords = searchArea.getCoordinates();
+        List<List<ClosestPoint>> points = new ArrayList<List<ClosestPoint>>(
+                coords.length);
+        GeodeticCalculator gc = new GeodeticCalculator();
+        Map<String, ClosestPoint> nameMap = new HashMap<String, ClosestPoint>(
+                (int) (availablePoints.size() * 1.3));
         for (int i = 0; i < coords.length; ++i) {
             Coordinate coord = localCoords[i];
             Geometry localDistanceGeom = dimensions == 1 ? localSearchArea : gf
                     .createPoint(coord);
             Geometry distanceGeom = dimensions == 1 ? searchArea : gf
                     .createPoint(coords[i]);
-            List<ClosestPoint> pts = new ArrayList<ClosestPoint>();
-            Map<String, ClosestPoint> nameMap = new HashMap<String, ClosestPoint>();
+            nameMap.clear();
 
             for (ClosestPoint cp : availablePoints) {
                 Geometry localPt = JTS.transform(gf.createPoint(cp.point),
@@ -800,16 +808,10 @@ public class Wx {
                     ClosestPoint existingPt = nameMap.get(cp.name);
                     if (existingPt == null || distance < existingPt.distance) {
                         // Set the distances
-                    	ClosestPoint cp2 = new ClosestPoint(cp);
-                    	cp2.distance = distance;
+                        ClosestPoint cp2 = new ClosestPoint(cp);
+                        cp2.distance = distance;
                         cp2.roundedDistance = (int) metersToDistance
                                 .convert(distance);
-                        // No point by name or we are better at this location
-                        if (existingPt != null) {
-                            // There was an existing point, remove it
-                            pts.remove(existingPt);
-                        }
-                        GeodeticCalculator gc = new GeodeticCalculator();
                         gc.setStartingGeographicPoint(cp2.point.x, cp2.point.y);
                         Coordinate cen = distanceGeom.getCentroid()
                                 .getCoordinate();
@@ -822,11 +824,12 @@ public class Wx {
                         cp2.oppositeRoundedAzimuth = ClosestPoint
                                 .adjustAngle(cp2.roundedAzimuth + 180);
                         nameMap.put(cp2.name, cp2);
-                        pts.add(cp2);
                     }
                 }
             }
 
+            List<ClosestPoint> pts = new ArrayList<ClosestPoint>(
+                    nameMap.values());
             if (fields.isEmpty() == false) {
                 // Sort the points based on sortBy fields
                 Collections.sort(pts, new ClosestPointComparator(fields));
@@ -839,38 +842,52 @@ public class Wx {
         }
 
         // Filter to maxCount (Somewhat duplicate logic as pathcast)
-        Queue<List<ClosestPoint>> tmp = new ArrayDeque<List<ClosestPoint>>(
-                points);
-        while (tmp.isEmpty() == false) {
-            List<ClosestPoint> pts = tmp.remove();
-            for (int i = 0; i < pts.size() && i < maxCount; ++i) {
-                // For each point, look for duplicate points in another
-                ClosestPoint cp = pts.get(i);
-                for (List<ClosestPoint> pts2 : tmp) {
-                    if (pts2 != pts) {
-                        ClosestPoint found = find(cp, pts2, maxCount);
-                        if (found != null) {
-                            // We found a point within maxCount in this
-                            // list.
-                            if (found.distance < cp.distance) {
-                                // This point is closer to the other
-                                pts.remove(i--);
-                                break;
-                            } else {
-                                // Remove from other pathcast, we are closer
-                                pts2.remove(found);
+        if (points.size() == 1) {
+            // optimized for single instance
+            List<ClosestPoint> pts = points.get(0);
+            if (pts.size() > maxCount) {
+                // need to reduce points
+                pts.subList(maxCount, pts.size()).clear();
+            }
+        } else if (points.size() > 1) {
+            Queue<List<ClosestPoint>> tmp = new ArrayDeque<List<ClosestPoint>>(
+                    points);
+            while (!tmp.isEmpty()) {
+                List<ClosestPoint> pts = tmp.remove();
+                int maxIndex = Math.min(pts.size(), maxCount);
+                for (int i = 0; i < maxIndex; ++i) {
+                    // For each point, look for duplicate points in another
+                    ClosestPoint cp = pts.get(i);
+                    for (List<ClosestPoint> pts2 : tmp) {
+                        if (pts2 != pts) {
+                            ClosestPoint found = find(cp, pts2, maxCount);
+                            if (found != null) {
+                                // We found a point within maxCount in this
+                                // list.
+                                if (found.distance < cp.distance) {
+                                    // This point is closer to the other
+                                    pts.remove(i--);
+                                    // changed size of pts, may need to change
+                                    // maxIndex
+                                    if (pts.size() < maxIndex) {
+                                        maxIndex--;
+                                    }
+                                    break;
+                                } else {
+                                    // Remove from other pathcast, we are
+                                    // closer
+                                    pts2.remove(found);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(maxCount);
-            for (int i = 0; i < pts.size() && i < maxCount; ++i) {
-                tmpPoints.add(pts.get(i));
+                if (pts.size() > maxIndex) {
+                    // need to reduce points
+                    pts.subList(maxIndex, pts.size()).clear();
+                }
             }
-            pts.clear();
-            pts.addAll(tmpPoints);
         }
         if (points.size() == 1) {
             List<ClosestPoint> rval = points.get(0);
