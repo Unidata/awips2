@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -76,6 +77,7 @@ import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 import com.raytheon.viz.core.graphing.xy.XYImageData;
+import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.style.graph.GraphPreferences;
@@ -157,10 +159,22 @@ public class TimeSeriesResource extends
                     if (currentUnit.isCompatible(prefs.getDisplayUnits())) {
                         UnitConverter conv = currentUnit.getConverterTo(prefs
                                 .getDisplayUnits());
-                        for (XYData d : data.getData()) {
-                            double converted = conv.convert(((Number) d.getY())
-                                    .doubleValue());
-                            d.setY(converted);
+                        ListIterator<XYData> it = data.getData().listIterator();
+                        while(it.hasNext()) {
+                            XYData d = it.next();
+                            if(d instanceof XYWindImageData){
+                                XYWindImageData wind = (XYWindImageData) d;
+                                double converted = conv.convert(wind.getWindSpd());
+                                it.remove();
+                                if(wind.getImage() != null){
+                                    wind.getImage().dispose();
+                                }
+                                it.add(new XYWindImageData(wind.getX(), wind.getY(), converted, wind.getWindDir()));
+                            }else{
+                                double converted = conv.convert(((Number) d.getY())
+                                        .doubleValue());
+                                d.setY(converted);
+                            }
                         }
                         units = prefs.getDisplayUnitLabel();
                     } else {
@@ -457,13 +471,6 @@ public class TimeSeriesResource extends
         String lat = nf.format(Math.abs(y));
         String stnID = "";
         String source = resourceData.getSource();
-        String unit = "";
-
-        if (prefs != null && prefs.getDisplayUnits() != null) {
-            unit = prefs.getDisplayUnitLabel();
-        } else {
-            unit = adapter.getDataUnit().toString();
-        }
 
         if (resourceData.getMetadataMap().get("location.stationId") != null) {
             stnID = resourceData.getMetadataMap().get("location.stationId")
@@ -488,7 +495,7 @@ public class TimeSeriesResource extends
             sb.append(" ").append(resourceData.getLevelKey());
         }
         sb.append(String.format(" %s %s %s", adapter.getParameterName(),
-                "TSer", unit != null && unit.equals("") == false ? "(" + unit
+                "TSer", units != null && units.equals("") == false ? "(" + units
                         + ")" : ""));
 
         if (secondaryResource != null) {

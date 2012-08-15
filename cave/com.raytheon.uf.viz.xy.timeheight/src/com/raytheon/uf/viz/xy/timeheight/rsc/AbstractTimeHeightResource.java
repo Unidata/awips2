@@ -450,6 +450,7 @@ public abstract class AbstractTimeHeightResource extends
             secondaryResource.setDescriptor(descriptor);
         }
         super.setDescriptor(descriptor);
+        interpolatedData = null;
         loadDataJob.schedule();
     }
 

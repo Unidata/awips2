@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
+import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange.Mode;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -47,8 +49,6 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.gfe.core.msgs.SelectTimeRangesChangedMsg;
-import com.raytheon.viz.gfe.core.time.SelectTimeRange;
-import com.raytheon.viz.gfe.core.time.SelectTimeRange.Mode;
 
 /**
  * Class which manages the selection time range definitions that are stored on
@@ -60,6 +60,7 @@ import com.raytheon.viz.gfe.core.time.SelectTimeRange.Mode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009       #3135 randerso    Initial creation
+ * Aug 1, 2012       #965  dgilling    Change location of SelectTimeRange.
  * 
  * </pre>
  * 

@@ -12,7 +12,8 @@ Require-Bundle: com.raytheon.edex.common,
  org.geotools,
  javax.measure,
  javax.persistence,
- org.apache.camel;bundle-version="1.0.0";resolution:=optional
+ org.apache.camel;bundle-version="1.0.0";resolution:=optional,
+ org.junit;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.pirep,
  com.raytheon.edex.plugin.pirep.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

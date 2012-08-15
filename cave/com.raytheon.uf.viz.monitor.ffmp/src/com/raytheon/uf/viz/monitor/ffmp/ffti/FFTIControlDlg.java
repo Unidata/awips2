@@ -279,8 +279,11 @@ public class FFTIControlDlg extends Dialog {
                         && (thisItem.getQpeDurHr() == nextItem.getQpeDurHr())
                         && (thisItem.getGuidDurHr() == nextItem.getGuidDurHr())
                         && (thisItem.getQpfDurHr() == nextItem.getQpfDurHr())
-                        && (thisItem.getTotalDurHr() == nextItem.getTotalDurHr())) {
-
+                        && (thisItem.getTotalDurHr() == nextItem.getTotalDurHr())
+                        && (thisItem.getQpeSrc().length > 0 && nextItem.getQpeSrc().length > 0 && thisItem.getQpeSrc()[0].equals(nextItem.getQpeSrc()[0]))
+                        && (thisItem.getQpfSrc().length > 0 && nextItem.getQpfSrc().length > 0 && thisItem.getQpfSrc()[0].equals(nextItem.getQpfSrc()[0]))
+                        && (thisItem.getGuidSrc().length > 0 && nextItem.getGuidSrc().length > 0 && thisItem.getGuidSrc()[0].equals(nextItem.getGuidSrc()[0]))) {
+                        
                     duplicateLst.add(i + 1);
                     duplicateLst.add(j + 1);
                 }
@@ -295,8 +298,14 @@ public class FFTIControlDlg extends Dialog {
         HashSet<Integer> duplicates = getDuplicates();
         if (duplicates.size() > 0) {
             String setsStr = "";
-            for (Integer setIndex : duplicates)
-                setsStr += setIndex + "/";
+            int i = 0;
+            for (Integer setIndex : duplicates) {
+                setsStr += setIndex;
+                if (i != duplicates.size()-1) {
+                    setsStr = setsStr + "/";
+                } 
+                i++;
+            }
             MessageBox messageBox = new MessageBox(shell, SWT.OK);
             messageBox.setText("Warning: Duplicate Setting(s)!");
             messageBox
