@@ -133,6 +133,16 @@
     <role roleId="com.raytheon.localization.site/common_static/shef">
         <user id="ALL"/>
     </role>
+
+    <!-- Examples for primary and secondary backup entries (DR14474)  
+    <role roleId="com.raytheon.localization.site.eax">
+        <user id="ALL"/>
+    </role>
+
+    <role roleId="com.raytheon.localization.site.hgx">
+        <user id="ALL"/>
+    </role>
+    -->   
    
 </nwsRoleData>
 

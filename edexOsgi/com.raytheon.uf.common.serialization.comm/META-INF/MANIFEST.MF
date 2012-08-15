@@ -13,3 +13,4 @@ Export-Package: com.raytheon.uf.common.serialization.comm,
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  net.sf.cglib;bundle-version="2.1.3",
  com.raytheon.uf.common.status
+Import-Package: com.raytheon.uf.common.message

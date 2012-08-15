@@ -603,7 +603,9 @@ public class Tool {
                     parmToEdit.startParmEdit(new Date[] { timeInfluence });
                 } catch (GFEOperationFailedException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Error during start parm edit", e);
+                            "Error during start parm edit for " + toolName + " - already running." +
+                            		"  Please wait for the operation to complete and try again.", 
+                            e);
                     return;
                 }
                 startedParmEdit = true;
