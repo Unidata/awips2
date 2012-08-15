@@ -64,6 +64,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  *                                     d)NullointException/locking does not work for special marine warning 
  *                                       and locking beyond first paragragh. 
  * Jul 17, 2012 14989     Qinglu Lin   Removed locks, <L> and </L>, for county names in pathcast line. 
+ * Aug  6, 2012 15219     Qinglu Lin   For tmlPtrn, changed d{1,3}DEG to d{3}DEG.
  * 
  * </pre>
  * 
@@ -156,7 +157,7 @@ public class WarningTextHandler {
             .compile("^((?!TIME...MOT... LOC))\\s{1,}\\d{3,4}\\s\\d{3,5}(|(\\s\\d{3,4}\\s\\d{3,5}){1,})");
     
     private static final Pattern tmlPtrn = Pattern
-            .compile("TIME...MOT...LOC \\d{3,4}Z\\s\\d{1,3}DEG\\s\\d{1,3}KT((\\s\\d{3,4}\\s\\d{3,5}){1,})");
+            .compile("TIME...MOT...LOC \\d{3,4}Z\\s\\d{3}DEG\\s\\d{1,3}KT((\\s\\d{3,4}\\s\\d{3,5}){1,})");
 
     private static final Pattern subTMLPtrn = Pattern
             .compile("(\\d{3,5}\\s){1,}");
