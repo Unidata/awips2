@@ -5,6 +5,9 @@
 # A simple example would be 
 # BASE:common_static/textdb/textCategoryClass.txt
 
+#AvnFPS files
+SITE:cave_static/aviation/avnwatch/aviationForecasterConfig.xml
+
 #D2D files
 BASE:cave_static/derivedParameters/DerivedParameterInterface.py
 
@@ -155,3 +158,6 @@ BASE:edex_static/smartInit/NamDNG5.py
 #gfeConfig files
 BASE:cave_static/gfe/userPython/gfeConfig/gfeConfig.py
 
+# FFMP Files
+SITE:common_static/purge/ffmpPurgeRules.xml
+SITE:common_static/ffmp/FFMPTemplateConfig.xml

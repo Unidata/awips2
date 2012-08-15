@@ -188,15 +188,17 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
                     lines.append(text.getLine(lineIndex)).append("\n");
                 }
 
-                PrintDisplay.print(true, lines.toString(),
-                        UFStatus.getHandler(AlarmDisplayWindow.class));
+                PrintDisplay.print(lines.toString(), text.getFont()
+                        .getFontData()[0], UFStatus
+                        .getHandler(AlarmDisplayWindow.class));
             }
         });
 
         printBuffer.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                PrintDisplay.print(true, text.getText(),
+                PrintDisplay.print(text.getText(),
+                        text.getFont().getFontData()[0],
                         UFStatus.getHandler(AlarmDisplayWindow.class));
             }
         });
