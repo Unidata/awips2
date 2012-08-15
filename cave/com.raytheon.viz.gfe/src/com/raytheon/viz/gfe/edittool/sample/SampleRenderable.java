@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.ShowQuickViewDataMsg;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.edittool.EditToolPaintProperties;
 import com.raytheon.viz.gfe.edittool.GridID;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
@@ -45,16 +46,18 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Handles the display for on-demand sampling capability.
- * 
- * Roughly based on AWIPS I class of the same name.
+ * <p>
+ * Roughly based on AWIPS I class SampleVisual.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/2008              chammack    Initial Creation.
- * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
+ * 06/11/2008   #1193      ebabin      Updates for toggling lat/lon for sample set.
  * 07/21/2009              bphillip    Removed the points field
+ * 07/23/2012   #936       dgilling    Properly retrieve imageGrid for paintMarkers()
+ *                                     and paintSamples().
  * 
  * </pre>
  * 
@@ -148,13 +151,17 @@ public class SampleRenderable implements IRenderable, IMessageClient {
             imageGrid = qvGrid;
         } else {
             Parm[] parms = sdm.getCurrentlyEnabledParms();
-            Parm imageParm = sdm.getActivatedParm();
+            Parm imageParm = null;
             Arrays.sort(parms);
             gids = new ArrayList<GridID>(parms.length);
-
             Date date = sdm.getSpatialEditorTime();
-            for (int i = 0; i < parms.length; i++) {
-                gids.add(new GridID(parms[i], date));
+
+            for (Parm p : parms) {
+                gids.add(new GridID(p, date));
+
+                if (p.getDisplayAttributes().getVisMode() == VisMode.IMAGE) {
+                    imageParm = p;
+                }
             }
 
             imageGrid = new GridID(imageParm, date);
@@ -184,12 +191,16 @@ public class SampleRenderable implements IRenderable, IMessageClient {
 
         Date date = sdm.getSpatialEditorTime();
         Parm[] parms = sdm.getCurrentlyEnabledParms();
-        Parm imageParm = sdm.getActivatedParm();
+        Parm imageParm = null;
 
         Arrays.sort(parms);
         GridID[] grids = new GridID[parms.length];
         for (int i = 0; i < parms.length; i++) {
             grids[i] = new GridID(parms[i], date);
+
+            if (parms[i].getDisplayAttributes().getVisMode() == VisMode.IMAGE) {
+                imageParm = parms[i];
+            }
         }
 
         GridID imageGrid = new GridID(imageParm, date);
