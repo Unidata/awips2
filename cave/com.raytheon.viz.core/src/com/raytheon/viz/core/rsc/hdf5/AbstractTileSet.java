@@ -294,12 +294,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         int effectiveHeight = 0;
 
         try {
-            preloadDataObject(level);
-        } catch (StorageException e1) {
-            throw new VizException("Unable to load data", e1);
-        }
-
-        try {
             ReferencedEnvelope mapEnv = new ReferencedEnvelope(
                     this.mapDescriptor.getGridGeometry().getEnvelope());
             mapEnv = mapEnv.transform(MapUtil.LATLON_PROJECTION, false);
