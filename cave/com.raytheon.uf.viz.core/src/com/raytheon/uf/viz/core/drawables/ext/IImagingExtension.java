@@ -19,7 +19,10 @@
  **/
 package com.raytheon.uf.viz.core.drawables.ext;
 
+import java.util.Collection;
+
 import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -42,6 +45,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public interface IImagingExtension extends IGraphicsExtensionInterface {
+
+    public static interface ImageProvider {
+        public Collection<DrawableImage> getImages(IGraphicsTarget target,
+                PaintProperties paintProps) throws VizException;
+    }
 
     /**
      * Draw the images passed in
