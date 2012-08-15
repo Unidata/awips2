@@ -339,8 +339,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"
         self._longTermFcstrNumber = self._getForecasterNumber(self._longTermFcstrNumber)
         self._shortTermFcstrNumber = self._getForecasterNumber(self._shortTermFcstrNumber)
         self._aviationFcstrNumber = self._getForecasterNumber(self._aviationFcstrNumber)
