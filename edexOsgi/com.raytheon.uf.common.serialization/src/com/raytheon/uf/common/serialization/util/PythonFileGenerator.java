@@ -45,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 14, 2010            njensen     Initial creation
+ * Jul 31, 2012  #965      dgilling    Fix path to file header.
  * 
  * </pre>
  * 
@@ -319,7 +320,8 @@ public class PythonFileGenerator {
     }
 
     public static String getHeaderInfo() throws IOException {
-        File file = new File("../build.cave/tools/headup/AWIPS/awipsHeader.txt");
+        File file = new File(
+                "../../cave/build/tools/headup/AWIPS/awipsHeader.txt");
         if (!file.exists()) {
             System.out
                     .println("Unable to determine header information, skipping header");
