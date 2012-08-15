@@ -338,6 +338,7 @@ ALTHOUGH IT SERVES NO PURPOSE HERE, IT WILL CRASH WARNGEN IF REMOVED -->
  
  <pointSource variable="riverdrainages">
  	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
  	<pointField>streamname</pointField>
  	<filter>
  		<mapping key="cwa">

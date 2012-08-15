@@ -26,6 +26,10 @@
 #       DELIVERED
 #    
 #    History:
+#       Revision 17
+#         Created:  10-AUG-2012 15:00:00      GZHANG
+#           DR 14702: Added fix for PyTables in Gui().trend()
+#
 #       Revision 16 (DELIVERED)
 #         Created:  06-MAR-2008 17:01:20      OBERFIEL
 #           Added fix for leap-years.
@@ -661,7 +665,7 @@ class Gui():
             n1 = max(0, n-2*int((t-t1)//3600.0)-1)  # small enough
             n2 = n1 + 5*self.MaxHours               # big enough
             data = [(row['date_time'], row['cig'], row['vis']) for row in \
-                table.where('(t1<=date_time) & (date_time<t2)')]
+                table.where('(t1<=date_time) & (date_time<t2)', start=n1, stop=n2)]
             process_data(count, data, t1, self.MaxHours, table)
         # calculate frequencies
         args = count.keys()

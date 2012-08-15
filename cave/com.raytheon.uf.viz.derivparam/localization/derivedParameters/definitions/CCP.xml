@@ -24,15 +24,15 @@
     </Method>
     <Method models="HPCGuide" displayName="Total Cloud Cover" name="Multiply">
         <Field abbreviation="TCC"/>
-        <ConstantField value="0.01"/>
+        <ConstantField value="100.0"/>
     </Method>
     <Method models="RTMA" displayName="GOES Effective Cloud Amount" name="Multiply">
         <Field abbreviation="TCC"/>
-        <ConstantField value="0.01"/>
+        <ConstantField value="100.0"/>
     </Method>
     <Method name="Multiply">
         <Field abbreviation="TCC"/>
-        <ConstantField value="0.01"/>
+        <ConstantField value="100.0"/>
     </Method>
     <Method levels="Surface" name="Mapping">
         <Field level="Station" abbreviation="clouds_bestCat"/>

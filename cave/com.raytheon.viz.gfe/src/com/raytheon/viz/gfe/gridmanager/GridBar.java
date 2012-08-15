@@ -647,13 +647,14 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         Rectangle rect = computeRect(dataTR);
 
         gc.setFont(timeBlockSourceFont);
+        gc.setTextAntialias(SWT.OFF);
         String s = truncateLabelToFit(gc, text, rect.width);
         Point textSize = gc.stringExtent(s);
 
         if (textSize.x < rect.width + DATA_BLOCK_HORIZONTAL_MARGIN) {
             int xOffset = (rect.width - textSize.x) / 2;
             int yOffset = (rect.height - textSize.y) / 2;
-            gc.drawString(s, rect.x + xOffset, rect.y + yOffset, false);
+            gc.drawString(s, rect.x + xOffset, rect.y + yOffset, true);
         }
     }
 

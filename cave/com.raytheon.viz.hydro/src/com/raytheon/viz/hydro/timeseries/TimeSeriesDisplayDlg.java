@@ -87,8 +87,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     so that it would place the
  *                                     entire time series within the
  *                                     printable area of the page.
- * 04  Mar 2011 7644      lbousaid     fixed Zoom in feature       
- * 30  May 2012 14967     wkwock       fix insert deleted data to rejecteddata table                         
+ * 04 Mar 2011 7644      lbousaid      fixed Zoom in feature       
+ * 30 May 2012 14967     wkwock        fix insert deleted data to rejecteddata table    
+ * 23 Jul 2012 15195     mpduff        Fix dates for displaying groups                   
  * 
  * </pre>
  * 
@@ -1360,22 +1361,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         linesMI.setSelection(true);
                     }
 
-                    /* Get time data from group info */
-                    int pastHours = groupInfo.getPastHours();
-                    int futureHours = groupInfo.getFutureHours();
-
-                    Calendar futureCal = Calendar.getInstance(TimeZone
-                            .getTimeZone("GMT"));
-                    Date d = SimulatedTime.getSystemTime().getTime();
-                    futureCal.setTime(d);
-                    futureCal.add(Calendar.HOUR_OF_DAY, futureHours);
-                    Calendar pastCal = Calendar.getInstance(TimeZone
-                            .getTimeZone("GMT"));
-                    pastCal.setTime(d);
-                    pastCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
                     displayCanvas = new TimeSeriesDisplayCanvas(this,
-                            canvasComp, gd, pastCal.getTime(),
-                            futureCal.getTime(), groupInfo.isGroupSelected());
+                            canvasComp, gd, beginDate,
+                            endDate, groupInfo.isGroupSelected());
                     displayCanvas.setHorizontalSpan(gd.getXsize());
                     displayCanvas.setVerticalSpan(gd.getYsize());
                     displayCanvas.showGridLines(groupInfo.isGridLines());
