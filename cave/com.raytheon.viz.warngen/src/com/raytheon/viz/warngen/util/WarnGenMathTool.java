@@ -27,6 +27,12 @@ import org.apache.velocity.tools.generic.MathTool;
 /**
  * @author bwoodle
  *
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 31, 2012   15219    Qinglu Lin  Added roundAndPad().
+ * 
  */
 public class WarnGenMathTool extends MathTool {
 
@@ -57,4 +63,12 @@ public class WarnGenMathTool extends MathTool {
 		return roundToInt(num, 5);
 	}
 
+	/**
+	 * Round movement direction to integer, and pad it with leading zeros
+	 * if it's less than 100
+	 */
+	public static String roundAndPad(double direction) {
+		return String.format("%03d",Math.round(direction));
+	}
+	
 }

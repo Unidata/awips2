@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 July, 2011 6772          dhladky     Initial creation
+ * 29 July, 2012 578           dhladky     memory work
  * </pre>
  * 
  * @author dhladky
@@ -92,14 +93,9 @@ public class FFMPInterpolatedGuidanceDelay {
         ArrayList<String> hucs = new ArrayList<String>();
 		hucs.add("ALL");
 
-		// if (qpeSource.isMosaic()) {
-		// qpeContainer = generator.getFFMPDataContainer(qpeSource
-		// .getSourceName(), hucs, backDate);
-		// } else {
 		qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
 				+ "-" + siteKey + "-" + siteKey, hucs, backDate);
-		// }
-
+	
 		long expirationTime = qpeSource.getExpirationMinutes(siteKey) * 60 * 1000;
 		// determine lag_time
         long lagTime = (currentRecord.getDataTime().getRefTime().getTime())
