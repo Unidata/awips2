@@ -41,7 +41,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 13, 2011            dhladky     Initial creation
+ * Oct 13, 2011            dhladky     Initial creation.
+ * Jul 31, 2012 14517      mpduff      Fix for Rapid slider changes
  * 
  * </pre>
  * 
@@ -142,11 +143,13 @@ public class FFMPTableDataLoader extends Thread {
 
 //                                System.out
 //                                       .println(" Cache MISSSSSSSSSSSS!!!!!");
+                                
+                                double origDrawTime = resource.getTime();
                                 FFMPDataGenerator dg = new FFMPDataGenerator(
                                         ffmp, resource);
                                 tData = dg.generateFFMPData();
                                 drawable.setTableData(iHuc, tData);
-                                drawable.setDrawTime(resource.getTime());
+                                drawable.setDrawTime(origDrawTime);
                             }
                         }
                     } catch (Exception e) {

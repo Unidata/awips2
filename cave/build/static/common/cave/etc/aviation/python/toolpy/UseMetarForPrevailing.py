@@ -78,7 +78,7 @@
 #       
 #
 import logging, time
-import Avn, AvnLib, AvnParser, Busy, Globals, TafDecoder
+import Avn, AvnLib, AvnParser, TafDecoder
 
 import MetarData
 
@@ -120,7 +120,6 @@ def updateTafs(bbb, fcsts):
             badidents.append(ident)
             
     if badidents:
-        Busy.showwarning('Could not update TAFs for %s' % ' '.join(badidents), 
-            master)
+        _Logger.warning('Could not update TAFs for %s' % ' '.join(badidents))
         
     return fcsts
