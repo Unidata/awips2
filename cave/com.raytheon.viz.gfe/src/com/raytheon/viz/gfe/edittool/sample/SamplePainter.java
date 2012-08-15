@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/2008              chammack    Initial Port from AWIPS I (minus ISC support)
+ * 07/23/2012     #936     dgilling    Reinstate config-handling code to
+ *                                     calcGridLabels().
  * 
  * </pre>
  * 
@@ -253,7 +255,7 @@ public class SamplePainter {
     private void calcGridLabels(Coordinate worldLoc, final List<GridID> grids,
             final GridID imageGrid, List<String> sampleLabels, List<RGB> colors) {
 
-        if (grids.size() == 0) {
+        if (grids.isEmpty()) {
             return;
         }
 
@@ -261,9 +263,9 @@ public class SamplePainter {
         // all parms
         List<String> limitSamples = Arrays.asList(Activator.getDefault()
                 .getPreferenceStore().getStringArray("SampleParms"));
+
         // assumes all grids shared same grid location.
         boolean inGrid = false;
-
         Coordinate gridCoordinate = MapUtil.latLonToGridCoordinate(worldLoc,
                 PixelOrientation.UPPER_LEFT, grids.get(0).getParm()
                         .getGridInfo().getGridLoc());
@@ -280,27 +282,41 @@ public class SamplePainter {
             inGrid = true;
         }
 
-        // sample label color
-        RGB labelColor = new RGB(255, 255, 255);
-        
         // get the list of samples that should be painted and in the
         // order
         for (GridID grid : grids) {
             String pName = grid.getParm().getParmID().compositeNameUI();
 
             // do we plot this weather element?
-            if ((limitSamples.size() != 0) && !limitSamples.contains(pName)) {
+            if ((!limitSamples.isEmpty()) && !limitSamples.contains(pName)) {
                 continue; // skip
+            }
+
+            // calculate color
+            RGB labelColor = grid.getParm().getDisplayAttributes()
+                    .getBaseColor();
+
+            if (grid.equals(imageGrid)) {
+                RGB color = new RGB(255, 255, 255);
+                String colorName = Activator.getDefault().getPreferenceStore()
+                        .getString("ImageLegend_color");
+                if (!colorName.isEmpty()) {
+                    color = RGBColors.getRGBColor(colorName);
+                }
+                labelColor = color;
+            }
+            String parmColorName = Activator.getDefault().getPreferenceStore()
+                    .getString(pName + "_Sample_color");
+            if (!parmColorName.isEmpty()) {
+                labelColor = RGBColors.getRGBColor(parmColorName);
             }
 
             // get the data value
             String label = NO_DATA_LABEL;
             if (inGrid) {
-
                 // isc mode or grid from isc database
                 if (showISC || grid.getParm().getParmState().isIscParm()) {
                     label = iscSampleLabel(grid, gridCoordinate);
-
                 } else if (showDataValues) {
                     final IGridData gridData = grid.grid();
                     if (gridData != null) {

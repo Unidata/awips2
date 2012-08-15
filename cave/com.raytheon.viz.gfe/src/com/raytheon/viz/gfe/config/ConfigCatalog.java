@@ -121,10 +121,11 @@ public class ConfigCatalog extends AbstractScriptCatalog {
             // Look for HideConfigFile = True in the file
             PythonScript pscript = null;
             try {
-                String includePath = PyUtil
-                        .buildJepIncludePath(GfePyIncludeUtil
-                                .getConfigIncludePath());
-                pscript = new PythonScript(file.getAbsolutePath(), includePath,
+                String configPath = GfePyIncludeUtil.getConfigIncludePath();
+                String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
+
+                pscript = new PythonScript(file.getAbsolutePath(),
+                        PyUtil.buildJepIncludePath(configPath, vtecPath),
                         getClass().getClassLoader(), preEvals);
                 Boolean scriptValue = (Boolean) pscript.execute(
                         "checkHideConfigFile", null);
