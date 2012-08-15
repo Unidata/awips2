@@ -6,7 +6,7 @@
 ##          MODIFIED EVAN BOOKBINDER  09-16-2011 OB11.0.8-8               ##
 ##          EVAN BOOKBINDER   WFO EAX 11-04-2011 OB11.9-3 (DRs)           ##
 ##          QINGLU LIN                 7-31-2012 DR 15217 use roundAndPad ##
-##                                                                        ##
+##          QINGLU LIN                 8-14-2012 DR 14493 use TMLtime     ##
 ############################################################################
 ## EWW PRODUCT ##
 #################
@@ -188,7 +188,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
 ${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})

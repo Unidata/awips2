@@ -112,7 +112,10 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  *                                     without starting CAVE.
  * 01 June 2011 9499       djingtao    update openGraph() 
  * 23 Jul 2012 15180       mpduff      Auto select the first group in the predefined group list
- * 23 Jul 2012 15195       mpduff      Fix Group graphing to use the date widgets.                  
+ * 23 Jul 2012 15195       mpduff      Fix Group graphing to use the date widgets.  
+ * 08 Aug 2012   570       mpduff      Fix a Ctrl-F in Station list causing IndexOutOfBounds error.  
+ * 08 Aug 2012   657       mpduff      Fix error when selecting a TS while no selection has been made 
+ *                                     in the Station List.               
  * </pre>
  * 
  * @author lvenable
@@ -1161,10 +1164,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         tsOrderCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String line = topDataList.getItem(topDataList
-                        .getSelectionIndex());
-                String selectedLid = line.substring(0, line.indexOf(" "));
-                populateBottomList(selectedLid, tsOrderCbo.getSelectionIndex());
+                if (topDataList.getSelectionIndex() != -1) {
+                    String line = topDataList.getItem(topDataList
+                            .getSelectionIndex());
+                    String selectedLid = line.substring(0, line.indexOf(" "));
+                    populateBottomList(selectedLid, tsOrderCbo.getSelectionIndex());
+                }
             }
         });
         tsOrderCbo.select(1);
@@ -1207,9 +1212,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         topDataList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                populateBottomList(
-                        lidList.get(topDataList.getSelectionIndex()),
-                        tsOrderCbo.getSelectionIndex());
+                if (topDataList.getSelectionIndex() != -1) {
+                    populateBottomList(
+                            lidList.get(topDataList.getSelectionIndex()),
+                            tsOrderCbo.getSelectionIndex());
+                }
             }
         });
     }

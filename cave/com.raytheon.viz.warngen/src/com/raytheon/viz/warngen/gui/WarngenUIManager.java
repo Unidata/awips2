@@ -126,7 +126,6 @@ public class WarngenUIManager extends InputAdapter {
     @Override
     public boolean handleMouseDown(int x, int y, int button) {
         warngenLayer.showDialog(true);
-        menuMove = false;
         lastMouseX = x;
         lastMouseY = y;
         if (!handleInput || warngenLayer.isBoxEditable() == false) {
@@ -135,7 +134,7 @@ public class WarngenUIManager extends InputAdapter {
         boolean rval = false;
         if (button == 1 && moveType != null) {
             return true;
-        } else if (button == 2) {
+        } else if (button == 2 && menuMove == false) {
             /** Try to add vertex */
             new AddVertexAction().run();
             if (pointCreated) {
@@ -202,8 +201,7 @@ public class WarngenUIManager extends InputAdapter {
             return super.handleMouseUp(x, y, mouseButton);
         }
 
-
-        if (mouseButton == 3) {
+        if (mouseButton == 3 && menuMove == false) {
             Coordinate c = container.translateClick(x, y);
             WarngenUIState state = warngenLayer.getWarngenState();
             boolean geomsEqual = true;
@@ -245,13 +243,14 @@ public class WarngenUIManager extends InputAdapter {
 
         boolean rval = false;
 
-        if (moveType != null || pointDeleted || pointCreated) {
+        if (moveType != null || pointDeleted || pointCreated || menuMove) {
             try {
                 if (moveType == MoveType.ALL_POINTS) {
                     WarngenUIState state = warngenLayer.getWarngenState();
-                    Coordinate[] coordinates = state.getWarningPolygon().getCoordinates();
+                    Coordinate[] coordinates = state.getWarningPolygon()
+                            .getCoordinates();
                     PolygonUtil.truncate(coordinates, 2);
-                    
+
                     GeometryFactory gf = new GeometryFactory();
                     LinearRing lr = gf.createLinearRing(coordinates);
                     state.setWarningPolygon(gf.createPolygon(lr, null));
@@ -265,15 +264,13 @@ public class WarngenUIManager extends InputAdapter {
         }
         pointDeleted = false;
         pointCreated = false;
+        menuMove = false;
         return rval;
     }
 
     @Override
     public boolean handleMouseMove(int x, int y) {
         if (menuMove) {
-            movePointIndex = StormTrackUIManager.getCoordinateIndex(
-                    warngenLayer, warngenLayer.getPolygon().getCoordinates(),
-                    new Coordinate(lastMouseX, lastMouseY));
             move(x, y);
             warngenLayer.getWarngenState().geometryChanged = true;
             return true;
@@ -426,7 +423,8 @@ public class WarngenUIManager extends InputAdapter {
                 
                 for (int i = 0; i < coords.length; ++i) {
                     Coordinate toAdd = (Coordinate) coords[i].clone();
-                    if (!toAdd.equals(toRemove) || alreadyRemoved.contains(toAdd)) {
+                    if (!toAdd.equals(toRemove)
+                            || alreadyRemoved.contains(toAdd)) {
                         coordList.add(toAdd);
                     } else {
                         alreadyRemoved.add(toAdd);
@@ -441,11 +439,11 @@ public class WarngenUIManager extends InputAdapter {
                 LinearRing lr = gf.createLinearRing(coordList
                         .toArray(new Coordinate[coordList.size()]));
                 Polygon newPoly = gf.createPolygon(lr, null);
-                
+
                 if (newPoly.isValid() == false) {
                     return;
                 }
-                
+
                 warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                 try {
                     warngenLayer.updateWarnedAreas(true, true);
@@ -498,6 +496,9 @@ public class WarngenUIManager extends InputAdapter {
         @Override
         public void run() {
             moveType = MoveType.SINGLE_POINT;
+            movePointIndex = StormTrackUIManager.getCoordinateIndex(
+                    warngenLayer, warngenLayer.getPolygon().getCoordinates(),
+                    new Coordinate(lastMouseX, lastMouseY));
             menuMove = true;
         }
 
@@ -511,6 +512,9 @@ public class WarngenUIManager extends InputAdapter {
         @Override
         public void run() {
             moveType = MoveType.ALL_POINTS;
+            movePointIndex = StormTrackUIManager.getCoordinateIndex(
+                    warngenLayer, warngenLayer.getPolygon().getCoordinates(),
+                    new Coordinate(lastMouseX, lastMouseY));
             menuMove = true;
         }
 
