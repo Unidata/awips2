@@ -2045,14 +2045,12 @@ public class WarngenDialog extends CaveSWTDialog implements
     /**
      * Set the shell to visible and then move it on top of the CAVE dialog.
      */
-    public void showDialog(boolean show) {
-        if (shell != null && shell.isDisposed() == false) {
-            if (shell.isVisible() != show) {
-                // Only call setVisible if we aren't what we need
-                shell.setVisible(show);
-            }
-
+    public void showDialog(boolean show) {      
+        if (shell != null && shell.isDisposed() == false) {            
             if (show) {
+                if (shell.isVisible() == false) {
+                    shell.setVisible(true);
+                }
                 // Move above parent shell if we are showing it
                 shell.moveAbove(getParent());
             }

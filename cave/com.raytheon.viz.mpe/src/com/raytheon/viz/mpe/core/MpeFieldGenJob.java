@@ -47,6 +47,7 @@ import com.raytheon.viz.mpe.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1/08/09      1674       bphillip    Initial creation
+ * 08/09/12     15307      snaples     Updated job to use postStreamingByteArray.
  * </pre>
  * 
  * @author bphillip
@@ -78,11 +79,12 @@ public class MpeFieldGenJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         final Integer[] mpeExitValue = new Integer[1];
 
-        String httpAddress = VizApp.getHttpServer();
-
+        String httpAddress = VizApp.getHttpServer() + ENDPOINT_NAME;
+        String args = fieldGenArg;
+        byte[] ba = args.getBytes();
+        
         try {
-            HttpClient.getInstance().postStreamingString(
-                    httpAddress + ENDPOINT_NAME, fieldGenArg,
+            HttpClient.getInstance().postStreamingByteArray(httpAddress, ba,
                     new HttpClient.IStreamHandler() {
 
                         /*
@@ -113,15 +115,7 @@ public class MpeFieldGenJob extends Job {
             return new Status(Status.ERROR, Activator.PLUGIN_ID,
                     "MPE Field Gen execution failed with exit code: "
                             + mpeExitValue[0]);
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            handler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-
-            // copied from above
-            return new Status(Status.ERROR, Activator.PLUGIN_ID,
-                    "MPE Field Gen execution failed with exit code: "
-                            + mpeExitValue[0]);
-        }
+        } 
 
         if (mpeExitValue[0] != null && mpeExitValue[0] == 0) {
             return Status.OK_STATUS;

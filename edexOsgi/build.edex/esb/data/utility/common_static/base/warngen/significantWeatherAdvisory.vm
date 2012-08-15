@@ -6,6 +6,7 @@
 ## Edited by Mike Dangelo 02-27-2012                ##
 ## Edited by Phil Kurimski 3-01-2012 OB12.2.1-4     ##
 ##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
+##           QINGLU LIN      7-31-2012 DR 15217 use roundAndPad ##
 ######################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -322,7 +323,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

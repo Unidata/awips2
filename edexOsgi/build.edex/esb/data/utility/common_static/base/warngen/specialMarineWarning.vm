@@ -9,7 +9,9 @@
 ## VERSION AWIPS II 1.4 -- JAN 26 2012  OB12.1.1-1 ##   
 ## Cleaned up wind coding for version 1.4          ##  
 ## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##           
-#####################################################
+##        BY QINGLU LIN    7-31-2012 DR 15217 use roundAndPad ##
+##        BY QINGLU LIN    8-14-2012 DR 14493 use TMLtime    ##
+################################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
 ## this information comment out the appropriate bullets in the
@@ -393,8 +395,8 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

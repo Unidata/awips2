@@ -31,7 +31,6 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
-
 /**
  * FFTI Data Container
  * 
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/31/11     5489     D. Hladky   Initial release
+ * 07/31/12     578      D.Hladky    finished it
  * 
  * </pre>
  * 
@@ -50,14 +50,14 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 
 public class FFMPDataContainer {
-	
-	 private static final transient IUFStatusHandler statusHandler = UFStatus
-     .getHandler(FFMPDataContainer.class);
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPDataContainer.class);
 
     private HashMap<String, FFMPBasinData> basinDataMap = new HashMap<String, FFMPBasinData>();
 
     private String sourceName = null;
-    
+
     private String filePath = null;
 
     public FFMPDataContainer() {
@@ -88,11 +88,11 @@ public class FFMPDataContainer {
      * @return
      */
     public FFMPBasinData getBasinData(String huc) {
-    	if (basinDataMap.containsKey(huc)) {
-    		return basinDataMap.get(huc);
-    	} else {
-    		return null;
-    	}
+        if (basinDataMap.containsKey(huc)) {
+            return basinDataMap.get(huc);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -142,160 +142,150 @@ public class FFMPDataContainer {
         if (source.getSourceType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
             guid = true;
         }
-        
-		FFMPBasinData currBasinData = getBasinData(huc);
 
-		if (currBasinData == null) {
-			setBasinData(huc, newBasinData);
-		} else {
+        FFMPBasinData currBasinData = getBasinData(huc);
 
-			for (Long key : newBasinData.getBasins().keySet()) {
+        if (currBasinData == null) {
+            setBasinData(huc, newBasinData);
+        } else {
 
-				if (guid) {
+            for (Long key : newBasinData.getBasins().keySet()) {
 
-					FFMPGuidanceBasin basin = null;
+                if (guid) {
 
-					if (currBasinData.get(key) instanceof FFMPGuidanceBasin) {
-						basin = (FFMPGuidanceBasin) currBasinData.get(key);
-					}
+                    FFMPGuidanceBasin basin = null;
 
-					if (basin == null) {
+                    if (currBasinData.get(key) instanceof FFMPGuidanceBasin) {
+                        basin = (FFMPGuidanceBasin) currBasinData.get(key);
+                    }
 
-						FFMPBasin newbasin = newBasinData.get(key);
-						basin = new FFMPGuidanceBasin(key,
-								newbasin.getAggregated());
+                    if (basin == null) {
 
-						if (newbasin instanceof FFMPGuidanceBasin) {
+                        FFMPBasin newbasin = newBasinData.get(key);
+                        basin = new FFMPGuidanceBasin(key,
+                                newbasin.getAggregated());
 
-							basin.setValue(
-									source.getSourceName(),
-									date,
-									((FFMPGuidanceBasin) newbasin).getValue(
-											source.getSourceName(),
-											source.getExpirationMinutes(siteKey) * 60 * 1000));
-						} else {
-							basin.setValue(source.getSourceName(), date,
-									newBasinData.get(key).getValue());
-						}
+                        if (newbasin instanceof FFMPGuidanceBasin) {
 
-						currBasinData.put(key, basin);
+                            Float val = ((FFMPGuidanceBasin) newbasin).getValue(date, source.getSourceName());
+                            basin.setValue(source.getSourceName(), date, val);
+                        } else {
+                            Float val = newbasin.getValue(date);
+                            basin.setValue(source.getSourceName(), date, val);
+                        }
 
-					} else {
+                        currBasinData.put(key, basin);
 
-						FFMPBasin newbasin = newBasinData.get(key);
+                    } else {
 
-						if (newbasin instanceof FFMPGuidanceBasin) {
+                        FFMPBasin newbasin = newBasinData.get(key);
 
-							if (basin.getValue(date, source.getSourceName()) != null
-									&& (basin.getValue(date,
-											source.getSourceName()) >= 0.0f && !basin
-											.getValue(date,
-													source.getSourceName())
-											.isNaN())) {
+                        if (newbasin instanceof FFMPGuidanceBasin) {
+                            
+                            FFMPGuidanceBasin newGbasin = (FFMPGuidanceBasin)newBasinData.get(key);
+                            Float basinVal = basin.getValue(date, source.getSourceName());
+                            Float newBasinVal = newGbasin.getValue(date, source.getSourceName());
 
-								if (((FFMPGuidanceBasin) newbasin).getValue(
-										date, source.getSourceName()) >= 0.0f
-										&& !((FFMPGuidanceBasin) newbasin)
-												.getValue(date,
-														source.getSourceName())
-												.isNaN()) {
+                            if (basinVal != null
+                                && basinVal >= 0.0f 
+                                && !basinVal.isNaN()
+                                && basinVal != FFMPUtils.MISSING) {
 
-									float val = (float) (basin.getValue(date,
-											source.getSourceName()) + ((FFMPGuidanceBasin) newbasin)
-											.getValue(
-													source.getSourceName(),
-													source.getExpirationMinutes(siteKey) * 60 * 1000) / 2.0);
+                                if (newBasinVal != null
+                                    && newBasinVal >= 0.0f
+                                    && !newBasinVal.isNaN()
+                                    && newBasinVal != FFMPUtils.MISSING) {
 
-									basin.setValue(source.getSourceName(),
-											date, val);
-								}
+                                    float val = (float) ((basinVal + newBasinVal) / 2.0);
+                                    basin.setValue(source.getSourceName(),
+                                            date, val);
+                                }
+                            } else {
+                                
+                                if (newBasinVal.isNaN()) {
+                                    newBasinVal = FFMPUtils.MISSING;
+                                }
+                                
+                                basin.setValue(source.getSourceName(),
+                                        date, newBasinVal);
+                            }
 
-							} else {
+                        } else {
 
-								if (!basin.containsKey(date,
-										source.getSourceName())
-										&& newbasin != null) {
-									basin.setValue(source.getSourceName(),
-											date,
-											((FFMPGuidanceBasin) newbasin)
-													.getValue(date, source
-															.getSourceName()));
-								}
-							}
+                            Float basinVal = basin.getValue(date, source.getSourceName());
+                            Float newBasinVal = newbasin.getValue();
+                            
+                            if (basinVal != null
+                                    && basinVal >= 0.0f 
+                                    && !basinVal.isNaN()
+                                    && basinVal != FFMPUtils.MISSING) {
+                                
+                                if (newBasinVal != null
+                                        && newBasinVal >= 0.0f
+                                        && !newBasinVal.isNaN()
+                                        && newBasinVal != FFMPUtils.MISSING) {
 
-						} else {
-							// meaning, it's a brand new file, we don't cast
-							// those out
+                                        float val = (float) ((basinVal + newBasinVal) / 2.0);
+                                        basin.setValue(source.getSourceName(),
+                                                date, val);
+                                }
+                            } else {
+                                
+                                if (newBasinVal.isNaN()) {
+                                    newBasinVal = FFMPUtils.MISSING;
+                                }
+                                
+                                basin.setValue(source.getSourceName(),
+                                        date, newBasinVal);
+                            }
+                        }
+                    }
+                    
+                } else {
 
-							if (newbasin.getValue(date) != null
-									&& newbasin.getValue(date) >= 0.0f
-									&& !newbasin.getValue(date).isNaN()
-									&& ((FFMPGuidanceBasin) basin).getValue(
-											date, source.getSourceName()) >= 0.0f
-									&& !((FFMPGuidanceBasin) basin).getValue(
-											date, source.getSourceName())
-											.isNaN()) {
+                    FFMPBasin basin = currBasinData.get(key);
+                    FFMPBasin newbasin = newBasinData.get(key);
+                    Float val = 0.0f;
 
-								float val = (float) ((basin.getValue(date,
-										source.getSourceName()) + newbasin
-										.getValue()) / 2);
+                    if (basin == null) {
 
-								basin.setValue(source.getSourceName(), date,
-										val);
+                        basin = new FFMPBasin(key, newbasin.getAggregated());
+                        val = newbasin.getValue(date);
 
-							} else {
+                        if (val.isNaN()) {
+                            val = 0.0f;
+                        }
 
-								basin.setValue(source.getSourceName(), date,
-										newbasin.getValue(date));
-							}
-						}
-					}
+                        basin.setValue(date, val);
+                        currBasinData.put(key, basin);
 
-				} else {
+                    } else {
 
-					FFMPBasin basin = currBasinData.get(key);
-					FFMPBasin newbasin = newBasinData.get(key);
-					Float val = 0.0f;
+                        if (basin.getValue(date) != null
+                                && !basin.getValue(date).isNaN()
+                                && basin.getValue(date) != 0.0) {
+                            if (newbasin.getValue(date) != null
+                                    && !newbasin.getValue(date).isNaN()
+                                    && newbasin.getValue(date) != 0.0) {
 
-					if (basin == null) {
+                                val = (float) ((basin.getValue(date) + newbasin
+                                        .getValue(date)) / 2);
+                            }
 
-						basin = new FFMPBasin(key, newbasin.getAggregated());
-						val = newbasin.getValue(date);
+                        } else {
+                            val = newbasin.getValue(date);
 
-						if (val.isNaN()) {
-							val = 0.0f;
-						}
+                            if (val.isNaN()) {
+                                val = 0.0f;
+                            }
+                        }
 
-						basin.setValue(date, val);
-						currBasinData.put(key, basin);
-
-					} else {
-
-						if (basin.getValue(date) != null
-								&& !basin.getValue(date).isNaN()
-								&& basin.getValue(date) != 0.0) {
-							if (newbasin.getValue(date) != null
-									&& !newbasin.getValue(date).isNaN()
-									&& newbasin.getValue(date) != 0.0) {
-
-								val = (float) ((basin.getValue(date) + newbasin
-										.getValue(date)) / 2);
-							}
-
-						} else {
-							val = newbasin.getValue(date);
-
-							if (val.isNaN()) {
-								val = 0.0f;
-							}
-						}
-
-						basin.setValue(date, val);
-					}
-				}
-			}
-		}
-	}
+                        basin.setValue(date, val);
+                    }
+                }
+            }
+        }
+    }
 
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
@@ -322,8 +312,8 @@ public class FFMPDataContainer {
                 }
             }
         } catch (Exception e) {
-        	statusHandler.debug("No old times available..."+getSourceName());
-        	return null;
+            statusHandler.debug("No old times available..." + getSourceName());
+            return null;
         }
         return null;
     }
@@ -345,13 +335,14 @@ public class FFMPDataContainer {
                         orderedTimes.add(time);
                     }
                 }
-                
+
                 Collections.reverse(orderedTimes);
-                
+
                 return orderedTimes;
             }
         } catch (Exception e) {
-        	statusHandler.debug("No ordered times available..."+getSourceName());
+            statusHandler.debug("No ordered times available..."
+                    + getSourceName());
             return null;
         }
 
@@ -375,7 +366,7 @@ public class FFMPDataContainer {
                 }
             }
         } catch (Exception e) {
-        	statusHandler.debug("No new times available..."+getSourceName());
+            statusHandler.debug("No new times available..." + getSourceName());
             return null;
         }
 
@@ -458,9 +449,9 @@ public class FFMPDataContainer {
     public double getMaxValue(ArrayList<Long> pfafs, Date backDate,
             Date currDate, long expirationTime, boolean rate) {
 
-    	double val = getBasinData("ALL").getAccumMaxValue(pfafs, currDate, backDate,
-                expirationTime, rate);
-    	
+        double val = getBasinData("ALL").getAccumMaxValue(pfafs, currDate,
+                backDate, expirationTime, rate);
+
         return val;
     }
 
@@ -473,12 +464,12 @@ public class FFMPDataContainer {
         }
     }
 
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 
-	public String getFilePath() {
-		return filePath;
-	}
+    public String getFilePath() {
+        return filePath;
+    }
 
 }
