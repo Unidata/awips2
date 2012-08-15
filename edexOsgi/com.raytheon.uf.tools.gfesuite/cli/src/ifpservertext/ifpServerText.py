@@ -23,7 +23,6 @@ import sys, os, pwd, string, getopt, logging
 import numpy
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.auth.resp import SuccessfulExecution
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetActiveSitesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSingletonDbIdsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSiteTimeZoneInfoRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GridLocRequest
@@ -39,6 +38,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import 
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import User
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import UserId
+from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from ufpy import ThriftClient
 
 #
@@ -700,19 +700,14 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 raise Exception, serverResponse.message()
         elif self.__metaInfo == "site":
             request = GetActiveSitesRequest()
-            request.setWorkstationID(wsId)
-            request.setSiteID("")
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
                 raise RuntimeError,  "Could not retrieve meta information: " + str(e)
             
-            if (serverResponse.isOkay()):
-                sites = serverResponse.getPayload()
-                for s in sites:
-                    txt = txt + s + "\n"
-            else:
-                raise Exception, serverResponse.message()
+            for site in serverResponse:
+                txt = txt + site + "\n"
+
         elif self.__metaInfo == "singleton":
             request = GetSingletonDbIdsRequest()
             request.setWorkstationID(wsId)

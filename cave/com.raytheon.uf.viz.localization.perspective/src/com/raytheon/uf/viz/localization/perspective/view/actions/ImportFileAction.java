@@ -67,9 +67,13 @@ public class ImportFileAction extends Action {
     private static final String FORMAT_STRING = "The file '%s' already exists at the %s level and "
             + "will be deleted. Proceed?";
 
+    private static final String ASTERISK = "*";
+
     private String directoryPath;
 
     private LocalizationType contextType;
+
+	private String[] fileExtensionFilterArr;
 
     public ImportFileAction(LocalizationType contextType, String directoryPath) {
         super("Import File...");
@@ -77,7 +81,22 @@ public class ImportFileAction extends Action {
         this.directoryPath = directoryPath;
     }
 
-    /*
+    public ImportFileAction(LocalizationType contextType, String directoryPath, String[] filter) {
+    	this(contextType, directoryPath);
+		if (filter != null) {
+			this.fileExtensionFilterArr = new String[filter.length];
+			for (int i = 0; i < filter.length; ++i) {
+				if (filter[i] != null && filter[i].startsWith(".")) {
+					// prepend an asterisk as required by FileDialog.
+					this.fileExtensionFilterArr[i] = ASTERISK + filter[i];
+				} else {
+					this.fileExtensionFilterArr[i] = filter[i];
+				}
+			}
+		}
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see org.eclipse.jface.action.Action#run()
@@ -87,6 +106,9 @@ public class ImportFileAction extends Action {
         Shell parent = VizWorkbenchManager.getInstance().getCurrentWindow()
                 .getShell();
         FileDialog dialog = new FileDialog(parent);
+        if (fileExtensionFilterArr != null) {
+        	dialog.setFilterExtensions(fileExtensionFilterArr);
+        }
         String fileToImport = dialog.open();
         if (fileToImport != null) {
             File importFile = new File(fileToImport);
