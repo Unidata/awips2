@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky     Initial creation
+ * July 13, 2012           dhladky    Revamped to help memory
  * 
  * </pre>
  * 
@@ -226,7 +227,7 @@ public class FFTI implements Runnable {
 
         for (String displayName : displayNames) {
             String[] fftiKeys = displayName.split("-");
-            
+
             // monolithic processing for mosaic sources
             if (fftiKeys.length == 1) {
 
@@ -234,29 +235,29 @@ public class FFTI implements Runnable {
                         displayName);
                 ArrayList<String> sites = getSites(source);
                 ArrayList<FFTIAccum> accums = new ArrayList<FFTIAccum>();
-                
+
                 // process all pieces of the mosaic
-				for (int i = 0; i < sites.size(); i++) {
+                for (int i = 0; i < sites.size(); i++) {
 
-					String dataKey = sites.get(i);
+                    String dataKey = sites.get(i);
 
-					for (int j = 0; j < sites.size(); j++) {
+                    for (int j = 0; j < sites.size(); j++) {
 
-						FFTIAccum faccum = getAccumulationForSite(displayName,
-								sites.get(j), dataKey, duration,
-								source.getUnit());
+                        FFTIAccum faccum = getAccumulationForSite(displayName,
+                                sites.get(j), dataKey, duration,
+                                source.getUnit());
 
-						if (faccum != null) {
-							accums.add(faccum);
-						}
-					}
-				}
+                        if (faccum != null) {
+                            accums.add(faccum);
+                        }
+                    }
+                }
 
                 // find the highest for the entire mosaic
                 accum = new FFTIAccum();
                 accum.setAccumulation(0.0);
 
-                for (FFTIAccum faccum: accums) {
+                for (FFTIAccum faccum : accums) {
 
                     if (accum.getAccumulation() <= faccum.getAccumulation()) {
                         accum.setAccumulation(faccum.getAccumulation());
@@ -270,35 +271,35 @@ public class FFTI implements Runnable {
                     accum.setUnit(faccum.getUnit());
                 }
 
-               
                 statusHandler.handle(
                         Priority.INFO,
                         "FFTI mosaic ACCUM: " + source.getSourceName() + " "
                                 + accum.getAccumulation() + " gap: "
                                 + accum.getGap());
                 accumList.add(accum);
-                
+
             } else {
-            	
+
                 fftiSiteKey = fftiKeys[0];
                 fftiSourceKey = fftiKeys[1];
 
                 source = ffmpgen.getSourceConfig().getSourceByDisplayName(
                         fftiSourceKey);
 
-                accum = getAccumulationForSite(fftiSourceKey, fftiSiteKey, fftiSiteKey, duration, source.getUnit());
-                
-				if (accum != null) {
-					accum.setUnit(source.getUnit());
-					statusHandler.handle(
-							Priority.INFO,
-							"FFTI ACCUM: " + source.getSourceName() + " "
-									+ fftiSiteKey + " "
-									+ accum.getAccumulation() + " gap: "
-									+ accum.getGap());
+                accum = getAccumulationForSite(fftiSourceKey, fftiSiteKey,
+                        fftiSiteKey, duration, source.getUnit());
 
-					accumList.add(accum);
-				}
+                if (accum != null) {
+                    accum.setUnit(source.getUnit());
+                    statusHandler.handle(
+                            Priority.INFO,
+                            "FFTI ACCUM: " + source.getSourceName() + " "
+                                    + fftiSiteKey + " "
+                                    + accum.getAccumulation() + " gap: "
+                                    + accum.getGap());
+
+                    accumList.add(accum);
+                }
             }
         }
 
@@ -346,19 +347,19 @@ public class FFTI implements Runnable {
                                 .equals(FFTIAttributeXML.ATTRIBUTE.RATIO
                                         .getAttribute())) {
 
-							if (values.getGuids() != null
-									&& values.getQpes() != null) {
-								tempVal = FFMPUtils.getMaxRatioValue(
-										values.getQpes(), values.getGuids());
-							}
-						} else if (attribute.getAttributeName().equals(
-								FFTIAttributeXML.ATTRIBUTE.DIFF.getAttribute())) {
+                            if (values.getGuids() != null
+                                    && values.getQpes() != null) {
+                                tempVal = FFMPUtils.getMaxRatioValue(
+                                        values.getQpes(), values.getGuids());
+                            }
+                        } else if (attribute.getAttributeName().equals(
+                                FFTIAttributeXML.ATTRIBUTE.DIFF.getAttribute())) {
 
-							if (values.getGuids() != null
-									&& values.getQpes() != null) {
-								tempVal = FFMPUtils.getMaxDiffValue(
-										values.getQpes(), values.getGuids());
-							}
+                            if (values.getGuids() != null
+                                    && values.getQpes() != null) {
+                                tempVal = FFMPUtils.getMaxDiffValue(
+                                        values.getQpes(), values.getGuids());
+                            }
                         }
 
                         if ((tempVal != Float.NaN)
@@ -405,20 +406,20 @@ public class FFTI implements Runnable {
                     if (attribute.getAttributeName().equals(
                             FFTIAttributeXML.ATTRIBUTE.RATIO.getAttribute())) {
 
-						if (values.getGuids() != null
-								&& values.getQpes() != null) {
-							val = FFMPUtils.getMaxRatioValue(values.getQpes(),
-									values.getGuids());
-						}
-                    	
+                        if (values.getGuids() != null
+                                && values.getQpes() != null) {
+                            val = FFMPUtils.getMaxRatioValue(values.getQpes(),
+                                    values.getGuids());
+                        }
+
                     } else if (attribute.getAttributeName().equals(
                             FFTIAttributeXML.ATTRIBUTE.DIFF.getAttribute())) {
 
-						if (values.getGuids() != null
-								&& values.getQpes() != null) {
-							val = FFMPUtils.getMaxDiffValue(values.getQpes(),
-									values.getGuids());
-						}
+                        if (values.getGuids() != null
+                                && values.getQpes() != null) {
+                            val = FFMPUtils.getMaxDiffValue(values.getQpes(),
+                                    values.getGuids());
+                        }
                     }
 
                     gap = values.getGap();
@@ -459,74 +460,74 @@ public class FFTI implements Runnable {
             double red = attribute.getRedThrshld();
 
             for (FFTIAccum accum : accumList) {
-				if (accum != null && accum.getName() != null) {
-					value = accum.getAccumulation();
-					unit = accum.getUnit();
-					displayName = accum.getName();
-					gapVal = accum.getGap();
+                if (accum != null && accum.getName() != null) {
+                    value = accum.getAccumulation();
+                    unit = accum.getUnit();
+                    displayName = accum.getName();
+                    gapVal = accum.getGap();
 
-					String sourceDisplayName = null;
-					if (displayName.contains("-")) {
-						sourceDisplayName = displayName.split("-")[1];
-					} else {
-						sourceDisplayName = displayName;
-					}
+                    String sourceDisplayName = null;
+                    if (displayName.contains("-")) {
+                        sourceDisplayName = displayName.split("-")[1];
+                    } else {
+                        sourceDisplayName = displayName;
+                    }
 
-					SourceXML source = FFMPSourceConfigurationManager
-							.getInstance().getSourceByDisplayName(
-									sourceDisplayName);
+                    SourceXML source = FFMPSourceConfigurationManager
+                            .getInstance().getSourceByDisplayName(
+                                    sourceDisplayName);
 
-					String sourceType = source.getSourceType();
+                    String sourceType = source.getSourceType();
 
-					// Set up the alert data object
-					FFTIAlertData fad = new FFTIAlertData();
+                    // Set up the alert data object
+                    FFTIAlertData fad = new FFTIAlertData();
 
-					if (sourceType.equalsIgnoreCase(SOURCE_TYPE.QPE
-							.getSourceType())) {
-						fad.addSource(SOURCE_TYPE.QPE, displayName);
-						fad.addDuration(SOURCE_TYPE.QPE, setting.getQpeSource()
-								.getDurationHour());
-					} else if (sourceType.equalsIgnoreCase(SOURCE_TYPE.QPF
-							.getSourceType())) {
-						fad.addSource(SOURCE_TYPE.QPF, displayName);
-						fad.addDuration(SOURCE_TYPE.QPF, setting.getQpfSource()
-								.getDurationHour());
-					}
+                    if (sourceType.equalsIgnoreCase(SOURCE_TYPE.QPE
+                            .getSourceType())) {
+                        fad.addSource(SOURCE_TYPE.QPE, displayName);
+                        fad.addDuration(SOURCE_TYPE.QPE, setting.getQpeSource()
+                                .getDurationHour());
+                    } else if (sourceType.equalsIgnoreCase(SOURCE_TYPE.QPF
+                            .getSourceType())) {
+                        fad.addSource(SOURCE_TYPE.QPF, displayName);
+                        fad.addDuration(SOURCE_TYPE.QPF, setting.getQpfSource()
+                                .getDurationHour());
+                    }
 
-					fad.setAttributeName(attribute.getAttributeName());
-					fad.setDisplayName(displayName);
-					fad.setUnit(unit);
-					fad.setValue(formatter.format(value));
-					fad.setGap(getGapString(gapVal));
+                    fad.setAttributeName(attribute.getAttributeName());
+                    fad.setDisplayName(displayName);
+                    fad.setUnit(unit);
+                    fad.setValue(formatter.format(value));
+                    fad.setGap(getGapString(gapVal));
 
-					if ((value >= yellow) && (value < red)) {
-						fad.setPriority(String
-								.valueOf(UFStatus.Priority.PROBLEM.ordinal()));
+                    if ((value >= yellow) && (value < red)) {
+                        fad.setPriority(String
+                                .valueOf(UFStatus.Priority.PROBLEM.ordinal()));
 
-						if (messagePriority.ordinal() > Priority.PROBLEM
-								.ordinal()) {
-							messagePriority = UFStatus.Priority.PROBLEM;
-						}
-					} else if (value >= red) {
-						fad.setPriority(String
-								.valueOf(UFStatus.Priority.SIGNIFICANT
-										.ordinal()));
-						if (messagePriority.ordinal() > UFStatus.Priority.SIGNIFICANT
-								.ordinal()) {
-							messagePriority = UFStatus.Priority.SIGNIFICANT;
-						}
-					} else {
-						fad.setPriority(String.valueOf(UFStatus.Priority.EVENTA
-								.ordinal()));
-						if (messagePriority.ordinal() > UFStatus.Priority.EVENTA
-								.ordinal()) {
-							messagePriority = UFStatus.Priority.EVENTA;
-						}
-					}
+                        if (messagePriority.ordinal() > Priority.PROBLEM
+                                .ordinal()) {
+                            messagePriority = UFStatus.Priority.PROBLEM;
+                        }
+                    } else if (value >= red) {
+                        fad.setPriority(String
+                                .valueOf(UFStatus.Priority.SIGNIFICANT
+                                        .ordinal()));
+                        if (messagePriority.ordinal() > UFStatus.Priority.SIGNIFICANT
+                                .ordinal()) {
+                            messagePriority = UFStatus.Priority.SIGNIFICANT;
+                        }
+                    } else {
+                        fad.setPriority(String.valueOf(UFStatus.Priority.EVENTA
+                                .ordinal()));
+                        if (messagePriority.ordinal() > UFStatus.Priority.EVENTA
+                                .ordinal()) {
+                            messagePriority = UFStatus.Priority.EVENTA;
+                        }
+                    }
 
-					alertDataArray.add(fad);
-				}
-			}
+                    alertDataArray.add(fad);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             statusHandler
@@ -630,7 +631,16 @@ public class FFTI implements Runnable {
         fad.setAttributeName(attributeName);
         fad.setDisplayName(displayName);
         fad.setUnit(unit);
-        fad.setValue(formatter.format(value));
+
+        String displayStr = null;
+        if (attributeName.equals(FFTIAttributeXML.ATTRIBUTE.RATIO
+                .getAttribute())) {
+            displayStr = String.valueOf(Math.round(value));
+        } else {
+            displayStr = String.format("%1.2f", value);
+        }
+
+        fad.setValue(displayStr);
         fad.setGap(getGapString(gapVal));
         fad.setPriority(new Integer(priority).toString());
         fad.addDuration(SOURCE_TYPE.GUIDANCE, guidDuration);
@@ -718,9 +728,6 @@ public class FFTI implements Runnable {
                 + sourceLengths[1] + "s %-" + sourceLengths[2]
                 + "s %6s %7s %-3s %-6s";
 
-        // String headerFmt = typeFmt + "  " + sourceFmt + "  %5s " + unitFmt
-        // + " %8s %8s %s\n";
-
         String headerStr = String.format(lineFmt, "Type", "QPE", "QPF",
                 "GUID  ", "Value", "Unit", "Pri", "GAP");
 
@@ -793,82 +800,96 @@ public class FFTI implements Runnable {
      */
     private FFTIAccum getAccumulationForSite(String fftiSourceKey,
             String fftiSiteKey, String fftiDataKey, double duration, String unit) {
-    	
+
         SourceXML ffmpSource = ffmpgen.getSourceConfig()
                 .getSourceByDisplayName(fftiSourceKey);
         FFTIAccum accumulator = null;
-        String siteDataKey = ffmpSource.getDisplayName() + "-" + fftiSiteKey + "-"+ fftiDataKey;
-        
+        String siteDataKey = ffmpSource.getDisplayName() + "-" + fftiSiteKey
+                + "-" + fftiDataKey;
+
         if (ffmpgen.isFFTI(siteDataKey)) {
-        	accumulator = (FFTIAccum) ffmpgen.getFFTIData(siteDataKey);
+            accumulator = (FFTIAccum) ffmpgen.getFFTIData(siteDataKey);
         } else {
-        	accumulator = new FFTIAccum();
+            accumulator = new FFTIAccum();
         }
-        
+
         // This will only happen at initial load, update, and duration changes.
-		if (accumulator.isReset() || accumulator.getDuration() != duration) {
+        if (accumulator.isReset() || accumulator.getDuration() != duration) {
 
-			accumulator.setDuration(duration);
-        	accumulator.setUnit(unit);
+            accumulator.setDuration(duration);
+            accumulator.setUnit(unit);
 
-			if (ffmpSource.isMosaic()) {
-				accumulator.setName(ffmpSource.getDisplayName());
-			} else {
-				accumulator.setName(fftiSiteKey + "-" + fftiSourceKey);
-			}
-			
-			long cur = config.getDate().getTime();
-			long timeBack = (long) (duration * 3600 * 1000);
-			Date backDate = new Date(cur - timeBack);
-			long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * 60 * 1000;
+            if (ffmpSource.isMosaic()) {
+                accumulator.setName(ffmpSource.getDisplayName());
+            } else {
+                accumulator.setName(fftiSiteKey + "-" + fftiSourceKey);
+            }
 
-			FFMPDataContainer fdc = null;
+            long cur = config.getDate().getTime();
+            long timeBack = (long) (duration * 3600 * 1000);
+            Date backDate = new Date(cur - timeBack);
+            long expirationTime = ffmpSource.getExpirationMinutes(fftiSiteKey) * 60 * 1000;
 
-			ArrayList<String> hucs = new ArrayList<String>();
-			hucs.add("ALL");
+            FFMPDataContainer fdc = null;
 
-			fdc = ffmpgen.getFFMPDataContainer(siteDataKey, hucs, backDate);
+            ArrayList<String> hucs = new ArrayList<String>();
+            hucs.add("ALL");
 
-			if (fdc != null) {
+            fdc = ffmpgen.getFFMPDataContainer(siteDataKey, hucs, backDate);
 
-				FFMPBasinData fbd = fdc.getBasinData("ALL");
+            if (fdc != null) {
 
-				// go over the list of CWAs gathering the pfaf list
-				ArrayList<Long> pfafs = new ArrayList<Long>();
-				ArrayList<String> cwaList = fdm.getCwaList();
+                FFMPBasinData fbd = fdc.getBasinData("ALL");
 
-				Double gap = getGap(fdc, ffmpSource, duration, fftiSiteKey);
+                // go over the list of CWAs gathering the pfaf list
+                ArrayList<Long> pfafs = new ArrayList<Long>();
+                ArrayList<String> cwaList = fdm.getCwaList();
 
-				if (gap != Double.NaN) {
+                Double gap = getGap(fdc, ffmpSource, duration, fftiSiteKey);
 
-					for (String cwa : cwaList) {
-						for (Long key : fbd.getBasins().keySet()) {
+                if (gap != Double.NaN) {
+                    for (Long key : fbd.getBasins().keySet()) {
+                        for (String cwa : cwaList) {
 
-							FFMPBasinMetaData basin = templates.getBasin(key);
-							if ((basin != null) && (basin.getCwa() != null)) {
-								if (basin.getCwa().equals(cwa)) {
-									if (!pfafs.contains(key)) {
-										pfafs.add(key);
-									}
-								}
-							}
-						}
-					}
+                            boolean primary = false;
+                            if (cwa.equals(config.getCWA())) {
+                                primary = true;
+                            }
 
-					double amount = fdc.getMaxValue(pfafs, backDate,
-							config.getDate(), expirationTime,
-							ffmpSource.isRate());
+                            FFMPBasinMetaData fmdb = templates.getBasin(
+                                    fftiSiteKey, key);
 
-					// max value for monitored area
-					accumulator.setAccumulation(amount);
-					accumulator.setGap(gap);
-				}
-			}
-			
-			// replace or insert it
-			accumulator.reset(false);
-			ffmpgen.addFFTIData(siteDataKey, accumulator);
-		}
+                            if (fmdb == null) {
+                                continue;
+                            }
+
+                            // Gets buffer zones adjacent to CWA
+                            if ((cwa.equals(fmdb.getCwa()))
+                                    || (primary && fmdb.isPrimaryCwa())) {
+                                if (!pfafs.contains(key)) {
+                                    pfafs.add(key);
+                                }
+                            }
+                        }
+                    }
+
+                    double amount = fdc.getMaxValue(pfafs, backDate,
+                            config.getDate(), expirationTime,
+                            ffmpSource.isRate());
+
+                    // max value for monitored area
+                    accumulator.setAccumulation(amount);
+                    accumulator.setGap(gap);
+                }
+            }
+
+            // replace or insert it, memory management
+            if (ffmpgen.ffmpData.containsKey(siteDataKey)) {
+                ffmpgen.ffmpData.remove(siteDataKey);
+            }
+            accumulator.setReset(false);
+            ffmpgen.writeFFTIData(siteDataKey, accumulator);
+        }
 
         return accumulator;
     }
@@ -882,119 +903,133 @@ public class FFTI implements Runnable {
         if (ffmpQSource == null) {
             ffmpQSource = ffmpgen.fscm.getSource(qSourceKey);
         }
-        
-        String siteDataKey = ffgType + "-" + ffmpQSource.getSourceName() + "-"+ qSiteKey;
-        
+
+        String siteDataKey = ffgType + "-" + ffmpQSource.getSourceName() + "-"
+                + qSiteKey;
+
         if (ffmpgen.isFFTI(siteDataKey)) {
-        	values = (FFTIRatioDiff) ffmpgen.getFFTIData(siteDataKey);
+            values = (FFTIRatioDiff) ffmpgen.getFFTIData(siteDataKey);
+            if (values.getGuids() == null || values.getQpes() == null) {
+                values.setReset(true);
+            }
         } else {
-        	values = new FFTIRatioDiff();
+            values = new FFTIRatioDiff();
         }
-        
+
         // This will only happen at initial load, update, and duration changes.
-		if (values.isReset() || values.getDuration() != duration) {
+        if (values.isReset() || values.getDuration() != duration) {
 
-			values.setDuration(duration);
-        	values.setUnit(unit);
-			
-			long cur = config.getDate().getTime();
-			long timeBack = (long) (duration * 3600 * 1000);
-			Date backDate = new Date(cur - timeBack);
-			long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * 60 * 1000;
+            values.setDuration(duration);
+            values.setUnit(unit);
 
-			// make sure we have data
-			Date ffgBackDate = new Date(config.getDate().getTime()
-					- (3600 * 1000 * 24));
+            long cur = config.getDate().getTime();
+            long timeBack = (long) (duration * 3600 * 1000);
+            Date backDate = new Date(cur - timeBack);
+            long expirationTime = ffmpQSource.getExpirationMinutes(qSiteKey) * 60 * 1000;
 
-			String primarySource = ffmpgen.fscm.getPrimarySource(ffmpQSource);
-			ProductXML product = ffmpgen.fscm.getProduct(primarySource);
-			ArrayList<String> hucs = new ArrayList<String>();
-			hucs.add("ALL");
+            // make sure we have data
+            Date ffgBackDate = new Date(config.getDate().getTime()
+                    - (3600 * 1000 * 24));
 
-			FFMPDataContainer guidContainer = ffmpgen.getFFMPDataContainer(
-					ffgType, hucs, ffgBackDate);
-			long guidSourceExpiration = 0l;
+            String primarySource = ffmpgen.fscm.getPrimarySource(ffmpQSource);
+            ProductXML product = ffmpgen.fscm.getProduct(primarySource);
+            ArrayList<String> hucs = new ArrayList<String>();
+            hucs.add("ALL");
 
-			if (guidContainer != null) {
+            FFMPDataContainer guidContainer = ffmpgen.getFFMPDataContainer(
+                    ffgType, hucs, ffgBackDate);
 
-				for (SourceXML iguidSource : product
-						.getGuidanceSourcesByType(ffgType)) {
+            long guidSourceExpiration = 0l;
 
-					if (guidSourceExpiration == 0l) {
-						guidSourceExpiration = iguidSource
-								.getExpirationMinutes(qSiteKey) * 60 * 1000;
-					}
+            if (guidContainer == null) {
+                guidContainer = new FFMPDataContainer(ffgType, hucs);
+            }
 
-					if (!guidContainer.containsKey(iguidSource.getSourceName())) {
+            for (SourceXML iguidSource : product
+                    .getGuidanceSourcesByType(ffgType)) {
 
-						guidContainer = FFTIProcessor.populateDataContainer(
-								guidContainer, templates, null, ffgBackDate,
-								config.getDate(), config.getCWA(), iguidSource,
-								qSiteKey);
-					}
-				}
+                if (guidSourceExpiration == 0l) {
+                    guidSourceExpiration = iguidSource
+                            .getExpirationMinutes(qSiteKey) * 60 * 1000;
+                    break;
+                }
+            }
 
-				// if still nothing, punt!
-				if (guidContainer.size() == 0) {
+            // if still nothing, punt!
+            if (guidContainer.size() == 0) {
 
-					statusHandler.handle(Priority.PROBLEM,
-							"FFTI: No guidance sources available for "
-									+ qSiteKey + " " + qSourceKey + " "
-									+ " comparison.");
-					return null;
-				}
+                statusHandler.handle(Priority.PROBLEM,
+                        "FFTI: No guidance sources available for " + qSiteKey
+                                + " " + qSourceKey + " " + " comparison.");
+                return values;
+            }
+            
+            FFMPDataContainer qpeContainer = ffmpgen.getFFMPDataContainer(
+                    ffmpQSource.getSourceName() + "-" + qSiteKey + "-"
+                            + qSiteKey, hucs, backDate);
 
-				FFMPDataContainer qpeContainer = ffmpgen.getFFMPDataContainer(
-						ffmpQSource.getSourceName() + "-" + qSiteKey + "-"
-								+ qSiteKey, hucs, backDate);
+            if (qpeContainer != null) {
+                // go over the list of CWAs gathering the pfaf list
+                ArrayList<Long> pfafs = new ArrayList<Long>();
+                ArrayList<String> cwaList = fdm.getCwaList();
+                FFMPBasinData fbd = qpeContainer.getBasinData("ALL");
 
-				if (qpeContainer != null) {
-					// go over the list of CWAs gathering the pfaf list
-					ArrayList<Long> pfafs = new ArrayList<Long>();
-					ArrayList<String> cwaList = fdm.getCwaList();
-					for (String cwa : cwaList) {
-						for (Long key : qpeContainer.getBasinData("ALL")
-								.getBasins().keySet()) {
-							FFMPBasinMetaData basin = templates.getBasin(key);
-							if ((basin != null) && (basin.getCwa() != null)) {
-								if (basin.getCwa().equals(cwa)) {
-									pfafs.add(key);
-								}
-							}
-						}
-					}
+                for (Long key : fbd.getBasins().keySet()) {
+                    for (String cwa : cwaList) {
 
-					Double gap = getGap(qpeContainer, ffmpQSource, duration,
-							qSiteKey);
+                        boolean primary = false;
+                        if (cwa.equals(config.getCWA())) {
+                            primary = true;
+                        }
 
-					if (gap != Double.NaN) {
+                        FFMPBasinMetaData fmdb = templates.getBasin(qSiteKey,
+                                key);
 
-						ArrayList<Float> qpes = qpeContainer
-								.getBasinData("ALL").getAccumValues(pfafs,
-										backDate, config.getDate(),
-										expirationTime, false);
+                        if (fmdb == null) {
+                            continue;
+                        }
 
-						FFMPGuidanceInterpolation interpolator = new FFMPGuidanceInterpolation(
-								ffmpgen.fscm, product, ffmpgen.frcm.getRunner(
-										config.getCWA()).getProduct(qSiteKey),
-								primarySource, ffgType, qSiteKey);
-						interpolator.setInterpolationSources(duration);
+                        // Gets buffer zones adjacent to CWA
+                        if ((cwa.equals(fmdb.getCwa()))
+                                || (primary && fmdb.isPrimaryCwa())) {
+                            if (!pfafs.contains(key)) {
+                                pfafs.add(key);
+                            }
+                        }
+                    }
+                }
 
-						ArrayList<Float> guids = guidContainer.getBasinData(
-								"ALL").getGuidanceValues(pfafs, interpolator,
-								guidSourceExpiration);
-						
-						values.setQpes(qpes);
-						values.setGuids(guids);
-						values.setGap(gap);
-					}
-				}
-			}
-			
-			// replace or insert it
-			values.reset(false);
-			ffmpgen.addFFTIData(siteDataKey, values);
-		}
+                Double gap = getGap(qpeContainer, ffmpQSource, duration,
+                        qSiteKey);
+
+                if (gap != Double.NaN) {
+
+                    ArrayList<Float> qpes = qpeContainer.getBasinData("ALL")
+                            .getAccumValues(pfafs, backDate, config.getDate(),
+                                    expirationTime, false);
+
+                    FFMPGuidanceInterpolation interpolator = new FFMPGuidanceInterpolation(
+                            ffmpgen.fscm, product, ffmpgen.frcm.getRunner(
+                                    config.getCWA()).getProduct(qSiteKey),
+                            primarySource, ffgType, qSiteKey);
+                    interpolator.setInterpolationSources(duration);
+
+                    ArrayList<Float> guids = guidContainer.getBasinData("ALL")
+                            .getGuidanceValues(pfafs, interpolator,
+                                    guidSourceExpiration);
+
+                    values.setQpes(qpes);
+                    values.setGuids(guids);
+                    values.setGap(gap);
+                }
+            } else {
+                return values;
+            }
+
+            // replace or insert it
+            values.setReset(false);
+            ffmpgen.writeFFTIData(siteDataKey, values);
+        }
 
         return values;
     }
@@ -1025,7 +1060,7 @@ public class FFTI implements Runnable {
             for (FFMPGap gap : gaps) {
                 gapVal += gap.getGap();
             }
-     
+
             gapVal = gapVal / 60;
         }
 
