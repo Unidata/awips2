@@ -22,5 +22,4 @@ Export-Package: gov.noaa.nws.ncep.common.dataplugin.ncuair,
 Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
- gov.noaa.flddb,
  com.vividsolutions.jts.geom
