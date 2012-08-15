@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -200,21 +201,32 @@ public class WarngenConfiguration implements ISerializableObject {
             }
         }
 
-        // TODO This section needs to be removed after new templates have been
-        // adopted dropping 'areaConfig'
-        if (config.getAreaSources() == null) {
-            ArrayList<AreaSourceConfiguration> areaSources = new ArrayList<AreaSourceConfiguration>();
-            if (config.getAreaConfig() != null) {
-                areaSources.add(new AreaSourceConfiguration(config
-                        .getAreaConfig()));
+        // TODO This section is for 12.9 to be backwards compatible with old
+        // configuration files. 12.10 will drop the use of 'areaConfig'.
+        if (config.getAreaConfig() != null) {
+            ArrayList<AreaSourceConfiguration> areaSources = null;
+
+            if (config.getAreaSources() == null) {
+                areaSources = new ArrayList<AreaSourceConfiguration>();
+            } else {
+                areaSources = new ArrayList<AreaSourceConfiguration>(
+                        Arrays.asList(config.getAreaSources()));
             }
+            areaSources
+                    .add(new AreaSourceConfiguration(config.getAreaConfig()));
             config.setAreaSources(areaSources
                     .toArray(new AreaSourceConfiguration[areaSources.size()]));
         }
+        // 12.9 section end
 
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getAreaSource() == null) {
                 asc.setAreaSource(config.getGeospatialConfig().getAreaSource());
+            }
+
+            // 12.9. 12.10 get rid of 'areaType'
+            if (asc.getAreaType() != null) {
+                asc.setType(asc.getAreaType());
             }
 
             if (asc.getType() == AreaType.HATCHING) {
