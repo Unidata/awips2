@@ -118,7 +118,15 @@ public class PlotModelGeneratorJob extends Job {
                         }
                     }
                 }
-                caller.modelGenerated(infos, image);
+                synchronized (this) {
+                    if (monitor.isCanceled()) {
+                        if(image != null){
+                            image.dispose();
+                        }
+                        break;
+                    }
+                    caller.modelGenerated(infos, image);
+                }
             } catch (Exception e) {
                 statusHandler.error("Error creating plot", e);
             }
@@ -149,8 +157,9 @@ public class PlotModelGeneratorJob extends Job {
         return getState() != Job.RUNNING && getState() != Job.WAITING;
     }
 
-    protected void shutdown() {
+    protected synchronized void shutdown() {
         cancel();
         taskQueue.clear();
+        clearImageCache();
     }
 }
