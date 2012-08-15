@@ -19,6 +19,14 @@
  **/
 package com.raytheon.uf.edex.plugin.ffmp.common;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
  * FFTIAccum
  * 
@@ -34,11 +42,15 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
  * @author dhladky
  * @version 1.0
  */
-
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
 public class FFTIAccum extends FFTIData {
 
+    @DynamicSerializeElement
+    @XmlElement
     private Double accumulation = 0.0;
-  
+
     public Double getAccumulation() {
         return accumulation;
     }
