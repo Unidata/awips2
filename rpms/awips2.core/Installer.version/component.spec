@@ -99,7 +99,7 @@ function updateCAVEVersion()
    export PATH=/awips2/java/bin:${PATH}
    export JAVA_HOME="/awips2/java/jre"
 
-   ./cave -application org.eclipse.ant.core.antRunner -nosplash \
+   su awips -c './cave -application org.eclipse.ant.core.antRunner -nosplash' \
       > /dev/null 2>&1
    rm -f ${BUILD_XML}
    
