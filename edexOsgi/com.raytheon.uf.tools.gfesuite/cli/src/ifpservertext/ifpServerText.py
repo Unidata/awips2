@@ -23,7 +23,6 @@ import sys, os, pwd, string, getopt, logging
 import numpy
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.auth.resp import SuccessfulExecution
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetActiveSitesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSingletonDbIdsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetSiteTimeZoneInfoRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GridLocRequest
@@ -39,6 +38,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import 
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import User
 from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import UserId
+from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from ufpy import ThriftClient
 
 #
@@ -72,26 +72,18 @@ class textInventoryRecord:
         return str(self.localCtx) + self.path + "/" + self.fileName
     
 ## Logging methods ##
+logger = None
 def __initLogger():
-    logger = logging.getLogger("ifpServerText.py")
-    logger.setLevel(logging.INFO)
+    global logger
+    logger = logging.getLogger("purgeAllModelData")
+    logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
+    # Uncomment line below to enable debug-level logging
+    # ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s:  %(message)s", "%H:%M:%S")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    
-def logEvent(msg):
-    logging.getLogger("ifpServerText.py").info(msg)
-
-def logProblem(msg):
-    logging.getLogger("ifpServerText.py").error(msg)
-    
-def logException(msg):
-    logging.getLogger("ifpServerText.py").exception(msg)    
-
-def logVerbose(msg):
-    logging.getLogger("ifpServerText.py").debug(msg)
 
 
 class ifpServerText:
@@ -110,7 +102,9 @@ class ifpServerText:
                        "TextProduct": ".py",
                        "TextUtility": ".py", 
                        "Utility": ".py",
-                       "Combinations": ".py"}
+                       "Combinations": ".py",
+                       "ISCUtility": ".py"
+                      }
     
     LOCALIZATION_DICT = {"Config": ("CAVE_STATIC", "gfe/userPython/gfeConfig"),
                        "EditArea": ("COMMON_STATIC", "gfe/editAreas"),
@@ -124,7 +118,9 @@ class ifpServerText:
                        "TextProduct": ("CAVE_STATIC", "gfe/userPython/textProducts"),
                        "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities/regular"),
                        "Utility": ("CAVE_STATIC", "gfe/userPython/utilities"),
-                       "Combinations": ("CAVE_STATIC", "gfe/combinations")}
+                       "Combinations": ("CAVE_STATIC", "gfe/combinations"),
+                       "ISCUtility": ("COMMON_STATIC", "isc/utilities")
+                       }
 
     def __init__(self):
         self.__host = None
@@ -237,7 +233,7 @@ class ifpServerText:
                 options = ["Tool", "Procedure", "Utility", "TextUtility",
                            "TextProduct", "Config", "EditArea", "SelectTR",
                            "EditAreaGroup", "SampleSet", "WeatherElementGroup",
-                           "ColorTable", "Combinations", "SmartTool"]
+                           "ColorTable", "Combinations", "SmartTool", "ISCUtility"]
                 if opt[1] not in options:
                     self.__usage()
                     s = "Error: Illegal class specified  " + opt[1]
@@ -254,7 +250,7 @@ class ifpServerText:
                        "SelectTR": "SELECTTR", "Tool": "Tool",
                        "Procedure": "Procedure", "TextProduct": "TextProduct",
                        "TextUtility": "TextUtility", "Utility": "Utility",
-                       "Combinations": "COMBINATIONS"}
+                       "Combinations": "COMBINATIONS", "ISCUtility": "ISCUtility"}
                 self.__textCategory = dic[self.__classType] 
             elif opt[0] == '-s':
                 if self.__mode is not None:
@@ -501,7 +497,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             except Exception, e:
                 raise RuntimeError("Could not send file to localization server: " + str(e))
             
-        logEvent("Saved file " + self.__filename + " under " + self.__name)
+        logger.info("Saved file " + self.__filename + " under " + self.__name)
 
     def __deleteText(self):
         #Deletes a text file
@@ -546,7 +542,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         except Exception, e:
             raise RuntimeError("Could not delete file from localization server: " + str(e))
 
-        logEvent("Deleted " + self.__name)
+        logger.info("Deleted " + self.__name)
 
     def __getText(self):
         #Gets the text file
@@ -591,7 +587,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             f = open(self.__filename, 'w', 0644)
             f.write(txt)
             f.close()
-            logEvent("Got " + self.__name + " --- written to " + self.__filename)
+            logger.info("Got " + self.__name + " --- written to " + self.__filename)
 
     def __inventoryText(self):
         #Returns the inventory
@@ -704,19 +700,14 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 raise Exception, serverResponse.message()
         elif self.__metaInfo == "site":
             request = GetActiveSitesRequest()
-            request.setWorkstationID(wsId)
-            request.setSiteID("")
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
                 raise RuntimeError,  "Could not retrieve meta information: " + str(e)
             
-            if (serverResponse.isOkay()):
-                sites = serverResponse.getPayload()
-                for s in sites:
-                    txt = txt + s + "\n"
-            else:
-                raise Exception, serverResponse.message()
+            for site in serverResponse:
+                txt = txt + site + "\n"
+
         elif self.__metaInfo == "singleton":
             request = GetSingletonDbIdsRequest()
             request.setWorkstationID(wsId)
@@ -759,21 +750,21 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             f = open(self.__filename, 'w', 0644)
             f.write(txt)
             f.close()
-            logEvent("Got MetaInfo " + self.__metaInfo + " --- written to " + self.__filename)
+            logger.info("Got MetaInfo " + self.__metaInfo + " --- written to " + self.__filename)
 
 
 def main():
     __initLogger()
-    logEvent("ifpServerText Starting")
+    logger.info("ifpServerText Starting")
 
     try:
         obj = ifpServerText()
         obj.process()
     except Exception, e:
-        logException("Error encountered running ifpServerText:")
+        logger.exception("Error encountered running ifpServerText:")
         sys.exit(1)
 
-    logEvent("ifpServerText Finished")
+    logger.info("ifpServerText Finished")
     sys.exit(0)
 
 

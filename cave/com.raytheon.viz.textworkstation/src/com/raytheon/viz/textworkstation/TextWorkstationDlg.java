@@ -22,6 +22,7 @@ package com.raytheon.viz.textworkstation;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -110,9 +111,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private Label utcTimeLabel;
 
-    private Label gmtTimeLabel;
+    private Label localTimeLabel;
 
-    SimpleDateFormat sdfGMT = new SimpleDateFormat("EEE dd MMM yyyy HH:mm z");
+    SimpleDateFormat sdfLocal = new SimpleDateFormat("EEE dd MMM yyyy HH:mm z");
 
     SimpleDateFormat sdfUTC = new SimpleDateFormat("EEE dd MMM yyyy HH:mm z");
 
@@ -197,8 +198,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     }
 
     private void initializeComponents() {
-        sdfGMT.setTimeZone(TimeZone.getTimeZone("GMT"));
         sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sdfLocal.setTimeZone(Calendar.getInstance().getTimeZone());
 
         createMenus();
         new Label(shell, SWT.NONE).setText("host: "
@@ -365,16 +366,18 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     }
 
     private void createTimeLabels() {
-        GridData gd = new GridData(300, SWT.DEFAULT);
-        gmtTimeLabel = new Label(shell, SWT.CENTER);
-        gmtTimeLabel.setLayoutData(gd);
+        GridData gd = null;
 
         gd = new GridData(300, SWT.DEFAULT);
         utcTimeLabel = new Label(shell, SWT.CENTER);
         utcTimeLabel.setLayoutData(gd);
 
+        gd = new GridData(300, SWT.DEFAULT);
+        localTimeLabel = new Label(shell, SWT.CENTER);
+        localTimeLabel.setLayoutData(gd);
+
         date = SimulatedTime.getSystemTime().getTime();
-        gmtTimeLabel.setText(sdfGMT.format(date));
+        localTimeLabel.setText(sdfLocal.format(date));
         utcTimeLabel.setText(sdfUTC.format(date));
     }
 
@@ -510,7 +513,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private void updateTimeLabels() {
         date = SimulatedTime.getSystemTime().getTime();
-        gmtTimeLabel.setText(sdfGMT.format(date));
+        localTimeLabel.setText(sdfLocal.format(date));
         utcTimeLabel.setText(sdfUTC.format(date));
     }
 
@@ -596,14 +599,14 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                     // messages.
                     delta += TextWorkstationDlg.incDelta;
                 } else if (message.isNotExpired()) {
-                    String afosId = message.getMessagePayload().toString();
+                    String product = message.getMessagePayload().toString();
                     if (wgDlg == null) {
-                        productToDisplay = afosId;
+                        productToDisplay = product;
                     } else {
                         if (!wgDlg.isEditMode()) {
-                            wgDlg.showWarngenProduct(afosId, notify);
+                            wgDlg.showWarngenProduct(product, notify);
                         } else {
-                            wgDlg.enqueue(afosId, notify);
+                            wgDlg.enqueue(product, notify);
                         }
                     }
                 }
