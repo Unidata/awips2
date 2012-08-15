@@ -149,6 +149,8 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
+ * 31 July  2012 14517         mpduff      Fix for blanking map on update.
+ * 
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -375,6 +377,9 @@ public class FFMPResource extends
 
     /** force utility **/
     private FFFGForceUtil forceUtil = null;
+
+    /** Restore Table flag */
+    private boolean restoreTable = false;
 
     /**
      * FFMP resource
@@ -2441,7 +2446,8 @@ public class FFMPResource extends
             }
             if ((cwaBasins.size() == 0)
                     || !req.extent.equals(drawable.getExt())
-                    || !phuc.equals(drawable.getHuc())) {
+                    || !phuc.equals(drawable.getHuc())
+                    || restoreTable) {
                 Envelope env = null;
                 try {
                     Envelope e = req.descriptor.pixelToWorld(req.extent,
@@ -2466,7 +2472,7 @@ public class FFMPResource extends
                             templates, getSiteKey(), cwa, phuc);
                     for (Entry<Long, Envelope> entry : envMap.entrySet()) {
 
-                        if (env.intersects(entry.getValue())) {
+                        if (env.intersects(entry.getValue()) || env.contains(entry.getValue())) {
                             // add the individual basins
                             cwaBasins.add(entry.getKey());
                         }
@@ -2766,6 +2772,10 @@ public class FFMPResource extends
                         }
                     }
 
+                    if (restoreTable) {
+                        restoreTable = false;
+                    }
+                    
                     drawable.setTime(req.time);
                     if (lowestCenter != ZOOM.BASIN) {
                         drawable.setCenterAggrKey(centeredAggregationKey);
@@ -3189,7 +3199,8 @@ public class FFMPResource extends
     public void restoreTable() {
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
-
+        restoreTable = true;
+        
         lowestCenter = FFMPRecord.ZOOM.WFO;
         getDescriptor().getRenderableDisplay().getExtent().reset();
         zoom(1.0f);

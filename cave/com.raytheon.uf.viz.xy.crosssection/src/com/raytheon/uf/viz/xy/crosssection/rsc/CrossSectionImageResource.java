@@ -138,10 +138,12 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
         super.initInternal(target);
 
         // defaults
-        ImagingCapability imageCap = getCapability(ImagingCapability.class);
-        imageCap.setInterpolationState(true);
-        imageCap.setBrightness(1.0f);
-        imageCap.setContrast(1.0f);
+        if (!hasCapability(ImagingCapability.class)) {
+            ImagingCapability imageCap = getCapability(ImagingCapability.class);
+            imageCap.setInterpolationState(true);
+            imageCap.setBrightness(1.0f);
+            imageCap.setContrast(1.0f);
+        }
     }
 
     private IImage constructImage(float[] floatData, IGraphicsTarget target)
