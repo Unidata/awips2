@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.gfe.core.time;
+package com.raytheon.uf.common.dataplugin.gfe.time;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +36,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Jun 24, 2008             mnash   Initial creation
+ * Jun 24, 2008             mnash       Initial creation
+ * Aug 01, 2012   #965      dgilling    Moved to dataplugin.gfe project.
  * 
  * </pre>
  * 
@@ -117,6 +118,7 @@ public class SelectTimeRange implements Comparable<SelectTimeRange> {
     /**
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(SelectTimeRange other) {
         if (start != other.start) {
             return start - other.start;
