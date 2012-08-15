@@ -20,7 +20,9 @@
 
 package com.raytheon.viz.warnings.rsc;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -53,10 +56,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2010            jsanchez     Initial creation
  * Aug 22, 2011  10631   njensen  Major refactor
- * May 3, 2012	DR 14741  porricel	   Stop setting end time of orig.
+ * May 3, 2012  DR 14741  porricel     Stop setting end time of orig.
  *                                     warning to start time of update.
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
- *										NEW warning when CAN warning is issued 
+ *                                  NEW warning when CAN warning is issued
  * 
  * </pre>
  * 
@@ -78,6 +81,8 @@ public class WarningsResource extends AbstractWarningResource {
     @Override
     protected synchronized void updateDisplay(IGraphicsTarget target) {
         if (!this.recordsToLoad.isEmpty()) {
+            FramesInfo info = getDescriptor().getFramesInfo();
+            DataTime[] frames = info.getFrameTimes();
             for (AbstractWarningRecord warnrec : recordsToLoad) {
                 WarningAction act = WarningAction.valueOf(warnrec.getAct());
                 if (act == WarningAction.CON || act == WarningAction.CAN
@@ -93,19 +98,26 @@ public class WarningsResource extends AbstractWarningResource {
 
                             if (!entry.altered) {
                                 // if it's a con, can, exp, or ext mark the
-                            	// original one as altered
+                                // original one as altered
                                 entry.altered = true;
-                                //make note of alteration time without 
-                                //changing end time
-                                entry.timeAltered = warnrec.getStartTime().getTime();
-                                
-                                //if cancellation, set end time to start time 
-                                //of this action
-                                
-                                // DR14992: fix the problem with plotting expiration time for 
-                                // 			NEW warning when CAN warning is issued
-                                if(act == WarningAction.CAN &&
-                                   WarningAction.valueOf(entry.record.getAct()) == WarningAction.CAN) {
+                                // make note of alteration time without
+                                // changing end time
+                                entry.timeAltered = warnrec.getStartTime()
+                                        .getTime();
+                                // prevents the original entry and the modified
+                                // entry to be displayed in the same frame
+                                entry.frameAltered = frames[info
+                                        .getFrameIndex()].getRefTime();
+
+                                // if cancellation, set end time to start time
+                                // of this action
+
+                                // DR14992: fix the problem with plotting
+                                // expiration time for
+                                // NEW warning when CAN warning is issued
+                                if (act == WarningAction.CAN
+                                        && WarningAction.valueOf(entry.record
+                                                .getAct()) == WarningAction.CAN) {
                                     entry.record.setEndTime((Calendar) warnrec
                                             .getStartTime().clone());
                                 }
@@ -235,7 +247,22 @@ public class WarningsResource extends AbstractWarningResource {
             arr[i] = (PluginDataObject) o;
             i++;
         }
-        addRecord(arr);
+        addRecord(sort(arr));
+    }
+
+    private PluginDataObject[] sort(PluginDataObject[] pdos) {
+        ArrayList<AbstractWarningRecord> sortedWarnings = new ArrayList<AbstractWarningRecord>();
+        for (Object o : pdos) {
+            if (((PluginDataObject) o) instanceof AbstractWarningRecord) {
+                AbstractWarningRecord record = (AbstractWarningRecord) o;
+                sortedWarnings.add(record);
+            }
+        }
+
+        /* Sorts by phensig, etn, starttime (descending), act */
+        Collections.sort(sortedWarnings, comparator);
+        return sortedWarnings.toArray(new AbstractWarningRecord[sortedWarnings
+                .size()]);
     }
 
 }
