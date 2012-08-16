@@ -713,13 +713,11 @@ public class MultiPointResource extends
     /**
      * Get the x direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the x direction
      */
-    private double getShiftWidth(PaintProperties props, GageData gage) {
+    private double getShiftWidth(GageData gage) {
         double shiftWidthValue = (gage.getX_shift() / 2.0)
                 / screenToWorldWidthRatio;
 
@@ -729,13 +727,11 @@ public class MultiPointResource extends
     /**
      * Get the y direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the y direction
      */
-    private double getShiftHeight(PaintProperties props, GageData gage) {
+    private double getShiftHeight(GageData gage) {
         double shiftHeightValue = (gage.getY_shift() / 2.0)
                 / screenToWorldHeightRatio;
 
@@ -800,9 +796,8 @@ public class MultiPointResource extends
                     double[] pixel = descriptor.worldToPixel(new double[] {
                             c.x, c.y });
                     if (pixel != null && extent.contains(pixel)) {
-                        double shiftHeightValue = getShiftHeight(paintProps,
-                                gage);
-                        double shiftWidthValue = getShiftWidth(paintProps, gage);
+                        double shiftHeightValue = getShiftHeight(gage);
+                        double shiftWidthValue = getShiftWidth(gage);
                         /* Draw the icons */
                         if (pcOptions.getIcon() == 1) {
                             RGB color = null;
@@ -835,9 +830,8 @@ public class MultiPointResource extends
         if (currentData != null) {
             List<GageData> siteList = pdcManager.getObsReportList();
             if ((siteList != null) && siteList.contains(currentData)) {
-                double shiftHeightValue = getShiftHeight(paintProps,
-                        currentData);
-                double shiftWidthValue = getShiftWidth(paintProps, currentData);
+                double shiftHeightValue = getShiftHeight(currentData);
+                double shiftWidthValue = getShiftWidth(currentData);
 
                 PixelExtent pe = getPixelExtent(currentData, shiftWidthValue,
                         shiftHeightValue);
