@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
@@ -80,6 +81,8 @@ public class PointMovableEditingSupport extends EditingSupport {
     protected void setValue(Object element, Object value) {
         IPointNode node = (IPointNode) element;
         try {
+            ((TreeViewer) getViewer()).getTree().setCursor(
+                    Display.getCurrent().getSystemCursor(SWT.CURSOR_WAIT));
             if (!node.isGroup()) {
                 Point point = (Point) node;
                 point.setMovable((Boolean) value);
