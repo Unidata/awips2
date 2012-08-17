@@ -78,6 +78,8 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
 
     private Font boldFont;
 
+    private Color imageBackground;
+
     IPointNode prevPoint = null;
 
     private ImageRegistry imageReg;
@@ -208,8 +210,6 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
         s.close();
         return image;
     }
-
-    private Color imageBackground;
 
     public void setImageBackground(Color color) {
         imageBackground = color;
