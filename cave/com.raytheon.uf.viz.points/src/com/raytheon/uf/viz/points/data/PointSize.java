@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.viz.points.data;
 
-import com.raytheon.uf.viz.points.PointUtilities;
-
 /**
- * This class handles determining the what size font to use for a point's label.
+ * This class for handling point's font sizes.
  * 
  * <pre>
  * 
@@ -30,101 +28,65 @@ import com.raytheon.uf.viz.points.PointUtilities;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * October-2010              epolster    Initial Creation.
+ * Aug 08, 2012 #875       rferrel     Initial Creation.
  * 
  * </pre>
  * 
- * @author epolster
+ * @author rferrel
  * @version 1.0
  */
 
 public enum PointSize {
-    SMALL(0, PointUtilities.FONT_1), DEFAULT(1, PointUtilities.FONT_2), LARGE(
-            2, PointUtilities.FONT_3), EXTRA_LARGE(3, PointUtilities.FONT_4), XXL(
-            4, PointUtilities.FONT_5);
 
-    public static final int MIN_ORDINAL = 0;
+    SMALL(12), DEFAULT(14), LARGE(18), EXTRA_LARGE(24), XXL(30);
 
-    public static final int MAX_ORDINAL = 4;
+    private static final String POINTS_NAME = " pt";
 
-    private int _ordinal = 0;
+    private transient int fontSize;
 
-    private int _fontSize = 0;
+    private transient String readableName;
 
-    private String POINTS_NAME = " pt";
-
-    PointSize(int ordinal, int fontSize) {
-        _ordinal = ordinal;
-        _fontSize = fontSize;
+    PointSize(int fontSize) {
+        this.fontSize = fontSize;
+        this.readableName = " " + fontSize + POINTS_NAME;
     }
 
     public int getFontSize() {
-        return _fontSize;
+        return fontSize;
     }
 
-    public int getOrdinal() {
-        return _ordinal;
-    }
-
+    /**
+     * @param ordinal
+     * @return ps
+     */
     static public PointSize getPointSize(int ordinal) {
-        PointSize newMS = null;
+        PointSize newPS = null;
         switch (ordinal) {
         case 0:
-            newMS = SMALL;
+            newPS = SMALL;
             break;
         case 1:
-            newMS = DEFAULT;
+            newPS = DEFAULT;
             break;
         case 2:
-            newMS = LARGE;
+            newPS = LARGE;
             break;
         case 3:
-            newMS = EXTRA_LARGE;
+            newPS = EXTRA_LARGE;
             break;
         case 4:
-            newMS = XXL;
+            newPS = XXL;
             break;
         }
-        return newMS;
+        return newPS;
     }
 
+    /**
+     * A descriptive name usable in a combo box item.
+     * 
+     * @return name
+     */
     public String getReadableName() {
-        String is = Integer.toString(_fontSize);
-        is = is.concat(POINTS_NAME);
-        return " ".concat(is);
-    }
-
-    public boolean isAtMaxSize() {
-        return (_ordinal == PointSize.MAX_ORDINAL);
-    }
-
-    public boolean isAtMinSize() {
-        return (_ordinal == PointSize.MIN_ORDINAL);
-    }
-
-    public PointSize getNextHigher() {
-        PointSize newMS = null;
-        int o = _ordinal;
-        if (o == MAX_ORDINAL) {
-            newMS = this;
-        } else {
-            newMS = PointSize.getPointSize(o + 1);
-        }
-        return newMS;
-    }
-
-    public PointSize getNextLower() {
-        PointSize newMS = null;
-        int o = _ordinal;
-        if (o == MIN_ORDINAL) {
-            newMS = this;
-        } else {
-            newMS = PointSize.getPointSize(o - 1);
-        }
-        return newMS;
-    }
-
-    static public int getNumberOfFontSizes() {
-        return PointSize.MAX_ORDINAL;
+        return readableName;
     }
 }
