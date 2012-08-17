@@ -79,6 +79,6 @@ public class PointTreeContentProvider implements ITreeContentProvider {
     @Override
     public boolean hasChildren(Object element) {
         IPointNode node = (IPointNode) element;
-        return node.isGroup();
+        return node.isGroup() && manager.getChildren(node).size() > 0;
     }
 }
