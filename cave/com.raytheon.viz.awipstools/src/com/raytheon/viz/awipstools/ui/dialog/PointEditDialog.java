@@ -373,12 +373,12 @@ public class PointEditDialog extends CaveJFACEDialog {
         pointFontSizeChooser.setLayoutData(gd);
         pointFontSizeChooser.setFont(FontManager.getFont("Tahoma",
                 PointEditDialog.PREFERRED_FONT_SIZE_MEDIUM, SWT.NORMAL));
-        for (int i = PointSize.MIN_ORDINAL; i <= PointSize.MAX_ORDINAL; i++) {
-            pointFontSizeChooser.add(PointSize.getPointSize(i)
-                    .getReadableName());
+
+        for (PointSize ps : PointSize.values()) {
+            pointFontSizeChooser.add(ps.getReadableName());
         }
         if (currPoint != null) {
-            pointFontSizeChooser.select(currPoint.getFontSize().getOrdinal());
+            pointFontSizeChooser.select(currPoint.getFontSize().ordinal());
         } else {
             pointFontSizeChooser.select(0);
         }
@@ -414,12 +414,6 @@ public class PointEditDialog extends CaveJFACEDialog {
             public void widgetSelected(SelectionEvent e) {
                 if (dialog.acceptChanges()) {
                     dialog.close();
-                    if (dialogFlavor == EditOptions.EDIT
-                            && (!MOST_RECENTLY_MODIFIED_POINT.getName().equals(
-                                    currPoint.getName()) || !MOST_RECENTLY_MODIFIED_POINT
-                                    .getGroup().equals(currPoint.getGroup()))) {
-                        PointsDataManager.getInstance().deletePoint(currPoint);
-                    }
                 } else {
                     resetFocus();
                 }
@@ -491,7 +485,7 @@ public class PointEditDialog extends CaveJFACEDialog {
 
         pointNameText.setText(currPoint.getName());
         coordinateInput.recalculateCoordinateFields(currPoint);
-        pointFontSizeChooser.select(currPoint.getFontSize().getOrdinal());
+        pointFontSizeChooser.select(currPoint.getFontSize().ordinal());
         pointMovableButton.setSelection(currPoint.isMovable());
         pointHiddenButton.setSelection(currPoint.isHidden());
         RGB color = currPoint.getColor();
@@ -520,7 +514,7 @@ public class PointEditDialog extends CaveJFACEDialog {
 
         resetFocus();
 
-        pointFontSizeChooser.select(PointSize.DEFAULT.getOrdinal());
+        pointFontSizeChooser.select(PointSize.DEFAULT.ordinal());
         pointMovableButton.setSelection(false);
         pointHiddenButton.setSelection(false);
     }
@@ -543,7 +537,7 @@ public class PointEditDialog extends CaveJFACEDialog {
 
             coordinateInput.setNorth(true);
             coordinateInput.setWest(true);
-            pointFontSizeChooser.select(PointSize.DEFAULT.getOrdinal());
+            pointFontSizeChooser.select(PointSize.DEFAULT.ordinal());
             pointMovableButton.setSelection(true);
             pointHiddenButton.setSelection(false);
             pointAssignColorButton.setSelection(false);
@@ -553,7 +547,12 @@ public class PointEditDialog extends CaveJFACEDialog {
         pointNameText.setText("");
     }
 
-    // values must be pre-validated ...
+    /**
+     * Generate a point based on the user information provided by the dialog.
+     * This assumes validation of of the input has already been performed.
+     * 
+     * @return point
+     */
     private Point createPointFromInput() {
 
         String name = pointNameText.getText();
@@ -568,10 +567,10 @@ public class PointEditDialog extends CaveJFACEDialog {
             group = pointGroupChooser.getItem(selIndex);
         }
         boolean hidden = pointHiddenButton.getSelection();
-        Point m = new Point(name, latDeg, lonDeg, movable, colorActive,
+        Point point = new Point(name, latDeg, lonDeg, movable, colorActive,
                 currColor.getRGB(), PointSize.getPointSize(ordinal), group);
-        m.setHidden(hidden);
-        return m;
+        point.setHidden(hidden);
+        return point;
     }
 
     private void setCurrentColor(RGB rgb) {
