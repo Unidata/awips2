@@ -20,14 +20,23 @@
 
 package com.raytheon.uf.viz.points.data;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.points.PointUtilities;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * A Point is a user-defined, named, geospatial location as defined by a
- * latitude and longitude.
+ * latitude and longitude. This also allows the point to be hidden, the point to
+ * be movable, allow grouping with other points, and finally the font color and
+ * size to use to display the name on a map.
  * 
  * 
  * <pre>
@@ -45,72 +54,151 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @author epolster
  * @version 1.0
  */
-
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement(name = "point")
+@DynamicSerialize
 public class Point implements IPointNode, Comparable<IPointNode> {
 
+    @XmlElement(name = "name")
+    @DynamicSerializeElement
     private String name;
 
-    private Coordinate location;
+    @XmlElement(name = "longitude")
+    @DynamicSerializeElement
+    private double longitude;
 
+    @XmlElement(name = "latitude")
+    @DynamicSerializeElement
+    private double latitude;
+
+    @XmlElement(name = "colorActive")
+    @DynamicSerializeElement
     private boolean colorActive;
 
-    private RGB color;
+    @XmlElement(name = "red")
+    @DynamicSerializeElement
+    private int red;
 
-    private boolean isHidden;
+    @XmlElement(name = "green")
+    @DynamicSerializeElement
+    private int green;
 
-    private boolean isMovable;
+    @XmlElement(name = "blue")
+    @DynamicSerializeElement
+    private int blue;
+
+    @XmlElement(name = "hidden")
+    @DynamicSerializeElement
+    private boolean hidden;
+
+    @XmlElement(name = "movable")
+    @DynamicSerializeElement
+    private boolean movable;
+
+    @XmlElement(name = "fontSize")
+    @DynamicSerializeElement
+    private PointSize fontSize = PointSize.DEFAULT;
 
     private transient String group;
 
-    private PointSize fontSize = PointSize.DEFAULT;
+    public Point() {
+    }
 
-    // copy ctor
+    /**
+     * Copy contructor.
+     * 
+     * @param point
+     */
     public Point(Point point) {
         this.name = point.name;
-        this.location = point.location;
+        this.longitude = point.longitude;
+        this.latitude = point.latitude;
         this.colorActive = point.colorActive;
-        this.color = point.color;
+        this.red = point.red;
+        this.green = point.green;
+        this.blue = point.blue;
         this.fontSize = point.fontSize;
-        this.isHidden = point.isHidden;
-        this.isMovable = point.isMovable;
+        this.hidden = point.hidden;
+        this.movable = point.movable;
         this.group = point.group;
     }
 
+    /**
+     * @param pointName
+     * @param p
+     * @param colorActive
+     * @param c
+     * @param hidden
+     * @param Movable
+     * @param ms
+     * @param group
+     */
     public Point(String pointName, Coordinate p, boolean colorActive, RGB c,
             boolean hidden, boolean Movable, PointSize ms, String group) {
         this.name = PointUtilities.trimAll(pointName);
-        this.location = p;
+        this.longitude = p.x;
+        this.latitude = p.y;
         this.colorActive = colorActive;
-        this.color = c;
-        this.isHidden = hidden;
-        this.isMovable = Movable;
+        this.red = c.red;
+        this.green = c.green;
+        this.blue = c.blue;
+        this.hidden = hidden;
+        this.movable = Movable;
         this.fontSize = ms;
         this.group = group;
     }
 
-    // constructor must take valid lat/lon coordinates!
+    /**
+     * Constructor must take valid lat/lon coordinates!
+     * 
+     * @param pointName
+     * @param lat
+     * @param lon
+     * @param hidden
+     * @param movable
+     * @param colorActive
+     * @param c
+     * @param group
+     */
     public Point(String pointName, double lat, double lon, boolean hidden,
             boolean movable, boolean colorActive, RGB c, String group) {
         this.name = PointUtilities.trimAll(pointName);
         this.fontSize = PointSize.DEFAULT;
         this.colorActive = colorActive;
-        this.color = c;
-        this.isMovable = movable;
-        this.isHidden = hidden;
-        this.location = new Coordinate(lon, lat);
+        this.red = c.red;
+        this.green = c.green;
+        this.blue = c.blue;
+        this.movable = movable;
+        this.hidden = hidden;
+        this.longitude = lon;
+        this.latitude = lat;
         this.group = group.replace(' ', PointUtilities.DELIM_CHAR);
     }
 
-    // constructor must take valid lat/lon coordinates!
+    /**
+     * Constructor must take valid lat/lon coordinates!
+     * 
+     * @param pointName
+     * @param lat
+     * @param lon
+     * @param movable
+     * @param colorActive
+     * @param c
+     * @param size
+     * @param group
+     */
     public Point(String pointName, double lat, double lon, boolean movable,
             boolean colorActive, RGB c, PointSize size, String group) {
         this.name = PointUtilities.trimAll(pointName);
         this.fontSize = size;
         this.colorActive = colorActive;
-        this.color = c;
-        this.isMovable = movable;
-        this.isHidden = false;
-        this.location = new Coordinate(lon, lat);
+        this.red = c.red;
+        this.green = c.green;
+        this.blue = c.blue;
+        this.movable = movable;
+        this.hidden = false;
+        this.longitude = lon;
+        this.latitude = lat;
         this.group = group.replace(' ', PointUtilities.DELIM_CHAR);
     }
 
@@ -118,42 +206,43 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @return latitude
      */
     public double getLatitude() {
-        return location.y;
+        return latitude;
     }
 
     /**
      * @param latitude
      */
     public void setLatitude(double latitude) {
-        location = new Coordinate(location.x, latitude);
+        this.latitude = latitude;
     }
 
     /**
      * @return longitude
      */
     public double getLongitude() {
-        return location.x;
+        return longitude;
     }
 
     /**
      * @return coordinate
      */
     public Coordinate getCoordinate() {
-        return new Coordinate(location);
+        return new Coordinate(longitude, latitude);
     }
 
     /**
      * @param coordinate
      */
     public void setCoordinate(Coordinate coordinate) {
-        location = coordinate;
+        this.longitude = coordinate.x;
+        this.latitude = coordinate.y;
     }
 
     /**
      * @param longitude
      */
     public void setLongitude(double longitude) {
-        location = new Coordinate(longitude, location.y);
+        this.longitude = longitude;
     }
 
     /*
@@ -177,7 +266,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @param h
      */
     public void setHidden(boolean h) {
-        isHidden = h;
+        hidden = h;
     }
 
     /*
@@ -187,7 +276,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      */
     @Override
     public boolean isHidden() {
-        return isHidden;
+        return hidden;
     }
 
     /**
@@ -208,14 +297,16 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @return rgb
      */
     public RGB getColor() {
-        return color;
+        return new RGB(red, green, blue);
     }
 
     /**
      * @param c
      */
     public void setColor(RGB c) {
-        color = c;
+        this.red = c.red;
+        this.green = c.green;
+        this.blue = c.blue;
     }
 
     /*
@@ -224,8 +315,8 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @see java.lang.Object#clone()
      */
     public Object clone() {
-        Point m = new Point(this);
-        return m;
+        Point point = new Point(this);
+        return point;
     }
 
     /**
@@ -242,34 +333,6 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         fontSize = fs;
     }
 
-    /**
-     * @return
-     */
-    public boolean isAtMaxSize() {
-        return fontSize.isAtMaxSize();
-    }
-
-    /**
-     * @return
-     */
-    public boolean isAtMinSize() {
-        return fontSize.isAtMinSize();
-    }
-
-    /**
-     * 
-     */
-    public void increaseFontSize() {
-        fontSize = fontSize.getNextHigher();
-    }
-
-    /**
-     * 
-     */
-    public void decreaseFontSize() {
-        fontSize = fontSize.getNextLower();
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -277,14 +340,14 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      */
     @Override
     public boolean isMovable() {
-        return isMovable;
+        return movable;
     }
 
     /**
      * @param notAnchored
      */
     public void setMovable(boolean notAnchored) {
-        isMovable = notAnchored;
+        movable = notAnchored;
     }
 
     /*
@@ -314,6 +377,30 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         return false;
     }
 
+    public int getRed() {
+        return red;
+    }
+
+    public void setRed(int red) {
+        this.red = red;
+    }
+
+    public int getGreen() {
+        return green;
+    }
+
+    public void setGreen(int green) {
+        this.green = green;
+    }
+
+    public int getBlue() {
+        return blue;
+    }
+
+    public void setBlue(int blue) {
+        this.blue = blue;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -324,19 +411,29 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         StringBuffer sb = new StringBuffer();
         sb.append("Point: \n");
         sb.append("\t Name: ").append(name).append("\n");
-        sb.append("\t Location: ").append(location).append("\n");
+        sb.append("\t longitude, latitude: ").append("{").append(longitude)
+                .append(", ").append(latitude).append("}\n");
         sb.append("\t Color Active: ").append(colorActive).append("\n");
-        sb.append("\t Color: ")
-                .append(color == null ? "DEFAULT" : color.toString())
+        sb.append("\t Color: ").append("(").append(red).append(", ")
+                .append(green).append(", ").append(blue).append(")")
                 .append("\n");
-        sb.append("\t isHidden: ").append(Boolean.toString(isHidden))
+        sb.append("\t isHidden: ").append(Boolean.toString(hidden))
                 .append("\n");
-        sb.append("\t isMovable: ").append(Boolean.toString(isMovable))
+        sb.append("\t isMovable: ").append(Boolean.toString(movable))
                 .append("\n");
         sb.append("\t fontSize: ").append(fontSize.toString()).append("\n");
         sb.append("\t group: \"").append(group).append("\"\n");
         sb.append("\t isGroup: ").append(isGroup()).append("\n");
         return sb.toString();
+    }
+
+    public Coordinate getLocation() {
+        return new Coordinate(longitude, latitude);
+    }
+
+    public void setLocation(Coordinate location) {
+        this.longitude = location.x;
+        this.latitude = location.y;
     }
 
     /*
