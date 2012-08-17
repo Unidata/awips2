@@ -40,9 +40,9 @@ import java.util.regex.Pattern;
  */
 
 public class PointUtilities {
-    static final public char DELIM_CHAR = '~';
+    public static final char DELIM_CHAR = '~';
 
-    static final public String DELIMITER = String.valueOf(DELIM_CHAR);
+    public static final String DELIMITER = String.valueOf(DELIM_CHAR);
 
     public static final int MAX_LATITUDE = 90;
 
@@ -52,16 +52,6 @@ public class PointUtilities {
 
     public static final double SECOND_PER_MINUTE = 60;
 
-    public final static int FONT_1 = 12;
-
-    public final static int FONT_2 = 14;
-
-    public final static int FONT_3 = 18;
-
-    public final static int FONT_4 = 24;
-
-    public final static int FONT_5 = 30;
-
     private static final Pattern RedundantWhiteSpace = Pattern.compile("\\s+");
 
     private static final Pattern SingleSpace = Pattern.compile("\\s");
@@ -69,7 +59,11 @@ public class PointUtilities {
     private static final Pattern invalidFileName = Pattern
             .compile("[^A-Za-z0-9_ ]");
 
-    static public String removeRedundantWhiteSpace(String name) {
+    private PointUtilities() {
+        // Never need an instance of this class.
+    }
+
+    public static String removeRedundantWhiteSpace(String name) {
         Matcher matcher = RedundantWhiteSpace.matcher(name);
         String str = matcher.replaceAll(" ");
         return str;
@@ -81,7 +75,7 @@ public class PointUtilities {
      * @param name
      * @return str
      */
-    static public String convertSpaceToDelimiter(String name) {
+    public static String convertSpaceToDelimiter(String name) {
         Matcher matcher = SingleSpace.matcher(name);
         String str = matcher.replaceAll(DELIMITER);
         return str;
@@ -94,7 +88,7 @@ public class PointUtilities {
      * @param str
      * @return
      */
-    static public String trimAll(String str) {
+    public static String trimAll(String str) {
         str = str.trim();
         str = PointUtilities.removeRedundantWhiteSpace(str);
         return str;
@@ -107,7 +101,7 @@ public class PointUtilities {
      * @param filename
      * @return
      */
-    static public boolean isValidFileName(String filename) {
+    public static boolean isValidFileName(String filename) {
         boolean isValid = true;
         Matcher matcher = invalidFileName.matcher(filename);
         if (matcher.find()) {
