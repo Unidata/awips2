@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.viz.points.data;
 
-import org.eclipse.swt.graphics.RGB;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Sub-class of Point that indicates the node is a group.
+ * This object used by PointTransfer to serialize a IPointNode preserving its
+ * group information.
  * 
  * <pre>
  * 
@@ -30,7 +32,7 @@ import org.eclipse.swt.graphics.RGB;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 16, 2012 #875       rferrel     Initial creation
+ * Aug 20, 2012            rferrel     Initial creation
  * 
  * </pre>
  * 
@@ -38,25 +40,42 @@ import org.eclipse.swt.graphics.RGB;
  * @version 1.0
  */
 
-public class GroupNode extends Point {
-    public GroupNode() {
-        super();
+@DynamicSerialize
+public class PointTransferObject {
+
+    @DynamicSerializeElement
+    private Point point;
+
+    @DynamicSerializeElement
+    private boolean groupNode;
+
+    @DynamicSerializeElement
+    private String groupName;
+
+    public PointTransferObject() {
     }
 
-    /**
-     * @param node
-     */
-    public GroupNode(Point node) {
-        super(node);
+    public Point getPoint() {
+        return point;
     }
 
-    public GroupNode(String groupName) {
-        super(groupName, 0.0, 0.0, false, false, new RGB(0, 0, 0),
-                PointSize.DEFAULT, "");
+    public void setPoint(Point point) {
+        this.point = point;
     }
 
-    @Override
-    public boolean isGroup() {
-        return true;
+    public boolean isGroupNode() {
+        return groupNode;
+    }
+
+    public void setGroupNode(boolean group) {
+        this.groupNode = group;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

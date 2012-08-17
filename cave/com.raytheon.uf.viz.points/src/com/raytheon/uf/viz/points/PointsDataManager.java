@@ -19,13 +19,10 @@
  **/
 package com.raytheon.uf.viz.points;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,15 +31,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
+import javax.xml.bind.JAXB;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
@@ -107,10 +108,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
 
     private static PointsDataManager theManager;
 
-    private static final String MOVABLE_POINT_PREFIX = "movablePoint";
-
-    private static final String MOVABLE_POINT_EXT = ".txt";
-
     private static final String HOME_LOCATION_FILE = "HomeLocation.dat";
 
     private static final String GROUP_INFO = "group.dat";
@@ -126,8 +123,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
     private static final String POINTS_DIR = "points";
 
     private static final String AWIPSTOOLS = "awipsTools";
-
-    private Map<String, Coordinate> coordinates;
 
     private ListenerList pointsListeners = new ListenerList();
 
@@ -159,6 +154,18 @@ public class PointsDataManager implements ILocalizationFileObserver,
 
     private IPathManager pathMgr;
 
+    /**
+     * Prior to deleting a group's directory we must delete all points and
+     * sub-groups and finally the GROUP_INFO file. The order the file names are
+     * received in a message to fileUpdatedFile() may not be in the same order
+     * the deletes are sent. This mapping allows tracking the pending deletes so
+     * we know when the directory can be deleted. The String is the group's key
+     * and the list is the files and sub-directories that need to be deleted.
+     * when a message comes in for a given file it is removed from the list.
+     * When the list is empty the group's directory is deleted.
+     */
+    private Map<String, List<String>> pendingDeletes;
+
     public static synchronized PointsDataManager getInstance() {
         if (theManager == null) {
             theManager = new PointsDataManager();
@@ -181,6 +188,8 @@ public class PointsDataManager implements ILocalizationFileObserver,
         userToolsDir = pathMgr.getLocalizationFile(userCtx, AWIPSTOOLS
                 + File.separator + site);
         userToolsDir.addFileUpdatedObserver(this);
+
+        pendingDeletes = new HashMap<String, List<String>>();
 
         CorePlugin.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(this);
@@ -217,7 +226,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
     }
 
     public void setPoint(Point point) {
-        points.put(point.getName(), point);
         String path = getPointDirName(point);
         LocalizationFile dir = pathMgr.getLocalizationFile(userCtx, path);
         storePoint(dir, point);
@@ -300,58 +308,12 @@ public class PointsDataManager implements ILocalizationFileObserver,
         LocalizationFile lFile = pathMgr.getLocalizationFile(userCtx, dir
                 .getName().trim() + File.separator + fileName);
 
-        File file = lFile.getFile();
-
-        // create the local directory if necessary
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        String name = point.getName().replace(' ', PointUtilities.DELIM_CHAR);
-        Coordinate location = point.getCoordinate();
-
-        boolean colorActive = point.isColorActive();
-        RGB color = point.getColor();
-        int r = -1;
-        int g = -1;
-        int b = -1;
-        if (color != null) {
-            r = color.red;
-            g = color.green;
-            b = color.blue;
-        }
-
-        boolean isHidden = point.isHidden();
-        boolean isMovable = point.isMovable();
-
-        PointSize fontSize = point.getFontSize();
-
-        BufferedWriter out = null;
-
         try {
-            out = new BufferedWriter(new FileWriter(file));
-            out.write(String.format("%s %f %f %b %d %d %d %b %b %d\n", name,
-                    location.y, location.x, colorActive, r, g, b, isHidden,
-                    isMovable, fontSize.getOrdinal()));
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error writing to file: "
-                    + file.getAbsolutePath());
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                    lFile.save();
-                    prevLFile = null;
-                    prevPoint = null;
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error writing to file: " + file.getAbsolutePath());
-                } catch (LocalizationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error storing locatization file to server: "
-                                    + lFile);
-                }
-            }
+            marshalPointToXmlFile(point, lFile);
+            prevLFile = null;
+            prevPoint = null;
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
@@ -443,7 +405,14 @@ public class PointsDataManager implements ILocalizationFileObserver,
     }
 
     private Coordinate loadHome() {
-        Point point = loadPoint(pointsDir, HOME_LOCATION_FILE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(
+                pointsDir.getContext(), pointsDir.getName().trim()
+                        + File.separator + HOME_LOCATION_FILE);
+        Point point = null;
+        if (lFile.exists()) {
+            point = loadPoint(pointsDir, HOME_LOCATION_FILE);
+        }
+
         if (point == null) {
             home = getWfoCenter();
             storeHome();
@@ -459,25 +428,16 @@ public class PointsDataManager implements ILocalizationFileObserver,
         String path = pointsDir.getName().trim();
         LocalizationFile[] files = pathMgr.listFiles(userCtx, path,
                 new String[] { POINT_FILENAME_EXT }, true, false);
-        String name = null;
 
         if (files.length == 0) {
             pointsDir.getFile().mkdirs();
             Point point = new GroupNode("point");
-            points.put(point.getGroup(), point);
+            put(point.getGroup(), point);
         } else {
 
             for (LocalizationFile lf : files) {
-                if (lf.isDirectory()) {
-                    prevPoint = loadPoint(lf);
-                } else {
-                    String fileName = lf.getFile().getName().trim();
-                    if (fileName.startsWith(POINT_FILENAME_PREFIX)) {
-                        Point point = loadPoint(lf);
-                        name = point.getName();
-                        points.put(name, point);
-                    }
-                }
+                prevPoint = loadPoint(lf);
+                put(getPointKey(lf), prevPoint);
             }
         }
     }
@@ -497,7 +457,7 @@ public class PointsDataManager implements ILocalizationFileObserver,
         return loadPoint(lf);
     }
 
-    public Point loadPoint(LocalizationFile lFile) {
+    private Point loadPoint(LocalizationFile lFile) {
         if (prevLFile == lFile) {
             return prevPoint;
         }
@@ -508,74 +468,35 @@ public class PointsDataManager implements ILocalizationFileObserver,
             if (prevPoint == null) {
                 prevPoint = new GroupNode(getPointName(lFile));
                 prevPoint.setGroup(key);
-                points.put(key, prevPoint);
             }
             prevLFile = lFile;
             return prevPoint;
         }
 
-        StringBuffer sb = new StringBuffer(lFile.toString());
-        sb.replace(0, pointsDir.toString().length(), "");
         Point point = null;
-        Coordinate coordinate = null;
-        File file = lFile.getFile();
-        sb.setLength(sb.length() - file.getName().length() - 1);
-        String group = sb.toString();
-        BufferedReader in = null;
         try {
-            in = new BufferedReader(new FileReader(file));
-            String line = in.readLine();
-            line = line.trim();
-            StringTokenizer st = new StringTokenizer(line);
-            String pointName = st.nextToken();
-            pointName = pointName.replace(PointUtilities.DELIM_CHAR, ' ');
-            String token = st.nextToken();
-            double lat = Double.parseDouble(token);
-            token = st.nextToken();
-            double lon = Double.parseDouble(token);
+            point = unmarshalPointFromXmlFile(lFile);
+        } catch (IOException ex) {
+            StringBuffer sb = new StringBuffer(lFile.toString());
+            sb.replace(0, pointsDir.toString().length(), "");
+            int index = sb.lastIndexOf(File.separator);
+            sb.setLength(index);
+            point.setGroup(sb.toString());
 
-            if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Invalid lat/lon in wfo center point file; Ignoring file: "
-                                + file.getName());
-            } else {
-                coordinate = new Coordinate(lon, lat);
-            }
-            boolean colorActive = Boolean.parseBoolean(st.nextToken());
-            int red = Integer.parseInt(st.nextToken());
-            int green = Integer.parseInt(st.nextToken());
-            int blue = Integer.parseInt(st.nextToken());
-            RGB color = new RGB(red, green, blue);
-            boolean isHidden = Boolean.parseBoolean(st.nextToken());
-            boolean isMovable = Boolean.parseBoolean(st.nextToken());
-            int fontSizeOrdinal = Integer.parseInt(st.nextToken());
-            PointSize fontSize = PointSize.getPointSize(fontSizeOrdinal);
-
-            point = new Point(pointName, coordinate, colorActive, color,
-                    isHidden, isMovable, fontSize, group);
-
-        } catch (NumberFormatException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Invalid number in wfo center point file, using default");
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "No wfo center point file found, creating default.");
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error reading wfo center point file, using default");
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
+                    "Unable to open localized file: " + lFile, ex);
+        } catch (LocalizationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         if (point != null) {
             prevLFile = lFile;
             prevPoint = point;
+            StringBuffer sb = new StringBuffer(lFile.toString());
+            sb.replace(0, pointsDir.toString().length(), "");
+            int index = sb.lastIndexOf(File.separator);
+            sb.setLength(index);
+            point.setGroup(sb.toString());
         }
         return point;
     }
@@ -633,8 +554,12 @@ public class PointsDataManager implements ILocalizationFileObserver,
      */
     private String getPointFilename(Point point) {
         StringBuilder sb = new StringBuilder();
-        sb.append(pointsDir.getName().trim()).append(File.separator)
-                .append(point.getGroup()).append(File.separator)
+        sb.append(pointsDir.getName().trim());
+        String group = point.getGroup();
+        if (!group.startsWith(File.separator)) {
+            sb.append(File.separator);
+        }
+        sb.append(point.getGroup()).append(File.separator)
                 .append(POINT_FILENAME_PREFIX).append(point.getName())
                 .append(POINT_FILENAME_EXT);
         String name = sb.toString().replace(' ', PointUtilities.DELIM_CHAR);
@@ -682,14 +607,23 @@ public class PointsDataManager implements ILocalizationFileObserver,
         return key;
     }
 
+    /**
+     * @param node
+     * @return
+     */
     public IPointNode getParent(IPointNode node) {
         Point child = (Point) node;
         StringBuilder sb = new StringBuilder(child.getGroup());
         if (child.isGroup()) {
-            if (child.getGroup().length() == 0) {
-                return null;
+            // In a group node the getGroup() returns the full path to the
+            // group. It is used as the key to retrieve the node from the
+            // points map. Thus to get the parent key for the group node,
+            // /Towers/alt/sub, you strip off the last part of the node's
+            // key to get /Towers/alt. If the nodes key is empty this is the
+            // root node and there is no parent.
+            if (sb.length() > 0) {
+                sb.replace(sb.lastIndexOf(File.separator), sb.length(), "");
             }
-            sb.replace(sb.lastIndexOf(File.separator), sb.length(), "");
         }
         Point parent = points.get(sb.toString().replace(
                 PointUtilities.DELIM_CHAR, ' '));
@@ -734,7 +668,7 @@ public class PointsDataManager implements ILocalizationFileObserver,
         return createGroup(path, name);
     }
 
-    private void moveGroup(IPointNode srcNode, IPointNode destNode) {
+    private void doMoveGroup(IPointNode srcNode, IPointNode destNode) {
         Point srcPoint = (Point) srcNode;
         Point destPoint = (Point) destNode;
         String srcPath = getPointDirName(srcPoint);
@@ -748,49 +682,82 @@ public class PointsDataManager implements ILocalizationFileObserver,
             point = loadPoint(lf);
             if (lf.isDirectory()) {
                 IPointNode child = createGroup(destPath, point.getName());
-                moveGroup(point, child);
+                doMoveGroup(point, child);
             } else {
                 ++cntPointsToUpdate;
-                // System.out.println("moveGroup delete point \""
-                // + point.getName() + "\" cntPointsToUpdate "
-                // + cntPointsToUpdate);
-                deletePoint(point);
+                doDeletePoint(point);
                 point.setGroup(destGroupName);
-                ++cntPointsToUpdate;
-                // System.out.println("moveGroup add point \"" + point.getName()
-                // + "\" cntPointsToUpdate " + cntPointsToUpdate);
-                addPoint(point);
+                doAddPoint(point);
             }
         }
-        ++cntPointsToUpdate;
-        // System.out.println("moveGroup delete group \"" + srcPoint.getName()
-        // + "\" cntPointsToUpdate " + cntPointsToUpdate);
-        deletePoint(srcPoint);
-        firePointChangeListeners();
     }
 
-    public boolean renameGroup(IPointNode srcNode, String destName) {
+    public void moveNode(final IPointNode node, final IPointNode destNode) {
+        if (!node.isGroup()) {
+            if (getParent(node).compareTo(destNode) != 0) {
+                synchronized (groupUpdate) {
+                    groupUpdate.set(true);
+                    Point point = (Point) node;
+                    ++cntPointsToUpdate;
+                    doDeletePoint(point);
+                    point.setGroup(destNode.getGroup());
+                    doAddPoint(point);
+                    waitForUpdate();
+                    groupUpdate.set(false);
+                    firePointChangeListeners();
+                }
+            }
+        } else {
+            Job job = new Job("moveNode Group") {
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    synchronized (groupUpdate) {
+                        groupUpdate.set(true);
+                        String parentPath = getPointDirName((Point) destNode);
+                        IPointNode destGroup = createGroup(parentPath,
+                                node.getName());
+                        doMoveGroup(node, destGroup);
+                        doDeletePoint((Point) node);
+                        waitForUpdate();
+                        firePointChangeListeners();
+                        groupUpdate.set(false);
+                    }
+                    return Status.OK_STATUS;
+                }
+            };
+            job.schedule();
+        }
+    }
+
+    public boolean renameGroup(final IPointNode srcNode, final String destName) {
         if (srcNode.getName().equals(destName)) {
             return false;
         }
 
-        Point parent = (Point) getParent(srcNode);
-        String path = getPointDirName(parent);
-        IPointNode destNode = createGroup(path, destName);
+        Job job = new Job("RENAME_GROUP") {
 
-        if (destNode == null) {
-            return false;
-        }
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                IPointNode parent = getParent(srcNode);
+                String path = getPointDirName((Point) parent);
+                synchronized (groupUpdate) {
+                    groupUpdate.set(true);
+                    IPointNode destNode = createGroup(path, destName);
 
-        synchronized (groupUpdate) {
-            groupUpdate.set(true);
-            moveGroup(srcNode, destNode);
-            waitForUpdate();
-            groupUpdate.set(false);
-            // System.out.print("renameGroup=>");
-            // System.out.flush();
-            firePointChangeListeners();
-        }
+                    if (destNode != null) {
+                        doMoveGroup(srcNode, destNode);
+                        doDeletePoint((Point) srcNode);
+                        waitForUpdate();
+                        firePointChangeListeners();
+                        groupUpdate.set(false);
+                    }
+                    return Status.OK_STATUS;
+                }
+            }
+
+        };
+        job.schedule();
         return true;
     }
 
@@ -829,32 +796,19 @@ public class PointsDataManager implements ILocalizationFileObserver,
             // Must create a file in the directory to force its creation.
             String p = lFile.getName().trim() + File.separator + GROUP_INFO;
             LocalizationFile lf = pathMgr.getLocalizationFile(userCtx, p);
-            File f = lf.getFile();
-            BufferedWriter out = null;
-            try {
-                out = new BufferedWriter(new FileWriter(f));
-                out.write("0");
-                out.close();
-                lf.save();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error writing to file: " + f.getAbsolutePath());
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        // Ignore
-                    }
-                    lf.save();
-                }
+            OutputStream outStream = lf.openOutputStream();
+            outStream.write(gPoint.getGroup().getBytes());
+            outStream.close();
+            lf.save();
+            if (groupUpdate.get()) {
+                ++cntPointsToUpdate;
             }
-            String key = gPoint.getGroup();
-            points.put(key, gPoint);
         } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to create the group: " + gPoint.getGroup(), e);
             return null;
+        } catch (IOException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         return new GroupNode(gPoint);
     }
@@ -882,23 +836,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
         return groups;
     }
 
-    private void loadCoordinates() {
-        coordinates = new HashMap<String, Coordinate>();
-
-        LocalizationFile[] files = pathMgr.listFiles(userToolsDir.getContext(),
-                userToolsDir.getName(), new String[] { MOVABLE_POINT_EXT },
-                false, true);
-        for (LocalizationFile lf : files) {
-            String fileName = lf.getFile().getName();
-            if (fileName.startsWith(MOVABLE_POINT_PREFIX)) {
-                Coordinate point = loadCoordinate(userToolsDir, fileName);
-                String name = fileName.substring(MOVABLE_POINT_PREFIX.length())
-                        .replace(MOVABLE_POINT_EXT, "");
-                coordinates.put(name, point);
-            }
-        }
-    }
-
     public Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
             int angle) {
 
@@ -924,25 +861,83 @@ public class PointsDataManager implements ILocalizationFileObserver,
     public void fileUpdated(FileUpdatedMessage message) {
         String fileName = new File(message.getFileName()).getName();
 
-        if (fileName.startsWith(POINT_FILENAME_PREFIX)) {
-            pointsFileUpdated(message.getFileName(), message.getChangeType());
-        } else if (fileName.startsWith(HOME_LOCATION_FILE)) {
+        if (fileName.startsWith(HOME_LOCATION_FILE)) {
             homeLocationFileUpdated(fileName);
+            return;
+        }
+
+        synchronized (groupUpdate) {
+            if (groupUpdate.get()) {
+                ++cntPointsUpdated;
+                pointsFileUpdated(message);
+                try {
+                    // Let waitForUpdate know we updated the count.
+                    groupUpdate.notify();
+                } catch (IllegalMonitorStateException e) {
+                    // Ignore
+                }
+                return;
+            }
+        }
+
+        pointsFileUpdated(message);
+        firePointChangeListeners();
+    }
+
+    private void checkDelete(String filename) {
+        if (!filename.endsWith(GROUP_INFO)) {
+            LocalizationFile lFile = pathMgr.getLocalizationFile(userCtx,
+                    filename);
+            remove(getPointKey(lFile));
+        }
+
+        // Decouple keys set from the mapping to allow removal without throwing
+        // ConcurrentModificationException.
+        List<String> keys = new ArrayList<String>(pendingDeletes.keySet());
+        for (String key : keys) {
+            List<String> pendList = pendingDeletes.get(key);
+
+            if (pendList.contains(filename)) {
+                pendList.remove(filename);
+                // The group's directory is now empty and can be removed.
+                if (pendList.size() == 0) {
+                    pendingDeletes.remove(key);
+                    removePoint(points.get(key));
+                }
+                return;
+            }
         }
     }
 
-    private void pointsFileUpdated(String filename, FileChangeType type) {
+    private void pointsFileUpdated(FileUpdatedMessage message) {
+        String filename = message.getFileName();
         LocalizationFile lFile = pathMgr.getLocalizationFile(userCtx, filename);
-
-        if (type == FileChangeType.DELETED) {
-            // System.out.println("pointsFileUpdated remove: " + filename);
-            points.remove(getPointKey(lFile));
-        } else {
-            Point point = loadPoint(lFile);
-            // System.out.println("pointsFileUpdated: " + point.getName());
-            points.put(point.getName(), point);
+        if (!lFile.getName().startsWith(pointsDir.getName())) {
+            return;
         }
-        firePointChangeListeners();
+
+        FileChangeType type = message.getChangeType();
+
+        if (filename.endsWith(GROUP_INFO)) {
+            if (type == FileChangeType.DELETED) {
+                checkDelete(filename);
+            } else if (type == FileChangeType.ADDED) {
+                String groupFilename = filename.substring(0,
+                        filename.lastIndexOf(File.separatorChar));
+                LocalizationFile glFile = pathMgr.getLocalizationFile(userCtx,
+                        groupFilename);
+                Point point = loadPoint(glFile);
+                put(getPointKey(glFile), point);
+            }
+        } else {
+
+            if (type == FileChangeType.DELETED) {
+                checkDelete(filename);
+            } else {
+                Point point = loadPoint(lFile);
+                put(getPointKey(lFile), point);
+            }
+        }
     }
 
     private void homeLocationFileUpdated(String fileName) {
@@ -955,16 +950,16 @@ public class PointsDataManager implements ILocalizationFileObserver,
                 // fire listeners in separate threads to avoid waiting to draw
                 // the updated location while waiting on another listener to
                 // finish
-                Thread t = new Thread(new Runnable() {
+                Job job = new Job("Home Location Update") {
 
                     @Override
-                    public void run() {
+                    protected IStatus run(IProgressMonitor monitor) {
                         ((IPointChangedListener) listener).pointChanged();
+                        return Status.OK_STATUS;
                     }
 
-                });
-                threads.add(t);
-                t.start();
+                };
+                job.schedule();
             }
 
             // join all threads before continuing so we can't fire listeners
@@ -980,51 +975,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
                 }
             }
         }
-    }
-
-    private Coordinate loadCoordinate(LocalizationFile dir, String fileName) {
-        Coordinate point = null;
-
-        LocalizationFile lf = pathMgr.getLocalizationFile(dir.getContext(),
-                dir.getName() + File.separator + fileName);
-        File file = lf.getFile();
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(file));
-            String line = in.readLine();
-            line = line.trim();
-            int p = line.indexOf(' ');
-            double lat = Double.parseDouble(line.substring(0, p));
-            double lon = Double.parseDouble(line.substring(p));
-
-            if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Invalid lat/lon in wfo center point file, using default");
-            } else {
-                point = new Coordinate(lon, lat);
-            }
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Invalid number in wfo center point file, using default",
-                            e);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.EVENTA,
-                    "No wfo center point file found, creating default.");
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error reading wfo center point file, using default", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
-        }
-        return point;
     }
 
     /**
@@ -1056,27 +1006,48 @@ public class PointsDataManager implements ILocalizationFileObserver,
     }
 
     private void firePointChangeListeners() {
-        // Wait for group update to finish
-        // if (groupCnt.get() == 0) {
-        if (groupUpdate.compareAndSet(false, false)) {
-            // System.out.println("firePointChangeListeners notify listeners ");
-            for (Object listener : pointsListeners.getListeners()) {
-                ((IPointChangedListener) listener).pointChanged();
-            }
-            // }
-        } else {
-            synchronized (groupUpdate) {
-                ++cntPointsUpdated;
-                // System.out
-                // .println("firePointChangeListeners cntPointsUpdated: "
-                // + cntPointsUpdated);
-                try {
-                    groupUpdate.notify();
-                } catch (IllegalMonitorStateException ex) {
-                    ex.printStackTrace();
+        for (final Object listener : pointsListeners.getListeners()) {
+            // fire listeners in separate threads to avoid waiting to draw
+            // the updated location while waiting on another listener to
+            // finish
+            Job job = new Job("Point Changed") {
+
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    ((IPointChangedListener) listener).pointChanged();
+                    return Status.OK_STATUS;
                 }
-            }
+
+            };
+            job.schedule();
         }
+    }
+
+    public void addPoint(final Point point) {
+        Assert.isTrue(!point.isGroup());
+
+        Job job = new Job("ADD POINT") {
+            @Override
+            public IStatus run(IProgressMonitor monitor) {
+                synchronized (groupUpdate) {
+                    groupUpdate.set(true);
+                    String name = point.getName();
+                    name = PointUtilities.trimAll(name);
+                    Point foundPoint = getPoint(name);
+                    if (foundPoint != null
+                            && !foundPoint.getGroup().equals(point.getGroup())) {
+                        ++cntPointsToUpdate;
+                        doDeletePoint(foundPoint);
+                    }
+                    doAddPoint(point);
+                    waitForUpdate();
+                    firePointChangeListeners();
+                    groupUpdate.set(false);
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
     /**
@@ -1090,7 +1061,7 @@ public class PointsDataManager implements ILocalizationFileObserver,
      *         for example when a duplicate point name exists and forceOverwrite
      *         was false
      */
-    public boolean addPoint(Point point) {
+    private boolean doAddPoint(Point point) {
         boolean pointAdded;
         String name = point.getName();
         name = PointUtilities.trimAll(name);
@@ -1102,8 +1073,10 @@ public class PointsDataManager implements ILocalizationFileObserver,
             pointAdded = true;
         }
         LocalizationFile dir = getGroupDir(point);
+        if (groupUpdate.get()) {
+            ++cntPointsToUpdate;
+        }
         storePoint(dir, point);
-        points.put(point.getName(), point);
         return pointAdded;
     }
 
@@ -1117,8 +1090,31 @@ public class PointsDataManager implements ILocalizationFileObserver,
      * @param point
      * @return
      */
-    public boolean deletePoint(Point point) {
-        boolean pointRemoved = false;
+    public void deletePoint(final Point point) {
+        if (!point.isGroup()) {
+            doDeletePoint(point);
+            return;
+        }
+
+        Job job = new Job("DELETE_GROUP") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                synchronized (groupUpdate) {
+                    groupUpdate.set(true);
+                    ++cntPointsToUpdate;
+                    doDeletePoint(point);
+                    waitForUpdate();
+                    firePointChangeListeners();
+                    groupUpdate.set(false);
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+    }
+
+    private void doDeletePoint(Point point) {
         String key = null;
         if (point.isGroup()) {
             key = point.getGroup();
@@ -1128,22 +1124,64 @@ public class PointsDataManager implements ILocalizationFileObserver,
 
         Point foundPoint = getPoint(key);
         if (foundPoint != null) {
-            if (foundPoint.isGroup()) {
+            if (!foundPoint.isGroup()) {
+                removePoint(foundPoint);
+            } else {
+                // When removing a group node we need to delete the directory
+                // that represents the node. That can not be done until all
+                // entries in the directory are removed. This determines
+                // what we need to have deleted and adds the list to the
+                // pendingDeletes map so the fileUpdated() method can determine
+                // when it is safe to remove the directory..
+                List<String> deleteList = new ArrayList<String>();
+                String group = getPointDirName(foundPoint) + File.separator
+                        + GROUP_INFO;
+                LocalizationFile gplf = pathMgr.getLocalizationFile(userCtx,
+                        group);
+                if (gplf.exists()) {
+                    ++cntPointsToUpdate;
+                    deleteList.add(group);
+                }
                 List<IPointNode> children = getChildren(foundPoint);
                 for (IPointNode child : children) {
-                    deletePoint((Point) child);
+                    Point childPoint = (Point) child;
+                    ++cntPointsToUpdate;
+                    if (child.isGroup()) {
+                        deleteList.add(getPointDirName(childPoint));
+                    } else {
+                        deleteList.add(getPointFilename(childPoint));
+                    }
                 }
-                // System.out.println("Delete group " + foundPoint.getGroup());
-                pointRemoved = removePoint(foundPoint);
-                points.remove(key);
-                firePointChangeListeners();
-            } else {
-                // System.out.println("deletePoint found: " + point.getName());
-                pointRemoved = removePoint(foundPoint);
-                points.remove(key);
+
+                if (deleteList.size() > 0) {
+                    // Delete children and wait for verification before
+                    // deleting the directory.
+                    pendingDeletes.put(key, deleteList);
+                    for (IPointNode child : children) {
+                        doDeletePoint((Point) child);
+                    }
+
+                    if (gplf.exists()) {
+                        try {
+                            gplf.delete();
+                        } catch (LocalizationOpFailedException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "unable to delete: " + group);
+                        }
+                    }
+                } else {
+                    // Directory is empty and safe to delete.
+                    String dirName = getPointDirName(foundPoint);
+                    LocalizationFile lf = pathMgr.getLocalizationFile(userCtx,
+                            dirName);
+                    try {
+                        lf.delete();
+                    } catch (LocalizationOpFailedException e) {
+                        statusHandler.error("Unable to remove: " + group);
+                    }
+                }
             }
         }
-        return pointRemoved;
     }
 
     /***
@@ -1153,28 +1191,46 @@ public class PointsDataManager implements ILocalizationFileObserver,
      * @param m
      * @return
      */
-    private boolean removePoint(Point point) {
+    private void removePoint(Point point) {
         LocalizationFile lFile = null;
         if (point.isGroup()) {
             lFile = getGroupDir(point);
-            String path = lFile.getName().trim() + File.separator + GROUP_INFO;
-            LocalizationFile lf = pathMgr.getLocalizationFile(userCtx, path);
-            try {
-                lf.delete();
-            } catch (LocalizationOpFailedException e) {
-                // ignore
-            }
         } else {
             String name = getPointFilename(point);
             lFile = pathMgr.getLocalizationFile(userCtx, name);
         }
         try {
-            lFile.delete();
+            if (!lFile.delete()) {
+                statusHandler.error("Unable to remove file: " + lFile);
+            }
         } catch (LocalizationOpFailedException e1) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting locatization file from server: " + lFile);
         }
-        return true;
+    }
+
+    public void updatePoint(final Point oldPoint, final Point newPoint) {
+        Job job = new Job("POINT UPDATE") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                synchronized (groupUpdate) {
+                    groupUpdate.set(true);
+                    if (!oldPoint.getName().equals(newPoint.getName())
+                            || !oldPoint.getGroup().equals(newPoint.getGroup())) {
+                        ++cntPointsToUpdate;
+                        doDeletePoint(oldPoint);
+                    }
+                    doAddPoint(newPoint);
+                    waitForUpdate();
+                    firePointChangeListeners();
+                    groupUpdate.set(false);
+                }
+                return Status.OK_STATUS;
+            }
+
+        };
+        job.schedule();
     }
 
     public void updatePoint(Point point) throws PointNameChangeException {
@@ -1196,8 +1252,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
             doChildrenHidden(node, state);
             waitForUpdate();
             groupUpdate.set(false);
-            // System.out.print("updateChildrenHidden==>");
-            // System.out.flush();
             firePointChangeListeners();
         }
     }
@@ -1211,17 +1265,19 @@ public class PointsDataManager implements ILocalizationFileObserver,
             point = loadPoint(lf);
             boolean oldState = point.isHidden();
             point.setHidden(state);
-            if (!lf.isDirectory() && state != oldState) {
-                try {
-                    ++cntPointsToUpdate;
-                    // System.out.println("update point: " + point.getName()
-                    // + ", cntPointsToUpdate: " + cntPointsToUpdate);
-                    updatePoint(point);
-                } catch (PointNameChangeException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Unable up point's hidden state: "
-                                    + point.getName());
+            if (state != oldState) {
+                if (lf.isDirectory()) {
+                    put(getPointKey(lf), point);
+                } else {
+                    try {
+                        ++cntPointsToUpdate;
+                        updatePoint(point);
+                    } catch (PointNameChangeException e) {
+                        statusHandler.handle(
+                                Priority.PROBLEM,
+                                "Unable up point's hidden state: "
+                                        + point.getName());
+                    }
                 }
             }
         }
@@ -1237,8 +1293,6 @@ public class PointsDataManager implements ILocalizationFileObserver,
             doChildrenMovable(node, state);
             waitForUpdate();
             groupUpdate.set(false);
-            // System.out.print("updateChildrenMoveable==>");
-            // System.out.flush();
             firePointChangeListeners();
         }
     }
@@ -1252,15 +1306,19 @@ public class PointsDataManager implements ILocalizationFileObserver,
             point = loadPoint(lf);
             boolean oldState = point.isMovable();
             point.setMovable(state);
-            if (!lf.isDirectory() && oldState != state) {
-                try {
-                    ++cntPointsToUpdate;
-                    updatePoint(point);
-                } catch (PointNameChangeException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Unable up point's movable state: "
-                                    + point.getName());
+            if (oldState != state) {
+                if (lf.isDirectory()) {
+                    put(getPointKey(lf), point);
+                } else {
+                    try {
+                        ++cntPointsToUpdate;
+                        updatePoint(point);
+                    } catch (PointNameChangeException e) {
+                        statusHandler.handle(
+                                Priority.PROBLEM,
+                                "Unable up point's movable state: "
+                                        + point.getName());
+                    }
                 }
             }
         }
@@ -1275,30 +1333,94 @@ public class PointsDataManager implements ILocalizationFileObserver,
      */
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        // TODO Auto-generated method stub
-
     }
 
+    /**
+     * This method is used to catch a number of calls to fileUpdated without
+     * calling the firePointChangedListeners. This allows moving, updating, and
+     * deleting of several points all at once.
+     * <p>
+     * This method should only be called when in a synchronized block for
+     * groupUpdate and groupUpdate is set to true. It is assumed that
+     * cntPointsToUpdate is the number of times we need to wait for fileUpdated
+     * to be called. fileUpdated will increment cntPointsUpdated and perform a
+     * notify. This will return once the cntPointsUpdated equals
+     * cntPointsToUpdate.
+     * </p>
+     * <p>
+     * It is the responsibility of the calling method to perform a
+     * firePointChangeListeners to update displays.
+     * </p>
+     */
     private void waitForUpdate() {
+        if (cntPointsToUpdate == 0) {
+            // Nothing to wait for
+            cntPointsUpdated = 0;
+            return;
+        }
+
+        // Since we cannot fully control what is happening with localized files
+        // and directories the cntDown allows up to break out of the loop if no
+        // update is received in 0.5 seconds. Otherwise this could freeze the
+        // display.
         int cntDown = 5;
         int oldUpdated = cntPointsUpdated;
         while (cntPointsToUpdate != cntPointsUpdated && cntDown != 0) {
             try {
                 groupUpdate.wait(100L);
-                if (oldUpdated == cntPointsToUpdate) {
+                if (oldUpdated == cntPointsUpdated) {
                     --cntDown;
                 } else {
                     oldUpdated = cntPointsUpdated;
+                    cntDown = 5;
                 }
             } catch (InterruptedException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
         }
-        if (cntDown == 0) {
-            statusHandler.debug("waitForUpdate count down hit zero");
-        }
+
         cntPointsToUpdate = 0;
         cntPointsUpdated = 0;
+    }
+
+    /**
+     * Use JAXB to convert a point to xml and save it in the localized file.
+     * 
+     * @param point
+     * @param lFile
+     * @throws LocalizationException
+     * @throws IOException
+     */
+    private void marshalPointToXmlFile(Point point, LocalizationFile lFile)
+            throws LocalizationException, IOException {
+        OutputStream stream = lFile.openOutputStream();
+        JAXB.marshal(point, stream);
+        stream.close();
+        lFile.save();
+    }
+
+    /**
+     * Use JAXB to read the xml in the localized file and convert to a point.
+     * 
+     * @param lFile
+     * @return point
+     * @throws LocalizationException
+     * @throws IOException
+     */
+    private Point unmarshalPointFromXmlFile(LocalizationFile lFile)
+            throws LocalizationException, IOException {
+        InputStream stream = lFile.openInputStream();
+        Point point = JAXB.unmarshal(stream, Point.class);
+        stream.close();
+        return point;
+    }
+
+    private void put(String key, Point point) {
+        points.put(key, point);
+    }
+
+    private Point remove(String key) {
+        return points.remove(key);
     }
 }
