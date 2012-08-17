@@ -399,7 +399,8 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         }
     }
 
-    public void deletePoint(Point point) {
+    public boolean deletePoint(Point point) {
+        boolean state = false;
         if (point != null) {
             MessageBox d = new MessageBox(getResourceContainer()
                     .getActiveDisplayPane().getDisplay().getActiveShell(),
@@ -414,16 +415,19 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
             }
             int status = d.open();
             if (status == SWT.OK) {
+                state = true;
                 dataManager.deletePoint(point);
             }
         }
+        return state;
     }
 
-    public void editPoint(Point point) {
+    public Point editPoint(Point point) {
         Point em = PointEditDialog.editPointViaDialog(this, point);
         if (em != null) {
-            dataManager.addPoint(em);
+            dataManager.updatePoint(point, em);
         }
+        return em;
     }
 
     private void createPoint() {
