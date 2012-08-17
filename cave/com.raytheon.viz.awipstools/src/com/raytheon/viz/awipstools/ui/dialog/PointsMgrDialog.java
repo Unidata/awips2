@@ -19,21 +19,7 @@
  **/
 package com.raytheon.viz.awipstools.ui.dialog;
 
-/**
- * 
- *  SOFTWARE HISTORY
- * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  October-2010              epolster    Initial Creation. 
- *  
- * </pre>
- * 
- * @author epolster
- * @version 1 
- * 
- *
- */
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -52,14 +38,15 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -85,8 +72,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.GroupNode;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
+import com.raytheon.uf.viz.points.data.PointTransfer;
 import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
@@ -99,11 +88,12 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * October-2010              epolster    Initial Creation. 
  * Jul 31, 2012 #875       rferrel     Integrated into CAVE.
  * 
  * </pre>
  * 
- * @author rferrel
+ * @author epolster
  * @version 1.0
  */
 public class PointsMgrDialog extends CaveJFACEDialog implements
@@ -155,7 +145,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
     private Shell currShell;
 
-    private TreeViewer pointsTreeViewer;
+    protected TreeViewer pointsTreeViewer;
 
     private IPointNode topLevel;
 
@@ -170,6 +160,10 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     private Action editNodeAction;
 
     private Action deleteNodeAction;
+
+    protected IPointNode selectedNode = null;
+
+    private boolean editSelectedNode = false;
 
     /**
      * Create the dialog.
@@ -331,15 +325,13 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         menuMgr.setRemoveAllWhenShown(true);
         pointsTreeViewer.getControl().setMenu(menu);
 
-        // TODO DND not yet working.
-        // int operations = DND.DROP_COPY | DND.DROP_MOVE;
-        // Transfer[] transferTypes = new Transfer[] {
-        // TextTransfer.getInstance() };
-        // pointsTreeViewer.addDragSupport(operations, transferTypes,
-        // new PointTreeDragSourceListener(pointsTreeViewer));
-        //
-        // pointsTreeViewer.addDropSupport(operations, transferTypes,
-        // new PointTreeDropListener(pointsTreeViewer));
+        int operations = DND.DROP_COPY | DND.DROP_MOVE;
+        Transfer[] transferTypes = new Transfer[] { PointTransfer.getInstance() };
+        pointsTreeViewer.addDragSupport(operations, transferTypes,
+                new PointTreeDragSourceListener(pointsTreeViewer));
+
+        pointsTreeViewer.addDropSupport(operations, transferTypes,
+                new PointTreeDropListener(this));
         return rootDialogArea;
     }
 
@@ -423,30 +415,23 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     }
 
     private void createGroup() {
-        Tree tree = pointsTreeViewer.getTree();
-        IPointNode selectedNode = getSelectedPoint();
+        selectedNode = getSelectedPoint();
         if (selectedNode == null) {
             return;
         }
 
         IPointNode parentNode = dataManager.getParent(selectedNode);
 
-        IPointNode groupNode;
         try {
-            groupNode = dataManager.createTempGroup(parentNode);
+            setCursorBusy(true);
+            editSelectedNode = true;
+            selectedNode = dataManager.createTempGroup(parentNode);
         } catch (LocalizationOpFailedException e1) {
             statusHandler.handle(
                     Priority.PROBLEM,
                     "Unable to create a temporary group under: "
                             + parentNode.getName());
             return;
-        }
-        pointsTreeViewer.refresh();
-
-        TreeItem item = findItem(groupNode, tree.getItems());
-        if (item != null) {
-            tree.select(item);
-            editGroupName();
         }
     }
 
@@ -455,6 +440,8 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         Point newPoint = PointEditDialog.createNewPointViaDialog(toolLayer,
                 point);
         if (newPoint != null) {
+            setCursorBusy(true);
+            selectedNode = newPoint;
             toolLayer.addPoint(newPoint);
         }
     }
@@ -485,7 +472,11 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             if (point.isGroup()) {
                 editGroupName();
             } else {
-                toolLayer.editPoint(point);
+                setCursorBusy(true);
+                selectedNode = toolLayer.editPoint(point);
+                if (selectedNode == null) {
+                    setCursorBusy(false);
+                }
             }
         } else {
             MessageDialog.openInformation(getShell(), "Message",
@@ -493,10 +484,24 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         }
     }
 
+    private void selectNode(IPointNode node) {
+        if (node != null) {
+            Tree tree = pointsTreeViewer.getTree();
+            TreeItem item = findItem(node, tree.getItems());
+            if (item != null) {
+                tree.showItem(item);
+                tree.select(item);
+            }
+        }
+    }
+
     private void deleteNode() {
         Point point = getSelectedPoint();
         if (point != null) {
-            toolLayer.deletePoint(point);
+            setCursorBusy(true);
+            if (!toolLayer.deletePoint(point)) {
+                setCursorBusy(false);
+            }
         }
     }
 
@@ -517,19 +522,11 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
             @Override
             public void modifyText(ModifyEvent e) {
-                System.out.println("modifyText ...");
                 Text text = (Text) treeEditor.getEditor();
                 treeEditor.getItem().setText(text.getText());
             }
         });
-        text.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-                    System.out.println("dosomething: " + entry.getName());
-                }
-            }
-        });
+
         final TreeItem item = pointsTreeViewer.getTree().getSelection()[0];
         boolean showBorder = true;
         final Composite composite = new Composite(pointsTreeViewer.getTree(),
@@ -557,20 +554,22 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
                     }
                 case SWT.FocusOut:
                     final String text = modText.getText().trim();
-                    if (text.length() == 0) {
+                    if (text.length() == 0 || entry.getName().equals(text)
+                            || groupExists(dataManager.getParent(entry), text)) {
                         item.setText(entry.getName());
-                    } else if (!entry.getName().equals(text)) {
-                        System.out.println("FocusOut here rename group to: \""
-                                + entry.getName() + "\" ==> \"" + text + "\"");
-                        item.setText(text);
-                        VizApp.runAsync(new Runnable() {
+                    } else {
+                        GroupNode node = new GroupNode((GroupNode) entry);
+                        node.setName(text);
+                        StringBuilder sb = new StringBuilder(node.getGroup());
+                        sb.setLength(sb.lastIndexOf(File.separator) + 1);
+                        selectedNode = node;
+                        sb.append(text);
 
-                            @Override
-                            public void run() {
-                                dataManager.renameGroup(entry, text);
-                                pointsTreeViewer.refresh();
-                            }
-                        });
+                        item.setText(text);
+                        setCursorBusy(true);
+                        if (!dataManager.renameGroup(entry, text)) {
+                            setCursorBusy(false);
+                        }
                     }
                     composite.dispose();
                     break;
@@ -581,7 +580,8 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
                     break;
                 default:
-                    System.err.println("Unhandled type: " + e.type);
+                    statusHandler.handle(Priority.PROBLEM, "Unhandled type: "
+                            + e.type);
                 }
             }
         };
@@ -595,6 +595,15 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         modText.setFocus();
     }
 
+    private boolean groupExists(IPointNode parent, String name) {
+        for (IPointNode child : dataManager.getChildren(parent)) {
+            if (child.isGroup() && name.equals(child.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private Point getSelectedPoint() {
         TreeItem[] selItems = pointsTreeViewer.getTree().getSelection();
         Point point = null;
@@ -602,6 +611,15 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             point = (Point) selItems[0].getData();
         }
         return point;
+    }
+
+    protected void setCursorBusy(boolean state) {
+        Cursor cursor = null;
+        if (state) {
+            cursor = getShell().getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+        }
+        getShell().setCursor(cursor);
+        pointsTreeViewer.getTree().setCursor(cursor);
     }
 
     @Override
@@ -622,7 +640,30 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
             @Override
             public void run() {
-                pointsTreeViewer.refresh();
+                if (selectedNode == null) {
+                    selectedNode = getSelectedPoint();
+                }
+
+                // Bug in viewers refresh that causes stack overflow when
+                // selected item no longer exists and sometimes when the
+                // selected item was modified.
+                pointsTreeViewer.setSelection(null);
+                pointsTreeViewer.refresh(topLevel);
+
+                if (selectedNode != null) {
+                    Tree tree = pointsTreeViewer.getTree();
+                    TreeItem item = findItem(selectedNode, tree.getItems());
+                    if (item != null) {
+                        tree.showItem(item);
+                        tree.select(item);
+                        if (editSelectedNode) {
+                            editNode();
+                            editSelectedNode = false;
+                        }
+                    }
+                    selectedNode = null;
+                }
+                setCursorBusy(false);
             }
         });
     }
