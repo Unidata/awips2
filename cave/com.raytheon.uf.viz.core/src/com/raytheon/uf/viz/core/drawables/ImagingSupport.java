@@ -124,7 +124,7 @@ public class ImagingSupport {
                     bulk.toArray(new DrawableImage[bulk.size()]));
         }
 
-        return rval & skipped;
+        return rval & !skipped;
     }
 
     /**
