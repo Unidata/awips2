@@ -31,11 +31,6 @@
             class="com.raytheon.viz.satellite.rsc.SatBlendedResource"
             name="satBlendedResource"
             renderingOrderId="IMAGE_COUNTRY"/>
-	  <resource
-            class="com.raytheon.viz.satellite.rsc.SatTrueColorResource"
-            name="Satellite True Color"
-            renderingOrderId="IMAGE_COUNTRY"
-            resourceType="PLAN_VIEW"/>
    </extension>
    <extension
          point="com.raytheon.uf.viz.core.scriptTemplate">
