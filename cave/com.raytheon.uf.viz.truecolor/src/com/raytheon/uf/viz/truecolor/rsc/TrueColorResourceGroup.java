@@ -19,7 +19,12 @@
  **/
 package com.raytheon.uf.viz.truecolor.rsc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -30,6 +35,7 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
@@ -70,6 +76,75 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class TrueColorResourceGroup extends
         AbstractVizResource<TrueColorResourceGroupData, IDescriptor> implements
         IResourceGroup, IResourceDataChanged {
+
+    public static class DisplayedChannelResource {
+
+        private String displayName;
+
+        public AbstractVizResource<?, ?> resource;
+
+        public ChannelResource channel;
+
+        private DisplayedChannelResource(ChannelResource cr,
+                AbstractVizResource<?, ?> resource) {
+            this.channel = cr;
+            this.resource = resource;
+            this.displayName = cr.getChannelName();
+            if (displayName == null) {
+                displayName = resource.getName();
+            }
+        }
+
+        /**
+         * Returns the display name of the channel
+         * 
+         * @return
+         */
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        /**
+         * Checks if the resource is bound to the specified {@link Channel}
+         * 
+         * @param channel
+         * @return
+         */
+        public boolean isChannel(Channel channel) {
+            return this.channel.channels.contains(channel);
+        }
+
+        /**
+         * Removes a channel from being assigned to the resource
+         * 
+         * @param channel
+         */
+        public void removeChannel(Channel channel) {
+            this.channel.channels.remove(channel);
+        }
+
+        /**
+         * Adds a channel to be assigned to the resource
+         * 
+         * @param channel
+         */
+        public void addChannel(Channel channel) {
+            this.channel.channels.add(channel);
+        }
+
+        /**
+         * Set the channels to be used by the channel resource
+         * 
+         * @param channels
+         */
+        public void setChannels(Channel[] channels) {
+            channel.setChannels(channels);
+        }
+    }
+
+    private static final String DEFAULT_NAME = "RGB Composite";
+
+    private List<DisplayedChannelResource> displayedResources;
 
     private ITrueColorImage image;
 
@@ -124,11 +199,18 @@ public class TrueColorResourceGroup extends
         image.setSize(new int[] { rect.width, rect.height });
         image.setImageExtent(extent);
 
+        FramesInfo fi = paintProps.getFramesInfo();
         for (Channel c : Channel.values()) {
-            ResourcePair rp = resourceData.getResource(c);
-            if (rp != null) {
-                image.setImages(c, getImages(rp, target, paintProps));
+            List<DrawableImage> images = new ArrayList<DrawableImage>();
+            for (DisplayedChannelResource dcr : displayedResources) {
+                if (dcr.isChannel(c)) {
+                    paintProps.setDataTime(fi.getTimeForResource(dcr.resource));
+                    images.addAll(dcr.resource
+                            .getCapability(ImagingCapability.class)
+                            .getProvider().getImages(target, paintProps));
+                }
             }
+            image.setImages(c, images.toArray(new DrawableImage[images.size()]));
         }
 
         Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
@@ -137,17 +219,6 @@ public class TrueColorResourceGroup extends
         Coordinate ll = new Coordinate(extent.getMinX(), extent.getMinY());
 
         target.drawRaster(image, new PixelCoverage(ul, ur, lr, ll), paintProps);
-    }
-
-    private DrawableImage[] getImages(ResourcePair rp, IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        paintProps.setDataTime(paintProps.getFramesInfo().getTimeForResource(
-                rp.getResource()));
-        ImagingCapability imaging = rp.getResource().getCapability(
-                ImagingCapability.class);
-        Collection<DrawableImage> images = imaging.getProvider().getImages(
-                target, paintProps);
-        return images.toArray(new DrawableImage[images.size()]);
     }
 
     /*
@@ -172,30 +243,56 @@ public class TrueColorResourceGroup extends
         // We will name the composite
         getCapability(GroupNamingCapability.class);
 
-        // Initialize them
-        for (ResourcePair rp : getResourceList()) {
-            AbstractVizResource<?, ?> resource = rp.getResource();
-            resource.init(target);
-            // Check resource for required capabilities
-            String error = null;
-            if (resource.hasCapability(ImagingCapability.class)) {
-                ImagingCapability imaging = resource
-                        .getCapability(ImagingCapability.class);
-                if (imaging.getProvider() != null) {
-                    if (resource.hasCapability(ColorMapCapability.class) == false) {
-                        error = "does not have ColorMapCapability";
+        displayedResources = new ArrayList<DisplayedChannelResource>();
+        ResourceList resources = getResourceList();
+        // Make sure multiple resources are not assinged to same channel
+        Set<Channel> usedChannels = new HashSet<Channel>();
+        for (ChannelResource cr : resourceData.getChannelResources()) {
+            for (ResourcePair rp : resources) {
+                if (cr.getResourceData() == rp.getResourceData()) {
+                    DisplayedChannelResource displayedResource = new DisplayedChannelResource(
+                            cr, rp.getResource());
+                    AbstractVizResource<?, ?> resource = rp.getResource();
+                    resource.init(target);
+
+                    // Check resource for required capabilities
+                    String error = null;
+                    if (resource.hasCapability(ImagingCapability.class)) {
+                        ImagingCapability imaging = resource
+                                .getCapability(ImagingCapability.class);
+                        if (imaging.getProvider() != null) {
+                            if (resource
+                                    .hasCapability(ColorMapCapability.class) == false) {
+                                error = "does not have ColorMapCapability";
+                            }
+                        } else {
+                            error = "does not have image provider set on the ImagingCapability";
+                        }
+                    } else {
+                        error = "does not have the ImagingCapability";
                     }
-                } else {
-                    error = "does not have image provider set on the ImagingCapability";
+                    if (error != null) {
+                        Activator.statusHandler.handle(Priority.PROBLEM,
+                                displayedResource.getDisplayName()
+                                        + " resource in true color composite "
+                                        + error);
+                        resources.remove(rp);
+                    } else {
+                        resource.getResourceData().addChangeListener(this);
+                        // Force channels unique to a single resource
+                        for (Channel c : usedChannels) {
+                            if (displayedResource.isChannel(c)) {
+                                // Notify with INFO message?
+                                displayedResource.removeChannel(c);
+                            }
+                        }
+                        usedChannels
+                                .addAll(Arrays.asList(displayedResource.channel
+                                        .getChannels()));
+                        displayedResources.add(displayedResource);
+                    }
+                    break;
                 }
-            } else {
-                error = "does not have the ImagingCapability";
-            }
-            if (error != null) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        resourceData.getCompositeName(rp)
-                                + " resource in true color composite " + error);
-                resourceData.removeResource(rp);
             }
         }
 
@@ -203,14 +300,57 @@ public class TrueColorResourceGroup extends
                 .getExtension(ITrueColorImagingExtension.class);
         image = ext.initializeRaster(new int[] { 0, 0 }, null);
         resourceData.addChangeListener(this);
+        // Set initial ImagingCapability parameters
         resourceChanged(ChangeType.CAPABILITY,
                 getCapability(ImagingCapability.class));
 
+        // Every resource has to be time agnostic for us to be as well
         timeAgnostic = true;
-        for (ResourcePair rp : getResourceList()) {
-            // If any resource is not time agnostic, neither are we
-            timeAgnostic &= rp.getResource().isTimeAgnostic();
+        for (DisplayedChannelResource dr : displayedResources) {
+            timeAgnostic &= dr.resource.isTimeAgnostic();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
+     */
+    @Override
+    public String getName() {
+        String name = resourceData.getGroupName();
+        if (name != null) {
+            name += " ";
+        }
+
+        if (image != null) {
+            String productNames = "";
+            boolean first = true;
+            for (Channel c : Channel.values()) {
+                DrawableImage[] images = image.getImages(c);
+                if (images != null && images.length > 0) {
+                    name += c.name().substring(0, 1);
+                    if (!first) {
+                        productNames += "/";
+                    }
+                    for (DisplayedChannelResource rsc : displayedResources) {
+                        if (rsc.isChannel(c)) {
+                            productNames += rsc.getDisplayName();
+                            break;
+                        }
+                    }
+                    first = false;
+                }
+            }
+            if (first == true) {
+                name += DEFAULT_NAME;
+            } else {
+                name += ": " + productNames;
+            }
+        } else {
+            name += DEFAULT_NAME;
+        }
+        return name;
     }
 
     /*
@@ -245,6 +385,10 @@ public class TrueColorResourceGroup extends
                 image.setInterpolated(imaging.isInterpolationState());
             }
         }
+        issueRefresh();
     }
 
+    public Collection<DisplayedChannelResource> getChannelResources() {
+        return displayedResources;
+    }
 }
