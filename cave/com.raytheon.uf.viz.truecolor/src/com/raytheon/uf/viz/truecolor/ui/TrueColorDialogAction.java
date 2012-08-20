@@ -17,7 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.cmenu;
+package com.raytheon.uf.viz.truecolor.ui;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
@@ -25,14 +28,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IDisposeListener;
-import com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability;
-import com.raytheon.viz.ui.dialogs.MultiChannelDialog;
+import com.raytheon.uf.viz.truecolor.rsc.TrueColorResourceGroup;
+import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
- * Right click action that opens a dialog for modifying resources with
- * MultiChannelCapability
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -40,7 +40,7 @@ import com.raytheon.viz.ui.dialogs.MultiChannelDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 3, 2012            mschenke     Initial creation
+ * Aug 16, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -48,7 +48,9 @@ import com.raytheon.viz.ui.dialogs.MultiChannelDialog;
  * @version 1.0
  */
 
-public class MultiChannelImagingAction extends AbstractRightClickAction {
+public class TrueColorDialogAction extends AbstractRightClickAction {
+
+    private static Map<TrueColorResourceGroup, TrueColorDialog> dialogMap = new HashMap<TrueColorResourceGroup, TrueColorDialog>();
 
     /*
      * (non-Javadoc)
@@ -57,7 +59,7 @@ public class MultiChannelImagingAction extends AbstractRightClickAction {
      */
     @Override
     public String getText() {
-        return "Channel Options...";
+        return "Composite Options...";
     }
 
     /*
@@ -67,26 +69,22 @@ public class MultiChannelImagingAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        final AbstractVizResource<?, ?> rsc = getSelectedRsc();
-        MultiChannelCapability cap = rsc
-                .getCapability(MultiChannelCapability.class);
-        final MultiChannelDialog dialog = new MultiChannelDialog(shell, rsc,
-                cap);
-        final IDisposeListener listener = new IDisposeListener() {
-            @Override
-            public void disposed(AbstractVizResource<?, ?> rsc) {
-                dialog.close();
-            }
-        };
-        rsc.registerListener(listener);
-        dialog.addListener(SWT.Dispose, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                rsc.unregisterListener(listener);
-            }
-        });
+        TrueColorResourceGroup resource = (TrueColorResourceGroup) getSelectedRsc();
+        TrueColorDialog dialog = dialogMap.get(resource);
+        if (dialog == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new TrueColorDialog(shell, resource);
+            final TrueColorDialog toRemove = dialog;
+            dialogMap.put(resource, dialog);
+            dialog.addListener(SWT.Close, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    dialogMap.remove(toRemove.resource);
+                }
+            });
+        }
         dialog.open();
     }
+
 }
