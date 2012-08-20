@@ -55,6 +55,8 @@ public interface ITrueColorImagingExtension extends IImagingExtension {
 
         public void setImages(Channel channel, DrawableImage... images);
 
+        public DrawableImage[] getImages(Channel channel);
+
         public void setSize(int[] bounds);
 
         public void setImageExtent(IExtent extent);
