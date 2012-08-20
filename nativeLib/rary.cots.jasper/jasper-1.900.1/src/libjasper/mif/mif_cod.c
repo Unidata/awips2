@@ -59,6 +59,13 @@
  * __END_OF_JASPER_LICENSE__
  */
 
+/*
+  August 20, 2012
+  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+  This file modified for 64-bit compatibility
+*/
+
+
 /******************************************************************************\
 * Includes.
 \******************************************************************************/
