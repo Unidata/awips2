@@ -1317,6 +1317,23 @@ public class ThriftSerializationContext implements ISerializationContext,
      * (non-Javadoc)
      * 
      * @see
+     * com.raytheon.uf.common.serialization.IDeserializationContext#readDoubleArray
+     * ()
+     */
+    @Override
+    public double[] readDoubleArray() throws SerializationException {
+        try {
+            int sz = this.protocol.readI32();
+            return this.protocol.readD64List(sz);
+        } catch (TException e) {
+            throw new SerializationException(e);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * com.raytheon.uf.common.serialization.ISerializationContext#writeFloatArray
      * (float[])
      */
@@ -1329,4 +1346,22 @@ public class ThriftSerializationContext implements ISerializationContext,
             throw new SerializationException(e);
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.ISerializationContext#writeDoubleArray
+     * (double[])
+     */
+    @Override
+    public void writeDoubleArray(double[] dubs) throws SerializationException {
+        try {
+            this.protocol.writeI32(dubs.length);
+            this.protocol.writeD64List(dubs);
+        } catch (TException e) {
+            throw new SerializationException(e);
+        }
+    }
+
 }

@@ -68,12 +68,6 @@ public class DrawableString extends AbstractDrawableObject {
     /** amount of rotation in degrees from right */
     public double rotation = 0.0;
 
-    /**
-     * determines if the text rotation should be from start of text or x,y,z
-     * passed in
-     */
-    public boolean rotateOnStartOfText = false;
-
     /** The colors to use for the strings */
     private RGB[] colors;
 

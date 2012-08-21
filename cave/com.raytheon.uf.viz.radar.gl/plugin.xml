@@ -6,8 +6,5 @@
    		<graphicsExtension
            class="com.raytheon.uf.viz.radar.gl.GLRadialMeshExtension">
    		</graphicsExtension>
-   		<graphicsExtension
-           class="com.raytheon.uf.viz.radar.gl.mosaic.GLRadarMosaicImageExtension">
-   		</graphicsExtension>
    </extension>   
 </plugin>

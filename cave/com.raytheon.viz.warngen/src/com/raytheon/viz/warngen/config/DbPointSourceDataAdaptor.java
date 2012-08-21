@@ -22,7 +22,6 @@ package com.raytheon.viz.warngen.config;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,18 +30,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
-import com.raytheon.uf.common.geospatial.SpatialException;
-import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
-import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * PointSource data adaptor for data retrieved from a Database.
@@ -61,24 +54,43 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1.0
  */
 
-public class DbPointSourceDataAdaptor implements IPointSourceDataAdaptor {
+public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.warngen.config.IPointSourceDataAdaptor#findClosestPoints
-     * (
-     * com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration
-     * , java.lang.String)
-     */
     @Override
-    public Collection<ClosestPoint> getData(WarngenConfiguration warngenConfig,
-            PointSourceConfiguration pointConfig, Geometry searchArea,
-            String localizedSite) throws VizException {
-        String pointSource = pointConfig.getPointSource();
-        String pointField = pointConfig.getPointField();
+    protected Set<String> createSpatialQueryField() {
+        Set<String> ptFields = new HashSet<String>();
+        ptFields.add(pointConfig.getPointField());
 
+        List<String> fields = new ArrayList<String>();
+        if (pointConfig.getSortBy() != null) {
+            fields = Arrays.asList(pointConfig.getSortBy());
+        }
+
+        for (String field : fields) {
+            if (sortFields.contains(field.toLowerCase()) == false) {
+                ptFields.add(field.toLowerCase());
+            }
+        }
+
+        return ptFields;
+    }
+
+    @Override
+    protected ClosestPoint createClosestPoint(Set<String> ptFields,
+            SpatialQueryResult ptRslt) {
+        Map<String, Object> attributes = ptRslt.attributes;
+
+        String name = String
+                .valueOf(attributes.get(pointConfig.getPointField()));
+        Coordinate point = ptRslt.geometry.getCoordinate();
+        int population = getPopulation(ptFields, attributes);
+        int warngenlev = getWangenlev(ptFields, attributes);
+
+        return new ClosestPoint(name, point, population, warngenlev, null);
+    }
+
+    @Override
+    protected Map<String, RequestConstraint> processFilterSubstitution() {
         Map<String, RequestConstraint> filter = pointConfig.getFilter();
         if (filter != null) {
             // Process substitutes for filter
@@ -88,105 +100,6 @@ public class DbPointSourceDataAdaptor implements IPointSourceDataAdaptor {
             }
         }
 
-        List<String> fields = pointConfig.getSortBy() != null ? Arrays
-                .asList(pointConfig.getSortBy()) : new ArrayList<String>();
-
-        Set<String> ptFields = new HashSet<String>();
-        ptFields.add(pointField);
-        for (String field : fields) {
-            if (!field.equalsIgnoreCase("distance")
-                    && !field.equalsIgnoreCase("area")
-                    && !field.equalsIgnoreCase("parentArea")) {
-                ptFields.add(field.toLowerCase());
-            }
-        }
-
-        List<ClosestPoint> points = null;
-
-        try {
-            SpatialQueryResult[] ptFeatures = null;
-            Double decimationTolerance = pointConfig
-                    .getGeometryDecimationTolerance();
-            String field = "the_geom";
-
-            if (decimationTolerance != null && decimationTolerance > 0) {
-                // find available tolerances
-                List<Double> results = DbMapQueryFactory.getMapQuery(
-                        "mapdata." + pointSource.toLowerCase(), field)
-                        .getLevels();
-                Collections.sort(results, Collections.reverseOrder());
-
-                boolean found = false;
-                for (Double val : results) {
-                    if (val <= decimationTolerance) {
-                        decimationTolerance = val;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    decimationTolerance = null;
-                }
-            }
-
-            if (decimationTolerance != null) {
-                DecimalFormat df = new DecimalFormat("0.######");
-                String suffix = "_"
-                        + StringUtils.replaceChars(
-                                df.format(decimationTolerance), '.', '_');
-                ptFeatures = SpatialQueryFactory.create().query(pointSource,
-                        field + suffix,
-                        ptFields.toArray(new String[ptFields.size()]),
-                        searchArea, filter, SearchMode.INTERSECTS);
-            } else {
-                ptFeatures = SpatialQueryFactory.create().query(pointSource,
-                        ptFields.toArray(new String[ptFields.size()]),
-                        searchArea, filter, SearchMode.INTERSECTS);
-            }
-
-            if (ptFeatures != null) {
-                points = new ArrayList<ClosestPoint>(ptFeatures.length);
-            } else {
-                points = new ArrayList<ClosestPoint>(0);
-            }
-
-            for (SpatialQueryResult ptRslt : ptFeatures) {
-                if (ptRslt != null && ptRslt.geometry != null) {
-                    Object nameObj = ptRslt.attributes.get(pointField);
-                    if (nameObj != null) {
-                        int population = 0;
-                        int warngenlev = 0;
-                        if (ptFields.contains("population")) {
-                            try {
-                                population = Integer.valueOf(String
-                                        .valueOf(ptRslt.attributes
-                                                .get("population")));
-                            } catch (Exception e) {
-                                // Ignore
-                            }
-                        }
-                        if (ptFields.contains("warngenlev")) {
-                            try {
-                                warngenlev = Integer.valueOf(String
-                                        .valueOf(ptRslt.attributes
-                                                .get("warngenlev")));
-                            } catch (Exception e) {
-                                // Ignore
-                            }
-                        }
-
-                        points.add(new ClosestPoint(nameObj.toString(),
-                                ptRslt.geometry.getCoordinate(), population,
-                                warngenlev));
-                    }
-                }
-            }
-        } catch (SpatialException e) {
-            throw new VizException("Error querying " + pointSource + " table: "
-                    + e.getLocalizedMessage(), e);
-        }
-
-        return points;
+        return filter;
     }
 }

@@ -19,11 +19,12 @@
  **/
 package com.raytheon.uf.viz.radar.gl;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
 
@@ -55,11 +56,11 @@ public class GLRadialMeshExtension extends GraphicsExtension<IGLTarget>
      * com.raytheon.uf.viz.core.drawables.IDescriptor)
      */
     @Override
-    public IMesh constructMesh(RadarRecord radarData, IMapDescriptor descriptor)
-            throws VizException {
+    public IMesh constructMesh(RadarRecord radarData,
+            GeneralGridGeometry targetGeometry) throws VizException {
         String format = radarData.getFormat();
         if ("Radial".equals(format)) {
-            return RadarRadialMesh.getMesh(radarData, descriptor);
+            return RadarRadialMesh.getMesh(radarData, targetGeometry);
         } else {
             throw new VizException(
                     "Cannot construct radial meshes for non radial RadarRecords");

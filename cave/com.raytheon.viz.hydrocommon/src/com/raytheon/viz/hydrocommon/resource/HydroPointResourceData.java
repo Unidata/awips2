@@ -46,168 +46,178 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class HydroPointResourceData<T extends HydroPointResource<?>>
-		extends
-		AbstractResourceData {
-	@XmlElement
-	protected Coordinate location;
+        extends AbstractResourceData {
+    @XmlElement
+    protected Coordinate location;
 
-	public enum Style {
-		STAR, RECTANGLE, CIRCLE
-	}
+    public enum Style {
+        STAR, RECTANGLE, CIRCLE
+    }
 
-	@XmlElement
-	protected Style style;
+    @XmlElement
+    protected Style style;
 
-	@XmlElement
-	protected float lineWidth = 1.0f;
+    @XmlElement
+    protected float lineWidth = 1.0f;
 
-	@XmlElement
-	protected String name;
+    @XmlElement
+    protected String name;
 
-	private RGB color = new RGB(0, 0, 0);
+    private RGB color = new RGB(0, 0, 0);
 
-	private int red;
+    private int red;
 
-	private int green;
+    private int green;
 
-	private int blue;
+    private int blue;
 
-	public HydroPointResourceData() {
+    public HydroPointResourceData() {
 
-	}
+    }
 
-	public HydroPointResourceData(String name, RGB color, Coordinate location,
-			Style style) {
-		this.name = name;
-		if (color != null) {
-		this.color = color;
-			this.red = color.red;
-			this.green = color.green;
-			this.blue = color.blue;
-		}
-		this.location = location;
-		this.style = style;
-	}
+    public HydroPointResourceData(String name, RGB color, Coordinate location,
+            Style style) {
+        this.name = name;
+        if (color != null) {
+            this.color = color;
+            this.red = color.red;
+            this.green = color.green;
+            this.blue = color.blue;
+        }
+        this.location = location;
+        this.style = style;
+    }
 
-	public Style getStyle() {
-		return style;
-	}
+    public Style getStyle() {
+        return style;
+    }
 
-	public void setLineWidth(float lineWidth) {
-		this.lineWidth = lineWidth;
-	}
+    public void setLineWidth(float lineWidth) {
+        this.lineWidth = lineWidth;
+    }
 
-	/**
-	 * @return the location
-	 */
-	public Coordinate getLocation() {
-		return location;
-	}
+    /**
+     * @return the location
+     */
+    public Coordinate getLocation() {
+        return location;
+    }
 
-	/**
-	 * @param location
-	 *            the location to set
-	 */
-	public void setLocation(Coordinate location) {
-		this.location = location;
-	}
+    /**
+     * @param location
+     *            the location to set
+     */
+    public void setLocation(Coordinate location) {
+        this.location = location;
+    }
 
+    @Override
+    public void update(Object updateData) {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public boolean equals(Object obj) {
+    public String getName() {
+        return name;
+    }
 
-		if ((obj instanceof HydroPointResourceData) == false) {
-			return false;
-		}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-		@SuppressWarnings("unchecked")
-		HydroPointResourceData<T> other = (HydroPointResourceData<T>) obj;
+    public RGB getColor() {
+        return color;
+    }
 
-		if ((location == null) && (other.location != null)) {
-			return false;
-		} else if ((location != null) && (other.location == null)) {
-			return false;
-		} else if ((location != null)
-				&& (location.equals(other.location) == false)) {
-			return false;
-		}
+    public float getLineWidth() {
+        return lineWidth;
+    }
 
-		if ((style == null) && (other.style != null)) {
-			return false;
-		} else if ((style != null) && (other.style == null)) {
-			return false;
-		} else if ((style != null) && (style.equals(other.style) == false)) {
-			return false;
-		}
+    public void setStyle(Style style) {
+        this.style = style;
+    }
 
-		if (lineWidth != other.lineWidth) {
-			return false;
-		}
+    @XmlElement
+    public int getRed() {
+        return red;
+    }
 
-		/*
-		 * If style and location are both false we can't tell if these are
-		 * equal, so assume not equal and return false
-		 */
-		if (((style == null) && (other.style == null))
-				&& ((location == null) && (other.location == null))) {
-			return false;
-		}
+    public void setRed(int red) {
+        this.red = red;
+        this.color.red = red;
+    }
 
-		return true;
-	}
+    @XmlElement
+    public int getGreen() {
+        return green;
+    }
 
-	@Override
-	public void update(Object updateData) {
-		// TODO Auto-generated method stub
-	}
+    public void setGreen(int green) {
+        this.green = green;
+        this.color.green = green;
+    }
 
-	public String getName() {
-		return name;
-	}
+    @XmlElement
+    public int getBlue() {
+        return blue;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setBlue(int blue) {
+        this.blue = blue;
+        this.color.blue = blue;
+    }
 
-	public RGB getColor() {
-		return color;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + blue;
+        result = prime * result + ((color == null) ? 0 : color.hashCode());
+        result = prime * result + green;
+        result = prime * result + Float.floatToIntBits(lineWidth);
+        result = prime * result
+                + ((location == null) ? 0 : location.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + red;
+        result = prime * result + ((style == null) ? 0 : style.hashCode());
+        return result;
+    }
 
-	public float getLineWidth() {
-		return lineWidth;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HydroPointResourceData<?> other = (HydroPointResourceData<?>) obj;
+        if (blue != other.blue)
+            return false;
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
+            return false;
+        if (green != other.green)
+            return false;
+        if (Float.floatToIntBits(lineWidth) != Float
+                .floatToIntBits(other.lineWidth))
+            return false;
+        if (location == null) {
+            if (other.location != null)
+                return false;
+        } else if (!location.equals(other.location))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (red != other.red)
+            return false;
+        if (style != other.style)
+            return false;
+        return true;
+    }
 
-	public void setStyle(Style style) {
-		this.style = style;
-	}
-
-	@XmlElement
-	public int getRed() {
-		return red;
-	}
-
-	public void setRed(int red) {
-		this.red = red;
-		this.color.red = red;
-	}
-
-	@XmlElement
-	public int getGreen() {
-		return green;
-	}
-
-	public void setGreen(int green) {
-		this.green = green;
-		this.color.green = green;
-	}
-
-	@XmlElement
-	public int getBlue() {
-		return blue;
-	}
-
-	public void setBlue(int blue) {
-		this.blue = blue;
-		this.color.blue = blue;
-	}
 }

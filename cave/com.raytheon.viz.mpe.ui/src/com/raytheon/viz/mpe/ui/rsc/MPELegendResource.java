@@ -56,7 +56,7 @@ import com.raytheon.uf.viz.core.sampling.ISamplingResource;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.MPEFontManager;
+import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -145,6 +145,8 @@ public class MPELegendResource extends
 
     private boolean displayInfo = false;
 
+    private MPEFontFactory fontFactory;
+
     private IFont font;
 
     public MPELegendResource(GenericResourceData rscData,
@@ -159,11 +161,11 @@ public class MPELegendResource extends
      */
     @Override
     protected void disposeInternal() {
-        // DO NOT DISPOSE OF FONT AS IT IS SHARED IN ALL OF MPE
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.unregisterMouseHandler(inspectHandler);
         }
+        fontFactory.dispose();
     }
 
     /*
@@ -177,6 +179,7 @@ public class MPELegendResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         displayMgr = MPEDisplayManager.getInstance(descriptor
                 .getRenderableDisplay());
+        fontFactory = new MPEFontFactory(target, this);
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.registerMouseHandler(inspectHandler);
@@ -194,7 +197,7 @@ public class MPELegendResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         // Fonts are shared and cached, no need to init or dispose
-        font = MPEFontManager.getFont(this, displayMgr.getFontState(), target);
+        font = fontFactory.getMPEFont(displayMgr.getFontState());
         IExtent screenExtent = paintProps.getView().getExtent();
 
         scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);

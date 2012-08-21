@@ -1,17 +1,13 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
-%define _component_name           awips2-edex-shapefiles
-%define _component_project_dir    awips2.edex/Installer.edex-shapefiles
-%define _component_default_prefix /awips2
 #
-# AWIPS II Edex Shapefiles Spec File
+# AWIPS II edex-shapefiles Spec File
 #
-Name: %{_component_name}
-Summary: AWIPS II Edex Shapefiles
+Name: awips2-edex-shapefiles
+Summary: AWIPS II Edex
 Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
-BuildRoot: /tmp
-Prefix: %{_component_default_prefix}
+BuildRoot: %{_build_root}
+BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -23,74 +19,65 @@ provides: awips2-edex-shapefiles
 requires: awips2
 requires: awips2-edex-base
 
+# Turn off the brp-python-bytecompile script
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
+
 %description
-AWIPS II Edex Static Data Distribution - includes the shapefiles and the
-maps database (when awips2-postgresql is installed).
+AWIPS II Edex Shapefiles - includes the shapefiles required by AWIPS II.
 
 %prep
 # Verify That The User Has Specified A BuildRoot.
-if [ "${RPM_BUILD_ROOT}" = "/tmp" ]
+if [ "%{_build_root}" = "" ]
 then
-   echo "An Actual BuildRoot Must Be Specified. Use The --buildroot Parameter."
-   echo "Unable To Continue ... Terminating"
+   echo "ERROR: The RPM Build Root has not been specified."
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/utility/edex_static/base/shapefiles
+if [ -d %{_build_root} ]; then
+   rm -rf %{_build_root}
+fi
+mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles
 
 %build
 
 %install
-# Copy The shapefiles.
-SHAPEFILES_DEST_DIR="awips2/edex/data/utility/edex_static/base/shapefiles"
-STATIC_DATA_DIR="${AWIPSCM_SHARE}/awips2-static"
+AWIPS2_STATIC=%{_awipscm_share}/awips2-static
 
 # Determine which version of the shapefiles we should use.
-RPM_COMMON_DIR="${WORKSPACE_DIR}/Installer.rpm/common/static.versions"
+COMMON=%{_baseline_workspace}/rpms/common
+if [ ! -f ${COMMON}/static.versions/LATEST.maps ]; then
+   file ${COMMON}/static.versions/LATEST.maps
+   exit 1
+fi
 
-if [ ! -f ${RPM_COMMON_DIR}/LATEST.maps ]; then
-   file ${RPM_COMMON_DIR}/LATEST.maps
+LATEST=`cat ${COMMON}/static.versions/LATEST.maps`
+if [ $? -ne 0 ]; then
    exit 1
 fi
-VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.maps`
-SHAPEFILES_DIR="${STATIC_DATA_DIR}/maps/${VERSION_DIR}/shapefiles"
-if [ ! -d ${SHAPEFILES_DIR} ]; then
-   file ${SHAPEFILES_DIR}
+SHAPEFILES=${AWIPS2_STATIC}/maps/${LATEST}/shapefiles
+if [ ! -d ${SHAPEFILES} ]; then
+   file ${SHAPEFILES}
    exit 1
 fi
-cp -r ${SHAPEFILES_DIR}/* ${RPM_BUILD_ROOT}/${SHAPEFILES_DEST_DIR}
-RC=$?
-if [ ${RC} -ne 0 ]; then
+
+cp -r ${SHAPEFILES}/* \
+   %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles
+if [ $? -ne 0 ]; then
    exit 1
 fi
-   
+
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing The AWIPS II Edex Shapefiles...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}/edex\e[m"
 
 %post
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| SUCCESSFUL INSTALLATION ~ awips2-edex-shapefiles\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-   
-%preun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
 
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| SUCCESSFUL UNINSTALLATION ~ awips2-edex-shapefiles\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-   
+%preun
+
+%postun
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
 %files
 %defattr(775,awips,fxalpha,755)
 %dir /awips2

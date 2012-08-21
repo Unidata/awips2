@@ -217,13 +217,12 @@ public class MasterDerivScript extends PythonInterpreter {
             IDataRecord[] valList = (IDataRecord[]) argValue;
             if (valList.length == 1) {
                 // treat as an unwrapped array
-                FloatDataRecord val = (FloatDataRecord) valList[0];
-                evaluateArgument(argName, val);
+                evaluateArgument(argName, valList[0]);
             } else {
                 // create a list of arrays
                 jep.eval(argName + " = []");
                 for (int argIdx = 0; argIdx < valList.length; argIdx++) {
-                    FloatDataRecord val = (FloatDataRecord) valList[argIdx];
+                    IDataRecord val = (IDataRecord) valList[argIdx];
                     jep.eval(argName + ".append(None)");
                     // setNumeric won't work with indexed objects
                     evaluateArgument("__tmp", val);

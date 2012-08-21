@@ -20,6 +20,7 @@
 package com.raytheon.viz.warngen.gis;
 
 import java.util.Date;
+import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -69,36 +70,40 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     protected Date time;
 
+    protected List<String> partOfArea;
+
     public ClosestPoint() {
 
     }
 
     public ClosestPoint(ClosestPoint o) {
-    	this.name = o.name;
-    	this.area = o.area;
-    	this.parentArea = o.parentArea;
-    	this.point = o.point;
-    	this.distance = o.distance;
-    	this.roundedDistance = o.roundedDistance;
-    	this.azimuth = o.azimuth;
-    	this.roundedAzimuth = o.roundedAzimuth;
-    	this.oppositeAzimuth = o.oppositeAzimuth;
-    	this.oppositeRoundedAzimuth = o.oppositeRoundedAzimuth;
-    	this.population = o.population;
-    	this.warngenlev = o.warngenlev;
-    	this.time = o.time;
-	}
+        this.name = o.name;
+        this.area = o.area;
+        this.parentArea = o.parentArea;
+        this.point = o.point;
+        this.distance = o.distance;
+        this.roundedDistance = o.roundedDistance;
+        this.azimuth = o.azimuth;
+        this.roundedAzimuth = o.roundedAzimuth;
+        this.oppositeAzimuth = o.oppositeAzimuth;
+        this.oppositeRoundedAzimuth = o.oppositeRoundedAzimuth;
+        this.population = o.population;
+        this.warngenlev = o.warngenlev;
+        this.time = o.time;
+        this.partOfArea = o.partOfArea;
+    }
 
-	public ClosestPoint(String name, Coordinate point) {
-        this(name, point, 0, 0);
+    public ClosestPoint(String name, Coordinate point) {
+        this(name, point, 0, 0, null);
     }
 
     public ClosestPoint(String name, Coordinate point, int population,
-            int warngenlev) {
+            int warngenlev, List<String> partOfArea) {
         this.name = name;
         this.point = point;
         this.population = population;
         this.warngenlev = warngenlev;
+        this.partOfArea = partOfArea;
     }
 
     /**
@@ -106,6 +111,10 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
      */
     public String getName() {
         return name;
+    }
+
+    public Coordinate getPoint() {
+        return point;
     }
 
     /**
@@ -158,6 +167,10 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     public String getParentArea() {
         return parentArea;
+    }
+
+    public List<String> getPartOfArea() {
+        return partOfArea;
     }
 
     /**

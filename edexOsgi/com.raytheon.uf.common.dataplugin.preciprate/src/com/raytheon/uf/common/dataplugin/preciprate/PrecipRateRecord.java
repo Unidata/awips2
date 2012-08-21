@@ -21,10 +21,7 @@ package com.raytheon.uf.common.dataplugin.preciprate;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,7 +42,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -85,8 +82,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PrecipRateRecord extends PersistablePluginDataObject implements
-        IMonitorProcessing {
+public class PrecipRateRecord extends ServerSpecificPersistablePluginDataObject
+        implements IMonitorProcessing {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateRecord.class);
 
@@ -579,36 +576,6 @@ public class PrecipRateRecord extends PersistablePluginDataObject implements
      */
     public void setCrs(ProjectedCRS crs) {
         this.crs = crs;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#getPersistenceTime
-     * ()
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#setPersistenceTime
-     * (java.util.Date)
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     /*

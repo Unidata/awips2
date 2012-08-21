@@ -62,10 +62,6 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
 			name="Edit Action Dialog">
 		</command>
-		<command
-			id="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction"
-			name="ShowDefineProceduresDialogAction">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ExpandTimeScale"
 			name="ExpandTimeScale">
 		</command>
@@ -414,14 +410,6 @@
 		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
 			commandId="com.raytheon.viz.gfe.actions.ShowEditActionsDialog">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
-		<handler
-			class="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction"
-			commandId="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction">
             <activeWhen>
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
@@ -1855,8 +1843,10 @@
 
 
 	<extension id="com.raytheon.viz.ui.bindings" point="org.eclipse.ui.bindings">
-		<key commandId="com.raytheon.viz.gfe.toggleLegend" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-			sequence="NUMPAD_ENTER">
+		<key commandId="com.raytheon.viz.gfe.toggleLegend" 
+		     schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			 sequence="NUMPAD_ENTER"
+			 contextId="com.raytheon.viz.gfe.GFEShortCutContext">
 		</key>
 
 	</extension>
@@ -2048,6 +2038,15 @@
        <contextId
              id="com.raytheon.viz.gfe.GFEContext">
        </contextId>
+    </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.GridManagerView">
+       <contextId
+             id="com.raytheon.viz.ui.loopContext">
+       </contextId>
+    </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.perspective.GFEContextActivator">
        <contextId
              id="com.raytheon.viz.gfe.GFEShortCutContext">
        </contextId>

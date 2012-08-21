@@ -28,6 +28,7 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -109,7 +110,9 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
     public void project(CoordinateReferenceSystem crs) throws VizException {
         super.project(crs);
         if (sharedCoverage != null && sharedCoverage.getMesh() != null) {
-            sharedCoverage.getMesh().reproject(descriptor.getGridGeometry());
+            IMesh oldMesh = sharedCoverage.getMesh();
+            sharedCoverage.setMesh(oldMesh.clone(descriptor.getGridGeometry()));
+            oldMesh.dispose();
         }
     }
 

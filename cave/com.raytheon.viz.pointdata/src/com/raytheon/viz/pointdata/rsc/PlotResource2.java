@@ -208,6 +208,11 @@ public class PlotResource2 extends
                             descriptor.getCRS()), descriptor.getCRS());
         }
 
+        if (!progressiveDisclosure.isDone() || !generator.isDone()
+                || frameRetrievalPool.isActive()) {
+            issueRefresh();
+        }
+
         this.updateRecords();
 
         List<Station> stationList = curFrame.lastComputed;

@@ -5,9 +5,13 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-    <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">    
+    <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+    
+    	<endpoint id="textdbsrvXml_from"
+    		uri="jetty:http://0.0.0.0:${http.port}/services/textdbsrv?disableStreamCache=true" />
+     
         <route id="textdbsrvXml">
-            <from uri="jetty:http://0.0.0.0:9581/services/textdbsrv?disableStreamCache=true" />
+            <from uri="ref:textdbsrvXml_from" />
             <bean ref="serializationUtil" method="unmarshalFromXml" />
 	    	<bean ref="textdbsrv" method="processMessage" />
             <bean ref="serializationUtil" method="marshalToXml" />

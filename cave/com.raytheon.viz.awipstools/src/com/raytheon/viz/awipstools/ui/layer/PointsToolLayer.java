@@ -37,8 +37,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.viz.awipstools.IToolChangedListener;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -77,7 +77,7 @@ import com.vividsolutions.jts.geom.Point;
  * @version 1
  */
 public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
-        IContextMenuContributor, IToolChangedListener, IResourceDataChanged {
+        IContextMenuContributor, IPointChangedListener, IResourceDataChanged {
 
     public static final String DEFAULT_NAME = "Interactive Points";
 
@@ -85,7 +85,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
 
     private AbstractRightClickAction moveElementAction;
 
-    private ToolsDataManager dataManager = ToolsDataManager.getInstance();
+    private PointsDataManager dataManager = PointsDataManager.getInstance();
 
     private static GeometryFactory gf = new GeometryFactory();
 
@@ -218,7 +218,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     }
 
     @Override
-    public void toolChanged() {
+    public void pointChanged() {
         resetPoints();
         issueRefresh();
     }

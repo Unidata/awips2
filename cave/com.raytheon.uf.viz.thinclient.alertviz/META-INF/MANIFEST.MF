@@ -13,6 +13,7 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.product.alertviz;bundle-version="1.12.1174",
  com.raytheon.uf.viz.alertviz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.viz.alertviz;bundle-version="1.12.1174",
- com.raytheon.uf.common.message;bundle-version="1.12.1174"
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.common.comm
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

@@ -211,8 +211,7 @@ public class GOESSoundingDataAdapter {
 //                seconds = (dp.getValue() != null) ? ((Double) dp.getValue())
 //                        .intValue() : null;
 
-                Calendar baseTime = TimeTools.getSystemCalendar();
-                baseTime.set(Calendar.YEAR, year);
+                Calendar baseTime = TimeTools.getBaseCalendar(year, 1, 1);
                 baseTime.set(Calendar.DAY_OF_YEAR, day);
                 baseTime.set(Calendar.HOUR_OF_DAY, hour);
                 baseTime.set(Calendar.MINUTE, minute);

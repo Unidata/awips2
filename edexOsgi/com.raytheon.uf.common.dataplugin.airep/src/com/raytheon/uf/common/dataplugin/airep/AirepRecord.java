@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.common.dataplugin.airep;
 
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,6 +66,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
  * 20080107            720 jkorman     remove default assignments from attributes.
+ * 20120405            435 dgilling    Prevent NullPointerExceptions in
+ *                                     buildMessageData().
  * </pre>
  * 
  * @author jkorman
@@ -572,67 +578,75 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     private String buildMessageData() {
-        String s = "";
+        boolean validLocation = (location != null);
 
-        String lat = String.valueOf(location.getLatitude());
-        String lon = String.valueOf(location.getLongitude());
-        String latDir = location.getLatitude() > 0 ? "N" : "S";
-        String lonDir = location.getLongitude() > 0 ? "E" : "W";
-        String hour = "";
-        String minute = "";
-        if (timeObs != null) {
-            hour = String.valueOf(timeObs.get(Calendar.HOUR_OF_DAY));
-            minute = String.valueOf(timeObs.get(Calendar.MINUTE));
+        StringBuilder messageData = new StringBuilder("ARP ");
+        if (validLocation && getStationId() != null) {
+            messageData.append(getStationId());
         }
-        String flightLevel = String.valueOf((int) ftToHft.convert(location
-                .getFlightLevel()));
-        String wind = windDirection != null ? String.valueOf(windDirection
-                .intValue())
-                + "/"
-                + String.valueOf(windSpeed.intValue())
-                + "KT" : "";
-        // String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";
-        lat = formatLatLon(lat);
-        lon = formatLatLon(lon);
-        String temperature = "";
+        messageData.append(' ');
+
+        if ((validLocation) && (!Double.isNaN(getLatitude()))
+                && (!Double.isNaN(getLongitude()))) {
+            messageData.append(formatLatLon(getLatitude(), true));
+            messageData.append(' ');
+            messageData.append(formatLatLon(getLongitude(), false));
+            messageData.append(' ');
+        }
+
+        if (timeObs != null) {
+            DateFormat df = new SimpleDateFormat("HHmm");
+            messageData.append(df.format(timeObs.getTime()));
+        }
+        messageData.append(" F");
+
+        if (validLocation && getFlightLevel() != null) {
+            int flightLevel = (int) ftToHft.convert(getFlightLevel());
+            messageData.append(flightLevel);
+        }
+        messageData.append(' ');
+
         if (temp != null) {
             if (temp > 0) {
-                temperature = "P" + temp.intValue();
+                messageData.append('P');
             } else {
-                temperature = "M"
-                        + String.valueOf(temp.intValue()).substring(1);
+                messageData.append('M');
             }
+            messageData.append(Math.abs(temp.intValue()));
         }
-        if (hour.length() < 2) {
-            hour = "0" + hour;
+        messageData.append(' ');
+
+        if ((windDirection != null) && (windSpeed != null)) {
+            messageData.append(windDirection.intValue());
+            messageData.append('/');
+            messageData.append(windSpeed.intValue());
+            messageData.append("KT");
         }
-        if (minute.length() < 2) {
-            minute = "0" + minute;
-        }
-        s = "ARP " + location.getStationId() + " " + lat + latDir + " " + lon
-                + lonDir + " " + hour + minute + " F" + flightLevel + " "
-                + temperature + " " + wind + "TB";
-        return s;
+        messageData.append("TB");
+
+        return messageData.toString();
     }
 
-    private String formatLatLon(String str) {
-        str = str.startsWith("-") ? str.substring(1) : str;
-
-        int decimalIndex = str.indexOf(".");
-
-        if (decimalIndex != -1) {
-            String temp = str.substring(decimalIndex + 1);
-            if (temp.length() > 3) {
-                temp = temp.substring(0, 3);
-            } else if (temp.length() != 3) {
-                while (temp.length() != 3) {
-                    temp += "0";
-                }
+    private String formatLatLon(double value, boolean isLatitude) {
+        char dir;
+        if (isLatitude) {
+            if (value > 0) {
+                dir = 'N';
+            } else {
+                dir = 'S';
             }
-            str = str.substring(0, decimalIndex) + temp;
+        } else {
+            if (value > 0) {
+                dir = 'E';
+            } else {
+                dir = 'W';
+            }
         }
 
-        return str;
+        DecimalFormat df = new DecimalFormat("###.000");
+        df.setRoundingMode(RoundingMode.DOWN);
+
+        return df.format(Math.abs(value)) + dir;
     }
 
     /**
@@ -659,19 +673,23 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AirepRecord other = (AirepRecord) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 

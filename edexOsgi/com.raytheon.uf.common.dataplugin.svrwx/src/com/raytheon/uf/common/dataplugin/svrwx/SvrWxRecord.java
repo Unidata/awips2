@@ -64,220 +64,213 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SvrWxRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData {
+		ISpatialEnabled, IPointData {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    // Text of the WMO header
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private String wmoHeader = "";
+	// Text of the WMO header
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private String wmoHeader = "";
 
-    @Embedded
-    @DataURI(position = 2, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 2, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    protected String eventKey;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	protected String eventKey;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Column
-    @DataURI(position = 1)
-    protected String reportType;
+	@XmlElement
+	@DynamicSerializeElement
+	@Column
+	@DataURI(position = 1)
+	protected String reportType;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    protected String details;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	protected String details;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    protected String greenTime;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	protected String greenTime;
 
-    /**
-     * Empty default constructor
-     */
-    public SvrWxRecord() {
-    }
+	/**
+	 * Empty default constructor
+	 */
+	public SvrWxRecord() {
+	}
 
-    /**
-     * Construct an instance of this class using the supplied datauri.
-     * 
-     * @param dataUri
-     */
-    public SvrWxRecord(String dataUri) {
-        super(dataUri);
-    }
+	/**
+	 * Construct an instance of this class using the supplied datauri.
+	 * 
+	 * @param dataUri
+	 */
+	public SvrWxRecord(String dataUri) {
+		super(dataUri);
+	}
 
-    /**
-     * @return the wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * @return the wmoHeader
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * @param wmoHeader
-     *            the wmoHeader to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * @param wmoHeader
+	 *            the wmoHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    public PointDataView getPdv() {
-        return pdv;
-    }
+	/**
+	 * Set the data uri for this observation.
+	 * 
+	 * @param dataURI
+	 */
+	@Override
+	public void setDataURI(String dataURI) {
+		super.setDataURI(dataURI);
+		identifier = dataURI;
+	}
 
-    public void setPdv(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	public String getEventKey() {
+		return eventKey;
+	}
 
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
+	public void setEventKey(String eventKey) {
+		this.eventKey = eventKey;
+	}
 
-    public String getEventKey() {
-        return eventKey;
-    }
+	public String getGreenTime() {
+		return greenTime;
+	}
 
-    public void setEventKey(String eventKey) {
-        this.eventKey = eventKey;
-    }
+	public void setGreenTime(String greenTime) {
+		this.greenTime = greenTime;
+	}
 
-    public String getGreenTime() {
-        return greenTime;
-    }
+	public String getDetails() {
+		return details;
+	}
 
-    public void setGreenTime(String greenTime) {
-        this.greenTime = greenTime;
-    }
+	public void setDetails(String details) {
+		this.details = details;
+	}
 
-    public String getDetails() {
-        return details;
-    }
+	public String getReportType() {
+		return reportType;
+	}
 
-    public void setDetails(String details) {
-        this.details = details;
-    }
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
 
-    public String getReportType() {
-        return reportType;
-    }
+	/**
+	 * Get this observation's geometry.
+	 * 
+	 * @return The geometry for this observation.
+	 */
+	public Geometry getGeometry() {
+		return location.getGeometry();
+	}
 
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
+	/**
+	 * Get the geometry latitude.
+	 * 
+	 * @return The geometry latitude.
+	 */
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    /**
-     * Get this observation's geometry.
-     * 
-     * @return The geometry for this observation.
-     */
-    public Geometry getGeometry() {
-        return location.getGeometry();
-    }
+	/**
+	 * Get the geometry longitude.
+	 * 
+	 * @return The geometry longitude.
+	 */
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-    /**
-     * Get the geometry latitude.
-     * 
-     * @return The geometry latitude.
-     */
-    public double getLatitude() {
-        return location.getLatitude();
-    }
+	/**
+	 * Get the station identifier for this observation.
+	 * 
+	 * @return the stationId
+	 */
+	public String getStationId() {
+		return location.getStationId();
+	}
 
-    /**
-     * Get the geometry longitude.
-     * 
-     * @return The geometry longitude.
-     */
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	/**
+	 * Get the elevation, in meters, of the observing platform or location.
+	 * 
+	 * @return The observation elevation, in meters.
+	 */
+	public Integer getElevation() {
+		return location.getElevation();
+	}
 
-    /**
-     * Get the station identifier for this observation.
-     * 
-     * @return the stationId
-     */
-    public String getStationId() {
-        return location.getStationId();
-    }
+	/**
+	 * Get whether the location for this observation is defined.
+	 * 
+	 * @return Is this location defined.
+	 */
+	public Boolean getLocationDefined() {
+		return location.getLocationDefined();
+	}
 
-    /**
-     * Get the elevation, in meters, of the observing platform or location.
-     * 
-     * @return The observation elevation, in meters.
-     */
-    public Integer getElevation() {
-        return location.getElevation();
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
 
-    /**
-     * Get whether the location for this observation is defined.
-     * 
-     * @return Is this location defined.
-     */
-    public Boolean getLocationDefined() {
-        return location.getLocationDefined();
-    }
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
-
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        Calendar c = getDataTime().getRefTimeAsCalendar();
-        if (c != null) {
-            sb.append(String.format("SvrWx:%1$tY%1$tm%1$td%1$tH%1$tM",
-                    getDataTime().getRefTimeAsCalendar()));
-        } else {
-            sb.append("SvrWx:YYYYMMDDHHmm");
-        }
-        sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Calendar c = getDataTime().getRefTimeAsCalendar();
+		if (c != null) {
+			sb.append(String.format("SvrWx:%1$tY%1$tm%1$td%1$tH%1$tM",
+					getDataTime().getRefTimeAsCalendar()));
+		} else {
+			sb.append("SvrWx:YYYYMMDDHHmm");
+		}
+		sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
+		return sb.toString();
+	}
 }
