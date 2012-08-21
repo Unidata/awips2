@@ -27,15 +27,13 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 
 public class ShefDao extends DefaultPluginDao {
 
-
-    private AppsDefaults appsDefaults;
-
-
-
-
+    /**
+     * 
+     * @param pluginName
+     * @throws PluginException
+     */
     public ShefDao(String pluginName) throws PluginException {
         super(pluginName);
-        appsDefaults = AppsDefaults.getInstance();
     }
 
     @Override
@@ -50,7 +48,7 @@ public class ShefDao extends DefaultPluginDao {
          * Purge the file system
          */
         logger.info("Purging Hydro file system...");
-        File metarInputFile = new File(appsDefaults
+        File metarInputFile = new File(AppsDefaults.getInstance()
                 .getToken("whfs_local_data_dir")
                 + "/metar_input");
         if (!metarInputFile.exists()) {

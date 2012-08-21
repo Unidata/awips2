@@ -34,7 +34,6 @@ import ucar.unidata.io.RandomAccessFile;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.StatusConstants;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -49,6 +48,8 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/12/10      4758       bphillip     Initial creation
+ * 8/15/12      1064       bphillip     Added code to ensure the destination folders for large file splits are
+ *                                      present
  * </pre>
  * 
  * @author njensen
@@ -56,9 +57,37 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  */
 
 public class GribDecoder {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GribDecoder.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribDecoder.class);
 
+    /** The size limit for grib files before an attempt is made to split them */
     private static final long TEN_MEGABYTES = 10485760;
+
+    /** The directory which split grib 1 files are written to */
+    private static final File LARGE_GRIB1_DIR = new File(
+            System.getProperty("edex.home")
+                    + "/data/manual/grib/grib1LargeSplit/");
+
+    /** The directory which split grib2 files are written to */
+    private static final File LARGE_GRIB2_DIR = new File(
+            System.getProperty("edex.home")
+                    + "/data/manual/grib/grib2LargeSplit/");
+
+    static {
+        /*
+         * Ensure the grib1 split output directory exists 
+         */
+        if (!LARGE_GRIB1_DIR.exists()) {
+            LARGE_GRIB1_DIR.mkdirs();
+        }
+        
+        /*
+         * Ensure the grib2 split output directory exists
+         */
+        if (!LARGE_GRIB2_DIR.exists()) {
+            LARGE_GRIB2_DIR.mkdirs();
+        }
+    }
 
     public GribDecoder() {
 
@@ -109,7 +138,7 @@ public class GribDecoder {
                 // manual ingest endpoint
                 if (recordLengths.size() > 1) {
                     raf.seek(0);
-                    splitFile(file.getName(), raf, recordLengths);
+                    splitFile(file.getName(), raf, recordLengths, edition);
                     return new GribRecord[] {};
                 }
             }
@@ -137,7 +166,7 @@ public class GribDecoder {
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to decode file: ["
-                            + file.getAbsolutePath() + "]", e);
+                    + file.getAbsolutePath() + "]", e);
             records = new GribRecord[0];
         } finally {
             try {
@@ -165,7 +194,7 @@ public class GribDecoder {
      * @throws IOException
      */
     private void splitFile(String fileName, RandomAccessFile raf,
-            List<Long> sizes) throws IOException {
+            List<Long> sizes, int edition) throws IOException {
         FileOutputStream out = null;
         byte[] transfer = null;
         for (int i = 0; i < sizes.size(); i++) {
@@ -175,9 +204,8 @@ public class GribDecoder {
 
             try {
                 out = new FileOutputStream(System.getProperty("edex.home")
-                        + "/data/manual/" + fileName + "_record_" + (i + 1));
+                        + "/data/manual/grib/grib" + edition + "LargeSplit/" + fileName + "_record_" + (i + 1));
                 out.write(transfer);
-                out.close();
             } finally {
                 if (out != null) {
                     out.close();

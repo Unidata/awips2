@@ -35,10 +35,12 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -147,9 +149,10 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
                 try {
                     IImage raster = target.getExtension(
                             IColormappedImageExtension.class).initializeRaster(
-                            new SatDataRetriever(pdo, level, tileRect,
-                                    signed, tileData), cmp);
+                            new SatDataRetriever(pdo, level, tileRect, signed,
+                                    tileData), cmp);
                     if (raster != null) {
+                        raster.stage();
                         addImage(raster, level, i, j);
                     }
                 } catch (VizException e) {
@@ -294,5 +297,10 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
     @Override
     public void cancelRequest(int level, int i, int j) {
 
+    }
+
+    public synchronized List<DrawableImage> getImages(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        return do2D(target, paintProps);
     }
 }

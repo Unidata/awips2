@@ -30,6 +30,7 @@ import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Transforms a decoded synoptic observation into a series of SHEF encoded data
@@ -84,8 +85,10 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
                 // Currently returns false, so nothing is encoded at this time.
                 if (encodeThisStation(rec)) {
 
+                    WMOHeader hdr = new WMOHeader(rec.getObsText().getBytes());
+
                     StringBuilder sb = makeWMOHeader(openWMOMessage(0, 200),
-                            "KWOH", headers);
+                            "KWOH", headers, hdr);
 
                     startMessageLine(sb)
                             .append(":SHEF derived data created by SMToShefTransformer");

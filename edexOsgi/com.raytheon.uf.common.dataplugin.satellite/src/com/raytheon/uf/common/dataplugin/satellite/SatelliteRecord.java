@@ -20,10 +20,6 @@
 
 package com.raytheon.uf.common.dataplugin.satellite;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -38,8 +34,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -59,6 +55,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
+ * - AWIPS2 Baseline Repository --------
+ * 07/30/2012    798        jkorman     Support for common satellite data. 
  * </pre>
  * 
  * @author bphillip
@@ -69,10 +67,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends PersistablePluginDataObject implements
-        IPersistable, ISpatialEnabled {
+public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
+        implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * The default dataset name to use for persisted satellite data.
+     */
+    public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
+    
+    /**
+     * The attribute name for a value that will be used to "fill" undefined
+     * data.
+     */
+    public static final String SAT_FILL_VALUE = "_FillValue";
+
+    /**
+     * The attribute name for the data additive offset value.
+     */
+    public static final String SAT_ADD_OFFSET = "add_offset";
+
+    /**
+     * The attribute name for the data scale factor value..
+     */
+    public static final String SAT_SCALE_FACTOR = "scale_factor";
 
     /**
      * The source of the data - NESDIS
@@ -124,22 +143,27 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
 
     /** The latitude directly beneath the satellite */
     @Column
+    @DynamicSerializeElement
     private Float satSubPointLat;
 
     /** The longitude directly beneath the satellite */
     @Column
+    @DynamicSerializeElement
     private Float satSubPointLon;
 
     /** The upper right hand latitude */
     @Column
+    @DynamicSerializeElement
     private Float upperRightLat;
 
     /** The upper right hand longitude */
     @Column
+    @DynamicSerializeElement
     private Float upperRightLon;
 
     /** Height of the satellite in km */
     @Column
+    @DynamicSerializeElement
     private Integer satHeight;
 
     /** Units of the satellite data * */
@@ -148,6 +172,13 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private String units;
 
+    /** Number of interpolation levels in the data store */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Integer interpolationLevels;
+    
+    @DataURI(position = 5, embedded=true)
     @ManyToOne
     @PrimaryKeyJoinColumn
     @XmlElement
@@ -216,32 +247,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
      */
     public SatelliteRecord(String uri) {
         super(uri);
-    }
-
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     public Integer getNumRecords() {
@@ -326,4 +331,26 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
         this.physicalElement = physicalElement;
     }
 
+    /**
+     * Get the number of interpolation levels in the data store.
+     * @return The number of interpolation levels. Data that is not interpolated
+     * should return a value of 0.
+     */
+    public Integer getInterpolationLevels() {
+        return interpolationLevels;
+    }
+    
+    /**
+     * Set the number of interpolation levels in the data store. If the data
+     * are not interpolated a value of 0 should be used.
+     * @param levels The number of interpolation levels in the data. Any value less than
+     * zero is set to zero.
+     */
+    public void setInterpolationLevels(Integer levels) {
+        if(!DataStoreFactory.isInterpolated(levels)) {
+            levels = 0;
+        }
+        interpolationLevels = levels;
+    }
+  
 }

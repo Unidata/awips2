@@ -31,7 +31,6 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.util.VisibilityParser;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -173,14 +173,18 @@ public class MetarDecoder extends AbstractDecoder {
     public static final Pattern PK_WIND_EXP = Pattern
             .compile("\\b(PK WND|PKWND) (\\d{3})(\\d{2,3})/(\\d{2}|\\d{4})\\b");
 
-    public static final Pattern SNOW_FALL_6HR = Pattern.compile("(\\b)931(\\d{3}|///)");
-    
-    public static final Pattern SNOW_WATER = Pattern.compile("(\\b)933(\\d{3}|///)");
-    
-    public static final Pattern SNOW_DEPTH = Pattern.compile("(\\b)4/(\\d{3}|///)");
+    public static final Pattern SNOW_FALL_6HR = Pattern
+            .compile("(\\b)931(\\d{3}|///)");
 
-    public static final Pattern SUNSHINE = Pattern.compile("(\\b)98(\\d{3}|///)");
-    
+    public static final Pattern SNOW_WATER = Pattern
+            .compile("(\\b)933(\\d{3}|///)");
+
+    public static final Pattern SNOW_DEPTH = Pattern
+            .compile("(\\b)4/(\\d{3}|///)");
+
+    public static final Pattern SUNSHINE = Pattern
+            .compile("(\\b)98(\\d{3}|///)");
+
     private final String PLUGIN_NAME;
 
     private boolean useMockInfo = false;
@@ -210,7 +214,19 @@ public class MetarDecoder extends AbstractDecoder {
             throws DecoderException {
 
         MetarSeparator sep = MetarSeparator.separate(inputData, headers);
+
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
+
+        Calendar baseTime = TimeTools.getSystemCalendar();
+        WMOHeader wmoHdr = sep.getWMOHeader();
+        if (TimeTools.allowArchive()) {
+            if ((wmoHdr != null) && (wmoHdr.isValid())) {
+                baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+            } else {
+                logger.error("ARCHIVE MODE-No WMO Header found in file"
+                        + headers.get(WMOHeader.INGEST_FILE_NAME));
+            }
+        }
 
         while (sep.hasNext()) {
             byte[] messageData = sep.next();
@@ -278,17 +294,27 @@ public class MetarDecoder extends AbstractDecoder {
                                         traceId, icao));
                         continue;
                     }
-                    String fileName = null;
-                    if (headers != null) {
-                        fileName = (String) headers
-                                .get(DecoderTools.INGEST_FILE_NAME);
+
+                    Calendar obsTime = null;
+                    Integer da = DecoderTools.getInt(timeGroup, 0, 2);
+                    Integer hr = DecoderTools.getInt(timeGroup, 2, 4);
+                    Integer mi = DecoderTools.getInt(timeGroup, 4, 6);
+                    if ((da != null) && (hr != null) && (mi != null)) {
+                        obsTime = TimeTools.copy(baseTime);
+                        obsTime.set(Calendar.DAY_OF_MONTH, da);
+                        obsTime.set(Calendar.HOUR_OF_DAY, hr);
+                        obsTime.set(Calendar.MINUTE, mi);
+                        obsTime.set(Calendar.SECOND, 0);
+                        obsTime.set(Calendar.MILLISECOND, 0);
                     }
-                    Calendar obsTime = TimeTools.findCurrentTime(
-                            matcher.group(3), fileName);
                     if (obsTime != null) {
                         record.setTimeObs(obsTime);
                         record.setDataTime(new DataTime(obsTime));
-                        record.setRefHour(Util.findReferenceHour(timeGroup));
+                        Calendar refHour = TimeTools.copyToNearestHour(obsTime);
+                        if (mi >= 45) {
+                            refHour.add(Calendar.HOUR_OF_DAY, 1);
+                        }
+                        record.setRefHour(refHour);
                         // TODO :
                     } else {
                         // couldn't find observation time so exit.
@@ -301,7 +327,18 @@ public class MetarDecoder extends AbstractDecoder {
                 // into the future
                 Calendar obsTime = record.getTimeObs();
                 if (obsTime != null) {
-                    Calendar currTime = TimeTools.getSystemCalendar();
+                    Calendar currTime = TimeTools.copy(baseTime);
+
+                    // Do this only for archive mode!!! Otherwise valid data
+                    // will not pass if the WMO header
+                    // date/time is much less than the obstime. For instance
+                    // WMO Header time = dd1200
+                    // Observed time = dd1235
+                    // To solve this will require greater precision in the file
+                    // timestamp.
+                    if (TimeTools.allowArchive()) {
+                        currTime.add(Calendar.HOUR, 1);
+                    }
                     currTime.add(Calendar.MINUTE, METAR_FUTURE_LIMIT);
 
                     long diff = currTime.getTimeInMillis()
@@ -616,13 +653,13 @@ public class MetarDecoder extends AbstractDecoder {
 
                 if (matcher.find()) {
                     String s = matcher.group().trim();
-                    if(s.startsWith("AO1")) {
+                    if (s.startsWith("AO1")) {
                         s = "AO1";
-                    } else if(s.startsWith("AO2")) {
+                    } else if (s.startsWith("AO2")) {
                         s = "AO2";
-                    } else if(s.startsWith("A01")) {
+                    } else if (s.startsWith("A01")) {
                         s = "AO1";
-                    } else if(s.startsWith("A02")) {
+                    } else if (s.startsWith("A02")) {
                         s = "AO2";
                     }
                     record.setAutoStationType(s);
@@ -643,16 +680,16 @@ public class MetarDecoder extends AbstractDecoder {
                         // ever result is closest to 1000 is used
                         try {
                             slp = Float.parseFloat(matcher.group(1)) / 10.0f;
-                            
-                            if(slp > 50.0f) {
+
+                            if (slp > 50.0f) {
                                 slp = 900.0f + slp;
                             } else {
                                 slp = 1000.0f + slp;
                             }
-                        } catch(NumberFormatException nfe) {
+                        } catch (NumberFormatException nfe) {
                             // nothing
                         }
-                        if(slp != null) {
+                        if (slp != null) {
                             record.setSeaLevelPress(slp);
                         }
                     }
@@ -767,13 +804,12 @@ public class MetarDecoder extends AbstractDecoder {
                     if ((obsHr % 3) == 0) {
                         Float precip = null;
                         try {
-                            precip = Float.parseFloat(matcher
-                                    .group(1));
+                            precip = Float.parseFloat(matcher.group(1));
                             precip /= 100.0f;
                         } catch (NumberFormatException nfe) {
                             precip = null;
                         }
-                        if(precip != null) {
+                        if (precip != null) {
                             if ((obsHr % 6) == 0) {
                                 record.setPrecip6Hour(precip);
                             } else {
@@ -789,11 +825,10 @@ public class MetarDecoder extends AbstractDecoder {
                     }
                 }
 
-                
                 matcher = PRECIP_24HR_EXP.matcher(trailingData);
                 if (matcher.find()) {
                     String s = matcher.group(1).trim();
-                    if(!"////".equals(s)) {
+                    if (!"////".equals(s)) {
                         try {
                             float precip = Integer.parseInt(s) / 100.0f;
                             record.setPrecip24Hour(precip);
@@ -803,7 +838,6 @@ public class MetarDecoder extends AbstractDecoder {
                     }
                 }
 
-                
                 matcher = MAXMIN_TEMP_6_HR_EXP.matcher(trailingData);
                 while (matcher.find()) {
                     String op = matcher.group(1);
@@ -828,7 +862,6 @@ public class MetarDecoder extends AbstractDecoder {
                     }
                 }
 
-
                 // Gets the pressure change over the last 3 hours
                 matcher = PRESS_CHANGE_EXP.matcher(trailingData);
 
@@ -837,26 +870,26 @@ public class MetarDecoder extends AbstractDecoder {
                     record.setPressChange3Hour(Float.parseFloat(matcher
                             .group(2)));
                 }
-                
+
                 matcher = SNOW_FALL_6HR.matcher(trailingData);
                 if (matcher.find()) {
 
                     String s = matcher.group(2);
                     Float value = null;
-                    if("///".equals(s)) {
+                    if ("///".equals(s)) {
                         value = -9999f;
                     } else {
                         s = removeLeadingZeros(s);
-                        value = (getInt(s,-99990) / 10.0f);
+                        value = (getInt(s, -99990) / 10.0f);
                     }
                     record.setSnowFall_6Hours(value);
                 }
-            
+
                 matcher = SNOW_WATER.matcher(trailingData);
                 if (matcher.find()) {
                     String s = matcher.group(2);
                     Float value = null;
-                    if("///".equals(s)) {
+                    if ("///".equals(s)) {
                         value = -9999f;
                     } else {
                         s = removeLeadingZeros(s);
@@ -864,12 +897,12 @@ public class MetarDecoder extends AbstractDecoder {
                     }
                     record.setSnowWater(value);
                 }
-                
+
                 matcher = SNOW_DEPTH.matcher(trailingData);
                 if (matcher.find()) {
                     String s = matcher.group(2);
                     Integer value = null;
-                    if("///".equals(s)) {
+                    if ("///".equals(s)) {
                         value = -9999;
                     } else {
                         s = removeLeadingZeros(s);
@@ -882,7 +915,7 @@ public class MetarDecoder extends AbstractDecoder {
                 if (matcher.find()) {
                     String s = matcher.group(2);
                     Integer value = null;
-                    if("///".equals(s)) {
+                    if ("///".equals(s)) {
                         value = -9999;
                     } else {
                         s = removeLeadingZeros(s);
@@ -890,14 +923,14 @@ public class MetarDecoder extends AbstractDecoder {
                     }
                     record.setSunshine(value);
                 }
-                
+
                 record.setPluginName(PLUGIN_NAME);
                 record.constructDataURI();
-                
+
                 record.setWmoHeader(sep.getWMOHeader().getWmoHeader());
-                
+
                 retVal.add(record);
-            
+
             } catch (Exception e) {
                 logger.error(traceId + " - Unable to decode METAR/SPECI", e);
             }
@@ -973,18 +1006,17 @@ public class MetarDecoder extends AbstractDecoder {
 
     public static final String removeLeadingZeros(String data) {
         StringBuilder sb = null;
-        if(data != null) {
+        if (data != null) {
             sb = new StringBuilder(data);
-            for(int i = 0;i < sb.length()-1;i++) {
-                if(sb.charAt(i) == '0') {
+            for (int i = 0; i < sb.length() - 1; i++) {
+                if (sb.charAt(i) == '0') {
                     sb.setCharAt(i, ' ');
                 }
             }
         }
         return (sb != null) ? sb.toString().trim() : "";
     }
-    
-    
+
     public static final int getInt(String val, int defaultVal) {
         int retVal = defaultVal;
         try {
@@ -1077,168 +1109,169 @@ public class MetarDecoder extends AbstractDecoder {
 
     public static final void main(String[] args) {
 
-//        boolean perform = false;
-//
-//        if (perform) {
-//            Pattern VISIBILITY_EXP_1 = Pattern.compile("(M| )\\d{1,2}SM");
-//
-//            Pattern VISIBILITY_EXP_2 = Pattern
-//                    .compile("((M| \\d)? ?((\\d)/(\\d{1,2})()))SM");
-//
-//            String[] data = { " 0SM +SN OVC015 ", " 1SM +SN OVC015 ",
-//                    " 9SM +SN OVC015 ", " 10SM +SN OVC015 ",
-//                    " 1/16SM +SN OVC015 ", " 1/8SM +SN OVC015 ",
-//                    " 3/16SM +SN OVC015 ", " 1/4SM +SN OVC015 ",
-//                    " 5/32SM +SN OVC015 ", " 5/16SM +SN OVC015 ",
-//                    " 3/8SM +SN OVC015 ", " 1/2SM +SN OVC015 ",
-//                    " 5/8SM +SN OVC015 ", " 3/4SM +SN OVC015 ",
-//                    " 7/8SM +SN OVC015 ", " 1 1/4SM +SN OVC015 ",
-//                    " 1 1/16SM +SN OVC015 ", " 1 1/2SM +SN OVC015 ",
-//                    " 1 3/4SM +SN OVC015 ", " 2SM +SN OVC015 ", };
-//
-//            for (String s : data) {
-//                System.out.print(String.format("%32s", s));
-//                Matcher m = VISIBILITY_EXP_1.matcher(s);
-//                if (m.find()) {
-//                    System.out.println(" 1 ["
-//                            + s.substring(m.start(), m.end()).trim());
-//                    for (int i = 0; i < m.groupCount(); i++) {
-//                        System.out.println(" ---- " + m.group(i));
-//                    }
-//                } else {
-//                    m = VISIBILITY_EXP_2.matcher(s);
-//                    if (m.find()) {
-//                        System.out.println(" 2 ["
-//                                + s.substring(m.start(), m.end()).trim());
-//
-//                        for (int i = 0; i < m.groupCount(); i++) {
-//                            System.out.println(" ---- " + m.group(i));
-//                        }
-//                    } else {
-//                        System.out.println("  Fail");
-//                    }
-//                }
-//            }
-//        }
-//
-//        perform = false;
-//        if (perform) {
-//            Pattern p = Pattern
-//                    .compile("\\bPK WND (\\d{3})(\\d{2,3})/(\\d{2}|\\d{4})\\b");
-//
-//            String data = "PWINO TSNO T00500005 PK WND 08027/2104 SLP060 $=";
-//
-//            Matcher m = p.matcher(data);
-//            if (m.find()) {
-//                for (int i = 0; i <= m.groupCount(); i++) {
-//                    System.out.println(m.group(i));
-//                }
-//            }
-//        }
-//
-//        perform = false;
-//        if (perform) {
-//            String[] data = {
-//                    "KGFA 281156Z AUTO 26005KT 7SM -RA OVC009 04/03 A2999 RMK AO2 RAB37"
-//                            + "\r     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
-//                            + "\r     53003 $=",
-//                    "KLWT 281154Z AUTO 27005KT 10SM -RA OVC020 04/04 A2997 RMK AO2"
-//                            + "\r     RAB1057 SLP145 P0003 60011 70013 T00440039 10072 20044 53004"
-//                            + "\r     $=",
-//                    "KSIY 281153Z AUTO 19003KT 10SM BKN014 OVC023 07/06 A3006 RMK AO2"
-//                            + "\r     RAE10B36E48 SLP187 P0001 60003 70014 T00670056 10072 20067"
-//                            + "\r     53012=",
-//                    "KFGN 281154Z AUTO 11007KT 080V140 10SM CLR 17/11 A3000 RMK AO2 LTG"
-//                            + "\r     DSNT W AND NW=",
-//                    "KUKI 281156Z AUTO 33003KT 10SM BKN006 BKN012 OVC016 06/06 A3010"
-//                            + "\r     RMK AO2 CIG 002V009 SLP190 70081 T00610056 10072 20061"
-//                            + "\r     51005=",
-//                    "PABR 281153Z COR 02003KT 10SM OVC003 M01/M02 A3009 RMK AO2 CIG"
-//                            + "\r     001V005 SLP189 FZRAB12FZRAE50 P0002 60002 70002 4/012"
-//                            + "\r     T10111017 11011 21011 56009=",
-//                    "SAUS70 KWBC 281220 METAR KLUM 281216Z AUTO 00000KT 10SM CLR 13/08 A3014 RMK AO2", };
-//
-//            for (String s : data) {
-//                System.out.println(formatMetar(s));
-//            }
-//        }
-//        perform = true;
-//        if (perform) {
-//
-//            try {
-//                String obs = "\001023\r\r\nSAUS42 KOAX 191510\r\r\n"
-//                        + ""
-//                        // +
-//                        // "KOMA 281156Z AUTO 26005KT 7SM -FZDZSN FG OVC009 04/03 A2999 RMK AO2 RAB37"
-//                        // +
-//                        // "\r\r\n     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
-//                        // + "\r\r\n     53003 $=\r\r\b\003"
-//                        // +
-//                        // "KFET 281156Z AUTO 26005KT 7SM -SNBR OVC009 04/03 A2999 RMK AO2 RAB37"
-//                        // +
-//                        // "\r\r\n     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
-//                        // + "\r\r\n     53003 $=\r\r\b\003"
-//                        + "VVNB 261830Z 04003KT 3700 TSRA SCT005 SCT030CB BKN040 26/25"
-//                        + "\r\r\n     Q1005 RMK PKWND 14527/1135 NOSIG";
-//
-//                MetarDecoder decoder = new MetarDecoder("obs");
-//                ObStation station = new ObStation();
-//                station.setIcao("KOMA");
-//                station.setLocation(createPoint(41.3, -95.9));
-//                station.setElevation(399);
-//                station.setCatalogType(ObStation.CAT_TYPE_ICAO);
-//                station.setName("OMAHA/EPPLEY FIELD");
-//                decoder.setMockInfo(station);
-//                Headers headers = new Headers();
-//                headers.put(DecoderTools.INGEST_FILE_NAME,
-//                        "SAUS42KOAX.20110103");
-//                PluginDataObject[] m = decoder.decode(obs.getBytes(), headers);
-//                if (m != null) {
-//                    for (PluginDataObject p : m) {
-//                        MetarRecord mr = (MetarRecord) p;
-//
-//                        System.out.println(mr);
-//                        System.out.println(formatMetar(mr.getReport()));
-//                        List<WeatherCondition> wx = mr.getWeatherCondition();
-//                        for (WeatherCondition w : wx) {
-//                            System.out.println(w);
-//                        }
-//                    }
-//                }
-//            } catch (DecoderException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-        
+        // boolean perform = false;
+        //
+        // if (perform) {
+        // Pattern VISIBILITY_EXP_1 = Pattern.compile("(M| )\\d{1,2}SM");
+        //
+        // Pattern VISIBILITY_EXP_2 = Pattern
+        // .compile("((M| \\d)? ?((\\d)/(\\d{1,2})()))SM");
+        //
+        // String[] data = { " 0SM +SN OVC015 ", " 1SM +SN OVC015 ",
+        // " 9SM +SN OVC015 ", " 10SM +SN OVC015 ",
+        // " 1/16SM +SN OVC015 ", " 1/8SM +SN OVC015 ",
+        // " 3/16SM +SN OVC015 ", " 1/4SM +SN OVC015 ",
+        // " 5/32SM +SN OVC015 ", " 5/16SM +SN OVC015 ",
+        // " 3/8SM +SN OVC015 ", " 1/2SM +SN OVC015 ",
+        // " 5/8SM +SN OVC015 ", " 3/4SM +SN OVC015 ",
+        // " 7/8SM +SN OVC015 ", " 1 1/4SM +SN OVC015 ",
+        // " 1 1/16SM +SN OVC015 ", " 1 1/2SM +SN OVC015 ",
+        // " 1 3/4SM +SN OVC015 ", " 2SM +SN OVC015 ", };
+        //
+        // for (String s : data) {
+        // System.out.print(String.format("%32s", s));
+        // Matcher m = VISIBILITY_EXP_1.matcher(s);
+        // if (m.find()) {
+        // System.out.println(" 1 ["
+        // + s.substring(m.start(), m.end()).trim());
+        // for (int i = 0; i < m.groupCount(); i++) {
+        // System.out.println(" ---- " + m.group(i));
+        // }
+        // } else {
+        // m = VISIBILITY_EXP_2.matcher(s);
+        // if (m.find()) {
+        // System.out.println(" 2 ["
+        // + s.substring(m.start(), m.end()).trim());
+        //
+        // for (int i = 0; i < m.groupCount(); i++) {
+        // System.out.println(" ---- " + m.group(i));
+        // }
+        // } else {
+        // System.out.println("  Fail");
+        // }
+        // }
+        // }
+        // }
+        //
+        // perform = false;
+        // if (perform) {
+        // Pattern p = Pattern
+        // .compile("\\bPK WND (\\d{3})(\\d{2,3})/(\\d{2}|\\d{4})\\b");
+        //
+        // String data = "PWINO TSNO T00500005 PK WND 08027/2104 SLP060 $=";
+        //
+        // Matcher m = p.matcher(data);
+        // if (m.find()) {
+        // for (int i = 0; i <= m.groupCount(); i++) {
+        // System.out.println(m.group(i));
+        // }
+        // }
+        // }
+        //
+        // perform = false;
+        // if (perform) {
+        // String[] data = {
+        // "KGFA 281156Z AUTO 26005KT 7SM -RA OVC009 04/03 A2999 RMK AO2 RAB37"
+        // + "\r     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
+        // + "\r     53003 $=",
+        // "KLWT 281154Z AUTO 27005KT 10SM -RA OVC020 04/04 A2997 RMK AO2"
+        // +
+        // "\r     RAB1057 SLP145 P0003 60011 70013 T00440039 10072 20044 53004"
+        // + "\r     $=",
+        // "KSIY 281153Z AUTO 19003KT 10SM BKN014 OVC023 07/06 A3006 RMK AO2"
+        // + "\r     RAE10B36E48 SLP187 P0001 60003 70014 T00670056 10072 20067"
+        // + "\r     53012=",
+        // "KFGN 281154Z AUTO 11007KT 080V140 10SM CLR 17/11 A3000 RMK AO2 LTG"
+        // + "\r     DSNT W AND NW=",
+        // "KUKI 281156Z AUTO 33003KT 10SM BKN006 BKN012 OVC016 06/06 A3010"
+        // + "\r     RMK AO2 CIG 002V009 SLP190 70081 T00610056 10072 20061"
+        // + "\r     51005=",
+        // "PABR 281153Z COR 02003KT 10SM OVC003 M01/M02 A3009 RMK AO2 CIG"
+        // + "\r     001V005 SLP189 FZRAB12FZRAE50 P0002 60002 70002 4/012"
+        // + "\r     T10111017 11011 21011 56009=",
+        // "SAUS70 KWBC 281220 METAR KLUM 281216Z AUTO 00000KT 10SM CLR 13/08 A3014 RMK AO2",
+        // };
+        //
+        // for (String s : data) {
+        // System.out.println(formatMetar(s));
+        // }
+        // }
+        // perform = true;
+        // if (perform) {
+        //
+        // try {
+        // String obs = "\001023\r\r\nSAUS42 KOAX 191510\r\r\n"
+        // + ""
+        // // +
+        // //
+        // "KOMA 281156Z AUTO 26005KT 7SM -FZDZSN FG OVC009 04/03 A2999 RMK AO2 RAB37"
+        // // +
+        // //
+        // "\r\r\n     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
+        // // + "\r\r\n     53003 $=\r\r\b\003"
+        // // +
+        // //
+        // "KFET 281156Z AUTO 26005KT 7SM -SNBR OVC009 04/03 A2999 RMK AO2 RAB37"
+        // // +
+        // //
+        // "\r\r\n     CIG 007V011 SLP200 P0001 60002 70074 T00390033 10044 20033"
+        // // + "\r\r\n     53003 $=\r\r\b\003"
+        // + "VVNB 261830Z 04003KT 3700 TSRA SCT005 SCT030CB BKN040 26/25"
+        // + "\r\r\n     Q1005 RMK PKWND 14527/1135 NOSIG";
+        //
+        // MetarDecoder decoder = new MetarDecoder("obs");
+        // ObStation station = new ObStation();
+        // station.setIcao("KOMA");
+        // station.setLocation(createPoint(41.3, -95.9));
+        // station.setElevation(399);
+        // station.setCatalogType(ObStation.CAT_TYPE_ICAO);
+        // station.setName("OMAHA/EPPLEY FIELD");
+        // decoder.setMockInfo(station);
+        // Headers headers = new Headers();
+        // headers.put(DecoderTools.INGEST_FILE_NAME,
+        // "SAUS42KOAX.20110103");
+        // PluginDataObject[] m = decoder.decode(obs.getBytes(), headers);
+        // if (m != null) {
+        // for (PluginDataObject p : m) {
+        // MetarRecord mr = (MetarRecord) p;
+        //
+        // System.out.println(mr);
+        // System.out.println(formatMetar(mr.getReport()));
+        // List<WeatherCondition> wx = mr.getWeatherCondition();
+        // for (WeatherCondition w : wx) {
+        // System.out.println(w);
+        // }
+        // }
+        // }
+        // } catch (DecoderException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        // }
+
         String trailingData = " SLP124 P0036 60020 7//// T02220211 ";
         Matcher matcher = PRECIP_24HR_EXP.matcher(trailingData);
-//        if (matcher.find()) {
-//            String s = matcher.group(1);
-//            if(!"////".equals(s)) {
-//                try {
-//                    int precip = Integer.parseInt(s);
-//                    System.out.println(precip);
-//                } catch (NumberFormatException nfe) {
-//                    nfe.printStackTrace();
-//                }
-//            } else {
-//                System.out.println(-99.0f);
-//            }
-//        }
+        // if (matcher.find()) {
+        // String s = matcher.group(1);
+        // if(!"////".equals(s)) {
+        // try {
+        // int precip = Integer.parseInt(s);
+        // System.out.println(precip);
+        // } catch (NumberFormatException nfe) {
+        // nfe.printStackTrace();
+        // }
+        // } else {
+        // System.out.println(-99.0f);
+        // }
+        // }
 
         trailingData = "SLP124 AO1=\r\r\n";
         matcher = AUTO_STATION_EXP.matcher(trailingData);
-        if(matcher.find()) {
+        if (matcher.find()) {
             String s = matcher.group().trim();
             System.out.println("[" + s + "]");
         }
-        
-        
-        
-        
-        
-        
+
     }
 
 }

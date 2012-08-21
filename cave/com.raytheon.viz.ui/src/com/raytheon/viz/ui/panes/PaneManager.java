@@ -30,10 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -97,7 +93,7 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
     protected Map<String, IDisplayPane> selectedPanes = null;
 
     /** The pane that is currently used as the basis for the mouse cursor */
-    protected VizDisplayPane currentMouseHoverPane;
+    protected IDisplayPane currentMouseHoverPane;
 
     protected IDisplayPaneContainer paneContainer;
 
@@ -157,7 +153,7 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
         displayPanes.clear();
     }
 
-    protected void registerHandlers(IDisplayPane pane) {
+    protected void registerHandlers(final IDisplayPane pane) {
         pane.addListener(SWT.MouseUp, inputManager);
         pane.addListener(SWT.MouseDown, inputManager);
         pane.addListener(SWT.MouseMove, inputManager);
@@ -169,6 +165,20 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
         pane.addListener(SWT.MenuDetect, inputManager);
         pane.addListener(SWT.MouseExit, inputManager);
         pane.addListener(SWT.MouseEnter, inputManager);
+
+        pane.addListener(SWT.FocusIn, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                activatedPane = pane;
+            }
+        });
+
+        pane.addListener(SWT.MouseEnter, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                currentMouseHoverPane = activatedPane = pane;
+            }
+        });
     }
 
     public void setFocus() {
@@ -500,67 +510,6 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
         try {
             pane = (VizDisplayPane) createNewPane(renderableDisplay, canvasComp);
             registerHandlers(pane);
-
-            final VizDisplayPane thisPane = pane;
-            pane.addFocusListener(new FocusListener() {
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.FocusListener#focusGained(org.eclipse
-                 * .swt.events.FocusEvent)
-                 */
-                public void focusGained(FocusEvent e) {
-                    activatedPane = thisPane;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.FocusListener#focusLost(org.eclipse
-                 * .swt.events.FocusEvent)
-                 */
-                public void focusLost(FocusEvent e) {
-                    // Ignore
-                }
-            });
-
-            pane.addMouseTrackListener(new MouseTrackListener() {
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.MouseTrackListener#mouseEnter(org.
-                 * eclipse.swt.events.MouseEvent)
-                 */
-                public void mouseEnter(MouseEvent e) {
-                    activatedPane = thisPane;
-                    currentMouseHoverPane = thisPane;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.MouseTrackListener#mouseExit(org.eclipse
-                 * .swt.events.MouseEvent)
-                 */
-                public void mouseExit(MouseEvent e) {
-                    // no op
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * org.eclipse.swt.events.MouseTrackListener#mouseHover(org.
-                 * eclipse.swt.events.MouseEvent)
-                 */
-                public void mouseHover(MouseEvent e) {
-                    // no op
-                }
-            });
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error adding pane", e);
             if (pane != null) {

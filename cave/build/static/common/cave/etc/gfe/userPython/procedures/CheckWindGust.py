@@ -49,7 +49,6 @@ import SmartScript
 import time
 import TimeRange
 import AbsTime
-from com.raytheon.uf.common.time import TimeRange as javaTR
 from numpy import *
 
 MODEL = "Fcst"
@@ -61,11 +60,11 @@ class Procedure (SmartScript.SmartScript):
 
 
     def getWEInventory(self, WEName):
-        #yesterday = time.time() - (2 * 24 * 3600) # two days ago
-        #later = time.time() + 10 * 24 * 3600  # 10 days from now
-        allTimes = javaTR.allTimes()
-	parm = self.getParm(MODEL, WEName, LEVEL);
-        inv = parm.getGridInventory(allTimes)
+        yesterday = self._gmtime() - (2 * 24 * 3600) # two days ago
+        later = self._gmtime() + 10 * 24 * 3600  # 10 days from now
+        allTimes = TimeRange.TimeRange(yesterday, later)
+        parm = self.getParm(MODEL, WEName, LEVEL);
+        inv = parm.getGridInventory(allTimes.toJavaObj())
 
         trList = []
         for gd in inv:
@@ -81,12 +80,12 @@ class Procedure (SmartScript.SmartScript):
             return []
         lt = parm.getLockTable()
         jlok = lt.lockedByOther()
-	lbo = []
-	for i in xrange(jlok.size()):
-	    tr = jlok.get(i)
-	    tr = TimeRange.TimeRange(tr)
-	    lbo.append( tr )
-	return lbo
+        lbo = []
+        for i in xrange(jlok.size()):
+            tr = jlok.get(i)
+            tr = TimeRange.TimeRange(tr)
+            lbo.append( tr )
+        return lbo
 
     def overlappingTRs(self, timeRange, trList):
         newTRList = []
@@ -116,7 +115,7 @@ class Procedure (SmartScript.SmartScript):
         endWindChill = 4        ## Last month to report wind chill
 
         #  Get local edit area simply by using the baseline edit area
-	eaList = self.editAreaList()
+        eaList = self.editAreaList()
         siteID = self.getSiteID()
 
         if siteID in eaList:  # make sure the edit area is there

@@ -23,6 +23,8 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -153,7 +155,7 @@ public class TransformFactory {
             throws TransformException, FactoryException {
 
         if (gridGeometrySrc.equals(gridGeometryDest)) {
-            return IdentityTransform.create(2);
+            return IdentityTransform.create(gridGeometrySrc.getDimension());
         }
 
         MathTransform mt1 = CRSCache.getInstance().getGridToCoordinateSystem(
@@ -162,5 +164,39 @@ public class TransformFactory {
                 gridGeometryDest, destOrientation);
 
         return factory.createConcatenatedTransform(mt1, mt2);
+    }
+
+    /**
+     * Constructs a transform from the "world" CRS of the target geometry to the
+     * grid of the targetGeometry. Will return crsToGrid if no "world" CRS
+     * exists.
+     * 
+     * @param targetGeometry
+     * @param cellType
+     * @return
+     * @throws FactoryException
+     */
+    public static MathTransform worldToGrid(GeneralGridGeometry targetGeometry,
+            PixelInCell cellType) throws FactoryException {
+        CoordinateReferenceSystem crs = targetGeometry.getEnvelope()
+                .getCoordinateReferenceSystem();
+        try {
+            if (crs instanceof GeneralDerivedCRS) {
+                GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
+                CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
+                MathTransform worldToCRS = CRSCache.getInstance()
+                        .findMathTransform(worldCRS, crs);
+
+                MathTransform crsToPixel = targetGeometry
+                        .getGridToCRS(cellType).inverse();
+                return factory.createConcatenatedTransform(worldToCRS,
+                        crsToPixel);
+            } else {
+                // No associated "world" CRS, go straight crs to grid
+                return targetGeometry.getGridToCRS(cellType).inverse();
+            }
+        } catch (Exception e) {
+            throw new FactoryException(e);
+        }
     }
 }

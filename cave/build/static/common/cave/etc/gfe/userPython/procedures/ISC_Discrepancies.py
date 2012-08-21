@@ -42,11 +42,9 @@ import SmartScript
 import time
 import ProcessVariableList
 
-from com.raytheon.viz.gfe.core import DataManager
-
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
-        self._dbss = DataManager.getCurrentInstance()
+        self._dbss = dbss
         SmartScript.SmartScript.__init__(self, self._dbss)
         
     def execute(self, editArea, timeRange, varDict):

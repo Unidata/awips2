@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tomcat Native Plug-in
-Bundle-SymbolicName: org.apache.tomcat.nativ
-Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: tomcat-native-1.1.17-dev.jar
-Export-Package: org.apache.tomcat,
- org.apache.tomcat.jni

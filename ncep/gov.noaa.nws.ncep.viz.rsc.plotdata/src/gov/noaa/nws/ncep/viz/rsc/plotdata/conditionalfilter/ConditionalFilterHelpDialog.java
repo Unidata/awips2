@@ -220,7 +220,6 @@ public class ConditionalFilterHelpDialog extends Dialog {
    	    	File condFilterHelpFile = NcPathManager.getInstance().getStaticFile( 
     				NcPathConstants.CONDITIONAL_FILTER_HELP_FILE );   	    
     		
-    		
      		if( condFilterHelpFile != null && condFilterHelpFile.exists() && condFilterHelpFile.canRead() ) {
 
      			Scanner scanner = new Scanner( condFilterHelpFile );
