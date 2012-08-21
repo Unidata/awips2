@@ -91,7 +91,7 @@ public abstract class AbstractGLImagingExtension extends
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
             rval = drawRastersInternal(paintProps, images);
             gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
-            gl.glDisable(GL.GL_BLEND);
+            disableBlending(gl);
         } finally {
             target.popGLState();
         }
@@ -159,14 +159,7 @@ public abstract class AbstractGLImagingExtension extends
                                 program.startShader();
                             }
 
-                            gl.glTexEnvi(GL.GL_TEXTURE_ENV,
-                                    GL.GL_TEXTURE_ENV_MODE, GL.GL_ADD);
-                            gl.glEnable(GL.GL_BLEND);
-                            gl.glTexEnvi(GL.GL_TEXTURE_ENV,
-                                    GL.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
-                            gl.glBlendFunc(GL.GL_SRC_ALPHA,
-                                    GL.GL_ONE_MINUS_SRC_ALPHA);
-
+                            enableBlending(gl);
                             gl.glColor4f(0.0f, 0.0f, 0.0f,
                                     paintProps.getAlpha());
                         }
@@ -309,6 +302,27 @@ public abstract class AbstractGLImagingExtension extends
             return PaintStatus.PAINTED;
         }
         return PaintStatus.ERROR;
+    }
+
+    /**
+     * Function to enable blending for images
+     * 
+     * @param gl
+     */
+    protected void enableBlending(GL gl) {
+        gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_ADD);
+        gl.glEnable(GL.GL_BLEND);
+        gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    /**
+     * Function to disable blending for images
+     * 
+     * @param gl
+     */
+    protected void disableBlending(GL gl) {
+        gl.glDisable(GL.GL_BLEND);
     }
 
     /**

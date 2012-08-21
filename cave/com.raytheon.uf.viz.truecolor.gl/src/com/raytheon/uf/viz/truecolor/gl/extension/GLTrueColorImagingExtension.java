@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.truecolor.gl.extension;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -61,6 +64,20 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
 
     private Channel renderingChannel;
 
+    private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
+
+    /**
+     * Alpha value to add to current alpha. When all 3 passes occur, alpha
+     * should be >= 1.0
+     */
+    private float alphaStep;
+
+    /**
+     * Flag if alpha check should be performed in shader. Alpha vals less than
+     * one will be set to 0
+     */
+    private boolean checkAlpha;
+
     /*
      * (non-Javadoc)
      * 
@@ -102,6 +119,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
         if (image instanceof GLTrueColorImage) {
             GLTrueColorImage trueColorImage = (GLTrueColorImage) image;
             if (trueColorImage.isRepaint()) {
+                parameters.clear();
                 writeToImage = trueColorImage;
                 GLOffscreenRenderingExtension extension = target
                         .getExtension(GLOffscreenRenderingExtension.class);
@@ -109,28 +127,33 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     extension.renderOffscreen(trueColorImage,
                             trueColorImage.getImageExtent());
                     boolean allPainted = true;
+                    int channels = trueColorImage.getNumberOfChannels();
+                    // Calculate our alpha step, ensure channels * alphaStep >=
+                    // 1.0
+                    alphaStep = 1.0f / (channels - 0.1f);
+                    int i = 1;
                     for (Channel channel : Channel.values()) {
                         renderingChannel = channel;
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
+                            // Perform alpha check on last pass
+                            checkAlpha = i == channels;
                             // Make sure images are staged before we mosaic them
                             ImagingSupport.prepareImages(target, imagesToDraw);
 
                             // Each image needs to draw separately due to gl
-                            // issues when
-                            // zoomed in very far, rendered parts near the
-                            // corners don't
-                            // show all the pixels for each image. Pushing and
-                            // popping
-                            // GL_TEXTURE_BIT before/after each render fixes
-                            // this issue
+                            // issues when zoomed in very far, rendered parts
+                            // near the corners don't show all the pixels for
+                            // each image. Pushing and popping GL_TEXTURE_BIT
+                            // before/after each render fixes this issue
                             for (DrawableImage di : imagesToDraw) {
                                 allPainted &= drawRasters(paintProps, di);
                             }
                             // Need to set repaint based on if drawing
                             // completed.
                             trueColorImage.setRepaint(allPainted == false);
+                            ++i;
                         }
                     }
                 } finally {
@@ -140,6 +163,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                 writeToImage = null;
             }
 
+            trueColorImage.setImageParameters(parameters.keySet());
             target.drawRasters(paintProps,
                     new DrawableImage(trueColorImage.getWrappedImage(),
                             imageCoverage));
@@ -190,6 +214,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
         GLColormappedImage cmapImage = (GLColormappedImage) image;
         ColorMapParameters colorMapParameters = cmapImage
                 .getColorMapParameters();
+        parameters.put(colorMapParameters, null);
         int textureType = cmapImage.getTextureType();
 
         // Set the band image data
@@ -200,6 +225,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
         program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
         program.setUniform("isFloat", textureType == GL.GL_FLOAT
                 || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
+        program.setUniform("noDataValue", colorMapParameters.getNoDataValue());
 
         // Set the composite image data
         program.setUniform("trueColorTexture", 1);
@@ -208,6 +234,21 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
 
         // Set the band we are rendering to
         program.setUniform("band", renderingChannel.ordinal());
+        program.setUniform("checkAlpha", checkAlpha);
+        program.setUniform("alphaStep", alphaStep);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#enableBlending
+     * (javax.media.opengl.GL)
+     */
+    @Override
+    protected void enableBlending(GL gl) {
+        // Do not enable blending for this extension as it messes with alpha
+        // values between passes
     }
 
 }
