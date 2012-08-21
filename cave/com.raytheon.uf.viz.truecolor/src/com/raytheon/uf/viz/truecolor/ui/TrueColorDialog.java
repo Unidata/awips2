@@ -17,9 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.dialogs;
+package com.raytheon.uf.viz.truecolor.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,17 +36,22 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.ext.colormap.IMultiChannelImageExtension.Channel;
-import com.raytheon.uf.viz.core.drawables.ext.colormap.IMultiChannelImageExtension.ChannelData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability;
+import com.raytheon.uf.viz.core.rsc.IDisposeListener;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;
+import com.raytheon.uf.viz.truecolor.rsc.TrueColorResourceGroup;
+import com.raytheon.uf.viz.truecolor.rsc.TrueColorResourceGroup.DisplayedChannelResource;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ColorMapSliderComp;
 
 /**
- * Dialog for manipulating multi channel capability
+ * Dialog for modifying true color attributes on a dialog
+ * 
+ * TODO: Update sliders when combo changes
  * 
  * <pre>
  * 
@@ -51,7 +59,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 3, 2012            mschenke     Initial creation
+ * Aug 16, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -59,29 +67,52 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability;
  * @version 1.0
  */
 
-public class MultiChannelDialog extends CaveSWTDialog {
+public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
 
     private static final String DISABLED = "Disabled";
 
-    private AbstractVizResource<?, ?> resource;
-
-    private MultiChannelCapability capability;
-
-    private String[] items;
+    protected TrueColorResourceGroup resource;
 
     private List<ColorMapSliderComp> sliderComps;
 
-    public MultiChannelDialog(Shell parent, AbstractVizResource<?, ?> resource,
-            MultiChannelCapability capability) {
-        super(parent);
-        this.capability = capability;
+    private Map<String, DisplayedChannelResource> resourceMap;
+
+    private Map<Channel, DisplayedChannelResource> resourceChannelMap;
+
+    private Map<DisplayedChannelResource, Channel[]> originalChannelMap;
+
+    /**
+     * Creates the TrueColorDialog as a window of the parent Shell
+     * 
+     * @param parent
+     * @param resource
+     */
+    public TrueColorDialog(Shell parent, TrueColorResourceGroup resource) {
+        super(parent, SWT.DIALOG_TRIM);
         this.resource = resource;
-        String[] names = capability.getNames();
-        this.items = new String[names.length + 1];
-        System.arraycopy(names, 0, items, 1, names.length);
-        items[0] = DISABLED;
         this.sliderComps = new ArrayList<ColorMapSliderComp>();
-        setText("Channel Options");
+        this.resourceMap = new LinkedHashMap<String, DisplayedChannelResource>();
+        this.resourceChannelMap = new HashMap<Channel, DisplayedChannelResource>();
+        this.originalChannelMap = new HashMap<DisplayedChannelResource, Channel[]>();
+        setText("Composite Options");
+        populateItemMap(resource.getChannelResources());
+        resource.registerListener(this);
+    }
+
+    /**
+     * @param channelResources
+     */
+    private void populateItemMap(
+            Collection<DisplayedChannelResource> channelResources) {
+        resourceMap.put(DISABLED, null);
+        for (DisplayedChannelResource rsc : channelResources) {
+            Channel[] channels = rsc.channel.getChannels();
+            resourceMap.put(rsc.getDisplayName(), rsc);
+            originalChannelMap.put(rsc, channels);
+            for (Channel c : channels) {
+                resourceChannelMap.put(c, rsc);
+            }
+        }
     }
 
     /*
@@ -93,9 +124,8 @@ public class MultiChannelDialog extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
-        Map<Channel, ChannelData> channelMap = capability.getChannelMap();
         for (Channel c : Channel.values()) {
-            addGroup(shell, c, channelMap.get(c));
+            addGroup(shell, c, resourceChannelMap.get(c));
         }
 
         Composite buttonComp = new Composite(shell, SWT.NONE);
@@ -129,17 +159,23 @@ public class MultiChannelDialog extends CaveSWTDialog {
         b.setLayoutData(gd);
     }
 
-    private void addGroup(Composite parent, Channel channel,
-            final ChannelData data) {
+    /**
+     * @param shell
+     * @param c
+     * @param displayedChannelResource
+     */
+    private void addGroup(Composite parent, final Channel channel,
+            DisplayedChannelResource displayedResource) {
         ColorMapParameters params = null;
-        if (data != null) {
-            params = data.parameters;
+        if (displayedResource != null) {
+            params = displayedResource.resource.getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
         } else {
             params = new ColorMapParameters();
         }
 
         Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-        group.setLayout(new GridLayout(4, false));
+        group.setLayout(new GridLayout(2, false));
         group.setText(channel + ":");
         group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
         final ColorMapSliderComp cmapSlider = new ColorMapSliderComp(group,
@@ -147,53 +183,32 @@ public class MultiChannelDialog extends CaveSWTDialog {
         cmapSlider.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         sliderComps.add(cmapSlider);
 
-        final Button invertBtn = new Button(group, SWT.CHECK);
-        invertBtn.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                data.invert = invertBtn.getSelection();
-                resource.issueRefresh();
-            }
-        });
-
-        if (data != null) {
-            invertBtn.setSelection(data.invert);
-        }
-
-        Label label = new Label(group, SWT.NONE);
-        label.setText("Invert");
-
         final Combo options = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
         options.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        options.setItems(items);
-        if (data == null) {
+        options.setItems(resourceMap.keySet().toArray(
+                new String[resourceMap.size()]));
+        if (displayedResource == null) {
             options.setText(DISABLED);
             enable(group, false);
         } else {
-            if (data.name == null) {
-                options.setText(DISABLED);
-                enable(cmapSlider, false);
-            } else {
-                options.setText(data.name);
-            }
+            options.setText(displayedResource.getDisplayName());
             options.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    if (DISABLED.equals(options.getText())) {
-                        enable(cmapSlider, false);
-                        data.name = null;
-                    } else {
-                        enable(cmapSlider, true);
-                        data.name = options.getText();
+                    DisplayedChannelResource channelResource = resourceMap
+                            .get(options.getText());
+                    enable(cmapSlider, channelResource != null);
+                    DisplayedChannelResource oldResource = resourceChannelMap
+                            .put(channel, channelResource);
+                    if (oldResource != null) {
+                        oldResource.removeChannel(channel);
                     }
-                    capability.capabilityChanged();
+                    if (channelResource != null) {
+                        channelResource.addChannel(channel);
+                        // TODO: Update slider?
+                    }
+
+                    resource.issueRefresh();
                 }
             });
         }
@@ -203,10 +218,37 @@ public class MultiChannelDialog extends CaveSWTDialog {
         for (ColorMapSliderComp cmapSlider : sliderComps) {
             cmapSlider.restore();
         }
+        for (DisplayedChannelResource rsc : originalChannelMap.keySet()) {
+            rsc.setChannels(originalChannelMap.get(rsc));
+        }
         close();
     }
 
     private void okPressed() {
         close();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.IDisposeListener#disposed(com.raytheon.uf
+     * .viz.core.rsc.AbstractVizResource)
+     */
+    @Override
+    public void disposed(AbstractVizResource<?, ?> rsc) {
+        close();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        resource.unregisterListener(this);
+    }
+
 }
