@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -132,9 +133,12 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
                 time = (DataTime) map.get(dataTimefield);
                 time.setLevelValue((Double) map.get(LEVEL_FIELD));
             }
-
-            results.add(time);
-            ++i;
+            // Best res requests need this because they span a time period
+            if (time.getRefTime().before(
+                    SimulatedTime.getSystemTime().getTime())) {
+                results.add(time);
+                ++i;
+            }
         }
 
         if (binOffset != null) {
@@ -185,6 +189,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
             TimeQueryRequest request = requests.get(i);
             Collection<DataTime> times = processTimeQueryResponse(response,
                     request.isMaxQuery(), request.getBinOffset());
+
             result.add(new ArrayList<DataTime>(times));
         }
         return result;

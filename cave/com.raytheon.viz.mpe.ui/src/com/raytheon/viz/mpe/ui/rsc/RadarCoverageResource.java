@@ -34,9 +34,9 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
@@ -358,9 +358,6 @@ public class RadarCoverageResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        // Don't display the colorbar
-        target.setUseBuiltinColorbar(false);
-
         Set<DisplayMode> mode = displayMgr.getDisplayMode();
 
         if (buf != null) {

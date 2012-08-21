@@ -83,18 +83,10 @@ public class GFEReferenceSetResource extends
 
     private byte[] fillPattern = FillPatterns.getGLPattern("SELECTED_AREA");
 
-    @SuppressWarnings("unchecked")
     public GFEReferenceSetResource(IReferenceSetManager refSetMgr) {
         super(new GFEResourceData(), new LoadProperties());
         this.refSetMgr = refSetMgr;
-
-        this.refSetMgr.addReferenceSetChangedListener(this);
-
         this.needsUpdate = true;
-
-        Message.registerInterest(this, RefSetAppearanceChangedMsg.class);
-        receiveMessage(Message
-                .inquireLastMessage(RefSetAppearanceChangedMsg.class));
     }
 
     /*
@@ -142,8 +134,17 @@ public class GFEReferenceSetResource extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void initInternal(IGraphicsTarget target) {
+        this.refSetMgr.addReferenceSetChangedListener(this);
+        Message.registerInterest(this, RefSetAppearanceChangedMsg.class);
+        receiveMessage(Message
+                .inquireLastMessage(RefSetAppearanceChangedMsg.class));
+        initRefSetData(target);
+    }
+
+    private void initRefSetData(IGraphicsTarget target) {
         disposeShapes();
 
         outlineShape = target.createWireframeShape(false, this.descriptor);
@@ -187,7 +188,7 @@ public class GFEReferenceSetResource extends
     public void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
         if (this.needsUpdate) {
-            initInternal(aTarget);
+            initRefSetData(aTarget);
         }
 
         float alpha = paintProps.getAlpha();

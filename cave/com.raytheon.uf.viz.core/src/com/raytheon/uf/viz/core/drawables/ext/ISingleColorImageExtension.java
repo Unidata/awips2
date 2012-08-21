@@ -19,10 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.drawables.ext;
 
-import java.awt.image.RenderedImage;
-
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -60,6 +59,7 @@ public interface ISingleColorImageExtension extends IImagingExtension {
      * @return
      * @throws VizException
      */
-    public ISingleColorImage constructImage(RenderedImage image, RGB color);
+    public ISingleColorImage constructImage(IRenderedImageCallback callback,
+            RGB color);
 
 }

@@ -173,4 +173,30 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
         return LINE_STYLE;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((hazardType == null) ? 0 : hazardType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AirmetDataAdapter other = (AirmetDataAdapter) obj;
+        if (hazardType == null) {
+            if (other.hazardType != null)
+                return false;
+        } else if (!hazardType.equals(other.hazardType))
+            return false;
+        return true;
+    }
+
 }

@@ -23,7 +23,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,9 +70,11 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -198,6 +199,14 @@ public class GridResource extends
     private StyleRule styleRule;
 
     /**
+     * The great protector of all things related to dataTimes, do not modify or
+     * iterate over pdosToParse, dataTimes, or tileSet unless you sync on this
+     * or else...
+     * 
+     */
+    protected Object timeLock = new Object();
+
+    /**
      * Extends the MemoryBasedTileSet class so that we can have direct access to
      * the loadedData
      */
@@ -298,25 +307,31 @@ public class GridResource extends
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
-                AbstractInterpolation interp;
-                if (getCapability(ImagingCapability.class).isInterpolationState()) {
-                    BilinearInterpolation blInterp = new BilinearInterpolation(
-                            realGridGeometry, expectedGridGeometry, -9998,
-                            Float.POSITIVE_INFINITY, -999999);
+                GridReprojection reproj = new GridReprojection(
+                        realGridGeometry, expectedGridGeometry);
+                com.raytheon.uf.common.geospatial.interpolation.Interpolation interp;
+
+                if (getCapability(ImagingCapability.class)
+                        .isInterpolationState()) {
+                    BilinearInterpolation blInterp = new BilinearInterpolation();
                     blInterp.setMissingThreshold(1.0f);
                     interp = blInterp;
                 } else {
-                    interp = new NearestNeighborInterpolation(
-                            realGridGeometry, expectedGridGeometry, -9998,
-                            Float.POSITIVE_INFINITY, -999999);
+                    interp = new NearestNeighborInterpolation();
                 }
 
                 if (record instanceof FloatDataRecord) {
                     float[] data = ((FloatDataRecord) record).getFloatData();
                     record = record.clone();
-                    interp.setData(data);
+                    FloatArrayWrapper source = new FloatArrayWrapper(data,
+                            realGridGeometry);
+                    source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+                    FloatArrayWrapper dest = new FloatArrayWrapper(
+                            expectedGridGeometry);
+                    dest.setFillValue(-999999);
                     try {
-                        data = interp.getReprojectedGrid();
+                        data = reproj.reprojectedGrid(interp, source, dest)
+                                .getArray();
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
@@ -578,12 +593,14 @@ public class GridResource extends
 
         GribRecord[] records = resourceData.getRecords();
         GribRecord emptyRecord = new GribRecord();
-        for (int i = 0; i < records.length; i++) {
-            if (emptyRecord.equals(records[i])) {
-                // Don't add empty records
-                continue;
+        synchronized (timeLock) {
+            for (int i = 0; i < records.length; i++) {
+                if (emptyRecord.equals(records[i])) {
+                    // Don't add empty records
+                    continue;
+                }
+                pdosToParse.add(records[i]);
             }
-            pdosToParse.add(records[i]);
         }
 
         if (resourceData.getNameGenerator() == null) {
@@ -653,14 +670,16 @@ public class GridResource extends
 
         mbts = createTileSet(record, lvlSet, levelConverter);
         mbts.setMapDescriptor(descriptor);
-        Set<DataTime> dateSet = tileSet.keySet();
-        dataTimes.clear();
-        Iterator<DataTime> dateIterator = dateSet.iterator();
-        while (dateIterator.hasNext()) {
-            dataTimes.add(dateIterator.next());
-        }
+        synchronized (timeLock) {
+            Set<DataTime> dateSet = tileSet.keySet();
+            dataTimes.clear();
+            Iterator<DataTime> dateIterator = dateSet.iterator();
+            while (dateIterator.hasNext()) {
+                dataTimes.add(dateIterator.next());
+            }
 
-        Collections.sort(dataTimes);
+            Collections.sort(dataTimes);
+        }
 
         levels = new SingleLevel[lvlSet.size()];
         Iterator<SingleLevel> lvlIterator = lvlSet.iterator();
@@ -678,12 +697,14 @@ public class GridResource extends
             Set<SingleLevel> lvlSet, UnitConverter levelConverter)
             throws VizException {
         DataTime dataTime = record.getDataTime();
-        Map<Float, GridMemoryBasedTileSet> tilemap = tileSet.get(dataTime);
-        if (tilemap == null) {
-            tilemap = new HashMap<Float, GridMemoryBasedTileSet>();
-            tileSet.put(dataTime, tilemap);
+        Map<Float, GridMemoryBasedTileSet> tilemap = null;
+        synchronized (timeLock) {
+            tilemap = tileSet.get(dataTime);
+            if (tilemap == null) {
+                tilemap = new HashMap<Float, GridMemoryBasedTileSet>();
+                tileSet.put(dataTime, tilemap);
+            }
         }
-
         float convertedLevel = (float) levelConverter.convert(record
                 .getModelInfo().getLevelOneValue());
 
@@ -769,115 +790,108 @@ public class GridResource extends
      */
     @Override
     protected void disposeInternal() {
-
-        for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
-                .entrySet()) {
-            for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set.getValue()
+        synchronized (timeLock) {
+            for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
                     .entrySet()) {
-                tile.getValue().dispose();
+                for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
+                        .getValue().entrySet()) {
+                    tile.getValue().dispose();
+                }
             }
         }
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        this.target = target;
+        synchronized (timeLock) {
+            this.target = target;
 
-        synchronized (pdosToParse) {
             if (pdosToParse.size() > 0) {
                 for (PluginDataObject pdo : pdosToParse) {
                     createTile(pdo);
                 }
                 pdosToParse.clear();
             }
-        }
 
-        boolean combineResources = combineOperation != CombineOperation.NONE;
+            boolean combineResources = combineOperation != CombineOperation.NONE;
 
-        viewType = target.getViewType();
-        Map<DataTime, Map<Float, GridMemoryBasedTileSet>> combinedSet = new HashMap<DataTime, Map<Float, GridMemoryBasedTileSet>>();
-        for (Map.Entry<Integer, GridMemoryBasedTileSet> baseTileEntry : baseTiles
-                .entrySet()) {
-            GridMemoryBasedTileSet baseTile = baseTileEntry.getValue();
-            baseTile.setMapDescriptor(descriptor);
-            baseTile.init(target);
-            if (combineResources && !baseTile.isCombined()) {
-                Entry<Float, GridMemoryBasedTileSet> tileSetRef = null;
-                // Need to find the reference in order to update the object when
-                // it comes back as a new combined object
-                for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
-                        .entrySet()) {
-                    for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
-                            .getValue().entrySet()) {
-                        if (tile.getValue().getDataTime()
-                                .equals(baseTile.getDataTime())) {
-                            tileSetRef = tile;
+            viewType = target.getViewType();
+            Map<DataTime, Map<Float, GridMemoryBasedTileSet>> combinedSet = new HashMap<DataTime, Map<Float, GridMemoryBasedTileSet>>();
+            for (Map.Entry<Integer, GridMemoryBasedTileSet> baseTileEntry : baseTiles
+                    .entrySet()) {
+                GridMemoryBasedTileSet baseTile = baseTileEntry.getValue();
+                baseTile.setMapDescriptor(descriptor);
+                baseTile.init(target);
+                if (combineResources && !baseTile.isCombined()) {
+                    Entry<Float, GridMemoryBasedTileSet> tileSetRef = null;
+                    // Need to find the reference in order to update the object
+                    // when
+                    // it comes back as a new combined object
+                    for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
+                            .entrySet()) {
+                        for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
+                                .getValue().entrySet()) {
+                            if (tile.getValue().getDataTime()
+                                    .equals(baseTile.getDataTime())) {
+                                tileSetRef = tile;
+                                break;
+                            }
+                        }
+                        if (tileSetRef != null) {
                             break;
                         }
                     }
+
+                    GridMemoryBasedTileSet combinedResourceData = combineResourceData(baseTile);
                     if (tileSetRef != null) {
-                        break;
+                        tileSetRef.setValue(combinedResourceData);
                     }
-                }
 
-                GridMemoryBasedTileSet combinedResourceData = combineResourceData(baseTile);
-                if (tileSetRef != null) {
-                    tileSetRef.setValue(combinedResourceData);
+                    baseTileEntry.setValue(combinedResourceData);
                 }
-
-                baseTileEntry.setValue(combinedResourceData);
             }
-        }
-        DataTime[] primaryDataTimes = descriptor.getTimeMatchingMap().get(this);
-        for (int i = 0; i < primaryDataTimes.length; i++) {
-            Map<Float, GridMemoryBasedTileSet> map = tileSet
-                    .get(primaryDataTimes[i]);
-            if (map != null) {
-                for (Map.Entry<Float, GridMemoryBasedTileSet> tile : map
-                        .entrySet()) {
-                    if (baseTiles.values().contains(tile.getValue())) {
-                        if (combineResources) {
-                            Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
-                            map2.put(tile.getKey(), tile.getValue());
-                            combinedSet.put(primaryDataTimes[i], map2);
+            DataTime[] primaryDataTimes = tileSet.keySet().toArray(
+                    new DataTime[0]);
+            for (DataTime primaryDataTime : primaryDataTimes) {
+                Map<Float, GridMemoryBasedTileSet> map = tileSet
+                        .get(primaryDataTime);
+                if (map != null) {
+                    for (Map.Entry<Float, GridMemoryBasedTileSet> tile : map
+                            .entrySet()) {
+                        if (baseTiles.values().contains(tile.getValue())) {
+                            if (combineResources) {
+                                Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
+                                map2.put(tile.getKey(), tile.getValue());
+                                combinedSet.put(primaryDataTime, map2);
+                            }
+                            continue;
                         }
-                        continue;
-                    }
 
-                    tile.getValue().init(target);
+                        tile.getValue().init(target);
 
-                    if (!tile.getValue().isCombined()) {
-                        GridMemoryBasedTileSet combinedResourceData = combineResourceData(tile
-                                .getValue());
-                        Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
-                        map2.put(tile.getKey(), combinedResourceData);
-                        combinedSet.put(primaryDataTimes[i], map2);
+                        if (!tile.getValue().isCombined()) {
+                            GridMemoryBasedTileSet combinedResourceData = combineResourceData(tile
+                                    .getValue());
+                            Map<Float, GridMemoryBasedTileSet> map2 = new HashMap<Float, GridResource.GridMemoryBasedTileSet>();
+                            map2.put(tile.getKey(), combinedResourceData);
+                            combinedSet.put(primaryDataTime, map2);
+                        }
                     }
                 }
             }
-        }
-        if (!combinedSet.isEmpty()) {
-            tileSet = combinedSet;
-            List<DataTime> newDataTimes = new ArrayList<DataTime>();
+            if (!combinedSet.isEmpty()) {
+                tileSet = combinedSet;
+                List<DataTime> newDataTimes = new ArrayList<DataTime>();
 
-            for (Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> entry : combinedSet
-                    .entrySet()) {
-                newDataTimes.add(entry.getKey());
+                for (Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> entry : combinedSet
+                        .entrySet()) {
+                    newDataTimes.add(entry.getKey());
+                }
+                Collections.sort(newDataTimes);
+                dataTimes = newDataTimes;
             }
-            Collections.sort(newDataTimes, dataTime);
-            dataTimes = newDataTimes;
         }
     }
-
-    /**
-     * DataTime Comparator
-     */
-    private static Comparator<DataTime> dataTime = new Comparator<DataTime>() {
-        @Override
-        public int compare(DataTime arg0, DataTime arg1) {
-            return arg0.compareTo(arg1);
-        }
-    };
 
     /**
      * Combine the given tiles sets
@@ -1059,12 +1073,16 @@ public class GridResource extends
             throws VizException {
         try {
             GridGeometry2D remappedImageGeometry = newTarget;
-            AbstractInterpolation interp = new NearestNeighborInterpolation(
-                    gridGeometry, remappedImageGeometry, -9998,
-                    Float.POSITIVE_INFINITY, -999999);
+            NearestNeighborInterpolation interp = new NearestNeighborInterpolation();
+            GridReprojection reproj = new GridReprojection(gridGeometry,
+                    remappedImageGeometry);
             float[] data = targetDataRecord.getFloatData();
-            interp.setData(data);
-            data = interp.getReprojectedGrid();
+            FloatArrayWrapper source = new FloatArrayWrapper(data, gridGeometry);
+            source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+            FloatArrayWrapper dest = new FloatArrayWrapper(
+                    remappedImageGeometry);
+            dest.setFillValue(-999999);
+            data = reproj.reprojectedGrid(interp, source, dest).getArray();
             FloatDataRecord remapGrid = (FloatDataRecord) targetDataRecord
                     .clone();
             remapGrid.setIntSizes(new int[] {
@@ -1216,11 +1234,13 @@ public class GridResource extends
     @Override
     public void setDescriptor(MapDescriptor descriptor) {
         this.descriptor = descriptor;
-        for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
-                .entrySet()) {
-            for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set.getValue()
+        synchronized (timeLock) {
+            for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
                     .entrySet()) {
-                tile.getValue().setMapDescriptor(this.descriptor);
+                for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
+                        .getValue().entrySet()) {
+                    tile.getValue().setMapDescriptor(this.descriptor);
+                }
             }
         }
     }
@@ -1237,22 +1257,24 @@ public class GridResource extends
             }
         }
         if (reproject) {
-            // If we are reprojecting to screen space, clear all tiles
-            for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
-                    .entrySet()) {
-                for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
-                        .getValue().entrySet()) {
-                    tile.getValue().dispose();
-                    pdosToParse.add(tile.getValue().getPluginDataObject());
+            synchronized (timeLock) {
+                // If we are reprojecting to screen space, clear all tiles
+                for (Map.Entry<DataTime, Map<Float, GridMemoryBasedTileSet>> set : tileSet
+                        .entrySet()) {
+                    for (Map.Entry<Float, GridMemoryBasedTileSet> tile : set
+                            .getValue().entrySet()) {
+                        tile.getValue().dispose();
+                        pdosToParse.add(tile.getValue().getPluginDataObject());
+                    }
                 }
-            }
-            tileSet.clear();
-            baseTiles.clear();
-            if (pdosToParse.size() > 0) {
-                for (PluginDataObject pdo : pdosToParse) {
-                    createTile(pdo);
+                tileSet.clear();
+                baseTiles.clear();
+                if (pdosToParse.size() > 0) {
+                    for (PluginDataObject pdo : pdosToParse) {
+                        createTile(pdo);
+                    }
+                    pdosToParse.clear();
                 }
-                pdosToParse.clear();
             }
         } else {
             for (GridMemoryBasedTileSet tile : baseTiles.values()) {
@@ -1328,14 +1350,14 @@ public class GridResource extends
 
         double tileCoordinateValue = Double.NaN;
         if (getCapability(ImagingCapability.class).isInterpolationState()) {
-            AbstractInterpolation interp = new BilinearInterpolation(
-                    tile.getLoadedData(), tile.getGridGeometry(),
-                    descriptor.getGridGeometry(), -9998f,
-                    Float.POSITIVE_INFINITY, Float.NaN);
+            FloatArrayWrapper source = new FloatArrayWrapper(
+                    tile.getLoadedData(), tile.getGridGeometry());
+            source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+            GridSampler sampler = new GridSampler(source,
+                    new BilinearInterpolation());
             try {
-                Coordinate pixel = coord.asPixel(descriptor.getGridGeometry());
-                tileCoordinateValue = interp.getReprojectedGridCell(
-                        (int) pixel.x, (int) pixel.y);
+                Coordinate pixel = coord.asPixel(tile.getGridGeometry());
+                tileCoordinateValue = sampler.sample(pixel.x, pixel.y);
                 UnitConverter converter = getCapability(
                         ColorMapCapability.class).getColorMapParameters()
                         .getDataToDisplayConverter();
@@ -1452,41 +1474,44 @@ public class GridResource extends
 
     @Override
     public void remove(DataTime dataTime) {
-        Map<Float, GridMemoryBasedTileSet> ts = tileSet.remove(dataTime);
-        if (ts == null) {
-            return;
-        }
+        synchronized (timeLock) {
+            Map<Float, GridMemoryBasedTileSet> ts = tileSet.remove(dataTime);
+            if (ts == null) {
+                return;
+            }
 
-        for (Map.Entry<Float, GridMemoryBasedTileSet> tile : ts.entrySet()) {
-            tile.getValue().dispose();
-        }
-        Set<DataTime> dateSet = tileSet.keySet();
-        dataTimes.clear();
-        Iterator<DataTime> dateIterator = dateSet.iterator();
-        while (dateIterator.hasNext()) {
-            dataTimes.add(dateIterator.next());
-        }
+            for (Map.Entry<Float, GridMemoryBasedTileSet> tile : ts.entrySet()) {
+                tile.getValue().dispose();
+            }
+            Set<DataTime> dateSet = tileSet.keySet();
+            dataTimes.clear();
+            Iterator<DataTime> dateIterator = dateSet.iterator();
+            while (dateIterator.hasNext()) {
+                dataTimes.add(dateIterator.next());
+            }
 
-        Collections.sort(dataTimes);
-
+            Collections.sort(dataTimes);
+        }
     }
 
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type.equals(ChangeType.DATA_UPDATE)) {
             PluginDataObject[] pdos = (PluginDataObject[]) object;
+            synchronized (timeLock) {
+                for (PluginDataObject pdo : pdos) {
 
-            for (PluginDataObject pdo : pdos) {
-
-                if (pdo != null) {
-                    if (CombineOperation.DIFFERENCE.equals(combineOperation)
-                            && !(pdo instanceof CombinedGribRecord)) {
-                        // Do nothing, timematcher will take care of it.
-                    } else {
-                        if (target != null) {
-                            createTile(pdo);
+                    if (pdo != null) {
+                        if (CombineOperation.DIFFERENCE
+                                .equals(combineOperation)
+                                && !(pdo instanceof CombinedGribRecord)) {
+                            // Do nothing, timematcher will take care of it.
                         } else {
-                            pdosToParse.add(pdo);
+                            if (target != null) {
+                                createTile(pdo);
+                            } else {
+                                pdosToParse.add(pdo);
+                            }
                         }
                     }
                 }
@@ -1496,7 +1521,8 @@ public class GridResource extends
                 // TODO: check if interpolation state really changed
                 try {
                     if (descriptor != null)
-                        project(descriptor.getGridGeometry().getCoordinateReferenceSystem());
+                        project(descriptor.getGridGeometry()
+                                .getCoordinateReferenceSystem());
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error updating grid resource imaging", e);

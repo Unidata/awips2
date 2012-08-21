@@ -291,17 +291,10 @@ public class GFEColorbarResource extends
         }.run();
     }
 
-    @SuppressWarnings("unchecked")
     public GFEColorbarResource(DataManager dManager) {
         super(new GFEResourceData(), new LoadProperties());
         this.dManager = dManager;
         fittedParms = new HashSet<ParmID>();
-        // this.lastIndex = -1;
-
-        dManager.getSpatialDisplayManager().addDisplayModeChangedListener(this);
-        dManager.getParmManager().addDisplayedParmListChangedListener(this);
-
-        Message.registerInterest(this, ShowQuickViewDataMsg.class);
     }
 
     /*
@@ -355,13 +348,27 @@ public class GFEColorbarResource extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // this.target = target;
+        dManager.getSpatialDisplayManager().addDisplayModeChangedListener(this);
+        dManager.getParmManager().addDisplayedParmListChangedListener(this);
+
+        Message.registerInterest(this, ShowQuickViewDataMsg.class);
+
+        colorbarScaleFont = GFEFonts.makeGFEIFont(target, "ColorBarScale_font",
+                1);
+        colorbarWxLabelFont = GFEFonts.makeGFEIFont(target,
+                "ColorBarWxLabel_font", 2);
+        pickupFont = GFEFonts.makeGFEIFont(target, "ColorBarPickUp_font", 3);
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.registerMouseHandler(handler, InputPriority.PERSPECTIVE);
+        }
+
+        if (currentParm != null) {
+            currentParm.getListeners().addPickupValueChangedListener(this);
         }
     }
 
@@ -376,23 +383,6 @@ public class GFEColorbarResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         // this.target = target;
-
-        // int curIndex = this.descriptor.getCurrentTimeFrame();
-
-        if (colorbarScaleFont == null) {
-            colorbarScaleFont = GFEFonts.makeGFEIFont(target,
-                    "ColorBarScale_font", 1);
-        }
-
-        if (colorbarWxLabelFont == null) {
-            colorbarWxLabelFont = GFEFonts.makeGFEIFont(target,
-                    "ColorBarWxLabel_font", 2);
-        }
-
-        if (pickupFont == null) {
-            pickupFont = GFEFonts
-                    .makeGFEIFont(target, "ColorBarPickUp_font", 3);
-        }
 
         IExtent screenExtent = paintProps.getView().getExtent();
 
@@ -426,8 +416,7 @@ public class GFEColorbarResource extends
         }
 
         if (graphicsAdapter == null) {
-            graphicsAdapter = GraphicsFactory.getGraphicsAdapter(target
-                    .getViewType());
+            graphicsAdapter = GraphicsFactory.getGraphicsAdapter();
         }
 
         target.setupClippingPlane(graphicsAdapter.constructExtent(descriptor

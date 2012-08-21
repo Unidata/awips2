@@ -82,7 +82,8 @@ import com.vividsolutions.jts.geom.Polygon;
 public class MPEPolygonResource extends
         AbstractVizResource<GenericResourceData, IDescriptor> implements
         IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(MPEPolygonResource.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MPEPolygonResource.class);
 
     /** Input handler for polygon creation and dialog opening */
     private IInputHandler polygonInputHandler = new InputAdapter() {
@@ -252,7 +253,10 @@ public class MPEPolygonResource extends
      */
     @Override
     protected void disposeInternal() {
-        getResourceContainer().unregisterMouseHandler(polygonInputHandler);
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container != null) {
+            container.unregisterMouseHandler(polygonInputHandler);
+        }
     }
 
     /**
@@ -264,7 +268,7 @@ public class MPEPolygonResource extends
             polyPoints.clear();
         }
     }
-    
+
     private List<Point> constructPolyPoints() {
         List<Point> points = new ArrayList<Point>();
         List<Coordinate> hrapList = new ArrayList<Coordinate>();
@@ -272,24 +276,25 @@ public class MPEPolygonResource extends
         Envelope env;
         GeometryFactory gf = new GeometryFactory();
         try {
-            for (Coordinate coord: polyPoints) {
-                Coordinate cell = hrap.latLonToGridCoordinate(coord, PixelOrientation.UPPER_LEFT);
+            for (Coordinate coord : polyPoints) {
+                Coordinate cell = hrap.latLonToGridCoordinate(coord,
+                        PixelOrientation.UPPER_LEFT);
                 hrapList.add(cell);
             }
-            
+
             Polygon drawnPolygon;
-            drawnPolygon = gf.createPolygon(gf
-                    .createLinearRing(hrapList.toArray(new Coordinate[hrapList.size()])), null);
+            drawnPolygon = gf.createPolygon(gf.createLinearRing(hrapList
+                    .toArray(new Coordinate[hrapList.size()])), null);
             env = drawnPolygon.getEnvelopeInternal();
 
             for (int i = (int) env.getMinX(); i < env.getMaxX(); ++i) {
                 for (int j = (int) env.getMinY(); j < env.getMaxY(); ++j) {
                     Coordinate ul = new Coordinate(i, j);
                     if (drawnPolygon.contains(gf.createPoint(ul))) {
-                        Coordinate lr = new Coordinate(i+1, j+1);
+                        Coordinate lr = new Coordinate(i + 1, j + 1);
                         if (drawnPolygon.contains(gf.createPoint(lr))) {
-                            if (env.contains(i+1, j)) {
-                                if (env.contains(i, j+1)) {
+                            if (env.contains(i + 1, j)) {
+                                if (env.contains(i, j + 1)) {
                                     points.add(new Point(i, j));
                                 }
                             }
@@ -298,7 +303,8 @@ public class MPEPolygonResource extends
                 }
             }
         } catch (Exception e1) {
-            statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
         }
 
         synchronized (polyPoints) {
@@ -360,8 +366,7 @@ public class MPEPolygonResource extends
         try {
             llToGrid.transform(in, 0, out, 0, 1);
         } catch (TransformException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         }
 
@@ -383,8 +388,7 @@ public class MPEPolygonResource extends
         try {
             llToGrid.transform(new double[] { c1.x, c1.y }, 0, out, 0, 1);
         } catch (TransformException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         }
         Coordinate p1 = new Coordinate(out[0], out[1]);
@@ -393,8 +397,7 @@ public class MPEPolygonResource extends
         try {
             llToGrid.transform(new double[] { c2.x, c2.y }, 0, out, 0, 1);
         } catch (TransformException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         }
         Coordinate p2 = new Coordinate(out[0], out[1]);
@@ -451,8 +454,7 @@ public class MPEPolygonResource extends
         try {
             gridToLL.transform(new double[] { used.x, used.y }, 0, out, 0, 1);
         } catch (TransformException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return false;
         }
         polyPoints.add(new Coordinate(out[0], out[1]));

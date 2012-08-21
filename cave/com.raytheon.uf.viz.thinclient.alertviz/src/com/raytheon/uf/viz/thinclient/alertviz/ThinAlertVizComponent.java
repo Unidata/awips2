@@ -26,11 +26,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 
+import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
+import com.raytheon.uf.viz.core.jobs.StatsJob;
 import com.raytheon.uf.viz.product.alertviz.AlertVizApplication;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
-import com.raytheon.uf.viz.thinclient.StatsJob;
 import com.raytheon.uf.viz.thinclient.ThinClientNotificationManagerJob;
 import com.raytheon.uf.viz.thinclient.cache.ThinClientCacheManager;
 import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
@@ -63,9 +64,10 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
 
     @Override
     public Object startComponent(String componentName) throws Exception {
-    	Activator.getDefault().setComponent(this);
-    	// Start network statistics
-        statsJob = new StatsJob();
+        Activator.getDefault().setComponent(this);
+        // Start network statistics
+        statsJob = new StatsJob("HTTP Network Statistics", HttpClient
+                .getInstance().getStats());
         statsJob.schedule();
         return super.startComponent(componentName);
     }
@@ -94,30 +96,30 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
     }
 
     protected AlertVisualization createAlertVisualization(
-    		boolean runningStandalone, final Display display) {
-    	return new AlertVisualization(runningStandalone, display) {
-    		
-    		@Override
-    		protected void createTrayMenuItems() {
-    			super.createTrayMenuItems();
-    			if (!runningStandalone) {
-    				new MenuItem(trayItemMenu, SWT.SEPARATOR);
-    			}
-    			MenuItem exitMI = new MenuItem(trayItemMenu, SWT.NONE);
-    			exitMI.setText("Exit...");
-    			exitMI.addSelectionListener(new SelectionAdapter() {
-    				 @Override
-    				 public void widgetSelected(SelectionEvent event) {
-    					 MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-    							 | SWT.YES | SWT.NO);
-    					 mb.setText("Confirm Exit");
-    					 mb.setMessage("Any unsaved changes will be lost.\n Are you sure you want to exit?");
-    					 if (mb.open() == SWT.YES) {
-    						 display.dispose();
-    					 }
-    				 }
-    			});
-    		}
-    	};
+            boolean runningStandalone, final Display display) {
+        return new AlertVisualization(runningStandalone, display) {
+
+            @Override
+            protected void createTrayMenuItems() {
+                super.createTrayMenuItems();
+                if (!runningStandalone) {
+                    new MenuItem(trayItemMenu, SWT.SEPARATOR);
+                }
+                MenuItem exitMI = new MenuItem(trayItemMenu, SWT.NONE);
+                exitMI.setText("Exit...");
+                exitMI.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent event) {
+                        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                                | SWT.YES | SWT.NO);
+                        mb.setText("Confirm Exit");
+                        mb.setMessage("Any unsaved changes will be lost.\n Are you sure you want to exit?");
+                        if (mb.open() == SWT.YES) {
+                            display.dispose();
+                        }
+                    }
+                });
+            }
+        };
     }
 }

@@ -49,35 +49,18 @@ import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
  * @version 1.0
  */
 public class ImageTileList implements Iterable<ImageTile[][]> {
-    private int refcount;
 
-    public List<ImageTile[][]> tileSet;
+    private List<ImageTile[][]> tileSet;
 
     public ImageTileList() {
         this.tileSet = new ArrayList<ImageTile[][]>();
-        use();
-    }
-
-    public void use() {
-        refcount += 1;
     }
 
     /**
      * Dispose of the tile list
      * 
-     * @return true if tile list was cleared out and contents were diposed,
-     *         false if other resources are still using the list
      */
-    public boolean dispose() {
-        refcount -= 1;
-        if (refcount <= 0) {
-            clear();
-            return true;
-        }
-        return false;
-    }
-
-    public void clear() {
+    public void dispose() {
         for (ImageTile[][] tileGrid : tileSet) {
             for (ImageTile[] tileArr : tileGrid) {
                 for (ImageTile tile : tileArr) {

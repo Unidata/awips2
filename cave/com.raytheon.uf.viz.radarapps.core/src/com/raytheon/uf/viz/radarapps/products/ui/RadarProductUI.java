@@ -31,6 +31,8 @@ import org.eclipse.ui.commands.ICommandService;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.radarapps.core.RadarApps;
 import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
@@ -40,7 +42,7 @@ public class RadarProductUI extends BaseRadarProductUI {
 
     private IToolChangedListener baselineListener;
 
-    private IToolChangedListener pointListener;
+    private IPointChangedListener pointListener;
 
     @Override
     protected String[] getBaselineList() {
@@ -52,7 +54,7 @@ public class RadarProductUI extends BaseRadarProductUI {
 
     @Override
     protected String[] getPointList() {
-        ArrayList<String> pointNames = new ArrayList<String>(ToolsDataManager
+        ArrayList<String> pointNames = new ArrayList<String>(PointsDataManager
                 .getInstance().getPointNames());
         Collections.sort(pointNames);
         return pointNames.toArray(new String[pointNames.size()]);
@@ -87,16 +89,16 @@ public class RadarProductUI extends BaseRadarProductUI {
                     VizApp.runAsync(runnable);
                 }
             };
-            pointListener = new IToolChangedListener() {
+            pointListener = new IPointChangedListener() {
                 @Override
-                public void toolChanged() {
+                public void pointChanged() {
                     VizApp.runAsync(runnable);
                 }
             };
 
             ToolsDataManager.getInstance().addBaselinesChangedListener(
                     baselineListener);
-            ToolsDataManager.getInstance().addPointsChangedListener(
+            PointsDataManager.getInstance().addPointsChangedListener(
                     pointListener);
         }
     }
@@ -104,7 +106,7 @@ public class RadarProductUI extends BaseRadarProductUI {
     @Override
     protected float[] getPointLatLon(String which) {
         maybeAddPrefListener();
-        Coordinate c = ToolsDataManager.getInstance().getPoint(which);
+        Coordinate c = PointsDataManager.getInstance().getPoint(which);
         if (c != null) {
             float[] result = { (float) c.y, (float) c.x };
             return result;
@@ -191,7 +193,7 @@ public class RadarProductUI extends BaseRadarProductUI {
             ToolsDataManager.getInstance().removeBaselinesChangedListener(
                     baselineListener);
         if (pointListener != null)
-            ToolsDataManager.getInstance().removePointsChangedListener(
+            PointsDataManager.getInstance().removePointsChangedListener(
                     pointListener);
     }
 

@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.gfe.smartinit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -54,9 +53,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 public class InitModules {
 
     private static final Log logger = LogFactory.getLog(InitModules.class);
-
-    public static final SimpleDateFormat dateFormat = (SimpleDateFormat) DatabaseID.dateFormat
-            .clone();
 
     // Counter used to simply force one full model run to complete a smart init
     // before another when many inits started at once

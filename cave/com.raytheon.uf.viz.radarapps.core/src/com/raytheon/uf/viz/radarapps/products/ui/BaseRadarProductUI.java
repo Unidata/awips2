@@ -75,8 +75,31 @@ import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PMenuItem;
 import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PProductItem;
 import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PSeparator;
 import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PSubMenu;
+import com.raytheon.viz.ui.widgets.MenuButton;
+import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
 
-public class BaseRadarProductUI {
+/**
+ * This abstract class generates a consistent layout for various products.
+ * Example of use is the One Time Request Dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Jul 11, 2012 #875       rferrel     Refactored for changes in MenuButton and
+ *                                      converted to abstract class making the
+ *                                      needed methods abstract.
+ * 
+ * </pre>
+ * 
+ * @author ?
+ * @version 1.0
+ */
+
+public abstract class BaseRadarProductUI {
     private Composite productRequestUI;
 
     private Composite productSelectorUI;
@@ -324,7 +347,7 @@ public class BaseRadarProductUI {
             if (mne != null)
                 productMenuButton.setSelectedItem(productMenuItems.get(mne));
             else
-                productMenuButton.setSelectedItem(null);
+                productMenuButton.setSelectedItem((MenuItem) null);
         }
         sel = sel.narrow(new Selector(radarType, null, null, usage));
 
@@ -2382,41 +2405,66 @@ public class BaseRadarProductUI {
         requestUIChange();
     }
 
-    private static String[] geomList = { "A", "B", "C", "D", "E", };
+    /**
+     * Get an array of baseline names to process.
+     * 
+     * @return baselineNames
+     */
+    abstract protected String[] getBaselineList();
 
-    protected String[] getBaselineList() {
-        return geomList;
-    }
+    /**
+     * Get an array of point names to process.
+     * 
+     * @return pointNames
+     */
+    abstract protected String[] getPointList();
 
-    protected String[] getPointList() {
-        return geomList;
-    }
+    /**
+     * Get point's azimuth and range from the radar.
+     * 
+     * @param which
+     *            - point name
+     * @return result - [0] azimuth of point, [1] range of point; or null if
+     *         unable to determine
+     */
+    abstract protected int[] getPoint(String which);
 
-    protected int[] getPoint(String which) {
-        int x = (int) which.charAt(0);
-        int[] result = { x, x };
-        return result;
-    }
+    /**
+     * Get the baseline's azimuth and range from the radar for the line's start
+     * and end point.
+     * 
+     * @param which
+     *            - baseline name
+     * @return result - [0] azimuth start point, [1] range start point, [2]
+     *         azimuth end point, [3] range end point; or null if unable to
+     *         determine
+     */
+    abstract protected int[] getBaseline(String which);
 
-    protected int[] getBaseline(String which) {
-        int x = (int) which.charAt(0);
-        int[] result = { x, x, x + 20, x + 100 };
-        return result;
-    }
+    /**
+     * Get the radar's location.
+     * 
+     * @param radar
+     * @return array - [0] latitude, [1] longitude, [3] elevation
+     */
+    abstract protected float[] getRadarLocation(String radar);
 
-    protected float[] getRadarLocation(String radar) {
-        float[] result = { 0, 0 };
-        return result;
-    }
+    /**
+     * Get point location
+     * 
+     * @param which
+     *            - point name
+     * @return array - [0] latitude, [1] longitude
+     */
+    abstract protected float[] getPointLatLon(String which);
 
-    protected float[] getPointLatLon(String which) {
-        float[] result = { 0, 0 };
-        return result;
-    }
-
-    protected float[] getBaselineLatLon(String which) {
-        float[] result = { 0, 0, 0, 0 };
-        return result;
-    }
-
+    /**
+     * Get location of baseline's start and end points.
+     * 
+     * @param which
+     *            - baseline name
+     * @return array - [0] start latitude, [1] start longitude, [2] end
+     *         latitude, [3] end longitude
+     */
+    abstract protected float[] getBaselineLatLon(String which);
 }

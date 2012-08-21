@@ -84,7 +84,7 @@ public class DataStoreRepacker {
             String dir = hdf5Dir + File.separator + plugin;
             IDataStore ds = DataStoreFactory.getDataStore(new File(dir));
             try {
-                ds.repack(dir, compression);
+                ds.repack(compression);
             } catch (StorageException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
             }
@@ -109,5 +109,4 @@ public class DataStoreRepacker {
             }
         }
     }
-
 }

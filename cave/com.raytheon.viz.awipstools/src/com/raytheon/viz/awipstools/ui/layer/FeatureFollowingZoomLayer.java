@@ -82,25 +82,7 @@ public class FeatureFollowingZoomLayer extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        // this is done in frameChanged() now
-
-        // StormTrackData data = ToolsDataManager.getInstance()
-        // .getStormTrackData();
-        // // Depending on frame, set center of screen to point
-        // Coordinate[] trackPoints = data.getCoordinates();
-        // int index = paintProps.getFramesInfo().getFrameIndex();
-        // if (lastFrame != index && index >= 0 && index < trackPoints.length
-        // && trackPoints.length > 0 && hasVisibleResource()) {
-        // Coordinate coord = trackPoints[index];
-        // double[] end = descriptor.worldToPixel(new double[] { coord.x,
-        // coord.y });
-        // double[] start = paintProps.getView().getExtent().getCenter();
-        // IExtent updatedExtent = paintProps.getView().getExtent().clone();
-        // updatedExtent.shift(end[0] - start[0], end[1] - start[1]);
-        //
-        // target.updateExtent(updatedExtent);
-        // }
-        // lastFrame = index;
+        // Nothing to paint
     }
 
     private boolean hasVisibleResource() {
@@ -135,9 +117,7 @@ public class FeatureFollowingZoomLayer extends
             updatedExtent.shift(end[0] - start[0], end[1] - start[1]);
 
             descriptor.getRenderableDisplay().setExtent(updatedExtent);
-            descriptor.getRenderableDisplay().getContainer()
-                    .getActiveDisplayPane().getTarget()
-                    .updateExtent(updatedExtent);
+            issueRefresh();
         }
         lastFrame = index;
 

@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.opengis.coverage.grid.GridEnvelope;
 
-import com.raytheon.uf.viz.core.GraphicsFactory.GraphicsType;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -45,30 +44,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public abstract class AbstractGraphicsFactoryAdapter {
 
-    private GraphicsType type;
-
-    public void setType(GraphicsType type) {
-        this.type = type;
-    }
-
-    /**
-     * Checks to see if the internal graphics type is of type "type"
-     * 
-     * @param type
-     * @return
-     */
-    protected boolean isType(GraphicsType type) {
-        return this.type == type;
-    }
-
     /**
      * Construct the view
      * 
      * @return the view
-     * @throws VizException
-     *             if construction fails
      */
-    public abstract IView constructView() throws VizException;
+    public abstract IView constructView();
 
     /**
      * Create a graphics target
