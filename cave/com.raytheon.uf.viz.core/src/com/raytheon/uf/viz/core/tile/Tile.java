@@ -123,7 +123,7 @@ public class Tile {
      * @param y
      * @return
      */
-    public boolean contains(double x, double y) {
+    public boolean crsContains(double x, double y) {
         Envelope env = tileGeometry.getEnvelope();
         return env.getMinimum(0) <= x && env.getMaximum(0) >= x
                 && env.getMinimum(1) <= y && env.getMaximum(1) >= y;
@@ -135,8 +135,22 @@ public class Tile {
      * @param c
      * @return
      */
-    public boolean contains(Coordinate c) {
-        return contains(c.x, c.y);
+    public boolean crsContains(Coordinate c) {
+        return crsContains(c.x, c.y);
+    }
+
+    /**
+     * Checks to see if the x/y coordinate is contained by the Tile's grid
+     * envelope
+     * 
+     * @param gridX
+     * @param gridY
+     * @return
+     */
+    public boolean gridContains(int gridX, int gridY) {
+        GridEnvelope ge = tileGeometry.getGridRange();
+        return ge.getLow(0) <= gridX && ge.getHigh(0) >= gridX
+                && ge.getLow(1) <= gridY && ge.getHigh(1) >= gridY;
     }
 
     /*
