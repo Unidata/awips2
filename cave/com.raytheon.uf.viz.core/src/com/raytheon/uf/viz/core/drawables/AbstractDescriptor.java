@@ -754,16 +754,17 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         return gridGeometry;
     }
 
-    /**
-     * Set the grid geometry
+    /*
+     * (non-Javadoc)
      * 
-     * @param gridGeometry
-     *            the gridGeometry to set
-     * @throws VizException
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IDescriptor#setGridGeometry(org.geotools
+     * .coverage.grid.GeneralGridGeometry)
      */
-    public void setGridGeometry(GeneralGridGeometry gridGeometry)
+    @Override
+    public void setGridGeometry(GeneralGridGeometry geometry)
             throws VizException {
-        this.gridGeometry = gridGeometry;
+        this.gridGeometry = geometry;
         init();
     }
 

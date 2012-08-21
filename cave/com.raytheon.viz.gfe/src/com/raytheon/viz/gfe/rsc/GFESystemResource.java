@@ -106,9 +106,6 @@ public class GFESystemResource extends
         this.dataManager = dataManager;
         this.editTools = new HashSet<AbstractGFEEditTool>();
         this.persistentRenderables = new HashSet<IRenderable>();
-
-        // The following renderables are always ready
-        this.persistentRenderables.add(new SampleRenderable());
     }
 
     /*
@@ -127,6 +124,7 @@ public class GFESystemResource extends
                 ((SampleRenderable) r).dispose();
             }
         }
+        this.persistentRenderables.clear();
     }
 
     /*
@@ -147,7 +145,8 @@ public class GFESystemResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-
+        // The following renderables are always ready
+        this.persistentRenderables.add(new SampleRenderable());
     }
 
     /**

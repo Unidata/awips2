@@ -51,6 +51,10 @@ mkdir -p ${RPM_BUILD_ROOT}
 %pre
 
 %post
+# the length is actually 50; however, we account for 
+# the leading "* " and the trailing " *"
+CONST_BANNER_LENGTH=47
+
 AWIPS_PRODUCT_JAR=
 EDEX_BANNER_TXT=
 
@@ -74,6 +78,26 @@ function updateCAVEVersionLegacy()
    /awips2/java/bin/jar uf ${AWIPS_PRODUCT_JAR} plugin.xml
    
    rm -f manifestUpdate
+}
+
+function padEdexBannerLine()
+{
+	local _output="${1}"
+	local _bannerTxt="${2}"
+	
+	local outputLength=${#_output}
+	
+	if [ ${outputLength} -ge ${CONST_BANNER_LENGTH} ]; then
+	   _output=${_output:0:46}
+	   echo "* ${_output} *" >> ${_bannerTxt}
+	   return 0
+	fi
+	
+	let padLength=${CONST_BANNER_LENGTH}-${outputLength}
+	
+	printf "* ${_output} %${padLength}s\\n" \* >> ${_bannerTxt}
+	
+	return 0
 }
 
 function updateCAVEVersion()
@@ -126,14 +150,13 @@ function updateCAVEVersion()
    echo "\\n\\" >> plugin.properties
    echo "Developed on the Raytheon Visualization Environment (viz)\\n\\" \
       >> plugin.properties
-   echo "\\tBUILD VERSION: %{_component_version}\\n\\" \
+   echo "\\tBUILD VERSION: %{_component_version}-%{_component_release}\\n\\" \
       >> plugin.properties
    echo "\\tBUILD DATE: %{_component_build_date}\\n\\" \
       >> plugin.properties
    echo "\\tBUILD TIME: %{_component_build_time}\\n\\" >> plugin.properties
    echo "\\tBUILD SYSTEM: %{_component_build_system}\\n\\" \
       >> plugin.properties
-   echo "\\tBuilt from Tag: %{_svn_tag}\\n\\" >> plugin.properties
    # Update the jar file.
    /awips2/java/bin/jar uf ${AWIPS_PRODUCT_JAR} plugin.properties
    # Relocate the jar file.
@@ -146,8 +169,6 @@ function updateCAVEVersion()
 
 function updateEDEXVersion()
 {
-   local MOVE_TO_COL="\\033[50G"
-
    rm -f ${EDEX_BANNER_TXT}
    touch ${EDEX_BANNER_TXT}
    
@@ -155,20 +176,14 @@ function updateEDEXVersion()
       > ${EDEX_BANNER_TXT}
    echo "* AWIPS II EDEX ESB Platform                     *" \
       >> ${EDEX_BANNER_TXT}
-   echo -e "* Version: %{_component_version}${MOVE_TO_COL}*" \
-      >> ${EDEX_BANNER_TXT}
+   padEdexBannerLine "Version: %{_component_version}-%{_component_release}" "${EDEX_BANNER_TXT}"
    echo "* Raytheon Company                               *" \
       >> ${EDEX_BANNER_TXT}
    echo "*------------------------------------------------*" \
       >> ${EDEX_BANNER_TXT}
-   echo -e "* Build Date  : %{_component_build_date}${MOVE_TO_COL}*" \
-      >> ${EDEX_BANNER_TXT}
-   echo -e "* Build Time  : %{_component_build_time}${MOVE_TO_COL}*" \
-      >> ${EDEX_BANNER_TXT}
-   echo -e "* Build System: %{_component_build_system}${MOVE_TO_COL}*" \
-      >> ${EDEX_BANNER_TXT}
-   echo -e "* Built from Tag: %{_svn_tag}${MOVE_TO_COL}*" \
-      >> ${EDEX_BANNER_TXT}
+   padEdexBannerLine "Build Date  : %{_component_build_date}" "${EDEX_BANNER_TXT}"
+   padEdexBannerLine "Build Time  : %{_component_build_time}" "${EDEX_BANNER_TXT}"
+   padEdexBannerLine "Build System: %{_component_build_system}" "${EDEX_BANNER_TXT}"
    echo "**************************************************" \
       >> ${EDEX_BANNER_TXT}
 }

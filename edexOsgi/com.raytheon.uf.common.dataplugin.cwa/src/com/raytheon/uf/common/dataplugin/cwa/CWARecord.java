@@ -62,123 +62,116 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class CWARecord extends PersistablePluginDataObject implements
-        IPointData, IPersistable {
+		IPointData, IPersistable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    // Text of the WMO header
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private String wmoHeader = "";
+	// Text of the WMO header
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private String wmoHeader = "";
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private CWADimension dimension;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private CWADimension dimension;
 
-    @DataURI(position = 1, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private String eventId;
+	@DataURI(position = 1, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private String eventId;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private Coordinate[] coordinates;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private Coordinate[] coordinates;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private String text;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private String text;
 
-    public PointDataView getPdv() {
-        return pdv;
-    }
+	public CWADimension getDimension() {
+		return dimension;
+	}
 
-    public void setPdv(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	public void setDimension(CWADimension dimension) {
+		this.dimension = dimension;
+	}
 
-    public CWADimension getDimension() {
-        return dimension;
-    }
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    public void setDimension(CWADimension dimension) {
-        this.dimension = dimension;
-    }
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	public Coordinate[] getCoordinates() {
+		return coordinates;
+	}
 
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	public void setCoordinates(Coordinate[] coordinates) {
+		this.coordinates = coordinates;
+	}
 
-    public Coordinate[] getCoordinates() {
-        return coordinates;
-    }
+	public String getEventId() {
+		return eventId;
+	}
 
-    public void setCoordinates(Coordinate[] coordinates) {
-        this.coordinates = coordinates;
-    }
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
 
-    public String getEventId() {
-        return eventId;
-    }
+	/**
+	 * Set the data uri for this observation.
+	 * 
+	 * @param dataURI
+	 */
+	@Override
+	public void setDataURI(String dataURI) {
+		super.setDataURI(dataURI);
+		identifier = dataURI;
+	}
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
+	public String getText() {
+		return text;
+	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
+	public void setText(String text) {
+		this.text = text;
+	}
 
-    public String getText() {
-        return text;
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
 
-    public void setText(String text) {
-        this.text = text;
-    }
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
-
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        Calendar c = getDataTime().getRefTimeAsCalendar();
-        if (c != null) {
-            sb.append(String.format("CWA:%1$tY%1$tm%1$td%1$tH%1$tM",
-                    getDataTime().getRefTimeAsCalendar()));
-        } else {
-            sb.append("CWA:YYYYMMDDHHmm");
-        }
-        return sb.toString();
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Calendar c = getDataTime().getRefTimeAsCalendar();
+		if (c != null) {
+			sb.append(String.format("CWA:%1$tY%1$tm%1$td%1$tH%1$tM",
+					getDataTime().getRefTimeAsCalendar()));
+		} else {
+			sb.append("CWA:YYYYMMDDHHmm");
+		}
+		return sb.toString();
+	}
 }

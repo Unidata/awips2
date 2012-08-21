@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
@@ -256,9 +257,9 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
         String pointLetter = getPointLetter(catalogEntry);
 
-        Coordinate c = ToolsDataManager.getInstance().getPoint(pointLetter);
+        Coordinate c = PointsDataManager.getInstance().getPoint(pointLetter);
         if (c == null) {
-            c = ToolsDataManager.getInstance().getPoint("A");
+            c = PointsDataManager.getInstance().getPoint("A");
         }
         return c;
 
@@ -465,7 +466,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
     public static Set<String> getPointLineKeys() {
         Set<String> keySet = new HashSet<String>();
-        for (String letter : ToolsDataManager.getInstance().getPointNames()) {
+        for (String letter : PointsDataManager.getInstance().getPointNames()) {
             keySet.add("Point" + letter);
         }
         for (String letter : ToolsDataManager.getInstance().getBaselineNames()) {

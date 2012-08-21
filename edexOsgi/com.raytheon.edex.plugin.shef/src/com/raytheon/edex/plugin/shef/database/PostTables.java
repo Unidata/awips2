@@ -28,7 +28,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
+import org.hibernate.connection.ConnectionProvider;
+import org.hibernate.engine.SessionFactoryImplementor;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -1043,15 +1044,16 @@ public class PostTables {
         CoreDao dao = null;
         Connection conn = null;
         CallableStatement cs = null;
-        Session ses = null;
         int status = -1;
         if (dataValue == "") {
             dataValue = ShefConstants.SHEF_MISSING;
         }
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-            ses = dao.getSessionFactory().openSession();
-            conn = ses.connection();
+            SessionFactoryImplementor impl = (SessionFactoryImplementor) dao.getSessionFactory();
+            ConnectionProvider cp = impl.getConnectionProvider();
+            conn = cp.getConnection();
+
             cs = conn.prepareCall("{call " + functionName
                     + "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             cs.setString(1, locId);
@@ -1136,14 +1138,8 @@ public class PostTables {
             } catch (Exception e) {
                 // Intentionally empty
             }
-            try {
-                ses.close();
-            } catch (Exception e) {
-                // Intentionally empty
-            }
             cs = null;
             conn = null;
-            ses = null;
         }
         return status;
     }
@@ -1167,7 +1163,6 @@ public class PostTables {
         }
         CoreDao dao = null;
         Connection conn = null;
-        Session ses = null;
         CallableStatement cs = null;
         int status = -1;
         if (dataValue == "") {
@@ -1175,8 +1170,10 @@ public class PostTables {
         }
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-            ses = dao.getSessionFactory().openSession();
-            conn = ses.connection();
+            SessionFactoryImplementor impl = (SessionFactoryImplementor) dao.getSessionFactory();
+            ConnectionProvider cp = impl.getConnectionProvider();
+            conn = cp.getConnection();
+
             cs = conn.prepareCall("{call " + functionName
                     + "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             cs.setString(1, locId);
@@ -1251,11 +1248,6 @@ public class PostTables {
             } catch (Exception e) {
                 // Intentionally empty
             }
-            try {
-                ses.close();
-            } catch (Exception e) {
-                // Intentionally empty
-            }
             cs = null;
             conn = null;
         }
@@ -1279,7 +1271,6 @@ public class PostTables {
         long start = System.currentTimeMillis();
         CoreDao dao = null;
         Connection conn = null;
-        Session ses = null;
         CallableStatement cs = null;
         java.sql.Timestamp timeStamp = null;
         int status = -1;
@@ -1289,8 +1280,10 @@ public class PostTables {
 
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-            ses = dao.getSessionFactory().openSession();
-            conn = ses.connection();
+            SessionFactoryImplementor impl = (SessionFactoryImplementor) dao.getSessionFactory();
+            ConnectionProvider cp = impl.getConnectionProvider();
+            conn = cp.getConnection();
+            
             cs = conn.prepareCall("{call " + functionName
                     + "(?, ?, ?, ?, ?, cast(? as real), ?, ?, ?, ?,"
                     + " ?, ?, ?, ?, ?, ?, ?)}");
@@ -1414,11 +1407,6 @@ public class PostTables {
             } catch (Exception e) {
                 // Intentionally empty
             }
-            try {
-                ses.close();
-            } catch (Exception e) {
-                // Intentionally empty
-            }
             cs = null;
             conn = null;
         }
@@ -1483,7 +1471,6 @@ public class PostTables {
 
         CoreDao dao = null;
         Connection conn = null;
-        Session ses = null;
         PreparedStatement ps = null;
         java.sql.Timestamp timeStamp = null;
         java.sql.Timestamp timeStamp2 = null;
@@ -1501,8 +1488,12 @@ public class PostTables {
 
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-            ses = dao.getSessionFactory().openSession();
-            conn = ses.connection();
+
+            SessionFactoryImplementor impl = (SessionFactoryImplementor) dao.getSessionFactory();
+            ConnectionProvider cp = impl.getConnectionProvider();
+
+            conn = cp.getConnection();
+            
             if (updateFlag) {
                 ps = conn.prepareCall(updateQuery);
             } else {
@@ -1583,11 +1574,6 @@ public class PostTables {
             }
             try {
                 conn.close();
-            } catch (Exception e) {
-                // Intentionally empty
-            }
-            try {
-                ses.close();
             } catch (Exception e) {
                 // Intentionally empty
             }

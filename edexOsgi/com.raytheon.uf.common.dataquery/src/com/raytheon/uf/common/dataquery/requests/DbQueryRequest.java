@@ -171,6 +171,14 @@ public class DbQueryRequest implements IServerRequest {
      * @param entityClass
      *            the entityClass to set
      */
+    public void setEntityClass(Class<?> entityClass) {
+        setEntityClass(entityClass.getName());
+    }
+
+    /**
+     * @param entityClass
+     *            the entityClass to set
+     */
     public void setEntityClass(String entityClass) {
         this.entityClass = entityClass;
     }

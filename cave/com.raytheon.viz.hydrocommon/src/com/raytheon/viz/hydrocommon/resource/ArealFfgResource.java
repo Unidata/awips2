@@ -31,9 +31,9 @@ import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -137,16 +137,13 @@ public class ArealFfgResource extends
 
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
 
-        // Don't display the default colorbar
-        target.setUseBuiltinColorbar(false);
-
         // Check the font size
         fontSize = manager.getFontSize();
         if ((font == null) || (lastFontSize != fontSize)) {
             if (font != null) {
                 font.dispose();
             }
-            
+
             font = target.initializeFont("Dialog", fontSize, null);
             font.setSmoothing(false);
             lastFontSize = fontSize;
@@ -181,7 +178,7 @@ public class ArealFfgResource extends
                 Colorvalue cv = colorSet.get(index);
                 RGB rgb = RGBColors.getRGBColor(cv.getColorname()
                         .getColorName());
-                
+
                 StringBuilder sb = new StringBuilder();
                 if (this.resourceData.isDisplayIds()) {
                     sb.append(lid);
@@ -193,7 +190,7 @@ public class ArealFfgResource extends
                         sb.append(value);
                     }
                 }
-                
+
                 DrawableString ds = new DrawableString(sb.toString(), rgb);
 
                 Coordinate c = new Coordinate(lon, lat);
@@ -280,7 +277,8 @@ public class ArealFfgResource extends
     @Override
     public String getName() {
         String noData = "";
-        if ((resourceData.getArealDataList() == null) || (resourceData.getArealDataList().size() == 0)) {
+        if ((resourceData.getArealDataList() == null)
+                || (resourceData.getArealDataList().size() == 0)) {
             noData = "No Data Available";
         }
 
@@ -298,8 +296,10 @@ public class ArealFfgResource extends
         if (this.resourceData == null) {
             name = "FFG No Data Available";
         } else {
-            name = "FFG Areal " + resourceData.getResolution() + " " + hours + " " + hourStr + " "
-                    + sdf.format(this.resourceData.getDataDate()) + " " + noData;
+            name = "FFG Areal " + resourceData.getResolution() + " " + hours
+                    + " " + hourStr + " "
+                    + sdf.format(this.resourceData.getDataDate()) + " "
+                    + noData;
         }
 
         return name;

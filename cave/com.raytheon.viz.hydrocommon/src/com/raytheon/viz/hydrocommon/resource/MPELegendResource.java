@@ -59,7 +59,8 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  */
 
 public class MPELegendResource extends
-        AbstractVizResource<GenericResourceData, IDescriptor> implements ISamplingResource {
+        AbstractVizResource<GenericResourceData, IDescriptor> implements
+        ISamplingResource {
 
     private double scale;
 
@@ -68,12 +69,8 @@ public class MPELegendResource extends
     private double width;
 
     private AbstractVizResource<?, ?> rsc;
-    
-    private boolean sampling = false;
 
-    public MPELegendResource() {
-        super(null, null);
-    }
+    private boolean sampling = false;
 
     public MPELegendResource(GenericResourceData rscData,
             LoadProperties loadProps) {
@@ -216,7 +213,9 @@ public class MPELegendResource extends
         return "";
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.uf.viz.core.sampling.ISamplingResource#isSampling()
      */
     @Override
@@ -224,8 +223,11 @@ public class MPELegendResource extends
         return sampling;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.core.sampling.ISamplingResource#setSampling(boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.sampling.ISamplingResource#setSampling(boolean)
      */
     @Override
     public void setSampling(boolean sampling) {

@@ -19,19 +19,18 @@
  **/
 package com.raytheon.edex.plugin.redbook;
 
-
 import java.util.ArrayList;
 import java.util.Date;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.edex.plugin.redbook.dao.RedbookDao;
 import com.raytheon.edex.plugin.redbook.decoder.RedbookParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
@@ -48,6 +47,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080529           1131 jkorman     Added new Separator constructor.
  * 11/11/08           1684 chammack    Refactored to camel
  * 20090327           2019 jkorman     Added code to check for non-redbook data.
+ * 20120524           #647 dgilling    Update persistence time in 
+ *                                     createdBackDatedVersionIfNeeded.
  * </pre>
  * 
  * @author jkorman
@@ -157,60 +158,71 @@ public class RedbookDecoder extends AbstractDecoder {
 
         return reports;
     }
-        private PluginDataObject[] createMergedRecordList(RedbookRecord report) throws PluginException {
-         ArrayList<PluginDataObject> listResult = new ArrayList<PluginDataObject>();
-         
-         RedbookRecord newRecord = report;
-         while (newRecord != null) {
-             // Note that this newRecord may be modified by createdBackDatedVersionIfNeeded.
-             listResult.add(newRecord);
-             
-             newRecord = createdBackDatedVersionIfNeeded(newRecord);
-         }
-         return listResult.toArray(new PluginDataObject[listResult.size()]);
-     }
-     
-     private RedbookRecord createdBackDatedVersionIfNeeded(RedbookRecord record) {
-         RedbookDao dao;
-         RedbookRecord existingRecord;
-         
-         try {
-             dao = (RedbookDao) PluginFactory.getInstance().getPluginDao(PLUGIN_NAME);
-             existingRecord = (RedbookRecord) dao.getMetadata(record.getDataURI());
-         } catch (PluginException e) {
-             logger.error(traceId + "Could not create back-dated copy of " + 
-                     record.getDataURI(), e);
-             return null;
-         }
-         
-         if (existingRecord != null) {
-             try {
-                 existingRecord = dao.getFullRecord((RedbookRecord) existingRecord);
-             } catch (Exception e) {
-                 logger.error(traceId + "Could not retrieve existing " + 
-                         record.getDataURI(), e);
-                 return null;
-             }
-             RedbookRecord backDatedRecord;
-             try {
-                 backDatedRecord = existingRecord.createBackdatedVersion();
-                 backDatedRecord.setPluginName(PLUGIN_NAME);
-                 backDatedRecord.constructDataURI();
-             } catch (PluginException e) {
-                 logger.error(traceId + "Could not create back-dated copy of " + 
-                         record.getDataURI(), e);
-                 return null;
-             }
-             record.setOverwriteAllowed(true);
-             dao.delete(existingRecord); // replace op does not update metadata ?!
-             logger.info("Storing new version of " + record.getDataURI());
- 
-             return backDatedRecord;
-         } else {
-             return null;
-         }
-     }
- 
+
+    private PluginDataObject[] createMergedRecordList(RedbookRecord report)
+            throws PluginException {
+        ArrayList<PluginDataObject> listResult = new ArrayList<PluginDataObject>();
+
+        RedbookRecord newRecord = report;
+        while (newRecord != null) {
+            // Note that this newRecord may be modified by
+            // createdBackDatedVersionIfNeeded.
+            listResult.add(newRecord);
+
+            newRecord = createdBackDatedVersionIfNeeded(newRecord);
+        }
+        return listResult.toArray(new PluginDataObject[listResult.size()]);
+    }
+
+    private RedbookRecord createdBackDatedVersionIfNeeded(RedbookRecord record) {
+        RedbookDao dao;
+        RedbookRecord existingRecord;
+
+        try {
+            dao = (RedbookDao) PluginFactory.getInstance().getPluginDao(
+                    PLUGIN_NAME);
+            existingRecord = (RedbookRecord) dao.getMetadata(record
+                    .getDataURI());
+        } catch (PluginException e) {
+            logger.error(traceId + "Could not create back-dated copy of "
+                    + record.getDataURI(), e);
+            return null;
+        }
+
+        if (existingRecord != null) {
+            try {
+                existingRecord = dao.getFullRecord(existingRecord);
+            } catch (Exception e) {
+                logger.error(
+                        traceId + "Could not retrieve existing "
+                                + record.getDataURI(), e);
+                return null;
+            }
+            RedbookRecord backDatedRecord;
+            try {
+                backDatedRecord = existingRecord.createBackdatedVersion();
+                // this must be updated so that the insert time is updated
+                // and the Wes2Bridge archiver properly finds these backdated
+                // records
+                backDatedRecord.setPersistenceTime(new Date());
+                backDatedRecord.setPluginName(PLUGIN_NAME);
+                backDatedRecord.constructDataURI();
+            } catch (PluginException e) {
+                logger.error(traceId + "Could not create back-dated copy of "
+                        + record.getDataURI(), e);
+                return null;
+            }
+            record.setOverwriteAllowed(true);
+            dao.delete(existingRecord); // replace op does not update metadata
+                                        // ?!
+            logger.info("Storing new version of " + record.getDataURI());
+
+            return backDatedRecord;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Check here to see if we have non-redbook data. It's hard to determine
      * that we actually have valid redbook, so we check for the signatures of

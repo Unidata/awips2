@@ -71,261 +71,262 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class POESSounding extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData {
+		ISpatialEnabled, IDecoderGettable, IPointData {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
+	public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-    }
+	private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
+	static {
+		PARM_MAP.put("NLAT", STA_LAT);
+		PARM_MAP.put("NLON", STA_LON);
+	}
 
-    // The profiler observation time.
-    // @Column
-    // @DynamicSerializeElement
-    // @XmlElement
-    // private Calendar timeObs;
+	// The profiler observation time.
+	// @Column
+	// @DynamicSerializeElement
+	// @XmlElement
+	// private Calendar timeObs;
 
-    // @XmlAttribute
-    // @DynamicSerializeElement
-    // private Long fcstSeconds;
+	// @XmlAttribute
+	// @DynamicSerializeElement
+	// private Long fcstSeconds;
 
-    // Text of the WMO header
-    @Column(length = 32)
-    @XmlElement
-    @DynamicSerializeElement
-    private String wmoHeader;
+	// Text of the WMO header
+	@Column(length = 32)
+	@XmlElement
+	@DynamicSerializeElement
+	private String wmoHeader;
 
-    @Transient
-    private Set<POESSoundingLevel> soundingLevels;
+	@Transient
+	private Set<POESSoundingLevel> soundingLevels;
 
-    @Embedded
-    @DataURI(position = 1, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 1, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    /**
-     * Create an empty ProfilerObs object.
-     */
-    public POESSounding() {
-    }
+	/**
+	 * Create an empty ProfilerObs object.
+	 */
+	public POESSounding() {
+	}
 
-    /**
-     * Constructor for DataURI construction through base class. This is used by
-     * the notification service.
-     * 
-     * @param uri
-     *            A data uri applicable to this class.
-     * @param tableDef
-     *            The table definitions for this class.
-     */
-    public POESSounding(String uri) {
-        super(uri);
-    }
+	/**
+	 * Constructor for DataURI construction through base class. This is used by
+	 * the notification service.
+	 * 
+	 * @param uri
+	 *            A data uri applicable to this class.
+	 * @param tableDef
+	 *            The table definitions for this class.
+	 */
+	public POESSounding(String uri) {
+		super(uri);
+	}
 
-    /**
-     * Get this observation's geometry.
-     * 
-     * @return The geometry for this observation.
-     */
-    public Geometry getGeometry() {
-        return location.getGeometry();
-    }
+	/**
+	 * Get this observation's geometry.
+	 * 
+	 * @return The geometry for this observation.
+	 */
+	public Geometry getGeometry() {
+		return location.getGeometry();
+	}
 
-    /**
-     * Get the geometry latitude.
-     * 
-     * @return The geometry latitude.
-     */
-    public double getLatitude() {
-        return location.getLatitude();
-    }
+	/**
+	 * Get the geometry latitude.
+	 * 
+	 * @return The geometry latitude.
+	 */
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    /**
-     * Get the geometry longitude.
-     * 
-     * @return The geometry longitude.
-     */
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	/**
+	 * Get the geometry longitude.
+	 * 
+	 * @return The geometry longitude.
+	 */
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-    /**
-     * Get the station identifier for this observation.
-     * 
-     * @return the stationId
-     */
-    public String getStationId() {
-        return location.getStationId();
-    }
+	/**
+	 * Get the station identifier for this observation.
+	 * 
+	 * @return the stationId
+	 */
+	public String getStationId() {
+		return location.getStationId();
+	}
 
-    /**
-     * Get the elevation, in meters, of the observing platform or location.
-     * 
-     * @return The observation elevation, in meters.
-     */
-    public Integer getElevation() {
-        return location.getElevation();
-    }
+	/**
+	 * Get the elevation, in meters, of the observing platform or location.
+	 * 
+	 * @return The observation elevation, in meters.
+	 */
+	public Integer getElevation() {
+		return location.getElevation();
+	}
 
-    /**
-     * Was this location defined from the station catalog? False if not.
-     * 
-     * @return Was this location defined from the station catalog?
-     */
-    public Boolean getLocationDefined() {
-        return location.getLocationDefined();
-    }
+	/**
+	 * Was this location defined from the station catalog? False if not.
+	 * 
+	 * @return Was this location defined from the station catalog?
+	 */
+	public Boolean getLocationDefined() {
+		return location.getLocationDefined();
+	}
 
-    /**
-     * Set the WMOHeader of the file that contained this data.
-     * 
-     * @return The wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * Set the WMOHeader of the file that contained this data.
+	 * 
+	 * @return The wmoHeader
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * Get the WMOHeader of the file that contained this data.
-     * 
-     * @param wmoHeader
-     *            The WMOHeader to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * Get the WMOHeader of the file that contained this data.
+	 * 
+	 * @param wmoHeader
+	 *            The WMOHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    /**
-     * @return the soundingLevels
-     */
-    public Set<POESSoundingLevel> getSoundingLevels() {
-        return soundingLevels;
-    }
+	/**
+	 * @return the soundingLevels
+	 */
+	public Set<POESSoundingLevel> getSoundingLevels() {
+		return soundingLevels;
+	}
 
-    /**
-     * @param soundingLevels
-     *            the soundingLevels to set
-     */
-    public void setSoundingLevels(Set<POESSoundingLevel> soundingLevels) {
-        this.soundingLevels = soundingLevels;
-    }
+	/**
+	 * @param soundingLevels
+	 *            the soundingLevels to set
+	 */
+	public void setSoundingLevels(Set<POESSoundingLevel> soundingLevels) {
+		this.soundingLevels = soundingLevels;
+	}
 
-    /**
-     * @param soundingLevels
-     *            the soundingLevels to set
-     */
-    public void addSoundingLevel(POESSoundingLevel soundingLevel) {
-        if (soundingLevels == null) {
-            soundingLevels = new HashSet<POESSoundingLevel>();
-        }
-        soundingLevels.add(soundingLevel);
-    }
+	/**
+	 * @param soundingLevels
+	 *            the soundingLevels to set
+	 */
+	public void addSoundingLevel(POESSoundingLevel soundingLevel) {
+		if (soundingLevels == null) {
+			soundingLevels = new HashSet<POESSoundingLevel>();
+		}
+		soundingLevels.add(soundingLevel);
+	}
 
-    /**
-     * Return this class reference as the IDecoderGettable interface
-     * implementation.
-     * 
-     * @return Returns reference to this class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
+	/**
+	 * Return this class reference as the IDecoderGettable interface
+	 * implementation.
+	 * 
+	 * @return Returns reference to this class.
+	 */
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return this;
+	}
 
-    /**
-     * Get the value of a parameter that is represented as a String.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-        if ("STA".matches(paramName)) {
-            return this.getStationId();
-        }
-        return null;
-    }
+	/**
+	 * Get the value of a parameter that is represented as a String.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return The String value of the parameter. If the parameter is unknown, a
+	 *         null reference is returned.
+	 */
+	@Override
+	public String getString(String paramName) {
+		if ("STA".matches(paramName)) {
+			return this.getStationId();
+		}
+		return null;
+	}
 
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
+	/**
+	 * Get the value and units of a named parameter within this observation.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return An Amount with value and units. If the parameter is unknown, a
+	 *         null reference is returned.
+	 */
+	@Override
+	public Amount getValue(String paramName) {
+		Amount a = null;
 
-        String pName = PARM_MAP.get(paramName);
+		String pName = PARM_MAP.get(paramName);
 
-        if (STA_LAT.equals(pName)) {
-            a = new Amount(this.getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        }
-        return a;
-    }
+		if (STA_LAT.equals(pName)) {
+			a = new Amount(this.getLatitude(), LOCATION_UNIT);
+		} else if (STA_LON.equals(pName)) {
+			a = new Amount(this.getLongitude(), LOCATION_UNIT);
+		}
+		return a;
+	}
 
-    /**
-     * Get the value of a parameter that is represented as a collection of
-     * values.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The value of the parameter as an Amount. If the parameter is
-     *         unknown, a null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
+	/**
+	 * Get the value of a parameter that is represented as a collection of
+	 * values.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return The value of the parameter as an Amount. If the parameter is
+	 *         unknown, a null reference is returned.
+	 */
+	@Override
+	public Collection<Amount> getValues(String paramName) {
+		return null;
+	}
 
-    /**
-     * Get the value of a parameter that is represented as a collection of
-     * Strings.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The value of the parameter as an String. If the parameter is
-     *         unknown, a null reference is returned.
-     */
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
+	/**
+	 * Get the value of a parameter that is represented as a collection of
+	 * Strings.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return The value of the parameter as an String. If the parameter is
+	 *         unknown, a null reference is returned.
+	 */
+	@Override
+	public String[] getStrings(String paramName) {
+		return null;
+	}
 
-    @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    @Override
-    public PointDataView getPointDataView() {
-        return this.pdv;
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return this.pointDataView;
+	}
 
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 }

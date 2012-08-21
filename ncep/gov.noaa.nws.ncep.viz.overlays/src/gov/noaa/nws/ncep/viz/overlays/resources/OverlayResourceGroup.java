@@ -107,6 +107,12 @@ public class OverlayResourceGroup extends
      */
     @Override
     public void initInternal(IGraphicsTarget target) throws VizException {
+        for (ResourcePair rp : this.resourceData.getResourceList()) {
+            AbstractVizResource<?, ?> rsc = rp.getResource();
+            if (rsc != null) {
+                rsc.init(target);
+            }
+        }
     }
 
     /*

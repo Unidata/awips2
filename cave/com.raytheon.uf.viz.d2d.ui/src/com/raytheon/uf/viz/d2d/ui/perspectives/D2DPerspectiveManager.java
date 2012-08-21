@@ -77,7 +77,6 @@ import com.raytheon.viz.ui.cmenu.LoopingAction;
 import com.raytheon.viz.ui.cmenu.StepFrameMenuAction;
 import com.raytheon.viz.ui.cmenu.UnloadAllGraphicsAction;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
-import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
@@ -121,6 +120,7 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
     @Override
     public void open() {
+        contextActivator = new D2DContextActivator(page);
         Procedure procedure = new Procedure();
         List<Bundle> bundles = new ArrayList<Bundle>();
         for (MapScale scale : MapScales.getInstance().getScales()) {
@@ -449,4 +449,5 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
             D2DLegendResource rsc) {
         return new ChangeLegendModeAction(mode, rsc);
     }
+
 }

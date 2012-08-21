@@ -11,7 +11,8 @@ SHELL=/bin/sh
 #  In addition, INC must include all directories where the above
 #  mentioned include files can be found.
 DEFS=-DUSE_JPEG2000 -DUSE_PNG
-INC=-I/home/brockwoo/workspace/ncepLib/org.ncep.grib/include
+INC=-I../../include \
+	-I../../../../rary.cots.jasper/jasper-1.900.1/src/libjasper/include
 
 #
 #   This "C" source code contains many uses of the C++
@@ -19,7 +20,11 @@ INC=-I/home/brockwoo/workspace/ncepLib/org.ncep.grib/include
 #   appropriate compiler flag to allow the use of "//" comment indicators.
 #
 #CFLAGS=-q64 -O3 -qarch=auto -qcpluscmt $(INC) $(DEFS)
-CFLAGS= $(INC) $(DEFS) -O3
+CFLAGS = $(INC) $(DEFS) -O3 -fPIC
+-include ../../../../build.native/makefile.arch
+ifeq ($(ARCHFLAGS),-m64)
+	export CFLAGS := $(CFLAGS) -D__64BIT__
+endif
 
 CC=gcc
 LIB=libgrib2c.a
@@ -96,5 +101,5 @@ $(LIB):	$(LIB)(gridtemplates.o) \
 	$(CC) -c $(CFLAGS) $<
 	ar $(ARFLAGS) $@ $*.o
 
-	gcc -O3 -shared -o g2clib1.1.8.so *.o
+	gcc $(CFLAGS) -shared -o g2clib1.1.8.so *.o
 	rm *.o
