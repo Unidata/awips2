@@ -36,7 +36,7 @@ void main(void) {
     	}
 	} else {
 		float naturalValue = ((rawValue * (naturalMax - naturalMin)) + naturalMin);
-		index = capIndex(findIndex(naturalValue, cmapMin, cmapMax));
+		index = findIndex(naturalValue, cmapMin, cmapMax);
 	}
 
 	// Lookup color in colorMap for index
