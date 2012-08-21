@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.truecolor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.truecolor.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
+Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.ui
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
