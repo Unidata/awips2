@@ -476,7 +476,8 @@ public class ProductBrowserView extends ViewPart {
      * @param mgr
      */
     protected void fillProductBrowserContextMenu(IMenuManager mgr) {
-        if (productTree.getTree().getSelection() != null) {
+        if (productTree.getTree().getSelection() != null
+                && productTree.getTree().getSelectionCount() > 0) {
             AbstractProductBrowserDataDefinition<?> prod = (AbstractProductBrowserDataDefinition<?>) productTree
                     .getTree().getSelection()[0].getData("class");
             // if not a product, do not give opportunity to load things

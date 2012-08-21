@@ -384,7 +384,7 @@ public class DamDisplayControlDlg extends CaveSWTDialog {
                 PointDataControlManager pdcManager = PointDataControlManager
                         .getInstance();
                 DamLocationResource dlr = pdcManager.getDamLocationResource();
-                dlr.clearData();
+                dlr.unload();
                 pdcManager.setRedraw(true);
 
             }

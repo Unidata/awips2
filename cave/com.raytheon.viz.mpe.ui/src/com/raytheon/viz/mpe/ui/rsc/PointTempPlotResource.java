@@ -66,7 +66,7 @@ import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.MPEFontManager;
+import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.dialogs.EditTempStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcTempOptionsDialog;
@@ -106,6 +106,8 @@ public class PointTempPlotResource extends
     private PaintProperties paintProps;
 
     private static Coordinate selectedCoordinate;
+
+    private MPEFontFactory fontFactory;
 
     private IFont font = null;
 
@@ -553,7 +555,7 @@ public class PointTempPlotResource extends
         this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, no need to init or dispose
-        font = MPEFontManager.getFont(this, displayMgr.getFontState(), target);
+        font = fontFactory.getMPEFont(displayMgr.getFontState());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isMaxmin() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
@@ -783,6 +785,7 @@ public class PointTempPlotResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        fontFactory = new MPEFontFactory(target, this);
         List<Colorvalue> colorSet = getResourceData().getColorSet();
         /* Retrieve the temp colormap. */
         ColorMap colorMap = new ColorMap(colorSet.size());
@@ -909,6 +912,6 @@ public class PointTempPlotResource extends
      */
     @Override
     protected void disposeInternal() {
-        // DO NOT DISPOSE OF FONT AS IT IS SHARED IN ALL OF MPE
+        fontFactory.dispose();
     }
 }

@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.viz.core.map;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -140,16 +139,6 @@ public interface IMapDescriptor extends IDescriptor {
     public void setProjection(CoordinateReferenceSystem crs, Coordinate ll,
             Coordinate ur) throws FactoryException, TransformException,
             VizException;
-
-    /**
-     * Set the grid geometry
-     * 
-     * @param gridGeometry
-     *            the gridGeometry to set
-     * @throws VizException
-     */
-    public abstract void setGridGeometry(GeneralGridGeometry gridGeometry)
-            throws VizException;
 
     /**
      * Get the current map width

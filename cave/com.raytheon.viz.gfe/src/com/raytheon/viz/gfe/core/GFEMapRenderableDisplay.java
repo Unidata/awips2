@@ -25,14 +25,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -73,19 +68,20 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
 
     private DataManager dataMgr;
 
-    @SuppressWarnings("unchecked")
     public GFEMapRenderableDisplay() {
-        super();
-        dataMgr = DataManager.getCurrentInstance();
-        dataMgr.getSpatialDisplayManager().addSpatialEditorTimeChangedListener(
-                this);
-        Message.registerInterest(this, ShowQuickViewDataMsg.class);
+    }
+
+    public GFEMapRenderableDisplay(MapDescriptor desc) {
+        super(desc);
     }
 
     @SuppressWarnings("unchecked")
-    public GFEMapRenderableDisplay(MapDescriptor desc) {
-        super(desc);
-        dataMgr = DataManager.getCurrentInstance();
+    public void setDataManager(DataManager dataManager) {
+        if (this.dataMgr != null) {
+            dataMgr.getSpatialDisplayManager()
+                    .removeSpatialEditorTimeChangedListener(this);
+        }
+        dataMgr = dataManager;
         dataMgr.getSpatialDisplayManager().addSpatialEditorTimeChangedListener(
                 this);
         Message.registerInterest(this, ShowQuickViewDataMsg.class);
@@ -95,38 +91,21 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     @Override
     public void dispose() {
         Message.unregisterInterest(this, ShowQuickViewDataMsg.class);
-        dataMgr.getSpatialDisplayManager()
-                .removeSpatialEditorTimeChangedListener(this);
+        if (dataMgr != null) {
+            dataMgr.getSpatialDisplayManager()
+                    .removeSpatialEditorTimeChangedListener(this);
+        }
         super.dispose();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.map.MapRenderableDisplay#paint(com.raytheon.uf.
-     * viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
-    @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-        target.setUseBuiltinColorbar(false);
-        super.paint(target, paintProps);
     }
 
     @Override
     protected PaintProperties calcPaintDataTime(PaintProperties paintProps,
             AbstractVizResource<?, ?> rsc) {
-        IWorkbenchWindow window = null;
-        if (container != null) {
-            window = ((IWorkbenchPart) container).getSite()
-                    .getWorkbenchWindow();
+        if (dataMgr != null) {
+            Date date = dataMgr.getSpatialDisplayManager()
+                    .getSpatialEditorTime();
+            paintProps.setDataTime(new DataTime(date));
         }
-        Date date = DataManager.getInstance(window).getSpatialDisplayManager()
-                .getSpatialEditorTime();
-
-        paintProps.setDataTime(new DataTime(date));
 
         GFEPaintProperties gfeProps = new GFEPaintProperties(paintProps);
         if (qvTime != null) {

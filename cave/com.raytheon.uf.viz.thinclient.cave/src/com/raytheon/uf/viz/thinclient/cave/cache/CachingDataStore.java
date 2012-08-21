@@ -384,13 +384,26 @@ public class CachingDataStore implements IDataStore {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#repack(java.lang.String,
-     * com.raytheon.uf.common.datastorage.StorageProperties.Compression)
+     * com.raytheon.uf.common.datastorage.IDataStore#repack(com.raytheon.uf.
+     * common.datastorage.StorageProperties.Compression)
      */
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
-        delegate.repack(dirName, compression);
+    public void repack(Compression compression) throws StorageException {
+        delegate.repack(compression);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datastorage.IDataStore#copy(java.lang.String,
+     * com.raytheon.uf.common.datastorage.StorageProperties.Compression,
+     * java.lang.String, int, int)
+     */
+    @Override
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException {
+        delegate.copy(outputDir, compression, timestampCheck,
+                minMillisSinceLastChange, maxMillisSinceLastChange);
+    }
 }

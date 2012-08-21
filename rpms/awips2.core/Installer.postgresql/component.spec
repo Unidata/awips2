@@ -5,7 +5,7 @@
 Name: awips2-postgresql
 Summary: AWIPS II PostgreSQL Distribution
 Version: 8.3.4
-Release: 3
+Release: 4
 Group: AWIPSII
 BuildRoot: /tmp
 Prefix: /awips2
@@ -43,7 +43,7 @@ if [ ! "${RC}" = "0" ]; then
 fi
 
 POSTGRESQL_BUILD_DIR="awips2/postgresql-build"
-POSTGRESQL_SOURCE_DIR="${AWIPSCM_SHARE}/packages/postgresqlSource"
+POSTGRESQL_SOURCE_DIR="%{_awipscm_share}/packages/postgresqlSource"
 POSTGRESQL_TAR_FILE="postgresql-8.3.4.tar.gz"
 
 mkdir -p ${RPM_BUILD_ROOT}/awips2/postgresql
@@ -52,8 +52,8 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 mkdir -p ${RPM_BUILD_ROOT}/etc/ld.so.conf.d
 touch ${RPM_BUILD_ROOT}/etc/ld.so.conf.d/awips2-postgresql-i386.conf
 
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.postgresql/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/awips2.core/Installer.postgresql/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 # Copy our source tar file to the build directory.
 cp ${POSTGRESQL_SOURCE_DIR}/${POSTGRESQL_TAR_FILE} \
@@ -66,7 +66,7 @@ tar -xvf ${POSTGRESQL_TAR_FILE}
 
 %build
 export LD_LIBRARY_PATH=/awips2/psql/lib
-export LDFLAGS="-L${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.postgresql/pre-reqs/lib -L/awips2/psql/lib"
+export LDFLAGS="-L%{_baseline_workspace}/rpms/awips2.core/Installer.postgresql/pre-reqs/lib -L/awips2/psql/lib"
 
 POSTGRESQL_BUILD_DIR="awips2/postgresql-build"
 
@@ -126,17 +126,17 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 POSTGRESQL_BUILD_DIR="awips2/postgresql-build"
 
@@ -148,7 +148,7 @@ if [ ! "${RC}" = "0" ]; then
    exit 1
 fi
 
-POSTGRESQL_EXT_SRC_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.postgresql/extensions"
+POSTGRESQL_EXT_SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.postgresql/extensions"
 PROJ_SRC="proj-4.6.1.tar.gz"
 POSTGIS_SRC="postgis-1.3.5.tar.gz"
 GEOS_SRC="geos-3.0.2.tar.bz2"
@@ -238,7 +238,7 @@ PATH_TO_DDL="build.edex/opt/db/ddl"
 EXPECTED_PATH_TO_CONFIG="${PATH_TO_DDL}/setup"
 KNOWN_CONFIG_DESTINATION="awips2/postgresql/share/sql"
 # Ensure That We Have Access To The Configuration Files Before Continuing.
-if [ ! -f ${WORKSPACE_DIR}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} ]; then
+if [ ! -f %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} ]; then
    echo "The ${CONFIG_FILE_TO_INCLUDE} PostgreSQL Configuration File Can Not Be Found."
    echo "Unable To Continue ... Terminating"
    exit 1
@@ -250,16 +250,16 @@ mkdir -p ${RPM_BUILD_ROOT}/${KNOWN_CONFIG_DESTINATION}
 mkdir -p ${RPM_BUILD_ROOT}/awips2/data
 
 # Copy The Configuration File
-cp -r ${WORKSPACE_DIR}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} \
+cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} \
    ${RPM_BUILD_ROOT}/${KNOWN_CONFIG_DESTINATION} 
 
 STARTUP_SCRIPTS_TO_INCLUDE=('start_developer_postgres.sh' 'start_postgres.sh')
-PATH_TO_STARTUP_SCRIPTS="Installer.rpm/awips2.core/Installer.postgresql/scripts"
+PATH_TO_STARTUP_SCRIPTS="rpms/awips2.core/Installer.postgresql/scripts"
 STARTUP_SCRIPT_DESTINATION="awips2/postgresql/bin"
 # Copy The Startup Scripts
 for script in ${STARTUP_SCRIPTS_TO_INCLUDE[*]};
 do
-   cp -r ${WORKSPACE_DIR}/${PATH_TO_STARTUP_SCRIPTS}/${script} \
+   cp -r %{_baseline_workspace}/${PATH_TO_STARTUP_SCRIPTS}/${script} \
       ${RPM_BUILD_ROOT}/${STARTUP_SCRIPT_DESTINATION}
 done
 
@@ -267,7 +267,7 @@ copyLegal "awips2/postgresql"
 
 # Include the postgresql service script
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
-cp ${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.postgresql/scripts/init.d/edex_postgres \
+cp %{_baseline_workspace}/rpms/awips2.core/Installer.postgresql/scripts/init.d/edex_postgres \
    ${RPM_BUILD_ROOT}/etc/init.d
 
 %pre

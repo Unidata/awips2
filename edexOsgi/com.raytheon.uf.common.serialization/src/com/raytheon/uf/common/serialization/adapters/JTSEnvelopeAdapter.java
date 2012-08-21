@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.serialization.adapters;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import com.raytheon.uf.common.serialization.IDeserializationContext;
 import com.raytheon.uf.common.serialization.ISerializationContext;
 import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
@@ -40,7 +42,11 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version 1.0
  */
 
-public class JTSEnvelopeAdapter implements ISerializationTypeAdapter<Envelope> {
+public class JTSEnvelopeAdapter extends XmlAdapter<String, Envelope> implements
+        ISerializationTypeAdapter<Envelope> {
+
+    private static final String SEPARATOR = ",";
+
     @Override
     public Envelope deserialize(IDeserializationContext deserializer)
             throws SerializationException {
@@ -56,6 +62,29 @@ public class JTSEnvelopeAdapter implements ISerializationTypeAdapter<Envelope> {
         serializer.writeDouble(object.getMaxX());
         serializer.writeDouble(object.getMinY());
         serializer.writeDouble(object.getMaxY());
+    }
+
+    @Override
+    public Envelope unmarshal(String v) throws Exception {
+        String[] split = v.split(SEPARATOR);
+        double minX = Double.valueOf(split[0]);
+        double maxX = Double.valueOf(split[1]);
+        double minY = Double.valueOf(split[2]);
+        double maxY = Double.valueOf(split[3]);
+        return new Envelope(minX, maxX, minY, maxY);
+    }
+
+    @Override
+    public String marshal(Envelope v) throws Exception {
+        StringBuffer sb = new StringBuffer();
+        sb.append(v.getMinX());
+        sb.append(SEPARATOR);
+        sb.append(v.getMaxX());
+        sb.append(SEPARATOR);
+        sb.append(v.getMinY());
+        sb.append(SEPARATOR);
+        sb.append(v.getMaxY());
+        return sb.toString();
     }
 
 }

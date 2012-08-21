@@ -374,6 +374,10 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
                 // eat exception
             }
         }
+
+        synchronized (resourcesToInstantiate) {
+            resourcesToInstantiate.clear();
+        }
     }
 
     /*

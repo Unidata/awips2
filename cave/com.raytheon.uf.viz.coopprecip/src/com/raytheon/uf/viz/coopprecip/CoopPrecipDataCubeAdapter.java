@@ -63,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            bsteffen     Initial creation
+ * Aug 14,2012   #1055    dgilling     Fix getData regression from
+ *                                     fxatext schema changes.
  * 
  * </pre>
  * 
@@ -98,7 +100,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         ffgDescription.parameters[6] = new ParameterDescription("stationId",
                 Type.STRING);
         ffgDescription.parameters[7] = new ParameterDescription("id", Type.INT);
-        ffgDescription.parameters[8] = new ParameterDescription("dataURI", Type.STRING);
+        ffgDescription.parameters[8] = new ParameterDescription("dataURI",
+                Type.STRING);
 
         rtpDescription.parameters = new ParameterDescription[7];
         rtpDescription.parameters[0] = new ParameterDescription("time",
@@ -112,7 +115,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         rtpDescription.parameters[4] = new ParameterDescription("stationId",
                 Type.STRING);
         rtpDescription.parameters[5] = new ParameterDescription("id", Type.INT);
-        rtpDescription.parameters[6] = new ParameterDescription("dataURI", Type.STRING);
+        rtpDescription.parameters[6] = new ParameterDescription("dataURI",
+                Type.STRING);
 
     }
 
@@ -175,7 +179,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
     private PointDataContainer getData(String nnnid) throws VizException {
         List<Object[]> queryResult = DirectDbQuery.executeQuery(
-                "select createtime, product from stdtextproducts where nnnid = '"
+                "select refTime, product from stdtextproducts where nnnid = '"
                         + nnnid + "'", "fxa", DirectDbQuery.QueryLanguage.SQL);
         List<Long> times = new ArrayList<Long>(queryResult.size());
         List<String> products = new ArrayList<String>(queryResult.size());
@@ -241,7 +245,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("3hr", Float.valueOf(parts[1]));
                         pdv.setFloat("6hr", Float.valueOf(parts[2]));
                         pdv.setString("stationId", station);
-                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/"
+                                + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }
@@ -319,7 +324,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("latitude", (float) coord.latlon.y);
                         pdv.setFloat("precip", precip);
                         pdv.setString("stationId", station);
-                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/"
+                                + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }

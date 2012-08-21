@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
 import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
@@ -193,7 +194,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         }
 
         private boolean isPoint() {
-            return (!isBaseline && ToolsDataManager.getInstance().getPoint(
+            return (!isBaseline && PointsDataManager.getInstance().getPoint(
                     idName) != null);
         }
 
@@ -307,7 +308,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
         private void updatePosition(List<Coordinate> stationCoordinates) {
 
             if (isPoint()) {
-                ToolsDataManager.getInstance().setPoint(idName,
+                PointsDataManager.getInstance().setPoint(idName,
                         stationCoordinates.get(0));
                 refreshToolLayer(pointsToolLayer);
 
@@ -320,7 +321,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
                 refreshToolLayer(baselinesToolLayer);
 
             } else if (isHome()) {
-                ToolsDataManager.getInstance().setHome(
+                PointsDataManager.getInstance().setHome(
                         stationCoordinates.get(0));
                 refreshToolLayer(homeToolLayer);
             }
@@ -512,14 +513,14 @@ public class ChooseByIdDialog extends CaveSWTDialog {
             }
 
             if (isHome()) {
-                Coordinate homeCoordinate = ToolsDataManager.getInstance()
+                Coordinate homeCoordinate = PointsDataManager.getInstance()
                         .getHome();
 
                 stationLocationHasChanged = (!homeCoordinate
                         .equals(stationCoordinates.get(0)));
 
             } else if (isPoint()) {
-                Coordinate pointCoordinate = ToolsDataManager.getInstance()
+                Coordinate pointCoordinate = PointsDataManager.getInstance()
                         .getPoint(idName);
 
                 stationLocationHasChanged = (!pointCoordinate
@@ -635,7 +636,7 @@ public class ChooseByIdDialog extends CaveSWTDialog {
 
     private void createIdBoxes() {
 
-        String[] pointNames = ToolsDataManager.getInstance().getPointNames()
+        String[] pointNames = PointsDataManager.getInstance().getPointNames()
                 .toArray(new String[] {});
         Arrays.sort(pointNames);
         for (String point : pointNames) {

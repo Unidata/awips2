@@ -20,10 +20,7 @@
 package com.raytheon.uf.common.dataplugin.cwat;
 
 import java.io.ByteArrayInputStream;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,7 +42,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -83,8 +80,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class CWATRecord extends PersistablePluginDataObject implements
-        IPersistable, ISpatialEnabled {
+public class CWATRecord extends ServerSpecificPersistablePluginDataObject
+        implements IPersistable, ISpatialEnabled {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -348,32 +345,6 @@ public class CWATRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    /**
      * Get the IDecoderGettable reference for this record.
      * 
      * @return The IDecoderGettable reference for this record. Null for this
@@ -484,8 +455,8 @@ public class CWATRecord extends PersistablePluginDataObject implements
             if (getThreats().size() < 1) {
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), THREATS, Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(byteData
-                        .getByteData());
+                ByteArrayInputStream bais = new ByteArrayInputStream(
+                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
                         SerializationType.Thrift).deserialize(bais);
                 setThreats((HashMap<ThreatLocation, ThreatReport>) o);
