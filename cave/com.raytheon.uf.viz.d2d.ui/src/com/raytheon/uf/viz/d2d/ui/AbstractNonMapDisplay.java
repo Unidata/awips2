@@ -34,13 +34,10 @@ import org.eclipse.swt.layout.FormData;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -100,13 +97,6 @@ public abstract class AbstractNonMapDisplay extends AbstractXyRenderableDisplay
         super(aPixelExtent, descriptor);
         this.descriptor.setTimeMatcher(new D2DTimeMatcher());
         adjustedExtent = aPixelExtent;
-    }
-
-    @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-        super.paint(target, paintProps);
-        target.setUseBuiltinColorbar(true);
     }
 
     @Override

@@ -41,7 +41,8 @@ import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010            jsanchez     Initial creation
+ * Feb 01, 2010            jsanchez     Initial creation
+ * Apr 19, 2012  #457      dgilling     Minor code cleanup.
  * 
  * </pre>
  * 
@@ -94,9 +95,7 @@ public class CWADecoder {
      * @return
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
-
         String traceId = null;
-
         PluginDataObject[] decodedData = null;
 
         if (headers != null) {
@@ -124,7 +123,7 @@ public class CWADecoder {
             } catch (Exception e) {
                 logger.error(traceId + "-Error in decode", e);
             } finally {
-                if ((obsList != null) && (obsList.size() > 0)) {
+                if (!obsList.isEmpty()) {
                     decodedData = obsList.toArray(new PluginDataObject[obsList
                             .size()]);
                 } else {

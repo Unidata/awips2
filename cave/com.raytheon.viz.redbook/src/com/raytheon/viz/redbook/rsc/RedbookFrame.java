@@ -43,6 +43,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -366,9 +368,9 @@ public class RedbookFrame implements IRenderable {
 
                 if (tb.isLegend) {
                     // Left edge with some padding
-                    xOrigin = pe.getMinX() + 2 * xRatio;
+                    xOrigin = 2;
                     // n lines down from top edge
-                    yOrigin = pe.getMinY() + yCellSize * legendLine;
+                    yOrigin = yCellSize * legendLine / yRatio;
                     ++legendLine;
                     vAlign = IGraphicsTarget.VerticalAlignment.TOP;
 
@@ -457,7 +459,7 @@ public class RedbookFrame implements IRenderable {
                                 // The value of 50 is taken from AWIPS-1
                                 if ((nCharsOnLine + seg.length()) > 50) {
                                     x = xOrigin;
-                                    y += yCellSize;
+                                    y += yCellSize / yRatio;
                                     nCharsOnLine = 0;
                                     ++legendLine;
                                 }
@@ -466,7 +468,7 @@ public class RedbookFrame implements IRenderable {
 
                             x += drawString(target, seg, x, y, symbolFont,
                                     true, vAlign == VerticalAlignment.TOP,
-                                    xRatio, yRatio, paintProps);
+                                    xRatio, yRatio, paintProps, tb.isLegend);
 
                             iStart = -1;
                         }
@@ -525,7 +527,7 @@ public class RedbookFrame implements IRenderable {
                         // The value of 50 is taken from AWIPS-1
                         if ((nCharsOnLine + seg.length()) > 50) {
                             x = xOrigin;
-                            y += yCellSize;
+                            y += yCellSize / yRatio;
                             nCharsOnLine = 0;
                             ++legendLine;
                         }
@@ -534,7 +536,7 @@ public class RedbookFrame implements IRenderable {
 
                     drawString(target, seg, x, y, symbolFont, true,
                             vAlign == VerticalAlignment.TOP, xRatio, yRatio,
-                            paintProps);
+                            paintProps, tb.isLegend);
                 }
             }
 
@@ -549,33 +551,31 @@ public class RedbookFrame implements IRenderable {
 
     private double drawString(IGraphicsTarget target, String s, double x,
             double y, boolean symbols, boolean blanked, boolean top,
-            double xRatio, double yRatio, PaintProperties paintProps)
-            throws VizException {
+            double xRatio, double yRatio, PaintProperties paintProps,
+            boolean isLegend) throws VizException {
 
         double magnification = redbookResource.getMagnification();
 
         if (!symbols) {
             IFont font = redbookResource.getRenderingFont();
-            Rectangle2D bounds = target.getStringBounds(font, s);
+            DrawableString dstring = new DrawableString(s, this.redbookResource
+                    .getCapability(ColorableCapability.class).getColor());
+            dstring.setCoordinates(x, y);
+            dstring.font = font;
+            dstring.horizontalAlignment = HorizontalAlignment.LEFT;
+            dstring.verticallAlignment = top ? VerticalAlignment.TOP
+                    : VerticalAlignment.BOTTOM;
+            Rectangle2D bounds = target.getStringsBounds(dstring);
             if (blanked) {
-                double yext = y + bounds.getHeight() * yRatio * (top ? 1 : -1);
-                PixelExtent pe = new PixelExtent(x, x + bounds.getWidth()
-                        * xRatio, Math.min(y, yext) + yRatio, Math.max(y, yext)
-                        + yRatio);
-                target.drawShadedRect(pe, new RGB(0, 0, 0),
-                        paintProps.getAlpha(), null);
+                dstring.textStyle = TextStyle.BLANKED;
             }
-            target.drawString(
-                    font,
-                    s,
-                    x,
-                    y,
-                    0.0,
-                    TextStyle.NORMAL,
-                    this.redbookResource.getCapability(
-                            ColorableCapability.class).getColor(),
-                    HorizontalAlignment.LEFT, top ? VerticalAlignment.TOP
-                            : VerticalAlignment.BOTTOM, null);
+            if (isLegend) {
+                target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                        paintProps, dstring);
+            } else {
+                target.drawStrings(dstring);
+
+            }
             return bounds.getWidth() * xRatio;
         } else {
             double width = s.length() * 12 * xRatio * magnification;

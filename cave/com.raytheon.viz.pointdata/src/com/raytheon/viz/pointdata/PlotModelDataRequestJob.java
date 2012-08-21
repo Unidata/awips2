@@ -145,6 +145,9 @@ public class PlotModelDataRequestJob extends Job {
             // TODO need to determine if this type of plot is a combination or
             // not
             combineData(stationQuery);
+            if (monitor.isCanceled()) {
+                break;
+            }
 
             for (PlotInfo[] infos : stationQuery) {
                 // schedule next work for other jobs
@@ -186,8 +189,8 @@ public class PlotModelDataRequestJob extends Job {
                 }
             }
         }
-        
-        if(!params.contains("dataURI")){
+
+        if (!params.contains("dataURI")) {
             params.add("dataURI");
         }
 
@@ -334,10 +337,19 @@ public class PlotModelDataRequestJob extends Job {
         this.plotCreator.setPlotMissingData(b);
     }
 
+    public boolean isDone() {
+        return getState() != Job.RUNNING && getState() != Job.WAITING
+                && generatorJob.isDone();
+    }
+
     public void shutdown() {
         this.cancel();
+        try {
+            join();
+        } catch (InterruptedException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         this.generatorJob.shutdown();
-        this.generatorJob.clearImageCache();
     }
 
 }

@@ -9,6 +9,7 @@ Version: 8.3.4
 Release: 3
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: i386
 Prefix: /awips2/psql
 URL: N/A
 License: N/A
@@ -40,8 +41,8 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/ld.so.conf.d
 touch ${RPM_BUILD_ROOT}/etc/ld.so.conf.d/awips2-psql-i386.conf
 
 %build
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.psql/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/awips2.core/Installer.psql/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %install
 # Copies the standard Raytheon licenses into a license directory for the
@@ -55,19 +56,19 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-cp -r ${AWIPSCM_SHARE}/packages/psql/* ${RPM_BUILD_ROOT}/awips2/psql
+cp -r %{_awipscm_share}/packages/psql/* ${RPM_BUILD_ROOT}/awips2/psql
 # Remove all shared libraries that are not created by psql.
 if [ -f ${RPM_BUILD_ROOT}/awips2/psql/lib/libreadline.a ]; then
    rm -f ${RPM_BUILD_ROOT}/awips2/psql/lib/libreadline.a

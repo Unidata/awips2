@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.core;
 
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+
 /**
- * Class that stores information about how to draw a circle
+ * Class that stores information about how to draw a circle or arc of a circle
  * 
  * <pre>
  * 
@@ -40,20 +42,39 @@ public class DrawableCircle extends AbstractDrawableObject {
 
     /**
      * fixed world size, when zooming the circle size will appear to grow/shrink
-     * on the screen
+     * on the screen. Mutually exclusive with {@link #screenRadius}
      */
     public Double radius = null;
 
     /**
      * fixed screen size ( in pixels ), when zooming the proper radius will be
-     * calculated so the circle size stays the same on the screen
+     * calculated so the circle size stays the same on the screen. Mutually
+     * exclusive with {@link #radius}
      */
     public Double screenRadius = null;
 
+    /** The width of the circle's line (non-filled) */
     public float lineWidth = 1.0f;
 
+    /** The line style of the circle's line (non-filled) */
+    public LineStyle lineStyle = LineStyle.SOLID;
+
+    /** Whether the circle is filled or not */
     public boolean filled = false;
 
+    /** The number of points to use for the circle */
     public int numberOfPoints = 360;
+
+    /** Start azimuth of the circle in degrees (0.0) */
+    public float startAzimuth = 0.0f;
+
+    /** End azimuth of the circle in degrees (360.0) */
+    public float endAzimuth = 360.0f;
+
+    /**
+     * If the start/end azimuth are < 360 def apart, this will specify if the
+     * sides of the arc should be drawn
+     */
+    public boolean includeSides = true;
 
 }

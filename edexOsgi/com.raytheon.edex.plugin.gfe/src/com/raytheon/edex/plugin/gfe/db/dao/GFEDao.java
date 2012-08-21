@@ -914,11 +914,8 @@ public class GFEDao extends DefaultPluginDao {
 
         for (int i = 0; i < result.getResultCount(); i++) {
             DatabaseID dbId = null;
-            synchronized (DatabaseID.dateFormat) {
-                dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
-                        DatabaseID.dateFormat.format(result.getRowColumnValue(
-                                i, 0)));
-            }
+            dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
+                    (Date) result.getRowColumnValue(i, 0));
             if (!dbInventory.contains(dbId)) {
                 dbInventory.add(dbId);
             }

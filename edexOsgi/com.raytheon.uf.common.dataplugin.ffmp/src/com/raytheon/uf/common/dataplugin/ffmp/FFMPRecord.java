@@ -22,12 +22,10 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,7 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -79,8 +77,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FFMPRecord extends PersistablePluginDataObject implements
-        IPersistable {
+public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
+        implements IPersistable {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -297,32 +295,6 @@ public class FFMPRecord extends PersistablePluginDataObject implements
      */
     public String getSourceName() {
         return sourceName;
-    }
-
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     /**

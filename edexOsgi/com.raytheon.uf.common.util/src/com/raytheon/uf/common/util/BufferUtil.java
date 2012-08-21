@@ -25,9 +25,6 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import org.apache.tomcat.jni.Buffer;
-import org.apache.tomcat.jni.Library;
-
 /**
  * Utility for creating and managing nio Buffers
  * 
@@ -45,18 +42,6 @@ import org.apache.tomcat.jni.Library;
  */
 
 public class BufferUtil {
-
-    private static boolean mallocing = false;
-
-    static {
-        if (mallocing) {
-            try {
-                Library.initialize("tcnative-1");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public static int wordAlignedByteWidth(Rectangle datasetBounds) {
         int paddedWidth = datasetBounds.width;
@@ -185,19 +170,9 @@ public class BufferUtil {
     public static synchronized ByteBuffer createByteBuffer(int capacity,
             boolean direct) {
         if (direct) {
-            if (mallocing) {
-                return Buffer.malloc(capacity);
-            } else {
-                return ByteBuffer.allocateDirect(capacity);
-            }
+            return ByteBuffer.allocateDirect(capacity);
         } else {
             return ByteBuffer.allocate(capacity);
-        }
-    }
-
-    public static synchronized void freeByteBuffer(ByteBuffer buf) {
-        if (buf.isDirect() && mallocing) {
-            Buffer.free(buf);
         }
     }
 

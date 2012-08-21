@@ -139,7 +139,7 @@ public class RadarTextUtility implements IRadarObserver {
             tmpProd.setXxxid(designator);
             tmpProd.setHdrtime(currentDate);
             tmpProd.setBbbid("NOR");
-            tmpProd.setCreatetime(System.currentTimeMillis());
+            tmpProd.setRefTime(System.currentTimeMillis());
             tmpProd.setProduct(currentHeader + "\n" + strBldr.toString());
 
             RequestConstraint rcRow;
