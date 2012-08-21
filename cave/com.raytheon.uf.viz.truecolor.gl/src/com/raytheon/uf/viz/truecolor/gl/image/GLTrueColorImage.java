@@ -22,12 +22,16 @@ package com.raytheon.uf.viz.truecolor.gl.image;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;
@@ -53,7 +57,7 @@ import com.raytheon.viz.core.gl.images.GLImage;
  */
 
 public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
-        ITrueColorImage {
+        ITrueColorImage, IColorMapParametersListener {
 
     private static class RGBCallback implements IRenderedImageCallback {
         private int[] bounds;
@@ -76,6 +80,9 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
     private IExtent imageExtent;
 
     private Map<Channel, DrawableImage[]> channelMap = new HashMap<Channel, DrawableImage[]>();
+
+    /* Identity set used to track color map parameters currently listening on */
+    private Map<ColorMapParameters, Object> listening = new IdentityHashMap<ColorMapParameters, Object>();
 
     /**
      * @param extensionClass
@@ -121,12 +128,15 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
         }
     }
 
-    /**
-     * Get the images for the specified channel
+    /*
+     * (non-Javadoc)
      * 
-     * @param channel
-     * @return
+     * @see com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.
+     * ITrueColorImage
+     * #getImages(com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension
+     * .Channel)
      */
+    @Override
     public DrawableImage[] getImages(Channel channel) {
         return channelMap.get(channel);
     }
@@ -177,4 +187,62 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColorMapParametersListener#
+     * colorMapChanged()
+     */
+    @Override
+    public void colorMapChanged() {
+        // Repaint image on colormap change events
+        repaint = true;
+    }
+
+    /**
+     * Sets the ColorMapParameters it's images are using. We add ourselves as
+     * listeners so we can repaint on changes
+     * 
+     * @param parameters
+     */
+    public void setImageParameters(Collection<ColorMapParameters> parameters) {
+        boolean same = false;
+        if (parameters.size() == listening.size()) {
+            same = true;
+            for (ColorMapParameters params : parameters) {
+                same &= listening.containsKey(params);
+                if (!same) {
+                    break;
+                }
+            }
+        }
+        if (!same) {
+            // Current image parameters list different from passed in, set up
+            // listeners on new set and remove from current set
+            for (ColorMapParameters params : listening.keySet()) {
+                params.removeListener(this);
+            }
+            listening.clear();
+            for (ColorMapParameters params : parameters) {
+                params.addListener(this);
+                listening.put(params, null);
+            }
+        }
+    }
+
+    /**
+     * Returns the number of channels the image is currently using
+     * 
+     * @return
+     */
+    public int getNumberOfChannels() {
+        int channels = 0;
+        for (Channel c : Channel.values()) {
+            DrawableImage[] images = getImages(c);
+            if (images != null && images.length > 0) {
+                ++channels;
+            }
+        }
+        return channels;
+    }
 }
