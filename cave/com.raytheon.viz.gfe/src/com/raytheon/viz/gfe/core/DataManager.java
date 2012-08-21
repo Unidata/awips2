@@ -61,8 +61,6 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.internal.DataMgrInitStatus;
-import com.raytheon.viz.gfe.core.internal.GFEClimoManager;
-import com.raytheon.viz.gfe.core.internal.GFEHlsTopoManager;
 import com.raytheon.viz.gfe.core.internal.GFEParmCacheInitJob;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFETopoManager;
@@ -174,8 +172,6 @@ public class DataManager {
 
     private final NotificationRouter router;
 
-    private final IClimoManager climoManager;
-
     private final ITopoManager topoManager;
 
     private IGridManager gridManager;
@@ -215,8 +211,6 @@ public class DataManager {
     private HashSet<String> knownOfficeTypes;
 
     private List<String> allSites;
-
-    private IHlsTopoManager hlsTopoManager;
 
     /**
      * Not to be instantiated directly.
@@ -292,8 +286,6 @@ public class DataManager {
         this.router.start();
 
         this.parmOp = new ParmOp(this);
-        this.climoManager = new GFEClimoManager(this);
-        this.hlsTopoManager = new GFEHlsTopoManager(this);
         this.topoManager = new GFETopoManager(this);
 
         this.autoSaveJob = new AutoSaveJob(this);
@@ -615,10 +607,6 @@ public class DataManager {
         return this.sampleSetManager;
     }
 
-    public IHlsTopoManager getHlsTopoManager() {
-        return this.hlsTopoManager;
-    }
-
     public ITopoManager getTopoManager() {
         return this.topoManager;
     }
@@ -926,13 +914,6 @@ public class DataManager {
 
         // send out a message to interested parties (both for success and fail)
         new ISCSendStatusChangedMsg(state).send();
-    }
-
-    /**
-     * @return the climo manager
-     */
-    public IClimoManager getClimoManager() {
-        return climoManager;
     }
 
     public EditActionProcessor getEditActionProcessor() {

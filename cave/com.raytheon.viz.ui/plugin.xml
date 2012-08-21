@@ -24,6 +24,7 @@
    <extension-point id="contextualMenu" name="contextualMenu" schema="schema/contextualMenu.exsd"/>
    <extension-point id="perspectiveManager" name="perspectiveManager" schema="schema/perspectiveManager.exsd"/>
    <extension-point id="com.raytheon.uf.viz.ui.mouse.action" name="Mouse Preference" schema="schema/mousePreference.exsd"/>
+   <extension-point id="editorMenuAddition" name="editorMenuAddition" schema="schema/editorMenuAddition.exsd"/>
    
    <extension
          point="org.eclipse.ui.views">
@@ -63,6 +64,11 @@
             name="ColorEditDialog"
             sortID="20">
       </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.MultiChannelImagingAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability"
+            name="MultiChannelImaging"
+            sortID="25"/>
       <contextualMenu
             actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
             name="100-------------"
@@ -535,6 +541,11 @@
          id="com.raytheon.viz.ui.context"
          name="context">
    </context>
+   <context
+   		 description="IDisplayPaneContainer Context, activated if active part is of type IDisplayPaneContainer"
+   		 id="com.raytheon.viz.ui.displayPaneContainer.context"
+   		 name="IDisplayPaneContainer Context">
+   </context>
 </extension>
 <extension
       point="org.eclipse.ui.preferencePages">
@@ -622,6 +633,12 @@
              class="com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager">
 	          <contextId
 	                id="com.raytheon.viz.ui.context">
+	          </contextId>
+	      </classContext>
+	      <classContext
+             class="com.raytheon.uf.viz.core.IDisplayPaneContainer">
+	          <contextId
+	                id="com.raytheon.viz.ui.displayPaneContainer.context">
 	          </contextId>
 	          <contextId
 	                id="com.raytheon.viz.ui.loopContext">

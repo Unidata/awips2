@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.uf.common.dataplugin.warning.config.AreaConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
@@ -106,14 +105,14 @@ public class Area {
         GeometryUtil.buildGeometryList(geoms, warningArea);
 
         GeospatialConfiguration geospatialConfig = config.getGeospatialConfig();
-        AreaConfiguration areaConfig = config.getAreaConfig();
+        AreaSourceConfiguration areaConfig = config.getHatchedAreaSource();
 
         return findAffectedAreas(areaConfig, geospatialConfig, polygon,
                 localizedSite, geoms);
     }
 
     private static AffectedAreas[] findAffectedAreas(
-            AreaConfiguration areaConfig,
+            AreaSourceConfiguration areaConfig,
             GeospatialConfiguration geospatialConfig, Geometry polygon,
             String localizedSite, List<Geometry> geoms) throws VizException {
         String areaSource = areaConfig.getAreaSource();
@@ -320,6 +319,22 @@ public class Area {
         return areas.toArray(new AffectedAreas[areas.size()]);
     }
 
+    /**
+     * Determines the affected areas that intersect the warnArea. This method
+     * should be used if the intersected areas are of a different area source
+     * compared to the hatched area source. Otherwise, the information in the
+     * warnArea can just be re-used in the template. If the area source of the
+     * intersect and the hatched are the same, then the configuration and
+     * template files are configured inefficiently.
+     * 
+     * @param config
+     * @param warnPolygon
+     * @param warnArea
+     * @param localizedSite
+     * @param warngenLayer
+     * @return
+     * @throws VizException
+     */
     public static Map<String, Object> findInsectingAreas(
             WarngenConfiguration config, Geometry warnPolygon,
             Geometry warnArea, String localizedSite, WarngenLayer warngenLayer)
@@ -327,7 +342,7 @@ public class Area {
         Map<String, Object> areasMap = new HashMap<String, Object>();
 
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
-            if (asc.getAreaType() == AreaType.INTERSECT) {
+            if (asc.getType() == AreaType.INTERSECT) {
                 String areaSource = asc.getAreaSource();
                 String key = areaSource + "." + localizedSite;
 
@@ -336,18 +351,25 @@ public class Area {
                 for (GeospatialData f : warngenLayer.getGeodataFeatures(key)) {
                     for (int i = 0; i < warnArea.getNumGeometries(); i++) {
                         Geometry geom = warnArea.getGeometryN(i);
-                        if (f.geometry.intersects(geom)) {
+                        if (GeometryUtil.intersects(f.geometry, geom)) {
                             Geometry intersect = f.geometry.intersection(geom);
-                            intersect.setUserData(f.geometry.getUserData());
-                            GeometryUtil.buildGeometryList(geoms, intersect);
+                            if (intersect != null && !intersect.isEmpty()) {
+                                for (int j = 0; j < intersect
+                                        .getNumGeometries(); j++) {
+                                    intersect.getGeometryN(j).setUserData(
+                                            f.geometry.getUserData());
+                                }
+                                GeometryUtil
+                                        .buildGeometryList(geoms, intersect);
+                            }
                             break;
                         }
                     }
                 }
 
-                AffectedAreas[] affectedAreas = findAffectedAreas(
-                        asc.getAreaConfig(), config.getGeospatialConfig(),
-                        warnPolygon, localizedSite, geoms);
+                AffectedAreas[] affectedAreas = findAffectedAreas(asc,
+                        config.getGeospatialConfig(), warnPolygon,
+                        localizedSite, geoms);
 
                 areasMap.put(asc.getVariable(), affectedAreas);
             }

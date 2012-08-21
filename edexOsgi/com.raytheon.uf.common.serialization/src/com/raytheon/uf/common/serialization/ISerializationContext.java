@@ -85,6 +85,15 @@ public interface ISerializationContext {
     public abstract void writeDouble(double dub) throws SerializationException;
 
     /**
+     * Write a double array
+     * 
+     * @param dub
+     * @throws SerializationException
+     */
+    public abstract void writeDoubleArray(double[] dubs)
+            throws SerializationException;
+
+    /**
      * Write a float
      * 
      * @param flt

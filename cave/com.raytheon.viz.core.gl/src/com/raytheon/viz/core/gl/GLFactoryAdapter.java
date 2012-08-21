@@ -81,7 +81,7 @@ public class GLFactoryAdapter extends AbstractGraphicsFactoryAdapter {
      * .String)
      */
     @Override
-    public IView constructView() throws VizException {
+    public IView constructView() {
         return new GLView2D();
     }
 

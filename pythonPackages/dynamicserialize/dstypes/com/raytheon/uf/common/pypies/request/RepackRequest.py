@@ -37,4 +37,3 @@ class RepackRequest(object):
 
     def setFilename(self, filename):
         self.filename = filename
-

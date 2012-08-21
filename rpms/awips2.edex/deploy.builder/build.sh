@@ -1,116 +1,151 @@
 #!/bin/bash
+# This script will build the AWIPS II Edex RPMs.
 
-# Arguments:
-#   ${1} == Build Version
-#   ${2} == Build Release
-#   -nobinlightning optional flag 
+# Build Variables:
+# -----------------------------------------------------------------------------
+VAR_AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
+VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
+VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
+VAR_AWIPSII_VERSION=""
+VAR_AWIPSII_RELEASE=""
+VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+VAR_AWIPSCM_SHARE="/awipscm"
+# -----------------------------------------------------------------------------
 
-if [ "${RPM_TOP_DIR}" = "" ]; then
-   echo "ERROR: You Must Set The RPM_TOP_DIR Environment Variable."
-   echo "Unable To Continue ... Terminating."
+if [ "${AWIPSII_TOP_DIR}" = "" ] &&
+   [ "${VAR_AWIPSII_TOP_DIR}" = "" ]; then
+   echo "ERROR: You Must Set the AWIPSII_TOP_DIR Environment Variable."
+   echo "Unable to Continue ... Terminating."
    exit 1
 fi
 
-# !! NOTE !! - We Assume That We Are In A Workspace With The Installer Projects,
-#              The Edex Projects, The Cave Projects, The Native Projects, And Etc.
-export WORKSPACE_DIR=`cd ../../../; pwd;`
-
-source ${WORKSPACE_DIR}/Installer.rpm/awips2.core/deploy.builder/env.sh
-
-# If there is an actual version, it will be given to us as an argument.
-if [ "${1}" = "" ] ||
-   [ "${1}" = "-nobinlightning" ]; then
-   # Check version.txt
-   VERSION_TXT="${WORKSPACE_DIR}/Installer.rpm/version.txt"
-   if [ ! -f ${VERSION_TXT} ]; then
-      echo "ERROR: Unable to find the version file - ${VERSION_TXT}."
-      exit 1
-   fi
-   export BUILD_VERSION=`cat ${VERSION_TXT}`
-   # Ensure that a version has been specified.
-   if [ "${BUILD_VERSION}" = "" ]; then
-      echo "ERROR: A build version has not been specified."
-      exit 1
-   fi
-else
-   export BUILD_VERSION="${1}"
-fi
-# If there is an actual release, it will be given to us as an argument.
-if [ "${2}" = "" ] ||
-   [ "${2}" = "-nobinlightning" ]; then
-   # Use the date.
-   export BUILD_RELEASE=`date +"%Y%m%d"`
-else
-   export BUILD_RELEASE="${2}"
-fi
-
-#See if there is a -nobinlightning flag
-LIGHTNING="YES"
-for x in "$@"
-do
-  if [ ${x} = "-nobinlightning" ]; then
-    LIGHTNING="NO"
-  fi
-done
-
-function buildRPM()
+function prepareBuildEnvironment()
 {
-   BUILDROOT_DIR=/tmp/awips-component
-
-   COMPONENT_DIR=${1}
-   COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
-
-   # We Need To Delete The 'BuildRoot' Directory After Each RPM Is
-   # Built Whether The Build Is Successful Or Not.
-   rm -rf ${BUILDROOT_DIR}
-
-   # We Build The List Of Files That Need To Be Installed On-Demand Now.
-   # If One Exists From A Previous Build, Delete It.
-   if [ -f ${RPM_TOP_DIR}/BUILD/component-files.txt ]; then
-      rm -f ${RPM_TOP_DIR}/BUILD/component-files.txt
+   if [ "${AWIPSII_TOP_DIR}" = "" ]; then
+      export AWIPSII_TOP_DIR="${VAR_AWIPSII_TOP_DIR}"
    fi
 
-   # Build The RPM.
-   rpmbuild -ba --target=i386 \
-      --define '_topdir %(echo ${RPM_TOP_DIR})' \
-      --define '_component_version %(echo ${BUILD_VERSION})' \
-      --define '_component_release %(echo ${BUILD_RELEASE})' \
-      --buildroot ${BUILDROOT_DIR} ${COMPONENT_SPECS}
-   RC="$?"
-   if [ ! "${RC}" = "0" ]; then
-      echo ""
-      echo "ERROR: Unable To Build The RPM Defined In: ${COMPONENT_DIR}."
-      echo "Unable To Continue ... Terminating."
-      exit 1
+   if [ "${WORKSPACE}" = "" ]; then
+      export WORKSPACE="${VAR_WORKSPACE}"
+   fi
+
+   if [ "${AWIPSII_BUILD_ROOT}" = "" ]; then
+      export AWIPSII_BUILD_ROOT="${VAR_AWIPSII_BUILD_ROOT}"
+   fi
+
+   if [ "${AWIPSII_VERSION}" = "" ]; then
+      # Determine if we need to use the default version.
+      if [ "${VAR_AWIPSII_VERSION}" = "" ]; then
+         VAR_AWIPSII_VERSION=`cat ${WORKSPACE}/rpms/version.txt`
+      fi
+      export AWIPSII_VERSION="${VAR_AWIPSII_VERSION}"
+   fi
+
+   if [ "${AWIPSII_RELEASE}" = "" ]; then
+      # Determine if we need to use the default release.
+      if [ "${VAR_AWIPSII_RELEASE}" = "" ]; then
+         VAR_AWIPSII_RELEASE=`date +"%Y%m%d"`
+      fi
+      export AWIPSII_RELEASE="${VAR_AWIPSII_RELEASE}"
+   fi
+
+   if [ "${UFRAME_ECLIPSE}" = "" ]; then
+      export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
+   fi
+
+   if [ "${AWIPSCM_SHARE}" = "" ]; then
+      export AWIPSCM_SHARE="${VAR_AWIPSCM_SHARE}"
    fi
 }
 
-# Get A List Of The RPM Directories (Excluding This One)
-# Note: Presently, We Are In ../../Installer.rpm/deploy.builder
+function setTargetArchitecture()
+{
+   # Set the target build architecture for the rpms based on the EDEX build
+   # architecture.
+   export TARGET_BUILD_ARCH="${EDEX_BUILD_ARCH}"
+   export EDEX_BUILD_BITS="64"
+   if [ "${EDEX_BUILD_ARCH}" = "x86" ]; then
+      export TARGET_BUILD_ARCH="i386"
+      export EDEX_BUILD_BITS="32"
+   fi
+}
+
+
+export TARGET_BUILD_ARCH=
+# If the architecture has not been specified, default to 32-bit.
+if [ "${EDEX_BUILD_ARCH}" = "" ]; then
+   export EDEX_BUILD_ARCH="x86"
+   echo "The Build Architecture was not specified ... defaulting to x86."
+else
+   echo "Building for architecture ... ${EDEX_BUILD_ARCH}."
+fi
+
+function buildRPM()
+{
+   # Arguments:
+   #   ${1} == specs file
+
+   if [ ! "${COMPONENT_NAME}" = "edex-binlightning" ] ||
+      [ ${LIGHTNING} = true ]; then
+      rpmbuild -ba --target=${TARGET_BUILD_ARCH} \
+         --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+         --define '_baseline_workspace %(echo ${WORKSPACE})' \
+         --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+         --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+         --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+         --define '_component_version %(echo ${AWIPSII_VERSION})' \
+         --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+         --define '_component_name %(echo ${COMPONENT_NAME})' \
+         --define '_build_arch %(echo ${EDEX_BUILD_ARCH})' \
+         --define '_build_bits %(echo ${EDEX_BUILD_BITS})' \
+         --buildroot ${AWIPSII_BUILD_ROOT} \
+         ${1}/component.spec
+      RC=$?
+      if [ ${RC} -ne 0 ]; then
+         echo "FATAL: rpmbuild failed."
+         exit 1
+      fi
+   fi
+}
+
+prepareBuildEnvironment
+
+pushd .
+cd ${WORKSPACE}/build.edex
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+if [ ${LIGHTNING} = true ]; then
+   /awips2/ant/bin/ant -f build.xml -Dlightning=true
+   RC=$?
+else
+   /awips2/ant/bin/ant -f build.xml
+   RC=$?
+fi
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+popd
+setTargetArchitecture
 
 # Adjust Our Execution Position.
 cd ../
 
 buildRPM "Installer.edex-base"
 buildRPM "Installer.edex-configuration"
-buildRPM "Installer.edex-gfe"
-buildRPM "Installer.edex-bufr"
-buildRPM "Installer.edex-common-core"
-buildRPM "Installer.edex-core"
-buildRPM "Installer.edex-cots"
-buildRPM "Installer.edex-dat"
-buildRPM "Installer.edex-dataplugins"
-if [ $LIGHTNING = "YES" ]; then
-  buildRPM "Installer.edex-binlightning"
-fi
-buildRPM "Installer.edex-grib"
-buildRPM "Installer.edex-hydro"
-buildRPM "Installer.edex-radar"
-buildRPM "Installer.edex-ncep"
-buildRPM "Installer.edex-ost"
-buildRPM "Installer.edex-satellite"
-buildRPM "Installer.edex-text"
-buildRPM "Installer.edex-native"
 buildRPM "Installer.edex-shapefiles"
-buildRPM "Installer.edex-ost"
-#buildRPM "Installer.edex-npp"
+# For, now edex-native is always a 32-bit rpm.
+export TARGET_BUILD_ARCH="i386"
+##buildRPM "Installer.edex-ost"
+buildRPM "Installer.edex-native"
+# Reset the target architecture for the remaining rpms.
+setTargetArchitecture
+
+DIST="${WORKSPACE}/build.edex/edex/dist"
+for edex_zip in `cd ${DIST}; ls -1;`;
+do
+   edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
+   
+   export COMPONENT_NAME="${edex_component}"
+   buildRPM "Installer.edex-component"
+done

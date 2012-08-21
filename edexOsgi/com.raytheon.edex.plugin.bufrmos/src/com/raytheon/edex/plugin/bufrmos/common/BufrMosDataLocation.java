@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2011            rjpeter     Initial creation
+ * Jun 28, 2012  #827      dgilling    Annotate id field for serialization.
  * 
  * </pre>
  * 
@@ -65,6 +66,7 @@ public class BufrMosDataLocation extends PersistableDataObject {
 
     /** The id */
     @Id
+    @DynamicSerializeElement
     private Integer id;
 
     // Id of the station making this observation.
@@ -145,28 +147,37 @@ public class BufrMosDataLocation extends PersistableDataObject {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         BufrMosDataLocation other = (BufrMosDataLocation) obj;
         if (latitude == null) {
-            if (other.latitude != null)
+            if (other.latitude != null) {
                 return false;
-        } else if (!latitude.equals(other.latitude))
+            }
+        } else if (!latitude.equals(other.latitude)) {
             return false;
+        }
         if (longitude == null) {
-            if (other.longitude != null)
+            if (other.longitude != null) {
                 return false;
-        } else if (!longitude.equals(other.longitude))
+            }
+        } else if (!longitude.equals(other.longitude)) {
             return false;
+        }
         if (stationId == null) {
-            if (other.stationId != null)
+            if (other.stationId != null) {
                 return false;
-        } else if (!stationId.equals(other.stationId))
+            }
+        } else if (!stationId.equals(other.stationId)) {
             return false;
+        }
         return true;
     }
 }

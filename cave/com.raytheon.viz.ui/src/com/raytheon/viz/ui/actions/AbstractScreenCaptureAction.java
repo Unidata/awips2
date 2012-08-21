@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -32,7 +31,7 @@ public abstract class AbstractScreenCaptureAction extends AbstractHandler {
         int startIndex = 0;
         int endIndex = editor.getActiveDisplayPane().getDescriptor()
                 .getFramesInfo().getFrameCount();
-        if(endIndex == 0){
+        if (endIndex == 0) {
             endIndex = 1;
         }
         return captureFrames(editor, startIndex, endIndex);
@@ -64,11 +63,11 @@ public abstract class AbstractScreenCaptureAction extends AbstractHandler {
 
     private void setFrameIndex(IDescriptor desc, int index) {
         FramesInfo fi = desc.getFramesInfo();
-        if(fi.getFrameTimes() == null || fi.getFrameCount() <= 1){
+        if (fi.getFrameTimes() == null || fi.getFrameCount() <= 1) {
             return;
         }
         index = index % fi.getFrameCount();
-        if(index < 0){
+        if (index < 0) {
             index += fi.getFrameCount();
         }
         fi = new FramesInfo(fi.getFrameTimes(), index, fi.getTimeMap());
@@ -92,7 +91,7 @@ public abstract class AbstractScreenCaptureAction extends AbstractHandler {
 
         // paint in a loop until any async tasks are done
         while (target.isNeedsRefresh()) {
-            target.beginFrame(display, true);
+            target.beginFrame(display.getView(), true);
             display.paint(target, paintProps);
             target.endFrame();
         }

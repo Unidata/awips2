@@ -38,271 +38,277 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2009            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
-public class SigWxCloudsData  extends SigWxDataAdapter {
-    private Log logger = LogFactory.getLog(getClass());
+public class SigWxCloudsData extends SigWxDataAdapter {
+	private Log logger = LogFactory.getLog(getClass());
 
-    SigWxType wxType;
-    
-    /**
-     * 
-     * @param container
-     */
-    public SigWxCloudsData(PointDataDescription pdd, PointDataPluginDao<SigWxData> dao, String pluginName) {
-        super(pdd,dao,pluginName);
-    }
+	SigWxType wxType;
 
-    /**
-     * 
-     * @param pointData
-     * @param locPoint
-     * @param dataPoint
-     * @param index
-     */
-    List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
-        List<SigWxData> sList = new ArrayList<SigWxData>();
+	/**
+	 * 
+	 * @param container
+	 */
+	public SigWxCloudsData(PointDataDescription pdd,
+			PointDataPluginDao<SigWxData> dao, String pluginName) {
+		super(pdd, dao, pluginName);
+	}
 
-        if(sigWx != null) {
-            if(SigWxLayer.SWM.equals(sigWx.getWxLayer())) {
-                sList = getSWMReport(dataList, sigWx);
-            } else {
-                IBUFRDataPacket p1 = dataList.get(15);
-                List<IBUFRDataPacket> tropList = getPacketSubList(p1);
-                if(tropList != null) {
-                    int key = 0;
-                    for(IBUFRDataPacket pp : tropList) {
-                        SigWxData clouds = getSWHReport(pp, sigWx);   
-                        if(clouds != null) {
-                            clouds.setKey(key++);
-                            sList.add(clouds);
-                        }
-                    }
-                }
-            }
-        }
-        return sList;
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private SigWxData getSWHReport(IBUFRDataPacket packet, SigWxData sigWx) {
-        SigWxData currWx = null;                
-        if (packet != null) {
-            // get a copy
-            List<IBUFRDataPacket> cloudData = getPacketSubList(packet);
+	/**
+	 * 
+	 * @param pointData
+	 * @param locPoint
+	 * @param dataPoint
+	 * @param index
+	 */
+	List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
+		List<SigWxData> sList = new ArrayList<SigWxData>();
 
-            currWx = sigWx.copyObs();
+		if (sigWx != null) {
+			if (SigWxLayer.SWM.equals(sigWx.getWxLayer())) {
+				sList = getSWMReport(dataList, sigWx);
+			} else {
+				IBUFRDataPacket p1 = dataList.get(15);
+				List<IBUFRDataPacket> tropList = getPacketSubList(p1);
+				if (tropList != null) {
+					int key = 0;
+					for (IBUFRDataPacket pp : tropList) {
+						SigWxData clouds = getSWHReport(pp, sigWx);
+						if (clouds != null) {
+							clouds.setKey(key++);
+							sList.add(clouds);
+						}
+					}
+				}
+			}
+		}
+		return sList;
+	}
 
-            PointDataContainer container = getContainer(currWx, 1);
-            if (container != null) {
-                PointDataView view = container.append();
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private SigWxData getSWHReport(IBUFRDataPacket packet, SigWxData sigWx) {
+		SigWxData currWx = null;
+		if (packet != null) {
+			// get a copy
+			List<IBUFRDataPacket> cloudData = getPacketSubList(packet);
 
-                long vt = currWx.getDataTime().getValidTime().getTimeInMillis();
-                view.setLong("validTime", vt);
+			currWx = sigWx.copyObs();
 
-                view.setFloat("baseHgt", currWx.getBaseHeight().floatValue());
-                view.setFloat("topHgt", currWx.getTopHeight().floatValue());
-                
-                setViewData("cloudBase", view, cloudData.get(2));
-                setViewData("cloudTop",view,cloudData.get(3));
-                
-                // pickup the Cloud boundary
+			PointDataContainer container = getContainer(currWx, 1);
+			if (container != null) {
+				PointDataView view = container.append();
 
-                int numOfPoints = 0;
-                try {
-                    List<IBUFRDataPacket> dList = getPacketSubList(cloudData.get(4));
-                    for (IBUFRDataPacket p : dList) {
-                        List<IBUFRDataPacket> jetData = getPacketSubList(p);
+				long vt = currWx.getDataTime().getValidTime().getTimeInMillis();
+				view.setLong("validTime", vt);
 
-                        setViewData("latitude", view, jetData.get(0), numOfPoints);
-                        setViewData("longitude", view, jetData.get(1), numOfPoints);
-                        numOfPoints++;
-                    }
-                } catch (IllegalArgumentException e) {
-                    logger.error("Cloud outline truncated at " + numOfPoints + " points");
-                }
-                view.setInt("numOfPoints", numOfPoints);
-                
-                setViewData("cloudDistribution", view, cloudData.get(5));
-                setViewData("cloudType",view,cloudData.get(6));
-                
-                currWx.setPdv(view);
-            }
-        }
-        return currWx;
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private List<SigWxData> getSWMReport(List<IBUFRDataPacket> sList,
-            SigWxData sigWx) {
+				view.setFloat("baseHgt", currWx.getBaseHeight().floatValue());
+				view.setFloat("topHgt", currWx.getTopHeight().floatValue());
 
-        List<SigWxData> wxList = new ArrayList<SigWxData>();
+				setViewData("cloudBase", view, cloudData.get(2));
+				setViewData("cloudTop", view, cloudData.get(3));
 
-        SigWxData currWx = null;
-        if (sList != null) {
-            // get a copy
+				// pickup the Cloud boundary
 
-            int key = 0;
-            int base = 16;
-            while (base < sList.size()) {
+				int numOfPoints = 0;
+				try {
+					List<IBUFRDataPacket> dList = getPacketSubList(cloudData
+							.get(4));
+					for (IBUFRDataPacket p : dList) {
+						List<IBUFRDataPacket> jetData = getPacketSubList(p);
 
-                currWx = sigWx.copyObs();
+						setViewData("latitude", view, jetData.get(0),
+								numOfPoints);
+						setViewData("longitude", view, jetData.get(1),
+								numOfPoints);
+						numOfPoints++;
+					}
+				} catch (IllegalArgumentException e) {
+					logger.error("Cloud outline truncated at " + numOfPoints
+							+ " points");
+				}
+				view.setInt("numOfPoints", numOfPoints);
 
-                PointDataContainer container = getContainer(currWx, 1);
-                if (container != null) {
-                    PointDataView view = container.append();
+				setViewData("cloudDistribution", view, cloudData.get(5));
+				setViewData("cloudType", view, cloudData.get(6));
 
-                    long vt = currWx.getDataTime().getValidTime()
-                            .getTimeInMillis();
-                    view.setLong("validTime", vt);
+				currWx.setPointDataView(view);
+			}
+		}
+		return currWx;
+	}
 
-                    setViewData("featureType", view, sList.get(15));
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private List<SigWxData> getSWMReport(List<IBUFRDataPacket> sList,
+			SigWxData sigWx) {
 
-                    setViewData("dimensionSig", view, sList.get(base));
-                    List<IBUFRDataPacket> dList = getPacketSubList(sList
-                            .get(base + 1));
+		List<SigWxData> wxList = new ArrayList<SigWxData>();
 
-                    int index = 0;
-                    try {
-                        for (IBUFRDataPacket p : dList) {
-                            List<IBUFRDataPacket> featureOutline = getPacketSubList(p);
+		SigWxData currWx = null;
+		if (sList != null) {
+			// get a copy
 
-                            setViewData("latitude", view,
-                                    featureOutline.get(0), index);
-                            setViewData("longitude", view, featureOutline
-                                    .get(1), index);
-                            index++;
-                        }
-                    } catch (IllegalArgumentException e) {
-                        logger.error("Frontal data truncated at " + index
-                                + " features");
-                    }
-                    view.setInt("numOfVertices", index);
+			int key = 0;
+			int base = 16;
+			while (base < sList.size()) {
 
-                    dList = getPacketSubList(sList.get(base + 4));
-                    getTurbData(dList, view);
+				currWx = sigWx.copyObs();
 
-                    dList = getPacketSubList(sList.get(base + 5));
-                    getIcingData(dList, view);
+				PointDataContainer container = getContainer(currWx, 1);
+				if (container != null) {
+					PointDataView view = container.append();
 
-                    dList = getPacketSubList(sList.get(base + 6));
-                    getCloudLevelData(dList, view);
+					long vt = currWx.getDataTime().getValidTime()
+							.getTimeInMillis();
+					view.setLong("validTime", vt);
 
-                    currWx.setPdv(view);
-                    base += 7;
+					setViewData("featureType", view, sList.get(15));
 
-                    if (currWx != null) {
-                        currWx.setKey(key++);
-                        wxList.add(currWx);
-                    }
-                } // while
-            }
-        }
-        return wxList;
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private void getTurbData(List<IBUFRDataPacket> dList, PointDataView view) {
-        int index = 0;
-        try {
-            for (IBUFRDataPacket p : dList) {
-                List<IBUFRDataPacket> featureOutline = getPacketSubList(p);
-                setViewData("turbBase", view, featureOutline.get(0), index);
-                setViewData("turbTop", view, featureOutline.get(1), index);
-                setViewData("turbType", view, featureOutline.get(2), index);
-                index++;
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Cloud.turb data truncated at " + index + " features");
-        }
-        view.setInt("numOfTurbLevels", index);
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private void getIcingData(List<IBUFRDataPacket> dList, PointDataView view) {
-        int index = 0;
-        try {
-            for (IBUFRDataPacket p : dList) {
-                List<IBUFRDataPacket> icingData = getPacketSubList(p);
-                setViewData("icingBase", view, icingData.get(0), index);
-                setViewData("icingTop", view, icingData.get(1), index);
-                setViewData("icingType", view, icingData.get(2), index);
-                index++;
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Cloud.icing data truncated at " + index + " features");
-        }
-        view.setInt("numOfIcingLevels", index);
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private void getCloudLevelData(List<IBUFRDataPacket> dList, PointDataView view) {
-        int index = 0;
-        try {
-            for (IBUFRDataPacket p : dList) {
-                List<IBUFRDataPacket> cloudData = getPacketSubList(p);
-                setViewData("cloudBase", view, cloudData.get(0), index);
-                setViewData("cloudTop",view,cloudData.get(1), index);
-                setViewData("cloudDistribution", view, cloudData.get(2), index);
-                setViewData("cloudType",view,cloudData.get(3), index);
-                index++;
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Cloud.cloud data truncated at " + index + " features");
-        }
-        view.setInt("numOfCloudLevels", index);
-    }
-    
-    /**
-     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-     */
-    @Override
-    SigWxType getType() {
-        return wxType;
-    }
-    
-    /**
-     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-     */
-    @Override
-    void setType(SigWxType type) {
-        wxType = type;
-    }
-    
+					setViewData("dimensionSig", view, sList.get(base));
+					List<IBUFRDataPacket> dList = getPacketSubList(sList
+							.get(base + 1));
+
+					int index = 0;
+					try {
+						for (IBUFRDataPacket p : dList) {
+							List<IBUFRDataPacket> featureOutline = getPacketSubList(p);
+
+							setViewData("latitude", view,
+									featureOutline.get(0), index);
+							setViewData("longitude", view,
+									featureOutline.get(1), index);
+							index++;
+						}
+					} catch (IllegalArgumentException e) {
+						logger.error("Frontal data truncated at " + index
+								+ " features");
+					}
+					view.setInt("numOfVertices", index);
+
+					dList = getPacketSubList(sList.get(base + 4));
+					getTurbData(dList, view);
+
+					dList = getPacketSubList(sList.get(base + 5));
+					getIcingData(dList, view);
+
+					dList = getPacketSubList(sList.get(base + 6));
+					getCloudLevelData(dList, view);
+
+					currWx.setPointDataView(view);
+					base += 7;
+
+					if (currWx != null) {
+						currWx.setKey(key++);
+						wxList.add(currWx);
+					}
+				} // while
+			}
+		}
+		return wxList;
+	}
+
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private void getTurbData(List<IBUFRDataPacket> dList, PointDataView view) {
+		int index = 0;
+		try {
+			for (IBUFRDataPacket p : dList) {
+				List<IBUFRDataPacket> featureOutline = getPacketSubList(p);
+				setViewData("turbBase", view, featureOutline.get(0), index);
+				setViewData("turbTop", view, featureOutline.get(1), index);
+				setViewData("turbType", view, featureOutline.get(2), index);
+				index++;
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error("Cloud.turb data truncated at " + index + " features");
+		}
+		view.setInt("numOfTurbLevels", index);
+	}
+
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private void getIcingData(List<IBUFRDataPacket> dList, PointDataView view) {
+		int index = 0;
+		try {
+			for (IBUFRDataPacket p : dList) {
+				List<IBUFRDataPacket> icingData = getPacketSubList(p);
+				setViewData("icingBase", view, icingData.get(0), index);
+				setViewData("icingTop", view, icingData.get(1), index);
+				setViewData("icingType", view, icingData.get(2), index);
+				index++;
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error("Cloud.icing data truncated at " + index + " features");
+		}
+		view.setInt("numOfIcingLevels", index);
+	}
+
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private void getCloudLevelData(List<IBUFRDataPacket> dList,
+			PointDataView view) {
+		int index = 0;
+		try {
+			for (IBUFRDataPacket p : dList) {
+				List<IBUFRDataPacket> cloudData = getPacketSubList(p);
+				setViewData("cloudBase", view, cloudData.get(0), index);
+				setViewData("cloudTop", view, cloudData.get(1), index);
+				setViewData("cloudDistribution", view, cloudData.get(2), index);
+				setViewData("cloudType", view, cloudData.get(3), index);
+				index++;
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error("Cloud.cloud data truncated at " + index + " features");
+		}
+		view.setInt("numOfCloudLevels", index);
+	}
+
+	/**
+	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+	 */
+	@Override
+	SigWxType getType() {
+		return wxType;
+	}
+
+	/**
+	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+	 */
+	@Override
+	void setType(SigWxType type) {
+		wxType = type;
+	}
+
 }

@@ -19,6 +19,7 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="separator" id="beforeNHemisphere" />
 	<contribute xsi:type="titleItem" 
 		   titleText="------ NH/NA/US every image------" id="NHLine"/>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
