@@ -40,7 +40,9 @@ import com.raytheon.viz.core.gl.images.GLDelegateImage;
 import com.raytheon.viz.core.gl.images.GLImage;
 
 /**
- * TODO Add Description
+ * GL implementation of {@link ITrueColorImage}. Manages drawable images for
+ * {@link Channel} objects. Listens for changes on the ColorMapParameters for
+ * the underlying images so it knows when repaint
  * 
  * <pre>
  * 
@@ -245,4 +247,19 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
         }
         return channels;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.images.GLDelegateImage#dispose()
+     */
+    @Override
+    public void dispose() {
+        super.dispose();
+        for (ColorMapParameters params : listening.keySet()) {
+            params.removeListener(this);
+        }
+        listening.clear();
+    }
+
 }
