@@ -22,7 +22,6 @@ package com.raytheon.viz.core.gl.internal;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -30,7 +29,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +39,6 @@ import java.util.Set;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
-import javax.vecmath.Vector3d;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -59,44 +56,32 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.AbstractGraphicsTarget;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableColorMap;
-import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.data.IColormappedDataPreparer;
-import com.raytheon.uf.viz.core.data.IDataPreparer;
-import com.raytheon.uf.viz.core.data.IImageDataPreparer;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
-import com.raytheon.uf.viz.core.data.resp.NumericImageData;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
-import com.raytheon.uf.viz.core.drawables.ImagingSupport;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtensionManager;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
-import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
-import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.GLDisposalManager;
+import com.raytheon.viz.core.gl.GLStats;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
@@ -108,8 +93,6 @@ import com.raytheon.viz.core.gl.internal.ext.GLDefaultImagingExtension;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
 import com.sun.opengl.util.j2d.TextRenderer;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * 
@@ -149,7 +132,7 @@ import com.vividsolutions.jts.geom.LinearRing;
  * @version 1
  * 
  */
-public class GLTarget implements IGLTarget {
+public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GLTarget.class);
@@ -175,9 +158,6 @@ public class GLTarget implements IGLTarget {
     /** Has a texure load occurred during a draw operation */
     protected boolean hasLoadedTextureOnLoop = false;
 
-    /** Does a refresh need to be performed? */
-    protected boolean needsRefresh = false;
-
     /** A refresh count used to handle refresh requests that occur during draws */
     protected int refreshCount = 0;
 
@@ -186,8 +166,6 @@ public class GLTarget implements IGLTarget {
 
     /** The current visible extent */
     protected IView targetView;
-
-    protected IExtent updatedExtent;
 
     /** The width of the screen */
     protected final float theWidth;
@@ -257,16 +235,9 @@ public class GLTarget implements IGLTarget {
      */
     protected Rectangle canvasSize;
 
-    /**
-     * 
-     */
-    protected RGB backgroundColor = new RGB(0, 0, 0);
-
     protected FontFactory fontFactory;
 
     protected Rectangle monitorBounds;
-
-    private GraphicsExtensionManager extensionManager;
 
     /**
      * Construct a GL target using a canvas (inherited from IGraphicsTarget)
@@ -378,24 +349,18 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IRenderableDisplay,
-     * boolean)
+     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IView, boolean)
      */
     @Override
-    public void beginFrame(IRenderableDisplay display, boolean clearBackground) {
+    public void beginFrame(IView view, boolean clearBackground) {
 
         if (theCanvas != null && theCanvas.isDisposed()) {
             return;
         }
 
-        if (this.updatedExtent != null) {
-            display.setExtent(this.updatedExtent);
-            this.updatedExtent = null;
-        }
-
-        this.targetView = display.getView();
-
         makeContextCurrent();
+
+        setView(view);
 
         if (clearBackground) {
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -404,8 +369,6 @@ public class GLTarget implements IGLTarget {
         IExtent viewExtent = targetView.getExtent();
         theCurrentZoom = (viewExtent.getMaxY() - viewExtent.getMinY())
                 / theHeight;
-
-        display.setup(this);
 
         hasLoadedTextureOnLoop = false;
         synchronized (this) {
@@ -424,17 +387,6 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#buildColorMap(java.lang.String)
-     */
-    @Override
-    public IColorMap buildColorMap(String name) throws VizException {
-        return ColorMapLoader.loadColorMap(name);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#clearClippingPlane()
      */
     @Override
@@ -448,25 +400,13 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#createShadedShape(boolean,
-     * com.raytheon.viz.core.map.IMapDescriptor, boolean)
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, boolean)
      */
     @Override
     public IShadedShape createShadedShape(boolean mutable,
-            IDescriptor descriptor, boolean tesselate) {
-        return new GLShadedShape(descriptor, mutable, tesselate);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#createWireframeShape(boolean,
-     * org.geotools.coverage.grid.GeneralGridGeometry)
-     */
-    @Override
-    public IWireframeShape createWireframeShape(boolean mutableFlag,
-            GeneralGridGeometry geom) {
-        return new GLWireframeShape2D(geom, mutableFlag);
+            GeneralGridGeometry targetGeometry, boolean tesselate) {
+        return new GLShadedShape(targetGeometry, mutable, tesselate);
     }
 
     /*
@@ -485,35 +425,6 @@ public class GLTarget implements IGLTarget {
                     simplificationLevel, spatialChopFlag, extent);
         } else {
             return new GLWireframeShape2D(geom, mutable);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#createWireframeShape(boolean,
-     * com.raytheon.viz.core.map.IMapDescriptor)
-     */
-    @Override
-    public IWireframeShape createWireframeShape(boolean mutable,
-            IDescriptor descriptor) {
-        return new GLWireframeShape2D(descriptor.getGridGeometry(), mutable);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#createWireframeShape(boolean,
-     * com.raytheon.viz.core.map.IMapDescriptor, float)
-     */
-    @Override
-    public IWireframeShape createWireframeShape(boolean mutable,
-            IDescriptor descriptor, float simplificationLevel) {
-        if (simplificationLevel > 0.0) {
-            return new GLWireframeShape(descriptor, mutable,
-                    simplificationLevel);
-        } else {
-            return new GLWireframeShape2D(descriptor.getGridGeometry(), mutable);
         }
     }
 
@@ -567,66 +478,6 @@ public class GLTarget implements IGLTarget {
      */
     public void disposeVBO(int id) {
         gl.glDeleteBuffers(1, IntBuffer.wrap(new int[] { id }));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#drawArc(double, double,
-     * double, double, org.eclipse.swt.graphics.RGB, float, int, int,
-     * com.raytheon.viz.core.IGraphicsTarget.LineStyle, boolean)
-     */
-    @Override
-    public void drawArc(double x1, double y1, double z1, double radius,
-            RGB color, float width, int startAzimuth, int endAzimuth,
-            LineStyle lineStyle, boolean includeSides) throws VizException {
-        this.pushGLState();
-        try {
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
-            handleLineStyle(lineStyle);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, 1.0);
-            gl.glLineWidth(width);
-            gl.glBegin(GL.GL_LINE_STRIP);
-
-            for (double i = startAzimuth; i <= endAzimuth; i++) {
-                double[] pointOnCircle = getPointOnCircle(x1, y1, z1, radius, i);
-                gl.glVertex2d(pointOnCircle[0], pointOnCircle[1]);
-            }
-            gl.glEnd();
-        } finally {
-            this.popGLState();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#drawCircle(double, double,
-     * double, double, org.eclipse.swt.graphics.RGB, float)
-     */
-    @Override
-    public void drawCircle(double x1, double y1, double z1, double radius,
-            RGB color, float width) throws VizException {
-        DrawableCircle circle = new DrawableCircle();
-        circle.setCoordinates(x1, y1, z1);
-        circle.lineWidth = width;
-        circle.basics.color = color;
-        circle.radius = new Double(radius);
-        drawCircle(circle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha) throws VizException {
-        drawColorRamp(colorMapParams, pixelExtent, blendAlpha, 1.0f, 1.0f);
     }
 
     /*
@@ -709,8 +560,8 @@ public class GLTarget implements IGLTarget {
 
             GLShaderProgram program = null;
             if (capabilities.cardSupportsShaders) {
-                program = GLSLFactory.getInstance().getShaderProgram(this,
-                        null, "colormap");
+                program = GLSLFactory.getInstance().getShaderProgram(gl, null,
+                        "colormap");
                 if (program != null) {
                     program.startShader();
                     program.setUniform("alphaVal", blendAlpha);
@@ -834,109 +685,6 @@ public class GLTarget implements IGLTarget {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha, float brightness,
-            float contrast) throws VizException {
-        DrawableColorMap colorMap = new DrawableColorMap(colorMapParams);
-        colorMap.extent = pixelExtent;
-        colorMap.alpha = blendAlpha;
-        colorMap.brightness = brightness;
-        colorMap.contrast = contrast;
-        drawColorRamp(colorMap);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha) throws VizException {
-        drawColorRamp(colorMap, pixelExtent, blendAlpha, 1.0f, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha, float brightness, float contrast)
-            throws VizException {
-        ColorMapParameters cmap = new ColorMapParameters();
-        cmap.setColorMap(colorMap);
-        drawColorRamp(cmap, pixelExtent, blendAlpha, brightness, contrast);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * Draw on the plane where Z is the z parameter.
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#drawFilledCircle(double,
-     * double, double, double, org.eclipse.swt.graphics.RGB)
-     */
-    @Override
-    public void drawFilledCircle(double x, double y, double z, double radius,
-            RGB color) throws VizException {
-        DrawableCircle circle = new DrawableCircle();
-        circle.setCoordinates(x, y, z);
-        circle.basics.color = color;
-        circle.radius = new Double(radius);
-        circle.filled = true;
-        drawCircle(circle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#drawLine3d(double, double,
-     * double, double, double, double, org.eclipse.swt.graphics.RGB, float)
-     */
-    @Override
-    @Deprecated
-    public void drawLine(double x1, double y1, double z1, double x2, double y2,
-            double z2, RGB color, float width) throws VizException {
-        drawLine(x1, y1, z1, x2, y2, z2, color, width, LineStyle.SOLID);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#drawLine3d(double, double,
-     * double, double, double, double, org.eclipse.swt.graphics.RGB, float,
-     * LineStyle)
-     */
-    @Override
-    @Deprecated
-    public void drawLine(double x1, double y1, double z1, double x2, double y2,
-            double z2, RGB color, float width, LineStyle lineStyle)
-            throws VizException {
-        DrawableLine line = new DrawableLine();
-        line.addPoint(x1, y1, z1);
-        line.addPoint(x2, y2, z2);
-        line.width = width;
-        line.lineStyle = lineStyle;
-        line.basics.color = color;
-        drawLine(line);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * com.raytheon.uf.viz.core.IGraphicsTarget#drawLine(com.raytheon.uf.viz
      * .core.DrawableLine[])
      */
@@ -986,67 +734,6 @@ public class GLTarget implements IGLTarget {
         } finally {
             this.popGLState();
         }
-    }
-
-    public void drawPoint(double x, double y, double z, RGB color,
-            PointStyle pointStyle) throws VizException {
-        drawPoint(x, y, z, color, pointStyle, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawPoint(double, double,
-     * double, org.eclipse.swt.graphics.RGB,
-     * com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle, float)
-     */
-    @Override
-    public void drawPoint(double x, double y, double z, RGB color,
-            PointStyle pointStyle, float magnification) throws VizException {
-        drawPoints(Arrays.asList(new double[] { x, y, z }), color, pointStyle,
-                magnification);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawRaster(com.raytheon.viz.core
-     * .drawables.IImage, com.raytheon.viz.core.PixelCoverage, PaintProperties)
-     */
-    @Override
-    public boolean drawRaster(final IImage image, final PixelCoverage coverage,
-            PaintProperties paintProps) throws VizException {
-        return this.drawRaster(image, coverage, paintProps,
-                RasterMode.SYNCHRONOUS);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.IGraphicsTarget#drawRaster(com.raytheon.core.Image,
-     * com.raytheon.core.rsc.Extent, float)
-     */
-    @Override
-    public boolean drawRaster(final IImage image, final PixelCoverage pc,
-            PaintProperties paintProps, RasterMode mode) throws VizException {
-        DrawableImage di = new DrawableImage(image, pc);
-        di.setMode(mode);
-        return drawRasters(paintProps, di);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.ext.IImagingExtension#drawRasters(
-     * com.raytheon.uf.viz.core.drawables.PaintProperties,
-     * com.raytheon.uf.viz.core.DrawableImage[])
-     */
-    @Override
-    public boolean drawRasters(PaintProperties paintProps,
-            DrawableImage... images) throws VizException {
-        return ImagingSupport.drawRasters(this, paintProps, images);
     }
 
     /*
@@ -1119,65 +806,6 @@ public class GLTarget implements IGLTarget {
         }
     }
 
-    /**
-     * Draw the outline for the coverage
-     * 
-     * @param coverage
-     * @param color
-     * @param lineWidth
-     * @param alpha
-     */
-    public void drawRect(PixelCoverage coverage, RGB color, float lineWidth,
-            double alpha) {
-        this.pushGLState();
-        try {
-            gl.glPolygonMode(GL.GL_FRONT, GL.GL_LINE);
-
-            gl.glColor3d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0);
-            gl.glLineWidth(lineWidth);
-            gl.glBegin(GL.GL_QUADS);
-
-            Coordinate c = coverage.getUl();
-            gl.glVertex3d(c.x, c.y, c.z);
-            c = coverage.getLl();
-            gl.glVertex3d(c.x, c.y, c.z);
-            c = coverage.getLr();
-            gl.glVertex3d(c.x, c.y, c.z);
-            c = coverage.getUr();
-
-            gl.glEnd();
-        } finally {
-            this.popGLState();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawShadedShape(com.raytheon.viz
-     * .core.drawables.IShadedShape, float)
-     */
-    @Override
-    public void drawShadedShape(IShadedShape shape, float alpha)
-            throws VizException {
-        drawShadedShape(shape, alpha, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawShadedShape(com.raytheon.viz
-     * .core.drawables.IShadedShape, float)
-     */
-    @Override
-    public void drawShadedShape(IShadedShape shape, float alpha,
-            float brightness) throws VizException {
-        drawShadedShapes(alpha, brightness, shape);
-    }
-
     @Override
     public void drawShadedShapes(float alpha, float brightness,
             IShadedShape... shapes) throws VizException {
@@ -1231,89 +859,6 @@ public class GLTarget implements IGLTarget {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawString(com.raytheon.viz.core
-     * .drawables.IFont, java.lang.String, double, double,
-     * com.raytheon.viz.core.IGraphicsTarget.TextStyle,
-     * org.eclipse.swt.graphics.RGB,
-     * com.raytheon.viz.core.IGraphicsTarget.Alignment, Double)
-     */
-    @Override
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
-            HorizontalAlignment alignment, Double rotation) throws VizException {
-
-        drawString(font, string, xPos, yPos, zPos, textStyle, color, alignment,
-                IGraphicsTarget.VerticalAlignment.BOTTOM, rotation);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawString(com.raytheon.viz.core
-     * .drawables.IFont, java.lang.String, double, double,
-     * com.raytheon.viz.core.IGraphicsTarget.TextStyle,
-     * org.eclipse.swt.graphics.RGB,
-     * com.raytheon.viz.core.IGraphicsTarget.Alignment,
-     * com.raytheon.viz.core.IGraphicsTarget.VertAlignment, java.lang.Double)
-     */
-    @Override
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment, Double rotation)
-            throws VizException {
-        // default the alpha to 1
-        drawString(font, string, xPos, yPos, zPos, textStyle, color,
-                horizontalAlignment, verticalAlignment, rotation, 1.0f, 1.0);
-    }
-
-    @Override
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment, Double rotation, float alpha,
-            double magnification) throws VizException {
-        DrawableString params = new DrawableString(string, color);
-        params.font = font;
-        params.setCoordinates(xPos, yPos, zPos);
-        params.textStyle = textStyle;
-        params.horizontalAlignment = horizontalAlignment;
-        params.verticallAlignment = verticalAlignment;
-        params.rotation = rotation != null ? rotation : 0.0;
-        params.basics.alpha = alpha;
-        params.magnification = magnification;
-        drawStrings(params);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawStrings(com.raytheon.viz.core
-     * .drawables.IFont, java.lang.String[], double, double, double,
-     * com.raytheon.viz.core.IGraphicsTarget.TextStyle,
-     * org.eclipse.swt.graphics.RGB[],
-     * com.raytheon.viz.core.IGraphicsTarget.Alignment, java.lang.Double)
-     */
-    @Override
-    public void drawStrings(IFont font, String[] text, double x, double y,
-            double z, TextStyle textStyle, RGB[] colors,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment) throws VizException {
-        DrawableString params = new DrawableString(text, colors);
-        params.font = font;
-        params.setCoordinates(x, y, z);
-        params.textStyle = textStyle;
-        params.horizontalAlignment = horizontalAlignment;
-        params.verticallAlignment = verticalAlignment;
-        drawStrings(params);
-    }
-
     private double calculateFontResizePercentage(IFont font) {
         double paneWidth = this.canvasSize.width;
         if (this.theCanvas == null) {
@@ -1345,53 +890,12 @@ public class GLTarget implements IGLTarget {
                 * font.getMagnification();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawWireframeShape(com.raytheon
-     * .viz.core.drawables.IWireframeShape, org.eclipse.swt.graphics.RGB, float)
-     */
-    @Override
-    public void drawWireframeShape(IWireframeShape shape, RGB aColor,
-            float lineWidth) throws VizException {
-        drawWireframeShape(shape, aColor, lineWidth, LineStyle.SOLID);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawWireframeShape(com.raytheon
-     * .viz.core.drawables.IWireframeShape, org.eclipse.swt.graphics.RGB, float)
-     */
-    @Override
-    public void drawWireframeShape(IWireframeShape shape, RGB aColor,
-            float lineWidth, IGraphicsTarget.LineStyle lineStyle)
-            throws VizException {
-        drawWireframeShape(shape, aColor, lineWidth, lineStyle, 1.0f);
-    }
-
     @Override
     public void drawWireframeShape(IWireframeShape shape, RGB aColor,
             float lineWidth, IGraphicsTarget.LineStyle lineStyle, float alpha)
             throws VizException {
         drawWireframeShape(shape, aColor, lineWidth, lineStyle, colorbarFont,
                 alpha);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#drawWireframeShape(com.raytheon
-     * .viz.core.drawables.IWireframeShape, org.eclipse.swt.graphics.RGB, float)
-     */
-    @Override
-    public void drawWireframeShape(IWireframeShape shape, RGB aColor,
-            float lineWidth, IGraphicsTarget.LineStyle lineStyle, IFont font)
-            throws VizException {
-        drawWireframeShape(shape, aColor, lineWidth, lineStyle, font, 1.0f);
     }
 
     @Override
@@ -1576,6 +1080,8 @@ public class GLTarget implements IGLTarget {
 
         GLDisposalManager.performDispose(GLU.getCurrentGL());
 
+        GLStats.printStats(gl);
+
         GLContextBridge.releaseMasterContext();
         releaseContext();
     }
@@ -1597,25 +1103,6 @@ public class GLTarget implements IGLTarget {
         return theHeight;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#getPointOnCircle(double,
-     * double, double, double)
-     */
-    @Override
-    public double[] getPointOnCircle(double x1, double y1, double z1,
-            double radius, double angle) throws VizException {
-
-        double pointOnCircle[] = new double[3];
-
-        pointOnCircle[0] = x1 + radius * Math.cos(Math.toRadians(angle));
-        pointOnCircle[1] = y1 + radius * Math.sin(Math.toRadians(angle));
-        // on plane z1
-        pointOnCircle[2] = z1;
-        return pointOnCircle;
-    }
-
     private double getScaleX() {
         return targetView.getExtent().getWidth() / this.canvasSize.width;
 
@@ -1624,40 +1111,6 @@ public class GLTarget implements IGLTarget {
     private double getScaleY() {
         return targetView.getExtent().getHeight() / this.canvasSize.height;
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IGraphicsTarget#getStringBounds(com.raytheon.viz
-     * .core.drawables.IFont, java.lang.String)
-     */
-    @Override
-    public Rectangle2D getStringBounds(IFont font, String string) {
-        if (font == null) {
-            font = getDefaultFont();
-        }
-        DrawableString params = new DrawableString(string, null);
-        params.font = font;
-        return getStringsBounds(params, string);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#getStringBounds(com.raytheon
-     * .uf.viz.core.drawables.IFont, java.lang.String[],
-     * com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle)
-     */
-    @Override
-    public Rectangle2D getStringBounds(IFont font, String[] text,
-            TextStyle textStyle) {
-        DrawableString params = new DrawableString(text, (RGB[]) null);
-        params.font = font;
-        params.textStyle = textStyle;
-        return getStringsBounds(params);
     }
 
     /**
@@ -1796,55 +1249,6 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#initializeRaster(com.raytheon
-     * .uf.viz.core.data.interfaces.IDataRequester,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
-     */
-    @Override
-    @Deprecated
-    public IImage initializeRaster(IDataPreparer preparer,
-            ColorMapParameters optionalParams) {
-        IImage rval = null;
-        if (optionalParams == null) {
-            // Assume IImageDataPreparer
-            final IImageDataPreparer imagePreparer = (IImageDataPreparer) preparer;
-            rval = initializeRaster(new IRenderedImageCallback() {
-                @Override
-                public RenderedImage getImage() throws VizException {
-                    return imagePreparer.prepareData().getImage();
-                }
-            });
-        } else if (preparer instanceof IColormappedDataPreparer) {
-            try {
-                IColormappedImageExtension cmapExt = getExtension(IColormappedImageExtension.class);
-                final IColormappedDataPreparer cmapPreparer = (IColormappedDataPreparer) preparer;
-                rval = cmapExt.initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                NumericImageData oldData = cmapPreparer
-                                        .prepareData();
-                                return new ColorMapData(
-                                        oldData.getData(),
-                                        new int[] {
-                                                oldData.getDatasetBounds().width,
-                                                oldData.getDatasetBounds().height });
-                            }
-
-                        }, optionalParams);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error constructing creating image", e);
-            }
-        }
-        return rval;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#initializeFont(java.io.File,
      * float, com.raytheon.viz.core.drawables.IFont.Style[])
      */
@@ -1879,16 +1283,6 @@ public class GLTarget implements IGLTarget {
         return defaultFont.deriveWithSize(defaultFont.getFontSize());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IGraphicsTarget#isNeedsRefresh()
-     */
-    @Override
-    public boolean isNeedsRefresh() {
-        return needsRefresh;
-    }
-
     protected GLTextureObject loadColormapIntoTexture(ColorMap glColorMap) {
         Buffer bb = glColorMap.getColorMap();
         GLContextBridge.makeMasterContextCurrent();
@@ -1917,6 +1311,7 @@ public class GLTarget implements IGLTarget {
 
         gl.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA, glColorMap.getSize(),
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
+        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
         gl.glDisable(GL.GL_TEXTURE_1D);
 
         return t;
@@ -1974,7 +1369,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public BufferedImage screenshot() {
 
-        boolean release = makeContextCurrent();
+        boolean needsRelease = makeContextCurrent();
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
@@ -1984,7 +1379,8 @@ public class GLTarget implements IGLTarget {
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
-        if (release) {
+
+        if (needsRelease) {
             releaseContext();
         }
         return bi;
@@ -2003,7 +1399,7 @@ public class GLTarget implements IGLTarget {
             throw new IllegalArgumentException(
                     "Background color cannot be null");
         }
-        this.backgroundColor = backgroundColor;
+        super.setBackgroundColor(backgroundColor);
         gl.glClearColor(backgroundColor.red / 255f,
                 backgroundColor.green / 255f, backgroundColor.blue / 255f, 1.0f);
 
@@ -2181,101 +1577,6 @@ public class GLTarget implements IGLTarget {
         return this.canvasSize;
     }
 
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean) {
-
-        gl.glPushMatrix();
-
-        if (quadric == null) {
-            quadric = glu.gluNewQuadric();
-        }
-
-        gl.glEnable(GL.GL_BLEND);
-        gl.glBlendFunc(GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_SRC_ALPHA);
-
-        glu.gluQuadricDrawStyle(quadric, GLU.GLU_FILL);
-        glu.gluQuadricNormals(quadric, GL.GL_SMOOTH);
-
-        // Translate to coordinate position
-        gl.glTranslated(coord.getX(), coord.getY(), coord.getZ());
-
-        // azimuth (rotate azimuth)
-        gl.glRotated(-rotation, coord.getX(), coord.getY(), coord.getZ());
-
-        // Orient the cylinder on the orientation vector.
-        Vector3d zAxis = new Vector3d(0, 0, 1);
-        Vector3d orientationVector = new Vector3d(coord.getCoordinateArray());
-        double orientationAngle = Math
-                .toDegrees(zAxis.angle(orientationVector)) - lean;
-        Vector3d crossVector = new Vector3d();
-
-        // orient the cylinder
-        crossVector.cross(zAxis, orientationVector);
-        gl.glRotated(orientationAngle, crossVector.x, crossVector.y,
-                crossVector.z);
-
-        // draw the cylinder
-        gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-        gl.glBegin(GL.GL_LINES);
-        gl.glShadeModel(GL.GL_SMOOTH);
-        gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                color.blue / 255.0, alpha);
-        glu.gluCylinder(quadric, baseRadius, topRadius, height, sideCount,
-                sliceCount);
-        if (baseRadius != 0) {
-            glu.gluDisk(quadric, 0, baseRadius, 30, 5);
-        }
-        if (topRadius != 0) {
-            gl.glTranslated(0, 0, height);
-            glu.gluDisk(quadric, 0, topRadius, 30, 5);
-        }
-        gl.glEnd();
-
-        gl.glDisable(GL.GL_BLEND);
-
-        // Cleanup
-        glu.gluDeleteQuadric(quadric);
-        gl.glPopMatrix();
-    }
-
-    @Override
-    public void drawShadedPolygon(LinearRing poly, RGB color, double alpha,
-            byte[] stipple) throws VizException {
-        this.pushGLState();
-        try {
-            // set the shading and alpha
-            gl.glEnable(GL.GL_BLEND);
-            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, alpha);
-
-            if (stipple != null) {
-                gl.glEnable(GL.GL_POLYGON_STIPPLE);
-
-                gl.glPolygonStipple(stipple, 0);
-            }
-
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-
-            gl.glBegin(GL.GL_POLYGON);
-
-            for (Coordinate coord : poly.getCoordinates()) {
-                gl.glVertex2d(coord.x, coord.y);
-            }
-            gl.glEnd();
-            gl.glDisable(GL.GL_BLEND);
-            gl.glDisable(GL.GL_SRC_ALPHA);
-        } finally {
-            this.popGLState();
-        }
-    }
-
-    @Override
-    public String getViewType() {
-        return VizConstants.VIEW_2D;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -2297,11 +1598,6 @@ public class GLTarget implements IGLTarget {
         gl.glPopAttrib();
     }
 
-    @Override
-    public void updateExtent(IExtent updatedExtent) {
-        this.updatedExtent = updatedExtent;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -2321,7 +1617,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void setView(IView view) {
-        this.targetView = view;
+        this.targetView = (IView) view.clone();
         this.targetView.setupView(this);
     }
 
@@ -2352,69 +1648,6 @@ public class GLTarget implements IGLTarget {
             cmap.setChanged(false);
         }
         return i;
-    }
-
-    @Override
-    public void renderOffscreen(IImage offscreenImage) throws VizException {
-        getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
-                offscreenImage);
-    }
-
-    @Override
-    public void renderOnscreen() throws VizException {
-        getExtension(IOffscreenRenderingExtension.class).renderOnscreen();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(com.raytheon.uf.
-     * viz.core.DrawStringsParameters)
-     */
-    @Override
-    public void drawStrings(DrawableString... parameters) throws VizException {
-        // TODO: Handle rotation on start of text and drawing within box and
-        // OUTLINE style
-        drawStrings(Arrays.asList(parameters));
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#getStringsBounds(com.raytheon
-     * .uf.viz.core.DrawStringsParameters)
-     */
-    @Override
-    public Rectangle2D getStringsBounds(DrawableString parameters) {
-        // TODO: Handle box already set? and OUTLINE style
-        String[] text = parameters.getText();
-        double maxWidth = 0;
-        double totalHeight = 0;
-
-        Rectangle2D bounds = null;
-
-        for (String string : text) {
-            Rectangle2D txtBounds = getStringsBounds(parameters, string);
-            if (txtBounds.getWidth() > maxWidth) {
-                maxWidth = txtBounds.getWidth();
-            }
-            totalHeight += txtBounds.getHeight();
-            if (bounds == null) {
-                bounds = txtBounds;
-            }
-        }
-
-        if (bounds != null) {
-            if (parameters.textStyle == TextStyle.BLANKED
-                    || parameters.textStyle == TextStyle.BOXED) {
-                maxWidth += 1.0f;
-            }
-            bounds.setRect(0, 0, maxWidth, totalHeight);
-        }
-        return bounds;
     }
 
     /*
@@ -2494,20 +1727,39 @@ public class GLTarget implements IGLTarget {
                     gl.glLogicOp(GL.GL_XOR);
                 }
 
+                float startAzm = circle.startAzimuth;
+                float endAzm = circle.endAzimuth;
+
+                if (endAzm < startAzm) {
+                    endAzm += 360.0;
+                }
+
+                boolean includeSides = circle.includeSides && !fill
+                        && ((endAzm - startAzm) < 360.0);
+
                 if (fill) {
                     gl.glBegin(GL.GL_TRIANGLE_FAN);
                     gl.glVertex3d(x, y, z);
                 } else {
+                    handleLineStyle(circle.lineStyle);
                     gl.glBegin(GL.GL_LINE_STRIP);
+                    if (includeSides) {
+                        gl.glVertex3d(x, y, z);
+                    }
                 }
 
-                double step = 360.0 / (circle.numberOfPoints);
-                for (double i = 0; i <= circle.numberOfPoints; i++) {
+                double step = (endAzm - startAzm) / (circle.numberOfPoints);
+                for (double azm = startAzm; azm <= endAzm; azm += step) {
                     double[] pointOnCircle = getPointOnCircle(x, y, z, radius,
-                            i * step);
+                            azm);
                     gl.glVertex3d(pointOnCircle[0], pointOnCircle[1],
                             pointOnCircle[2]);
                 }
+
+                if (includeSides) {
+                    gl.glVertex3d(x, y, z);
+                }
+
                 gl.glEnd();
 
                 if (xOr) {
@@ -2587,6 +1839,7 @@ public class GLTarget implements IGLTarget {
         // function ends up calling begin/end rendering lots which slows it down
         // to the speed of a not bulk operation
         TextRenderer textRenderer = null;
+        boolean lastXOr = false;
 
         pushGLState();
         gl.glMatrixMode(GL.GL_MODELVIEW);
@@ -2762,9 +2015,15 @@ public class GLTarget implements IGLTarget {
                 }
                 float alpha = Math.min(dString.basics.alpha, 1.0f);
 
-                if (dString.basics.xOrColors) {
-                    gl.glEnable(GL.GL_COLOR_LOGIC_OP);
-                    gl.glLogicOp(GL.GL_XOR);
+                if (lastXOr != dString.basics.xOrColors) {
+                    lastXOr = dString.basics.xOrColors;
+                    textRenderer.flush();
+                    if (lastXOr) {
+                        gl.glEnable(GL.GL_COLOR_LOGIC_OP);
+                        gl.glLogicOp(GL.GL_XOR);
+                    } else {
+                        gl.glDisable(GL.GL_COLOR_LOGIC_OP);
+                    }
                 }
 
                 for (int c = 0; c < dString.getText().length; c++) {
@@ -2837,9 +2096,6 @@ public class GLTarget implements IGLTarget {
                         yPos -= textBounds.getHeight() * getScaleY();
                     }
                 }
-                if (dString.basics.xOrColors) {
-                    gl.glDisable(GL.GL_COLOR_LOGIC_OP);
-                }
 
                 if (rotatedPoint != null) {
                     textRenderer.flush();
@@ -2851,6 +2107,9 @@ public class GLTarget implements IGLTarget {
         } finally {
             if (textRenderer != null) {
                 textRenderer.end3DRendering();
+            }
+            if (lastXOr) {
+                gl.glDisable(GL.GL_COLOR_LOGIC_OP);
             }
             gl.glDisable(GL.GL_TEXTURE_2D);
             gl.glDisable(GL.GL_BLEND);
@@ -3051,116 +2310,15 @@ public class GLTarget implements IGLTarget {
         }
     }
 
-    protected void printMemoryInformation() {
-        if (gl.isExtensionAvailable("GL_NVX_gpu_memory_info")) {
-            int GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 0x9047;
-            int GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
-            int GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = 0x9049;
-            int GPU_MEMORY_INFO_EVICTION_COUNT_NVX = 0x904A;
-            int GPU_MEMORY_INFO_EVICTED_MEMORY_NVX = 0x904B;
-
-            System.out
-                    .println("----------------NVIDIA GPU memory info -----------------");
-            IntBuffer tmp = IntBuffer.allocate(1);
-            gl.glGetIntegerv(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, tmp);
-            tmp.rewind();
-            int totalMem = tmp.get();
-            System.out.println("DEDICATED_VIDMEM: " + totalMem + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, tmp);
-            tmp.rewind();
-            int totAvailMem = tmp.get();
-            System.out.println("TOTAL_AVAILABLE_MEMORY: " + totAvailMem + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, tmp);
-            tmp.rewind();
-            int curAvailMem = tmp.get();
-            System.out.println("CURRENT_AVAILABLE_VIDMEM: " + curAvailMem
-                    + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTION_COUNT_NVX, tmp);
-            tmp.rewind();
-            int evictCount = tmp.get();
-            System.out.println("INFO_EVICTION_COUNT: " + evictCount);
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, tmp);
-            tmp.rewind();
-            int evictMem = tmp.get();
-            System.out.println("INFO_EVICTED_MEMORY: " + evictMem + "KB");
-        } else if (false && gl.isExtensionAvailable("GL_ATI_meminfo")) {
-            // TODO this is untested, I have no ATI gpu
-            int VBO_FREE_MEMORY_ATI = 0x87FB;
-            int TEXTURE_FREE_MEMORY_ATI = 0x87FC;
-            int RENDERBUFFER_FREE_MEMORY_ATI = 0x87FD;
-
-            System.out
-                    .println("----------------ATI GPU memory info -----------------");
-            IntBuffer tmp = IntBuffer.allocate(4);
-            gl.glGetIntegerv(VBO_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int vboTotal = tmp.get();
-            int vboLargest = tmp.get();
-            int vboTotalAux = tmp.get();
-            int vboLargestAux = tmp.get();
-            System.out.println("VBO_FREE_MEMORY total: " + vboTotal + "KB");
-            System.out.println("VBO_FREE_MEMORY largest: " + vboLargest + "KB");
-            System.out.println("VBO_FREE_MEMORY total aux: " + vboTotalAux
-                    + "KB");
-            System.out.println("VBO_FREE_MEMORY largest auc: " + vboLargestAux
-                    + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(TEXTURE_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int texTotal = tmp.get();
-            int texLargest = tmp.get();
-            int texTotalAux = tmp.get();
-            int texLargestAux = tmp.get();
-            System.out.println("TEXTURE_FREE_MEMORY total: " + texTotal + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY largest: " + texLargest
-                    + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY total aux: " + texTotalAux
-                    + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY largest auc: "
-                    + texLargestAux + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int rbTotal = tmp.get();
-            int rbLargest = tmp.get();
-            int rbTotalAux = tmp.get();
-            int rbLargestAux = tmp.get();
-            System.out.println("RENDERBUFFER_FREE_MEMORY total: " + rbTotal
-                    + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY largest: " + rbLargest
-                    + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY total aux: "
-                    + rbTotalAux + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY largest auc: "
-                    + rbLargestAux + "KB");
-
-        }
-    }
-
     @Override
     public final <T extends IGraphicsExtensionInterface> T getExtension(
             Class<T> extensionClass) throws VizException {
-        Class<? extends IGraphicsExtensionInterface> toUse = extensionClass;
         if (extensionClass == IImagingExtension.class) {
-            toUse = GLDefaultImagingExtension.class;
+            return extensionClass.cast(super
+                    .getExtension(GLDefaultImagingExtension.class));
+        } else {
+            return super.getExtension(extensionClass);
         }
-        return extensionClass.cast(extensionManager.getExtension(toUse));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#setUseBuiltinColorbar(boolean)
-     */
-    @Override
-    @Deprecated
-    public void setUseBuiltinColorbar(boolean isColorbarDisplayed) {
-        // No effect
     }
 
 }

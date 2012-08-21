@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.media.opengl.GL;
@@ -32,8 +33,16 @@ import javax.media.opengl.glu.GLUtessellator;
 import javax.media.opengl.glu.GLUtessellatorCallback;
 
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.common.geospatial.TransformFactory;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.drawables.IShape;
+import com.raytheon.viz.core.gl.Activator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -54,11 +63,11 @@ import com.vividsolutions.jts.geom.LineString;
  * @author bsteffen
  * @version 1.0
  */
-public class GLShadedShapeBase {
+public class GLShadedShapeBase implements IShape {
 
     public boolean tessellate;
 
-    private IDescriptor descriptor;
+    private MathTransform worldToPixel = null;
 
     protected byte[] fillPattern;
 
@@ -78,14 +87,21 @@ public class GLShadedShapeBase {
 
     protected ByteBuffer colorBuffer;
 
-    public GLShadedShapeBase(IDescriptor descriptor, boolean tessellate) {
+    public GLShadedShapeBase(GeneralGridGeometry targetGeometry,
+            boolean tessellate) {
         this.tessellate = tessellate;
-        this.descriptor = descriptor;
+        try {
+            this.worldToPixel = TransformFactory.worldToGrid(targetGeometry,
+                    PixelInCell.CELL_CENTER);
+        } catch (FactoryException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     protected GLShadedShapeBase(GLShadedShapeBase that) {
         this.tessellate = that.tessellate;
-        this.descriptor = that.descriptor;
+        this.worldToPixel = that.worldToPixel;
         this.fillPattern = that.fillPattern;
         this.polygons = that.polygons;
         this.vertexBuffer = that.vertexBuffer;
@@ -101,7 +117,7 @@ public class GLShadedShapeBase {
             buffers[i] = FloatBuffer.allocate(lineString[i].getNumPoints() * 2);
             for (Coordinate c : lineString[i].getCoordinates()) {
                 double[] loc = { c.x, c.y };
-                loc = descriptor.worldToPixel(loc);
+                loc = worldToPixel(loc);
                 buffers[i].put((float) loc[0]);
                 buffers[i].put((float) loc[1]);
                 numVertices += 1;
@@ -109,6 +125,21 @@ public class GLShadedShapeBase {
             numContours += 1;
         }
         polygons.add(buffers);
+    }
+
+    protected double[] worldToPixel(double[] world) {
+        if (worldToPixel != null) {
+            try {
+                double[] out = new double[world.length];
+                worldToPixel.transform(world, 0, out, 0, 1);
+                return out;
+            } catch (TransformException e) {
+                // Ignore...
+            }
+            return null;
+        } else {
+            return Arrays.copyOf(world, world.length);
+        }
     }
 
     public synchronized void addPolygonPixelSpace(LineString[] contours) {
@@ -345,7 +376,7 @@ public class GLShadedShapeBase {
         }
     }
 
-    protected synchronized void dispose() {
+    public synchronized void dispose() {
         polygons = new ArrayList<FloatBuffer[]>();
         vertexBuffer = null;
         polygonLengthBuffer = null;
@@ -429,5 +460,35 @@ public class GLShadedShapeBase {
             // Not necessary for type of tesselation
         }
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#isMutable()
+     */
+    @Override
+    public boolean isMutable() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#isDrawable()
+     */
+    @Override
+    public boolean isDrawable() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#reset()
+     */
+    @Override
+    public void reset() {
+        dispose();
     }
 }

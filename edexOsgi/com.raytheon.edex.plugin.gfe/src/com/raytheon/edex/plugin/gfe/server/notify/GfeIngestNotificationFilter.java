@@ -113,8 +113,7 @@ public class GfeIngestNotificationFilter {
                 // ignore if no mapping
                 if (gfeModel != null && gfeModel.length() > 0) {
                     DatabaseID dbId = new DatabaseID(site, DataType.GRID,
-                            "D2D", gfeModel, DatabaseID.dateFormat.format(grib
-                                    .getDataTime().getRefTime()));
+                            "D2D", gfeModel, grib.getDataTime().getRefTime());
 
                     if ((!D2DParmIdCache.getInstance().getDatabaseIDs()
                             .contains(dbId))

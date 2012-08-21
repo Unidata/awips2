@@ -18,6 +18,6 @@ fi
 # Update PYTHONPATH
 if [ "${PYTHONPATH}" = "" ]; then
    export PYTHONPATH=/awips2/fxa/bin/src
-else  
+else
    export PYTHONPATH=/awips2/fxa/bin/src:${PYTHONPATH}
-fi  
+fi

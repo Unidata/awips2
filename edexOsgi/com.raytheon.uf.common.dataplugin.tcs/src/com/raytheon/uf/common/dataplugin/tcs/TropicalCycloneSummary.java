@@ -65,263 +65,256 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class TropicalCycloneSummary extends PersistablePluginDataObject
-        implements ISpatialEnabled, IPointData {
+		implements ISpatialEnabled, IPointData {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    // Text of the WMO header
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private String wmoHeader = "";
+	// Text of the WMO header
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private String wmoHeader = "";
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Column
-    @DataURI(position = 1)
-    protected String productType = "";
+	@XmlElement
+	@DynamicSerializeElement
+	@Column
+	@DataURI(position = 1)
+	protected String productType = "";
 
-    @Embedded
-    @DataURI(position = 2, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 2, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    protected String name;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	protected String name;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    private boolean tropical;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	private boolean tropical;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    private String displayTime;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	private String displayTime;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    private int pressure;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	private int pressure;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    protected int windSpeed;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	protected int windSpeed;
 
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    protected ArrayList<Radius> radiusList;
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	protected ArrayList<Radius> radiusList;
 
-    // @XmlElement
-    // @DynamicSerializeElement
-    // @Transient
-    // protected List<WindRadius> windRadii;
+	// @XmlElement
+	// @DynamicSerializeElement
+	// @Transient
+	// protected List<WindRadius> windRadii;
 
-    /**
-     * Empty default constructor
-     */
-    public TropicalCycloneSummary() {
-        tropical = true;
-        windSpeed = 0;
-        displayTime = "";
-    }
+	/**
+	 * Empty default constructor
+	 */
+	public TropicalCycloneSummary() {
+		tropical = true;
+		windSpeed = 0;
+		displayTime = "";
+	}
 
-    public TropicalCycloneSummary(String dataUri) {
-        super(dataUri);
-        tropical = true;
-        windSpeed = 0;
-        displayTime = "";
-    }
+	public TropicalCycloneSummary(String dataUri) {
+		super(dataUri);
+		tropical = true;
+		windSpeed = 0;
+		displayTime = "";
+	}
 
-    public TropicalCycloneSummary(String name, int pressure, double longitude,
-            double latitude, String displayTime, int wind, boolean tropical) {
-        this.name = name;
-        this.pressure = pressure;
-        location = new SurfaceObsLocation(name);
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
-        this.displayTime = displayTime;
-        this.windSpeed = wind;
-        this.tropical = tropical;
-    }
+	public TropicalCycloneSummary(String name, int pressure, double longitude,
+			double latitude, String displayTime, int wind, boolean tropical) {
+		this.name = name;
+		this.pressure = pressure;
+		location = new SurfaceObsLocation(name);
+		location.setLatitude(latitude);
+		location.setLongitude(longitude);
+		this.displayTime = displayTime;
+		this.windSpeed = wind;
+		this.tropical = tropical;
+	}
 
-    /**
-     * @return the wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * @return the wmoHeader
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * @param wmoHeader
-     *            the wmoHeader to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * @param wmoHeader
+	 *            the wmoHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    public PointDataView getPdv() {
-        return pdv;
-    }
+	/**
+	 * Set the data uri for this observation.
+	 * 
+	 * @param dataURI
+	 */
+	@Override
+	public void setDataURI(String dataURI) {
+		super.setDataURI(dataURI);
+		identifier = dataURI;
+	}
 
-    public void setPdv(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
 
-    @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
+	public String getProductType() {
+		return productType;
+	}
 
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	public void setProductType(String productType) {
+		this.productType = productType;
+	}
 
-    public String getProductType() {
-        return productType;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setProductType(String productType) {
-        this.productType = productType;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public int getPressure() {
+		return pressure;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setPressure(int pressure) {
+		this.pressure = pressure;
+	}
 
-    public int getPressure() {
-        return pressure;
-    }
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    public void setPressure(int pressure) {
-        this.pressure = pressure;
-    }
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	/**
+	 * Get this observation's geometry.
+	 * 
+	 * @return The geometry for this observation.
+	 */
+	public Geometry getGeometry() {
+		return location.getGeometry();
+	}
 
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
+	/**
+	 * Get the geometry latitude.
+	 * 
+	 * @return The geometry latitude.
+	 */
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    /**
-     * Get this observation's geometry.
-     * 
-     * @return The geometry for this observation.
-     */
-    public Geometry getGeometry() {
-        return location.getGeometry();
-    }
+	/**
+	 * Get the geometry longitude.
+	 * 
+	 * @return The geometry longitude.
+	 */
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-    /**
-     * Get the geometry latitude.
-     * 
-     * @return The geometry latitude.
-     */
-    public double getLatitude() {
-        return location.getLatitude();
-    }
+	public boolean isTropical() {
+		return tropical;
+	}
 
-    /**
-     * Get the geometry longitude.
-     * 
-     * @return The geometry longitude.
-     */
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	public void setTropical(boolean tropical) {
+		this.tropical = tropical;
+	}
 
-    public boolean isTropical() {
-        return tropical;
-    }
+	public String getDisplayTime() {
+		return displayTime;
+	}
 
-    public void setTropical(boolean tropical) {
-        this.tropical = tropical;
-    }
+	public void setDisplayTime(String displayTime) {
+		this.displayTime = displayTime;
+	}
 
-    public String getDisplayTime() {
-        return displayTime;
-    }
+	public int getWindSpeed() {
+		return windSpeed;
+	}
 
-    public void setDisplayTime(String displayTime) {
-        this.displayTime = displayTime;
-    }
+	public void setWindSpeed(int windSpeed) {
+		this.windSpeed = windSpeed;
+	}
 
-    public int getWindSpeed() {
-        return windSpeed;
-    }
+	public ArrayList<Radius> getRadiusList() {
+		return radiusList;
+	}
 
-    public void setWindSpeed(int windSpeed) {
-        this.windSpeed = windSpeed;
-    }
+	public void setRadiusList(ArrayList<Radius> radiusList) {
+		this.radiusList = radiusList;
+	}
 
-    public ArrayList<Radius> getRadiusList() {
-        return radiusList;
-    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Calendar c = getDataTime().getRefTimeAsCalendar();
+		if (c != null) {
+			sb.append(String.format("TCS:%1$tY%1$tm%1$td%1$tH%1$tM",
+					getDataTime().getRefTimeAsCalendar()));
+		} else {
+			sb.append("TCS:YYYYMMDDHHmm");
+		}
+		sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
+		return sb.toString();
+	}
 
-    public void setRadiusList(ArrayList<Radius> radiusList) {
-        this.radiusList = radiusList;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        Calendar c = getDataTime().getRefTimeAsCalendar();
-        if (c != null) {
-            sb.append(String.format("TCS:%1$tY%1$tm%1$td%1$tH%1$tM",
-                    getDataTime().getRefTimeAsCalendar()));
-        } else {
-            sb.append("TCS:YYYYMMDDHHmm");
-        }
-        sb.append(String.format("%6.2f %7.2f:", getLatitude(), getLongitude()));
-        return sb.toString();
-    }
-
-    public String print() {
-        String s = "";
-        s += "Display Time = " + displayTime + "\n";
-        s += location.getLatitude() + ", " + location.getLongitude() + "\n";
-        s += "Wind Speed = " + windSpeed + "\n";
-        if (radiusList != null) {
-            for (Radius r : radiusList) {
-                s += r + "\n";
-            }
-        }
-        return s;
-    }
+	public String print() {
+		String s = "";
+		s += "Display Time = " + displayTime + "\n";
+		s += location.getLatitude() + ", " + location.getLongitude() + "\n";
+		s += "Wind Speed = " + windSpeed + "\n";
+		if (radiusList != null) {
+			for (Radius r : radiusList) {
+				s += r + "\n";
+			}
+		}
+		return s;
+	}
 }

@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -358,73 +359,71 @@ public class LightningResource extends
                 .get(this.lastPaintedTime);
 
         if (cacheObject != null) {
-            LightningFrame bundle = cacheObject.getObjectAsync();
-            if (bundle == null) {
-                needsUpdate = true;
-                issueRefresh();
-            } else {
-                if (needsUpdate) {
-                    needsUpdate = false;
-                    currNegList = new ArrayList<double[]>(
-                            bundle.posLatLonList.size());
-                    currPosList = new ArrayList<double[]>(
-                            bundle.negLatLonList.size());
+            synchronized (cacheObject.getMetadata()) {
+                LightningFrame bundle = cacheObject.getObjectAsync();
+                if (bundle == null) {
+                    needsUpdate = true;
+                    issueRefresh();
+                } else {
+                    if (needsUpdate) {
+                        needsUpdate = false;
+                        currNegList = new ArrayList<double[]>(
+                                bundle.posLatLonList.size());
+                        currPosList = new ArrayList<double[]>(
+                                bundle.negLatLonList.size());
+
+                        if (resourceData.isHandlingPositiveStrikes()) {
+                            for (double[] pos : bundle.posLatLonList) {
+                                currPosList.add(descriptor.worldToPixel(pos));
+                            }
+                        }
+                        if (resourceData.isHandlingNegativeStrikes()) {
+                            for (double[] neg : bundle.negLatLonList) {
+                                currNegList.add(descriptor.worldToPixel(neg));
+                            }
+                        }
+                    }
 
                     if (resourceData.isHandlingPositiveStrikes()) {
-                        for (double[] pos : bundle.posLatLonList) {
-                            currPosList.add(descriptor.worldToPixel(pos));
+                        List<double[]> positive = new ArrayList<double[]>(
+                                currPosList.size());
+                        for (double[] pos : currPosList) {
+                            if (extent.contains(pos)) {
+                                positive.add(pos);
+                            }
                         }
+                        posCount = positive.size();
+
+                        target.drawPoints(positive, color, PointStyle.CROSS,
+                                magnification);
                     }
+
                     if (resourceData.isHandlingNegativeStrikes()) {
-                        for (double[] neg : bundle.negLatLonList) {
-                            currNegList.add(descriptor.worldToPixel(neg));
+                        List<double[]> negative = new ArrayList<double[]>(
+                                currPosList.size());
+                        for (double[] neg : currNegList) {
+                            if (extent.contains(neg)) {
+                                negative.add(neg);
+                            }
                         }
+                        negCount = negative.size();
+
+                        target.drawPoints(negative, color, PointStyle.DASH,
+                                magnification);
                     }
-                }
-
-                if (resourceData.isHandlingPositiveStrikes()) {
-                    List<double[]> positive = new ArrayList<double[]>(
-                            currPosList.size());
-                    for (double[] pos : currPosList) {
-                        if (extent.contains(pos)) {
-                            positive.add(pos);
-                        }
-                    }
-                    posCount = positive.size();
-
-                    target.drawPoints(positive, color, PointStyle.CROSS,
-                            magnification);
-                }
-
-                if (resourceData.isHandlingNegativeStrikes()) {
-                    List<double[]> negative = new ArrayList<double[]>(
-                            currPosList.size());
-                    for (double[] neg : currNegList) {
-                        if (extent.contains(neg)) {
-                            negative.add(neg);
-                        }
-                    }
-                    negCount = negative.size();
-
-                    target.drawPoints(negative, color, PointStyle.DASH,
-                            magnification);
                 }
             }
         }
 
-        target.clearClippingPlane();
-
         font.setMagnification(magnification);
         List<DrawableString> strings = new ArrayList<DrawableString>();
-        double ratio = extent.getWidth() / paintProps.getCanvasBounds().width;
         double height = target.getStringsBounds(new DrawableString("Hy", null))
                 .getHeight();
 
         if (this.resourceData.isHandlingPositiveStrikes()) {
             DrawableString pos = new DrawableString(posCount + " + Strikes",
                     color);
-            pos.setCoordinates(extent.getMinX() + 225 * ratio, extent.getMinY()
-                    + height * 2 * ratio);
+            pos.setCoordinates(225, height * 2);
             pos.font = font;
             pos.verticallAlignment = VerticalAlignment.TOP;
             pos.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -434,16 +433,16 @@ public class LightningResource extends
         if (this.resourceData.isHandlingNegativeStrikes()) {
             DrawableString neg = new DrawableString(negCount + " - Strikes",
                     color);
-            neg.setCoordinates(extent.getMinX() + 225 * ratio, extent.getMinY()
-                    + height * 3 * ratio);
+            neg.setCoordinates(225, height * 3);
             neg.font = font;
             neg.verticallAlignment = VerticalAlignment.TOP;
             neg.horizontalAlignment = HorizontalAlignment.RIGHT;
             strings.add(neg);
         }
 
-        target.drawStrings(strings);
-        target.setupClippingPlane(paintProps.getClippingPane());
+        target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                paintProps, strings.toArray(new DrawableString[0]));
+
     }
 
     /*

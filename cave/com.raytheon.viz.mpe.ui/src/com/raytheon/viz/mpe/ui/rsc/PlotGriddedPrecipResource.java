@@ -470,8 +470,6 @@ public class PlotGriddedPrecipResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-
-        target.setUseBuiltinColorbar(false);
         if (buf == null || DailyQcUtils.grids_flag != 1
                 || displayMgr.isQpf() != true) {
             return;

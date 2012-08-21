@@ -30,9 +30,15 @@ then
    exit 1
 fi
 LDM_BUILD_DIR="/tmp/awips2-${USER}/ldm-build"
-LDM_TAR_DIR="Installer.rpm/awips2.core/Installer.ldm/src"
+LDM_TAR_DIR="rpms/awips2.core/Installer.ldm/src"
 LDM_TAR_FILE="ldm-6.8.1.tar.gz"
 
+if [ -d ${RPM_BUILD_ROOT} ]; then
+   rm -rf ${RPM_BUILD_ROOT}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
 if [ -d ${LDM_BUILD_DIR} ]; then
    rm -rf ${LDM_BUILD_DIR}
 fi
@@ -57,13 +63,16 @@ fi
 mkdir -p /usr/local/ldm-6.8.1
 
 # Copy the src to the build directory.
-cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/${LDM_TAR_FILE} \
+cp %{_baseline_workspace}/${LDM_TAR_DIR}/${LDM_TAR_FILE} \
    ${LDM_BUILD_DIR}
 # Copy patch0 to the build directory.
-cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch0 \
+cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch0 \
    ${LDM_BUILD_DIR}
 # Copy patch1 to the build directory.
-cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch1 \
+cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch1 \
+   ${LDM_BUILD_DIR}
+# Copy patch2 to the build directory.
+cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch2 \
    ${LDM_BUILD_DIR}
 cd ${LDM_BUILD_DIR}
 tar -xvf ${LDM_TAR_FILE}
@@ -81,9 +90,14 @@ patch -p1 < ../ldm-6.8.1.patch1
 # remove the patch file
 rm -f ../ldm-6.8.1.patch1
 
+patch -p1 < ../ldm-6.8.1.patch2
+
+# remove the patch file.
+rm -f ../ldm-6.8.1.patch2
+
 %build
 LDM_BUILD_DIR="/tmp/awips2-${USER}/ldm-build"
-LDM_TAR_DIR="Installer.rpm/awips2.core/Installer.ldm/src"
+LDM_TAR_DIR="rpms/awips2.core/Installer.ldm/src"
 LDM_TAR_FILE="ldm-6.8.1.tar.gz"
 
 # go to the ldm src directory.
@@ -156,25 +170,25 @@ echo "/usr/local/ldm-6.8.1/lib" >> \
    ${RPM_BUILD_ROOT}/etc/ld.so.conf.d/awips2-i386.conf
 
 # install our "patches"
-PATCH_DIR="Installer.rpm/awips2.core/Installer.ldm/patch"
+PATCH_DIR="rpms/awips2.core/Installer.ldm/patch"
 # Copy the hidden files.
 hidden_files=( '.bash_profile' '.bashrc' '.cshrc' \
    '.lesshst' '.viminfo' )
 for hiddenFile in ${hidden_files[*]}; do
-   cp ${WORKSPACE_DIR}/${PATCH_DIR}/${hiddenFile} \
+   cp %{_baseline_workspace}/${PATCH_DIR}/${hiddenFile} \
       ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1
 done
 # Copy the contents of the bin directory.
-cp -f ${WORKSPACE_DIR}/${PATCH_DIR}/bin/* \
+cp -f %{_baseline_workspace}/${PATCH_DIR}/bin/* \
    ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/bin
 # Copy the contents of the decoder directory.
-cp ${WORKSPACE_DIR}/${PATCH_DIR}/decoders/* \
+cp %{_baseline_workspace}/${PATCH_DIR}/decoders/* \
    ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/decoders
 # Copy the contents of the lib directory.
-cp -P ${WORKSPACE_DIR}/${PATCH_DIR}/lib/* \
+cp -P %{_baseline_workspace}/${PATCH_DIR}/lib/* \
    ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/lib
 # Copy the contents of the etc directory.
-cp -f ${WORKSPACE_DIR}/${PATCH_DIR}/etc/* \
+cp -f %{_baseline_workspace}/${PATCH_DIR}/etc/* \
    ${RPM_BUILD_ROOT}/usr/local/ldm-6.8.1/etc
    
 # Merge pqact.conf.oax and pqact.conf.template to create
@@ -206,14 +220,10 @@ popd > /dev/null 2>&1
 
 # Move our profile.d script to its final location.
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-cp ${WORKSPACE_DIR}/${PATCH_DIR}/profile.d/awipsLDM.csh \
+cp %{_baseline_workspace}/${PATCH_DIR}/profile.d/awipsLDM.csh \
    ${RPM_BUILD_ROOT}/etc/profile.d
    
 %pre
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II ldm...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = /usr/local/ldm-6.8.1\e[m"
 if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
 fi
@@ -265,16 +275,8 @@ rm -f /usr/local/ldm-6.8.1/etc/ldmd.conf.*
 
 rm -rf /tmp/ldm
 
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II ldm Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %postun
 /sbin/ldconfig
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II ldm Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

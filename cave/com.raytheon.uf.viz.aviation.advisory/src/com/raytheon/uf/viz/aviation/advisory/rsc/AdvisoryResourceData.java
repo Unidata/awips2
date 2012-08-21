@@ -49,8 +49,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AdvisoryResourceData extends
-        AbstractRequestableResourceData {    
+public class AdvisoryResourceData extends AbstractRequestableResourceData {
 
     @XmlElement
     private AbstractAdvisoryDataAdapter dataAdapter;
@@ -60,52 +59,15 @@ public class AdvisoryResourceData extends
 
     @XmlAttribute
     private String colorString;
-    
+
     @XmlAttribute
     private boolean enableNonstandardInspect = false;
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
-        }
-
-        if (obj instanceof AdvisoryResourceData == false) {
-            return false;
-        }
-
-        AdvisoryResourceData other = (AdvisoryResourceData) obj;
- 
-        if (other.dataAdapter != dataAdapter
-                && (other.dataAdapter == null || !other.dataAdapter
-                        .equals(dataAdapter))) {
-            return false;
-        }
-        
-        if (other.name != name
-                && (other.name == null || !other.name.equals(name))) {
-            return false;
-        }
-
-        if (other.colorString != colorString
-                && (other.colorString == null || !other.colorString
-                        .equalsIgnoreCase(colorString))) {
-            return false;
-        }
-        
-        if (other.enableNonstandardInspect != this.enableNonstandardInspect) {
-            return false;
-        }
-
-        return true;
-    }
 
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        AdvisoryResource nr = new AdvisoryResource(this,
-                loadProperties);
+        AdvisoryResource nr = new AdvisoryResource(this, loadProperties);
         if (colorString != null) {
             nr.getCapability(ColorableCapability.class).setColorAsString(
                     colorString);
@@ -116,7 +78,6 @@ public class AdvisoryResourceData extends
         return nr;
     }
 
-    
     public AbstractAdvisoryDataAdapter getDataAdapter() {
         return dataAdapter;
     }
@@ -147,6 +108,48 @@ public class AdvisoryResourceData extends
 
     public String getColorString() {
         return colorString;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((colorString == null) ? 0 : colorString.hashCode());
+        result = prime * result
+                + ((dataAdapter == null) ? 0 : dataAdapter.hashCode());
+        result = prime * result + (enableNonstandardInspect ? 1231 : 1237);
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AdvisoryResourceData other = (AdvisoryResourceData) obj;
+        if (colorString == null) {
+            if (other.colorString != null)
+                return false;
+        } else if (!colorString.equals(other.colorString))
+            return false;
+        if (dataAdapter == null) {
+            if (other.dataAdapter != null)
+                return false;
+        } else if (!dataAdapter.equals(other.dataAdapter))
+            return false;
+        if (enableNonstandardInspect != other.enableNonstandardInspect)
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
     }
 
 }

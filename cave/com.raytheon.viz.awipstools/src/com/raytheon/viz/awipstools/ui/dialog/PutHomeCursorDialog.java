@@ -75,7 +75,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -164,7 +164,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
         createCityChoice();
         createLatLonChoice();
         try {
-            updateStationInfo(ToolsDataManager.getInstance().getHome());
+            updateStationInfo(PointsDataManager.getInstance().getHome());
         } catch (Exception e) {
 
         }
@@ -305,7 +305,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
         longLabel.setText("Longitude:");
         lonTextField = new Text(comp, SWT.BORDER);
         lonTextField.setLayoutData(new GridData(80, SWT.DEFAULT));
-        Coordinate point = ToolsDataManager.getInstance().getHome();
+        Coordinate point = PointsDataManager.getInstance().getHome();
         lonTextField.setText(String.valueOf(point.x));
         latTextField.setText(String.valueOf(point.y));
     }
@@ -366,7 +366,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                             "Could not find that Metar station");
                     stationTextField.setFocus();
                 } else {
-                    ToolsDataManager.getInstance().setHome(c);
+                    PointsDataManager.getInstance().setHome(c);
                     resourceData.fireChangeListeners(ChangeType.DATA_UPDATE,
                             null);
                     stationTextField.setText(station);
@@ -400,7 +400,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                         "Put Home Cursor Error", "Could not find that city");
                 cityTextField.setFocus();
             } else {
-                ToolsDataManager.getInstance().setHome(c);
+                PointsDataManager.getInstance().setHome(c);
                 resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
                 cityTextField.setText(city);
                 stateTextField.setText(state);
@@ -433,7 +433,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                 latTextField.setFocus();
                 return;
             }
-            ToolsDataManager.getInstance().setHome(c);
+            PointsDataManager.getInstance().setHome(c);
             resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
         }
     }
@@ -585,7 +585,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
 
     @Override
     public void resourceChanged(ChangeType type, Object object) {
-        Coordinate point = ToolsDataManager.getInstance().getHome();
+        Coordinate point = PointsDataManager.getInstance().getHome();
         lonTextField.setText(String.valueOf(point.x));
         latTextField.setText(String.valueOf(point.y));
         // find the nearest station and update the fields.

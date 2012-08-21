@@ -19,8 +19,12 @@
  **/
 package com.raytheon.viz.core.gl.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.media.opengl.GL;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -52,7 +56,7 @@ import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
  */
 public class GLMesh2DStrips extends AbstractGLMesh {
 
-    public GLMesh2DStrips(GridGeometry2D imageGeometry,
+    private GLMesh2DStrips(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException {
         super(GL.GL_TRIANGLE_STRIP);
         initialize(imageGeometry, targetGeometry);
@@ -255,6 +259,40 @@ public class GLMesh2DStrips extends AbstractGLMesh {
                 return (int) Math.ceil(maxNumDivs);
             }
             return (Math.max(nd1, nd2) * 2);
+        }
+    }
+
+    @Override
+    public synchronized void dispose() {
+        synchronized (cache) {
+            super.dispose();
+            if (refCount == 0) {
+                cache.remove(new MultiKey(imageGeometry, targetGeometry));
+            }
+        }
+    }
+
+    @Override
+    public AbstractGLMesh clone(GeneralGridGeometry targetGeometry)
+            throws VizException {
+        return getMesh(imageGeometry, targetGeometry);
+    }
+
+    private static Map<MultiKey, GLMesh2DStrips> cache = new HashMap<MultiKey, GLMesh2DStrips>();
+
+    public static synchronized GLMesh2DStrips getMesh(
+            GridGeometry2D imageGeometry, GeneralGridGeometry targetGeometry)
+            throws VizException {
+        MultiKey key = new MultiKey(imageGeometry, targetGeometry);
+        synchronized (cache) {
+            GLMesh2DStrips mesh = cache.get(key);
+            if (mesh == null) {
+                mesh = new GLMesh2DStrips(imageGeometry, targetGeometry);
+                cache.put(key, mesh);
+            } else {
+                mesh.use();
+            }
+            return mesh;
         }
     }
 }

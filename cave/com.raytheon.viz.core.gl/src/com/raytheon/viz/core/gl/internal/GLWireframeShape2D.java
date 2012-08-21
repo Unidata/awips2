@@ -28,10 +28,12 @@ import javax.media.opengl.GL;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -39,7 +41,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -88,18 +89,12 @@ public class GLWireframeShape2D implements IWireframeShape {
         geomData.mutable = mutable;
         geomData.worldExtent = new PixelExtent(gridGeometry.getGridRange());
 
-        MathTransform worldToCRS = AbstractDescriptor
-                .getWorldToCRSTransform(gridGeometry);
-        if (worldToCRS != null) {
-            try {
-                MathTransform crsToGrid = gridGeometry.getGridToCRS().inverse();
-                worldToTargetGrid = new DefaultMathTransformFactory()
-                        .createConcatenatedTransform(worldToCRS, crsToGrid);
-            } catch (Exception e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        "Error getting transform from base crs to target grid",
-                        e);
-            }
+        try {
+            worldToTargetGrid = TransformFactory.worldToGrid(gridGeometry,
+                    PixelInCell.CELL_CENTER);
+        } catch (FactoryException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error getting transform from base crs to target grid", e);
         }
 
         initialize();

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Radar
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.radar
 Bundle-Version: 1.0.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.core
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.core, org.geotools
 Bundle-Activator: com.raytheon.uf.common.dataplugin.radar.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
@@ -31,6 +31,7 @@ Export-Package: com.raytheon.uf.common.dataplugin.radar;
    com.raytheon.uf.common.time",
  com.raytheon.uf.common.dataplugin.radar.level3;uses:="com.raytheon.uf.common.dataplugin.radar.level3.generic,com.raytheon.uf.common.serialization",
  com.raytheon.uf.common.dataplugin.radar.level3.generic;uses:="com.raytheon.uf.common.serialization",
+ com.raytheon.uf.common.dataplugin.radar.projection,
  com.raytheon.uf.common.dataplugin.radar.request;uses:="com.raytheon.uf.common.serialization.comm",
  com.raytheon.uf.common.dataplugin.radar.util;
   uses:="com.raytheon.uf.common.dataplugin.radar,

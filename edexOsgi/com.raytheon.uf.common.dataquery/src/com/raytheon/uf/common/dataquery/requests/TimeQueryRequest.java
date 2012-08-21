@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.common.dataquery.requests;
 
+import java.util.Date;
 import java.util.Map;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 import com.raytheon.uf.common.time.BinOffset;
+import com.raytheon.uf.common.time.SimulatedTime;
 
 /**
  * Request to query available times. A bin offset can be included and will be
@@ -47,11 +49,20 @@ import com.raytheon.uf.common.time.BinOffset;
 @DynamicSerialize
 public class TimeQueryRequest implements IServerRequest {
 
+    public TimeQueryRequest() {
+        if (!SimulatedTime.getSystemTime().isRealTime()) {
+            this.simDate = SimulatedTime.getSystemTime().getTime();
+        }
+    }
+
     @DynamicSerializeElement
     private String pluginName;
 
     @DynamicSerializeElement
     private boolean maxQuery;
+
+    @DynamicSerializeElement
+    private Date simDate;
 
     @DynamicSerializeElement
     private Map<String, RequestConstraint> queryTerms;
@@ -91,11 +102,19 @@ public class TimeQueryRequest implements IServerRequest {
         return queryTerms;
     }
 
+    public void setSimDate(Date simDate) {
+        this.simDate = simDate;
+    }
+
+    public Date getSimDate() {
+        return simDate;
+    }
+
     @Override
     public String toString() {
         return "TimeQueryRequest [pluginName=" + pluginName + ", maxQuery="
                 + maxQuery + ", queryTerms=" + queryTerms + ", binOffset="
-                + binOffset + "]";
+                + binOffset + " simDate=" + simDate + " ]";
     }
 
 }

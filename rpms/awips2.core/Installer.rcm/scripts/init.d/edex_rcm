@@ -20,16 +20,10 @@ RETVAL=0
 # user to run the Radar Server
 EDEXUSER=awips
 
-# Find the java installation - stop using hard-coded paths.
-JAVA_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-java`
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "ERROR: awips2-java Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-# Find the Radar Server install.
-RCM_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-rcm`
+# the java installation.
+JAVA_INSTALL="/awips2/java"
+# the Radar Server installation.
+RCM_INSTALL="/awips2/rcm"
 
 # set java location
 JAVA_HOME_DIR=${JAVA_INSTALL}

@@ -44,14 +44,6 @@ import UFStatusHandler
 import JUtil
 from java.io import File
 from java.lang import System
-from com.raytheon.uf.common.serialization import SerializationUtil
-from com.raytheon.uf.common.localization import LocalizationFile
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext 
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
-from com.raytheon.uf.common.site.xml import CwaXML
-from com.raytheon.uf.common.site.xml import AdjacentWfoXML
 
 PLUGIN_NAME = 'com.raytheon.viz.gfe'
 CATEGORY = 'GFE'

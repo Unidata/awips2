@@ -208,30 +208,35 @@ public class PathManager implements IPathManager {
             }
         }
 
-        ListResponse[] entry = null;
-        try {
-            entry = this.adapter.getLocalizationMetadata(ctxToCheck
-                    .toArray(new LocalizationContext[ctxToCheck.size()]), name);
-        } catch (LocalizationException e) {
-            // Error on server, no files will be returned
-            e.printStackTrace();
-        }
+        if (ctxToCheck.size() > 0) {
+            ListResponse[] entry = null;
+            try {
+                entry = this.adapter.getLocalizationMetadata(ctxToCheck
+                        .toArray(new LocalizationContext[ctxToCheck.size()]),
+                        name);
+            } catch (LocalizationException e) {
+                // Error on server, no files will be returned
+                e.printStackTrace();
+            }
 
-        if (entry != null) {
-            for (ListResponse lr : entry) {
-                // A null File means the file can never exist, therefore we set
-                // the context/name key as a null file object to avoid
-                // requesting data about the non-existent file again
-                LocalizationFile file = new LocalizationFile();
-                File local = adapter.getPath(lr.context, name);
-                if (local != null) {
-                    file = new LocalizationFile(this.adapter, lr.context,
-                            local, lr.date, name, lr.checkSum, lr.isDirectory,
-                            lr.existsOnServer, lr.isProtected);
-                    availableFiles.put(file.getContext(), file);
+            if (entry != null) {
+                for (ListResponse lr : entry) {
+                    // A null File means the file can never exist, therefore we
+                    // set
+                    // the context/name key as a null file object to avoid
+                    // requesting data about the non-existent file again
+                    LocalizationFile file = new LocalizationFile();
+                    File local = adapter.getPath(lr.context, name);
+                    if (local != null) {
+                        file = new LocalizationFile(this.adapter, lr.context,
+                                local, lr.date, name, lr.checkSum,
+                                lr.isDirectory, lr.existsOnServer,
+                                lr.isProtected);
+                        availableFiles.put(file.getContext(), file);
+                    }
+                    fileCache.put(new LocalizationFileKey(lr.fileName,
+                            lr.context), file);
                 }
-                fileCache.put(new LocalizationFileKey(lr.fileName, lr.context),
-                        file);
             }
         }
 

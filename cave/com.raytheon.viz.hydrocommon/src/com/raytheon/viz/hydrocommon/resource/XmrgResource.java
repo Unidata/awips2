@@ -483,8 +483,6 @@ public class XmrgResource extends
             return;
         }
 
-        target.setUseBuiltinColorbar(false);
-
         if (gridDisplay == null) {
             gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this,
                     target.getViewType());
