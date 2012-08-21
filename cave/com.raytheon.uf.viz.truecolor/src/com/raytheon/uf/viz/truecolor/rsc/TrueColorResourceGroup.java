@@ -20,10 +20,11 @@
 package com.raytheon.uf.viz.truecolor.rsc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.Rectangle;
@@ -34,6 +35,7 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -111,35 +113,16 @@ public class TrueColorResourceGroup extends
          * @return
          */
         public boolean isChannel(Channel channel) {
-            return this.channel.channels.contains(channel);
+            return this.channel.getChannel() == channel;
         }
 
         /**
-         * Removes a channel from being assigned to the resource
-         * 
-         * @param channel
+         * @return
          */
-        public void removeChannel(Channel channel) {
-            this.channel.channels.remove(channel);
+        public Channel getChannel() {
+            return channel.getChannel();
         }
 
-        /**
-         * Adds a channel to be assigned to the resource
-         * 
-         * @param channel
-         */
-        public void addChannel(Channel channel) {
-            this.channel.channels.add(channel);
-        }
-
-        /**
-         * Set the channels to be used by the channel resource
-         * 
-         * @param channels
-         */
-        public void setChannels(Channel[] channels) {
-            channel.setChannels(channels);
-        }
     }
 
     private static final String DEFAULT_NAME = "RGB Composite";
@@ -149,6 +132,9 @@ public class TrueColorResourceGroup extends
     private ITrueColorImage image;
 
     private boolean timeAgnostic = true;
+
+    /** Mapping to keep colormap parameters in sync with ChannelInfo in resourceData */
+    private Map<ColorMapParameters, ChannelInfo> channelInfoMap = new IdentityHashMap<ColorMapParameters, ChannelInfo>();
 
     /**
      * @param resourceData
@@ -264,6 +250,10 @@ public class TrueColorResourceGroup extends
                             if (resource
                                     .hasCapability(ColorMapCapability.class) == false) {
                                 error = "does not have ColorMapCapability";
+                            } else if (resource.getCapability(
+                                    ColorMapCapability.class)
+                                    .getColorMapParameters() == null) {
+                                error = "does not have ColorMapParameters set";
                             }
                         } else {
                             error = "does not have image provider set on the ImagingCapability";
@@ -271,6 +261,45 @@ public class TrueColorResourceGroup extends
                     } else {
                         error = "does not have the ImagingCapability";
                     }
+                    if (cr.getChannel() == null) {
+                        error = "is not tied to any channel";
+                    } else if (usedChannels.contains(cr.getChannel())) {
+                        error = "is tied to a channel already in use";
+                    }
+
+                    if (error == null) {
+                        // No errors so far, check for ChannelInfo override
+                        ColorMapParameters params = resource.getCapability(
+                                ColorMapCapability.class)
+                                .getColorMapParameters();
+                        ChannelInfo ci = resourceData
+                                .getChannelInfo(displayedResource.getChannel());
+                        if (ci == null
+                                || ci.getUnit().isCompatible(
+                                        params.getDataUnit())) {
+                            if (ci == null) {
+                                ci = new ChannelInfo();
+                                ci.setChannel(displayedResource.getChannel());
+                                resourceData.setChannelInfo(ci);
+                            } else {
+                                params.setDisplayUnit(ci.getUnit());
+                                params.setColorMapMin((float) params
+                                        .getDisplayToDataConverter().convert(
+                                                ci.getRangeMin()));
+                                params.setColorMapMax((float) params
+                                        .getDisplayToDataConverter().convert(
+                                                ci.getRangeMax()));
+                            }
+                            channelInfoMap.put(params, ci);
+                            resourceChanged(
+                                    ChangeType.CAPABILITY,
+                                    resource.getCapability(ColorMapCapability.class));
+                        } else {
+                            error = "is not compatible with custom ChannelInfo for Channel="
+                                    + displayedResource.getChannel();
+                        }
+                    }
+
                     if (error != null) {
                         Activator.statusHandler.handle(Priority.PROBLEM,
                                 displayedResource.getDisplayName()
@@ -279,16 +308,7 @@ public class TrueColorResourceGroup extends
                         resources.remove(rp);
                     } else {
                         resource.getResourceData().addChangeListener(this);
-                        // Force channels unique to a single resource
-                        for (Channel c : usedChannels) {
-                            if (displayedResource.isChannel(c)) {
-                                // Notify with INFO message?
-                                displayedResource.removeChannel(c);
-                            }
-                        }
-                        usedChannels
-                                .addAll(Arrays.asList(displayedResource.channel
-                                        .getChannels()));
+                        usedChannels.add(displayedResource.getChannel());
                         displayedResources.add(displayedResource);
                     }
                     break;
@@ -383,6 +403,17 @@ public class TrueColorResourceGroup extends
                 image.setBrightness(imaging.getBrightness());
                 image.setContrast(imaging.getContrast());
                 image.setInterpolated(imaging.isInterpolationState());
+            } else if (object instanceof ColorMapCapability) {
+                ColorMapParameters params = ((ColorMapCapability) object)
+                        .getColorMapParameters();
+                ChannelInfo ci = channelInfoMap.get(params);
+                if (ci != null) {
+                    ci.setRangeMin(params.getDataToDisplayConverter().convert(
+                            params.getColorMapMin()));
+                    ci.setRangeMax(params.getDataToDisplayConverter().convert(
+                            params.getColorMapMax()));
+                    ci.setUnit(params.getDisplayUnit());
+                }
             }
         }
         issueRefresh();

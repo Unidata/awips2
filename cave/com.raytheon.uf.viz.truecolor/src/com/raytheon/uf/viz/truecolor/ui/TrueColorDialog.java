@@ -21,10 +21,7 @@ package com.raytheon.uf.viz.truecolor.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -33,7 +30,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
@@ -75,12 +71,6 @@ public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
 
     private List<ColorMapSliderComp> sliderComps;
 
-    private Map<String, DisplayedChannelResource> resourceMap;
-
-    private Map<Channel, DisplayedChannelResource> resourceChannelMap;
-
-    private Map<DisplayedChannelResource, Channel[]> originalChannelMap;
-
     /**
      * Creates the TrueColorDialog as a window of the parent Shell
      * 
@@ -91,28 +81,8 @@ public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
         super(parent, SWT.DIALOG_TRIM);
         this.resource = resource;
         this.sliderComps = new ArrayList<ColorMapSliderComp>();
-        this.resourceMap = new LinkedHashMap<String, DisplayedChannelResource>();
-        this.resourceChannelMap = new HashMap<Channel, DisplayedChannelResource>();
-        this.originalChannelMap = new HashMap<DisplayedChannelResource, Channel[]>();
         setText("Composite Options");
-        populateItemMap(resource.getChannelResources());
         resource.registerListener(this);
-    }
-
-    /**
-     * @param channelResources
-     */
-    private void populateItemMap(
-            Collection<DisplayedChannelResource> channelResources) {
-        resourceMap.put(DISABLED, null);
-        for (DisplayedChannelResource rsc : channelResources) {
-            Channel[] channels = rsc.channel.getChannels();
-            resourceMap.put(rsc.getDisplayName(), rsc);
-            originalChannelMap.put(rsc, channels);
-            for (Channel c : channels) {
-                resourceChannelMap.put(c, rsc);
-            }
-        }
     }
 
     /*
@@ -124,8 +94,15 @@ public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        Collection<DisplayedChannelResource> resources = resource
+                .getChannelResources();
         for (Channel c : Channel.values()) {
-            addGroup(shell, c, resourceChannelMap.get(c));
+            for (DisplayedChannelResource rsc : resources) {
+                if (rsc.isChannel(c)) {
+                    addGroup(shell, c, rsc);
+                    break;
+                }
+            }
         }
 
         Composite buttonComp = new Composite(shell, SWT.NONE);
@@ -174,52 +151,30 @@ public class TrueColorDialog extends CaveSWTDialog implements IDisposeListener {
             params = new ColorMapParameters();
         }
 
+        String groupName = channel.name();
+        if (displayedResource != null) {
+            groupName += " (" + displayedResource.getDisplayName() + ")";
+        }
+
         Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
-        group.setLayout(new GridLayout(2, false));
-        group.setText(channel + ":");
+        group.setLayout(new GridLayout(1, false));
+        group.setText(groupName + ":");
         group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+
         final ColorMapSliderComp cmapSlider = new ColorMapSliderComp(group,
                 params);
         cmapSlider.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        ((GridData) cmapSlider.getLayoutData()).widthHint = 450;
         sliderComps.add(cmapSlider);
 
-        final Combo options = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
-        options.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        options.setItems(resourceMap.keySet().toArray(
-                new String[resourceMap.size()]));
         if (displayedResource == null) {
-            options.setText(DISABLED);
             enable(group, false);
-        } else {
-            options.setText(displayedResource.getDisplayName());
-            options.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    DisplayedChannelResource channelResource = resourceMap
-                            .get(options.getText());
-                    enable(cmapSlider, channelResource != null);
-                    DisplayedChannelResource oldResource = resourceChannelMap
-                            .put(channel, channelResource);
-                    if (oldResource != null) {
-                        oldResource.removeChannel(channel);
-                    }
-                    if (channelResource != null) {
-                        channelResource.addChannel(channel);
-                        // TODO: Update slider?
-                    }
-
-                    resource.issueRefresh();
-                }
-            });
         }
     }
 
     private void cancelPressed() {
         for (ColorMapSliderComp cmapSlider : sliderComps) {
             cmapSlider.restore();
-        }
-        for (DisplayedChannelResource rsc : originalChannelMap.keySet()) {
-            rsc.setChannels(originalChannelMap.get(rsc));
         }
         close();
     }

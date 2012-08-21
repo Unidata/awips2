@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.viz.truecolor.rsc;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -53,7 +49,8 @@ public class ChannelResource {
     @XmlElement
     protected AbstractResourceData resourceData;
 
-    protected Set<Channel> channels = new HashSet<Channel>();
+    @XmlElement
+    protected Channel channel;
 
     @XmlAttribute
     protected String channelName;
@@ -76,20 +73,16 @@ public class ChannelResource {
     /**
      * @return the channel
      */
-    @XmlElement(name = "channel")
-    public Channel[] getChannels() {
-        return channels.toArray(new Channel[channels.size()]);
+    public Channel getChannel() {
+        return channel;
     }
 
     /**
      * @param channel
      *            the channel to set
      */
-    public void setChannels(Channel[] channels) {
-        if (channels == null) {
-            channels = new Channel[0];
-        }
-        this.channels = new HashSet<Channel>(Arrays.asList(channels));
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
     /**
