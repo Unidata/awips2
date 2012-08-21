@@ -28,4 +28,14 @@
             renderingOrderId="IMAGE_COUNTRY"
             resourceType="PLAN_VIEW"/>
    </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+         <!-- Enable when dialog is ready
+         <contextualMenu
+            actionClass="com.raytheon.uf.viz.truecolor.ui.TrueColorDialogAction"
+            capabilityClass="com.raytheon.uf.viz.truecolor.rsc.TrueColorResourceGroup"
+            name="TrueColorImaging"
+            sortID="25"/>
+         -->
+   </extension>
 </plugin>
