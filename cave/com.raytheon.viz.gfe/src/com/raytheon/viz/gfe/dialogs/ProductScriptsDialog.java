@@ -136,8 +136,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
         for (int idx : idxs) {
             try {
-            	Boolean run = true;
-            	
+                Boolean run = true;
+
                 String name = scriptsList.getItem(idx);
                 String cmd = scriptDict.get(name);
 
@@ -193,17 +193,17 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // {entryButtons: <name of variable>: <list of values separated
                 // by
                 // commas>}
-                int count = cmd.split("entryButtons").length - 1;
+                int count = cmd.split("entryButtons").length - 1;                
                 if (count > 0) {
-                    int entryIdx = 0, i = 0, start = 0;
+                	int entryIdx = 0, i = 0, start = 0;
                     List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition> ();
-
-                    while (entryIdx != -1) {
-                    	entryIdx = cmd.indexOf("{entryButtons:",entryIdx);
-                        if (entryIdx >= 0) {
-                        	int endEntryIdx = cmd.indexOf("}", entryIdx);
-                            String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
-                                            .split(":");
+                    
+                	while (entryIdx != -1) {
+                		entryIdx = cmd.indexOf("{entryButtons:",entryIdx);
+                		if (entryIdx >= 0) {
+                			int endEntryIdx = cmd.indexOf("}", entryIdx);
+                			String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
+                				.split(":");
                             String [] fields = entry[2].split(",");
 
                             fieldDefs.add(new FieldDefinition((Object)entry[1], entry[1], FieldType.RADIO, (Object)fields[0],
@@ -291,7 +291,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                                     + ":", entry[2]);
                     String returnMsg = entryDlg.open();
                     if (returnMsg == null) {
-                        run = false;
+                        // cancel pressed
+                    	run = false;
                         continue;
                     }
                     configFile = returnMsg;
@@ -359,7 +360,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
         return top;
     }
-    
+
     /*
      * (non-Javadoc)
      * 

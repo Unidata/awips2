@@ -31,16 +31,17 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.osgi.framework.Bundle;
 
+import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.jobs.StatsJob;
 import com.raytheon.uf.viz.core.localization.BundleScanner;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
-import com.raytheon.uf.viz.thinclient.StatsJob;
 import com.raytheon.uf.viz.thinclient.ThinClientNotificationManagerJob;
 import com.raytheon.uf.viz.thinclient.cache.ThinClientCacheManager;
 import com.raytheon.uf.viz.thinclient.cave.cache.CachingDataStoreFactory;
@@ -106,7 +107,8 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
                 ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL));
 
         // Start network statistics
-        statsJob = new StatsJob();
+        statsJob = new StatsJob("HTTP Network Statistics", HttpClient
+                .getInstance().getStats());
         statsJob.schedule();
 
         // Set ourselves as the activators component

@@ -712,7 +712,7 @@ public class WarningTextHandler {
                                         + m.group(3) + LOCK_END);
                                 headlineFound = false;
                             }
-
+                			
                             sb.append(line + "\n");
                             continue;
                         }

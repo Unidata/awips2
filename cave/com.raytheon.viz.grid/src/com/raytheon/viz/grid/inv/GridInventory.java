@@ -68,8 +68,8 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
-import com.raytheon.viz.awipstools.IToolChangedListener;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.grid.data.ImportRequestableData;
 import com.raytheon.viz.grid.data.StaticGridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData;
@@ -94,7 +94,7 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  */
 
 public class GridInventory extends AbstractInventory implements
-        IToolChangedListener {
+        IPointChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridInventory.class);
 
@@ -137,7 +137,10 @@ public class GridInventory extends AbstractInventory implements
         if (updater == null) {
             updater = new GridUpdater(this);
             updater.startObserving();
-            ToolsDataManager.getInstance().addHomeChangedListener(this);
+            // Currently only one instance of GridInventory is created by
+            // the GribDataCubeAdapter and lasts for the life of
+            // CAVE. Thus no need for removal of this listener.
+            PointsDataManager.getInstance().addHomeChangedListener(this);
         } else {
             updater.refreshNodes();
         }
@@ -745,7 +748,7 @@ public class GridInventory extends AbstractInventory implements
      * com.raytheon.viz.awipstools.IHomeChangedListener#homeLocationChanged()
      */
     @Override
-    public void toolChanged() {
+    public void pointChanged() {
         reinitTree();
     }
 }

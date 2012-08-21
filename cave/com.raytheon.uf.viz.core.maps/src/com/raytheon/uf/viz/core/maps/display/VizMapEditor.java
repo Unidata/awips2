@@ -20,6 +20,10 @@
 
 package com.raytheon.uf.viz.core.maps.display;
 
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.PartInitException;
+
 import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 
 /**
@@ -45,9 +49,18 @@ public class VizMapEditor extends VizMultiPaneEditor {
 
     public static final String EDITOR_ID = "com.raytheon.viz.ui.glmap.GLMapEditor";
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.editor.AbstractEditor#init(org.eclipse.ui.IEditorSite
+     * , org.eclipse.ui.IEditorInput)
+     */
     @Override
-    protected String getEditorName() {
-        return "Map";
+    public void init(IEditorSite site, IEditorInput input)
+            throws PartInitException {
+        super.init(site, input);
+        setTabTitle("Map");
     }
 
 }

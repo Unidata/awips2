@@ -58,7 +58,6 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.StormCoord;
-import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -140,8 +139,6 @@ public class StormTrackDisplay implements IRenderable {
 
     private int lastFrame = -1;
 
-    private int currentFrame = -1;
-
     private DataTime[] currentDisplayedTimes;
 
     private Coordinate theAnchorPoint = null;
@@ -158,7 +155,6 @@ public class StormTrackDisplay implements IRenderable {
         this.timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.manager = manager;
         trackUtil = this.manager.getTrackUtil();
-        this.currentFrame = this.descriptor.getFramesInfo().getFrameIndex();
     }
 
     public void setDescriptor(MapDescriptor descriptor) {
@@ -174,25 +170,6 @@ public class StormTrackDisplay implements IRenderable {
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        // Determine if the Feature Following Zoom Tool is loaded
-        boolean FFZToolLoaded = false;
-        for (ResourcePair rp : this.descriptor.getResourceList()) {
-            if (rp != null
-                    && rp.getResource() instanceof FeatureFollowingZoomLayer
-                    && rp.getProperties().isVisible()) {
-                FFZToolLoaded = true;
-            }
-        }
-
-        int newIndex = this.trackUtil.getCurrentFrame(paintProps
-                .getFramesInfo());
-
-        if (FFZToolLoaded && this.currentFrame != newIndex) {
-            this.currentFrame = newIndex;
-            target.setNeedsRefresh(true);
-            return;
-        }
-
         paint(target, (StormTrackProperties) paintProps);
     }
 

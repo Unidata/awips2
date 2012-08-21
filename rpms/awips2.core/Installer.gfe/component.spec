@@ -38,7 +38,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data
 %install
 
 # Determine which version of the gfe we should use.
-RPM_COMMON_DIR="%{_baseline_workspace}/Installer.rpm/common/static.versions"
+RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
 if [ ! -f ${RPM_COMMON_DIR}/LATEST.gfe ]; then
    file ${RPM_COMMON_DIR}/LATEST.gfe
    exit 1

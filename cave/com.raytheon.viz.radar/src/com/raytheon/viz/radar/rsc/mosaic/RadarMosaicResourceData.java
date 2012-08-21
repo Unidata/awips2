@@ -300,41 +300,47 @@ public class RadarMosaicResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((mergeUpperText == null) ? 0 : mergeUpperText.hashCode());
+        result = prime * result
+                + ((mosaicType == null) ? 0 : mosaicType.hashCode());
+        result = prime * result
+                + ((productName == null) ? 0 : productName.hashCode());
+        result = prime * result
+                + ((resourceList == null) ? 0 : resourceList.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null || obj instanceof RadarMosaicResourceData == false) {
+        if (!super.equals(obj))
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         RadarMosaicResourceData other = (RadarMosaicResourceData) obj;
-
-        if (this.resourceList != null && other.resourceList == null) {
+        if (mergeUpperText == null) {
+            if (other.mergeUpperText != null)
+                return false;
+        } else if (!mergeUpperText.equals(other.mergeUpperText))
             return false;
-        } else if (this.resourceList == null && other.resourceList != null) {
+        if (mosaicType != other.mosaicType)
             return false;
-        } else if (this.resourceList != null
-                && this.resourceList.equals(other.resourceList) == false) {
+        if (productName == null) {
+            if (other.productName != null)
+                return false;
+        } else if (!productName.equals(other.productName))
             return false;
-        }
-        if (this.validProductList != null && other.validProductList == null) {
+        if (resourceList == null) {
+            if (other.resourceList != null)
+                return false;
+        } else if (!resourceList.equals(other.resourceList))
             return false;
-        } else if (this.validProductList == null
-                && other.validProductList != null) {
-            return false;
-        } else if (this.validProductList != null
-                && this.validProductList.equals(other.validProductList) == false) {
-            return false;
-        }
-        if (this.productName != null && other.productName == null) {
-            return false;
-        } else if (this.productName == null && other.productName != null) {
-            return false;
-        } else if (this.productName != null
-                && this.productName.equals(other.productName) == false) {
-            return false;
-        }
-
         return true;
     }
+
 }

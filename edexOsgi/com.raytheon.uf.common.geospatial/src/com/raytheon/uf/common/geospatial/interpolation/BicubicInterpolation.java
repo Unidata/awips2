@@ -1,9 +1,27 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.common.geospatial.interpolation;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 
 /**
- * 
  * bicubic convolusion.
  * 
  * <pre>
@@ -17,53 +35,23 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2012            bsteffen     Initial creation
+ * Jun 18, 2012            bsteffen     Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class BicubicInterpolation extends AbstractInterpolation {
+
+public class BicubicInterpolation implements Interpolation {
 
     private double a = -0.5;
 
-    public BicubicInterpolation(GeneralGridGeometry sourceGeometry,
-            GeneralGridGeometry targetGeometry, float minValid, float maxValid,
-            float fillValue) {
-        super(sourceGeometry, targetGeometry, minValid, maxValid, fillValue);
-    }
-
-    public BicubicInterpolation(GeneralGridGeometry sourceGeometry,
-            GeneralGridGeometry targetGeometry) {
-        super(sourceGeometry, targetGeometry);
-    }
-
-    public BicubicInterpolation(float[] data,
-            GeneralGridGeometry sourceGeometry,
-            GeneralGridGeometry targetGeometry, float minValid, float maxValid,
-            float fillValue) {
-        super(data, sourceGeometry, targetGeometry, minValid, maxValid,
-                fillValue);
-    }
-
-    public BicubicInterpolation(float[] data,
-            GeneralGridGeometry sourceGeometry,
-            GeneralGridGeometry targetGeometry) {
-        super(data, sourceGeometry, targetGeometry);
-    }
-
-    /**
-     * Should be -0.5, -0.75, or -1.0, or maybe something inbetween?
-     * 
-     * @param a
-     */
-    public void setA(double a) {
-        this.a = a;
+    public BicubicInterpolation() {
     }
 
     @Override
-    protected float getInterpolatedValue(double x, double y) {
+    public double getInterpolatedValue(DataSource source, double x, double y) {
         double value = 0.0f;
         double weight = 0.0f;
 
@@ -75,7 +63,7 @@ public class BicubicInterpolation extends AbstractInterpolation {
                 double xWeight = weight(xd + xi);
                 double yWeight = weight(yd + yi);
                 double w = xWeight * yWeight;
-                double val = getRawDataValue((int) x + xi, (int) y + yi);
+                double val = source.getDataValue((int) x + xi, (int) y + yi);
                 value += w * val;
                 weight += w;
             }
@@ -95,6 +83,15 @@ public class BicubicInterpolation extends AbstractInterpolation {
         }
         return 0.0f;
 
+    }
+
+    /**
+     * Should be -0.5, -0.75, or -1.0, or maybe something inbetween?
+     * 
+     * @param a
+     */
+    public void setA(double a) {
+        this.a = a;
     }
 
 }

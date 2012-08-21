@@ -28,10 +28,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizConstants;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -74,13 +72,6 @@ public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
 
     public TimeHeightRenderableDisplay(PixelExtent aPixelExtent) {
         super(aPixelExtent, new TimeHeightDescriptor(aPixelExtent));
-    }
-
-    @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-        super.paint(target, paintProps);
-        target.setUseBuiltinColorbar(false);
     }
 
     /**

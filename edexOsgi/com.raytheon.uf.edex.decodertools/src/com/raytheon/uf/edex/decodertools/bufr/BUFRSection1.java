@@ -129,7 +129,6 @@ public abstract class BUFRSection1 extends BUFRSection {
      */
     public Calendar getSectionDate() {
         Calendar cal = TimeTools.getBaseCalendar(year, month, day);
-
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, minute);
 

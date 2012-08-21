@@ -210,21 +210,6 @@ public class GfeUtil {
     }
 
     /**
-     * Converts a calendar to a model time used by DatabaseID
-     * 
-     * @param refTime
-     *            The model time as a calendar
-     * @return The string representation of the model time for use with
-     *         DatabaseID
-     */
-    public static String modelTimeToString(Calendar refTime) {
-        Date time = refTime.getTime();
-        synchronized (DatabaseID.dateFormat) {
-            return DatabaseID.dateFormat.format(time);
-        }
-    }
-
-    /**
      * Puts a specified data into GMT
      * 
      * @param time

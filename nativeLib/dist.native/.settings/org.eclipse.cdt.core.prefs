@@ -1,3 +1,11 @@
-#Sun Mar 07 16:27:43 CST 2010
+#Wed Feb 08 12:11:48 CST 2012
 eclipse.preferences.version=1
-environment/project/0.300478095=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="BUILD_DIR" operation\="replace" value\="../build.native/i386-pc-linux-gnu"/>\n<variable delimiter\=";" name\="SETUP_DIR" operation\="replace" value\="setup"/>\n</environment>\n
+environment/project/0.300478095=
+environment/project/0.300478095/BUILD_DIR/delimiter=;
+environment/project/0.300478095/BUILD_DIR/operation=replace
+environment/project/0.300478095/BUILD_DIR/value=../build.native/i386-pc-linux-gnu
+environment/project/0.300478095/SETUP_DIR/delimiter=;
+environment/project/0.300478095/SETUP_DIR/operation=replace
+environment/project/0.300478095/SETUP_DIR/value=setup
+environment/project/0.300478095/append=true
+environment/project/0.300478095/appendContributed=true

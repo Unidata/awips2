@@ -28,6 +28,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.shef.ohdlib.GagePPOptions.upd_action;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.tables.Dailypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.DailyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
@@ -35,11 +37,8 @@ import com.raytheon.uf.common.dataplugin.shef.tables.HourlypcId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.IHourlyTS;
-import com.raytheon.edex.plugin.shef.ohdlib.GagePPOptions.upd_action;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
-import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -63,10 +62,6 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 public final class GagePPWrite {
     private static Log logger = LogFactory.getLog(GagePPWrite.class);
     
-    private static final float MISSING_PRECIP = -9999f;
-
-    private Date datetime;
-
     private char hourly_qc[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
 
     private char minute_offset[] = new char[PrecipUtils.NUM_HOURLY_SLOTS];
@@ -81,8 +76,6 @@ public final class GagePPWrite {
      * Empty constructor.
      */
     public GagePPWrite() {
-        
-        
         // sdf = new SimpleDateFormat(ShefConstants.POSTGRES_DATE_STRING);
         sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(SHEFTimezone.GMT_TIMEZONE);
@@ -106,9 +99,7 @@ public final class GagePPWrite {
             char manual_qc_code) {
 
 
-        datetime = dtime;
-        Calendar dt = TimeTools.getSystemCalendar();
-        dt.setTime(datetime);
+        Calendar dt = TimeTools.newCalendar(dtime.getTime());
 
         int hour_slot = dt.get(Calendar.HOUR_OF_DAY);
         Arrays.fill(hourly_qc, '-');

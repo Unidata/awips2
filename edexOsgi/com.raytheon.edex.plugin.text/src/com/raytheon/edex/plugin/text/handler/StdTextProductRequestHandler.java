@@ -95,7 +95,7 @@ public class StdTextProductRequestHandler implements
         if (createtime == null) {
             createtime = new Date().getTime();
         }
-        text.setCreatetime(createtime);
+        text.setRefTime(createtime);
         text.setProduct(product);
         boolean success = dao.writeProduct(text);
 

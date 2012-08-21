@@ -21,6 +21,7 @@
 package com.raytheon.uf.common.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,6 +29,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -47,6 +49,9 @@ import java.util.zip.GZIPOutputStream;
  *                                      return false when unable to
  *                                      obtain directory listing.
  * Sep 16, 2008 1250       jelkins     Added join function
+ * - AWIPS2 Baseline Repository --------
+ * Jul 06, 2012        798 jkorman     Added more robust {@link #copyFile}. Added methods
+ *                                     to create temporary directories and files.
  * 
  * </pre>
  * 
@@ -78,7 +83,8 @@ public class FileUtil {
         StringBuilder fullPath = new StringBuilder();
         for (String component : pathComponents) {
             if ((fullPath.length() > 0)
-                    && (fullPath.charAt(fullPath.length() - 1) != File.separatorChar)) {
+                    && (fullPath.charAt(fullPath.length() - 1) != File.separatorChar)
+                    && ((component.isEmpty()) || (component.charAt(0) != File.separatorChar))) {
                 fullPath.append(File.separatorChar);
             }
             fullPath.append(component);
@@ -310,29 +316,23 @@ public class FileUtil {
         return unmangled.toString();
     }
 
+    /**
+     * Copy a file to a another file.
+     * 
+     * @param fileToCopy
+     *            The source file. This file reference must exist.
+     * @param outputFile
+     *            The destination file. This file may exist, if so it will be
+     *            overwritten.
+     * @throws IOException
+     *             An error occurred while copying the data.
+     * @throws NullPointerException
+     *             Either the source or target file references are null.
+     */
     public static void copyFile(File fileToCopy, File outputFile)
             throws IOException {
-
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        try {
-            fis = new FileInputStream(fileToCopy);
-            outputFile.getParentFile().mkdirs();
-            fos = new FileOutputStream(outputFile);
-            byte[] bytes = new byte[2048];
-            int len = fis.read(bytes);
-            while (len > -1) {
-                fos.write(bytes, 0, len);
-                len = fis.read(bytes);
-            }
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-            if (fis != null) {
-                fis.close();
-            }
-        }
+        // Copy the entire file.
+        copyFile(fileToCopy, outputFile, 0);
     }
 
     public static String file2String(File file) throws IOException {
@@ -620,4 +620,215 @@ public class FileUtil {
         return VALID_FILENAME.matcher(fileName).matches();
     }
 
+    /**
+     * Copy a file from one location to another. The file copy may begin at some
+     * specified position within the source file.
+     * 
+     * @param source
+     *            The source file. This file reference must exist.
+     * @param target
+     *            The destination file. This file may exist, if so it will be
+     *            overwritten.
+     * @param position
+     *            The start position within the source file where the copy
+     *            operation will begin. The position must be greater than or
+     *            equal to zero, and less than the file length of the source.
+     * @return Was the required data copied to the target file.
+     * @throws IOException
+     *             An error occurred while copying the data.
+     * @throws IllegalArgumentException
+     *             The position is less than zero or greater than the length of
+     *             the source file or either of the source, target files are null.
+     */
+    public static boolean copyFile(File source, File target, int position)
+            throws IOException {
+        boolean status = false;
+        if (source != null) {
+            if (target != null) {
+                if ((position >= 0) && (position < source.length())) {
+
+                    FileInputStream fis = null;
+                    FileOutputStream fos = null;
+                    try {
+                        fis = new FileInputStream(source);
+                        FileChannel fci = fis.getChannel();
+
+                        fos = new FileOutputStream(target);
+                        FileChannel fco = fos.getChannel();
+
+                        long count = source.length() - position;
+
+                        long transfered = fci.transferTo(position, count, fco);
+                        // ensure we copied all of the data.
+                        status = (transfered == count);
+                    } finally {
+                        String cause = null;
+                        try {
+                            close(fis);
+                        } catch (IOException e) {
+                            cause = String.format(
+                                    "copyFile.source.close[%s][%s]", e
+                                            .getClass().getName(), e
+                                            .getMessage());
+                        }
+                        try {
+                            close(fos);
+                        } catch (IOException e) {
+                            if (cause == null) {
+                                cause = String.format(
+                                        "copyFile.target.close[%s][%s]", e
+                                                .getClass().getName(), e
+                                                .getMessage());
+                            } else {
+                                cause = String.format(
+                                        "%s copyFile.target.close[%s][%s]",
+                                        cause, e.getClass().getName(),
+                                        e.getMessage());
+                            }
+                        }
+                        // One or more closes failed. Construct and throw an
+                        // exception.
+                        if (cause != null) {
+                            throw new IOException(cause);
+                        }
+                    }
+                } else {
+                    String msg = String.format(
+                            "position [%d] is out of range. Max is [%d]",
+                            position, source.length());
+                    throw new IllegalArgumentException(msg);
+                }
+            } else {
+                throw new IllegalArgumentException("target file reference is null");
+            }
+        } else {
+            throw new IllegalArgumentException("source file reference is null");
+        }
+        return status;
+    }
+
+    /**
+     * Attempt to create a temporary directory under a given base directory for
+     * temporary directories. If the directory already exists it is returned,
+     * otherwise it is created.
+     * 
+     * @param tempPath
+     *            The base path for temporary directories.
+     * @param componentName
+     *            The component requesting a temporary directory. If this is
+     *            null the tempPath will be used.
+     * @return The file reference to the created or existing temporary
+     *         directory.
+     * @throws IOException
+     *             The attempt to create the temporary directory failed.
+     * @throws IllegalArgumentException
+     *             The temporary directory path is null.
+     */
+    public static File createTempDir(String tempPath, String componentName)
+            throws IOException {
+        File tempDir = null;
+        if (tempPath != null) {
+            if (componentName == null) {
+                tempDir = new File(tempPath);
+            } else {
+                tempDir = new File(tempPath, componentName);
+            }
+            try {
+                // Check if the directory already exists...
+                if (!tempDir.exists()) {
+                    // it doesn't, so create it.
+                    if (!tempDir.mkdirs()) {
+                        throw new IOException(
+                                "Could not create temporary directory "
+                                        + tempDir.getAbsolutePath());
+                    }
+                } else {
+                    if (!tempDir.isDirectory()) {
+                        String msg = String
+                                .format("Path [%s] is not a directory, cannot create temporary directory",
+                                        tempDir.getAbsolutePath());
+                        throw new IOException(msg);
+                    }
+                }
+            } catch (SecurityException se) {
+                throw new IOException("Could not create temporary directory "
+                        + tempDir.getAbsolutePath(), se);
+            }
+        } else {
+            throw new IllegalArgumentException("Temporary path is null");
+        }
+        return tempDir;
+    }
+
+    /**
+     * Create an empty temporary file. The file is created in the directory
+     * referenced by tempPath. The file created will be named
+     * 
+     * <pre>
+     * tempPath / namePrefix_tempFileUniquePart.nameSuffix
+     * </pre>
+     * 
+     * @param tempPath
+     *            Base path to the temporary directory.
+     * @param namePrefix
+     *            The temporary filename prefix. If this is null a default
+     *            prefix of "<strong>tempFile</strong>" will be used.
+     * @param nameSuffix
+     *            The temporary filename suffix. If this is null the default
+     *            suffix "<strong>.tmp</strong>" will be used.
+     * @return The File reference to the created temporary file.
+     * @throws IOException
+     *             The tempPath does not exist and could not be created or an
+     *             error occurred while creating the temporary file.
+     * @throws IllegalArgumentException
+     *             The temporary path was null.
+     */
+    public static File createTempFile(File tempPath, String namePrefix,
+            String nameSuffix) throws IOException {
+        String defaultPrefix = "tempFile";
+        String prefixFiller = "xxx";
+        File tempFile = null;
+
+        if (tempPath != null) {
+            if (!tempPath.exists()) {
+                if (!tempPath.mkdirs()) {
+                    throw new IOException(
+                            "Could not create temporary directory "
+                                    + tempPath.getAbsolutePath());
+                }
+            }
+            // isDirectory will not work until we actually have a path that
+            // exists!
+            if (!tempPath.isDirectory()) {
+                String msg = String
+                        .format("Path [%s] is not a directory, cannot create temporary file",
+                                tempPath.getAbsolutePath());
+                throw new IOException(msg);
+            }
+            if (namePrefix == null) {
+                namePrefix = defaultPrefix;
+            } else if (namePrefix.length() < 3) {
+                namePrefix += prefixFiller;
+            }
+            namePrefix += "_";
+            tempFile = File.createTempFile(namePrefix, nameSuffix, tempPath);
+        } else {
+            throw new IllegalArgumentException("Temporary path is null");
+        }
+        return tempFile;
+    }
+
+    /**
+     * Attempt to close a {@link Closeable} object.
+     * 
+     * @param c
+     *            An object that needs to be closed.
+     * @throws IOException
+     *             An error occurred attempting to close the object.
+     */
+    public static void close(Closeable c) throws IOException {
+        if (c != null) {
+            c.close();
+        }
+    }
 }

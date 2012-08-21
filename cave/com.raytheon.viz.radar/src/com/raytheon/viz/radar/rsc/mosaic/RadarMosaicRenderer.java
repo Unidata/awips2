@@ -31,6 +31,9 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension.IMosaicImage;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicMaxValImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IRefreshListener;
@@ -40,8 +43,6 @@ import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -177,12 +178,21 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
      */
     private void init(IGraphicsTarget target, PaintProperties paintProps,
             ColorMapParameters params) throws VizException {
+        IMosaicImageExtension ext = target
+                .getExtension(IMosaicMaxValImageExtension.class);
+        if (ext == null) {
+            // This could return about any mosaicing algorithm but it is better
+            // than drawing nothing
+            ext = target.getExtension(IMosaicImageExtension.class);
+        }
+        if (ext == null) {
+
+        }
         // Construct texture for mosaicing
-        writeTo = target.getExtension(IRadarMosaicImageExtension.class)
-                .initializeRaster(
-                        new int[] { paintProps.getCanvasBounds().width,
-                                paintProps.getCanvasBounds().height },
-                        paintProps.getView().getExtent(), params);
+        writeTo = ext.initializeRaster(
+                new int[] { paintProps.getCanvasBounds().width,
+                        paintProps.getCanvasBounds().height }, paintProps
+                        .getView().getExtent(), params);
     }
 
     @Override

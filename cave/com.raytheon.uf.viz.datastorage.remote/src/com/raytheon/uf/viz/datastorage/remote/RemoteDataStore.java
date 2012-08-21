@@ -245,8 +245,14 @@ public class RemoteDataStore implements IDataStore {
     }
 
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
+    public void repack(Compression compression) throws StorageException {
+        throw new StorageException("Operation not supported", null);
+    }
+
+    @Override
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException {
         throw new StorageException("Operation not supported", null);
     }
 
