@@ -34,7 +34,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.internal.GLProgramManager;
 import com.sun.opengl.util.BufferUtil;
 
@@ -103,9 +102,9 @@ public class GLShaderProgram {
      * @param fragmentShader
      *            - can be null (but not if vertexShader == null)
      */
-    GLShaderProgram(IGLTarget target, String name, String vertexShader,
+    GLShaderProgram(GL gl, String name, String vertexShader,
             String fragmentShader) throws VizException {
-        gl = target.getGl();
+        this.gl = gl;
         glslContext = gl.glCreateProgram();
         if (glslContext < 1) {
             throw new VizException(

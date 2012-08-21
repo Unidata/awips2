@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.core.internal;
 
 import java.io.File;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,8 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -105,6 +105,18 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 public abstract class AbstractParmManager implements IParmManager {
 
     private static final int NOTIFICATION_THREADS = 4;
+
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    DatabaseID.MODEL_TIME_FORMAT);
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+
+    };
 
     protected class ParmIDVis {
         private ParmID pid;
@@ -201,9 +213,6 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private static final int MILLIS_PER_HOUR = SECONDS_PER_HOUR
             * MILLIS_PER_SECOND;
-
-    private static final Pattern CLIMO_EXPR_PATTERN = Pattern
-            .compile("(\\w{2,3})_SFC_(\\w{3,4})_Climo_(\\w{4,5})");
 
     protected final DataManager dataManager;
 
@@ -474,9 +483,7 @@ public abstract class AbstractParmManager implements IParmManager {
             if (string.length() - pos == 14) {
                 try {
                     dtg = string.substring(pos + 1);
-                    synchronized (DatabaseID.dateFormat) {
-                        DatabaseID.dateFormat.parse(dtg);
-                    }
+                    dateFormat.get().parse(dtg);
                 } catch (ParseException e) {
                     return null;
                 }
@@ -1120,13 +1127,6 @@ public abstract class AbstractParmManager implements IParmManager {
             enableDisableTopoParm(true, false);
 
             return getParmInExpr(exprName, false, variableParm);
-        }
-
-        Matcher climoMatcher = CLIMO_EXPR_PATTERN.matcher(exprName);
-        if (climoMatcher.matches()) {
-            String shortVar = climoMatcher.group(1);
-            String source = climoMatcher.group(3);
-            enableDisableClimoParm(true, false, source, shortVar);
         }
 
         // Check the mutable database first

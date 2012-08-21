@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.qpf;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -42,8 +38,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -65,6 +60,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/24/09      2027        D. Hladky   Initial release
+ * 4/27/12      #562        dgilling    Rename getters/setters to 
+ *                                      match Java conventions.
  * 
  * </pre>
  * 
@@ -76,8 +73,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class QPFRecord extends PersistablePluginDataObject implements
-        IPersistable, ISpatialEnabled, IMonitorProcessing {
+public class QPFRecord extends ServerSpecificPersistablePluginDataObject
+        implements ISpatialEnabled, IMonitorProcessing {
 
     private static final long serialVersionUID = 767763365671L;
 
@@ -275,6 +272,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
+    @Override
     public Integer getNx() {
         return nx;
     }
@@ -293,6 +291,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
+    @Override
     public Integer getNy() {
         return ny;
     }
@@ -338,7 +337,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param ew_velocity
      */
-    public void setEWVelocity(Float ewvelocity) {
+    public void setEwvelocity(Float ewvelocity) {
         this.ewvelocity = ewvelocity;
     }
 
@@ -347,7 +346,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public Float getEWVelocity() {
+    public Float getEwvelocity() {
         return ewvelocity;
     }
 
@@ -356,7 +355,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param ns_velocity
      */
-    public void setNSVelocity(Float nsvelocity) {
+    public void setNsvelocity(Float nsvelocity) {
         this.nsvelocity = nsvelocity;
     }
 
@@ -365,7 +364,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public Float getNSVelocity() {
+    public Float getNsvelocity() {
         return nsvelocity;
     }
 
@@ -374,7 +373,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param avg_spd
      */
-    public void setAVGSpd(Float avgspd) {
+    public void setAvgspd(Float avgspd) {
         this.avgspd = avgspd;
     }
 
@@ -383,7 +382,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public Float getAVGSpd() {
+    public Float getAvgspd() {
         return avgspd;
     }
 
@@ -392,7 +391,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param avg_dir
      */
-    public void setAVGDir(Float avgdir) {
+    public void setAvgdir(Float avgdir) {
         this.avgdir = avgdir;
     }
 
@@ -401,34 +400,8 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
-    public Float getAVGDir() {
+    public Float getAvgdir() {
         return avgdir;
-    }
-
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     /**
@@ -469,6 +442,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param data_array
      */
+    @Override
     public float[] getDataArray() {
         return data_array;
     }
@@ -489,6 +463,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @return
      */
+    @Override
     public GridGeometry2D getGridGeometry() {
         ProjectedCRS crs = this.getCRS();
 
@@ -514,6 +489,7 @@ public class QPFRecord extends PersistablePluginDataObject implements
      * 
      * @param dataStore
      */
+    @Override
     public void retrieveFromDataStore(IDataStore dataStore) {
 
         try {

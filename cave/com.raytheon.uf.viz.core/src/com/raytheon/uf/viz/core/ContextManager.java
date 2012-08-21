@@ -59,15 +59,17 @@ public class ContextManager {
 
     private static Map<String, String[]> contexts = null;
 
+    private static Map<Class<?>, String[]> contextCache = new HashMap<Class<?>, String[]>();
+
     private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.classContext";
 
     private static Map<IServiceLocator, ContextManager> instanceMap = new HashMap<IServiceLocator, ContextManager>();
 
-    private static synchronized String[] getContextsForClass(String name) {
+    private static synchronized String[] getContextsForClass(Class<?> clazz) {
         if (contexts == null) {
             loadContexts();
         }
-        String[] cons = contexts.get(name);
+        String[] cons = contexts.get(clazz.getName());
         if (cons == null) {
             cons = new String[] {};
         }
@@ -106,23 +108,37 @@ public class ContextManager {
     }
 
     private static String[] getAllContextsForClass(Class<?> clazz) {
-        Set<String> contexts = new HashSet<String>();
-
-        String[] ids = getContextsForClass(clazz.getName());
-        for (String id : ids) {
-            contexts.add(id);
+        if (clazz == null || clazz == Object.class) {
+            // Base case, no contexts
+            return new String[0];
         }
 
-        Class<?> superClass = clazz.getSuperclass();
-        while (superClass.equals(Object.class) == false) {
-            ids = getContextsForClass(superClass.getName());
+        String[] ids = contextCache.get(clazz);
+        if (ids == null) {
+            Set<String> contexts = new HashSet<String>();
+
+            ids = getContextsForClass(clazz);
             for (String id : ids) {
                 contexts.add(id);
             }
-            superClass = superClass.getSuperclass();
-        }
 
-        return contexts.toArray(new String[contexts.size()]);
+            for (Class<?> interfaze : clazz.getInterfaces()) {
+                // Get contexts for each interface
+                ids = getAllContextsForClass(interfaze);
+                for (String id : ids) {
+                    contexts.add(id);
+                }
+            }
+
+            ids = getAllContextsForClass(clazz.getSuperclass());
+            for (String id : ids) {
+                contexts.add(id);
+            }
+
+            ids = contexts.toArray(new String[contexts.size()]);
+            contextCache.put(clazz, ids);
+        }
+        return ids;
     }
 
     public static synchronized ContextManager getInstance(

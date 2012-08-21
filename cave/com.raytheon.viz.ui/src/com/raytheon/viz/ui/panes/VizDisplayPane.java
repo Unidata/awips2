@@ -54,7 +54,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.DrawableCircle;
-import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
@@ -207,8 +206,7 @@ public class VizDisplayPane implements IDisplayPane {
         });
 
         // create the graphics adapter
-        graphicsAdapter = GraphicsFactory.getGraphicsAdapter(display
-                .getDisplayType());
+        graphicsAdapter = display.getGraphicsAdapter();
         // create the canvas
         this.canvas = graphicsAdapter.constrcutCanvas(canvasComp);
         // set the renderable display
@@ -501,7 +499,7 @@ public class VizDisplayPane implements IDisplayPane {
         }
 
         synchronized (this) {
-            this.target.beginFrame(renderableDisplay, true);
+            this.target.beginFrame(renderableDisplay.getView(), true);
 
             try {
                 PaintProperties paintProps = new PaintProperties(1.0f,
@@ -608,6 +606,7 @@ public class VizDisplayPane implements IDisplayPane {
         }
 
         this.renderableDisplay.setContainer(container);
+        graphicsAdapter = renderableDisplay.getGraphicsAdapter();
 
         try {
             initializeTarget();

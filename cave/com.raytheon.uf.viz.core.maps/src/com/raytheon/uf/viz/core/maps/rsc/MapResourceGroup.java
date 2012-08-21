@@ -26,6 +26,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -164,7 +165,10 @@ public class MapResourceGroup extends
                     paintProps.setAlpha(resource.getCapability(
                             ImagingCapability.class).getAlpha());
                 }
-                resource.paint(target, newProps);
+                PaintStatus paintStatus = resource.paint(target, newProps);
+                if (paintStatus != PaintStatus.PAINTED) {
+                    updatePaintStatus(paintStatus);
+                }
             }
         }
     }

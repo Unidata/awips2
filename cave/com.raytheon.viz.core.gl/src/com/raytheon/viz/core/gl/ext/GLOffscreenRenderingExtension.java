@@ -1,3 +1,22 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.core.gl.ext;
 
 import java.awt.Rectangle;
@@ -16,7 +35,7 @@ import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
-import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
@@ -27,8 +46,28 @@ import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.internal.GLView2D;
 import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
 
+/**
+ * 
+ * Provides logic for creating offscreen images in GL so that data can be
+ * rendered and saved for better efficiency. When rendering offscreen all render
+ * events to the target are sent to an offscreen image, this image can later be
+ * rendered onscreen.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jul 10, 2012            bsteffen     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
 public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
-        implements IOffscreenRenderingExtension {
+        implements IGraphicsExtensionInterface {
 
     private static class ViewInfo {
         private IView view;
@@ -53,25 +92,10 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
 
     private ViewInfo currentInfo = null;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
-     * renderOffscreen(com.raytheon.uf.viz.core.drawables.IImage)
-     */
-    @Override
     public void renderOffscreen(IImage offscreenImage) throws VizException {
         renderOffscreen(offscreenImage, target.getView().getExtent());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
-     * renderOffscreen(com.raytheon.uf.viz.core.drawables.IImage,
-     * com.raytheon.uf.viz.core.IExtent)
-     */
-    @Override
     public void renderOffscreen(IImage offscreenImage, IExtent offscreenExtent)
             throws VizException {
         if (!(offscreenImage instanceof AbstractGLImage)) {
@@ -100,7 +124,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         setCurrentView(new ViewInfo(view, glImage));
     }
 
-    @Override
     public void renderOnscreen() throws VizException {
         if (viewStack.size() > 0) {
             setCurrentView(viewStack.pop());
@@ -139,13 +162,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         return Compatibilty.TARGET_COMPATIBLE;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
-     * constructOffscreenImage(int[])
-     */
-    @Override
     public IImage constructOffscreenImage(final int[] dimensions)
             throws VizException {
         return target.initializeRaster(new IRenderedImageCallback() {
@@ -157,26 +173,12 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
-     * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
-     */
-    @Override
     public GLColormappedImage constructOffscreenImage(
             Class<? extends Buffer> dataType, int[] dimensions)
             throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
-     * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
-     */
-    @Override
     public GLColormappedImage constructOffscreenImage(
             Class<? extends Buffer> dataType, final int[] dimensions,
             ColorMapParameters parameters) throws VizException {

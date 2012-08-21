@@ -127,33 +127,18 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         long time = System.currentTimeMillis();
         List<ProductBrowserLabel> parameters = null;
         boolean product = false;
-        String param = "";
-        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(order[0], new RequestConstraint(productName));
-        for (int i = 1; i < selection.length; i++) {
-            queryList.put(order[i], new RequestConstraint(selection[i]));
-            param = order[i + 1];
-            if (i + 2 >= order.length) {
-                product = true;
-            }
-        }
-        if (selection.length == 1) {
-            param = order[1];
-            if (order.length == 2) {
-                product = true;
-            }
-        }
+        String param = order[selection.length];
+        HashMap<String, RequestConstraint> queryList = getProductParameters(
+                selection, order);
+        product = (selection.length + 1) == order.length;
 
-        try {
-            String[] temp = CatalogQuery.performQuery(param, queryList);
-            if ((Boolean) getPreference(FORMAT_DATA).getValue()) {
-                parameters = formatData(param, temp);
-            } else {
-                parameters = super.formatData(param, temp);
-            }
-        } catch (VizException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM, "Unable to perform query", e);
+        String[] temp = queryData(param, queryList);
+        if (temp != null) {
+        if ((Boolean) getPreference(FORMAT_DATA).getValue()) {
+            parameters = formatData(param, temp);
+        } else {
+            parameters = super.formatData(param, temp);
+        }
         }
 
         if (parameters != null) {
@@ -165,6 +150,23 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
                 + selection[selection.length - 1] + ": "
                 + (System.currentTimeMillis() - time) + "ms");
         return parameters;
+    }
+
+    /**
+     * 
+     * @param param
+     * @param queryList
+     * @return
+     */
+    protected String[] queryData(String param,
+            HashMap<String, RequestConstraint> queryList) {
+        try {
+            return CatalogQuery.performQuery(param, queryList);
+        } catch (VizException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM, "Unable to perform query", e);
+        }
+        return null;
     }
 
     @Override
@@ -277,13 +279,13 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
     protected List<ProductBrowserPreference> configurePreferences() {
         List<ProductBrowserPreference> widgets = super.configurePreferences();
         ProductBrowserPreference preference = null;
-        // preference = new ProductBrowserPreference();
-        // preference.setLabel(ORDER);
-        // preference.setPreferenceType(PreferenceType.STRING_ARRAY);
-        // preference.setValue(order);
-        // preference
-        // .setTooltip("Change the order to make things appear in a different order in the Product Browser");
-        // widgets.add(preference);
+        preference = new ProductBrowserPreference();
+        preference.setLabel(ORDER);
+        preference.setPreferenceType(PreferenceType.STRING_ARRAY);
+        preference.setValue(order);
+        preference
+                .setTooltip("Change the order to make things appear in a different order in the Product Browser");
+        widgets.add(preference);
 
         preference = new ProductBrowserPreference();
         preference.setLabel(FORMAT_DATA);

@@ -22,7 +22,6 @@ package com.raytheon.viz.awipstools;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,10 +35,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
@@ -48,10 +43,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.datum.DefaultEllipsoid;
 
-import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -70,7 +62,7 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.RangeRing;
 import com.raytheon.viz.awipstools.common.RangeRing.RangeRingType;
 import com.raytheon.viz.awipstools.common.StormTrackData;
@@ -93,6 +85,7 @@ import com.vividsolutions.jts.geom.LineString;
  * ------------ ---------- ----------- --------------------------
  * 10-21-09	    #1711      bsteffen    Initial Creation
  * 04-07-10     #4614      randerso    Reworked to use localization files
+ * 07-11-12     #875       rferrel     Move points to PointsDataManager.
  * 
  * </pre>
  * 
@@ -103,12 +96,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         IPropertyChangeListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ToolsDataManager.class);
-
-    private static final String HOME_LOCATION_FILE = "HomeLocation.dat";
-
-    private static final String MOVABLE_POINT_PREFIX = "movablePoint";
-
-    private static final String MOVABLE_POINT_EXT = ".txt";
 
     private static final String BASELINE_PREFIX = "baseline_";
 
@@ -135,27 +122,13 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
     private static final GeometryFactory GF = new GeometryFactory();
 
-    private static final GeodeticCalculator GC = new GeodeticCalculator(
-            DefaultEllipsoid.WGS84);
-
-    private static final UnitConverter NM_TO_METERS = NonSI.NAUTICAL_MILE
-            .getConverterTo(SI.METER);
-
     private static ToolsDataManager theManager = null;
 
     private Map<String, LineString> baselines;
 
     private ListenerList baselineListeners = new ListenerList();
 
-    private Map<String, Coordinate> points;
-
-    private ListenerList pointsListeners = new ListenerList();
-
-    private Coordinate home;
-
-    private ListenerList homeListeners = new ListenerList();
-
-    private Coordinate center;
+    private PointsDataManager pointsManager;
 
     private Collection<RangeRing> rangeRings;
 
@@ -184,6 +157,7 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         site = LocalizationManager.getInstance().getCurrentSite();
 
         pathMgr = PathManagerFactory.getPathManager();
+        pointsManager = PointsDataManager.getInstance();
         LocalizationContext userCtx = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
@@ -193,55 +167,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
         CorePlugin.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(this);
-    }
-
-    public Coordinate getWfoCenter() {
-        if (center == null) {
-            loadCenter();
-        }
-        return new Coordinate(center);
-    }
-
-    public Coordinate getHome() {
-        if (home == null) {
-            loadHome();
-        }
-        return new Coordinate(home);
-    }
-
-    public void setHome(Coordinate home) {
-        if (home == null) {
-            return;
-        }
-        this.home = new Coordinate(home);
-        storeHome();
-    }
-
-    public Collection<String> getPointNames() {
-        return getPoints().keySet();
-    }
-
-    /**
-     * 
-     * @param name
-     * @return the point coordinate associated with the given name, null if no
-     *         point exists by that name
-     */
-    public Coordinate getPoint(String name) {
-        if (points == null) {
-            getPoints();
-        }
-        Coordinate pointCoordinate = points.get(name);
-        if (pointCoordinate == null) {
-            return null;
-        }
-        return new Coordinate(pointCoordinate);
-    }
-
-    public void setPoint(String name, Coordinate point) {
-        points.put(name, new Coordinate(point));
-        storePoint(userToolsDir, point, MOVABLE_POINT_PREFIX + name
-                + MOVABLE_POINT_EXT);
     }
 
     public Collection<String> getBaselineNames() {
@@ -270,11 +195,11 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
     public Collection<LineSegment> getDistanceBearings() {
         Collection<LineSegment> distanceBearings = new ArrayList<LineSegment>();
-        Coordinate center = getHome();
+        Coordinate center = pointsManager.getHome();
         for (int i = 0; i < 6; i++) {
-            Coordinate start = getCoordinateOnCircle(center,
+            Coordinate start = pointsManager.getCoordinateOnCircle(center,
                     DEFAULT_LINE_RADIUS[i], DEFAULT_LINE_STARTDIR[i]);
-            Coordinate end = getCoordinateOnCircle(center,
+            Coordinate end = pointsManager.getCoordinateOnCircle(center,
                     DEFAULT_LINE_RADIUS[i], DEFAULT_LINE_ENDDIR[i]);
             LineSegment line = new LineSegment(start, end);
             distanceBearings.add(line);
@@ -400,42 +325,19 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         return baselines;
     }
 
-    private Map<String, Coordinate> getPoints() {
-        if (points == null || points.isEmpty()) {
-            loadPoints();
-            if (points == null || points.isEmpty()) {
-                createDefaultPoints();
-            }
-        }
-        return points;
-    }
-
     private void createDefaultBaselines() {
         baselines = new LinkedHashMap<String, LineString>();
-        Coordinate center = getHome();
+        Coordinate center = pointsManager.getHome();
         for (int i = 0; i < 10; i++) {
             String label = String.valueOf((char) ('A' + i));
-            Coordinate start = getCoordinateOnCircle(center,
+            Coordinate start = pointsManager.getCoordinateOnCircle(center,
                     DEFAULT_LINE_RADIUS[i], DEFAULT_LINE_STARTDIR[i]);
-            Coordinate end = getCoordinateOnCircle(center,
+            Coordinate end = pointsManager.getCoordinateOnCircle(center,
                     DEFAULT_LINE_RADIUS[i], DEFAULT_LINE_ENDDIR[i]);
             LineString baseline = GF.createLineString(new Coordinate[] { start,
                     end });
             baselines.put(label, baseline);
             storeBaseline(label);
-        }
-    }
-
-    private void createDefaultPoints() {
-        points = new HashMap<String, Coordinate>();
-        Coordinate center = getHome();
-        int baseRingSize = 120;
-        int startAngle = -90;
-        for (char label = 'A'; label <= 'J'; label++) {
-            Coordinate point = getCoordinateOnCircle(center, baseRingSize,
-                    startAngle);
-            setPoint(String.valueOf(label), point);
-            startAngle += 36;
         }
     }
 
@@ -541,47 +443,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         baselineStoreJob.schedule();
     }
 
-    private void storeHome() {
-        storePoint(userToolsDir, home, HOME_LOCATION_FILE);
-    }
-
-    private void storePoint(LocalizationFile dir, Coordinate point,
-            String fileName) {
-
-        LocalizationFile lf = pathMgr.getLocalizationFile(dir.getContext(),
-                dir.getName() + File.separator + fileName);
-        File file = lf.getFile();
-
-        // create the local directory if necessary
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
-            out.write(String.format("%f %f\n", point.y, point.x));
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error writing to file: "
-                    + file.getAbsolutePath(), e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                    lf.save();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error writing to file: " + file.getAbsolutePath(),
-                            e);
-                } catch (LocalizationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error storing locatization file to server: " + lf,
-                            e);
-                }
-            }
-        }
-    }
-
     private void storeRangeRings() {
         StringBuilder pref = new StringBuilder();
         for (RangeRing ring : rangeRings) {
@@ -633,91 +494,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
                 baselines.put(name, baseline);
             }
         }
-    }
-
-    private void loadCenter() {
-        try {
-            // Request center point from server
-            center = (Coordinate) ThriftClient
-                    .sendLocalizationRequest(new GetWfoCenterPoint(site));
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to get WFO center for \"" + site + "\"", e);
-        }
-        if (center == null) {
-            center = new Coordinate(-96.2, 41.2);
-        }
-    }
-
-    private Coordinate loadHome() {
-        home = loadPoint(userToolsDir, HOME_LOCATION_FILE);
-        if (home == null) {
-            home = getWfoCenter();
-            storeHome();
-        }
-        return home;
-    }
-
-    private void loadPoints() {
-        points = new HashMap<String, Coordinate>();
-
-        LocalizationFile[] files = pathMgr.listFiles(userToolsDir.getContext(),
-                userToolsDir.getName(), new String[] { MOVABLE_POINT_EXT },
-                false, true);
-        for (LocalizationFile lf : files) {
-            String fileName = lf.getFile().getName();
-            if (fileName.startsWith(MOVABLE_POINT_PREFIX)) {
-                Coordinate point = loadPoint(userToolsDir, fileName);
-                String name = fileName.substring(MOVABLE_POINT_PREFIX.length())
-                        .replace(MOVABLE_POINT_EXT, "");
-                points.put(name, point);
-            }
-        }
-    }
-
-    private Coordinate loadPoint(LocalizationFile dir, String fileName) {
-        Coordinate point = null;
-
-        LocalizationFile lf = pathMgr.getLocalizationFile(dir.getContext(),
-                dir.getName() + File.separator + fileName);
-        File file = lf.getFile();
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(file));
-            String line = in.readLine();
-            line = line.trim();
-            int p = line.indexOf(' ');
-            double lat = Double.parseDouble(line.substring(0, p));
-            double lon = Double.parseDouble(line.substring(p));
-
-            if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Invalid lat/lon in wfo center point file, using default");
-            } else {
-                point = new Coordinate(lon, lat);
-            }
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Invalid number in wfo center point file, using default",
-                            e);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.EVENTA,
-                    "No wfo center point file found, creating default.");
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error reading wfo center point file, using default", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
-        }
-        return point;
     }
 
     private LineString loadBaseline(String fileName) {
@@ -806,20 +582,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         }
     }
 
-    private Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
-            int angle) {
-
-        if (angle > 180) {
-            angle = angle - 360;
-        }
-        GC.setStartingGeographicPoint(coor.x, coor.y);
-        GC.setDirection(angle, NM_TO_METERS.convert(radius));
-
-        return new Coordinate(GC.getDestinationGeographicPoint().getX(), GC
-                .getDestinationGeographicPoint().getY());
-
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -830,26 +592,10 @@ public class ToolsDataManager implements ILocalizationFileObserver,
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         String fileName = new File(message.getFileName()).getName();
-
-        if (fileName.startsWith(MOVABLE_POINT_PREFIX)) {
-            pointsFileUpdated(fileName);
-        } else if (fileName.startsWith(BASELINE_PREFIX)) {
+        if (fileName.startsWith(BASELINE_PREFIX)) {
             baselineFileUpdated(fileName);
-        } else if (fileName.startsWith(HOME_LOCATION_FILE)) {
-            homeLocationFileUpdated(fileName);
-        }
-    }
-
-    private void pointsFileUpdated(String fileName) {
-        if (points != null) {
-            Coordinate point = loadPoint(userToolsDir, fileName);
-            String name = fileName.substring(MOVABLE_POINT_PREFIX.length())
-                    .replace(MOVABLE_POINT_EXT, "");
-            points.put(name, point);
-
-            for (Object listener : pointsListeners.getListeners()) {
-                ((IToolChangedListener) listener).toolChanged();
-            }
+        } else {
+            pointsManager.fileUpdated(message);
         }
     }
 
@@ -866,43 +612,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         }
     }
 
-    private void homeLocationFileUpdated(String fileName) {
-        if (home != null) {
-            loadHome();
-
-            ArrayList<Thread> threads = new ArrayList<Thread>(
-                    homeListeners.size());
-            for (final Object listener : homeListeners.getListeners()) {
-                // fire listeners in separate threads to avoid waiting to draw
-                // the updated location while waiting on another listener to
-                // finish
-                Thread t = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        ((IToolChangedListener) listener).toolChanged();
-                    }
-
-                });
-                threads.add(t);
-                t.start();
-            }
-
-            // join all threads before continuing so we can't fire listeners
-            // again until all have finished
-            for (Thread t : threads) {
-                try {
-                    t.join();
-                } catch (InterruptedException e) {
-                    statusHandler.handle(
-                            Priority.SIGNIFICANT,
-                            "Unexpected Interruption from: "
-                                    + e.getLocalizedMessage(), e);
-                }
-            }
-        }
-    }
-
     /**
      * @param listener
      */
@@ -915,34 +624,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
      */
     public void removeBaselinesChangedListener(IToolChangedListener listener) {
         baselineListeners.remove(listener);
-    }
-
-    /**
-     * @param listener
-     */
-    public void addPointsChangedListener(IToolChangedListener listener) {
-        pointsListeners.add(listener);
-    }
-
-    /**
-     * @param listener
-     */
-    public void removePointsChangedListener(IToolChangedListener listener) {
-        pointsListeners.remove(listener);
-    }
-
-    /**
-     * @param listener
-     */
-    public void addHomeChangedListener(IToolChangedListener listener) {
-        homeListeners.add(listener);
-    }
-
-    /**
-     * @param listener
-     */
-    public void removeHomeChangedListener(IToolChangedListener listener) {
-        homeListeners.remove(listener);
     }
 
     /**
@@ -994,5 +675,4 @@ public class ToolsDataManager implements ILocalizationFileObserver,
             }
         }
     }
-
 }

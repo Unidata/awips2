@@ -26,8 +26,10 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPartReference;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -54,9 +56,62 @@ import com.raytheon.viz.ui.statusline.TimeDisplay;
 public abstract class AbstractCAVEPerspectiveManager extends
         AbstractVizPerspectiveManager {
 
+    /** Optional workbench part context activator for the perspective */
+    protected AbstractWorkbenchPartContextActivator contextActivator;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * activateContexts(com.raytheon.uf.viz.core.ContextManager)
+     */
+    @Override
+    protected void activateContexts(ContextManager manager) {
+        super.activateContexts(manager);
+        if (contextActivator != null) {
+            contextActivator.partActivated(page.getActivePartReference());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#deactivate
+     * ()
+     */
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        if (contextActivator != null) {
+            page.removePartListener(contextActivator);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * deactivateContexts(com.raytheon.uf.viz.core.ContextManager)
+     */
+    @Override
+    protected void deactivateContexts(ContextManager manager) {
+        super.deactivateContexts(manager);
+        if (contextActivator != null) {
+            IWorkbenchPartReference partRef = page.getActivePartReference();
+            if (partRef != null) {
+                contextActivator.partDeactivated(partRef);
+            }
+        }
+    }
+
     @Override
     protected void activateInternal() {
         super.activateInternal();
+
+        if (contextActivator != null) {
+            page.addPartListener(contextActivator);
+        }
 
         // repaint containers
         for (IEditorReference ref : page.getEditorReferences()) {
@@ -89,18 +144,6 @@ public abstract class AbstractCAVEPerspectiveManager extends
      */
     public IInputHandler[] getPerspectiveInputHandlers(AbstractEditor editor) {
         return new IInputHandler[0];
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#open()
-     */
-    @Override
-    protected void open() {
-        // TODO Auto-generated method stub
-
     }
 
     /*

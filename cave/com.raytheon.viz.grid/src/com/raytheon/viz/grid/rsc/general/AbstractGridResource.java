@@ -41,9 +41,10 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,6 +55,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -143,7 +145,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     /**
      * The interpolation used when sampling to sample between data points.
      */
-    protected AbstractInterpolation sampleInterpolion;
+    protected GridSampler sampleInterpolion;
 
     protected AbstractGridResource(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -366,15 +368,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             ImagingCapability imagingCap = this
                     .getCapability(ImagingCapability.class);
             if (imagingCap.isInterpolationState()) {
-                sampleInterpolion = new BilinearInterpolation(
-                        getGridGeometry(), descriptor.getGridGeometry());
+                sampleInterpolion = new GridSampler(new BilinearInterpolation());
             } else {
-                sampleInterpolion = new NearestNeighborInterpolation(
-                        getGridGeometry(), descriptor.getGridGeometry());
+                sampleInterpolion = new GridSampler(
+                        new NearestNeighborInterpolation());
             }
         } else {
-            sampleInterpolion = new BilinearInterpolation(getGridGeometry(),
-                    descriptor.getGridGeometry());
+            sampleInterpolion = new GridSampler(new BilinearInterpolation());
         }
         if (stylePreferences != null
                 && stylePreferences instanceof ImagePreferences) {
@@ -415,6 +415,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
         GeneralGridData data = requestData(time);
         if (data == null) {
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             return;
         }
 
@@ -423,6 +424,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         if (renderable != null) {
             renderables.put(time, renderable);
             renderable.paint(target, paintProps);
+        } else {
+            updatePaintStatus(PaintStatus.INCOMPLETE);
         }
     }
 
@@ -696,19 +699,19 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         if (data == null) {
             return null;
         }
-        sampleInterpolion.setData(data.getScalarData().array());
+        sampleInterpolion.setSource(new FloatBufferWrapper(
+                data.getScalarData(), getGridGeometry()));
         float value = Float.NaN;
         try {
-            Coordinate xy = coord.asPixel(descriptor.getGridGeometry());
-            value = sampleInterpolion.getReprojectedGridCell((int) xy.x,
-                    (int) xy.y);
+            Coordinate xy = coord.asPixel(getGridGeometry());
+            value = (float) sampleInterpolion.sample(xy.x, xy.y);
         } catch (FactoryException e) {
             throw new VizException(e);
         } catch (TransformException e) {
             throw new VizException(e);
         }
 
-        sampleInterpolion.setData(null);
+        sampleInterpolion.setSource(null);
         Unit<?> unit = data.getDataUnit();
 
         if (stylePreferences != null) {
@@ -732,19 +735,19 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         if (!data.isVector()) {
             return null;
         }
-        sampleInterpolion.setData(data.getDirection().array());
+        sampleInterpolion.setSource(new FloatBufferWrapper(data.getDirection(),
+                getGridGeometry()));
         float value = Float.NaN;
         try {
-            Coordinate xy = coord.asPixel(descriptor.getGridGeometry());
-            value = sampleInterpolion.getReprojectedGridCell((int) xy.x,
-                    (int) xy.y);
+            Coordinate xy = coord.asPixel(getGridGeometry());
+            value = (float) sampleInterpolion.sample(xy.x, xy.y);
         } catch (FactoryException e) {
             throw new VizException(e);
         } catch (TransformException e) {
             throw new VizException(e);
         }
 
-        sampleInterpolion.setData(null);
+        sampleInterpolion.setSource(null);
 
         return Measure.valueOf(value, NonSI.DEGREE_ANGLE);
     }

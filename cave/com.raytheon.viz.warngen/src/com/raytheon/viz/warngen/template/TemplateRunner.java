@@ -246,7 +246,7 @@ public class TemplateRunner {
                     threeLetterSiteId);
             System.out.println("Time to get areas = "
                     + (System.currentTimeMillis() - t0));
-            context.put(config.getAreaConfig().getVariable(), areas);
+            context.put(config.getHatchedAreaSource().getVariable(), areas);
 
             t0 = System.currentTimeMillis();
             intersectAreas = Area.findInsectingAreas(config, warnPolygon,
@@ -624,7 +624,8 @@ public class TemplateRunner {
                 if (totalSegments > 1) {
                     al = FollowUpUtil.canceledAreasFromText(originalText);
                 }
-                context.put("cancel" + config.getAreaConfig().getVariable(), al);
+                context.put("cancel"
+                        + config.getHatchedAreaSource().getVariable(), al);
                 context.put("ugclinecan",
                         FollowUpUtil.getUgcLineCanFromText(originalText));
             } else if (selectedAction == WarningAction.EXT) {
@@ -676,7 +677,8 @@ public class TemplateRunner {
                             }
                         }
                         context.put("cancel"
-                                + config.getAreaConfig().getVariable(), al);
+                                + config.getHatchedAreaSource().getVariable(),
+                                al);
 
                         // This may not be efficient enough. Is it possible that
                         // a removed intersected county be in the affected
@@ -820,8 +822,8 @@ public class TemplateRunner {
     private static WatchUtil getWatches(WarngenLayer warngenLayer,
             WarngenConfiguration config, Geometry polygon,
             String fourLetterSiteId) throws Exception {
-        Validate.isTrue(
-                config.getAreaConfig().getIncludedWatchAreaBuffer() >= 0,
+        Validate.isTrue(config.getHatchedAreaSource()
+                .getIncludedWatchAreaBuffer() >= 0,
                 "IncludedWatchAreaBuffer can not be negative");
         WatchUtil rval = null;
         GetActiveTableRequest req = new GetActiveTableRequest();
@@ -867,7 +869,7 @@ public class TemplateRunner {
 
                 t0 = System.currentTimeMillis();
                 Polygon watchArea = (Polygon) polygon.buffer(milesToKilometer
-                        .convert(config.getAreaConfig()
+                        .convert(config.getHatchedAreaSource()
                                 .getIncludedWatchAreaBuffer())
                         / KmToDegrees);
                 t1 = System.currentTimeMillis();

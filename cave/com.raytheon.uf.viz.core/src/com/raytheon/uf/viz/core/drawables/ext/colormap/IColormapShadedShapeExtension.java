@@ -23,9 +23,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.IShape;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Geometry;
@@ -57,7 +58,7 @@ import com.vividsolutions.jts.geom.LineString;
 public interface IColormapShadedShapeExtension extends
         IGraphicsExtensionInterface {
 
-    public interface IColormapShadedShape {
+    public interface IColormapShadedShape extends IShape {
 
         /**
          * get the colormap keys
@@ -97,8 +98,6 @@ public interface IColormapShadedShapeExtension extends
          */
         public void addGeometry(Geometry geometry, Object colorKey);
 
-        public void dispose();
-
     }
 
     /**
@@ -114,7 +113,7 @@ public interface IColormapShadedShapeExtension extends
      * @return a shaded shape object
      */
     public IColormapShadedShape createColormapShadedShape(
-            IDescriptor descriptor, boolean tesselate);
+            GeneralGridGeometry targetGeometry, boolean tesselate);
 
     /**
      * Create a shaded shape object

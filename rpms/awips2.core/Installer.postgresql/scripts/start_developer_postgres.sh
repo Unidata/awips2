@@ -3,7 +3,7 @@
 ## EDIT FROM HERE
 
 # Use rpm to find installation locations / directory paths.
-POSTGRESQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-postgresql`
+POSTGRESQL_INSTALL="/awips2"
 
 # Installation prefix
 prefix="${POSTGRESQL_INSTALL}/postgresql"
@@ -22,9 +22,9 @@ USER=`whoami`
 ## STOP EDITING HERE
 
 # The path that is to be used for the script
-PATH=${POSTGRESQL_INSTALL}/postgresql/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PATH=${prefix}/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-export LD_LIBRARY_PATH=${POSTGRESQL_INSTALL}/postgresql/lib
+export LD_LIBRARY_PATH=${prefix}/lib
 
 # What to use to start up the postmaster (we do NOT use pg_ctl for this,
 # as it adds no value and can cause the postmaster to misrecognize a stale
