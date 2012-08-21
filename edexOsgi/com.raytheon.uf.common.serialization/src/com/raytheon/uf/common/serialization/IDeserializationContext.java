@@ -84,6 +84,14 @@ public interface IDeserializationContext {
     public abstract double readDouble() throws SerializationException;
 
     /**
+     * Read a double array
+     * 
+     * @return
+     * @throws SerializationException
+     */
+    public abstract double[] readDoubleArray() throws SerializationException;
+
+    /**
      * Read a float
      * 
      * @return

@@ -75,297 +75,298 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ProfilerLdadObs extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
 
-    public static final String PLUGIN_NAME = "ldadprofiler";
+	public static final String PLUGIN_NAME = "ldadprofiler";
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
+	public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
+	public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
 
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
+	public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
+	private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
 
-    static {
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-    }
+	static {
+		PARM_MAP.put("NLAT", STA_LAT);
+		PARM_MAP.put("NLON", STA_LON);
+		PARM_MAP.put("WS", SFC_WNDSPD);
+		PARM_MAP.put("WD", SFC_WNDDIR);
+	}
 
-    private static final String PRESS = "PRESS";
+	private static final String PRESS = "PRESS";
 
-    private static final String AGL = "AGL";
+	private static final String AGL = "AGL";
 
-    public static final String PRESS_PARAM_PTRN = ".*:" + PRESS + "=\\d{2,4}";
+	public static final String PRESS_PARAM_PTRN = ".*:" + PRESS + "=\\d{2,4}";
 
-    public static final String AGL_PARAM_PTRN = ".*:" + AGL + "=\\d{2,4}";
+	public static final String AGL_PARAM_PTRN = ".*:" + AGL + "=\\d{2,4}";
 
-    @Transient
-    private String parameterName = null;
+	@Transient
+	private String parameterName = null;
 
-    @DataURI(position = 1)
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer reportType;
+	@DataURI(position = 1)
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Integer reportType;
 
-    // Location
-    @Embedded
-    @DataURI(position = 2, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location; // latitude, longitude, elevation,
+	// Location
+	@Embedded
+	@DataURI(position = 2, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location; // latitude, longitude, elevation,
 
-    // stationId
+	// stationId
 
-    // Base time in Epoch "seconds since 1970-01-01 00:00:00 UTC"
-    @Column
-    @DynamicSerializeElement
-    @XmlElement
-    int base_time;
+	// Base time in Epoch "seconds since 1970-01-01 00:00:00 UTC"
+	@Column
+	@DynamicSerializeElement
+	@XmlElement
+	int base_time;
 
-    // Consensus start time offset from base_time
-    // "seconds since 2009/10/07 00:00:00 UTC"
-    @Column
-    @DynamicSerializeElement
-    @XmlElement
-    double start_time_offset;
+	// Consensus start time offset from base_time
+	// "seconds since 2009/10/07 00:00:00 UTC"
+	@Column
+	@DynamicSerializeElement
+	@XmlElement
+	double start_time_offset;
 
-    // Consensus end time offset from base_time
-    // "seconds since 2009/10/07 00:00:00 UTC"
-    @Column
-    @DynamicSerializeElement
-    @XmlElement
-    double end_time_offset;
+	// Consensus end time offset from base_time
+	// "seconds since 2009/10/07 00:00:00 UTC"
+	@Column
+	@DynamicSerializeElement
+	@XmlElement
+	double end_time_offset;
 
-    // nhts Number of heights?
-    @Column
-    @DynamicSerializeElement
-    @XmlElement
-    int nhts;
+	// nhts Number of heights?
+	@Column
+	@DynamicSerializeElement
+	@XmlElement
+	int nhts;
 
-    // the level data
-    @XmlElement
-    @DynamicSerializeElement
-    @Transient
-    private List<ProfilerLdadLevel> levels;
+	// the level data
+	@XmlElement
+	@DynamicSerializeElement
+	@Transient
+	private List<ProfilerLdadLevel> levels;
 
-    // The profiler observation time.
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Calendar timeObs;
+	// The profiler observation time.
+	@Column
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Calendar timeObs;
 
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String stationName;
+	@Column
+	@XmlAttribute
+	@DynamicSerializeElement
+	private String stationName;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    /**
-     * @return the base_time
-     */
-    public int getBase_time() {
-        return base_time;
-    }
+	/**
+	 * @return the base_time
+	 */
+	public int getBase_time() {
+		return base_time;
+	}
 
-    /**
-     * @param base_time
-     *            the base_time to set
-     */
-    public void setBase_time(int base_time) {
-        this.base_time = base_time;
-    }
+	/**
+	 * @param base_time
+	 *            the base_time to set
+	 */
+	public void setBase_time(int base_time) {
+		this.base_time = base_time;
+	}
 
-    public Calendar getTimeObs() {
-        return timeObs;
-    }
+	public Calendar getTimeObs() {
+		return timeObs;
+	}
 
-    public void setTimeObs(Calendar timeObs) {
-        this.timeObs = timeObs;
-    }
+	public void setTimeObs(Calendar timeObs) {
+		this.timeObs = timeObs;
+	}
 
-    /**
-     * @return the start_time_offset
-     */
-    public double getStart_time_offset() {
-        return start_time_offset;
-    }
+	/**
+	 * @return the start_time_offset
+	 */
+	public double getStart_time_offset() {
+		return start_time_offset;
+	}
 
-    /**
-     * @param start_time_offset
-     *            the start_time_offset to set
-     */
-    public void setStart_time_offset(double start_time_offset) {
-        this.start_time_offset = start_time_offset;
-    }
+	/**
+	 * @param start_time_offset
+	 *            the start_time_offset to set
+	 */
+	public void setStart_time_offset(double start_time_offset) {
+		this.start_time_offset = start_time_offset;
+	}
 
-    /**
-     * @return the end_time_offset
-     */
-    public double getEnd_time_offset() {
-        return end_time_offset;
-    }
+	/**
+	 * @return the end_time_offset
+	 */
+	public double getEnd_time_offset() {
+		return end_time_offset;
+	}
 
-    /**
-     * @param end_time_offset
-     *            the end_time_offset to set
-     */
-    public void setEnd_time_offset(double end_time_offset) {
-        this.end_time_offset = end_time_offset;
-    }
+	/**
+	 * @param end_time_offset
+	 *            the end_time_offset to set
+	 */
+	public void setEnd_time_offset(double end_time_offset) {
+		this.end_time_offset = end_time_offset;
+	}
 
-    /**
-     * @return the nhts
-     */
-    public int getNhts() {
-        return nhts;
-    }
+	/**
+	 * @return the nhts
+	 */
+	public int getNhts() {
+		return nhts;
+	}
 
-    /**
-     * @param nhts
-     *            the nhts to set
-     */
-    public void setNhts(int nhts) {
-        this.nhts = nhts;
-    }
+	/**
+	 * @param nhts
+	 *            the nhts to set
+	 */
+	public void setNhts(int nhts) {
+		this.nhts = nhts;
+	}
 
-    /**
-     * @return the levels
-     */
-    public List<ProfilerLdadLevel> getLevels() {
-        return levels;
-    }
+	/**
+	 * @return the levels
+	 */
+	public List<ProfilerLdadLevel> getLevels() {
+		return levels;
+	}
 
-    /**
-     * @param levels
-     *            the levels to set
-     */
-    public void setLevels(List<ProfilerLdadLevel> levels) {
-        this.levels = levels;
-    }
+	/**
+	 * @param levels
+	 *            the levels to set
+	 */
+	public void setLevels(List<ProfilerLdadLevel> levels) {
+		this.levels = levels;
+	}
 
-    /**
-     * @return the pdv
-     */
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
+	/**
+	 * @return the pointDataView
+	 */
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
 
-    public ProfilerLdadObs() {
-    }
+	public ProfilerLdadObs() {
+	}
 
-    /**
-     * @param pdv
-     *            the pdv to set
-     */
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	/**
+	 * @param pointDataView
+	 *            the pointDataView to set
+	 */
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    // ----------------------------------------------------
+	// ----------------------------------------------------
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public ISpatialObject getSpatialObject() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public ISpatialObject getSpatialObject() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public String getString(String paramName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public String[] getStrings(String paramName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public Amount getValue(String paramName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public Collection<Amount> getValues(String paramName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    /**
-     * @param location
-     *            the location to set
-     */
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
+	/**
+	 * @param location
+	 *            the location to set
+	 */
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    /**
-     * @return the location
-     */
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	/**
+	 * @return the location
+	 */
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    /**
-     * @param stationName
-     *            the stationName to set
-     */
-    public void setStationName(String stationName) {
-        this.stationName = stationName;
-    }
+	/**
+	 * @param stationName
+	 *            the stationName to set
+	 */
+	public void setStationName(String stationName) {
+		this.stationName = stationName;
+	}
 
-    /**
-     * @return the stationName
-     */
-    public String getStationName() {
-        return stationName;
-    }
+	/**
+	 * @return the stationName
+	 */
+	public String getStationName() {
+		return stationName;
+	}
 
-    /**
-     * @param parameterName
-     *            the parameterName to set
-     */
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
+	/**
+	 * @param parameterName
+	 *            the parameterName to set
+	 */
+	public void setParameterName(String parameterName) {
+		this.parameterName = parameterName;
+	}
 
-    /**
-     * @return the parameterName
-     */
-    public String getParameterName() {
-        return parameterName;
-    }
+	/**
+	 * @return the parameterName
+	 */
+	public String getParameterName() {
+		return parameterName;
+	}
 
-    /**
-     * @param reportType
-     *            the reportType to set
-     */
-    public void setReportType(Integer reportType) {
-        this.reportType = reportType;
-    }
+	/**
+	 * @param reportType
+	 *            the reportType to set
+	 */
+	public void setReportType(Integer reportType) {
+		this.reportType = reportType;
+	}
 
-    /**
-     * @return the reportType
-     */
-    public Integer getReportType() {
-        return reportType;
-    }
+	/**
+	 * @return the reportType
+	 */
+	public Integer getReportType() {
+		return reportType;
+	}
 
 }

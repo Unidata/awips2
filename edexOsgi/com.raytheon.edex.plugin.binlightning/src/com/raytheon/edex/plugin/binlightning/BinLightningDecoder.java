@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
@@ -92,6 +91,8 @@ public class BinLightningDecoder extends AbstractDecoder {
     // Allow ingest up to 10 minutes into the future.
     private static final long TEN_MINUTES = 10 * 60 * 1000L;
 
+    private SimpleDateFormat SDF;
+
     private Log logger = LogFactory.getLog(getClass());
 
     /**
@@ -107,6 +108,8 @@ public class BinLightningDecoder extends AbstractDecoder {
      * will return false, decode() will return a null.
      */
     public BinLightningDecoder() {
+        SDF = new SimpleDateFormat("yyyyMMddHHmmss");
+        SDF.setTimeZone(TimeZone.getTimeZone("Zulu"));
     }
 
     /**
@@ -125,8 +128,12 @@ public class BinLightningDecoder extends AbstractDecoder {
 
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
 
-            WMOHeader header = new WMOHeader(data);
-            if (header.isValid()) {
+            WMOHeader wmoHdr = new WMOHeader(data);
+            if (wmoHdr.isValid()) {
+
+                Calendar baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(),
+                        headers);
+
                 byte[] pdata = DecoderTools.stripWMOHeader(data, SFUS_PATTERN);
                 if (pdata == null) {
                     pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
@@ -174,21 +181,19 @@ public class BinLightningDecoder extends AbstractDecoder {
                         return new PluginDataObject[0];
                     }
 
-                    Calendar c = TimeTools.getSystemCalendar();
+                    Calendar c = TimeTools.copy(baseTime);
                     if (c == null) {
                         throw new DecoderException(traceId
                                 + "-Error decoding times");
                     }
-                    report.setInsertTime(c);
 
                     Calendar cStart = report.getStartTime();
                     if (cStart.getTimeInMillis() > c.getTimeInMillis()
                             + TEN_MINUTES) {
-                        SimpleDateFormat sdf = new SimpleDateFormat(
-                                "yyyyMMddHHmmss");
-                        sdf.setTimeZone(TimeZone.getTimeZone("Zulu"));
-                        logger.info("Discarding future data for " + traceId
-                                + " at " + sdf.format(cStart.getTime()));
+                        synchronized (SDF) {
+                            logger.info("Discarding future data for " + traceId
+                                    + " at " + SDF.format(cStart.getTime()));
+                        }
                     } else {
                         Calendar cStop = report.getStopTime();
 
@@ -206,8 +211,7 @@ public class BinLightningDecoder extends AbstractDecoder {
                                 report.constructDataURI();
                                 reports = new PluginDataObject[] { report };
                             } catch (PluginException e) {
-                                throw new DecoderException(
-                                        "Error constructing datauri", e);
+                                logger.error("Error constructing datauri", e);
                             }
                         }
                     }

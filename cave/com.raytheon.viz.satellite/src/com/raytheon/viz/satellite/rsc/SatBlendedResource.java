@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.satellite.rsc;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +28,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
-import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension.IMosaicImage;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicOrderedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -44,6 +46,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -67,9 +71,7 @@ public class SatBlendedResource extends
         AbstractVizResource<SatBlendedResourceData, MapDescriptor> implements
         IResourceGroup, IRefreshListener, IResourceDataChanged {
 
-    private IImage offscreenImage = null;
-
-    private int[] imageBounds = null;
+    private IMosaicImage mosaicImage = null;
 
     private IExtent lastExtent = null;
 
@@ -149,15 +151,21 @@ public class SatBlendedResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (offscreenImage == null
-                || Arrays.equals(imageBounds,
-                        new int[] { paintProps.getCanvasBounds().width,
-                                paintProps.getCanvasBounds().height }) == false) {
+        ColorMapParameters params = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+
+        // If first paint, initialize and wait for next paint
+        if (mosaicImage == null) {
+            initImage(target, paintProps, params);
+        } else if (Arrays.equals(
+                new int[] { mosaicImage.getWidth(), mosaicImage.getHeight() },
+                new int[] { paintProps.getCanvasBounds().width,
+                        paintProps.getCanvasBounds().height }) == false) {
+            // If Window size changed, recreate the off screen buffer
             disposeImage();
-            initImage(target, paintProps);
+            initImage(target, paintProps, params);
         }
 
-        boolean newTimes = false;
         List<DataTime> rscTimes = new ArrayList<DataTime>();
         for (ResourcePair rp : getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
@@ -165,38 +173,41 @@ public class SatBlendedResource extends
                 rscTimes.add(descriptor.getTimeForResource(rsc));
             }
         }
-        if (rscTimes.equals(lastTimes) == false) {
-            newTimes = true;
-        }
 
-        lastTimes = rscTimes;
+        IExtent extent = paintProps.getView().getExtent().clone();
+        if (extent.equals(lastExtent) == false
+                || rscTimes.equals(lastTimes) == false) {
+            lastTimes = rscTimes;
+            lastExtent = extent;
+            List<DrawableImage> images = new ArrayList<DrawableImage>();
 
-        if (paintProps.getView().getExtent().equals(lastExtent) == false
-                || newTimes) {
-
-            IExtent extent = lastExtent = paintProps.getView().getExtent()
-                    .clone();
-
-            // render offscreen so alpha can be applied to combined image rather
-            // than to each image.
-            target.renderOffscreen(offscreenImage);
-
-            if (paintProps.getDataTime() != null) {
-                for (ResourcePair rp : getResourceList()) {
-                    AbstractVizResource<?, ?> rsc = rp.getResource();
-                    if (rsc != null) {
-                        DataTime timeForRsc = paintProps.getFramesInfo()
-                                .getTimeForResource(rsc);
-                        PaintProperties rscProps = new PaintProperties(
-                                paintProps);
-                        rscProps.setDataTime(timeForRsc);
-                        rscProps.setAlpha(1.0f);
-                        rsc.paint(target, rscProps);
+            for (ResourcePair rp : getResourceList()) {
+                AbstractVizResource<?, ?> rsc = rp.getResource();
+                DataTime time = paintProps.getFramesInfo().getTimeForResource(
+                        rsc);
+                if (rsc != null && time != null) {
+                    SatResource sr = (SatResource) rsc;
+                    DataTime timeForRsc = paintProps.getFramesInfo()
+                            .getTimeForResource(rsc);
+                    PaintProperties rscProps = new PaintProperties(paintProps);
+                    rscProps.setDataTime(timeForRsc);
+                    rscProps.setAlpha(1.0f);
+                    List<DrawableImage> rscImages = sr.getImages(target,
+                            rscProps);
+                    for (DrawableImage di : rscImages) {
+                        if (di != null && di.getImage() != null
+                                && di.getCoverage() != null
+                                && di.getCoverage().getMesh() != null) {
+                            // If image is ready to go, add
+                            images.add(di);
+                        }
                     }
                 }
             }
 
-            target.renderOnscreen();
+            mosaicImage.setImagesToMosaic(images
+                    .toArray(new DrawableImage[images.size()]));
+            mosaicImage.setImageExtent(extent);
 
             Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
             Coordinate ur = new Coordinate(extent.getMaxX(), extent.getMaxY());
@@ -206,25 +217,35 @@ public class SatBlendedResource extends
             imageCoverage = new PixelCoverage(ul, ur, lr, ll);
         }
 
-        target.drawRaster(offscreenImage, imageCoverage, paintProps);
+        mosaicImage.setContrast(getCapability(ImagingCapability.class)
+                .getContrast());
+        mosaicImage.setBrightness(getCapability(ImagingCapability.class)
+                .getBrightness());
+
+        target.drawRaster(mosaicImage, imageCoverage, paintProps);
     }
 
-    private void initImage(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-        // Construct texture for fbo
-        imageBounds = new int[] { paintProps.getCanvasBounds().width,
-                paintProps.getCanvasBounds().height };
-        offscreenImage = target.initializeRaster(new IODataPreparer(
-                new BufferedImage(imageBounds[0], imageBounds[1],
-                        BufferedImage.TYPE_INT_RGB), "SatBlendedImage", 0),
-                null);
+    private void initImage(IGraphicsTarget target, PaintProperties paintProps,
+            ColorMapParameters params) throws VizException {
+        IMosaicImageExtension ext = target
+                .getExtension(IMosaicOrderedImageExtension.class);
+        if (ext == null) {
+            // This could return about any mosaicing algorithm but it is better
+            // than drawing nothing
+            ext = target.getExtension(IMosaicImageExtension.class);
+        }
+        // Construct texture for mosaicing
+        mosaicImage = ext.initializeRaster(
+                new int[] { paintProps.getCanvasBounds().width,
+                        paintProps.getCanvasBounds().height }, paintProps
+                        .getView().getExtent(), params);
     }
 
     private void disposeImage() {
         // Dispose of all data, offscreen texture
-        if (offscreenImage != null) {
-            offscreenImage.dispose();
-            offscreenImage = null;
+        if (mosaicImage != null) {
+            mosaicImage.dispose();
+            mosaicImage = null;
         }
     }
 

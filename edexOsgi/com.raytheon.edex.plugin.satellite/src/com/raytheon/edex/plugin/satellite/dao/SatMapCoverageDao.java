@@ -40,6 +40,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in    
+ * - AWIPS2 Baseline Repository --------
+ * 06/27/2012    798        jkorman     Corrected id query type.
  *  
  * </pre>
  * 
@@ -64,7 +66,7 @@ public class SatMapCoverageDao extends CoreDao {
      * @return A SatelliteMapCoverage object with the corresponding ID. Null if
      *         not found.
      */
-    public SatMapCoverage queryByMapId(String mapId) {
+    public SatMapCoverage queryByMapId(Integer mapId) {
         return (SatMapCoverage) this.queryById(mapId);
     }
 
@@ -152,7 +154,7 @@ public class SatMapCoverageDao extends CoreDao {
         query.addQueryParam("la1",la1);
         query.addQueryParam("lo1",lo1);
 
-        if (mapProjection == 1) {
+        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
             query.addQueryParam("la2",la2);
             query.addQueryParam("lo2",lo2);
         }
