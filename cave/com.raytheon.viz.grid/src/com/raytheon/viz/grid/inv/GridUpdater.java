@@ -210,7 +210,8 @@ public class GridUpdater implements IAlertObserver {
         Set<String> datauris = new HashSet<String>();
         for (AlertMessage alert : alertMessages) {
             if (myUpdates.remove(alert.dataURI)) {
-                // This updater triggered this alert, if it processes it now we
+                // This updater triggered this alert, if it processes it now
+                // we
                 // could do this forever
                 continue;
             }
@@ -241,7 +242,8 @@ public class GridUpdater implements IAlertObserver {
                     if (method == null
                             || !method.getName().equals("Supplement")) {
                         inventory.reinitTree();
-                        // System.out.println(((AbstractDerivedLevelNode) lNode)
+                        // System.out.println(((AbstractDerivedLevelNode)
+                        // lNode)
                         // .getModelName());
                     }
                 } else {
@@ -292,7 +294,6 @@ public class GridUpdater implements IAlertObserver {
                                     "Unable to generate updates for derived product",
                                     e);
                 }
-
             }
         }
         myUpdates.addAll(datauris);

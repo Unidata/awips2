@@ -39,6 +39,7 @@ import com.raytheon.uf.common.activetable.MergeResult;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
 import com.raytheon.uf.common.activetable.PracticeActiveTableRecord;
 import com.raytheon.uf.common.activetable.VTECChange;
+import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -50,6 +51,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
@@ -288,7 +290,7 @@ public class ActiveTable {
             updateTable(siteId, result, mode);
 
             if (result.changeList.size() > 0) {
-                notifyIFPServerOfChanges(mode, result.changeList);
+                sendNotification(mode, result.changeList);
             }
         }
     }
@@ -337,14 +339,20 @@ public class ActiveTable {
         return result;
     }
 
-    private void notifyIFPServerOfChanges(ActiveTableMode mode,
-            List<VTECChange> changes) {
-        // try{
-        statusHandler.handle(Priority.DEBUG,
-                "Notifying ifpServer of table change");
-
+    private void sendNotification(ActiveTableMode mode, List<VTECChange> changes) {
         Date modTime = new Date();
-        VTECTableChangeNotifier.send(mode, modTime, "VTECDecoder", changes);
+        // VTECTableChangeNotifier.send(mode, modTime, "VTECDecoder", changes);
+        try {
+            VTECTableChangeNotification notification = new VTECTableChangeNotification(
+                    mode, modTime, "VTECDecoder",
+                    changes.toArray(new VTECChange[changes.size()]));
+            // System.out.println("Sending VTECTableChangeNotification:"
+            // + notification);
+            EDEXUtil.getMessageProducer().sendAsync("vtecNotify", notification);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error Sending VTECTableChangeNotification", e);
+        }
     }
 
     /**

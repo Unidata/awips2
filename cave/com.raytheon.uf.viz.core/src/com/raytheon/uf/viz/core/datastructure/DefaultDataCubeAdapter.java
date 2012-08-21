@@ -87,6 +87,7 @@ public class DefaultDataCubeAdapter implements IDataCubeAdapter {
             throws VizException {
         TimeQueryRequestSet set = new TimeQueryRequestSet();
         set.setRequests(requests.toArray(new TimeQueryRequest[0]));
+
         @SuppressWarnings("unchecked")
         List<List<DataTime>> result = (List<List<DataTime>>) ThriftClient
                 .sendRequest(set);

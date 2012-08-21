@@ -233,6 +233,7 @@ public class CatalogQuery {
         req.setPluginName(pluginName);
         req.setBinOffset(binOffset);
         req.setQueryTerms(constraintMap);
+
         return req;
     }
 
@@ -251,6 +252,7 @@ public class CatalogQuery {
      * @return the available times that meet the constraints
      * @throws VizException
      */
+    @SuppressWarnings("unchecked")
     public static DataTime[] performTimeQuery(
             Map<String, RequestConstraint> constraintMap, boolean max,
             BinOffset binOffset) throws VizException {

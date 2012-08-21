@@ -26,7 +26,15 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.common.serialization.IDeserializationContext;
+import com.raytheon.uf.common.serialization.ISerializationContext;
+import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
+import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
  * Marshals GeneralGridGeometry to a class that is easily JAXB'd
@@ -45,7 +53,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  */
 
 public class GridGeometryAdapter extends
-        XmlAdapter<GridGeometrySerialized, GeneralGridGeometry> {
+        XmlAdapter<GridGeometrySerialized, GeneralGridGeometry> implements
+        ISerializationTypeAdapter<GeneralGridGeometry> {
 
     @Override
     public GridGeometrySerialized marshal(GeneralGridGeometry v)
@@ -104,4 +113,61 @@ public class GridGeometryAdapter extends
         return ggg;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.ISerializationTypeAdapter#serialize
+     * (com.raytheon.uf.common.serialization.ISerializationContext,
+     * java.lang.Object)
+     */
+    @Override
+    public void serialize(ISerializationContext serializer,
+            GeneralGridGeometry object) throws SerializationException {
+        int numDims = object.getDimension();
+        GridEnvelope range = object.getGridRange();
+        Envelope env = object.getEnvelope();
+
+        serializer.writeString(object.getCoordinateReferenceSystem().toWKT());
+        serializer.writeI32(numDims);
+        for (int i = 0; i < numDims; ++i) {
+            serializer.writeI32(range.getLow(i));
+            serializer.writeI32(range.getHigh(i));
+            serializer.writeDouble(env.getMinimum(i));
+            serializer.writeDouble(env.getMaximum(i));
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.ISerializationTypeAdapter#deserialize
+     * (com.raytheon.uf.common.serialization.IDeserializationContext)
+     */
+    @Override
+    public GeneralGridGeometry deserialize(IDeserializationContext deserializer)
+            throws SerializationException {
+        try {
+            CoordinateReferenceSystem crs = CRS.parseWKT(deserializer
+                    .readString());
+            int numDims = deserializer.readI32();
+            GeneralEnvelope env = new GeneralEnvelope(crs);
+            int[] lowRange = new int[numDims];
+            int[] highRange = new int[numDims];
+            for (int i = 0; i < numDims; ++i) {
+                lowRange[i] = deserializer.readI32();
+                highRange[i] = deserializer.readI32();
+                env.setRange(i, deserializer.readDouble(),
+                        deserializer.readDouble());
+            }
+
+            return new GeneralGridGeometry(new GeneralGridEnvelope(lowRange,
+                    highRange, false), env);
+        } catch (FactoryException e) {
+            throw new SerializationException(
+                    "Error deserializing GeneralGridGeometry, could not read CRS",
+                    e);
+        }
+    }
 }

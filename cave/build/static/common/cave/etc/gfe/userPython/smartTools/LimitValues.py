@@ -48,9 +48,6 @@ from numpy import *
 import ProcessVariableList
 import SmartScript
 
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import GFERecord_GridType as GridType 
-
-
 toolName = 'LimitValues'
 
 class Tool (SmartScript.SmartScript):
@@ -59,7 +56,6 @@ class Tool (SmartScript.SmartScript):
 
    def preProcessGrid(self,editArea,variableElement,
                       variableElement_GridInfo,WEname):
-      wxType = variableElement_GridInfo.getGridType()
       #
       #  Need a mask of the current edit area, so the
       #  dialog can figure out the current max/min in
@@ -81,10 +77,10 @@ class Tool (SmartScript.SmartScript):
       #  setup valgrid with the grid that will be
       #  limited (i.e. for vectors the speed)
       #
-      if wxType.equals(GridType.SCALAR):
-         valgrid=variableElement
-      if wxType.equals(GridType.VECTOR):
+      if type(variableElement) is list:
          (valgrid,dir)=variableElement
+      else:
+         valgrid=variableElement
       #
       #  When checking for mins, need all areas outside the edit
       #  area set to the max value for this element - so that the
@@ -148,18 +144,17 @@ class Tool (SmartScript.SmartScript):
    #  Main routine that reads in the variableElement and limits it to
    #  the values set up via the dialog in the preProcessGrid routine
    #
-   def execute(self, variableElement, variableElement_GridInfo, varDict):
+   def execute(self, variableElement, varDict):
         "limit gridvalues between user-set limits"
         #
         #  set val to the grid we will limit
         #  (if it is a vector - get the speed)
         #
-        wxType = variableElement_GridInfo.getGridType()
-        if wxType.equals(GridType.SCALAR):
-            val=variableElement
-        if wxType.equals(GridType.VECTOR):
+        if type(variableElement) is list:
             val=variableElement[0]
             dir=variableElement[1]
+        else:
+            val=variableElement
         #
         #  limit the values, max first, then min
         #
@@ -170,9 +165,9 @@ class Tool (SmartScript.SmartScript):
         #  put the trimmed values back
         #
         
-        if wxType.equals(GridType.SCALAR):
-            variableElement=valC
-        if wxType.equals(GridType.VECTOR):
+        if type(variableElement) is list:
             variableElement=(valC,dir)
+        else:
+            variableElement=valC
             
         return variableElement

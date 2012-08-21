@@ -107,12 +107,15 @@ public abstract class AbstractGLMesh implements IMesh {
 
     private MathTransform latLonToTargetGrid;
 
-    private GeneralGridGeometry targetGeometry;
+    protected GeneralGridGeometry targetGeometry;
 
-    private GridGeometry2D imageGeometry;
+    protected GridGeometry2D imageGeometry;
+
+    protected int refCount;
 
     protected AbstractGLMesh(int geometryType) {
         this.geometryType = geometryType;
+        this.refCount = 1;
     }
 
     protected final void initialize(GridGeometry2D imageGeometry,
@@ -127,7 +130,22 @@ public abstract class AbstractGLMesh implements IMesh {
                         "Error construcing image to lat/lon transform", t);
             }
         }
-        reproject(targetGeometry);
+        this.targetGeometry = targetGeometry;
+
+        // Set up convenience transforms
+        try {
+            DefaultMathTransformFactory factory = new DefaultMathTransformFactory();
+            latLonToTargetGrid = factory.createConcatenatedTransform(MapUtil
+                    .getTransformFromLatLon(targetGeometry
+                            .getCoordinateReferenceSystem()), targetGeometry
+                    .getGridToCRS(PixelInCell.CELL_CENTER).inverse());
+        } catch (Throwable t) {
+            internalState = State.INVALID;
+            throw new VizException("Error projecting mesh", t);
+        }
+
+        internalState = State.CALCULATING;
+        calculator.schedule(calculate);
     }
 
     public final synchronized PaintStatus paint(IGraphicsTarget target,
@@ -182,8 +200,16 @@ public abstract class AbstractGLMesh implements IMesh {
         }
     }
 
+    protected void use() {
+        refCount += 1;
+    }
+
     @Override
     public synchronized void dispose() {
+        refCount -= 1;
+        if (refCount > 0) {
+            return;
+        }
         // Synchronize on calculate so we don't dispose while running
         synchronized (calculate) {
             // Cancel calculation job from running
@@ -216,28 +242,9 @@ public abstract class AbstractGLMesh implements IMesh {
      * GeneralGridGeometry)
      */
     @Override
-    public final void reproject(GeneralGridGeometry targetGeometry)
+    public final IMesh reproject(GeneralGridGeometry targetGeometry)
             throws VizException {
-        if (targetGeometry.equals(this.targetGeometry) == false) {
-            dispose();
-            this.targetGeometry = targetGeometry;
-
-            // Set up convenience transforms
-            try {
-                DefaultMathTransformFactory factory = new DefaultMathTransformFactory();
-                latLonToTargetGrid = factory.createConcatenatedTransform(
-                        MapUtil.getTransformFromLatLon(targetGeometry
-                                .getCoordinateReferenceSystem()),
-                        targetGeometry.getGridToCRS(PixelInCell.CELL_CENTER)
-                                .inverse());
-            } catch (Throwable t) {
-                internalState = State.INVALID;
-                throw new VizException("Error projecting mesh", t);
-            }
-
-            internalState = State.CALCULATING;
-            calculator.schedule(calculate);
-        }
+        return clone(targetGeometry);
     }
 
     private boolean calculateMesh() {

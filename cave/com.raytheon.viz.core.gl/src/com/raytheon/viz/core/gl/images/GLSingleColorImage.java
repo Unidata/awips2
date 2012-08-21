@@ -21,6 +21,7 @@ package com.raytheon.viz.core.gl.images;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
 import com.raytheon.viz.core.gl.internal.ext.GLSingleColorImageExtension;
 
@@ -42,13 +43,12 @@ import com.raytheon.viz.core.gl.internal.ext.GLSingleColorImageExtension;
  * @version 1.0
  */
 
-public class GLSingleColorImage extends GLDelegateImage<AbstractGLImage>
-        implements ISingleColorImage {
+public class GLSingleColorImage extends GLImage implements ISingleColorImage {
 
     private RGB color;
 
-    public GLSingleColorImage(AbstractGLImage image, RGB color) {
-        super(image, GLSingleColorImageExtension.class);
+    public GLSingleColorImage(IRenderedImageCallback callback, RGB color) {
+        super(callback, GLSingleColorImageExtension.class);
         this.color = color;
     }
 

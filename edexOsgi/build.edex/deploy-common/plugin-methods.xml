@@ -1,0 +1,212 @@
+<project>
+	<macrodef name="processPlugins">
+		<attribute name="includes.file" />
+		<attribute name="plugin.type" />
+		<attribute name="plugin.directories" />
+		<attribute name="destination.directory" />
+		
+		<sequential>
+			<loadfile property="includefile.@{plugin.type}"
+				srcfile="@{includes.file}" />
+			<var name="index" value="1" />
+			
+			<for param="line" list="${includefile.@{plugin.type}}"
+			delimiter="${line.separator}">
+				<sequential>
+					<!-- skip the first line -->
+					<if>
+						<not>
+							<equals arg1="${index}" arg2="1" />
+						</not>
+						<then>											
+							<if>							
+								<!-- TODO: we need our own ant plugin so this
+								becomes unnecessary [SPECIAL CASE]. -->
+								<equals arg1="@{plugin.type}" arg2="cots" />
+								<then>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/(.+)"
+									select="\1"
+									casesensitive="true" />
+								</then>
+								<else>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/component-deploy.xml"
+									select="\1"
+									casesensitive="true" />
+								</else>
+							</if>
+							
+							<deployPlugins
+								plugin.name="${plugin.name}"
+								original.pattern="@{line}"
+								plugin.type="@{plugin.type}"
+								plugin.directories="@{plugin.directories}" 
+								destination.directory="@{destination.directory}" />
+						</then>
+					</if>
+					<math result="index"
+						operand1="${index}"
+						operation="+"
+						operand2="1"
+						datatype="int" />
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="deployPlugins">
+		<attribute name="plugin.name" />
+		<attribute name="original.pattern" />
+		<attribute name="plugin.type" />
+		<attribute name="plugin.directories" />
+		<attribute name="destination.directory" />
+		
+		<sequential>			
+			<var name="plugin.path" value="" />
+			<!-- first we need to find the plugin -->
+	 		<for list="${basedirectories}" param="directory"
+	 		delimiter=";">
+	 			<sequential>
+	 				<if>
+	 					<available file="@{directory}/@{plugin.name}" />
+	 					<then>
+	 						<var name="plugin.path"
+	 							value="@{directory}" />
+	 					</then>
+	 				</if>
+	 			</sequential>
+	 		</for>
+	 		
+	 		<var name="plugin.base" value="${plugin.path}/@{plugin.name}" />
+	 		<var name="plugin.bin" value="${plugin.base}/bin" />
+	 		<var name="jar.destfile"
+	 			value="${destination.directory}/@{plugin.name}.jar" />
+	 		
+	 		<!-- deploy the plugin - cots plugins are deployed differently -->
+	 		<if>
+	 			<equals arg1="@{plugin.type}" arg2="cots" />
+	 			<then>	 			
+	 				<!-- copy the cots jars to the destination -->
+	 				<copy todir="${destination.directory}"
+	 				overwrite="true" verbose="true">
+	 					<fileset dir="${plugin.path}"
+	 						includes="@{original.pattern}" />	
+	 				</copy>
+	 				
+	 				<!-- jar any compiled cots source -->
+	 				<if>
+	 					<available file="${plugin.bin}" type="dir" />
+	 					<then>
+	 						<jar destfile="${jar.destfile}">
+	 							<fileset dir="${plugin.bin}"
+	 								includes="**/*.class" />
+	 						</jar>
+	 					</then>
+	 				</if>
+	 			</then>
+	 			<else>
+	 				<var name="plugin.utility"
+	 					value="${plugin.base}/utility" />
+					
+	 				<jarPlugin
+	 					plugin.directory323="${plugin.base}"
+	 					jar.file323="${jar.destfile}" />
+	 			
+	 				<!-- copy the utility (localization) files. -->
+	 				<if>
+	 					<available file="${plugin.utility}"
+	 						type="dir" />
+	 					<then>
+	 						<copy todir="${edex.root.directory}/data/utility"
+	 						overwrite="true">
+	 							<fileset dir="${plugin.utility}"
+	 								includes="*/**" />
+	 						</copy>
+	 					</then>
+	 				</if>
+	 			</else>
+	 		</if>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="jarPlugin">
+		<!-- 
+			random character suffixes added to 
+			maintain uniqueness of variable names 
+		-->
+		<attribute name="plugin.directory323" />
+		<attribute name="jar.file323" />		
+		
+		<sequential>
+			<!-- 
+				initial jar file: currently we make the assumption
+				every plugin has a manifest file. 
+			-->
+			<jar destfile="@{jar.file323}"
+				manifest="@{plugin.directory323}/META-INF/MANIFEST.MF" />
+			
+			<!-- scan build.properties -->
+			<var file="@{plugin.directory323}/build.properties" />
+			
+			<!--
+				* iterate through bin.includes
+				* '.' is seen as the ${output..} directory, itself
+				* artifacts are only deployed if they are present
+			-->
+			<for list="${bin.includes}" param="include"
+			delimiter="," trim="true">
+				<sequential>					
+					<if>
+						<available file="@{plugin.directory323}/@{include}"
+							type="dir" />
+						<then>
+							<!-- deploy a directory -->
+							
+							<!-- is this the output directory? -->
+							<if>
+								<equals arg1="@{include}" arg2="." />
+								<then>
+	 								<jar destfile="@{jar.file323}" update="true">
+	 									<fileset 
+	 									dir="@{plugin.directory323}/${output..}" 
+	 									includes="**" />
+	 								</jar>
+								</then>
+								<else>
+									<jar destfile="@{jar.file323}" update="true">
+										<fileset 
+										dir="@{plugin.directory323}" 
+										includes="@{include}/**" />
+									</jar>
+								</else>
+							</if>
+						</then>
+						<else>
+							<!-- are we deploying a file? -->
+							<if>
+								<available file="@{plugin.directory323}/@{include}"
+									type="file" />
+								<then>
+ 									<jar destfile="@{jar.file323}" update="true">
+ 										<fileset 
+ 										file="@{plugin.directory323}/@{include}" />
+ 									</jar>
+								</then>
+								<else>
+									<!-- fail: unknown deployment artifact -->
+									<fail
+										message="Unable to deploy '@{include}' specified in @{plugin.directory323}/build.properties; unable to find the file / directory." />
+								</else>
+							</if>
+						</else>
+					</if>
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+</project>

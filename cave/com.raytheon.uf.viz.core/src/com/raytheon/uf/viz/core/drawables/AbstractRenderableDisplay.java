@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -120,10 +121,13 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
 
     private Map<String, Object> globals = new HashMap<String, Object>();
 
+    private AbstractGraphicsFactoryAdapter graphicsAdapter;
+
     public AbstractRenderableDisplay() {
         super();
         this.listener = new RenderableDisplayListener();
         backgroundColor = getStartingBackgroundColor();
+        setGraphicsAdapter(GraphicsFactory.getGraphicsAdapter());
     }
 
     public AbstractRenderableDisplay(IExtent extent, IDescriptor descriptor) {
@@ -233,34 +237,16 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
 
     @Override
     public void setDescriptor(IDescriptor desc) {
-        boolean shouldRecreateView = true;
-
         if (this.descriptor != null) {
             this.descriptor.getResourceList().removePostAddListener(
                     this.listener);
             this.descriptor.getResourceList().removePostRemoveListener(
                     this.listener);
-            // if the descriptor types are different then the view needs to be
-            // recreated
-            shouldRecreateView = !GraphicsFactory.getType(this.descriptor)
-                    .equals(GraphicsFactory.getType(desc));
         }
 
         this.descriptor = (AbstractDescriptor) desc;
         this.descriptor.getResourceList().addPostAddListener(this.listener);
         this.descriptor.getResourceList().addPostRemoveListener(this.listener);
-
-        if (shouldRecreateView) {
-            try {
-                this.view = GraphicsFactory.getGraphicsAdapter(
-                        GraphicsFactory.getType(this.descriptor))
-                        .constructView();
-            } catch (VizException e) {
-                statusHandler.handle(Priority.CRITICAL,
-                        e.getLocalizedMessage(), e);
-                e.printStackTrace();
-            }
-        }
 
         customizeResourceList(this.descriptor.getResourceList());
     }
@@ -277,17 +263,6 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
      */
     protected void customizeResourceList(ResourceList resourceList) {
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#getDisplayType()
-     */
-    @Override
-    public String getDisplayType() {
-        return GraphicsFactory.getType(descriptor);
     }
 
     @Override
@@ -593,6 +568,33 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     @Override
     public void refresh() {
         listener.refresh();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#getGraphicsAdapter
+     * ()
+     */
+    @Override
+    public AbstractGraphicsFactoryAdapter getGraphicsAdapter() {
+        return graphicsAdapter;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#setGraphicsAdapter
+     * (com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter)
+     */
+    @Override
+    public void setGraphicsAdapter(AbstractGraphicsFactoryAdapter adapter) {
+        if (this.graphicsAdapter != adapter) {
+            this.graphicsAdapter = adapter;
+            this.view = adapter.constructView();
+        }
     }
 
 }

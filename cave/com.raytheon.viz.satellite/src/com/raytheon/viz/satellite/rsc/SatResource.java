@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -52,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -92,7 +95,9 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  *  03/25/2009      2086     jsanchez    Mapped correct converter to parameter type.
  *                                        Updated the call to ColormapParametersFactory.build
  *  03/30/2009      2169     jsanchez    Updated numLevels handling.
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 07/17/2012        798     jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
+ * data set names.
  * </pre>
  * 
  * @author chammack
@@ -107,13 +112,13 @@ public class SatResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatResource.class);
 
-    protected Map<DataTime, FileBasedTileSet> tileSet;
+    protected Map<DataTime, SatFileBasedTileSet> tileSet;
 
     private Map<DataTime, SatelliteRecord> recordMap = new HashMap<DataTime, SatelliteRecord>();
 
     protected DataTime displayedDate;
 
-    protected FileBasedTileSet baseTile;
+    protected SatFileBasedTileSet baseTile;
 
     protected String legend;
 
@@ -125,7 +130,7 @@ public class SatResource extends
 
     protected String viewType;
 
-    protected FileBasedTileSet currentTile;
+    protected SatFileBasedTileSet currentTile;
 
     protected GridGeometry recordGeometry;
 
@@ -139,7 +144,7 @@ public class SatResource extends
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
         data.addChangeListener(this);
-        this.tileSet = new HashMap<DataTime, FileBasedTileSet>();
+        this.tileSet = new HashMap<DataTime, SatFileBasedTileSet>();
         this.dataTimes = new ArrayList<DataTime>();
         this.legend = null;
         SatelliteRecord[] records = data.getRecords();
@@ -226,10 +231,10 @@ public class SatResource extends
                     .getSamplePrefs();
             String lg = ((ImagePreferences) sr.getPreferences())
         	.getLegend();
-        	// test, so legend is not over written with empty string
-        	if (lg != null && !lg.trim().isEmpty()) { 
-        		legend = lg;
-        	}
+            // test, so legend is not over written with empty string
+            if (lg != null && !lg.trim().isEmpty()) {
+                legend = lg;
+            }
         }
 
         colorMapParameters = ColorMapParameterFactory.build(null,
@@ -264,15 +269,8 @@ public class SatResource extends
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
 
-        numLevels = 1;
-        int newSzX = record.getSpatialObject().getNx();
-        int newSzY = record.getSpatialObject().getNy();
-        while ((newSzX > 512 && newSzY > 512)) {
-            newSzX /= 2;
-            newSzY /= 2;
-            numLevels++;
-        }
-
+        // number of interpolation levels plus the base level!
+        numLevels = record.getInterpolationLevels() + 1;
     }
 
     @Override
@@ -447,7 +445,7 @@ public class SatResource extends
 
     public void addRecord(PluginDataObject record) throws VizException {
         synchronized (this) {
-            FileBasedTileSet tile;
+            SatFileBasedTileSet tile;
             DataTime recordTime = null;
             if (resourceData.getBinOffset() != null || resourceData.equals(0)) {
                 BinOffset binOffset = resourceData.getBinOffset();
@@ -488,13 +486,13 @@ public class SatResource extends
             }
 
             if (baseTile == null) {
-                tile = baseTile = new SatFileBasedTileSet(record, "Data",
+                tile = baseTile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME,
                         numLevels, 256,
                         MapUtil.getGridGeometry(((SatelliteRecord) record)
                                 .getSpatialObject()), this,
                         PixelInCell.CELL_CORNER, viewType);
             } else {
-                tile = new SatFileBasedTileSet(record, "Data", baseTile);
+                tile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME, baseTile);
             }
             tile.addMeshCallback(this);
             tile.setMapDescriptor(this.descriptor);
@@ -560,6 +558,20 @@ public class SatResource extends
     @Override
     public void meshCalculated(ImageTile tile) {
         issueRefresh();
+    }
+
+    public List<DrawableImage> getImages(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        this.target = target;
+        this.displayedDate = paintProps.getDataTime();
+        if (this.displayedDate == null)
+            return Collections.emptyList();
+
+        currentTile = this.tileSet.get(this.displayedDate);
+        if (currentTile != null) {
+            return currentTile.getImages(target, paintProps);
+        }
+        return Collections.emptyList();
     }
 
 }
