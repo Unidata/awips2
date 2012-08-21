@@ -225,11 +225,14 @@ public class TileLevel {
      * @return
      */
     public Tile getTile(double x, double y) {
-        int xIdx = (int) x / tileSize;
-        int yIdx = (int) y / tileSize;
+        double xIdx = x / tileSize;
+        double yIdx = y / tileSize;
         if (xIdx >= 0 && yIdx >= 0 && xIdx < getNumXTiles()
                 && yIdx < getNumYTiles()) {
-            return tiles[yIdx][xIdx];
+            Tile tile = getTile((int) xIdx, (int) yIdx);
+            if (tile.gridContains((int) x, (int) y)) {
+                return tile;
+            }
         }
         return null;
     }
