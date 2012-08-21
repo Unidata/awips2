@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -44,7 +45,8 @@ import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009            mschenke     Initial creation
- * 
+ * - AWIPS2 Baseline Repository --------
+ * Jul 18, 2012        798 jkorman      Modified constructor to remove hard-coded dataset name.
  * </pre>
  * 
  * @author mschenke
@@ -69,7 +71,9 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             Rectangle dataSetBounds, boolean signed, ByteBuffer retreivedBuffer) {
         this.pdo = pdo;
         this.datasetBounds = dataSetBounds;
-        this.dataset = "Data" + "-interpolated/" + level;
+        
+        dataset = DataStoreFactory.createDataSetName(null, DataStoreFactory.DEF_DATASET_NAME, level);
+
         this.signed = signed;
         this.retreivedBuffer = retreivedBuffer;
     }
@@ -88,12 +92,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             retreivedBuffer = null;
         } else {
             try {
-                byte[] data = getRawData();
-                if (data != null) {
-                    satBuffer = ByteBuffer.wrap(data);
-                } else {
-                    System.out.println("Problem!");
-                }
+                satBuffer = ByteBuffer.wrap(getRawData());
             } catch (Exception e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         "Error retrieving satellite data", e);
@@ -108,6 +107,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     }
 
     public byte[] getRawData() {
+        byte [] retData = null;
+        
         Request req = Request.buildSlab(new int[] { this.datasetBounds.x,
                 this.datasetBounds.y }, new int[] {
                 this.datasetBounds.x + this.datasetBounds.width,
@@ -116,14 +117,14 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
         try {
             dataRecord = DataCubeContainer
                     .getDataRecord(pdo, req, this.dataset);
+            if (dataRecord != null && dataRecord.length == 1) {
+                retData = ((ByteDataRecord) dataRecord[0]).getByteData();
+            }
         } catch (VizDataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error retrieving satellite data", e);
         }
-        if (dataRecord != null && dataRecord.length == 1) {
-            return ((ByteDataRecord) dataRecord[0]).getByteData();
-        }
-        return null;
+        return retData;
     }
 
     /*

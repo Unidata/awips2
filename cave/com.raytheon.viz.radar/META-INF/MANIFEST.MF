@@ -25,7 +25,8 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.11.22",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
  com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1130",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.common.colormap,
@@ -81,7 +82,6 @@ Export-Package: com.raytheon.viz.radar;
  com.raytheon.viz.radar.rsc.graphic,
  com.raytheon.viz.radar.rsc.image,
  com.raytheon.viz.radar.rsc.mosaic,
- com.raytheon.viz.radar.rsc.mosaic.ext,
  com.raytheon.viz.radar.ui;
   uses:="com.raytheon.viz.radar,
    com.raytheon.viz.ui.dialogs,

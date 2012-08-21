@@ -50,6 +50,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jsanchez     Initial creation
+ * Jun 28, 2012  #826      dgilling     Ensure getDataTime properly
+ *                                      handles time zones.
  * 
  * </pre>
  * 
@@ -271,7 +273,7 @@ public abstract class TCGDataAdapter {
 
     protected DataTime getDataTime(int year, int month, int day, int hour,
             int minute, String timeZone) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(timeZone));
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.MONTH, month - 1);
         cal.set(Calendar.DAY_OF_MONTH, day);
@@ -279,7 +281,6 @@ public abstract class TCGDataAdapter {
         cal.set(Calendar.MINUTE, minute);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         return new DataTime(cal);
     }
 

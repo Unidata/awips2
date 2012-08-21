@@ -37,5 +37,31 @@ package com.raytheon.uf.viz.core.drawables;
  */
 
 public enum PaintStatus {
-    PAINTED, REPAINT, ERROR;
+    /**
+     * indicates that a resource or renderable has successfully painted all
+     * available data.
+     */
+    PAINTED,
+
+    /**
+     * indicates that a resource is currently in the act of painting
+     */
+    PAINTING,
+
+    /**
+     * indicates that less than all the data has painted and more data will be
+     * arriving asynchronously, when that data arrives the PaintStatus will
+     * become REPAINT.
+     */
+    INCOMPLETE,
+
+    /**
+     * indicates a resource has new data that needs to be painted
+     */
+    REPAINT,
+
+    /**
+     * an uncaught error occured during the last paint event.
+     */
+    ERROR;
 }

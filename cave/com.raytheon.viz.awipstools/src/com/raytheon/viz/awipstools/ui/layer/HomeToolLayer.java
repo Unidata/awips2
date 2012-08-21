@@ -43,8 +43,8 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.viz.awipstools.IToolChangedListener;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -73,7 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
-        implements IContextMenuContributor, IToolChangedListener {
+        implements IContextMenuContributor, IPointChangedListener {
 
     public static final String DEFAULT_NAME = "Home Location";
 
@@ -81,7 +81,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private final AbstractRightClickAction moveElementAction;
 
-    private ToolsDataManager dataManager = ToolsDataManager.getInstance();
+    private PointsDataManager dataManager = PointsDataManager.getInstance();
 
     private GeodeticCalculator gc;
 
@@ -121,7 +121,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
     }
 
     private void resetHome() {
-        Coordinate home = ToolsDataManager.getInstance().getHome();
+        Coordinate home = dataManager.getHome();
         Collection<Coordinate> dummy = new ArrayList<Coordinate>();
         dummy.add(home);
         setObjects(dummy);
@@ -182,7 +182,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
         double azimuth = 000;
 
-        Coordinate home = ToolsDataManager.getInstance().getHome();
+        Coordinate home = dataManager.getHome();
 
         gc.setStartingGeographicPoint(home.x, home.y);
         gc.setDestinationGeographicPoint(dest.x, dest.y);
@@ -219,7 +219,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
     }
 
     @Override
-    public void toolChanged() {
+    public void pointChanged() {
         resetHome();
         issueRefresh();
     }
@@ -252,7 +252,7 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     @Override
     protected void save(Coordinate oldCoordinate, Coordinate coordinate) {
-        ToolsDataManager.getInstance().setHome(coordinate);
+        dataManager.setHome(coordinate);
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
     }
 }

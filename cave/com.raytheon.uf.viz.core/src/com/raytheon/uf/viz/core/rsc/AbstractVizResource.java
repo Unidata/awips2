@@ -337,6 +337,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         for (IInitListener listener : initListeners) {
             listener.inited(this);
         }
+        issueRefresh();
     }
 
     /**
@@ -351,10 +352,12 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      * 
      */
     public final void dispose() {
-        status = ResourceStatus.DISPOSED;
-        disposeInternal();
-        for (IDisposeListener listener : disposeListeners) {
-            listener.disposed(this);
+        if (status == ResourceStatus.INITIALIZED) {
+            status = ResourceStatus.DISPOSED;
+            disposeInternal();
+            for (IDisposeListener listener : disposeListeners) {
+                listener.disposed(this);
+            }
         }
     }
 
@@ -439,7 +442,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 initJob = new InitJob(target);
                 initJob.schedule();
             }
-            issueRefresh();
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             break;
         }
         case LOADING: {
@@ -451,19 +454,21 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 initJob = null;
                 throw e;
             }
-            issueRefresh();
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             break;
         }
         case INITIALIZED: {
             // We have initialized successfully, now time to paint
             try {
-                paintStatus = PaintStatus.PAINTED;
+                updatePaintStatus(PaintStatus.PAINTING);
                 paintInternal(target, paintProps);
             } catch (VizException e) {
-                paintStatus = PaintStatus.ERROR;
+                updatePaintStatus(PaintStatus.ERROR);
                 throw e;
             }
-
+            if (paintStatus == PaintStatus.PAINTING) {
+                updatePaintStatus(PaintStatus.PAINTED);
+            }
             for (IPaintListener listener : paintListeners) {
                 listener.painted(this);
             }
@@ -710,6 +715,10 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         }
     }
 
+    public PaintStatus getPaintStatus() {
+        return paintStatus;
+    }
+
     /**
      * Recycle a resource to be used again, will call dispose on the resource if
      * it is in the INITIALIZED state, otherwise sets status to NEW which will
@@ -721,6 +730,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         }
         status = ResourceStatus.NEW;
         initJob = null;
+        dataTimes.clear();
     }
 
     public ResourceOrder getResourceOrder() {

@@ -28,8 +28,7 @@ package com.raytheon.viz.awipstools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
- * 
+ *                                     Initial creation
  * </pre>
  * 
  * @author mschenke

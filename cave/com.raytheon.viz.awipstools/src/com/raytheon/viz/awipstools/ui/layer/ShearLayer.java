@@ -46,7 +46,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -276,7 +276,7 @@ public class ShearLayer extends
 
     public LineString createDefaultBaseline() {
 
-        Coordinate center = ToolsDataManager.getInstance().getHome();
+        Coordinate center = PointsDataManager.getInstance().getHome();
 
         gc.setStartingGeographicPoint(center.x, center.y);
         double meters = nmToMeter.convert(27);

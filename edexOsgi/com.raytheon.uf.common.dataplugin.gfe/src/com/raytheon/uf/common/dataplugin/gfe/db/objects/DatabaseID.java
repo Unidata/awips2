@@ -74,12 +74,17 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
     public static final String MODEL_TIME_FORMAT = "yyyyMMdd_HHmm";
 
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            MODEL_TIME_FORMAT);
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
 
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    DatabaseID.MODEL_TIME_FORMAT);
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+
+    };
 
     /** Denotes what type of database */
     public enum DataType {
@@ -150,7 +155,8 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
     public DatabaseID(String siteId, DataType format, String dbType,
             String modelName, Date modelTime) {
-        this(siteId, format, dbType, modelName, dateFormat.format(modelTime));
+        this(siteId, format, dbType, modelName, dateFormat.get().format(
+                modelTime));
     }
 
     /**
@@ -224,21 +230,6 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
             retVal = false;
         }
         return retVal;
-    }
-
-    /**
-     * Returns the filename for the database associated with this database ID
-     * 
-     * @return
-     */
-    public String dbFilename() {
-        // TODO: Is this method necessary?
-        return "";
-    }
-
-    public String dbPathName() {
-        // TODO: Is this method necessary?
-        return "";
     }
 
     /**
@@ -345,10 +336,13 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
     }
 
     private boolean decodeDtg(String dtgString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+        if (dtgString == null
+                || dtgString.length() != MODEL_TIME_FORMAT.length()) {
+            return false;
+        }
         try {
-            Date date = sdf.parse(dtgString);
-            modelTime = sdf.format(date);
+            dateFormat.get().parse(dtgString);
+            modelTime = dtgString;
         } catch (ParseException e) {
             return false;
         }
@@ -485,9 +479,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         Date date = null;
         if (modelTime != null && !NO_MODEL_TIME.equalsIgnoreCase(modelTime)) {
             try {
-                synchronized (dateFormat) {
-                    date = dateFormat.parse(this.modelTime);
-                }
+                date = dateFormat.get().parse(this.modelTime);
             } catch (ParseException e) {
             }
         }

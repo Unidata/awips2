@@ -80,16 +80,16 @@ public class NcAutoUpdater implements IAlertObserver {
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-            String dataURI = message.dataURI;
-            if (reqResourceData.isUpdatingOnMetadataOnly()) {
-                PluginDataObject record = RecordFactory.getInstance()
-                        .loadRecordFromUri(dataURI);
-                objectToSend = record;
+				String dataURI = message.dataURI;
+				if (reqResourceData.isUpdatingOnMetadataOnly()) {
+					PluginDataObject record = RecordFactory.getInstance()
+							.loadRecordFromUri(dataURI);
+					objectToSend = record;
 
-            } else {
-                attribs.put("dataURI", message.dataURI);
-                objectToSend = Loader.loadData(attribs);
-            }
+				} else {
+					attribs.put("dataURI", message.dataURI);
+					objectToSend = Loader.loadData(attribs);
+				}
             return objectToSend;
         }
     };
