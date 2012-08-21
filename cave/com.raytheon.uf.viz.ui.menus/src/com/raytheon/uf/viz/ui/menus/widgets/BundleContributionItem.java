@@ -226,8 +226,7 @@ public class BundleContributionItem extends ContributionItem {
 
         String dateStr = UNKNOWN;
 
-        boolean useReferenceTime = (this.menuContribution.xml.useReferenceTime != null) ? this.menuContribution.xml.useReferenceTime
-                : true;
+        boolean useReferenceTime = this.menuContribution.xml.useReferenceTime;
 
         if (lastUsedTime != null) {
             // We have a
@@ -261,8 +260,7 @@ public class BundleContributionItem extends ContributionItem {
         BundleContributionItem.this.queryPerformed = true;
 
         if (time != null) {
-            boolean useReferenceTime = (BundleContributionItem.this.menuContribution.xml.useReferenceTime != null) ? BundleContributionItem.this.menuContribution.xml.useReferenceTime
-                    : true;
+            boolean useReferenceTime = BundleContributionItem.this.menuContribution.xml.useReferenceTime;
 
             if (offset != null) {
                 time = offset.getNormalizedTime(time);

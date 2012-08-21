@@ -448,7 +448,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         if (latest != null && latest.size() > 0) {
             Calendar c = new GregorianCalendar(TimeZone
                     .getTimeZone("GMT"));
-            c.setTimeInMillis(latest.get(0).getCreatetime());
+            c.setTimeInMillis(latest.get(0).getRefTime());
             req.setMostRecentTime(c.getTimeInMillis()); // default
             try {
                 WMOHeader wmo = new WMOHeader(latest.get(0).getProduct().getBytes());

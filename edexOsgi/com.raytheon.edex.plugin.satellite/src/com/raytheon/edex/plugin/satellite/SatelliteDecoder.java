@@ -38,7 +38,9 @@ import com.raytheon.edex.util.satellite.SatellitePosition;
 import com.raytheon.edex.util.satellite.SatelliteUnit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
+import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -50,7 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * OFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer    Description
+ * Date         Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 006                      garmenda    Initial Creation
  * /14/2007     139         Phillippe   Modified to follow refactored plugin pattern
@@ -65,7 +67,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 02/05/2010   4120        jkorman     Modified removeWmoHeader to handle WMOHeader in
  *                                      various start locations.
  * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS                                    
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 06/27/2012    798        jkorman     Using SatelliteMessageData to "carry" the decoded image.
  * </pre>
  * 
  * @author bphillip
@@ -242,10 +245,9 @@ public class SatelliteDecoder extends AbstractDecoder {
                     SatellitePosition position = dao
                             .getSatellitePosition(record.getCreatingEntity());
                     if (position == null) {
-                        logger
-                                .info("Unable to determine geostationary location of ["
-                                        + record.getCreatingEntity()
-                                        + "].  Zeroing out fields.");
+                        logger.info("Unable to determine geostationary location of ["
+                                + record.getCreatingEntity()
+                                + "].  Zeroing out fields.");
                     } else {
                         record.setSatSubPointLat(position.getLatitude());
                         record.setSatSubPointLon(position.getLongitude());
@@ -265,7 +267,7 @@ public class SatelliteDecoder extends AbstractDecoder {
                 /*
                  * Rotate image if necessary
                  */
-
+                // TODO: Can these numbers be an enum or constants?
                 switch (scanMode) {
                 case 1:
                     Util.flipHoriz(tempBytes, ny, nx);
@@ -280,8 +282,8 @@ public class SatelliteDecoder extends AbstractDecoder {
                 default:
                     break;
                 }
-
-                record.setMessageData(tempBytes);
+                SatelliteMessageData messageData = new SatelliteMessageData(
+                        tempBytes, nx, ny);
 
                 // get the latitude of the first point
                 byteBuffer.position(20);
@@ -315,7 +317,8 @@ public class SatelliteDecoder extends AbstractDecoder {
                 float dx = 0.0f, dy = 0.0f, lov = 0.0f, lo2 = 0.0f, la2 = 0.0f;
                 // Do specialized decoding and retrieve spatial data for Lambert
                 // Conformal and Polar Stereographic projections
-                if ((mapProjection == 3) || (mapProjection == 5)) {
+                if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
+                        || (mapProjection == SatMapCoverage.PROJ_POLAR_STEREO)) {
                     byteBuffer.position(30);
                     byteBuffer.get(threeBytesArray, 0, 3);
                     dx = byteArrayToFloat(threeBytesArray) / 10;
@@ -332,7 +335,7 @@ public class SatelliteDecoder extends AbstractDecoder {
                 // Do specialized decoding and retrieve spatial data for
                 // Mercator
                 // projection
-                else if (mapProjection == 1) {
+                else if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
                     dx = byteBuffer.getShort(33);
                     dy = byteBuffer.getShort(35);
 
@@ -352,31 +355,32 @@ public class SatelliteDecoder extends AbstractDecoder {
                 SatMapCoverage mapCoverage = null;
 
                 try {
-/**
- *   			This is a temporary workaround for DR14724, hopefully to be removed after NESDIS changes 
- *              the product header              	
- */
-                	if ((mapProjection == 3) 
-                			&& (record.getPhysicalElement().equalsIgnoreCase("Imager 13 micron (IR)") )
-                			&& (record.getSectorID().equalsIgnoreCase("West CONUS"))){
-                            nx = 1100;
-                            ny = 1280;
-                            dx = 4063.5f;
-                            dy = 4063.5f;
-                            la1 = 12.19f;
-                            lo1 = -133.4588f;                           
-                	}
-/**
- *              End of DR14724                 	
- */
+                    /**
+                     * This is a temporary workaround for DR14724, hopefully to
+                     * be removed after NESDIS changes the product header
+                     */
+                    if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
+                            && (record.getPhysicalElement()
+                                    .equalsIgnoreCase("Imager 13 micron (IR)"))
+                            && (record.getSectorID()
+                                    .equalsIgnoreCase("West CONUS"))) {
+                        nx = 1100;
+                        ny = 1280;
+                        dx = 4063.5f;
+                        dy = 4063.5f;
+                        la1 = 12.19f;
+                        lo1 = -133.4588f;
+                    }
+                    /**
+                     * End of DR14724
+                     */
                     mapCoverage = SatSpatialFactory.getInstance()
                             .getMapCoverage(mapProjection, nx, ny, dx, dy, lov,
                                     latin, la1, lo1, la2, lo2);
                 } catch (Exception e) {
                     StringBuffer buf = new StringBuffer();
-                    buf
-                            .append(
-                                    "Error getting or constructing SatMapCoverage for values: ")
+                    buf.append(
+                            "Error getting or constructing SatMapCoverage for values: ")
                             .append("\n\t");
                     buf.append("mapProjection=" + mapProjection).append("\n\t");
                     buf.append("nx=" + nx).append("\n\t");
@@ -399,8 +403,11 @@ public class SatelliteDecoder extends AbstractDecoder {
                             .getTime());
                     record.setPluginName("satellite");
                     record.constructDataURI();
+                    // Create the data record.
+                    IDataRecord dataRec = messageData.getStorageRecord(record,
+                            SatelliteRecord.SAT_DATASET_NAME);
+                    record.setMessageData(dataRec);
                 }
-
             }
         }
         if (record == null) {
@@ -435,26 +442,21 @@ public class SatelliteDecoder extends AbstractDecoder {
         }
         String msgStr = new String(message);
         Matcher matcher = null;
-        if (msgStr != null) {
-            matcher = Pattern.compile(WMOHeader.WMO_HEADER).matcher(msgStr);
-            if (matcher.find()) {
-                int headerStart = matcher.start();
-                if (SAT_HDR_TT.equals(msgStr.substring(headerStart,
-                        headerStart + 2))) {
-                    int startOfSatellite = matcher.end();
-                    retMessage = new byte[messageData.length - startOfSatellite];
-                    System.arraycopy(messageData, startOfSatellite, retMessage,
-                            0, retMessage.length);
-                } else {
-                    throw new DecoderException(
-                            "First character of the WMO header must be 'T'");
-                }
+        matcher = Pattern.compile(WMOHeader.WMO_HEADER).matcher(msgStr);
+        if (matcher.find()) {
+            int headerStart = matcher.start();
+            if (SAT_HDR_TT.equals(msgStr
+                    .substring(headerStart, headerStart + 2))) {
+                int startOfSatellite = matcher.end();
+                retMessage = new byte[messageData.length - startOfSatellite];
+                System.arraycopy(messageData, startOfSatellite, retMessage, 0,
+                        retMessage.length);
             } else {
-                throw new DecoderException("Cannot decode an empty WMO header");
+                throw new DecoderException(
+                        "First character of the WMO header must be 'T'");
             }
         } else {
-            throw new DecoderException(
-                    "Could not create data for WMO header search");
+            throw new DecoderException("Cannot decode an empty WMO header");
         }
 
         return retMessage;

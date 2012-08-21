@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.core.gl.internal.ext;
 
-import java.awt.image.RenderedImage;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
@@ -30,7 +28,6 @@ import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.GLImage;
 import com.raytheon.viz.core.gl.images.GLSingleColorImage;
 
 /**
@@ -74,13 +71,9 @@ public class GLSingleColorImageExtension extends AbstractGLSLImagingExtension
      * org.eclipse.swt.graphics.RGB)
      */
     @Override
-    public ISingleColorImage constructImage(final RenderedImage image, RGB color) {
-        return new GLSingleColorImage(new GLImage(new IRenderedImageCallback() {
-            @Override
-            public RenderedImage getImage() throws VizException {
-                return image;
-            }
-        }, GLSingleColorImageExtension.class), color);
+    public ISingleColorImage constructImage(IRenderedImageCallback callback,
+            RGB color) {
+        return new GLSingleColorImage(callback, color);
     }
 
     /*

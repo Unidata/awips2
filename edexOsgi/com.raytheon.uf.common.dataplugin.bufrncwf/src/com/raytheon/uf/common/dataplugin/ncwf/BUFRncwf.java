@@ -65,211 +65,197 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BUFRncwf extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    @Embedded
-    @DataURI(position = 1, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 1, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private NCWFFeature detection;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private NCWFFeature detection;
 
-    @Transient
-    @XmlElement
-    @DynamicSerializeElement
-    private NCWFFeature forecast;
+	@Transient
+	@XmlElement
+	@DynamicSerializeElement
+	private NCWFFeature forecast;
 
-    @Transient
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Double stormDir;
+	@Transient
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Double stormDir;
 
-    @Transient
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Double stormSpeed;
+	@Transient
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Double stormSpeed;
 
-    @Transient
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Double stormTop;
+	@Transient
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Double stormTop;
 
-    /**
-     * Empty constructor.
-     */
-    public BUFRncwf() {
-    }
+	/**
+	 * Empty constructor.
+	 */
+	public BUFRncwf() {
+	}
 
-    /**
-     * Constructor for DataURI construction through base class. This is used by
-     * the notification service.
-     * 
-     * @param uri
-     *            A data uri applicable to this class.
-     * @param tableDef
-     *            The table definitions for this class.
-     */
-    public BUFRncwf(String uri) {
-        super(uri);
-    }
+	/**
+	 * Constructor for DataURI construction through base class. This is used by
+	 * the notification service.
+	 * 
+	 * @param uri
+	 *            A data uri applicable to this class.
+	 * @param tableDef
+	 *            The table definitions for this class.
+	 */
+	public BUFRncwf(String uri) {
+		super(uri);
+	}
 
-    /**
-     * @return the location
-     */
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	/**
+	 * @return the location
+	 */
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    /**
-     * @param location
-     *            the location to set
-     */
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
+	/**
+	 * @param location
+	 *            the location to set
+	 */
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    /**
-     * @return the detection
-     */
-    public NCWFFeature getDetection() {
-        return detection;
-    }
+	/**
+	 * @return the detection
+	 */
+	public NCWFFeature getDetection() {
+		return detection;
+	}
 
-    /**
-     * @param detection
-     *            the detection to set
-     */
-    public void setDetection(NCWFFeature detection) {
-        this.detection = detection;
-    }
+	/**
+	 * @param detection
+	 *            the detection to set
+	 */
+	public void setDetection(NCWFFeature detection) {
+		this.detection = detection;
+	}
 
-    /**
-     * @return the forecast
-     */
-    public NCWFFeature getForecast() {
-        return forecast;
-    }
+	/**
+	 * @return the forecast
+	 */
+	public NCWFFeature getForecast() {
+		return forecast;
+	}
 
-    /**
-     * @param forecast
-     *            the forecast to set
-     */
-    public void setForecast(NCWFFeature forecast) {
-        this.forecast = forecast;
-    }
+	/**
+	 * @param forecast
+	 *            the forecast to set
+	 */
+	public void setForecast(NCWFFeature forecast) {
+		this.forecast = forecast;
+	}
 
-    /**
-     * @return the stormDir
-     */
-    public Double getStormDir() {
-        return stormDir;
-    }
+	/**
+	 * @return the stormDir
+	 */
+	public Double getStormDir() {
+		return stormDir;
+	}
 
-    /**
-     * @param stormDir
-     *            the stormDir to set
-     */
-    public void setStormDir(Double stormDir) {
-        this.stormDir = stormDir;
-    }
+	/**
+	 * @param stormDir
+	 *            the stormDir to set
+	 */
+	public void setStormDir(Double stormDir) {
+		this.stormDir = stormDir;
+	}
 
-    /**
-     * @return the stormSpeed
-     */
-    public Double getStormSpeed() {
-        return stormSpeed;
-    }
+	/**
+	 * @return the stormSpeed
+	 */
+	public Double getStormSpeed() {
+		return stormSpeed;
+	}
 
-    /**
-     * @param stormSpeed
-     *            the stormSpeed to set
-     */
-    public void setStormSpeed(Double stormSpeed) {
-        this.stormSpeed = stormSpeed;
-    }
+	/**
+	 * @param stormSpeed
+	 *            the stormSpeed to set
+	 */
+	public void setStormSpeed(Double stormSpeed) {
+		this.stormSpeed = stormSpeed;
+	}
 
-    /**
-     * @return the stormTop
-     */
-    public Double getStormTop() {
-        return stormTop;
-    }
+	/**
+	 * @return the stormTop
+	 */
+	public Double getStormTop() {
+		return stormTop;
+	}
 
-    /**
-     * @param stormTop
-     *            the stormTop to set
-     */
-    public void setStormTop(Double stormTop) {
-        this.stormTop = stormTop;
-    }
+	/**
+	 * @param stormTop
+	 *            the stormTop to set
+	 */
+	public void setStormTop(Double stormTop) {
+		this.stormTop = stormTop;
+	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    @Override
-    public ISpatialObject getSpatialObject() {
-        return location;
-    }
+	@Override
+	public ISpatialObject getSpatialObject() {
+		return location;
+	}
 
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
+	@Override
+	public String getString(String paramName) {
+		return null;
+	}
 
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
+	@Override
+	public String[] getStrings(String paramName) {
+		return null;
+	}
 
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
+	@Override
+	public Amount getValue(String paramName) {
+		return null;
+	}
 
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
+	@Override
+	public Collection<Amount> getValues(String paramName) {
+		return null;
+	}
 
-    /**
-     * 
-     */
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
-
-    /**
-     * @return the pdv
-     */
-    public PointDataView getPdv() {
-        return pdv;
-    }
-
-    /**
-     * @param pdv
-     *            the pdv to set
-     */
-    public void setPdv(PointDataView pdv) {
-        this.pdv = pdv;
-    }
-
-    /**
+	/**
      * 
      */
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
+
+	/**
+     * 
+     */
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 }

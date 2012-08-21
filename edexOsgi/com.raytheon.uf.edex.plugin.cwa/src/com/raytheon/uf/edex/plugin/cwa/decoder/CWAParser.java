@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,20 +45,25 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
 import com.raytheon.uf.edex.plugin.cwa.util.Utility;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ * TODO Add Description
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010            jsanchez     Initial creation
+ * Feb 01, 2010            jsanchez     Initial creation
+ * Apr 18, 2012  #473      dgilling     Modify parser to set
+ *                                      DataTime based on ingest
+ *                                      file name.
  * 
  * </pre>
  * 
@@ -112,6 +116,8 @@ public class CWAParser {
 
     private static UnitConverter nauticalmileToMeter = NonSI.NAUTICAL_MILE
             .getConverterTo(SI.METER);
+
+    private Headers headers;
 
     static {
         dirToDeg.put("N", 0f);
@@ -302,6 +308,7 @@ public class CWAParser {
     public void setData(byte[] message, String traceId, Headers headers) {
         currentReport = -1;
         this.traceId = traceId;
+        this.headers = headers;
         wmoHeader = new WMOHeader(message, headers);
         if (wmoHeader != null) {
             reports = findReports(message);
@@ -319,43 +326,20 @@ public class CWAParser {
             eventId = parts[0];
         }
 
-        int day = -1;
-        int hr = -1;
-        int min = -1;
-
         Pattern p = Pattern.compile(InternalReport.TIME);
         Matcher m = p.matcher(issuanceInfo);
         if (m.find()) {
             String time = m.group();
-            try {
-                day = Integer.parseInt(time.substring(0, 2));
-                hr = Integer.parseInt(time.substring(2, 4));
-                min = Integer.parseInt(time.substring(4).trim());
-                startTime = getDataTime(day, hr, min);
-            } catch (NumberFormatException e) {
-                // Do nothing
-            }
+            startTime = getDataTime(time);
         }
     }
 
     private void parseValidToInfo(String validToInfo) {
-        int day = -1;
-        int hr = -1;
-        int min = -1;
-        ;
-
         Pattern p = Pattern.compile(InternalReport.TIME);
         Matcher m = p.matcher(validToInfo);
         if (m.find()) {
             String time = m.group();
-            try {
-                day = Integer.parseInt(time.substring(0, 2));
-                hr = Integer.parseInt(time.substring(2, 4));
-                min = Integer.parseInt(time.substring(4).trim());
-                endTime = getDataTime(day, hr, min);
-            } catch (NumberFormatException e) {
-                // Do nothing
-            }
+            endTime = getDataTime(time);
         }
     }
 
@@ -476,14 +460,13 @@ public class CWAParser {
         endTime = null;
     }
 
-    private DataTime getDataTime(int day, int hour, int minute) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return new DataTime(cal);
+    private DataTime getDataTime(String timeStr) {
+        Calendar cal = TimeTools.findDataTime(timeStr, headers);
+        if (cal != null) {
+            return new DataTime(cal);
+        } else {
+            return null;
+        }
     }
 
     private CWARecord getRecord() {

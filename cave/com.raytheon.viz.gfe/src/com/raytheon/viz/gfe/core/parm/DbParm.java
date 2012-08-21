@@ -622,6 +622,16 @@ public class DbParm extends Parm {
 
             success &= allSaved;
         }
+        // if any pending saves
+        if (sgr.size() > 0) {
+            if (doSave(sgr)) {
+                for (TimeRange t : pendingUnlocks) {
+                    lreq.add(new LockRequest(getParmID(), t, LockMode.UNLOCK));
+                }
+            } else {
+                success = false;
+            }
+        }
 
         // if any pending saves
         if (sgr.size() > 0) {

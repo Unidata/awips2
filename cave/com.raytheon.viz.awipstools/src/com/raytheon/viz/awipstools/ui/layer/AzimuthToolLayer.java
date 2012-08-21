@@ -56,7 +56,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
@@ -192,7 +192,7 @@ public class AzimuthToolLayer extends
         super(data, props);
         setDescriptor(descriptor);
         data.addChangeListener(this);
-        this.currCoordinate = ToolsDataManager.getInstance().getHome();
+        this.currCoordinate = PointsDataManager.getInstance().getHome();
         this.centerPixel = descriptor.worldToPixel(new double[] {
                 currCoordinate.x, currCoordinate.y });
     }

@@ -161,10 +161,6 @@ function buildLocalizationRPMs()
    done
 }
 
-export CFLAGS="-m32 -O2"
-export LDFLAGS="-m32"
-export BASECFLAGS="-m32 -O2"
-export LD="ld -melf_i386"
 # Get A List Of The RPM Directories (Excluding This One)
 # Note: Presently, We Are In ../../Installer.rpm/deploy.builder
 

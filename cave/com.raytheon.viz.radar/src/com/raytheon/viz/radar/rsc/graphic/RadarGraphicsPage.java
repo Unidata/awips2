@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
@@ -1095,7 +1096,7 @@ public class RadarGraphicsPage implements IRenderable {
                 width = (maxx - minx) * magnification;
             }
             xOffset = (paintProps.getCanvasBounds().width - width) / 2;
-
+            List<DrawableLine> lines = new ArrayList<DrawableLine>();
             for (Geometry g : this.screenGeometries) {
                 Coordinate[] coords = g.getCoordinates();
 
@@ -1106,16 +1107,14 @@ public class RadarGraphicsPage implements IRenderable {
                 double x2 = coords[1].x * magnification + xOffset;
                 double y2 = (coords[1].y + 0.25) * magnification * 1.3
                         + yOffset;
-                double[] pts1 = paintProps.getView().getDisplayCoords(
-                        new double[] { x1, y1 }, target);
-                double[] pts2 = paintProps.getView().getDisplayCoords(
-                        new double[] { x2, y2 }, target);
                 DrawableLine line = new DrawableLine();
-                line.addPoint(pts1[0], pts1[1]);
-                line.addPoint(pts2[0], pts2[1]);
+                line.addPoint(x1, y1);
+                line.addPoint(x2, y2);
                 line.basics.color = this.color;
-                target.drawLine(line);
+                lines.add(line);
             }
+            target.getExtension(ICanvasRenderingExtension.class).drawLines(
+                    paintProps, lines.toArray(new DrawableLine[0]));
         }
 
         // Only paint data table text if no configuration is specified or
@@ -1132,13 +1131,12 @@ public class RadarGraphicsPage implements IRenderable {
                     // if (x < 0.1) {
                     // x = 0;
                     // }
-                    double[] pts = paintProps.getView().getDisplayCoords(
-                            new double[] { x, y }, target);
                     DrawableString string = new DrawableString(str, this.color);
                     string.font = this.font;
-                    string.setCoordinates(pts[0], pts[1]);
+                    string.setCoordinates(x, y);
                     string.verticallAlignment = VerticalAlignment.TOP;
-                    target.drawStrings(string);
+                    target.getExtension(ICanvasRenderingExtension.class)
+                            .drawStrings(paintProps, string);
                 }
 
             }

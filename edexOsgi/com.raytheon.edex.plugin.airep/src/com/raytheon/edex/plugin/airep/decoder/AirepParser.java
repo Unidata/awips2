@@ -19,14 +19,17 @@
  **/
 package com.raytheon.edex.plugin.airep.decoder;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightLevel;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftLatitude;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftLongitude;
@@ -121,7 +124,8 @@ public class AirepParser {
 
     private AircraftRemarks rptRemarks = null;
 
-    private WMOHeader wmoHeader;
+    private Calendar refTime;
+    
 
     /**
      * Create the parser for and decode an observation from a String.
@@ -129,21 +133,20 @@ public class AirepParser {
      * @param anObservation
      *            A string containing the observation.
      */
-    public AirepParser(String anObservation, WMOHeader wmoHeader) {
-        this.wmoHeader = wmoHeader;
+    public AirepParser(String anObservation, Calendar refTime) {
+        this.refTime = refTime;
         reportData = anObservation;
         parseElements();
     } // AirepParser()
 
     /**
-     * Create the parser for and decode an observation from a String.
+     * Create the parser for and decode an observation from a byte array.
      * 
      * @param anObservation
      *            A string containing the observation.
      */
-    public AirepParser(byte[] anObservation) {
-        reportData = new String(anObservation);
-        parseElements();
+    public AirepParser(byte[] anObservation, Calendar refTime) {
+        this(new String(anObservation), refTime);
     } // AirepParser()
 
     /**
@@ -263,11 +266,10 @@ public class AirepParser {
         for (int i = 0; i < theElements.size(); i++) {
             Object o = theElements.get(i);
             if (o instanceof String) {
-                String[] latLon = null; // AircraftLatitude.splitLatLon((String)
-                                        // o);
-                if (latLon != null) {
-                    theElements.set(i, latLon[1]);
+                String[] latLon = AircraftLatitude.splitLatLon((String) o);
+                if ((latLon != null)&&(latLon.length ==2)) {
                     theElements.add(i, latLon[0]);
+                    theElements.set(i, latLon[1]);
                     break;
                 }
             }
@@ -329,23 +331,25 @@ public class AirepParser {
             if (o instanceof String) {
                 String s = (String) o;
                 if (TIME.matcher(s).matches()) {
+
                     int hour = Integer.parseInt(s.substring(0, 2));
                     int minute = Integer.parseInt(s.substring(2));
-                    Calendar oTime = TimeTools.getSystemCalendar(
-                            wmoHeader.getYear(), wmoHeader.getMonth(),
-                            wmoHeader.getDay());
 
-                    observationTime = TimeTools.copy(oTime);
-                    observationTime.set(Calendar.HOUR_OF_DAY, hour);
-                    observationTime.set(Calendar.MINUTE, minute);
-                    observationTime.set(Calendar.SECOND, 0);
-                    observationTime.set(Calendar.MILLISECOND, 0);
+                    if (refTime != null) {
+                        
+                        observationTime = TimeTools.copy(refTime);
+                        observationTime.set(Calendar.HOUR_OF_DAY, hour);
+                        observationTime.set(Calendar.MINUTE, minute);
+                        observationTime.set(Calendar.SECOND, 0);
+                        observationTime.set(Calendar.MILLISECOND, 0);
+                        // If the observation time ends up greater than
+                        // the reference time, back up a day.
+                        if (observationTime.compareTo(refTime) > 0) {
+                            observationTime.add(Calendar.DAY_OF_MONTH, -1);
+                        }
 
-                    if (observationTime.compareTo(oTime) > 0) {
-                        observationTime.add(Calendar.DAY_OF_MONTH, -1);
+                        theElements.set(i, observationTime);
                     }
-
-                    theElements.set(i, observationTime);
                     break;
                 }
             }
@@ -679,4 +683,24 @@ public class AirepParser {
         return (rptRemarks != null) ? rptRemarks.toString() : "";
     } // getRemarks()
 
+    
+    public static void main(String [] args) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("ZULU"));
+        
+        Calendar refTime = TimeTools.getBaseCalendar(2011, 12, 14);
+        refTime.set(Calendar.HOUR_OF_DAY, 17);
+        refTime.set(Calendar.MINUTE, 15);
+        refTime.set(Calendar.SECOND, 00);
+        refTime.set(Calendar.MILLISECOND, 0);
+        
+        String data = "ARP UAL121 4400N 05700W 1640 F390 MS00 000/099KT TB MOD SK CLEAR=";
+        AirepParser p = new AirepParser(data,refTime);
+        System.out.println(sdf.format(p.getObservationTime().getTime()));
+        
+        data = "ARP UAL121 4400N 05700W 1840 F390 MS00 000/099KT TB MOD SK CLEAR=";
+        p = new AirepParser(data,refTime);
+        System.out.println(sdf.format(p.getObservationTime().getTime()));
+    }
+    
 } // AirepParser
