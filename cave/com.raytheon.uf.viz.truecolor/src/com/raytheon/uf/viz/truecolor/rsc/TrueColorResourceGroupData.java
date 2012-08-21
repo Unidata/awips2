@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.truecolor.rsc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,6 +37,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channel;
 
 /**
  * {@link TrueColorResourceGroup} resource data. Contains a red/blue/green
@@ -65,6 +68,8 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
 
     @XmlElement(name = "channelResource")
     private List<ChannelResource> channelResources;
+
+    private Map<Channel, ChannelInfo> channelInfo = new HashMap<Channel, ChannelInfo>();
 
     /*
      * (non-Javadoc)
@@ -152,6 +157,56 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
         this.channelResources = channelResources;
     }
 
+    /**
+     * @return the channelInfo
+     */
+    public ChannelInfo getChannelInfo(Channel channel) {
+        return channelInfo.get(channel);
+    }
+
+    /**
+     * @param channelInfo
+     *            the channelInfo to set
+     */
+    public void setChannelInfo(ChannelInfo channelInfo) {
+        this.channelInfo.put(channelInfo.getChannel(), channelInfo);
+    }
+
+    public ChannelInfo[] getChannelInfoArray() {
+        return this.channelInfo.values().toArray(
+                new ChannelInfo[channelInfo.size()]);
+    }
+
+    @XmlElement(name = "channelInfo")
+    public void setChannelInfoArray(ChannelInfo[] channelInfo) {
+        if (channelInfo == null) {
+            channelInfo = new ChannelInfo[0];
+        }
+        this.channelInfo.clear();
+        for (ChannelInfo ci : channelInfo) {
+            setChannelInfo(ci);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((channelInfo == null) ? 0 : channelInfo.hashCode());
+        result = prime
+                * result
+                + ((channelResources == null) ? 0 : channelResources.hashCode());
+        result = prime * result
+                + ((groupName == null) ? 0 : groupName.hashCode());
+        return result;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -166,6 +221,11 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
         if (getClass() != obj.getClass())
             return false;
         TrueColorResourceGroupData other = (TrueColorResourceGroupData) obj;
+        if (channelInfo == null) {
+            if (other.channelInfo != null)
+                return false;
+        } else if (!channelInfo.equals(other.channelInfo))
+            return false;
         if (channelResources == null) {
             if (other.channelResources != null)
                 return false;

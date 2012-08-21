@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.truecolor.rsc.TrueColorResourceGroup;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
- * TODO Add Description
+ * Action that opens the {@link TrueColorDialog}
  * 
  * <pre>
  * 
