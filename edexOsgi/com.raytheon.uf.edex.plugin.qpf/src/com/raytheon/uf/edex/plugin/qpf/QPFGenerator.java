@@ -47,6 +47,8 @@ import com.raytheon.uf.edex.plugin.qpf.common.QPFConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/07/2009   1981       dhladky    Initial Creation.
+ * 04/27/2012   #562       dgilling   Accept getter and setter
+ *                                    renames in QPFRecord.
  * 
  * </pre>
  * 
@@ -126,10 +128,10 @@ public class QPFGenerator extends CompositeProductGenerator {
                     QPFRecord qpfRec = new QPFRecord();
                     qpfRec.setNx(qpf_config.getCurrentVil().getNumBins());
                     qpfRec.setNy(qpf_config.getCurrentVil().getNumRadials());
-                    qpfRec.setEWVelocity(qpf.getWEVelocity());
-                    qpfRec.setNSVelocity(qpf.getRNSVelocity());
-                    qpfRec.setAVGSpd(qpf.getAVGSpd());
-                    qpfRec.setAVGDir(qpf.getAVGDir());
+                    qpfRec.setEwvelocity(qpf.getWEVelocity());
+                    qpfRec.setNsvelocity(qpf.getRNSVelocity());
+                    qpfRec.setAvgspd(qpf.getAVGSpd());
+                    qpfRec.setAvgdir(qpf.getAVGDir());
 
                     if (qpf_config.getCurrentVil().getNumBins() == ScanUtils.SCAN_GRID_DIM) {
                         qpfRec.setDx(ScanUtils.SCAN_GRID_DIM_RESOLUTION);

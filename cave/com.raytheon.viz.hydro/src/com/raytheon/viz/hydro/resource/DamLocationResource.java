@@ -19,11 +19,10 @@
  **/
 package com.raytheon.viz.hydro.resource;
 
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
@@ -34,27 +33,27 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.app.launcher.handlers.AppLauncherHandler;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.hydro.gagedisplay.HydroImageMaker;
 import com.raytheon.viz.hydro.gagedisplay.HydroImageMaker.ImageSize;
 import com.raytheon.viz.hydro.pointdatacontrol.PointDataControlManager;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.data.DamMaster;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -78,68 +77,72 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  */
 
 public class DamLocationResource extends
-		HydroPointResource<DamLocationResourceData> implements
+        AbstractVizResource<DamLocationResourceData, IDescriptor> implements
         IContextMenuContributor {
-    private final Map<Coordinate, DamMaster> damMap = new HashMap<Coordinate, DamMaster>();
 
-    private HashMap<Coordinate, IImage> damRenderables = new HashMap<Coordinate, IImage>();
+    private static final RGB LABEL_COLOR = RGBColors.getRGBColor("white");
+
+    private PointDataControlManager pdcManager = PointDataControlManager
+            .getInstance();
+
+    private List<DamMaster> dams = new ArrayList<DamMaster>();
+
+    private IImage damIcon;
+
+    private IFont font;
+
+    private int fontSize;
 
     private STRtree damStrTree = new STRtree();
-
-    private IFont font = null;
-
-    private IGraphicsTarget target;
 
     private double scaleWidthValue = 0.0;
 
     private double scaleHeightValue = 0.0;
 
-    private final boolean isName = false;
-
-    private boolean isDisposed = false;
-
-    private final RGB labelColor = RGBColors.getRGBColor("white");
-
-	public DamLocationResource(DamLocationResourceData resourceData,
-			LoadProperties loadProperties) {
-		super(resourceData, loadProperties);
-		this.getCapability(ColorableCapability.class).setColor(
-				resourceData.getColor());
+    public DamLocationResource(DamLocationResourceData resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties);
     }
 
-	@Override
-	protected void initInternal(IGraphicsTarget target) throws VizException {
-		populateDamList();
-	}
-	
-	private void populateDamList() {
-        PointDataControlManager pdcManager = PointDataControlManager
-                .getInstance();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
+     */
+    @Override
+    public String getName() {
+        return resourceData.getName();
+    }
+
+    @Override
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        damIcon = target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return HydroImageMaker.getDamIcon();
+            }
+        });
+        fontSize = 10;
+        font = target.initializeFont("Dialog", fontSize, null);
+        font.setSmoothing(false);
+
+        populateDamList();
+    }
+
+    private void populateDamList() {
         HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
 
-		List<DamMaster> damList = displayManager.getDamList();
-		if (damList != null) {
-			pdcManager.setDamLocationResource(this);
-			damMap.clear();
-			for (DamMaster dm : damList) {
-				addPoint(dm);
-			}
-		} else {
-			damList = getResourceData().getDamList();
-			if (damList != null) {
-				displayManager.setDamList(damList);
-				pdcManager.setDamLocationResource(this);
-				damMap.clear();
-				for (DamMaster dm : damList) {
-					addPoint(dm);
-				}
-			}
-		}
-	}
-
-    public void resetStrTree() {
-        damStrTree = null;
-        damStrTree = new STRtree();
+        List<DamMaster> damList = displayManager.getDamList();
+        if (damList == null) {
+            damList = resourceData.getDamList();
+        }
+        if (damList != null) {
+            displayManager.setDamList(damList);
+            pdcManager.setDamLocationResource(this);
+            for (DamMaster dm : damList) {
+                addPoint(dm);
+            }
+        }
     }
 
     /**
@@ -149,46 +152,16 @@ public class DamLocationResource extends
      *            The DamMaster object
      */
     public void addPoint(DamMaster master) {
-        Coordinate xy = new Coordinate(master.getLongitudeDam(),
-                master.getLatitudeDam());
-        damMap.put(xy, master);
-
-        /* Create a small envelope around the point */
-        Coordinate p1 = new Coordinate(master.getLongitudeDam() + .03,
-                master.getLatitudeDam() + .03);
-        Coordinate p2 = new Coordinate(master.getLongitudeDam() - .03,
-                master.getLatitudeDam() - .03);
-        Envelope env = new Envelope(p1, p2);
-        ArrayList<Object> data = new ArrayList<Object>();
-        data.add(xy);
-        data.add("DAM:  " + master.getDamName());
-        damStrTree.insert(env, data);
-    }
-
-    /**
-     * Create the dam icons.
-     * 
-     * @return HashMap of Coordinate to Image objects
-     */
-    private HashMap<Coordinate, IImage> getDamRenderables() {
-        Iterator<Coordinate> iter = damMap.keySet().iterator();
-        damRenderables.clear();
-        
-        while (iter.hasNext()) {
-            Coordinate c = iter.next();
-            DamMaster master = damMap.get(c);
-
-            try {
-                IImage image = target.initializeRaster(
-                        new IODataPreparer(HydroImageMaker.getDamIcon(),
-                                master.getNidid(), 0), null);
-                damRenderables.put(c, image);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (dams.contains(master) == false) {
+            dams.add(master);
+            /* Create a small envelope around the point */
+            Coordinate p1 = new Coordinate(master.getLongitudeDam() + .03,
+                    master.getLatitudeDam() + .03);
+            Coordinate p2 = new Coordinate(master.getLongitudeDam() - .03,
+                    master.getLatitudeDam() - .03);
+            Envelope env = new Envelope(p1, p2);
+            damStrTree.insert(env, master);
         }
-
-        return damRenderables;
     }
 
     /**
@@ -205,79 +178,56 @@ public class DamLocationResource extends
             PaintProperties paintProps) throws VizException {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
 
-        int fontSize = manager.getFontSize();
-        if (font != null) {
-            font = target.initializeFont("Dialog", fontSize, null);
-        }
+        // Check the font size
+        font.setMagnification((manager.getFontSize() / (float) fontSize), true);
 
-        this.target = target;
+        populateDamList();
 
-        /* Should we display the dam icons? */
-        if (manager.getDamList() != null) {
-            populateDamList();
-            damRenderables = getDamRenderables();
-            Iterator<Coordinate> iter = damMap.keySet().iterator();
+        List<PointImage> images = new ArrayList<PointImage>(dams.size());
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                dams.size() * 2);
+        IExtent extent = paintProps.getView().getExtent();
+        for (DamMaster dam : dams) {
+            double[] pixel = descriptor.worldToPixel(new double[] {
+                    dam.getLongitudeDam(), dam.getLatitudeDam() });
+            if (pixel != null && extent.contains(pixel)) {
+                setScaleWidth(paintProps);
+                setScaleHeight(paintProps);
 
-            while (iter.hasNext()) {
-                Coordinate c = iter.next();
-                double[] pixel = descriptor.worldToPixel(new double[] { c.x,
-                        c.y });
+                /* Draw the icons */
+                if (manager.isDisplayDamIcon()) {
+                    PointImage image = new PointImage(damIcon, pixel[0],
+                            pixel[1]);
+                    image.setSiteId(dam.getDamName());
+                    images.add(image);
+                }
 
-                if (pixel != null) {
-                    if (paintProps.getView().getExtent().contains(pixel)) {
+                /* Draw the labels */
+                if (manager.isDisplayDamId()) {
+                    Coordinate idCoor = new Coordinate(pixel[0]
+                            - getScaleWidth(), pixel[1] - getScaleHeight());
 
-                        setScaleWidth(paintProps);
-                        setScaleHeight(paintProps);
+                    DrawableString ds = new DrawableString(dam.getNidid(),
+                            LABEL_COLOR);
+                    ds.setCoordinates(idCoor.x, idCoor.y);
+                    ds.font = font;
+                    strings.add(ds);
+                }
+                if (manager.isDisplayDamName()) {
+                    Coordinate nameCoor = new Coordinate(pixel[0]
+                            - getScaleWidth(), pixel[1] + getScaleHeight());
 
-                        /* Draw the icons */
-                        if (manager.isDisplayDamIcon()) {
-                            target.drawRaster(damRenderables.get(c),
-                                    getPixelCoverage(c), paintProps);
-                        }
-
-                        /* Draw the labels */
-                        drawPlotInfo(c, damMap.get(c));
-                    }
+                    DrawableString ds = new DrawableString(dam.getDamName(),
+                            LABEL_COLOR);
+                    ds.setCoordinates(nameCoor.x, nameCoor.y);
+                    ds.font = font;
+                    strings.add(ds);
                 }
             }
         }
-    }
-
-    /**
-     * Draw the text labels.
-     * 
-     * @param c
-     *            coordinate value
-     * @param data
-     *            Dam Data
-     * @throws VizException
-     */
-    private void drawPlotInfo(Coordinate c, DamMaster data) throws VizException {
-        HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
-        boolean displayId = displayManager.isDisplayDamId();
-        boolean displayName = displayManager.isDisplayDamName();
-
-        if (displayId) {
-            double[] centerpixels = descriptor.worldToPixel(new double[] { c.x,
-                    c.y });
-            Coordinate idCoor = new Coordinate(centerpixels[0]
-                    - getScaleWidth(), centerpixels[1] - getScaleHeight());
-
-            target.drawString(font, data.getNidid(), idCoor.x, idCoor.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
-        }
-
-        if (displayName) {
-            double[] centerpixels = descriptor.worldToPixel(new double[] { c.x,
-                    c.y });
-            Coordinate nameCoor = new Coordinate(centerpixels[0]
-                    - getScaleWidth(), centerpixels[1] + getScaleHeight());
-
-            target.drawString(font, data.getDamName(), nameCoor.x, nameCoor.y,
-                    0.0, IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
-        }
+        target.getExtension(IPointImageExtension.class).drawPointImages(
+                paintProps, images);
+        target.drawStrings(strings);
     }
 
     /**
@@ -324,27 +274,6 @@ public class DamLocationResource extends
         return scaleHeightValue;
     }
 
-    /**
-     * gets the pixel coverage for this image
-     * 
-     * @return
-     */
-    private PixelCoverage getPixelCoverage(Coordinate c) {
-
-        double[] centerpixels = descriptor
-                .worldToPixel(new double[] { c.x, c.y });
-        Coordinate ul = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate ur = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate lr = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-        Coordinate ll = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-
-        return new PixelCoverage(ul, ur, lr, ll);
-    }
-
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         menuManager.add(new DamCatalogLaunchAction());
@@ -384,11 +313,10 @@ public class DamLocationResource extends
                 if (elements.size() > 0) {
                     Iterator<?> iter = elements.iterator();
                     if (iter.hasNext()) {
-                        ArrayList<?> data = (ArrayList<?>) iter.next();
-                        String nadid = damMap.get(data.get(0)).getNidid();
+                        DamMaster dam = (DamMaster) iter.next();
                         try {
                             AppLauncherHandler alh = new AppLauncherHandler();
-                            alh.execute(DC_BUNDLE_LOC, nadid);
+                            alh.execute(DC_BUNDLE_LOC, dam.getNidid());
                         } catch (ExecutionException e) {
                             e.printStackTrace();
                         }
@@ -415,79 +343,26 @@ public class DamLocationResource extends
      */
     @Override
     protected void disposeInternal() {
-        super.disposeInternal();
-
-        if (damRenderables != null) {
-            Iterator<IImage> iter = damRenderables.values().iterator();
-            while (iter.hasNext()) {
-                iter.next().dispose();
-            }
-        }
-        damMap.clear();
-        setDisposed(true);
+        font.dispose();
+        damIcon.dispose();
+        dams.clear();
 
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         manager.setDamList(null);
-
-        if (font != null) {
-            font.dispose();
-        }
-    }
-
-    /**
-     * Clear the data.
-     */
-    public void clearData() {
-        ResourceList rl = descriptor.getResourceList();
-
-        for (ResourcePair pair : rl) {
-            AbstractVizResource<?, ?> rsc = pair.getResource();
-            if (rsc instanceof DamLocationResource) {
-                rl.removeRsc(rsc);
-                break;
-            }
-        }
     }
 
     /**
      * Clear the dam map.
      */
     public void resetDamMap() {
-        damMap.clear();
-    }
-
-    public Map<Coordinate, DamMaster> getDamMap() {
-        return damMap;
-    }
-
-    /**
-     * @return the isName
-     */
-    public boolean isName() {
-        return isName;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    @Override
-	public void setName(String name) {
-		this.resourceData.setName(name);
+        dams.clear();
     }
 
     /**
      * @return the isDisposed
      */
     public boolean isDisposed() {
-        return isDisposed;
+        return getStatus() == ResourceStatus.DISPOSED;
     }
 
-    /**
-     * @param isDisposed
-     *            the isDisposed to set
-     */
-    public void setDisposed(boolean isDisposed) {
-        this.isDisposed = isDisposed;
-    }
 }

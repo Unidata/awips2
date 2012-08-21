@@ -263,7 +263,7 @@
          point="org.eclipse.ui.bindings">
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_0">
             <parameter
@@ -273,7 +273,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_1">
             <parameter
@@ -283,7 +283,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_2">
             <parameter
@@ -293,7 +293,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_3">
             <parameter
@@ -303,7 +303,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_4">
             <parameter
@@ -313,7 +313,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_5">
             <parameter
@@ -323,7 +323,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_6">
             <parameter
@@ -333,7 +333,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_7">
             <parameter
@@ -343,7 +343,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_8">
             <parameter
@@ -353,7 +353,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="NUMPAD_9">
             <parameter
@@ -363,7 +363,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_0">
             <parameter
@@ -373,7 +373,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_1">
             <parameter
@@ -383,7 +383,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_2">
             <parameter
@@ -393,7 +393,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_3">
             <parameter
@@ -403,7 +403,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_4">
             <parameter
@@ -413,7 +413,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_5">
             <parameter
@@ -423,7 +423,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_6">
             <parameter
@@ -433,7 +433,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_7">
             <parameter
@@ -443,7 +443,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_8">
             <parameter
@@ -453,7 +453,7 @@
       </key>
       <key
             commandId="com.raytheon.viz.ui.actions.toggleResource"
-            contextId="com.raytheon.viz.ui.context"
+            contextId="com.raytheon.viz.ui.displayPaneContainer.context"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+NUMPAD_9">
             <parameter

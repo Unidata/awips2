@@ -66,7 +66,9 @@ public class SeparatorMenuContribution extends
         if (removals.contains(item.id))
             return new IContributionItem[0];
 
-        return new IContributionItem[] { new Separator(item.id) };
+        Separator s = new Separator(item.id);
+        s.setVisible(item.visible);
+        return new IContributionItem[] { s };
     }
 
 }

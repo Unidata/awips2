@@ -34,8 +34,12 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -78,9 +82,9 @@ public class DifferenceGridResource extends
 
     private final AbstractGridResource<?> two;
 
-    private AbstractInterpolation oneInterpolation;
+    private GridReprojection oneInterpolation;
 
-    private AbstractInterpolation twoInterpolation;
+    private GridReprojection twoInterpolation;
 
     public DifferenceGridResource(DifferenceGridResourceData resourceData,
             LoadProperties loadProperties, AbstractGridResource<?> one,
@@ -145,10 +149,8 @@ public class DifferenceGridResource extends
                         oneEnv.intersection(twoEnv), descriptor.getCRS());
                 newGeometry = new GridGeometry2D(GRID_ENVELOPE, newEnv);
             }
-            oneInterpolation = new BilinearInterpolation(oneGeometry,
-                    newGeometry);
-            twoInterpolation = new BilinearInterpolation(twoGeometry,
-                    newGeometry);
+            oneInterpolation = new GridReprojection(oneGeometry, newGeometry);
+            twoInterpolation = new GridReprojection(twoGeometry, newGeometry);
         }
         return GridGeometry2D.wrap(oneInterpolation.getTargetGeometry());
     }
@@ -181,20 +183,32 @@ public class DifferenceGridResource extends
         }
         GeneralGridData newData = null;
         try {
-
+            Interpolation interp = new BilinearInterpolation();
             if (oneData.isVector() && twoData.isVector()) {
-                float[] oneU = oneData.getUComponent().array();
-                float[] oneV = oneData.getVComponent().array();
-                float[] twoU = twoData.getUComponent().array();
-                float[] twoV = twoData.getVComponent().array();
-                oneInterpolation.setData(oneU);
-                oneU = oneInterpolation.getReprojectedGrid();
-                oneInterpolation.setData(oneV);
-                oneV = oneInterpolation.getReprojectedGrid();
-                twoInterpolation.setData(twoU);
-                twoU = twoInterpolation.getReprojectedGrid();
-                twoInterpolation.setData(twoV);
-                twoV = twoInterpolation.getReprojectedGrid();
+                DataSource oneSourceU = new FloatBufferWrapper(
+                        oneData.getUComponent(),
+                        oneInterpolation.getSourceGeometry());
+                DataSource oneSourceV = new FloatBufferWrapper(
+                        oneData.getVComponent(),
+                        oneInterpolation.getSourceGeometry());
+                DataSource twoSourceU = new FloatBufferWrapper(
+                        twoData.getUComponent(),
+                        twoInterpolation.getSourceGeometry());
+                DataSource twoSourceV = new FloatBufferWrapper(
+                        twoData.getVComponent(),
+                        twoInterpolation.getSourceGeometry());
+                float[] oneU = oneInterpolation.reprojectedGrid(interp,
+                        oneSourceU, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
+                float[] oneV = oneInterpolation.reprojectedGrid(interp,
+                        oneSourceV, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
+                float[] twoU = twoInterpolation.reprojectedGrid(interp,
+                        twoSourceU, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
+                float[] twoV = twoInterpolation.reprojectedGrid(interp,
+                        twoSourceV, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
                 float[] newU = new float[oneU.length];
                 float[] newV = new float[oneV.length];
                 for (int i = 0; i < newU.length; i++) {
@@ -205,12 +219,18 @@ public class DifferenceGridResource extends
                         FloatBuffer.wrap(newU), FloatBuffer.wrap(newV),
                         dataUnit);
             } else {
-                float[] oneScalar = oneData.getScalarData().array();
-                float[] twoScalar = twoData.getScalarData().array();
-                oneInterpolation.setData(oneScalar);
-                oneScalar = oneInterpolation.getReprojectedGrid();
-                twoInterpolation.setData(twoScalar);
-                twoScalar = twoInterpolation.getReprojectedGrid();
+                DataSource oneSource = new FloatBufferWrapper(
+                        oneData.getScalarData(),
+                        oneInterpolation.getSourceGeometry());
+                DataSource twoSource = new FloatBufferWrapper(
+                        twoData.getScalarData(),
+                        twoInterpolation.getSourceGeometry());
+                float[] oneScalar = oneInterpolation.reprojectedGrid(interp,
+                        oneSource, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
+                float[] twoScalar = twoInterpolation.reprojectedGrid(interp,
+                        twoSource, new FloatArrayWrapper(getGridGeometry()))
+                        .getArray();
                 float[] newScalar = new float[oneScalar.length];
                 for (int i = 0; i < newScalar.length; i++) {
                     newScalar[i] = oneScalar[i] - twoScalar[i];

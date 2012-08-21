@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Base class for observation data to SHEF conversions.
@@ -142,7 +143,6 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
      * @param objects
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static Iterator<?> iterate(PluginDataObject[] objects) {
         Iterator<PluginDataObject> it = null;
         if (objects != null) {
@@ -203,11 +203,15 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
      * @return
      */
     protected StringBuilder makeWMOHeader(StringBuilder buffer,
-            String stationId, Headers headers) {
+            String stationId, Headers headers, WMOHeader hdr) {
 
-        Calendar c = TimeTools.getSystemCalendar((String) headers
-                .get(DecoderTools.INGEST_FILE_NAME));
-
+        Calendar c = null;
+        
+        if((hdr != null)&&(headers != null)) {
+            c = TimeTools.findDataTime(hdr.getYYGGgg(), headers);
+        } else {
+            c = TimeTools.getSystemCalendar();
+        }
         buffer.append(String.format(WMO_HEADER_FMT, stationId, c));
         
         return buffer;

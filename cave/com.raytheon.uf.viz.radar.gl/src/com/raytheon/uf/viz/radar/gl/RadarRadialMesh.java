@@ -35,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
@@ -162,8 +161,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
 
     private CacheKey cacheKey;
 
-    private int refCount;
-
     public RadarRadialMesh(RadarRecord record,
             GeneralGridGeometry targetGeometry, CacheKey cacheKey)
             throws VizException {
@@ -175,7 +172,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
                         RadarUtil.calculateExtent(record),
                         Math.max(record.getNumBins(), record.getNumRadials())),
                 targetGeometry);
-        refCount = 0;
     }
 
     @Override
@@ -385,10 +381,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
         }
     }
 
-    private void use() {
-        refCount += 1;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -396,17 +388,16 @@ public class RadarRadialMesh extends AbstractGLMesh {
      */
     @Override
     public synchronized void dispose() {
-        refCount -= 1;
         synchronized (cache) {
+            super.dispose();
             if (refCount == 0) {
-                super.dispose();
                 cache.remove(cacheKey);
             }
         }
     }
 
     public static RadarRadialMesh getMesh(RadarRecord radarData,
-            IDescriptor descriptor) throws VizException {
+            GeneralGridGeometry targetGeometry) throws VizException {
         float latitude = radarData.getLatitude();
         float longitude = radarData.getLongitude();
         int numBins = radarData.getNumBins();
@@ -420,19 +411,24 @@ public class RadarRadialMesh extends AbstractGLMesh {
         float[] angleData = radarData.getAngleData();
         CacheKey key = new CacheKey(latitude, longitude, numBins, numRadials,
                 gateResolution, trueElevationAngle, jStart, angleData,
-                descriptor.getGridGeometry());
+                targetGeometry);
         synchronized (cache) {
             RadarRadialMesh mesh = cache.get(key);
             if (mesh == null) {
                 // System.out.println("Mesh Cache miss");
-                mesh = new RadarRadialMesh(radarData,
-                        descriptor.getGridGeometry(), key);
+                mesh = new RadarRadialMesh(radarData, targetGeometry, key);
                 cache.put(key, mesh);
             } else {
+                mesh.use();
                 // System.out.println("Mesh Cache hit");
             }
-            mesh.use();
             return mesh;
         }
+    }
+
+    @Override
+    public RadarRadialMesh clone(GeneralGridGeometry targetGeometry)
+            throws VizException {
+        return getMesh(record, targetGeometry);
     }
 }

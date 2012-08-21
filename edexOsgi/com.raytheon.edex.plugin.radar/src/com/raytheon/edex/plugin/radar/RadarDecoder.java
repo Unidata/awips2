@@ -33,6 +33,7 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.plugin.radar.level2.Level2BaseRadar;
 import com.raytheon.edex.plugin.radar.level3.Level3BaseRadar;
+import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -165,8 +166,10 @@ public class RadarDecoder extends AbstractDecoder {
                         AFOSProductId afos = new AFOSProductId("WSR", "ROB",
                                 siteId);
                         // store the product ROB that is barely do-able
-                        RadarTextProductUtil.storeTextProduct(afos, header,
-                                dataString, true, Calendar.getInstance());
+                        Calendar cal = (TimeTools.allowArchive() ? header
+                                .getHeaderDate() : Calendar.getInstance());
+                        RadarEdexTextProductUtil.storeTextProduct(afos, header,
+                                dataString, true, cal);
                         return new PluginDataObject[0];
                     }
                 }
@@ -491,8 +494,10 @@ public class RadarDecoder extends AbstractDecoder {
                 RadarTextProductUtil.createAfosId(75, splits[1].substring(1)));
 
         // store the product to the text database
-        RadarTextProductUtil.storeTextProduct(afos, header, temp, true,
-                Calendar.getInstance());
+        Calendar cal = (TimeTools.allowArchive() ? header.getHeaderDate()
+                : Calendar.getInstance());
+        RadarEdexTextProductUtil
+                .storeTextProduct(afos, header, temp, true, cal);
 
         // send message to alertviz
         EDEXUtil.sendMessageAlertViz(Priority.VERBOSE,

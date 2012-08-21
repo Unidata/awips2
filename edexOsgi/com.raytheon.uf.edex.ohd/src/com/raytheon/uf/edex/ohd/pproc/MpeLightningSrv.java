@@ -89,7 +89,7 @@ public class MpeLightningSrv {
     private QueryResultRow[] getMostRecentStrikes() throws EdexException {
         QueryResult rs = null;
         CoreDao coreDao = new CoreDao(DaoConfig.DEFAULT);
-        final String lgtSQL = "select datauri, hdffileid from binlightning "
+        final String lgtSQL = "select datauri from binlightning "
                 + "where reftime > (now()- interval \'30 minutes \')";
         try {
             rs = (QueryResult) coreDao.executeNativeSql(lgtSQL, true);
@@ -104,16 +104,13 @@ public class MpeLightningSrv {
      * Inserts a single record into ihfs's lightning table.
      * 
      * @param dataURI
-     * @param hdfFileId
      * @throws EdexException
      */
-    private void ifhsInsertLightRecord(String dataURI, int hdfFileId)
-            throws EdexException {
+    private void ifhsInsertLightRecord(String dataURI) throws EdexException {
         int results = 0;
         try {
             // set up a lightning record
             BinLightningRecord ltngRec = new BinLightningRecord(dataURI);
-            ltngRec.setHdfFileId(hdfFileId);
 
             EnvProperties properties = PropertiesFactory.getInstance()
                     .getEnvProperties();
@@ -171,10 +168,11 @@ public class MpeLightningSrv {
                 String tuple = "(" + x_hgrids[j] + "," + y_hgrids[j]
                         + ", TIMESTAMP '" + ts.toString() + "' ," + strikes[j]
                         + ")";
-                if (j != x_hgrids.length - 1)
+                if (j != x_hgrids.length - 1) {
                     tuple = tuple + ",";
-                else
+                } else {
                     tuple = tuple + ";";
+                }
                 sql.append(tuple);
             }
 
@@ -205,12 +203,12 @@ public class MpeLightningSrv {
      */
     private void ifhsInsertMostRecentStrikes(QueryResultRow[] rows)
             throws EdexException {
-        if (rows.length == 0)
+        if (rows.length == 0) {
             logger.info("No new lightning records to insert in ifhs. ");
+        }
         for (QueryResultRow row : rows) {
             String dataURI = (String) row.getColumn(0);
-            Integer hdfFileId = (Integer) row.getColumn(1);
-            ifhsInsertLightRecord(dataURI, hdfFileId.intValue());
+            ifhsInsertLightRecord(dataURI);
         }
     }
 

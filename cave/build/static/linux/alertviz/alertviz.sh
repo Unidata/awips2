@@ -78,6 +78,12 @@ if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
 fi
 
+# Special instructions for the 64-bit jvm.
+ARCH_ARGS=""
+if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
+   ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
+fi
+
 #run a loop for alertviz
 while [ $exitVal -ne 0 ]
 do
@@ -96,9 +102,9 @@ do
  else
   #finally check if we can write to the file
   if [ -w ${LOGFILE} ]; then
-   ${dir}/alertviz $*  > ${LOGFILE} 2>&1
+   ${dir}/alertviz ${ARCH_ARGS} $*  > ${LOGFILE} 2>&1
   else
-   ${dir}/alertviz $*
+   ${dir}/alertviz ${ARCH_ARGS} $*
   fi
  fi
  exitVal=$?

@@ -111,15 +111,17 @@ public class GLCMTextureData implements IImageCacheable {
 
         // OK, Fetch the data
         ColorMapData cmData = callback.getColorMapData();
-        IGLColorMapDataFormatProvider glDataFormatCallback = IGLColorMapDataFormatProvider.defaultCallback;
-        if (callback instanceof IGLColorMapDataFormatProvider) {
-            glDataFormatCallback = (IGLColorMapDataFormatProvider) callback;
-        }
-        data = new GLColorMapData(cmData,
-                glDataFormatCallback.getGLColorMapDataFormat(cmData));
-        if (isStaged()) {
-            ImageCache.getInstance(CacheType.MEMORY).put(this);
-            return true;
+        if (cmData != null) {
+            IGLColorMapDataFormatProvider glDataFormatCallback = IGLColorMapDataFormatProvider.defaultCallback;
+            if (callback instanceof IGLColorMapDataFormatProvider) {
+                glDataFormatCallback = (IGLColorMapDataFormatProvider) callback;
+            }
+            data = new GLColorMapData(cmData,
+                    glDataFormatCallback.getGLColorMapDataFormat(cmData));
+            if (isStaged()) {
+                ImageCache.getInstance(CacheType.MEMORY).put(this);
+                return true;
+            }
         }
         // The data fetch didn't go well
         return false;
@@ -202,6 +204,7 @@ public class GLCMTextureData implements IImageCacheable {
     }
 
     public double getValue(int x, int y) {
+        double value = Double.NaN;
         if (!isStaged() && isLoaded()) {
             GLContextBridge.makeMasterContextCurrent();
             GL gl = GLU.getCurrentGL();
@@ -221,8 +224,11 @@ public class GLCMTextureData implements IImageCacheable {
             data.setData(copybackBuffer);
             GLContextBridge.releaseMasterContext();
         }
-        ImageCache.getInstance(CacheType.MEMORY).put(this);
-        return data.getValue(x, y).doubleValue();
+        if (data != null) {
+            ImageCache.getInstance(CacheType.MEMORY).put(this);
+            value = data.getValue(x, y).doubleValue();
+        }
+        return value;
     }
 
     private static Map<IColorMapDataRetrievalCallback, GLCMTextureData> texMap = new HashMap<IColorMapDataRetrievalCallback, GLCMTextureData>();

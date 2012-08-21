@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.media.opengl.GL;
 
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
@@ -62,8 +62,8 @@ public class GLColormapShadedShapeExtension extends
 
     @Override
     public IColormapShadedShape createColormapShadedShape(
-            IDescriptor descriptor, boolean tesselate) {
-        return new GLColormapShadedShape(descriptor, tesselate);
+            GeneralGridGeometry targetGeometry, boolean tesselate) {
+        return new GLColormapShadedShape(targetGeometry, tesselate);
     }
 
     @Override
@@ -127,8 +127,9 @@ public class GLColormapShadedShapeExtension extends
 
         private List<Object> colorKeys = new ArrayList<Object>();
 
-        public GLColormapShadedShape(IDescriptor descriptor, boolean tessellate) {
-            super(descriptor, tessellate);
+        public GLColormapShadedShape(GeneralGridGeometry targetGeometry,
+                boolean tessellate) {
+            super(targetGeometry, tessellate);
         }
 
         @Override

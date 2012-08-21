@@ -268,9 +268,8 @@ public class InteractiveBaselinesLayer extends
                 string.font = font;
                 strings.add(string);
             }
-
-            lines.add(line);
         }
+        lines.add(line);
     }
 
     /**

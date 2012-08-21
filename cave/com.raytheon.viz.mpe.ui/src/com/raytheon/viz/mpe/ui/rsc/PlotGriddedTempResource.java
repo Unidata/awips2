@@ -88,7 +88,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Jun 30, 2009  2524          snaples     Initial creation
  * Feb 29  2010  9909         lbousaidi	  changed the for loop for getting 
  * 										  the HRAP grid bin
- * Apr 17, 2012	 9602		mgamazaychikm	Changed the HRAP grid j index for loop   
+ * Apr 17, 2012	 9602		mgamazaychikm	Changed the HRAP grid j index for loop
  * </pre>
  * 
  * @author snaples
@@ -441,8 +441,6 @@ public class PlotGriddedTempResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-
-        target.setUseBuiltinColorbar(false);
         if (buf == null || DailyQcUtils.grids_flag != 1
                 || displayMgr.isMaxmin() != true) {
             return;

@@ -46,8 +46,10 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -83,7 +85,7 @@ public class RemapGrid {
 
     private Grid2DFloat rotation;
 
-    private AbstractInterpolation interp;
+    private GridReprojection interp;
 
     /**
      * Constructs a new RemapGrid with the given input and output grid locations
@@ -540,18 +542,17 @@ public class RemapGrid {
                     rasterData.getMinY(), rasterData.getWidth(),
                     rasterData.getHeight(), f1);
         } else {
+            GridGeometry2D destGeometry = MapUtil
+                    .getGridGeometry(destinationGloc);
             synchronized (this) {
                 if (interp == null) {
-                    interp = new BilinearInterpolation(sourceGeometry,
-                            MapUtil.getGridGeometry(destinationGloc));
+                    interp = new GridReprojection(sourceGeometry, destGeometry);
                     interp.computeTransformTable();
                 }
             }
-            synchronized (interp) {
-                interp.setData(data);
-                f1 = interp.getReprojectedGrid();
-                interp.setData(null);
-            }
+            DataSource source = new FloatArrayWrapper(data, sourceGeometry);
+            f1 = interp.reprojectedGrid(new BilinearInterpolation(), source,
+                    new FloatArrayWrapper(destGeometry)).getArray();
         }
 
         // Remap the the output data into a Grid2DFloat object

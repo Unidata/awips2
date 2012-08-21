@@ -37,13 +37,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class ConvSigmetOutlookDataAdapter extends AbstractAdvisoryDataAdapter {
-    
+
     private static final String LABEL_FORMAT = "%s Outlook";
 
     private static final String CLASS_TYPE = "OUTLOOK";
 
     private static final float LINE_WIDTH = 1.0f;
-    
+
     private static final LineStyle LINE_STYLE = LineStyle.SOLID;
 
     @Override
@@ -84,12 +84,12 @@ public class ConvSigmetOutlookDataAdapter extends AbstractAdvisoryDataAdapter {
         }
         Coordinate[] coords = new Coordinate[locations.size()];
         for (ConvSigmetLocation loc : locations) {
-            coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(), loc
-                    .getLatitude());
+            coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(),
+                    loc.getLatitude());
         }
         String label = String.format(LABEL_FORMAT, section.getSequenceID());
-        AdvisoryRecord aRecord = new AdvisoryRecord(coords, label, section
-                .getSegment());
+        AdvisoryRecord aRecord = new AdvisoryRecord(coords, label,
+                section.getSegment());
         return aRecord;
 
     }
@@ -98,7 +98,7 @@ public class ConvSigmetOutlookDataAdapter extends AbstractAdvisoryDataAdapter {
     public float getLineWidth() {
         return LINE_WIDTH;
     }
-    
+
     @Override
     public LineStyle getLineStyle() {
         return LINE_STYLE;

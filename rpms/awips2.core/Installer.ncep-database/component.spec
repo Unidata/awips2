@@ -47,11 +47,11 @@ PATH_TO_SHP_FILES="awips2-static/db/ddl/ncep"
 mkdir -p ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
 
 # Copy the ncep sql scripts into the rpm.
-cp -r ${WORKSPACE_DIR}/${PATH_TO_DDL}/* \
+cp -r %{_baseline_workspace}/${PATH_TO_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
    
 # Copy the ncep shapefiles into the rpm.
-cp -r ${AWIPSCM_SHARE}/${PATH_TO_SHP_FILES}/* \
+cp -r %{_awipscm_share}/${PATH_TO_SHP_FILES}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/ncep
    
 # Create our installation log file.

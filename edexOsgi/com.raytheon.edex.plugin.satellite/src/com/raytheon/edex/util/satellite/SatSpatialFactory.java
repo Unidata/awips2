@@ -42,7 +42,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 12/19/07     439         bphillip    Initial creation
- *    
+ * - AWIPS2 Baseline Repository --------
+ * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
  * 
  * </pre>
  */
@@ -172,7 +173,7 @@ public class SatSpatialFactory {
 
         ProjectedCRS crs = null;
         // Get the correct CRS
-        if (mapProjection == 1) {
+        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
             double cm = 0.0;
             if ((lo1 > 0.0) && (lo2 < 0.0)) {
                 cm = 180.0;
@@ -200,7 +201,7 @@ public class SatSpatialFactory {
          * Projection is Mercator. Determine corner points from la1,lo1,la2,lo2
          * provided in the satellite file
          */
-        if (mapProjection == 1) {
+        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
             logger.debug("Determining corner points for Mercator projection");
             corner1.x = lo1;
             corner1.y = la1;

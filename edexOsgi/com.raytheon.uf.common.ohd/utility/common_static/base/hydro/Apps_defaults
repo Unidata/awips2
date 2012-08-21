@@ -1030,8 +1030,8 @@ mpe_d2d_display_grib     :  ON  # ON/OFF token to determine if further
                                 #  processing of grib file for D2D display
                                 #  is required
 
-d2d_input_dir            :  $(EDEX_HOME)/data/manual  # dir containing grib files
-                                                      # to be processed for D2D display
+d2d_input_dir            :  $(EDEX_HOME)/data/manual/mpe  # dir containing grib files
+                                                          # to be processed for D2D display
 
 mpe_send_grib            :  OFF  # ON/OFF token to determine if grib file is
                                  #  to be sent to other sites such as NPVU

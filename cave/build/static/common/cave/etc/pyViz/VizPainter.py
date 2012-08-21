@@ -54,7 +54,7 @@ class VizPainter():
                 
         self.target = GLTargetProxy.constructOffScreenTarget(imageWidth, imageHeight)
         self.target.init()
-        
+        self.display.setup(self.target)
     
     def __del__(self):
         resources = self.getDescriptor().getResourceList()
@@ -101,7 +101,7 @@ class VizPainter():
         # requires multiple passes to paint everything                                            
         paint = True        
         while paint:            
-            self.target.beginFrame(self.display, True)
+            self.target.beginFrame(self.display.getView(), True)
             if backgroundColor is not None:
                 self.target.setBackgroundColor(backgroundColor)
             self.display.paint(self.target, props)
