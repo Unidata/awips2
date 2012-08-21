@@ -70,6 +70,16 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             map.remove("pluginName");
         }
 
+        // Simulated Date is the date set in the CAVE calling this
+        if (request.getSimDate() != null) {
+            RequestConstraint timeConstraint = new RequestConstraint();
+            timeConstraint.setConstraintType(ConstraintType.LESS_THAN);
+            timeConstraint
+                    .setConstraintValue(new DataTime(request.getSimDate())
+                            .toString());
+            map.put(REF_TIME, timeConstraint);
+        }
+
         String database = PluginFactory.getInstance().getDatabase(
                 request.getPluginName());
         String classname = PluginFactory.getInstance()
@@ -84,16 +94,19 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             // getting all times
             DatabaseQuery query = buildQuery(classname, map, true);
             List<DataTime> latestTime = runQuery(dao, query);
-            RequestConstraint timeRC = new RequestConstraint(null,
-                    ConstraintType.LESS_THAN);
-            map.put(REF_TIME, timeRC);
+            if (!map.containsKey(REF_TIME)) {
+                RequestConstraint timeRC = new RequestConstraint(null,
+                        ConstraintType.LESS_THAN);
+                map.put(REF_TIME, timeRC);
+            }
             times = new ArrayList<DataTime>(50);
             while (latestTime != null && latestTime.size() != 0) {
                 DataTime normalTime = binOffset.getNormalizedTime(latestTime
                         .get(0));
                 times.add(normalTime);
                 Date date = binOffset.getTimeRange(normalTime).getStart();
-                timeRC.setConstraintValue(new DataTime(date).toString());
+                map.get(REF_TIME).setConstraintValue(
+                        new DataTime(date).toString());
                 query = buildQuery(classname, map, true);
                 latestTime = runQuery(dao, query);
             }
@@ -136,6 +149,7 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                     constraint.getConstraintType().getOperand(), classname);
         }
 
+        // System.out.println("TimeQuery: " + query.createHQLQuery());
         return query;
     }
 

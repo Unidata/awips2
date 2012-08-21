@@ -38,6 +38,7 @@
 
 #include <Python.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "numpy/arrayobject.h"
 #include "grib2.h"
@@ -45,16 +46,17 @@
 static PyObject *Grib2FileError;
 
 int getRecord(FILE * fptr, gribfield ** gfld, int recordNumber,
-		int fieldNumber, int unpack) {
+		g2int fieldNumber, g2int unpack) {
 
 	unsigned char *cgrib;
 	g2int listsec0[3], listsec1[13];
-	long iseek = 0;
-	long lskip;
-	long lgrib = 1;
+	g2int iseek = 0;
+	g2int lskip;
+	g2int lgrib = 1;
 	g2int numfields;
 	g2int numlocal;
-	int ret, ierr, expand = 1;
+	g2int ierr, expand = 1;
+	int ret = 1;
 	size_t lengrib;
 
 	// Seek to the correct position in the file
@@ -71,6 +73,10 @@ int getRecord(FILE * fptr, gribfield ** gfld, int recordNumber,
 
 	// Pull out the data
 	cgrib = (unsigned char *) malloc(lgrib);
+	if (cgrib == NULL) {
+		printf("getRecord: failed to malloc cgrib\n");
+		return -1;
+	}
 	ret = fseek(fptr, lskip, SEEK_SET);
 	lengrib = fread(cgrib, sizeof(unsigned char), lgrib, fptr);
 	iseek = lskip + lgrib;
@@ -120,7 +126,7 @@ static PyObject * grib2_getData(PyObject *self, PyObject* args)
 	PyObject * fileInfo;
 	FILE * fptr;
 	int recordNumber;
-	int fieldNumber;
+	g2int fieldNumber;
 	Py_ssize_t sizeSection = 0;
 	int sectionCounter = 0;
 
@@ -130,7 +136,7 @@ static PyObject * grib2_getData(PyObject *self, PyObject* args)
 
 	gribfield * gfld;
 	long numfields;
-	int dimSize[1];
+	npy_intp dimSize[1];
 	PyObject *response = PyDict_New();
 	numfields = getRecord(fptr, &gfld, recordNumber, fieldNumber, 1);
 

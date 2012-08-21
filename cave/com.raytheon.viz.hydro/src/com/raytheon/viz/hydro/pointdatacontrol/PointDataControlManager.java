@@ -31,11 +31,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.dataplugin.shef.tables.Curpc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Curpp;
 import com.raytheon.uf.common.dataplugin.shef.tables.Riverstatus;
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.hydro.Activator;
@@ -184,7 +184,7 @@ public class PointDataControlManager extends Job {
     private boolean updateData;
 
     private REQUEST_TYPE requestType;
-    
+
     boolean cancelJob = false;
 
     private PointDataControlManager() {
@@ -250,7 +250,7 @@ public class PointDataControlManager extends Job {
         } else {
             previousRetrievalDate = now;
         }
- 
+
         if (this.cancelJob) {
             return;
         }
@@ -367,7 +367,7 @@ public class PointDataControlManager extends Job {
             if (repList != null) {
                 repList.trimToSize();
             }
-            
+
             if (this.cancelJob) {
                 return;
             }
@@ -401,7 +401,7 @@ public class PointDataControlManager extends Job {
                 repList = PointDataControlRiverStatus.processRiverThreatIndex(
                         repList, dataRetrievalRequired);
             }
-            
+
             if (this.cancelJob) {
                 return;
             }
@@ -419,7 +419,7 @@ public class PointDataControlManager extends Job {
             if (pcOptions.getSupressMissing() == 1) {
                 repList = PointDataControlAddMissing.addMissingReports(repList);
             }
-            
+
             if (this.cancelJob) {
                 return;
             }
@@ -869,6 +869,13 @@ public class PointDataControlManager extends Job {
         while (iter.hasNext()) {
             (iter.next()).notifyUpdate(event);
         }
+        setGage(event.isGage());
+        setID(event.isID());
+        setPE(event.isPE());
+        setTime(event.isTime());
+        setElevation(event.isElevation());
+        setValue(event.isValue());
+        setName(event.isName());
     }
 
     /**
@@ -1242,7 +1249,7 @@ public class PointDataControlManager extends Job {
         this.cancelJob = false;
         this.schedule();
     }
-    
+
     public void cancelRunningJobs() {
         if (this.getState() == Job.RUNNING) {
             this.cancelJob = true;

@@ -144,7 +144,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	/**
 	 * Ghost line for multi-point element.
 	 */
-    private AbstractDrawableComponent ghost = null;
+//    private AbstractDrawableComponent ghost = null;
+	PgenResourceGhost ghost = null;
     
     /*
      * List of elements that should be displayed in "selected" mode
@@ -316,7 +317,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 
 			drawProduct( target, paintProps );
 			if ( elSelected != null ) drawSelected( target, paintProps);
-			if ( ghost != null ) drawGhost( target, paintProps, df);
+			if ( ghost != null ) ghost.draw(target, paintProps, df, descriptor);
 
 			// Save current graphics target for possible future reminder
 			if ( saveOnNextPaint ) {
@@ -455,7 +456,11 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 */
 	public void setGhostLine(AbstractDrawableComponent ghost) {
 		
-		this.ghost = ghost;
+		if (this.ghost == null) {
+			this.ghost = new PgenResourceGhost();
+		}
+//		this.ghost = ghost;
+		this.ghost.setGhostLine(ghost);
 		
 	}
 	
@@ -467,25 +472,6 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		this.ghost = null;
 		
 	}
-	
-	/**
-	 * Creates displayables for an element using an ElementContainer and call the 
-	 * displayables' draw() method to draw the element.
-	 * @param target		Graphic target
-	 * @param paintProps	Paint properties
-	 * @param df			Display element factory
-	 * @param el			Input drawable element
-	 */
-	private void drawElement( IGraphicsTarget target, PaintProperties paintProps,
-			DisplayElementFactory df, DrawableElement el ){
-		
-		AbstractElementContainer dispEl = null;
-		
-		dispEl = new DefaultElementContainer(el, descriptor, target);
-		dispEl.draw(target, paintProps, null);
-		dispEl.dispose();
-	}
-	
 	
 	/**
 	 * Finds the nearest element in the products to the input point.
@@ -724,23 +710,6 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
     	}
 	}
 	 */
-	
-	/**
-	 * Draw the ghost
-	 * @param target
-	 * @param paintProps
-	 * @param df
-	 */
-	private void drawGhost( IGraphicsTarget target, PaintProperties paintProps,
-			DisplayElementFactory df ){
-		
-		df.setLayerDisplayAttr( false, null, false );
-		
-		Iterator<DrawableElement> iterator = ghost.createDEIterator();
-		while ( iterator.hasNext()){    
-			drawElement( target, paintProps, df, iterator.next() );
-		}
-	}
 	
 	/**
 	 * Sets the selected element to the input element.

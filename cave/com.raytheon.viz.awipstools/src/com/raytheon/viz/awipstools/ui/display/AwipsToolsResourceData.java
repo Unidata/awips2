@@ -72,20 +72,21 @@ public class AwipsToolsResourceData<T extends AbstractVizResource<AbstractResour
     private Class<? extends T> classT;
 
     public AwipsToolsResourceData() {
-    }
-
-    /**
-     * 
-     */
-    public AwipsToolsResourceData(String aName, Class<? extends T> classT) {
-        this.name = aName;
-        this.classT = classT;
         this.nameGenerator = new AbstractNameGenerator() {
             @Override
             public String getName(AbstractVizResource<?, ?> resource) {
                 return name;
             }
         };
+    }
+
+    /**
+     * 
+     */
+    public AwipsToolsResourceData(String aName, Class<? extends T> classT) {
+        this();
+        this.name = aName;
+        this.classT = classT;
     }
 
     /*

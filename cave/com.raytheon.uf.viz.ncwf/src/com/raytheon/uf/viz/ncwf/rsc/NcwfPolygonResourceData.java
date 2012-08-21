@@ -32,8 +32,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.ncwf.Activator;
 
 /**
  * The ResourceData for Ncwf resources
@@ -52,11 +50,12 @@ import com.raytheon.uf.viz.ncwf.Activator;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class NcwfPolygonResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(NcwfPolygonResourceData.class);
-    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(NcwfPolygonResourceData.class);
+
     @XmlAttribute
     private String name;
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -65,13 +64,13 @@ public class NcwfPolygonResourceData extends AbstractRequestableResourceData {
         if (obj instanceof NcwfPolygonResourceData == false) {
             return false;
         }
-        
+
         NcwfPolygonResourceData other = (NcwfPolygonResourceData) obj;
 
-        if (other.name.equals(name)) {
+        if (!other.name.equals(name)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -100,7 +99,5 @@ public class NcwfPolygonResourceData extends AbstractRequestableResourceData {
     public void setName(String name) {
         this.name = name;
     }
-    
-    
 
 }

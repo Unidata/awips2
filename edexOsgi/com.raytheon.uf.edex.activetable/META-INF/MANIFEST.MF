@@ -6,8 +6,6 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.activetable,
- com.raytheon.uf.common.dataplugin.gfe.python,
- com.raytheon.uf.common.dataplugin.gfe.textproduct,
  com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.python,
  com.raytheon.uf.common.serialization.comm,

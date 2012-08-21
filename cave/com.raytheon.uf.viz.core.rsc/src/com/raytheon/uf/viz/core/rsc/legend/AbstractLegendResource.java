@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.legend.ILegendDecorator;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -101,15 +102,8 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
         LegendEntry[] legendData = getLegendData(descriptor);
         List<DrawableString> legendStrings = new ArrayList<DrawableString>();
 
-        // Disable the clipping pane
-        target.clearClippingPlane();
-
-        // Get the ratio for pixel to gl pixel conversion
-        double ratio = paintProps.getView().getExtent().getWidth()
-                / paintProps.getCanvasBounds().width;
-
-        double yStart = paintProps.getView().getExtent().getMaxY()
-                - (BOTTOM_OFFSET_IN_PIXELS * ratio);
+        double yStart = paintProps.getCanvasBounds().height
+                - (BOTTOM_OFFSET_IN_PIXELS);
         for (LegendEntry le : legendData) {
             String allText = "";
             for (LegendData ld : le.legendParts) {
@@ -119,8 +113,8 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
             Rectangle2D allTextBounds = target
                     .getStringBounds(le.font, allText);
 
-            double xStart = paintProps.getView().getExtent().getMaxX()
-                    - ((RIGHT_OFFSET_IN_PIXELS + allTextBounds.getWidth()) * ratio);
+            double xStart = paintProps.getCanvasBounds().width
+                    - ((RIGHT_OFFSET_IN_PIXELS + allTextBounds.getWidth()));
 
             double maxHeight = 0.0;
             for (LegendData ld : le.legendParts) {
@@ -132,18 +126,17 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
                 legendStrings.add(string);
 
                 Rectangle2D textBounds = target.getStringsBounds(string);
-                xStart += (textBounds.getWidth() * ratio);
+                xStart += textBounds.getWidth();
                 if (textBounds.getHeight() > maxHeight) {
                     maxHeight = textBounds.getHeight();
                 }
             }
 
-            yStart -= (maxHeight * ratio);
+            yStart -= maxHeight;
         }
 
-        target.drawStrings(legendStrings);
-
-        target.setupClippingPlane(paintProps.getClippingPane());
+        target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                paintProps, legendStrings.toArray(new DrawableString[0]));
     }
 
     /*

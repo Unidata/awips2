@@ -35,11 +35,11 @@ mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 %build
 
 %install
-LOCALAPPS_RPM_DIR="Installer.rpm/awips2.core/Installer.localapps-environment"
+LOCALAPPS_RPM_DIR="rpms/awips2.core/Installer.localapps-environment"
 PROFILED_DIR="${LOCALAPPS_RPM_DIR}/scripts/profile.d"
 
 # Copy the profile.d scripts.
-cp ${WORKSPACE_DIR}/${PROFILED_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+cp %{_baseline_workspace}/${PROFILED_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %pre
 if [ "${1}" = "2" ]; then
@@ -67,6 +67,9 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m\| The AWIPS II localapps environment Has Been Successfully Removed\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo ""
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(755,awips,fxalpha,-)
