@@ -14,9 +14,13 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174"
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.viz.ui.tools.map;bundle-version="1.12.1174",
+ com.raytheon.viz.core;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.core.rsc.legend,
  com.raytheon.uf.viz.core.rsc.sampling,
- com.raytheon.uf.viz.core.rsc.sampling.actions
+ com.raytheon.uf.viz.core.rsc.sampling.actions,
+ com.raytheon.uf.viz.core.rsc.tools,
+ com.raytheon.uf.viz.core.rsc.tools.action
