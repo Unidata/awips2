@@ -1,4 +1,4 @@
-package com.raytheon.viz.awipstools.ui.dialog;
+package com.raytheon.uf.viz.points.ui.dialog;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -126,6 +126,7 @@ public class CoordinateInputPanel {
                 float degrees = Float.parseFloat(degreesStr);
                 if (degrees < 0.0) {
                     cardinalSouthRadioButton.setSelection(true);
+                    cardinalNorthRadioButton.setSelection(false);
                     degrees = Math.abs(degrees);
                     degreesStr = Float.toString(degrees);
                     latDegreesText.setText(degreesStr);
@@ -211,6 +212,7 @@ public class CoordinateInputPanel {
                 float degrees = Float.parseFloat(degreesStr);
                 if (degrees < 0.0) {
                     cardinalWestRadioButton.setSelection(true);
+                    cardinalEastRadioButton.setSelection(false);
                     degrees = Math.abs(degrees);
                     degreesStr = Float.toString(degrees);
                     lonDegreesText.setText(degreesStr);

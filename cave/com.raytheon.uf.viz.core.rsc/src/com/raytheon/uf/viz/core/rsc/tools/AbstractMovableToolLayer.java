@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.layer;
+package com.raytheon.uf.viz.core.rsc.tools;
 
 import java.util.Collection;
 import java.util.Random;
@@ -39,7 +39,6 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
 

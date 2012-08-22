@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.dialog;
+package com.raytheon.uf.viz.points.ui.dialog;
 
 import java.io.File;
 
@@ -25,7 +25,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.viz.awipstools.Activator;
+import com.raytheon.uf.viz.points.Activator;
 
 /**
  * List of useful static methods to support the point dialogs.

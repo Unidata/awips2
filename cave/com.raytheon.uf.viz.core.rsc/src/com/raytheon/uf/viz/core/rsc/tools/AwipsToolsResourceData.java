@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.display;
+package com.raytheon.uf.viz.core.rsc.tools;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
