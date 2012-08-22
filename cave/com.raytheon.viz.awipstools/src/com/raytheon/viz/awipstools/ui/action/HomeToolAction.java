@@ -34,7 +34,8 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
 import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
 import com.raytheon.viz.ui.input.EditableManager;
 

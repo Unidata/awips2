@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 import com.raytheon.viz.awipstools.ui.layer.VRShearLayer;
 
