@@ -202,10 +202,7 @@ public class PointsDataManager implements ILocalizationFileObserver,
      *         point exists by that name
      */
     public Coordinate getCoordinate(String name) {
-        if (points.isEmpty()) {
-            getPointsMap();
-        }
-        Point point = points.get(name);
+        Point point = getPointsMap().get(name);
         if (point == null) {
             return null;
         }
@@ -217,7 +214,7 @@ public class PointsDataManager implements ILocalizationFileObserver,
     }
 
     public void setCoordinate(String name, Coordinate coordinate) {
-        Point point = points.get(name);
+        Point point = getPointsMap().get(name);
         Assert.isNotNull(point, "Point not found for " + name);
         point.setCoordinate(coordinate);
         String path = getPointDirName(point);

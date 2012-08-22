@@ -20,7 +20,7 @@
 package com.raytheon.viz.awipstools.ui.layer;
 
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 
 /**
  * Strictly here so bundles don't break
