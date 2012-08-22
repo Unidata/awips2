@@ -49,9 +49,9 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.awipstools.Activator;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 
 /**
  * Tool to display the distance scale on the bottom left of the screen<br>

@@ -160,23 +160,25 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
     @Override
     public void alterBundle(Bundle bundleToAlter, String alterKey,
             String alterValue) {
-        if (POINTS_KEY.equals(alterKey)) {
-            if (ProcedureDlg.CURRENT.equals(alterValue)) {
-                for (AbstractRenderableDisplay display : bundleToAlter
-                        .getDisplays()) {
-                    replaceWithCurrentPoints(display.getDescriptor()
-                            .getResourceList());
+        if (alterValue != null) {
+            if (POINTS_KEY.equals(alterKey)) {
+                if (ProcedureDlg.CURRENT.equals(alterValue)) {
+                    for (AbstractRenderableDisplay display : bundleToAlter
+                            .getDisplays()) {
+                        replaceWithCurrentPoints(display.getDescriptor()
+                                .getResourceList());
+                    }
+                } else if (ProcedureDlg.ORIGINAL.equals(alterValue) == false) {
+                    String point = alterValue.replace(POINTS_PREFIX, "");
+                    alterPoints(bundleToAlter, point);
                 }
-            } else if (ProcedureDlg.ORIGINAL.equals(alterValue) == false) {
-                String point = alterValue.replace(POINTS_PREFIX, "");
-                alterPoints(bundleToAlter, point);
-            }
-        } else if (LINES_KEY.equals(alterKey)) {
-            if (ProcedureDlg.CURRENT.equals(alterValue)) {
-                replaceWithCurrentLines(bundleToAlter);
-            } else if (ProcedureDlg.ORIGINAL.equals(alterValue) == false) {
-                String line = alterValue.replace(LINES_PREFIX, "");
-                alterLines(bundleToAlter, line);
+            } else if (LINES_KEY.equals(alterKey)) {
+                if (ProcedureDlg.CURRENT.equals(alterValue)) {
+                    replaceWithCurrentLines(bundleToAlter);
+                } else if (ProcedureDlg.ORIGINAL.equals(alterValue) == false) {
+                    String line = alterValue.replace(LINES_PREFIX, "");
+                    alterLines(bundleToAlter, line);
+                }
             }
         }
     }
