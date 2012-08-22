@@ -17,12 +17,12 @@
  * Use or disclosure of data contained in this source code file is subject to
  * the export restrictions set forth in the Master Rights File.
  ******************************************************************************************/
-package com.raytheon.viz.awipstools.ui.action;
+package com.raytheon.uf.viz.points.ui.action;
 
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.viz.awipstools.ui.dialog.PointsMgrDialog;
-import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
+import com.raytheon.uf.viz.points.ui.dialog.PointsMgrDialog;
+import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
