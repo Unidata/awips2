@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.awipstools.ui.layer;
+package com.raytheon.uf.viz.points.ui.layer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,13 +44,14 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointNameChangeException;
-import com.raytheon.viz.awipstools.ui.dialog.PointEditDialog;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
+import com.raytheon.uf.viz.points.ui.dialog.PointEditDialog;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Coordinate;

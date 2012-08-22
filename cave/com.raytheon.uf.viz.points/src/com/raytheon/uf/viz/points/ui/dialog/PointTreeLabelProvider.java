@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.dialog;
+package com.raytheon.uf.viz.points.ui.dialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +38,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.viz.points.Activator;
 import com.raytheon.uf.viz.points.data.IPointNode;
-import com.raytheon.viz.awipstools.Activator;
 
 /**
  * Provides the label for a point node.

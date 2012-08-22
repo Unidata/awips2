@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.dialog;
+package com.raytheon.uf.viz.points.ui.dialog;
 
 import java.io.File;
 import java.util.Collection;
@@ -44,8 +44,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -76,7 +74,7 @@ import com.raytheon.uf.viz.points.data.GroupNode;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointTransfer;
-import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
+import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -192,14 +190,6 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         if (PointsMgrDialog.DIALOG_BOUNDS != null) {
             newShell.setBounds(PointsMgrDialog.DIALOG_BOUNDS);
         }
-
-        newShell.addShellListener(new ShellAdapter() {
-            @Override
-            public void shellDeactivated(ShellEvent e) {
-                PointsMgrDialog.DIALOG_BOUNDS = currShell.getBounds();
-            }
-        });
-
     }
 
     /**
@@ -408,7 +398,6 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         closeButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PointsMgrDialog.DIALOG_BOUNDS = currShell.getBounds();
                 close();
             }
         });
@@ -481,17 +470,6 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         } else {
             MessageDialog.openInformation(getShell(), "Message",
                     "Please select a point to edit.");
-        }
-    }
-
-    private void selectNode(IPointNode node) {
-        if (node != null) {
-            Tree tree = pointsTreeViewer.getTree();
-            TreeItem item = findItem(node, tree.getItems());
-            if (item != null) {
-                tree.showItem(item);
-                tree.select(item);
-            }
         }
     }
 
@@ -625,6 +603,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     @Override
     public boolean close() {
         dataManager.removePointsChangedListener(this);
+        DIALOG_BOUNDS = currShell.getBounds();
         return super.close();
     }
 
@@ -666,5 +645,36 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
                 setCursorBusy(false);
             }
         });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
+     */
+    @Override
+    protected org.eclipse.swt.graphics.Point getInitialSize() {
+        if (DIALOG_BOUNDS == null) {
+            return super.getInitialSize();
+        }
+        return new org.eclipse.swt.graphics.Point(DIALOG_BOUNDS.width,
+                DIALOG_BOUNDS.height);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.dialogs.Dialog#getInitialLocation(org.eclipse.swt.graphics
+     * .Point)
+     */
+    @Override
+    protected org.eclipse.swt.graphics.Point getInitialLocation(
+            org.eclipse.swt.graphics.Point initialSize) {
+        if (DIALOG_BOUNDS == null) {
+            return super.getInitialLocation(initialSize);
+        }
+        return new org.eclipse.swt.graphics.Point(DIALOG_BOUNDS.x,
+                DIALOG_BOUNDS.y);
     }
 }
