@@ -17,10 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.action;
+package com.raytheon.uf.viz.points.ui.action;
 
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
-import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 
 /**
  * Handles the Points Tool Action.
