@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.awipstools;bundle-version="1.12.1112",
  com.raytheon.viz.alerts;bundle-version="1.12.1174",
  com.raytheon.uf.common.site,
- com.raytheon.viz.core.contours;bundle-version="1.12.1174"
+ com.raytheon.viz.core.contours;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.warngen,
  com.raytheon.viz.warngen.gis,
