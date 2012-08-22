@@ -31,8 +31,8 @@
    <extension
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
-            actionClass="com.raytheon.viz.awipstools.ui.action.PointEditAction"
-            capabilityClass="com.raytheon.viz.awipstools.ui.layer.PointsToolLayer"
+            actionClass="com.raytheon.uf.viz.points.ui.action.PointEditAction"
+            capabilityClass="com.raytheon.uf.viz.points.ui.layer.PointsToolLayer"
             name="Edit Points"
             sortID="110"/>
    </extension>
@@ -157,7 +157,7 @@
             commandId="com.raytheon.viz.awipstools.distancebearing">
       </handler>
       <handler
-            class="com.raytheon.viz.awipstools.ui.action.PointsToolAction"
+            class="com.raytheon.uf.viz.points.ui.action.PointsToolAction"
             commandId="com.raytheon.viz.awipstools.points">
       </handler>
       <handler

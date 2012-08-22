@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.awipstools.ui.action;
+package com.raytheon.uf.viz.core.rsc.tools.action;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.tools.map.AbstractMapTool;

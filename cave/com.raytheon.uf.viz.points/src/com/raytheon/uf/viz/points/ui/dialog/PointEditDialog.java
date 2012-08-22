@@ -17,7 +17,7 @@
  * Use or disclosure of data contained in this source code file is subject to
  * the export restrictions set forth in the Master Rights File.
  ******************************************************************************************/
-package com.raytheon.viz.awipstools.ui.dialog;
+package com.raytheon.uf.viz.points.ui.dialog;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.Window;
@@ -50,7 +50,7 @@ import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointSize;
-import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
+import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 
