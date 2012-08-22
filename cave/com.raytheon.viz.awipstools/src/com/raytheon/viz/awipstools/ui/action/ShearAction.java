@@ -26,6 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
 import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
