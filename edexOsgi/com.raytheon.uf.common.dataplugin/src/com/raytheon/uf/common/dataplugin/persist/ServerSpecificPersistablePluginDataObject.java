@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.common.dataplugin.persist;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Provides an abstract implementation of plugindataobject with clustered file
@@ -37,7 +40,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2008            chammack     Initial creation
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 08/22/2012          798 jkorman      Corrected hdfFileId persistence. 
  * </pre>
  * 
  * @author chammack
@@ -52,6 +56,9 @@ public abstract class ServerSpecificPersistablePluginDataObject extends
 
     private static final long serialVersionUID = 1L;
 
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Column
     private Integer hdfFileId;
 
     /**
