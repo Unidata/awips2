@@ -158,6 +158,18 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
         return add(rp);
     }
 
+    /**
+     * Function for determining if the {@link ResourcePair} can be added to the
+     * list. Default checks if the pair is already in the list and returns false
+     * if so
+     * 
+     * @param e
+     * @return
+     */
+    protected boolean canAdd(ResourcePair e) {
+        return contains(e) == false;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -165,7 +177,7 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
      */
     @Override
     public boolean add(ResourcePair e) {
-        if (e == null || contains(e)) {
+        if (e == null || canAdd(e) == false) {
             return false;
         }
 
@@ -263,7 +275,7 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
         }
 
         synchronized (this) {
-            if (contains(e)) {
+            if (canAdd(e) == false) {
                 return false;
             }
 
@@ -276,9 +288,7 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
 
             super.add(i >= 0 ? (i + 1) : 0, e);
             synchronized (resourcesToInstantiate) {
-                if (resourcesToInstantiate.contains(e) == false) {
-                    resourcesToInstantiate.add(e);
-                }
+                resourcesToInstantiate.add(e);
             }
         }
 
@@ -300,7 +310,7 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
                 if (rp.getResource() == null) {
                     Validate.notNull(rp.getResourceData());
                 }
-                if (contains(rp) == false) {
+                if (canAdd(rp)) {
                     toAdd.add(rp);
                 }
             }
@@ -400,7 +410,13 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
 
         super.remove(index);
         synchronized (resourcesToInstantiate) {
-            resourcesToInstantiate.remove(rp);
+            // Ensure rp is removed from list entirely
+            Iterator<ResourcePair> iter = resourcesToInstantiate.iterator();
+            while (iter.hasNext()) {
+                if (iter.next() == rp) {
+                    iter.remove();
+                }
+            }
         }
 
         try {
