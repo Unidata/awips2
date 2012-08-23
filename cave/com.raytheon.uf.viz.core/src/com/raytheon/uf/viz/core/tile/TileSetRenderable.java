@@ -371,6 +371,7 @@ public class TileSetRenderable implements IRenderable {
                 }
                 jobMap.clear();
             } else {
+                target.setNeedsRefresh(true);
                 // Create tiles needing images
                 createTileImages(target, tilesNeedingImage);
             }
