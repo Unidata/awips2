@@ -64,19 +64,10 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
 
     private Channel renderingChannel;
 
+    /** The current rendering bit mask, specifies what bands we rendered */
+    private int currentMask = 0;
+
     private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
-
-    /**
-     * Alpha value to add to current alpha. When all 3 passes occur, alpha
-     * should be >= 1.0
-     */
-    private float alphaStep;
-
-    /**
-     * Flag if alpha check should be performed in shader. Alpha vals less than
-     * one will be set to 0
-     */
-    private boolean checkAlpha;
 
     /*
      * (non-Javadoc)
@@ -119,6 +110,8 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
         if (image instanceof GLTrueColorImage) {
             GLTrueColorImage trueColorImage = (GLTrueColorImage) image;
             if (trueColorImage.isRepaint()) {
+                // Reset current bit mask
+                currentMask = 0;
                 parameters.clear();
                 writeToImage = trueColorImage;
                 GLOffscreenRenderingExtension extension = target
@@ -127,18 +120,14 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                     extension.renderOffscreen(trueColorImage,
                             trueColorImage.getImageExtent());
                     boolean allPainted = true;
-                    int channels = trueColorImage.getNumberOfChannels();
-                    // Calculate our alpha step, ensure channels * alphaStep >=
-                    // 1.0
-                    alphaStep = 1.0f / (channels - 0.1f);
-                    int i = 1;
                     for (Channel channel : Channel.values()) {
                         renderingChannel = channel;
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
-                            // Perform alpha check on last pass
-                            checkAlpha = i == channels;
+                            // Mark the channel bit in the current bit mask
+                            currentMask |= (1 << channel.ordinal());
+
                             // Make sure images are staged before we mosaic them
                             ImagingSupport.prepareImages(target, imagesToDraw);
 
@@ -153,22 +142,23 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                             // Need to set repaint based on if drawing
                             // completed.
                             trueColorImage.setRepaint(allPainted == false);
-                            ++i;
                         }
                     }
-                } finally {
+                } catch (VizException e) {
                     extension.renderOnscreen();
+                    throw e;
                 }
                 renderingChannel = null;
                 writeToImage = null;
+                trueColorImage.setImageParameters(parameters.keySet());
+                trueColorImage.bind(target.getGl());
+                return imageCoverage;
+            } else {
+                target.drawRasters(paintProps,
+                        new DrawableImage(trueColorImage.getWrappedImage(),
+                                imageCoverage));
+                return null;
             }
-
-            trueColorImage.setImageParameters(parameters.keySet());
-            target.drawRasters(paintProps,
-                    new DrawableImage(trueColorImage.getWrappedImage(),
-                            imageCoverage));
-            // Don't actually render this image now since we just did it
-            return null;
         } else {
             GL gl = target.getGl();
             // bind on GL_TEXTURE1 as 0 is channel image
@@ -188,10 +178,18 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     @Override
     public void postImageRender(PaintProperties paintProps,
             AbstractGLImage image, Object data) throws VizException {
-        GL gl = target.getGl();
-        // Unbind the writeToImage from GL_TEXTURE1
-        gl.glActiveTexture(GL.GL_TEXTURE1);
-        gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
+        if (image instanceof GLTrueColorImage) {
+            target.getExtension(GLOffscreenRenderingExtension.class)
+                    .renderOnscreen();
+            target.drawRasters(paintProps, new DrawableImage(
+                    ((GLTrueColorImage) image).getWrappedImage(),
+                    (PixelCoverage) data));
+        } else if (writeToImage != null) {
+            GL gl = target.getGl();
+            // Unbind the writeToImage from GL_TEXTURE1
+            gl.glActiveTexture(GL.GL_TEXTURE1);
+            gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
+        }
     }
 
     /*
@@ -206,36 +204,41 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     @Override
     public void loadShaderData(GLShaderProgram program, IImage image,
             PaintProperties paintProps) throws VizException {
-        if (image instanceof GLColormappedImage == false) {
-            throw new VizException(
-                    "Can only render colormapped images in true color");
+        if (image instanceof GLTrueColorImage) {
+            program.setUniform("band", -1);
+            program.setUniform("rawTex", 0);
+            program.setUniform("expectedMask", currentMask);
+        } else {
+            if (image instanceof GLColormappedImage == false) {
+                throw new VizException(
+                        "Can only render colormapped images in true color");
+            }
+
+            GLColormappedImage cmapImage = (GLColormappedImage) image;
+            ColorMapParameters colorMapParameters = cmapImage
+                    .getColorMapParameters();
+            parameters.put(colorMapParameters, null);
+            int textureType = cmapImage.getTextureType();
+
+            // Set the band image data
+            program.setUniform("rawTex", 0);
+            program.setUniform("naturalMin", colorMapParameters.getDataMin());
+            program.setUniform("naturalMax", colorMapParameters.getDataMax());
+            program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
+            program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
+            program.setUniform("isFloat", textureType == GL.GL_FLOAT
+                    || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
+            program.setUniform("noDataValue",
+                    colorMapParameters.getNoDataValue());
+
+            // Set the composite image data
+            program.setUniform("trueColorTexture", 1);
+            program.setUniform("width", writeToImage.getWidth());
+            program.setUniform("height", writeToImage.getHeight());
+
+            // Set the band we are rendering to
+            program.setUniform("band", renderingChannel.ordinal());
         }
-
-        GLColormappedImage cmapImage = (GLColormappedImage) image;
-        ColorMapParameters colorMapParameters = cmapImage
-                .getColorMapParameters();
-        parameters.put(colorMapParameters, null);
-        int textureType = cmapImage.getTextureType();
-
-        // Set the band image data
-        program.setUniform("rawTex", 0);
-        program.setUniform("naturalMin", colorMapParameters.getDataMin());
-        program.setUniform("naturalMax", colorMapParameters.getDataMax());
-        program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
-        program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
-        program.setUniform("isFloat", textureType == GL.GL_FLOAT
-                || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
-        program.setUniform("noDataValue", colorMapParameters.getNoDataValue());
-
-        // Set the composite image data
-        program.setUniform("trueColorTexture", 1);
-        program.setUniform("width", writeToImage.getWidth());
-        program.setUniform("height", writeToImage.getHeight());
-
-        // Set the band we are rendering to
-        program.setUniform("band", renderingChannel.ordinal());
-        program.setUniform("checkAlpha", checkAlpha);
-        program.setUniform("alphaStep", alphaStep);
     }
 
     /*
