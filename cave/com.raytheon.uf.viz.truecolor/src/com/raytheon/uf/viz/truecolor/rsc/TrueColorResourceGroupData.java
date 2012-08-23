@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.truecolor.rsc;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +41,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
 
 /**
  * {@link TrueColorResourceGroup} resource data. Contains a red/blue/green
- * channel resource and a name. Sub resources that .equal each other will be
- * replaced with the first reference to save time
+ * channel resource and a name.
  * 
  * <pre>
  * 
@@ -79,26 +78,34 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
     @Override
     public ResourceList getResourceList() {
         if (resourceList == null) {
-            resourceList = new ResourceList();
-            // Removes duplicate resources
-            List<ChannelResource> added = new ArrayList<ChannelResource>(
-                    channelResources.size());
-            for (ChannelResource resource : channelResources) {
-                if (addResource(resource.getResourceData())) {
-                    added.add(resource);
+            resourceList = new ResourceList() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected boolean canAdd(ResourcePair e) {
+                    // Don't allow a ResourcePair that == another in the list
+                    Iterator<ResourcePair> iter = iterator();
+                    while (iter.hasNext()) {
+                        if (iter.next() == e) {
+                            return false;
+                        }
+                    }
+                    return true;
                 }
-                channelResources = added;
+            };
+            for (ChannelResource resource : channelResources) {
+                addResource(resource.getResourceData());
             }
         }
         return resourceList;
     }
 
-    private boolean addResource(AbstractResourceData resourceData) {
+    private void addResource(AbstractResourceData resourceData) {
         ResourcePair rp = new ResourcePair();
         rp.setResourceData(resourceData);
         rp.setLoadProperties(new LoadProperties());
         rp.setProperties(new ResourceProperties());
-        return resourceList.add(rp);
+        resourceList.add(rp);
     }
 
     /*
