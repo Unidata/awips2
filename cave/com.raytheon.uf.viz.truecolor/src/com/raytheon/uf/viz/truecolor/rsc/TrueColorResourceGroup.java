@@ -19,18 +19,16 @@
  **/
 package com.raytheon.uf.viz.truecolor.rsc;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -127,13 +125,18 @@ public class TrueColorResourceGroup extends
 
     private static final String DEFAULT_NAME = "RGB Composite";
 
-    private List<DisplayedChannelResource> displayedResources;
+    private Map<Channel, DisplayedChannelResource> displayedResources;
 
     private ITrueColorImage image;
 
     private boolean timeAgnostic = true;
 
-    /** Mapping to keep colormap parameters in sync with ChannelInfo in resourceData */
+    private String baseName;
+
+    /**
+     * Mapping to keep colormap parameters in sync with ChannelInfo in
+     * resourceData
+     */
     private Map<ColorMapParameters, ChannelInfo> channelInfoMap = new IdentityHashMap<ColorMapParameters, ChannelInfo>();
 
     /**
@@ -187,16 +190,22 @@ public class TrueColorResourceGroup extends
 
         FramesInfo fi = paintProps.getFramesInfo();
         for (Channel c : Channel.values()) {
-            List<DrawableImage> images = new ArrayList<DrawableImage>();
-            for (DisplayedChannelResource dcr : displayedResources) {
-                if (dcr.isChannel(c)) {
+            DrawableImage[] images = null;
+            DisplayedChannelResource dcr = displayedResources.get(c);
+            if (dcr != null) {
+                DataTime dcrTime = fi.getTimeForResource(dcr.resource);
+                if (dcrTime != null) {
                     paintProps.setDataTime(fi.getTimeForResource(dcr.resource));
-                    images.addAll(dcr.resource
+                    Collection<DrawableImage> dcrImages = dcr.resource
                             .getCapability(ImagingCapability.class)
-                            .getProvider().getImages(target, paintProps));
+                            .getProvider().getImages(target, paintProps);
+                    if (dcrImages != null) {
+                        images = dcrImages.toArray(new DrawableImage[dcrImages
+                                .size()]);
+                    }
                 }
             }
-            image.setImages(c, images.toArray(new DrawableImage[images.size()]));
+            image.setImages(c, images);
         }
 
         Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
@@ -229,10 +238,8 @@ public class TrueColorResourceGroup extends
         // We will name the composite
         getCapability(GroupNamingCapability.class);
 
-        displayedResources = new ArrayList<DisplayedChannelResource>();
+        displayedResources = new HashMap<Channel, DisplayedChannelResource>();
         ResourceList resources = getResourceList();
-        // Make sure multiple resources are not assinged to same channel
-        Set<Channel> usedChannels = new HashSet<Channel>();
         for (ChannelResource cr : resourceData.getChannelResources()) {
             for (ResourcePair rp : resources) {
                 if (cr.getResourceData() == rp.getResourceData()) {
@@ -263,7 +270,7 @@ public class TrueColorResourceGroup extends
                     }
                     if (cr.getChannel() == null) {
                         error = "is not tied to any channel";
-                    } else if (usedChannels.contains(cr.getChannel())) {
+                    } else if (displayedResources.containsKey(cr.getChannel())) {
                         error = "is tied to a channel already in use";
                     }
 
@@ -308,12 +315,17 @@ public class TrueColorResourceGroup extends
                         resources.remove(rp);
                     } else {
                         resource.getResourceData().addChangeListener(this);
-                        usedChannels.add(displayedResource.getChannel());
-                        displayedResources.add(displayedResource);
+                        displayedResources.put(displayedResource.getChannel(),
+                                displayedResource);
                     }
                     break;
                 }
             }
+        }
+
+        if (displayedResources.size() == 0) {
+            throw new VizException(
+                    "No resources to draw in true color composite");
         }
 
         ITrueColorImagingExtension ext = target
@@ -326,9 +338,22 @@ public class TrueColorResourceGroup extends
 
         // Every resource has to be time agnostic for us to be as well
         timeAgnostic = true;
-        for (DisplayedChannelResource dr : displayedResources) {
+        for (DisplayedChannelResource dr : displayedResources.values()) {
             timeAgnostic &= dr.resource.isTimeAgnostic();
         }
+
+        String groupName = resourceData.getGroupName();
+        if (groupName == null) {
+            groupName = "True Color Composite";
+        }
+        String channels = " (";
+        for (Channel c : Channel.values()) {
+            if (displayedResources.containsKey(c)) {
+                channels += c.name().substring(0, 1);
+            }
+        }
+        channels += "): ";
+        baseName = groupName + channels;
     }
 
     /*
@@ -338,37 +363,28 @@ public class TrueColorResourceGroup extends
      */
     @Override
     public String getName() {
-        String name = resourceData.getGroupName();
-        if (name != null) {
-            name += " ";
-        }
+        String name = baseName;
+        boolean first = true;
+        for (Channel c : Channel.values()) {
+            DisplayedChannelResource dcr = displayedResources.get(c);
+            if (dcr != null) {
+                if (!first) {
+                    name += "/";
+                }
+                first = false;
 
-        if (image != null) {
-            String productNames = "";
-            boolean first = true;
-            for (Channel c : Channel.values()) {
-                DrawableImage[] images = image.getImages(c);
-                if (images != null && images.length > 0) {
-                    name += c.name().substring(0, 1);
-                    if (!first) {
-                        productNames += "/";
-                    }
-                    for (DisplayedChannelResource rsc : displayedResources) {
-                        if (rsc.isChannel(c)) {
-                            productNames += rsc.getDisplayName();
-                            break;
-                        }
-                    }
-                    first = false;
+                boolean has = true;
+                if (image != null && image.getImages(c) == null) {
+                    has = false;
+                }
+                if (has) {
+                    name += dcr.getDisplayName();
+                } else {
+                    String channelName = c.name();
+                    name += "No " + channelName.substring(0, 1)
+                            + channelName.substring(1).toLowerCase();
                 }
             }
-            if (first == true) {
-                name += DEFAULT_NAME;
-            } else {
-                name += ": " + productNames;
-            }
-        } else {
-            name += DEFAULT_NAME;
         }
         return name;
     }
@@ -420,6 +436,6 @@ public class TrueColorResourceGroup extends
     }
 
     public Collection<DisplayedChannelResource> getChannelResources() {
-        return displayedResources;
+        return displayedResources.values();
     }
 }
