@@ -232,22 +232,6 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
         }
     }
 
-    /**
-     * Returns the number of channels the image is currently using
-     * 
-     * @return
-     */
-    public int getNumberOfChannels() {
-        int channels = 0;
-        for (Channel c : Channel.values()) {
-            DrawableImage[] images = getImages(c);
-            if (images != null && images.length > 0) {
-                ++channels;
-            }
-        }
-        return channels;
-    }
-
     /*
      * (non-Javadoc)
      * 

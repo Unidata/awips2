@@ -90,7 +90,6 @@ public abstract class AbstractGLImagingExtension extends
         try {
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
             rval = drawRastersInternal(paintProps, images);
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
             disableBlending(gl);
         } finally {
             target.popGLState();
