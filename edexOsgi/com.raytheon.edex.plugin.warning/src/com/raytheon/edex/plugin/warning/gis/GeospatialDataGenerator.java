@@ -31,7 +31,7 @@ import javax.xml.bind.JAXBException;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
-import com.raytheon.uf.common.dataplugin.warning.config.AreaConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
@@ -225,7 +225,8 @@ public class GeospatialDataGenerator {
                 }
 
                 if (dataSet == null) {
-                	// If the file does not exist, then geoms need to be deleted.
+                    // If the file does not exist, then geoms need to be
+                    // deleted.
                     deleteGeomFiles(site, lastRunTime);
                 } else {
                     generate = false;
@@ -298,7 +299,7 @@ public class GeospatialDataGenerator {
     public static GeospatialMetadata getMetaData(WarngenConfiguration template) {
         GeospatialMetadata rval = new GeospatialMetadata();
         GeospatialConfiguration geoConfig = template.getGeospatialConfig();
-        AreaConfiguration areaConfig = template.getAreaConfig();
+        AreaSourceConfiguration areaConfig = template.getHatchedAreaSource();
         rval.setAreaSource(geoConfig.getAreaSource());
         List<String> areaFields = new ArrayList<String>();
         areaFields.add(WarningConstants.GID);
@@ -449,7 +450,7 @@ public class GeospatialDataGenerator {
      */
     private static GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
             Geometry hull, GeospatialData[] geoData) throws SpatialException {
-        GeospatialData[] rval = null;    
+        GeospatialData[] rval = null;
         String timezonePathcastTable = metaData.getTimeZoneSource();
         String timezonePathcastField = metaData.getTimeZoneField();
 
@@ -459,7 +460,7 @@ public class GeospatialDataGenerator {
                     .query(timezonePathcastTable,
                             new String[] { timezonePathcastField }, hull, null,
                             false, SearchMode.INTERSECTS);
-            
+                    
             rval = new GeospatialData[timeZoneResults.length];
             for (int i = 0; i < timeZoneResults.length; i++) {
                 SpatialQueryResult result = timeZoneResults[i];

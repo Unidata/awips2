@@ -1,60 +1,47 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
 package com.raytheon.viz.warngen.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.referencing.GeodeticCalculator;
+
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
+import com.raytheon.viz.warngen.gis.GisUtil;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * PointSource data adaptor for data retrieved from a Database.
  * 
- * <pre>
+ * @author jsanchez
  * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 26, 2011            bgonzale     Initial creation
- * 
- * </pre>
- * 
- * @author bgonzale
- * @version 1.0
  */
+public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
-public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
+    private static final String useDirectionField = "usedirs";
 
+    private static final String suppressedDirectionsField = "supdirs";
+
+    private static final String cwaField = "cwa";
+
+    private GeodeticCalculator gc = new GeodeticCalculator();
+
+    /**
+     * 
+     */
     @Override
     protected Set<String> createSpatialQueryField() {
         Set<String> ptFields = new HashSet<String>();
         ptFields.add(pointConfig.getPointField());
+        ptFields.add(useDirectionField);
+        ptFields.add(suppressedDirectionsField);
 
         List<String> fields = new ArrayList<String>();
         if (pointConfig.getSortBy() != null) {
@@ -70,6 +57,9 @@ public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         return ptFields;
     }
 
+    /**
+     * 
+     */
     @Override
     protected ClosestPoint createClosestPoint(Set<String> ptFields,
             SpatialQueryResult ptRslt) {
@@ -80,8 +70,36 @@ public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         Coordinate point = ptRslt.geometry.getCoordinate();
         int population = getPopulation(ptFields, attributes);
         int warngenlev = getWangenlev(ptFields, attributes);
+        List<String> partOfArea = getPartOfArea(ptFields, attributes,
+                ptRslt.geometry);
 
-        return new ClosestPoint(name, point, population, warngenlev, null);
+        return new ClosestPoint(name, point, population, warngenlev, partOfArea);
+    }
+
+    /**
+     * 
+     * @param ptFields
+     * @param attributes
+     * @param geom
+     * @return
+     */
+    private List<String> getPartOfArea(Set<String> ptFields,
+            Map<String, Object> attributes, Geometry geom) {
+        List<String> partOfArea = null;
+
+        boolean userDirections = Boolean.valueOf(String.valueOf(attributes
+                .get(useDirectionField)));
+        if (userDirections) {
+            Geometry intersection = searchArea.intersection(geom);
+            partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(geom,
+                    intersection, gc, ""));
+
+            String suppressedDirections = String.valueOf(attributes
+                    .get(suppressedDirectionsField));
+            partOfArea.remove(suppressedDirections);
+        }
+
+        return partOfArea;
     }
 
     @Override
@@ -94,6 +112,12 @@ public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
                         rc.getConstraintValue(), localizedSite));
             }
         }
+
+        if (filter == null) {
+            filter = new HashMap<String, RequestConstraint>();
+        }
+
+        filter.put(cwaField, new RequestConstraint(localizedSite));
 
         return filter;
     }
