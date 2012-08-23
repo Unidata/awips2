@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009 3072       bsteffen     Initial creation
+ * Aug 23, 2012  1096     njensen      Fixed memory leaks
  * 
  * </pre>
  * 
@@ -161,8 +163,10 @@ public class CcfpResource extends
     }
 
     private void disposeFrames() {
-        for (DisplayFrame frame : frames.values()) {
-            frame.dispose();
+        synchronized (frames) {
+            for (DisplayFrame frame : frames.values()) {
+                frame.dispose();
+            }
         }
     }
 
@@ -180,11 +184,15 @@ public class CcfpResource extends
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        if (frames.get(this.displayedDataTime) == null) {
+        DisplayFrame frame = null;
+        synchronized (frames) {
+            frame = frames.get(this.displayedDataTime);
+        }
+        if (frame == null) {
             return "";
         }
         StringBuilder res = new StringBuilder();
-        for (CcfpRecord record : frames.get(this.displayedDataTime).records) {
+        for (CcfpRecord record : frame.records) {
             // Check if we have an area we are rendering
             if (isPaintingArea(record)) {
                 try {
@@ -216,15 +224,20 @@ public class CcfpResource extends
      */
     private void updateRecords(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        DisplayFrame frame = frames.get(this.displayedDataTime);
-        if (frame == null) {
-            frame = new DisplayFrame();
-            frames.put(this.displayedDataTime, frame);
+        DisplayFrame frame = null;
+        synchronized (frames) {
+            frame = frames.get(this.displayedDataTime);
+            if (frame == null) {
+                frame = new DisplayFrame();
+                frames.put(this.displayedDataTime, frame);
+            }
         }
 
         // Add all the new Records
-        Collection<CcfpRecord> newRecords = unprocessedRecords
-                .get(this.displayedDataTime);
+        Collection<CcfpRecord> newRecords = null;
+        synchronized (unprocessedRecords) {
+            newRecords = unprocessedRecords.get(this.displayedDataTime);
+        }
         for (CcfpRecord record : newRecords) {
             // If we need to draw anything for this record then keep it
             if (isPaintingArea(record) || isPaintingMovement(record)
@@ -259,14 +272,19 @@ public class CcfpResource extends
         this.displayedDataTime = paintProps.getDataTime();
 
         // First check to see if we need to process new data
-        Collection<CcfpRecord> unprocessed = unprocessedRecords
-                .get(this.displayedDataTime);
+        Collection<CcfpRecord> unprocessed = null;
+        synchronized (unprocessedRecords) {
+            unprocessed = unprocessedRecords.get(this.displayedDataTime);
+        }
         if (unprocessed != null && unprocessed.size() > 0) {
             updateRecords(target, paintProps);
         }
 
         // Hopefully we now have some data to display, if not bail
-        DisplayFrame frame = frames.get(this.displayedDataTime);
+        DisplayFrame frame = null;
+        synchronized (frames) {
+            frame = frames.get(this.displayedDataTime);
+        }
         if (frame == null) {
             this.displayedDataTime = null;
             return;
@@ -509,14 +527,24 @@ public class CcfpResource extends
      */
     protected void addRecord(CcfpRecord obj) {
         DataTime dataTime = obj.getDataTime();
-        Collection<CcfpRecord> records = unprocessedRecords.get(dataTime);
-        if (records == null) {
-            records = new ArrayList<CcfpRecord>();
-            unprocessedRecords.put(dataTime, records);
-            this.dataTimes.add(dataTime);
-            Collections.sort(this.dataTimes);
+        if (resourceData.durationMatches(dataTime)) {
+            Collection<CcfpRecord> records = null;
+            boolean brandNew = false;
+            synchronized (unprocessedRecords) {
+                records = unprocessedRecords.get(dataTime);
+                if (records == null) {
+                    records = new HashSet<CcfpRecord>();
+                    unprocessedRecords.put(dataTime, records);
+                    brandNew = true;
+                }
+            }
+            if (brandNew) {
+                this.dataTimes.add(dataTime);
+                Collections.sort(this.dataTimes);
+            }
+
+            records.add(obj);
         }
-        records.add(obj);
     }
 
     @Override
@@ -677,15 +705,39 @@ public class CcfpResource extends
 
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        disposeFrames();
-        // add as unprocessed to make sure frames created
-        for (DataTime time : frames.keySet()) {
-            DisplayFrame frame = frames.get(time);
-            if (frame != null) {
-                List<CcfpRecord> copyList = new ArrayList<CcfpRecord>(
-                        frame.records);
-                unprocessedRecords.put(time, copyList);
+        synchronized (frames) {
+            disposeFrames();
+            // add as unprocessed to make sure frames created
+            for (DataTime time : frames.keySet()) {
+                DisplayFrame frame = frames.get(time);
+                if (frame != null) {
+                    List<CcfpRecord> copyList = new ArrayList<CcfpRecord>(
+                            frame.records);
+                    synchronized (unprocessedRecords) {
+                        unprocessedRecords.put(time, copyList);
+                    }
+                }
             }
+        }
+    }
+
+    @Override
+    public void remove(DataTime time) {
+        super.remove(time);
+        Collection<CcfpRecord> notNeeded = null;
+        synchronized (unprocessedRecords) {
+            notNeeded = unprocessedRecords.remove(time);
+        }
+        if (notNeeded != null) {
+            notNeeded.clear();
+        }
+
+        DisplayFrame frame = null;
+        synchronized (frames) {
+            frame = frames.remove(time);
+        }
+        if (frame != null) {
+            frame.dispose();
         }
     }
 
