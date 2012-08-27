@@ -468,7 +468,11 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         if (dateInfo != null) {
             lastSave.setText(sdf.format(dateInfo.getLastSaveTime()));
             lastExec.setText(sdf.format(dateInfo.getLastExecTime()));
-            manuallySaved.setText(dateInfo.isAutoSave() ? "NO" : "YES");
+            if (dateInfo.isAutoSave()){
+            	manuallySaved.setText("NO");
+            } else{
+            	manuallySaved.setText("YES");
+            }           
         } else {
             lastSave.setText("NA");
             lastExec.setText("NA");
