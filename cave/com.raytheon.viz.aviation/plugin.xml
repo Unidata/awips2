@@ -87,5 +87,12 @@
                 value="aviation/config"
                 recursive="true">
         </path>
+        <path
+                application="AvnFPS"
+                localizationType="CAVE_STATIC"
+                name="Avnwatch"
+                value="aviation/avnwatch"
+                recursive="true">
+        </path>          
        </extension> 
 </plugin>

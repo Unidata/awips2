@@ -24,6 +24,8 @@ import java.io.File;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -53,6 +55,8 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  */
 public class OpenAWIPSProcedure extends AbstractHandler {
 
+	private OpenProcedureListDlg dialog;
+	
     /*
      * (non-Javadoc)
      * 
@@ -62,16 +66,21 @@ public class OpenAWIPSProcedure extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        ProcedureListDlg listDlg = new OpenProcedureListDlg(
+    	if(dialog != null){
+    		dialog.open();
+    		return null;
+    	}
+    	
+    	dialog = new OpenProcedureListDlg(
                 HandlerUtil.getActiveShell(event));
-        listDlg.open();
-
-        LocalizationFile selectedFile = listDlg.getSelectedFile();
-
+        dialog.open();
+        
+        LocalizationFile selectedFile = dialog.getSelectedFile();
+        dialog = null;
         if (selectedFile != null) {
             File f = selectedFile.getFile();
             Procedure p = (Procedure) LoadSerializedXml.deserialize(f);
-            ProcedureDlg dlg = new ProcedureDlg(
+            ProcedureDlg dlg = ProcedureDlg.getOrCreateDialog(
                     LocalizationUtil.extractName(selectedFile.getName()), p,
                     VizWorkbenchManager.getInstance().getCurrentWindow()
                             .getShell());

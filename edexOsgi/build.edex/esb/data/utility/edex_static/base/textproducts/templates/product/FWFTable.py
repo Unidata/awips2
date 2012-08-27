@@ -539,8 +539,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"                
         
         # Set up product-specific variables
         self._colWidth = 13
