@@ -22,6 +22,15 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
  * FFTIRatioDiff
  * 
@@ -38,18 +47,23 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class FFTIRatioDiff {
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public class FFTIRatioDiff extends FFTIData {
 
+    @DynamicSerializeElement
+    @XmlElements({ @XmlElement(name = "qpe", type = Float.class) })
     private ArrayList<Float> qpes;
 
+    @DynamicSerializeElement
+    @XmlElements({ @XmlElement(name = "guid", type = Float.class) })
     private ArrayList<Float> guids;
 
-    private Double gap = 0.0;
-
     public FFTIRatioDiff() {
-        
+
     }
-    
+
     public FFTIRatioDiff(ArrayList<Float> qpes, ArrayList<Float> guids,
             Double gap) {
         setQpes(qpes);
@@ -71,14 +85,6 @@ public class FFTIRatioDiff {
 
     public void setGuids(ArrayList<Float> guids) {
         this.guids = guids;
-    }
-
-    public Double getGap() {
-        return gap;
-    }
-
-    public void setGap(Double gap) {
-        this.gap = gap;
     }
 
 }

@@ -45,6 +45,22 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData.COLUMN_NA
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
 
+/**
+ * FFMP GUI Config Object.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 01, 2012 14168      mpduff       Add convenience methods for 
+ *                                      getting ColorCell and ReverseFilter
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class FFMPConfig {
     private static FFMPConfig classInstance = new FFMPConfig();
 
@@ -97,9 +113,9 @@ public class FFMPConfig {
     private HashMap<ThreshColNames, ThresholdManager> threshMgrMap;
 
     private HashMap<String, ThreshColNames> thresholdLookup;
-    
+
     private AttributesDlgData attrData = null;
-    
+
     private boolean reReadAttrData = false;
 
     private FFMPConfig() {
@@ -357,7 +373,7 @@ public class FFMPConfig {
 
         return null;
     }
-    
+
     public void createAttributesDlgData(String siteKey) {
         ArrayList<FFMPTableColumnXML> columnData = ffmpCfgBasin
                 .getTableColumnData();
@@ -371,7 +387,7 @@ public class FFMPConfig {
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
             String displayName = null;
-            
+
             for (FFMPTableColumnXML tcXML : columnData) {
                 if (column.contains("_")) {
                     String[] parts = column.split("_");
@@ -380,10 +396,14 @@ public class FFMPConfig {
                 }
                 if (column.equalsIgnoreCase(tcXML.getColumnName())) {
                     boolean includedInTable = false;
-                    if (column.equalsIgnoreCase(COLUMN_NAME.GUID.getColumnName()) || 
-                            column.equalsIgnoreCase(COLUMN_NAME.RATIO.getColumnName()) ||
-                            column.equalsIgnoreCase(COLUMN_NAME.DIFF.getColumnName())) {
-                        if (ffmpCfgBasin.getIncludedGuids().contains(displayName)) {
+                    if (column.equalsIgnoreCase(COLUMN_NAME.GUID
+                            .getColumnName())
+                            || column.equalsIgnoreCase(COLUMN_NAME.RATIO
+                                    .getColumnName())
+                            || column.equalsIgnoreCase(COLUMN_NAME.DIFF
+                                    .getColumnName())) {
+                        if (ffmpCfgBasin.getIncludedGuids().contains(
+                                displayName)) {
                             includedInTable = true;
                             attrData.setGuidColumnIncluded(displayName,
                                     includedInTable);
@@ -397,8 +417,9 @@ public class FFMPConfig {
             }
         }
     }
-    
-    public AttributesDlgData getVisibleColumns(String siteKey, boolean reReadAttrData) {
+
+    public AttributesDlgData getVisibleColumns(String siteKey,
+            boolean reReadAttrData) {
         this.reReadAttrData = reReadAttrData;
         return getVisibleColumns(siteKey);
     }
@@ -413,33 +434,46 @@ public class FFMPConfig {
 
     public void setVisibleColumns(AttributesDlgData attrData) {
         this.attrData = attrData;
-        
+
         ArrayList<FFMPTableColumnXML> columnData = ffmpCfgBasin
                 .getTableColumnData();
 
-       
         for (FFMPTableColumnXML tcXML : columnData) {
-            if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.RATE.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.RATE.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.NAME.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.NAME.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.QPE.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.QPE.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.QPF.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.QPF.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.GUID.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.GUID.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.RATIO.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.RATIO.getColumnName()));
-            } else if (tcXML.getColumnName().equalsIgnoreCase(COLUMN_NAME.DIFF.getColumnName())) {
-                tcXML.setDisplayedInTable(attrData.isColumnVisible(COLUMN_NAME.DIFF.getColumnName()));
+            if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.RATE.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.RATE.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.NAME.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.NAME.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.QPE.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.QPE.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.QPF.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.QPF.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.GUID.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.GUID.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.RATIO.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.RATIO.getColumnName()));
+            } else if (tcXML.getColumnName().equalsIgnoreCase(
+                    COLUMN_NAME.DIFF.getColumnName())) {
+                tcXML.setDisplayedInTable(attrData
+                        .isColumnVisible(COLUMN_NAME.DIFF.getColumnName()));
             }
         }
-        
+
         HashMap<String, Boolean> guidanceMap = attrData.getGuidanceList();
         String list = "";
         boolean first = true;
-        for (String key: guidanceMap.keySet()) {
+        for (String key : guidanceMap.keySet()) {
             if (first == false) {
                 list.concat(",");
             }
@@ -496,7 +530,8 @@ public class FFMPConfig {
      * starts. If the column is not visible then default the sort column to be
      * the name column.
      * 
-     * @param siteKey The siteKey being used
+     * @param siteKey
+     *            The siteKey being used
      * @return Column index.
      */
     public int getStartSortIndex(String siteKey) {
@@ -506,7 +541,7 @@ public class FFMPConfig {
         FfmpTableConfig tableCfg = FfmpTableConfig.getInstance();
         FFMPSourceConfigurationManager sourceConfigManager = FFMPSourceConfigurationManager
                 .getInstance();
-        
+
         FFMPRunXML runner = configManager.getRunner(monitor.getWfo());
         ProductRunXML prodRunXml = runner.getProduct(siteKey);
         String name = prodRunXml.getProductName();
@@ -514,7 +549,7 @@ public class FFMPConfig {
         ProductXML productXml = sourceConfigManager.getProduct(name);
 
         ArrayList<String> guidTypes = productXml.getAvailableGuidanceTypes();
-        
+
         String guidRankSource = null;
         if (guidTypes.size() > 1) {
             String colSorted = ffmpCfgBasin.getColumnSorted();
@@ -523,7 +558,7 @@ public class FFMPConfig {
                 guidRankSource = parts[1];
             }
         }
-        
+
         FfmpTableConfigData tableCfgData = tableCfg.getTableConfigData(siteKey);
         String[] tableColumns = tableCfgData.getTableColumnKeys();
         String sortedColName = ffmpCfgBasin.getColumnSorted();
@@ -539,7 +574,7 @@ public class FFMPConfig {
                 column = parts[1];
                 guidType = parts[0];
             }
-            
+
             if (column.equalsIgnoreCase(sortedColName)) {
                 if ((guidType != null) && (guidRankSource != null)) {
                     if (guidType.equalsIgnoreCase(guidRankSource)) {
@@ -554,7 +589,7 @@ public class FFMPConfig {
                 }
             }
         }
-        
+
         return 0;
     }
 
@@ -562,10 +597,16 @@ public class FFMPConfig {
         if (columnName.contains("_")) {
             return true;
         }
-        
+
         return false;
     }
-    
+
+    /**
+     * Get the filter value for this column.
+     * 
+     * @param threshColName
+     * @return The filter value
+     */
     public double getFilterValue(ThreshColNames threshColName) {
         ArrayList<FFMPTableColumnXML> columnData = ffmpCfgBasin
                 .getTableColumnData();
@@ -576,6 +617,36 @@ public class FFMPConfig {
     }
 
     /**
+     * Get the ColorCell value for this column.
+     * 
+     * @param threshColName
+     * @return The ColorCell value
+     */
+    public boolean isColorCell(ThreshColNames threshColName) {
+        ArrayList<FFMPTableColumnXML> columnData = ffmpCfgBasin
+                .getTableColumnData();
+
+        FFMPTableColumnXML data = columnData.get(threshColName.getColIndex());
+
+        return data.getColorCell();
+    }
+
+    /**
+     * Get the reverse filter value for this column.
+     * 
+     * @param threshColName
+     * @return The Reverse Filter value
+     */
+    public boolean isReverseFilter(ThreshColNames threshColName) {
+        ArrayList<FFMPTableColumnXML> columnData = ffmpCfgBasin
+                .getTableColumnData();
+
+        FFMPTableColumnXML data = columnData.get(threshColName.getColIndex());
+
+        return data.getReverseFilter();
+    }
+
+    /**
      * @return the attrData
      */
     public AttributesDlgData getAttrData() {
@@ -583,7 +654,8 @@ public class FFMPConfig {
     }
 
     /**
-     * @param attrData the attrData to set
+     * @param attrData
+     *            the attrData to set
      */
     public void setAttrData(AttributesDlgData attrData) {
         this.attrData = attrData;
@@ -597,12 +669,13 @@ public class FFMPConfig {
     }
 
     /**
-     * @param reReadAttrData the reReadAttrData to set
+     * @param reReadAttrData
+     *            the reReadAttrData to set
      */
     public void setReReadAttrData(boolean reReadAttrData) {
         this.reReadAttrData = reReadAttrData;
     }
-    
+
     public String getIncludedGuids() {
         return ffmpCfgBasin.getIncludedGuids();
     }
