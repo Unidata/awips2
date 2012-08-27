@@ -1,5 +1,4 @@
 pupynere.py
-setup.cfg
 setup.py
 pupynere.egg-info/PKG-INFO
 pupynere.egg-info/SOURCES.txt

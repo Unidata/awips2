@@ -147,6 +147,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
    			waitCursor= null;
    		}
    	}
+	@SuppressWarnings("unused")
 	private static void createMapEditor(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 

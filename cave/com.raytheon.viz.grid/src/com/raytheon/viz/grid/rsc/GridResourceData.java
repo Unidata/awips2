@@ -162,6 +162,7 @@ public class GridResourceData extends AbstractRequestableResourceData implements
             sampling = sampling == null ? false : sampling;
             return new GridIconResource(this, loadProperties);
         case BARB:
+            sampling = sampling == null ? false : sampling;
         case ARROW:
         case DUALARROW:
         case STREAMLINE:
@@ -170,7 +171,7 @@ public class GridResourceData extends AbstractRequestableResourceData implements
             // grib data in D2D is in one location. There are only a few
             // products that do not work correctly, contours of vector
             // direction, and data mapped images.
-            sampling = sampling == null ? false : sampling;
+            sampling = sampling == null ? true : sampling;
             return new D2DGribGridResource(this, loadProperties);
         case CONTOUR:
         default:

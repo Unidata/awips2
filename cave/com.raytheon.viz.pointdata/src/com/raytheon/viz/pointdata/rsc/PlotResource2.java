@@ -682,6 +682,7 @@ public class PlotResource2 extends
     public void project(CoordinateReferenceSystem crs) throws VizException {
         clearImages();
         frameRetrievalPool.cancel();
+        frameRetrievalPool = new JobPool("Retrieving plot frame", 8, true);
         frameMap.clear();
     }
 
