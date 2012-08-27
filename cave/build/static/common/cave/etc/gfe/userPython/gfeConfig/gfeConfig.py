@@ -354,10 +354,10 @@ MaxMenuItemsBeforeCascade = 30
 # Defines the percent that the office domain will be expanded for the
 # spatial editor full-screen view.  The user can specify the expansion
 # for each of the four directions.  If not specified, the default is 10%.
-OfficeDomain_expandLeft = 10    # ifpIMAGE only
-OfficeDomain_expandRight = 10   # ifpIMAGE only
-OfficeDomain_expandTop = 10     # ifpIMAGE only
-OfficeDomain_expandBottom = 10  # ifpIMAGE only
+OfficeDomain_expandLeft = 10
+OfficeDomain_expandRight = 10
+OfficeDomain_expandTop = 10
+OfficeDomain_expandBottom = 10
 
 # Initial location of Edit Action Dialog
 # These are absolute screen coordinates (not relative to GFE window)

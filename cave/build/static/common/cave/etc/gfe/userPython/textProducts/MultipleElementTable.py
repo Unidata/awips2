@@ -122,8 +122,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"
 
         # Make argDict accessible
         self.__argDict = argDict

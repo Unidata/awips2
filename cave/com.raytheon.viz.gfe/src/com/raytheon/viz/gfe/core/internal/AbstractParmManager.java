@@ -453,12 +453,12 @@ public abstract class AbstractParmManager implements IParmManager {
             parms.releaseReadLock();
         }
 
+        notificationPool.cancel();
+
         vcModulePool.cancel();
         for (VCModule module : vcModules) {
             module.dispose();
         }
-
-        notificationPool.cancel();
     }
 
     protected DatabaseID decodeDbString(final String string) {

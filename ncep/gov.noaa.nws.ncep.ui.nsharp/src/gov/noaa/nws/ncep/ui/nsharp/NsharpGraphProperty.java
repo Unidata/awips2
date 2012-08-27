@@ -90,6 +90,8 @@ public class NsharpGraphProperty implements ISerializableObject{
 	@XmlAttribute
 	private int tempOffset=0;
 	
+	@XmlAttribute
+	private String paneConfigurationName= NsharpConstants.PANE_LEGACY_CFG_STR;
 	
 	public boolean isTemp() {
 		return temp;
@@ -259,4 +261,14 @@ public class NsharpGraphProperty implements ISerializableObject{
 	public void setTempOffset(int tempOffset) {
 		this.tempOffset = tempOffset;
 	}
+
+	public String getPaneConfigurationName() {
+		return paneConfigurationName;
+	}
+
+	public void setPaneConfigurationName(String paneConfigurationName) {
+		this.paneConfigurationName = paneConfigurationName;
+	}
+
+	
 }

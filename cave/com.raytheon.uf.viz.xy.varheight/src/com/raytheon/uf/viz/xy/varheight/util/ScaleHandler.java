@@ -26,6 +26,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
@@ -75,30 +76,29 @@ public class ScaleHandler extends AbstractHandler {
      * @param scale
      */
     static void setScale(IDisplayPaneContainer editor, String scale) {
-        if (editor.getActiveDisplayPane().getRenderableDisplay() instanceof ID2DRenderableDisplay) {
-            ID2DRenderableDisplay disp = (ID2DRenderableDisplay) editor
-                    .getActiveDisplayPane().getRenderableDisplay();
+        for (IDisplayPane pane : editor.getDisplayPanes()) {
+            if (pane.getRenderableDisplay() instanceof ID2DRenderableDisplay) {
+                ID2DRenderableDisplay disp = (ID2DRenderableDisplay) pane
+                        .getRenderableDisplay();
+                if (scale.equals(disp.getScale())) {
+                    // don't set the scale if it is the same as the display's
+                    // current scale
+                    return;
+                }
 
-            if (scale.equals(disp.getScale())) {
-                // don't set the scale if it is the same as the display's
-                // current
-                // scale
-                return;
+                disp.setScale(scale);
+                if (pane == editor.getActiveDisplayPane()) {
+                    VizGlobalsManager.getCurrentInstance().updateChanges(
+                            editor.getActiveDisplayPane()
+                                    .getRenderableDisplay().getGlobalsMap());
+                }
             }
-
-            disp.setScale(scale);
-
-            // update the scale button
-            final ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getService(ICommandService.class);
-
-            VizGlobalsManager.getCurrentInstance().updateChanges(
-                    editor.getActiveDisplayPane().getRenderableDisplay()
-                            .getGlobalsMap());
-
-            service.refreshElements(
-                    "com.raytheon.uf.viz.xy.height.scalebutton", null);
         }
+
+        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+                .getService(ICommandService.class);
+        service.refreshElements("com.raytheon.uf.viz.xy.height.scalebutton",
+                null);
     }
 
 }

@@ -22,10 +22,9 @@ package com.raytheon.edex.plugin.gfe.smartinit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
@@ -33,14 +32,15 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Init Client used by smart init for retrieving specific info
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 29, 2008				njensen	    Initial creation
+ * Jul 25, 2012  #957       dgilling    Implement getEditAreaNames().
  * 
  * </pre>
  * 
@@ -59,7 +60,8 @@ import com.raytheon.uf.edex.core.EdexException;
 
 public class InitClient {
 
-    private static final Log logger = LogFactory.getLog(InitClient.class);
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(InitClient.class);
 
     private DatabaseID destinationDB;
 
@@ -109,10 +111,33 @@ public class InitClient {
         return list;
     }
 
-    public List<String> getEditAreaNames() {
-        ArrayList<String> list = new ArrayList<String>();
-        // TODO implement something here
-        return list;
+    // returning an array here instead of a List because arrays get converted to
+    // Python lists automatically by Jep
+    public String[] getEditAreaNames() {
+        try {
+            String siteId = destinationDB.getSiteId();
+            IFPServerConfig config = IFPServerConfigManager
+                    .getServerConfig(siteId);
+            ReferenceMgr refMgr = new ReferenceMgr(config);
+
+            ServerResponse<List<ReferenceID>> sr = refMgr.getInventory();
+            if (sr.isOkay()) {
+                List<ReferenceID> ids = sr.getPayload();
+                String[] l = new String[ids.size()];
+                for (int i = 0; i < ids.size(); i++) {
+                    l[i] = ids.get(i).getName();
+                }
+
+                return l;
+            } else {
+                logger.error("Unable to retrieve edit area inventory: "
+                        + sr.message());
+            }
+        } catch (Exception e) {
+            logger.error("Unable to retrieve edit area inventory.", e);
+        }
+
+        return new String[0];
     }
 
     public IGridSlice getTopo() throws GfeException {
