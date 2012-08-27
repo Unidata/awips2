@@ -31,12 +31,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.ccfp.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 
 /**
  * 
@@ -56,8 +54,9 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class CcfpResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(CcfpResourceData.class);
-    
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CcfpResourceData.class);
+
     // This flag determnies if we draw lines and polygons
     @XmlAttribute
     private boolean displayArea = true;
@@ -69,35 +68,34 @@ public class CcfpResourceData extends AbstractRequestableResourceData {
     // This flag determines if we display text boxes
     @XmlAttribute
     private boolean displayText = true;
-    
+
     // Filter by coverage
     @XmlAttribute
     private int coverageFilter = 0;
-    
-    
+
     @XmlAttribute
     private int validDuration = 0;
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
         }
-        
+
         if (obj instanceof CcfpResourceData == false) {
             return false;
         }
-        
+
         CcfpResourceData other = (CcfpResourceData) obj;
 
         if (other.coverageFilter != this.coverageFilter) {
             return false;
         }
-        
+
         if (other.validDuration != this.validDuration) {
             return false;
         }
-        
+
         if (other.displayText != this.displayText) {
             return false;
         }
@@ -109,7 +107,7 @@ public class CcfpResourceData extends AbstractRequestableResourceData {
         if (other.displayMovement != this.displayMovement) {
             return false;
         }
-                
+
         return true;
     }
 
@@ -122,7 +120,7 @@ public class CcfpResourceData extends AbstractRequestableResourceData {
         DataTime[] originalTimes = super.getAvailableTimes();
         ArrayList<DataTime> newTimes = new ArrayList<DataTime>();
         for (DataTime time : originalTimes) {
-            if (time.getValidPeriod().getDuration() == validDuration * 1000) {
+            if (durationMatches(time)) {
                 newTimes.add(time);
             }
         }
@@ -145,6 +143,18 @@ public class CcfpResourceData extends AbstractRequestableResourceData {
             }
         }
         return nr;
+    }
+
+    /**
+     * Checks if a DataTime's valid period matches the duration of the resource
+     * data
+     * 
+     * @param time
+     *            the time to check
+     * @return true if the durations are equal, otherwise false
+     */
+    protected boolean durationMatches(DataTime time) {
+        return time.getValidPeriod().getDuration() == validDuration * 1000;
     }
 
     public boolean isDisplayArea() {
@@ -185,6 +195,6 @@ public class CcfpResourceData extends AbstractRequestableResourceData {
 
     public void setValidDuration(int validDuration) {
         this.validDuration = validDuration;
-    }   
+    }
 
 }
