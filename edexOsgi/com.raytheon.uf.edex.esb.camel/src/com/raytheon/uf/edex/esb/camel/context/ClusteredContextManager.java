@@ -27,6 +27,9 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Consumer;
+import org.apache.camel.Route;
+import org.apache.camel.impl.ServiceSupport;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,6 +49,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2010 5050       rjpeter     Initial creation
+ * Jul 16, 2012 DR 15073   D. Friedman Stop consumers instead of whole context
  * </pre>
  * 
  * @author rjpeter
@@ -128,11 +132,39 @@ public class ClusteredContextManager {
                     ClusterLockUtils.updateLockTime(taskName, contextName,
                             System.currentTimeMillis());
 
-                    if (camelContext.getStatus().isStopped()) {
+                    if (! camelContext.getStatus().isStarted())
                         camelContext.start();
+                    else
+                        for (Route route: camelContext.getRoutes()) {
+                            Consumer consumer = route.getConsumer();
+                            /*
+                             * It is safe to call Consumer.start/.stop
+                             * unconditionally (assuming the component is
+                             * written correctly), but in order to provide
+                             * useful logging of these events, we must perform a
+                             * status check.
+                             */
+                            if (consumer instanceof ServiceSupport) {
+                                if (! ((ServiceSupport) consumer).getStatus().isStarted()) {
+                                    statusHandler.handle(Priority.INFO,
+                                            "Starting consumer for route " + route.getId());
+                                    consumer.start();
+                                }
+                            } else
+                                consumer.start();
+                        }
+                } else {
+                    for (Route route: camelContext.getRoutes()) {
+                        Consumer consumer = route.getConsumer();
+                        if (consumer instanceof ServiceSupport) {
+                            if (((ServiceSupport) consumer).getStatus().isStarted()) {
+                                statusHandler.handle(Priority.INFO,
+                                        "Stopping consumer for route " + route.getId());
+                                consumer.stop();
+                            }
+                        } else
+                            consumer.stop();
                     }
-                } else if (camelContext.getStatus().isStarted()) {
-                    camelContext.stop();
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,

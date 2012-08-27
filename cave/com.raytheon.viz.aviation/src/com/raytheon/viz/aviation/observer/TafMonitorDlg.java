@@ -128,6 +128,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/27/2010   7383        rferrel     Save changed blink state in configMgr.
  * 3/14/2011    8588        rferrel     Allow monitoring multiple products.
  * 11/29/2011   11612       rferrel     Added observers to update viewer tabs.
+ * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer 
  * 
  * </pre>
  * 
@@ -916,5 +917,39 @@ public class TafMonitorDlg extends CaveSWTDialog {
      */
     public final List<ViewerTab> getViewerTabList() {
         return tveDlg.getViewerTabList();
+    }
+    
+    //------------------------- DR 14570:
+    
+    public static Map<String,String> getCurrentAlertTimeMap(String siteID){
+        Map<String, String> alertTimeMap = null;
+        if (currentDlg != null) {
+            if (currentDlg.getDisplay().isDisposed()) {
+                currentDlg = null;
+            } else {
+                for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
+                    if (siteRow.getStationName().equals(siteID)) {
+                        alertTimeMap = siteRow.getAlertTimeMap();
+                    }
+                }
+            }
+        }
+        return alertTimeMap;
+    }
+    //20120711
+    public static Map<String,String[]> getCurrentTempoMap(String siteID){
+        Map<String, String[]> tempoMap = null;
+        if (currentDlg != null) {
+            if (currentDlg.getDisplay().isDisposed()) {
+                currentDlg = null;
+            } else {
+                for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
+                    if (siteRow.getStationName().equals(siteID)) {
+                        tempoMap= siteRow.getTempoMap();
+                    }
+                }
+            }
+        }
+        return tempoMap;
     }
 }

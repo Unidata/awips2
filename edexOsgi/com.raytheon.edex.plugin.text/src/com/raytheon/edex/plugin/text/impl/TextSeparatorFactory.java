@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.text.impl;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -46,6 +45,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 12, 2008            jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Finished implementation.
  * 06/29/2012   15154      D. Friedman Fix detection of TAF collectives.
+ * ======================================
+ * AWIPS2 DR Work
+ * 07/25/2012          959 jkorman     Modified order of entry for determining
+ * the data type (standard or collective) for input data.
  * </pre>
  * 
  * @author jkorman
@@ -193,12 +196,15 @@ public class TextSeparatorFactory {
                 String firstLine = WMOMessageSeparator.getLine(rawData,
                         startIndex);
                 int firstLineLen = firstLine.length();
-                if (staticData.matchStdCollective(dataDes) != null) {
+
+                // Maintain this order of entry so that Standard Text products
+                // are checked before collectives.
+                if ((stdAfosId = staticData.getProductId(ispanId)) != null) {
+                    msgType = WMOMessageType.STD_TEXT;
+                } else if (staticData.matchStdCollective(dataDes) != null) {
                     msgType = WMOMessageType.STD_COLLECTIVE;
                 } else if (staticData.matchUACollective(dataDes) != null) {
                     msgType = WMOMessageType.UA_COLLECTIVE;
-                } else if ((stdAfosId = staticData.getProductId(ispanId)) != null) {
-                    msgType = WMOMessageType.STD_TEXT;
                 }
 
                 // dataDes/ispanId were not mapped, check hard coded
