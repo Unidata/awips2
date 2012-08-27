@@ -18,7 +18,6 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  */
 
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 
 import java.io.IOException;
@@ -32,20 +31,17 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
 import com.raytheon.viz.ui.panes.VizDisplayPane;
 
-@SuppressWarnings("deprecation")
 public class NsharpAbstractMouseHandler extends InputHandlerDefaultImpl{//implements IInputHandler {
 
 	protected enum Mode {
         CREATE, SKEWT_DOWN, HODO_DOWN, HODO_DOWN_MOVE, TIMELINE_DOWN, STATIONID_DOWN, PARCELLINE_DOWN, HODO_WIND_MOTION_DOWN
     };
-    protected Display display;
+    protected static Display display;
     protected NsharpEditor editor;
     public void setEditor(NsharpEditor editor) {
 		this.editor = editor;
@@ -135,7 +131,7 @@ public class NsharpAbstractMouseHandler extends InputHandlerDefaultImpl{//implem
         return false;
     }
 
-
+    /*
     @Override
     public boolean handleKeyUp(int keyCode) {
     	//String s = "key up="+(char)keyCode;
@@ -161,7 +157,7 @@ public class NsharpAbstractMouseHandler extends InputHandlerDefaultImpl{//implem
             return true;
         } 
         return false;
-    }
+    }*/
 
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {

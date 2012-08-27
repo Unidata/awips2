@@ -20,9 +20,9 @@
 package gov.noaa.nws.ncep.ui.nsharp;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 
@@ -30,7 +30,6 @@ import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class SurfaceStationPointData {
