@@ -41,7 +41,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 13, 2011            dhladky     Initial creation
+ * Oct 13, 2011            dhladky     Initial creation.
+ * Jul 31, 2012 14517      mpduff      Fix for Rapid slider changes
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
  * @version 1.0
  */
 
-public class FFMPTableDataLoader implements Runnable {
+public class FFMPTableDataLoader extends Thread {
 
     private IMonitorEvent fme = null;
 
@@ -64,6 +65,8 @@ public class FFMPTableDataLoader implements Runnable {
     private Date date = null;
 
     private FfmpBasinTableDlg callback = null;
+    
+    private boolean isDone = false;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPTableDataLoader.class);
@@ -96,7 +99,6 @@ public class FFMPTableDataLoader implements Runnable {
     public void run() {
 
         if (fme.getSource() instanceof FFMPMonitor) {
-
             FFMPTableDataUpdate tableDataUpdate = new FFMPTableDataUpdate();
             FFMPMonitor ffmp = (FFMPMonitor) fme.getSource();
 
@@ -109,12 +111,12 @@ public class FFMPTableDataLoader implements Runnable {
 
                     FFMPTableData tData = null;
 
-                    try {
-
-                        FFMPDrawable drawable = resource.getDrawable(resource
-                                .getPaintTime());
-
-                        if ((drawable != null)
+					try {
+						
+						FFMPDrawable drawable = resource.getDrawable(resource
+								.getPaintTime());
+						
+						if ((drawable != null)
                                 && (drawable.getDrawTime() == resource
                                         .getTime())) {
                             String iHuc = null;
@@ -124,8 +126,7 @@ public class FFMPTableDataLoader implements Runnable {
                                 iHuc = "ALL";
                             }
                             if (drawable.getTableData(iHuc) != null) {
-
-                                //System.out.println(" Cache HITTTTTTTTT!!!!!");
+//                                System.out.println(" Cache HITTTTTTTTT!!!!!");
                                 tData = drawable.getTableData(iHuc);
                             }
                         }
@@ -140,13 +141,15 @@ public class FFMPTableDataLoader implements Runnable {
                                     iHuc = "ALL";
                                 }
 
-                                //System.out
-                                //       .println(" Cache MISSSSSSSSSSSS!!!!!");
+//                                System.out
+//                                       .println(" Cache MISSSSSSSSSSSS!!!!!");
+                                
+                                double origDrawTime = resource.getTime();
                                 FFMPDataGenerator dg = new FFMPDataGenerator(
                                         ffmp, resource);
                                 tData = dg.generateFFMPData();
                                 drawable.setTableData(iHuc, tData);
-                                drawable.setDrawTime(resource.getTime());
+                                drawable.setDrawTime(origDrawTime);
                             }
                         }
                     } catch (Exception e) {
@@ -174,8 +177,7 @@ public class FFMPTableDataLoader implements Runnable {
                                     tableDataUpdate.setFireGraph(true);
                                     tableDataUpdate.setGraphPfaf(basinTrendDlg
                                             .getPfaf());
-                                    tableDataUpdate.setGraphTime(resource
-                                            .getTableTime());
+                                    tableDataUpdate.setGraphTime(resource.getMostRecentTime());
                                 }
 
                                 sourceUpdate = false;
@@ -204,8 +206,14 @@ public class FFMPTableDataLoader implements Runnable {
             tableDataUpdate.setGapValueLabel(gapVal);
             tableDataUpdate.setAllowNewTableUpdate(allowNewTableUpdate);
             tableDataUpdate.setSourceUpdate(sourceUpdate);
+            
+            isDone = true;
 
             callback.tableDataUpdateComplete(tableDataUpdate);
         }
+    }
+    
+    public boolean isDone() {
+        return isDone;
     }
 }

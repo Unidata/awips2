@@ -54,6 +54,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GagePPOptions.upd_action;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008   1649     snaples     Initial creation
+ * Aug 8, 2012   15271	  snaples     Updated hourly slot
  * 
  * </pre>
  * 
@@ -140,12 +141,6 @@ public final class GagePPWrite {
         String obstime = sdf.format(dto);
         GagePPOptions opts = options;
         int hr = dt.get(Calendar.HOUR_OF_DAY);
-        if (hr == 0) {
-            hr = 24;
-            dt.add(Calendar.HOUR_OF_DAY, -1);
-            obstime = sdf.format(dt);
-            dto = dt.getTime();
-        }
         int min = dt.get(Calendar.MINUTE);
         char sixhroffset = get_offset_code(min);
         char sixhrqc = 'M';
@@ -212,7 +207,7 @@ public final class GagePPWrite {
                 pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
                 pHourpp.setSixhrqc(String.valueOf(sixhr_qc));
                 set_hour_slot_value(pHourpp, hr, new_hourly_value);
-                set_6hour_slot_value(pHourpp, six + 1, pp_value);
+                set_6hour_slot_value(pHourpp, six, pp_value);
                 update_gage_rec(pHourpp);
             }
 
@@ -283,7 +278,7 @@ public final class GagePPWrite {
                         if (hpp.getSixhrqc() != null) {
                             old_six_qc = hpp.getSixhrqc().toCharArray();
                         }
-                        Short sixval = get_6hour_slot_value(hpp, six + 1);
+                        Short sixval = get_6hour_slot_value(hpp, six);
                         prev_sixhroff = old_sixhroffset[six];
                         prev_sixqc = old_six_qc[six];
 
@@ -363,7 +358,7 @@ public final class GagePPWrite {
                     pHourpp.setSixhroffset(String.valueOf(sixhr_offset));
                     pHourpp.setSixhrqc(String.valueOf(six_hr_qc));
                     set_hour_slot_value(pHourpp, hr, hr_value);
-                    set_6hour_slot_value(pHourpp, six + 1, six_hr_slot_val);
+                    set_6hour_slot_value(pHourpp, six, six_hr_slot_val);
                     update_gage_rec(pHourpp);
                 }
             }
@@ -733,22 +728,22 @@ public final class GagePPWrite {
          * the HourPC structure.
          */
         switch (hour) {
-        case 1: /* 00z - 06z */
+        case 0: /* 00z - 06z */
 
             precip_value = pHourlyPP.getSixhr06();
             break;
 
-        case 2: /* 06z - 12z */
+        case 1: /* 06z - 12z */
 
             precip_value = pHourlyPP.getSixhr12();
             break;
 
-        case 3: /* 12z - 18z */
+        case 2: /* 12z - 18z */
 
             precip_value = pHourlyPP.getSixhr18();
             break;
 
-        case 4: /* 18z - 00z */
+        case 3: /* 18z - 00z */
 
             precip_value = pHourlyPP.getSixhr24();
             break;
@@ -773,25 +768,25 @@ public final class GagePPWrite {
          * the HourPC structure.
          */
         switch (hour) {
-        case 1: /* 00z - 06z */
+        case 0: /* 00z - 06z */
 
             precip_value = new Short((short) val);
             pHourlyPP.setSixhr06(precip_value);
             break;
 
-        case 2: /* 06z - 12z */
+        case 1: /* 06z - 12z */
 
             precip_value = new Short((short) val);
             pHourlyPP.setSixhr12(precip_value);
             break;
 
-        case 3: /* 12z - 18z */
+        case 2: /* 12z - 18z */
 
             precip_value = new Short((short) val);
             pHourlyPP.setSixhr18(precip_value);
             break;
 
-        case 4: /* 18z - 00z */
+        case 3: /* 18z - 00z */
 
             precip_value = new Short((short) val);
             pHourlyPP.setSixhr24(precip_value);
@@ -927,7 +922,7 @@ public final class GagePPWrite {
             precip_value = pHourlyPP.getHour23();
             break;
 
-        case 24:
+        case 0:
 
             precip_value = pHourlyPP.getHour24();
             break;
@@ -1068,12 +1063,13 @@ public final class GagePPWrite {
             pHourly.setHour23(precip_value);
             break;
 
-        case 24:
+        case 0:
             precip_value = new Short((short) val);
             pHourly.setHour24(precip_value);
             break;
 
         default:
+        	precip_value = new Short((short) MISSING_PRECIP);
             break;
         }
 
