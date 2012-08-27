@@ -63,6 +63,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                     and set default value for check hours.
  * 04/28/2011   8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
+ * 31JUL2012    14570      zhao        Highlight Metar alert for case of 'cat'  
  * 
  * </pre>
  * 
@@ -126,6 +127,8 @@ public class MetarViewer extends ViewerTab implements
      */
     private static final HashMap<String, String[]> alertMap = new HashMap<String, String[]>();
     static {
+    	//alertMap.put("cat", new String[] { "<vsby>", "</vsby>", "<sky>", "</sky>" }); // 14570
+        alertMap.put("tempo", new String[] { "<vsby>", "</vsby>", "<wind>", "</wind>", "<wx>", "</wx>", "<sky>", "</sky>" }); // 14570
         alertMap.put("vsby", new String[] { "<vsby>", "</vsby>" });
         alertMap.put("wind", new String[] { "<wind>", "</wind>" });
         alertMap.put("wx", new String[] { "<wx>", "</wx>" });
@@ -408,7 +411,12 @@ public class MetarViewer extends ViewerTab implements
 
             if (alertMap != null && alertMap.size() > 0) {
                 for (String key : alertMap.keySet()) {
-                    colorViewerAlert(key, configMgr);
+                	if ( key.equals("cat") ) { // "cat" involves "visibility" and "sky condition"
+                		colorViewerAlert("vsby", configMgr);
+                		colorViewerAlert("sky", configMgr);
+                	} else {
+                		colorViewerAlert(key, configMgr);
+                	}
                 }
             }
         }

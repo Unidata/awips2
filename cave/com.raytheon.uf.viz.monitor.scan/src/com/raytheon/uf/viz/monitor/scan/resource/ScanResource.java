@@ -79,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
  * 
+ * Jul 24  2012  12996     Xiaochuan   Compare with MidVal()
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -359,7 +361,7 @@ public class ScanResource extends
                                 d = Double.valueOf(rank);
                             }
 
-                            if (d >= getScanDrawer().ddfc.getLowerVal()) {
+                            if (d >= getScanDrawer().ddfc.getMidVal()) {
                                 if (!getScanDrawer().ddfc.isOverlap()) {
                                     if ((dtdr != null) && !dtdr.getOverlap()) {
                                         isOverlap = false;

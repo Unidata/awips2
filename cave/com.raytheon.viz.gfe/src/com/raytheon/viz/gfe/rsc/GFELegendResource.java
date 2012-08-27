@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -74,17 +74,18 @@ import com.raytheon.viz.gfe.edittool.GridID;
 import com.raytheon.viz.ui.input.InputAdapter;
 
 /**
- * 
+ *
  * Port of SELegendVisual from AWIPS I GFE
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/17/2008              chammack    Initial Creation.
  * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
+ * 07/10/2012   15186      ryu         Clean up initInternal per Ron
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1.0
  */
@@ -106,7 +107,7 @@ public class GFELegendResource extends
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.lang.Enum#toString()
          */
         @Override
@@ -272,7 +273,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#finalize()
      */
     @SuppressWarnings("unchecked")
@@ -289,7 +290,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.core.legend.ILegendDecorator#getLegendData(com.raytheon
      * .viz.core.drawables.IDescriptor)
@@ -527,7 +528,7 @@ public class GFELegendResource extends
 
     /**
      * Get the legend mode
-     * 
+     *
      * @return the legend mode
      */
     public LegendMode getLegendMode() {
@@ -537,10 +538,10 @@ public class GFELegendResource extends
     /**
      * Works in a single pass to perform the operations performed in AWIPS I
      * getLargestLevelName, etc.
-     * 
+     *
      * The fields in order: <LI>FieldName <LI>LevelName <LI>Units <LI>ModelName
-     * 
-     * 
+     *
+     *
      * @param descriptor
      * @return
      */
@@ -606,7 +607,7 @@ public class GFELegendResource extends
     /**
      * Create a map between parms and gfe resources. This will avoid expensive
      * searching
-     * 
+     *
      * @param descriptor
      * @return
      */
@@ -646,19 +647,11 @@ public class GFELegendResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        // Using a proportional font messes up the legend columns.
-        // Use the bold VeraMono font and only use font # to control size.
-        File fontFile = PathManagerFactory.getPathManager().getStaticFile(
-                "fonts" + File.separator + "VeraMono.ttf");
         int fontNum = 3;
         if (GFEPreference.contains("SELegend_font")) {
             fontNum = GFEPreference.getIntPreference("SELegend_font");
         }
-        FontData fd = GFEFonts.getFontData(fontNum);
-        font = target.initializeFont(fontFile, fd.getHeight(),
-                new IFont.Style[] { IFont.Style.BOLD });
-
-        font.setSmoothing(true);
+        font = GFEFonts.getFont(target, fontNum);
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -684,7 +677,7 @@ public class GFELegendResource extends
 
     /**
      * Set the legend mode
-     * 
+     *
      * @param mode
      *            the legend mode
      */
@@ -695,7 +688,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
      * com.raytheon.viz.gfe.core.msgs.Message)

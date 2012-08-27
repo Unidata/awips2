@@ -47,6 +47,7 @@ public class NsharpSkewTDescriptor extends GraphDescriptor {
     public void changeFrame(FrameChangeOperation operation, FrameChangeMode mode) {
         synchronized (this) {
         	//From stepping commands
+        	//System.out.println("changeFrame");
         	NsharpSkewTResource skewRsc = getSkewtResource();
         	if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
         		//System.out.println("current perspective ="+VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
@@ -67,6 +68,7 @@ public class NsharpSkewTDescriptor extends GraphDescriptor {
 	@Override
     public void checkDrawTime(LoopProperties loopProperties) {
         super.checkDrawTime(loopProperties);
+        //System.out.println("checkDrawTime");
     //handleDataTimeIndex is no longer available since 11.5
     //called from DrawCoordinatedPane 
     //Chin: 11.11 note: it is now called from NsharpSkewTDisplay.paint() when animation is started.

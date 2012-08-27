@@ -22,13 +22,18 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  * @version 1.0
  */
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
+import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpDataPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpInsetPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSpcGraphsPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
@@ -76,25 +81,69 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpEditor extends AbstractEditor implements AddListener,
         RemoveListener, AbstractNcEditor {
-
+	private boolean restarting= false;
+    public static int DISPLAY_SKEWT;
+    public static int DISPLAY_WITO;
+    public static int DISPLAY_INSET;
+    public static int DISPLAY_HODO;
+    public static int DISPLAY_TIMESTN;
+    public static int DISPLAY_DATA;
+    public static int DISPLAY_SPC_GRAPHS;
+    public static int DISPLAY_FUTURE;
+    public static int DISPLAY_TOTAL;
     public static final String EDITOR_ID = "gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor";
     private  int editorNum=0;
     private static NsharpResourceHandler rscHandler;
     private int baseWidth;
     private int baseHeight;
+    private double skewTHeightHintRatio;
+    private double skewTWidthHintRatio;
+    private double witoHeightHintRatio;
+    private double witoWidthHintRatio;
+    private double hodoHeightHintRatio;
+    private double hodoWidthHintRatio;
+    private double insetHeightHintRatio;
+    private double insetWidthHintRatio;
+    private double timeStnHeightHintRatio;
+    private double timeStnWidthHintRatio;
+    private double dataHeightHintRatio;
+    private double dataWidthHintRatio;
+    private double leftGroupWidthRatio;
+    private double leftTopGroupHeightRatio;//, rightTopGroupHeightRatio;
+    private double topGroupHeightRatio, botGroupHeightRatio;
+    private int skewTHeightHint;
+    private int skewTWidthHint;
+    private int witoHeightHint;
+    private int witoWidthHint;
+    private int hodoHeightHint;
+    private int hodoWidthHint;
+    private int insetHeightHint;
+    private int insetWidthHint;
+    private int timeStnHeightHint;
+    private int timeStnWidthHint;
+    private int dataHeightHint;
+    private int dataWidthHint;
+    private int spcHeightHint;
+    private int spcWidthHint;
+    private int futureHeightHint;
+    private int futureWidthHint;
+    private static String paneConfigurationName;
     private static IRenderableDisplay[] displayArray;
-    
+    private ResizeListener resizeLsner;
 	public NsharpResourceHandler getRscHandler() {
 		return rscHandler;
 	}
 	public int getEditorNum() {
 		return editorNum;
 	}
-
-    private Composite[] nsharpComp = new Composite[NsharpConstants.DISPLAY_TOTAL];
-    private Composite baseComposite;
-    private Group rightTopGp, leftTopGp;
-	/** The map input manager */
+	//Note: nsharpComp used to store composite for each pane.  
+    private static Composite[] nsharpComp;// = new Composite[DISPLAY_TOTAL];
+    private GridData leftGpGd,topGpGd, botGpGd;
+    private GridData rightGpGd;
+    private GridData rightTopGpGd,leftTopGpGd, leftBotGpGd;
+    private Composite parantComp,  baseComposite;
+    private Group rightTopGp=null, leftTopGp=null, leftBotGp=null, leftGp, rightGp, topGp, botGp;
+	/**  input managers */
     protected InputManager skewtInputManager;
     //protected InputManager witoInputManager;
     protected InputManager hodoInputManager;
@@ -112,8 +161,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     private NsharpDataPaneMouseHandler dataPaneMouseHandler = null;
     private NsharpAbstractMouseHandler insetPaneMouseHandler = null;
  
-    protected VizDisplayPane displayPane[]= new VizDisplayPane[NsharpConstants.DISPLAY_TOTAL];
-    protected VizDisplayPane selectedPane = displayPane[0];
+    protected static VizDisplayPane displayPane[];//= new VizDisplayPane[DISPLAY_TOTAL];
+    protected VizDisplayPane selectedPane;
     public static NsharpEditor getActiveNsharpEditor() {
         IEditorPart ep = EditorUtil.getActiveEditor();
         if (ep instanceof NsharpEditor) {
@@ -150,74 +199,322 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
      */
     @Override
     public void createPartControl(Composite comp) {
-    	//System.out.println("NsharpEditor createPartControl called");
-        baseComposite = comp;// new Composite(comp, SWT.NONE);
-        final GridLayout mainGL = new GridLayout(2, true);
-        mainGL.horizontalSpacing = 0;
-        mainGL.marginHeight = 0;
-        baseComposite.setLayout(mainGL);
-        //System.out.println("createPartControl...baseComposite w= " + baseComposite.getBounds().width + " h= "+ baseComposite.getBounds().height);
+    	parantComp = comp; 
+    	if(baseComposite!= null)
+    		baseComposite.dispose();
+    	baseComposite = new Composite(comp, SWT.NONE);
+    	final GridLayout mainGL;
         baseHeight = baseComposite.getSize().y;
         baseWidth = baseComposite.getSize().x;
-        baseComposite.addListener(SWT.Resize, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-            	//System.out.println("Before resizing...baseComposite w= " + baseComposite.getBounds().width + " h= "+ baseComposite.getBounds().height);
-            	//System.out.println("Before resizing...nsharpComp[0] w= " + nsharpComp[0].getBounds().width + " h= "+ nsharpComp[0].getBounds().height);
-            	//System.out.println("Before resizing...nsharpComp[1] w= " + nsharpComp[1].getBounds().width + " h= "+ nsharpComp[1].getBounds().height);
-            	//System.out.println("Before resizing...nsharpComp[2] w= " + nsharpComp[2].getBounds().width + " h= "+ nsharpComp[2].getBounds().height);
-            	//System.out.println("Before resizing...nsharpComp[3] w= " + nsharpComp[3].getBounds().width + " h= "+ nsharpComp[3].getBounds().height);
-            	baseHeight = baseComposite.getSize().y;
-                baseWidth = baseComposite.getSize().x;
-            	GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
-                        true);
-                skewtGd.heightHint = (int)(baseHeight*0.8);
-                skewtGd.widthHint = (int)(baseWidth*0.5*0.6875);//width is 11:5 between skewTComp and witoComp
-                nsharpComp[NsharpConstants.DISPLAY_SKEWT].setLayoutData(skewtGd);
-                GridData witoGd = new GridData(SWT.END, SWT.FILL, false,
-                        true);
-                witoGd.heightHint = (int)(baseHeight*0.8);
-                witoGd.widthHint = (int)(baseWidth*0.5*0.3125);//width is 11:5 between skewTComp and witoComp
-                nsharpComp[NsharpConstants.DISPLAY_WITO].setLayoutData(witoGd);
-                nsharpComp[NsharpConstants.DISPLAY_WITO].setSize((int)(baseWidth*0.5*0.3125),(int)(baseHeight*0.8));
-                GridData insetGd = new GridData(SWT.FILL, SWT.END, true,
-                        false);
-                insetGd.heightHint =  (int)(baseHeight*0.2);
-                insetGd.widthHint = (int)(baseWidth*0.5);
-                nsharpComp[NsharpConstants.DISPLAY_INSET].setLayoutData(insetGd);
-               
-                
-                GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
-                        true);
-                hodoGd.widthHint = (int)(baseWidth*0.5*0.65);//width is 65:35 between hodoComp and timeStnComp
-                nsharpComp[NsharpConstants.DISPLAY_HODO].setLayoutData(hodoGd);
-                
-                GridData timeStnGd = new GridData(SWT.END, SWT.FILL, false,
-                        true);
-                timeStnGd.widthHint = (int)(baseWidth*0.5*0.35);//width is 65:35 between hodoComp and timeStnComp
-                nsharpComp[NsharpConstants.DISPLAY_TIMESTN].setLayoutData(timeStnGd);
-                
-                GridData dataGd = new GridData(SWT.FILL, SWT.END, true,
-                        false);
-                dataGd.heightHint = (int)(baseHeight*0.3);
-                dataGd.widthHint = (int)(baseWidth*0.5);
-                nsharpComp[NsharpConstants.DISPLAY_DATA].setLayoutData(dataGd);
-                
-                for(int i=0; i< NsharpConstants.DISPLAY_TOTAL; i++){
-                	ResourcePair rscPair =  displayArray[i].getDescriptor().getResourceList().get(0);
-                	if (rscPair.getResource() instanceof NsharpAbstractPaneResource){
-                		NsharpAbstractPaneResource paneRsc = (NsharpAbstractPaneResource)rscPair.getResource() ;
-                		paneRsc.setResize(true);
-                	}
-                }
-            	//System.out.println("After resizing...nsharpComp[0] w= " + nsharpComp[0].getBounds().width + " h= "+ nsharpComp[0].getBounds().height);
-            	//System.out.println("After resizing...nsharpComp[1] w= " + nsharpComp[1].getBounds().width + " h= "+ nsharpComp[1].getBounds().height);
-            	
-            }
-        });
+        //System.out.println("createPartControl...baseComposite w= " + baseWidth + " h= "+ baseHeight);
         
-        Group leftGp = new Group(baseComposite, SWT.NONE);
-        GridData leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+		//TBD for testing, hard code  now
+		//paneCfgNum= NsharpConstants.PANE_CONFIGURATION_1;
+        resizeLsner = new ResizeListener(paneConfigurationName);
+		baseComposite.addListener(SWT.Resize, resizeLsner);
+		if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+			mainGL = new GridLayout(2, false);
+	        baseComposite.setLayout(mainGL);
+	        mainGL.horizontalSpacing = 0;
+	        mainGL.marginHeight = 0;
+			leftGroupWidthRatio =NsharpConstants.PANE_DEF_CFG_2_LEFT_GP_WIDTH_RATIO;
+			leftTopGroupHeightRatio = NsharpConstants.PANE_DEF_CFG_2_LEFT_TOP_GP_HEIGHT_RATIO;
+			//rightTopGroupHeightRatio = NsharpConstants.PANE_DEF_CFG_2_RIGHT_TOP_GP_HEIGHT_RATIO;
+			skewTHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_SKEWT_HEIGHT_RATIO;
+		    skewTWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_SKEWT_WIDTH_RATIO;
+		    witoHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_WITO_HEIGHT_RATIO;
+		    witoWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_WITO_WIDTH_RATIO;
+		    hodoHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_HODO_HEIGHT_RATIO;
+		    hodoWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_HODO_WIDTH_RATIO;
+		    insetHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_INSET_HEIGHT_RATIO;
+		    insetWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_INSET_WIDTH_RATIO;
+		    timeStnHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_TIMESTN_HEIGHT_RATIO;
+		    timeStnWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_TIMESTN_WIDTH_RATIO;
+		    dataHeightHintRatio=NsharpConstants.PANE_DEF_CFG_2_DATA_HEIGHT_RATIO;
+		    dataWidthHintRatio=NsharpConstants.PANE_DEF_CFG_2_DATA_WIDTH_RATIO;
+			createDefConfig2( baseComposite) ;
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
+			mainGL = new GridLayout(2, false);
+			mainGL.horizontalSpacing = 0;
+	        mainGL.marginHeight = 0;
+			baseComposite.setLayout(mainGL);
+			leftGroupWidthRatio =NsharpConstants.PANE_DEF_CFG_1_LEFT_GP_WIDTH_RATIO;
+			leftTopGroupHeightRatio = NsharpConstants.PANE_DEF_CFG_1_LEFT_TOP_GP_HEIGHT_RATIO;
+			//rightTopGroupHeightRatio = NsharpConstants.PANE_DEF_CFG_1_RIGHT_TOP_GP_HEIGHT_RATIO;
+			skewTHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_SKEWT_HEIGHT_RATIO;
+		    skewTWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_SKEWT_WIDTH_RATIO;
+		    witoHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_WITO_HEIGHT_RATIO;
+		    witoWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_WITO_WIDTH_RATIO;
+		    hodoHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_HODO_HEIGHT_RATIO;
+		    hodoWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_HODO_WIDTH_RATIO;
+		    insetHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_INSET_HEIGHT_RATIO;
+		    insetWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_INSET_WIDTH_RATIO;
+		    timeStnHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_TIMESTN_HEIGHT_RATIO;
+		    timeStnWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_TIMESTN_WIDTH_RATIO;
+		    dataHeightHintRatio=NsharpConstants.PANE_DEF_CFG_1_DATA_HEIGHT_RATIO;
+		    dataWidthHintRatio=NsharpConstants.PANE_DEF_CFG_1_DATA_WIDTH_RATIO;
+			createDefConfig1( baseComposite) ;
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			mainGL = new GridLayout(1, true);
+			mainGL.horizontalSpacing = 0;
+	        mainGL.marginHeight = 0;
+			baseComposite.setLayout(mainGL);
+			topGroupHeightRatio =NsharpConstants.PANE_SPCWS_CFG_TOP_GP_HEIGHT_RATIO;
+			botGroupHeightRatio = NsharpConstants.PANE_SPCWS_CFG_BOT_GP_HEIGHT_RATIO;
+			skewTHeightHintRatio=NsharpConstants.PANE_SPCWS_CFG_SKEWT_HEIGHT_RATIO;
+		    skewTWidthHintRatio=NsharpConstants.PANE_SPCWS_CFG_SKEWT_WIDTH_RATIO;
+		    witoHeightHintRatio=NsharpConstants.PANE_SPCWS_CFG_WITO_HEIGHT_RATIO;
+		    witoWidthHintRatio=NsharpConstants.PANE_SPCWS_CFG_WITO_WIDTH_RATIO;
+		    hodoHeightHintRatio=NsharpConstants.PANE_SPCWS_CFG_HODO_HEIGHT_RATIO;
+		    hodoWidthHintRatio=NsharpConstants.PANE_SPCWS_CFG_HODO_WIDTH_RATIO;
+		    insetHeightHintRatio=NsharpConstants.PANE_SPCWS_CFG_INSET_HEIGHT_RATIO;
+		    insetWidthHintRatio=NsharpConstants.PANE_SPCWS_CFG_INSET_WIDTH_RATIO;
+		    dataHeightHintRatio=NsharpConstants.PANE_SPCWS_CFG_DATA_HEIGHT_RATIO;
+		    dataWidthHintRatio=NsharpConstants.PANE_SPCWS_CFG_DATA_WIDTH_RATIO;
+		    createSPCWsConfig( baseComposite) ;
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			mainGL = new GridLayout(1, true);
+			mainGL.horizontalSpacing = 0;
+	        mainGL.marginHeight = 0;
+			baseComposite.setLayout(mainGL);
+			topGroupHeightRatio  =NsharpConstants.PANE_SIMPLE_D2D_CFG_TOP_GP_HEIGHT_RATIO;
+			botGroupHeightRatio = 1-topGroupHeightRatio;
+			skewTHeightHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_SKEWT_HEIGHT_RATIO;
+		    skewTWidthHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_SKEWT_WIDTH_RATIO;
+		    timeStnHeightHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_TIMESTN_HEIGHT_RATIO;
+		    timeStnWidthHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_TIMESTN_WIDTH_RATIO;
+		    hodoHeightHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_HODO_HEIGHT_RATIO;
+		    hodoWidthHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_HODO_WIDTH_RATIO;
+		    dataHeightHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_DATA_HEIGHT_RATIO;
+		    dataWidthHintRatio=NsharpConstants.PANE_SIMPLE_D2D_CFG_DATA_WIDTH_RATIO;
+		    createSimpleD2DConfig(baseComposite);
+		}
+		skewtInputManager = new InputManager(this);
+		//witoInputManager = new InputManager(this);
+		timeStnInputManager = new InputManager(this);
+		hodoInputManager = new InputManager(this);
+		dataInputManager = new InputManager(this);
+		insetInputManager = new InputManager(this);
+		try {
+			for(int i=0; i < displayPane.length; i++){
+				if (displayPane[i] == null && nsharpComp [i]!=null) {
+					displayPane[i] = new VizDisplayPane(this, nsharpComp[i],
+							displaysToLoad[i]);
+					
+					
+					displayPane[i].setRenderableDisplay(displaysToLoad[i]);
+					registerListener(displayPane[i]);
+				}
+			}
+			registerHandlers();
+			//set default selected pane to skewT pane
+			selectedPane = displayPane[DISPLAY_SKEWT];
+			for(int i=0; i < displayPane.length; i++){
+				if(displayPane[i] != null)
+					displayPane[i].addListener( SWT.MouseEnter, new PaneMouseListener(i));
+			}
+		}
+        catch (Exception e) {
+            final String errMsg = "Error setting up NsharpEditor";
+            UFStatus.getHandler().handle(Priority.SIGNIFICANT,  errMsg, e);
+        }
+        if(!restarting)
+        	contributePerspectiveActions();
+
+    }
+    private void createSPCWsConfig(Composite comp) {      
+        topGp = new Group(baseComposite, SWT.NONE);
+        topGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        topGp.setLayoutData(topGpGd);
+        GridLayout topGpLayout = new GridLayout(3, false);
+        topGpLayout.marginWidth = 0;
+        topGpLayout.marginHeight = 0;
+        topGpLayout.verticalSpacing = 0;
+        topGp.setLayout(topGpLayout);
+        
+     // skewt composite
+        Composite skewtComp = new Composite(topGp, SWT.NONE);
+        GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        skewtComp.setLayoutData(skewtGd);
+        GridLayout skewtLayout = new GridLayout(1, true);
+        skewtLayout.marginWidth = 0;
+        skewtLayout.marginHeight = 0;
+        skewtLayout.verticalSpacing = 0;
+        skewtComp.setLayout(skewtLayout);
+        nsharpComp[DISPLAY_SKEWT] = skewtComp;
+        // wito composite
+        Composite witoComp = new Composite(topGp, SWT.NONE);
+        GridData witoGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        witoComp.setLayoutData(witoGd);
+        GridLayout witoLayout = new GridLayout(1, true);
+        witoLayout.marginWidth = 0;
+        witoLayout.marginHeight = 0;
+        witoLayout.verticalSpacing = 0;
+        witoComp.setLayout(witoLayout);
+        nsharpComp[DISPLAY_WITO] = witoComp;
+        
+        
+      // right-top group : right part of top group
+        rightTopGp = new Group(topGp, SWT.NONE);
+        rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        rightTopGp.setLayoutData(rightTopGpGd);
+        GridLayout rightTopGpLayout = new GridLayout(1, true);
+        rightTopGpLayout.marginWidth = 0;
+        rightTopGpLayout.marginHeight = 0;
+        rightTopGpLayout.verticalSpacing=0;
+        rightTopGp.setLayout(rightTopGpLayout);
+        
+      //hodo composite
+        Composite hodoComp = new Composite(rightTopGp, SWT.NONE);
+        GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        hodoComp.setLayoutData(hodoGd);
+        GridLayout hodoLayout = new GridLayout(1, true);
+        hodoLayout.marginHeight =0;
+        hodoLayout.marginWidth=0;
+        hodoLayout.verticalSpacing=0;
+        hodoComp.setLayout(hodoLayout);
+		nsharpComp[DISPLAY_HODO] = hodoComp;
+		
+        //inset composite
+        Composite insetComp = new Composite(rightTopGp, SWT.NONE);
+        GridData insetGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        //insetGd.heightHint =  1;
+        insetComp.setLayoutData(insetGd);
+        GridLayout insetLayout = new GridLayout(1, true);
+        insetLayout.marginHeight = 0;
+        insetLayout.marginWidth = 0;
+		insetComp.setLayout(insetLayout);
+		nsharpComp[DISPLAY_INSET] = insetComp;
+		
+		botGp = new Group(baseComposite, SWT.NONE);
+        botGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        botGp.setLayoutData(botGpGd);
+        GridLayout botGpLayout = new GridLayout(2, true);
+        botGpLayout.marginWidth = 0;
+        botGpLayout.marginHeight = 0;
+        botGpLayout.verticalSpacing = 0;
+        botGp.setLayout(botGpLayout);
+		//data composite
+        Composite dataComp = new Composite(botGp, SWT.NONE);
+        GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
+        dataComp.setLayoutData(dataGd);
+        GridLayout dataLayout = new GridLayout(1, true);
+        dataLayout.marginHeight = 0;
+        dataLayout.marginWidth=0;
+        dataComp.setLayout(dataLayout);
+		nsharpComp[DISPLAY_DATA] = dataComp; 
+		//spc composite
+        Composite spcComp = new Composite(botGp, SWT.NONE);
+        GridData spcGd = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
+        spcComp.setLayoutData(spcGd);
+        GridLayout spcLayout = new GridLayout(1, true);
+        spcLayout.marginHeight = 0;
+        spcLayout.marginWidth=0;
+        spcComp.setLayout(spcLayout);
+		nsharpComp[DISPLAY_SPC_GRAPHS] = spcComp; 
+    }
+    private void createSimpleD2DConfig(Composite comp) {      
+    	topGp = new Group(baseComposite, SWT.NONE);
+        topGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        topGp.setLayoutData(topGpGd);
+        GridLayout topGpLayout = new GridLayout(2, false);
+        topGpLayout.marginWidth = 0;
+        topGpLayout.marginHeight = 0;
+        topGpLayout.verticalSpacing = 0;
+        topGp.setLayout(topGpLayout);
+                
+        // skewt composite
+        Composite skewtComp = new Composite(topGp, SWT.NONE);
+        GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        skewtComp.setLayoutData(skewtGd);
+        GridLayout skewtLayout = new GridLayout(1, true);
+        skewtLayout.marginWidth = 0;
+        skewtLayout.marginHeight = 0;
+        skewtLayout.verticalSpacing = 0;
+        skewtComp.setLayout(skewtLayout);
+        nsharpComp[DISPLAY_SKEWT] = skewtComp;
+        
+     // right-top group : right part of top group
+        rightTopGp = new Group(topGp, SWT.NONE);
+        rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        rightTopGp.setLayoutData(rightTopGpGd);
+        GridLayout rightTopGpLayout = new GridLayout(1, true);
+        rightTopGpLayout.marginWidth = 0;
+        rightTopGpLayout.marginHeight = 0;
+        rightTopGpLayout.verticalSpacing=0;
+        rightTopGp.setLayout(rightTopGpLayout);
+        
+      //time-stn composite
+        Composite timeStnComp = new Composite(rightTopGp, SWT.NONE);
+        GridData timeStnGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        timeStnComp.setLayoutData(timeStnGd);
+        GridLayout timeStnLayout = new GridLayout(1, true);
+        timeStnLayout.marginHeight =0;
+        timeStnLayout.marginWidth=0;
+        timeStnLayout.verticalSpacing=0;
+        timeStnComp.setLayout(timeStnLayout);
+		nsharpComp[DISPLAY_TIMESTN] = timeStnComp;
+		
+		//future composite
+        Composite futureComp = new Composite(rightTopGp, SWT.NONE);
+        GridData fuGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        futureComp.setLayoutData(fuGd);
+        GridLayout futureLayout = new GridLayout(1, true);
+        futureLayout.marginHeight = 0;
+        futureLayout.marginWidth=0;
+        futureComp.setLayout(futureLayout);
+		nsharpComp[DISPLAY_FUTURE] = futureComp; 
+		
+        botGp = new Group(baseComposite, SWT.NONE);
+        botGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        botGp.setLayoutData(botGpGd);
+        GridLayout botGpLayout = new GridLayout(2, false);
+        botGpLayout.marginWidth = 0;
+        botGpLayout.marginHeight = 0;
+        botGpLayout.verticalSpacing = 0;
+        botGp.setLayout(botGpLayout);
+        
+      //hodo composite
+        Composite hodoComp = new Composite(botGp, SWT.NONE);
+        GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
+        hodoComp.setLayoutData(hodoGd);
+        GridLayout hodoLayout = new GridLayout(1, true);
+        hodoLayout.marginHeight =0;
+        hodoLayout.marginWidth=0;
+        hodoLayout.verticalSpacing=0;
+        hodoComp.setLayout(hodoLayout);
+		nsharpComp[DISPLAY_HODO] = hodoComp;
+ 		
+		//data composite
+        Composite dataComp = new Composite(botGp, SWT.NONE);
+        GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
+        dataComp.setLayoutData(dataGd);
+        GridLayout dataLayout = new GridLayout(1, true);
+        dataLayout.marginHeight = 0;
+        dataLayout.marginWidth=0;
+        dataComp.setLayout(dataLayout);
+		nsharpComp[DISPLAY_DATA] = dataComp; 
+    }
+    private void createDefConfig2(Composite comp) {      
+        leftGp = new Group(baseComposite, SWT.NONE);
+        leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
         leftGp.setLayoutData(leftGpGd);
         GridLayout leftGpLayout = new GridLayout(1, true);
@@ -228,9 +525,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         
       //left-top group : upper part of left group
         leftTopGp = new Group(leftGp, SWT.NONE);
-        GridData leftTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+        leftTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
-        leftTopGpGd.heightHint = 4;//height is 4:1 between leftTopGp and leftBotGp( only insetComp for now)
         leftTopGp.setLayoutData(leftTopGpGd);
         GridLayout leftTopGpLayout = new GridLayout(2, false);
         leftTopGpLayout.marginWidth = 0;
@@ -242,43 +538,38 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         Composite skewtComp = new Composite(leftTopGp, SWT.NONE);
         GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
-        //skewtGd.heightHint = 4; //Height is 4:1 between skewtComp and insetComp
         skewtComp.setLayoutData(skewtGd);
         GridLayout skewtLayout = new GridLayout(1, true);
         skewtLayout.marginWidth = 0;
         skewtLayout.marginHeight = 0;
         skewtLayout.verticalSpacing = 0;
         skewtComp.setLayout(skewtLayout);
-        nsharpComp[NsharpConstants.DISPLAY_SKEWT] = skewtComp;
-        
+        nsharpComp[DISPLAY_SKEWT] = skewtComp;
         // wito composite
         Composite witoComp = new Composite(leftTopGp, SWT.NONE);
         GridData witoGd = new GridData(SWT.END, SWT.FILL, false,
                 true);
-        witoGd.widthHint = NsharpConstants.WITO_PANE_REC_WIDTH;
         witoComp.setLayoutData(witoGd);
         GridLayout witoLayout = new GridLayout(1, true);
         witoLayout.marginWidth = 0;
         witoLayout.marginHeight = 0;
         witoLayout.verticalSpacing = 0;
         witoComp.setLayout(witoLayout);
-        nsharpComp[NsharpConstants.DISPLAY_WITO] = witoComp;
-               
+        nsharpComp[DISPLAY_WITO] = witoComp;
         //inset composite
         Composite insetComp = new Composite(leftGp, SWT.NONE);
         GridData insetGd = new GridData(SWT.FILL, SWT.FILL, true,
                 false);
-        insetGd.heightHint =  1;
+        //insetGd.heightHint =  1;
         insetComp.setLayoutData(insetGd);
         GridLayout insetLayout = new GridLayout(1, true);
         insetLayout.marginHeight = 0;
         insetLayout.marginWidth = 0;
 		insetComp.setLayout(insetLayout);
-		nsharpComp[NsharpConstants.DISPLAY_INSET] = insetComp;
-		
-        //right group
-        Group rightGp = new Group(baseComposite, SWT.NONE);
-        GridData rightGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+		nsharpComp[DISPLAY_INSET] = insetComp;
+		//right group
+        rightGp = new Group(baseComposite, SWT.NONE);
+        rightGpGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
         rightGp.setLayoutData(rightGpGd);
         GridLayout rightGpLayout = new GridLayout(1, true);
@@ -289,9 +580,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         
         //right-top group : upper part of right group
         rightTopGp = new Group(rightGp, SWT.NONE);
-        GridData rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+        rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
-        rightTopGpGd.heightHint = 7;//height is 7:3 between rightTopGp and rightBotGp( only dataComp for now)
         rightTopGp.setLayoutData(rightTopGpGd);
         GridLayout rightTopGpLayout = new GridLayout(2, false);
         rightTopGpLayout.marginWidth = 0;
@@ -302,175 +592,196 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         Composite hodoComp = new Composite(rightTopGp, SWT.NONE);
         GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
                 true);
-        //hodoGd.widthHint = NsharpConstants.HODO_PANE_REC_WIDTH;//width is 65:35 between hodoComp and timeStnComp
         hodoComp.setLayoutData(hodoGd);
         GridLayout hodoLayout = new GridLayout(1, true);
         hodoLayout.marginHeight =0;
         hodoLayout.marginWidth=0;
         hodoLayout.verticalSpacing=0;
         hodoComp.setLayout(hodoLayout);
-		nsharpComp[NsharpConstants.DISPLAY_HODO] = hodoComp;
-        		
+		nsharpComp[DISPLAY_HODO] = hodoComp;
 		//time-stn composite
         Composite timeStnComp = new Composite(rightTopGp, SWT.NONE);
         GridData timeStnGd = new GridData(SWT.END, SWT.FILL, false,
                 true);
-        timeStnGd.widthHint = NsharpConstants.TIMESTN_PANE_REC_WIDTH;//width is 65:35 between hodoComp and timeStnComp
         timeStnComp.setLayoutData(timeStnGd);
         GridLayout timeStnLayout = new GridLayout(1, true);
         timeStnLayout.marginHeight =0;
         timeStnLayout.marginWidth=0;
         timeStnLayout.verticalSpacing=0;
         timeStnComp.setLayout(timeStnLayout);
-		nsharpComp[NsharpConstants.DISPLAY_TIMESTN] = timeStnComp;
-		
+		nsharpComp[DISPLAY_TIMESTN] = timeStnComp;
 		//data composite
         Composite dataComp = new Composite(rightGp, SWT.NONE);
         GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
                 false);
-        dataGd.heightHint = 3;
         dataComp.setLayoutData(dataGd);
         GridLayout dataLayout = new GridLayout(1, true);
-        dataLayout.marginHeight = 2;
+        dataLayout.marginHeight = 0;
         dataLayout.marginWidth=0;
         dataComp.setLayout(dataLayout);
-		nsharpComp[NsharpConstants.DISPLAY_DATA] = dataComp; 
-		
-		skewtInputManager = new InputManager(this);
-		//witoInputManager = new InputManager(this);
-		timeStnInputManager = new InputManager(this);
-		hodoInputManager = new InputManager(this);
-		dataInputManager = new InputManager(this);
-		insetInputManager = new InputManager(this);
-		try {
-			for(int i=0; i < displayPane.length; i++){
-				if (displayPane[i] == null ) {
-					displayPane[i] = new VizDisplayPane(this, nsharpComp[i],
-							displaysToLoad[i]);
-					
-					
-					displayPane[i].setRenderableDisplay(displaysToLoad[i]);
-					registerListener(displayPane[i]);
-				}
-			}
-			registerHandlers();
-			
-			displayPane[NsharpConstants.DISPLAY_SKEWT].addListener( SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if ( e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_SKEWT];
-						//System.out.println("selectedPane =skewt");
-					}
-				}
-			});
-			displayPane[NsharpConstants.DISPLAY_WITO].addListener(SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if (e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_WITO];
-						//System.out.println("selectedPane =date");
-					}
-				}
-			});
-			displayPane[NsharpConstants.DISPLAY_HODO].addListener( SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if ( e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_HODO];
-						//System.out.println("selectedPane =hodo");
-					}
-				}
-			});
-			displayPane[NsharpConstants.DISPLAY_TIMESTN].addListener( SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if ( e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_TIMESTN];
-						//System.out.println("selectedPane =hodo");
-					}
-				}
-			});
-			displayPane[NsharpConstants.DISPLAY_DATA].addListener(SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if (e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_DATA];
-						//System.out.println("selectedPane =date");
-					}
-				}
-			});
-			displayPane[NsharpConstants.DISPLAY_INSET].addListener( SWT.MouseEnter, new Listener() {
-				@Override
-				public void handleEvent(Event e) {						
-					if ( e.button==0 ) {
-						selectedPane = displayPane[NsharpConstants.DISPLAY_INSET];
-						//System.out.println("selectedPane =inset");
-					}
-				}
-			});
-			
-		}
-        catch (Exception e) {
-            final String errMsg = "Error setting up NsharpEditor";
-            UFStatus.getHandler().handle(Priority.SIGNIFICANT,  errMsg, e);
-        }
-        contributePerspectiveActions();
+		nsharpComp[DISPLAY_DATA] = dataComp; 
+    }
+    private void createDefConfig1(Composite comp) {
+        leftGp = new Group(baseComposite, SWT.NONE);
+        leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        
+        leftGp.setLayoutData(leftGpGd);
+        GridLayout leftGpLayout = new GridLayout(1, true);
+        leftGpLayout.marginWidth = 0;
+        leftGpLayout.marginHeight = 0;
+        leftGpLayout.verticalSpacing = 0;
+        leftGp.setLayout(leftGpLayout);
+        
+      //left-top group : upper part of left group
+        leftTopGp = new Group(leftGp, SWT.NONE);
+        leftTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        leftTopGp.setLayoutData(leftTopGpGd);
+        GridLayout leftTopGpLayout = new GridLayout(2, false);
+        leftTopGpLayout.marginWidth = 0;
+        leftTopGpLayout.marginHeight = 0;
+        leftTopGpLayout.verticalSpacing=0;
+        leftTopGp.setLayout(leftTopGpLayout);
+        
+        // skewt composite
+        Composite skewtComp = new Composite(leftTopGp, SWT.NONE);
+        GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        skewtComp.setLayoutData(skewtGd);
+        GridLayout skewtLayout = new GridLayout(1, true);
+        skewtLayout.marginWidth = 0;
+        skewtLayout.marginHeight = 0;
+        skewtLayout.verticalSpacing = 0;
+        skewtComp.setLayout(skewtLayout);
+        nsharpComp[DISPLAY_SKEWT] = skewtComp;
+        // wito composite
+        Composite witoComp = new Composite(leftTopGp, SWT.NONE);
+        GridData witoGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        witoComp.setLayoutData(witoGd);
+        GridLayout witoLayout = new GridLayout(1, true);
+        witoLayout.marginWidth = 0;
+        witoLayout.marginHeight = 0;
+        witoLayout.verticalSpacing = 0;
+        witoComp.setLayout(witoLayout);
+        nsharpComp[DISPLAY_WITO] = witoComp;
+       //left-bottom group 
+        leftBotGp = new Group(leftGp, SWT.NONE);
+        leftBotGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        leftBotGp.setLayoutData(leftBotGpGd);
+        GridLayout leftBotGpLayout = new GridLayout(2, true);
+        leftBotGpLayout.marginWidth = 0;
+        leftBotGpLayout.marginHeight = 0;
+        leftBotGpLayout.verticalSpacing=0;
+        leftBotGp.setLayout(leftBotGpLayout);
+      //time-stn composite
+        Composite timeStnComp = new Composite(leftBotGp, SWT.NONE);
+        GridData timeStnGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        timeStnComp.setLayoutData(timeStnGd);
+        GridLayout timeStnLayout = new GridLayout(1, true);
+        timeStnLayout.marginHeight =0;
+        timeStnLayout.marginWidth=0;
+        timeStnLayout.verticalSpacing=0;
+        timeStnComp.setLayout(timeStnLayout);
+		nsharpComp[DISPLAY_TIMESTN] = timeStnComp;
+		//inset composite
+        Composite insetComp = new Composite(leftBotGp, SWT.NONE);
+        GridData insetGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        //insetGd.heightHint =  1;
+        insetComp.setLayoutData(insetGd);
+        GridLayout insetLayout = new GridLayout(1, true);
+        insetLayout.marginHeight = 0;
+        insetLayout.marginWidth = 0;
+		insetComp.setLayout(insetLayout);
+		nsharpComp[DISPLAY_INSET] = insetComp;
+		//right group
+        rightGp = new Group(baseComposite, SWT.NONE);
+        rightGpGd = new GridData(SWT.END, SWT.FILL, true,
+                true);
+        
+        rightGp.setLayoutData(rightGpGd);
+        GridLayout rightGpLayout = new GridLayout(1, true);
+        rightGpLayout.marginWidth = 0;
+        rightGpLayout.marginHeight = 0;
+        rightGpLayout.verticalSpacing=0;
+        rightGp.setLayout(rightGpLayout);
+        
+		//hodo composite
+        Composite hodoComp = new Composite(rightGp, SWT.NONE);
+        GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        hodoComp.setLayoutData(hodoGd);
+        GridLayout hodoLayout = new GridLayout(1, true);
+        hodoLayout.marginHeight =0;
+        hodoLayout.marginWidth=0;
+        hodoLayout.verticalSpacing=0;
+        hodoComp.setLayout(hodoLayout);
+		nsharpComp[DISPLAY_HODO] = hodoComp;
+		//data composite
+        Composite dataComp = new Composite(rightGp, SWT.NONE);
+        GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+                true);
+        dataComp.setLayoutData(dataGd);
+        GridLayout dataLayout = new GridLayout(1, true);
+        dataLayout.marginHeight = 0;
+        dataLayout.marginWidth=0;
+        dataComp.setLayout(dataLayout);
+		nsharpComp[DISPLAY_DATA] = dataComp; 
     }
 
     protected void registerHandlers() {
     	for(int i=0; i < displayPane.length; i++){
-    		IDisplayPane pane = displayPane[i];
-    		InputHandlerDefaultImpl mouseHandler=null;
-    		InputManager inputMgr;
-    		// Enable the mouse inspect adapter
-    		switch(i){
-    		case NsharpConstants.DISPLAY_SKEWT:
-    		default:
-        		skewtPaneMouseHandler = new NsharpSkewTPaneMouseHandler(this, pane);
-    			mouseHandler = skewtPaneMouseHandler;
-    			inputMgr = skewtInputManager;
-    			break;
-    		case NsharpConstants.DISPLAY_WITO:
-    			/*witoPaneMouseHandler = new NsharpAbstractMouseHandler(this,pane);
-    			mouseHandler =witoPaneMouseHandler;
-    			inputMgr =witoInputManager;*/
-    			continue;
-    		case NsharpConstants.DISPLAY_HODO:
-    			hodoPaneMouseHandler = new NsharpHodoPaneMouseHandler(this,pane);
-    			mouseHandler =hodoPaneMouseHandler;
-    			inputMgr =hodoInputManager;
-    			break;
-    		case NsharpConstants.DISPLAY_TIMESTN:
-    			timeStnPaneMouseHandler = new NsharpTimeStnPaneMouseHandler(this,pane);
-    			mouseHandler =timeStnPaneMouseHandler;
-    			inputMgr =timeStnInputManager;
-    			break;
-    		case NsharpConstants.DISPLAY_INSET:
-    			insetPaneMouseHandler = new NsharpAbstractMouseHandler(this,pane);
-    			mouseHandler =insetPaneMouseHandler;
-    			inputMgr =insetInputManager;
-    			break;
-    		case NsharpConstants.DISPLAY_DATA:
-    			dataPaneMouseHandler = new NsharpDataPaneMouseHandler(this,pane);
-    			mouseHandler =dataPaneMouseHandler;
-    			inputMgr =dataInputManager;
-    			break;
-    			
+    		if(displayPane[i]!=null){
+    			IDisplayPane pane = displayPane[i];
+    			InputHandlerDefaultImpl mouseHandler=null;
+    			InputManager inputMgr;
+    			// Enable the mouse inspect adapter
+    			if(i == DISPLAY_SKEWT){
+    				skewtPaneMouseHandler = new NsharpSkewTPaneMouseHandler(this, pane);
+    				mouseHandler = skewtPaneMouseHandler;
+    				inputMgr = skewtInputManager;
+    			}
+    			else if(i == DISPLAY_HODO) {
+
+    				hodoPaneMouseHandler = new NsharpHodoPaneMouseHandler(this,pane);
+    				mouseHandler =hodoPaneMouseHandler;
+    				inputMgr =hodoInputManager;
+    			}
+    			else if(i== DISPLAY_TIMESTN) {
+    				timeStnPaneMouseHandler = new NsharpTimeStnPaneMouseHandler(this,pane);
+    				mouseHandler =timeStnPaneMouseHandler;
+    				inputMgr =timeStnInputManager;
+    			}
+    			else if(i==  DISPLAY_INSET) {
+    				insetPaneMouseHandler = new NsharpAbstractMouseHandler(this,pane);
+    				mouseHandler =insetPaneMouseHandler;
+    				inputMgr =insetInputManager;
+    			}
+    			else if(i==  DISPLAY_DATA){
+    				dataPaneMouseHandler = new NsharpDataPaneMouseHandler(this,pane);
+    				mouseHandler =dataPaneMouseHandler;
+    				inputMgr =dataInputManager;
+    			}
+    			else
+    				continue;
+
+    			inputMgr.registerMouseHandler(mouseHandler);
+
+    			pane.addListener(SWT.MouseUp, inputMgr);
+    			pane.addListener(SWT.MouseDown, inputMgr);
+    			pane.addListener(SWT.MouseMove, inputMgr);
+    			pane.addListener(SWT.MouseWheel, inputMgr);
+    			pane.addListener(SWT.MouseHover, inputMgr);
+    			pane.addListener(SWT.MouseEnter, inputMgr);
+    			pane.addListener(SWT.MouseExit, inputMgr);
+    			pane.addListener(SWT.MenuDetect, inputMgr);
+    			pane.addListener(SWT.KeyUp, inputMgr);
+    			pane.addListener(SWT.KeyDown, inputMgr);       
     		}
-
-    		inputMgr.registerMouseHandler(mouseHandler);
-
-    		pane.addListener(SWT.MouseUp, inputMgr);
-    		pane.addListener(SWT.MouseDown, inputMgr);
-    		pane.addListener(SWT.MouseMove, inputMgr);
-    		pane.addListener(SWT.MouseWheel, inputMgr);
-    		pane.addListener(SWT.MouseHover, inputMgr);
-    		pane.addListener(SWT.MouseEnter, inputMgr);
-    		pane.addListener(SWT.MouseExit, inputMgr);
-    		pane.addListener(SWT.MenuDetect, inputMgr);
-    		pane.addListener(SWT.KeyUp, inputMgr);
-    		pane.addListener(SWT.KeyDown, inputMgr);       
     	}
     }
 
@@ -479,6 +790,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     public void init(IEditorSite site, IEditorInput input)
             throws PartInitException {
         super.init(site, input);
+        System.out.println("SkewtEditor init called");
         EditorInput editorInput = (EditorInput) input;
         if (input instanceof EditorInput) {
         	displaysToLoad = editorInput.getRenderableDisplays();
@@ -518,6 +830,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     		synchronized (this) {
     			if (skewtPaneMouseHandler != null && skewtInputManager != null) {
     				skewtPaneMouseHandler.setEditor(null);
+    				skewtPaneMouseHandler.disposeCursor();
     				skewtInputManager.unregisterMouseHandler(skewtPaneMouseHandler);
     				skewtPaneMouseHandler = null;
     				skewtInputManager = null;
@@ -560,7 +873,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	}
     	try{
     		IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-    		IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.nsharp" );
+    		IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.nsharp.defaultview1" );
     		wpage.hideView(vpart);
     	}
     	catch(Exception e){
@@ -570,6 +883,63 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	
     }
 
+    public void restartEditor(String paneConfigurationName) {
+    	//System.out.println("reStartEditor! "  );
+    	setPaneConfigurationName(paneConfigurationName);
+    	if (skewtPaneMouseHandler != null && skewtInputManager != null) {
+    		skewtPaneMouseHandler.setEditor(null);
+    		skewtInputManager.unregisterMouseHandler(skewtPaneMouseHandler);
+    		skewtPaneMouseHandler = null;
+    		skewtInputManager = null;
+    	}
+    	if (hodoPaneMouseHandler != null && hodoInputManager != null) {
+    		hodoPaneMouseHandler.setEditor(null);
+    		hodoInputManager.unregisterMouseHandler(hodoPaneMouseHandler);
+    		hodoPaneMouseHandler = null;
+    		hodoInputManager = null;
+    	}
+    	if (dataPaneMouseHandler != null && dataInputManager != null) {
+    		dataPaneMouseHandler.setEditor(null);
+    		dataInputManager.unregisterMouseHandler(dataPaneMouseHandler);
+    		dataPaneMouseHandler = null;
+    		dataInputManager = null;
+    	}
+    	if (insetPaneMouseHandler != null && insetInputManager != null) {
+    		insetPaneMouseHandler.setEditor(null);
+    		insetInputManager.unregisterMouseHandler(insetPaneMouseHandler);
+    		insetPaneMouseHandler = null;
+    		insetInputManager = null;
+    	}
+    	/*if (witoPaneMouseHandler != null && witoInputManager != null) {
+    				witoPaneMouseHandler.setEditor(null);
+    				witoInputManager.unregisterMouseHandler(witoPaneMouseHandler);
+    				witoPaneMouseHandler = null;
+    				witoInputManager = null;
+    			}*/
+    	if (timeStnPaneMouseHandler != null && timeStnInputManager != null) {
+    		timeStnPaneMouseHandler.setEditor(null);
+    		timeStnInputManager.unregisterMouseHandler(timeStnPaneMouseHandler);
+    		timeStnPaneMouseHandler = null;
+    		timeStnInputManager = null;
+    	}
+    	baseComposite.removeListener(SWT.Resize, resizeLsner);
+    	displayArray = null;
+    	nsharpComp=null;
+    	for (VizDisplayPane pane: displayPane){
+    		pane.dispose();
+    	}
+    	displayPane = null;
+    	rightTopGp= leftTopGp= leftBotGp= leftGp= rightGp= topGp= botGp=null;
+    	createOrUpdateEditor(true);
+    	restarting = true;
+    	createPartControl(parantComp);
+    	editorInput.setRenderableDisplays(getRenderableDisplays());
+    	//Chin: note: after reset all resource in editor, editor displays an empty screen. Refresh() does not work.
+    	//Therefore, play the following trick. I.e. bring map editor to top and then this editor to top. After this trick,
+    	// editor displays normally.
+    	NsharpMapResource.bringMapEditorToTop();
+    	bringEditorToTop();
+    }
     /**
      * Perform a refresh asynchronously
      * 
@@ -599,10 +969,12 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     }
 
     public void resetGraph(){
-    	for(int i=0; i < NsharpConstants.DISPLAY_TOTAL; i++){
-    		displayPane[i].getRenderableDisplay().getExtent().reset();
-    		displayPane[i].getRenderableDisplay().zoom(1);
-    		displayPane[i].getRenderableDisplay().refresh();
+    	for(int i=0; i < DISPLAY_TOTAL; i++){
+    		if(displayPane[i]!=null){
+    			displayPane[i].getRenderableDisplay().getExtent().reset();
+    			displayPane[i].getRenderableDisplay().zoom(1);
+    			displayPane[i].getRenderableDisplay().refresh();
+    		}
     	}
     	if(rscHandler!=null && rscHandler.getWitoPaneRsc()!=null)
     		rscHandler.getWitoPaneRsc().createAllWireFrameShapes();
@@ -638,11 +1010,22 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     @Override
     public IDisplayPane[] getDisplayPanes() {
     	//System.out.println("SkewtEditor getDisplayPanes called");
-        return this.displayPane;
+        return getDisplayPaneArray();//this.displayPane;
     }
-
+    private IRenderableDisplay[] getRenderableDisplays() {
+        IRenderableDisplay[] displays = new IRenderableDisplay[getDisplayPanes().length];
+        int i = 0;
+        for (IDisplayPane pane : getDisplayPanes()) {
+            displays[i++] = pane.getRenderableDisplay();
+        }
+        return displays;
+    }
     
-
+    @Override
+    public IEditorInput getEditorInput() {
+       // editorInput.setRenderableDisplays(getRenderableDisplays());
+        return editorInput;
+    }
     /**
      * Returns the mouse manager
      * 
@@ -715,8 +1098,168 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		return null;
 	}
 	
+	private static NsharpEditor createOrUpdateEditor(boolean updateInputOnly) {	
+		NsharpEditor editor;
+		if(updateInputOnly == false){
+		NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
+		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
+		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			DISPLAY_SKEWT = 0; 
+			DISPLAY_WITO= DISPLAY_SKEWT+1;
+			DISPLAY_INSET= DISPLAY_WITO+1;
+		    DISPLAY_HODO= DISPLAY_INSET+1;
+		    DISPLAY_DATA= DISPLAY_HODO+1;
+		    DISPLAY_SPC_GRAPHS= DISPLAY_DATA+1;
+		    DISPLAY_TOTAL= DISPLAY_SPC_GRAPHS+1;	
+		    DISPLAY_FUTURE = -1;
+		    DISPLAY_TIMESTN = -1;
+		    nsharpComp = new Composite[DISPLAY_TOTAL];
+			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
+			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
+			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
+			displayArray[DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),DISPLAY_WITO);
+			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
+			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
+			displayArray[DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),DISPLAY_INSET);
+			displayArray[DISPLAY_SPC_GRAPHS]= new NsharpSpcGraphsPaneDisplay(new PixelExtent(NsharpConstants.SPC_GRAPH_DISPLAY_REC),DISPLAY_SPC_GRAPHS);	
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			DISPLAY_SKEWT = 0; 
+			DISPLAY_TIMESTN= DISPLAY_SKEWT+1;
+			DISPLAY_HODO= DISPLAY_TIMESTN+1;
+		    DISPLAY_DATA=DISPLAY_HODO+1;
+		    DISPLAY_FUTURE= DISPLAY_DATA+1;		
+		    DISPLAY_TOTAL= DISPLAY_FUTURE+1;		
+		    DISPLAY_WITO= -1;
+			DISPLAY_INSET= -1;
+			DISPLAY_SPC_GRAPHS = -1;
+			nsharpComp = new Composite[DISPLAY_TOTAL];
+			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
+			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
+			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
+			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
+			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
+			displayArray[DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),DISPLAY_TIMESTN);
+			displayArray[DISPLAY_FUTURE]= new NsharpSpcGraphsPaneDisplay(new PixelExtent(NsharpConstants.FUTURE_DISPLAY_REC),DISPLAY_FUTURE);
+		} 
+		else { // case of default1 and default 2 pane configurations
+			DISPLAY_SKEWT = 0; 
+			DISPLAY_WITO= DISPLAY_SKEWT+1;
+			DISPLAY_INSET= DISPLAY_WITO+1;
+		    DISPLAY_HODO= DISPLAY_INSET+1;
+		    DISPLAY_TIMESTN= DISPLAY_HODO+1;
+		    DISPLAY_DATA=DISPLAY_TIMESTN+1;
+		    DISPLAY_TOTAL= DISPLAY_DATA+1;
+		    DISPLAY_FUTURE = -1;
+		    DISPLAY_SPC_GRAPHS = -1;
+		    nsharpComp = new Composite[DISPLAY_TOTAL];
+			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
+			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
+			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
+			displayArray[DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),DISPLAY_WITO);
+			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
+			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
+			displayArray[DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),DISPLAY_INSET);
+			displayArray[DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),DISPLAY_TIMESTN);
+		}
+		//System.out.println("createOrOpenSkewTEditor....... ");
+		try {
+			
+			EditorInput edInput = new EditorInput(new NCLoopProperties(),
+					displayArray);
+
+			System.out.println("createEditor creating new one");
+			if(updateInputOnly == true){
+				editor = getActiveNsharpEditor();
+				editor.setInput(edInput);
+				editor.displaysToLoad = editor.editorInput.getRenderableDisplays();
+				for (IRenderableDisplay display : editor.displaysToLoad) {
+		            if (display != null) {
+		            	editor.initDisplay(display);
+		            }
+		        }
+				rscHandler.updateDisplay(displayArray,paneConfigurationName);
+				rscHandler.resetRscSoundingData();
+				
+				
+			}
+			else {
+				editor = (NsharpEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+						.openEditor(edInput, EDITOR_ID);
+				//Note: NsharpResourceHandler should be created after editor is created, so all display pane properties and
+				// pane resource are also constructed
+				rscHandler = new NsharpResourceHandler(displayArray);
+			}
+			
+			ResourcePair skewtRscPair =  displayArray[DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
+			if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
+				NsharpSkewTPaneResource skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
+				skewtPaneRsc.setRscHandler(rscHandler);
+			}
+			ResourcePair dataRscPair =  displayArray[DISPLAY_DATA].getDescriptor().getResourceList().get(0);
+			if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
+				NsharpDataPaneResource dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
+				dataPaneRsc.setRscHandler(rscHandler);
+			}
+			
+			ResourcePair hodoRscPair =  displayArray[DISPLAY_HODO].getDescriptor().getResourceList().get(0);
+			if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
+				NsharpHodoPaneResource hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
+				hodoPaneRsc.setRscHandler(rscHandler);
+			}
+
+			if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
+					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+				ResourcePair witoRscPair =  displayArray[DISPLAY_WITO].getDescriptor().getResourceList().get(0);
+				if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
+					NsharpWitoPaneResource witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
+					witoPaneRsc.setRscHandler(rscHandler);
+				}
+
+
+				ResourcePair insetRscPair =  displayArray[DISPLAY_INSET].getDescriptor().getResourceList().get(0);
+				if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
+					NsharpInsetPaneResource insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
+					insetPaneRsc.setRscHandler(rscHandler);
+				}
+			}
+			if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+				ResourcePair spcGraphRscPair =  displayArray[DISPLAY_SPC_GRAPHS].getDescriptor().getResourceList().get(0);
+				if (spcGraphRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
+					NsharpSpcGraphsPaneResource spcPaneRsc = (NsharpSpcGraphsPaneResource)spcGraphRscPair.getResource() ;
+					spcPaneRsc.setRscHandler(rscHandler);
+				}
+			}
+			if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+				ResourcePair futureRscPair =  displayArray[DISPLAY_FUTURE].getDescriptor().getResourceList().get(0);
+				if (futureRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
+					NsharpSpcGraphsPaneResource futurePaneRsc = (NsharpSpcGraphsPaneResource)futureRscPair.getResource() ;
+					futurePaneRsc.setRscHandler(rscHandler);
+				}
+			}
+			if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
+					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+				ResourcePair timeStnRscPair =  displayArray[DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
+				if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
+					NsharpTimeStnPaneResource timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
+					timeStnPaneRsc.setRscHandler(rscHandler);
+				}
+			}
+			return editor;
+		} catch (PartInitException e) {
+			UiPlugin.getDefault()
+			.getLog()
+			.log(new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
+					"Error constituting NsharpEditor", e));
+		}
 	
-	public static NsharpEditor createOrOpenEditor(  ) {
+		return null;
+	}
+	public static NsharpEditor createOrOpenEditor(  ) {	
 		NsharpEditor editor = getActiveNsharpEditor();
 		if (editor != null) {
 			//System.out.println("createOrOpenSkewTEditor return editor from getActiveNsharpEditor");
@@ -724,64 +1267,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 			//        .getActivePage().bringToTop(editor);
 			return editor;
 		} else {
-			//System.out.println("createOrOpenSkewTEditor....... ");
-			try {
-				displayArray = new IRenderableDisplay[NsharpConstants.DISPLAY_TOTAL];
-				displayArray[NsharpConstants.DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),NsharpConstants.DISPLAY_SKEWT);
-				displayArray[NsharpConstants.DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),NsharpConstants.DISPLAY_WITO);
-				displayArray[NsharpConstants.DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),NsharpConstants.DISPLAY_HODO);
-				displayArray[NsharpConstants.DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),NsharpConstants.DISPLAY_TIMESTN);
-				displayArray[NsharpConstants.DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),NsharpConstants.DISPLAY_DATA);
-				displayArray[NsharpConstants.DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),NsharpConstants.DISPLAY_INSET);
-								
-				EditorInput edInput = new EditorInput(new NCLoopProperties(),
-						displayArray);
-
-				//System.out.println("createOrOpenEditor creating new one");
-				editor = (NsharpEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-							.openEditor(edInput, EDITOR_ID);
-				//Note: NsharpResourceHandler should be created after editor is created, so all display pane properties and
-				// pane resource are also constructed
-				rscHandler = new NsharpResourceHandler(displayArray);
-				ResourcePair skewtRscPair =  displayArray[NsharpConstants.DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
-				if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
-					NsharpSkewTPaneResource skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
-					skewtPaneRsc.setRscHandler(rscHandler);
-				}
-				ResourcePair witoRscPair =  displayArray[NsharpConstants.DISPLAY_WITO].getDescriptor().getResourceList().get(0);
-				if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
-					NsharpWitoPaneResource witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
-					witoPaneRsc.setRscHandler(rscHandler);
-				}
-				ResourcePair hodoRscPair =  displayArray[NsharpConstants.DISPLAY_HODO].getDescriptor().getResourceList().get(0);
-				if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
-					NsharpHodoPaneResource hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
-					hodoPaneRsc.setRscHandler(rscHandler);
-				}
-				ResourcePair timeStnRscPair =  displayArray[NsharpConstants.DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
-				if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
-					NsharpTimeStnPaneResource timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
-					timeStnPaneRsc.setRscHandler(rscHandler);
-				}
-				ResourcePair dataRscPair =  displayArray[NsharpConstants.DISPLAY_DATA].getDescriptor().getResourceList().get(0);
-				if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
-					NsharpDataPaneResource dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
-					dataPaneRsc.setRscHandler(rscHandler);
-				}
-				ResourcePair insetRscPair =  displayArray[NsharpConstants.DISPLAY_INSET].getDescriptor().getResourceList().get(0);
-				if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
-					NsharpInsetPaneResource insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
-					insetPaneRsc.setRscHandler(rscHandler);
-				}
-				return editor;
-			} catch (PartInitException e) {
-				UiPlugin.getDefault()
-				.getLog()
-				.log(new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
-						"Error constituting NsharpEditor", e));
-			}
+			return createOrUpdateEditor(false);
 		}
-		return null;
 	}
 	public static void bringEditorToTop(  ) {
 		NsharpEditor editor = getActiveNsharpEditor();
@@ -825,4 +1312,299 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		return baseHeight;
 	}
     
+	class PaneMouseListener implements Listener {
+		private int paneIndex;
+		
+		public PaneMouseListener(int index) {
+			super();
+			this.paneIndex = index;
+		}
+
+		@Override
+		public void handleEvent(Event e) {						
+			if ( e.button==0 ) {
+				selectedPane = displayPane[paneIndex];
+			}
+		}
+	}
+
+	class ResizeListener implements Listener {
+		private String paneConfigurationName="";
+		
+		
+		public ResizeListener(String name) {
+			super();
+			this.paneConfigurationName = name;
+		}
+
+
+		@Override
+        public void handleEvent(Event event) {
+			baseHeight = baseComposite.getSize().y;
+	        baseWidth = baseComposite.getSize().x;
+	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+	        	skewTHeightHint = (int) (baseHeight * skewTHeightHintRatio);
+	        	skewTWidthHint = (int) (baseWidth*leftGroupWidthRatio *skewTWidthHintRatio);
+	        	witoHeightHint = (int) (baseHeight * witoHeightHintRatio);
+	        	witoWidthHint = (int) (baseWidth*leftGroupWidthRatio *witoWidthHintRatio);
+	        	hodoHeightHint = (int) (baseHeight * hodoHeightHintRatio);
+	        	hodoWidthHint = (int) (baseWidth*(1-leftGroupWidthRatio) *hodoWidthHintRatio);
+	        	insetHeightHint = (int) (baseHeight * insetHeightHintRatio);
+	        	insetWidthHint = (int) (baseWidth*(leftGroupWidthRatio) *insetWidthHintRatio);
+	        	timeStnHeightHint = (int) (baseHeight * timeStnHeightHintRatio);
+	        	timeStnWidthHint = (int) (baseWidth*(1-leftGroupWidthRatio) *timeStnWidthHintRatio);
+	        	dataHeightHint = (int) (baseHeight * dataHeightHintRatio);
+	        	dataWidthHint = (int) (baseWidth*(1-leftGroupWidthRatio) *dataWidthHintRatio);
+	        } else if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){			
+				skewTHeightHint = (int) (baseHeight * skewTHeightHintRatio);
+	        	skewTWidthHint = (int) (baseWidth*leftGroupWidthRatio *skewTWidthHintRatio);
+	        	witoHeightHint = (int) (baseHeight * witoHeightHintRatio);
+	        	witoWidthHint = (int) (baseWidth*leftGroupWidthRatio *witoWidthHintRatio);
+	        	hodoHeightHint = (int) (baseHeight * hodoHeightHintRatio);
+	        	hodoWidthHint = (int) (baseWidth*(1-leftGroupWidthRatio) *hodoWidthHintRatio);
+	        	insetHeightHint = (int) (baseHeight * insetHeightHintRatio);
+	        	insetWidthHint = (int) (baseWidth*(leftGroupWidthRatio) *insetWidthHintRatio);
+	        	timeStnHeightHint = (int) (baseHeight * timeStnHeightHintRatio);
+	        	timeStnWidthHint = (int) (baseWidth*(leftGroupWidthRatio) *timeStnWidthHintRatio);
+	        	dataHeightHint = (int) (baseHeight * dataHeightHintRatio);
+	        	dataWidthHint = (int) (baseWidth*(1-leftGroupWidthRatio) *dataWidthHintRatio);
+			}
+	        else if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){			
+	        	skewTHeightHint = (int) (baseHeight * topGroupHeightRatio* skewTHeightHintRatio);
+	        	skewTWidthHint = (int) (baseWidth*skewTWidthHintRatio);
+	        	witoHeightHint = (int) (baseHeight * topGroupHeightRatio * witoHeightHintRatio);
+	        	witoWidthHint = (int) (baseWidth*witoWidthHintRatio);
+	        	hodoHeightHint = (int) (baseHeight *topGroupHeightRatio* hodoHeightHintRatio);
+	        	hodoWidthHint = (int) (baseWidth*hodoWidthHintRatio);
+	        	insetHeightHint = (int) (baseHeight * topGroupHeightRatio* insetHeightHintRatio);
+	        	insetWidthHint = (int) (baseWidth*insetWidthHintRatio);
+	        	dataHeightHint = (int) (baseHeight * botGroupHeightRatio*dataHeightHintRatio);
+	        	dataWidthHint = (int) (baseWidth*dataWidthHintRatio);
+	        	spcHeightHint = (int) (baseHeight * botGroupHeightRatio*dataHeightHintRatio);
+	        	spcWidthHint = (int) (baseWidth*dataWidthHintRatio);
+			} 
+	        else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+	        	skewTHeightHint = (int) (baseHeight * topGroupHeightRatio* skewTHeightHintRatio);
+	        	skewTWidthHint = (int) (baseWidth*skewTWidthHintRatio);
+	        	timeStnHeightHint = (int) (baseHeight * topGroupHeightRatio* timeStnHeightHintRatio);
+	        	timeStnWidthHint = (int) (baseWidth* timeStnWidthHintRatio);   	
+	        	futureHeightHint = (int) (baseHeight * topGroupHeightRatio* (1-timeStnHeightHintRatio));
+	        	futureWidthHint = timeStnWidthHint;
+	        	dataHeightHint = (int) (baseHeight * botGroupHeightRatio*dataHeightHintRatio);
+	        	dataWidthHint = (int) (baseWidth* dataWidthHintRatio);
+	        	hodoHeightHint = (int) (baseHeight *botGroupHeightRatio* hodoHeightHintRatio);
+	        	hodoWidthHint = (int) (baseWidth*hodoWidthHintRatio);
+	        }
+	        //System.out.println("resizing...nsjarp base w= " + baseWidth + " h= "+ baseHeight);
+	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR) || paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
+	        	leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);
+	        	leftGpGd.widthHint = (int) (baseWidth*leftGroupWidthRatio);
+	        	leftGp.setLayoutData(leftGpGd);
+
+	        	rightGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);
+	        	rightGpGd.widthHint = (int) (baseWidth*(1-leftGroupWidthRatio));
+	        	rightGp.setLayoutData(rightGpGd);
+
+	        	leftTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);
+	        	leftTopGpGd.heightHint = (int) (baseHeight *leftTopGroupHeightRatio);
+	        	leftTopGp.setLayoutData(leftTopGpGd);
+	        	if(leftBotGp!=null){
+	        		leftBotGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        				true);
+	        		leftBotGpGd.heightHint = (int) (baseHeight *(1-leftTopGroupHeightRatio));
+	        		leftBotGp.setLayoutData(leftBotGpGd);
+	        	}
+	        	GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_SKEWT];
+	        	skewtGd.heightHint = skewTHeightHint;
+	        	skewtGd.widthHint = skewTWidthHint;
+	        	nsharpComp[DISPLAY_SKEWT].setLayoutData(skewtGd);
+	        	GridData witoGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_WITO];
+	        	witoGd.heightHint = witoHeightHint;
+	        	witoGd.widthHint = witoWidthHint;
+	        	nsharpComp[DISPLAY_WITO].setLayoutData(witoGd);
+
+	        	GridData timeStnGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_TIMESTN];
+	        	timeStnGd.heightHint = timeStnHeightHint;
+	        	timeStnGd.widthHint = timeStnWidthHint;
+	        	nsharpComp[DISPLAY_TIMESTN].setLayoutData(timeStnGd);
+	        	GridData insetGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_INSET];
+	        	insetGd.heightHint =  insetHeightHint;
+	        	insetGd.widthHint = insetWidthHint;
+	        	nsharpComp[DISPLAY_INSET].setLayoutData(insetGd);
+
+	        	GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_HODO];
+	        	hodoGd.heightHint = hodoHeightHint;
+	        	hodoGd.widthHint = hodoWidthHint;
+	        	nsharpComp[DISPLAY_HODO].setLayoutData(hodoGd);
+
+	        	GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_DATA];
+	        	dataGd.heightHint = dataHeightHint;
+	        	dataGd.widthHint = dataWidthHint;
+	        	nsharpComp[DISPLAY_DATA].setLayoutData(dataGd);
+
+	        }else if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){	
+	            topGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            topGpGd.heightHint = (int) (baseHeight * topGroupHeightRatio);
+	            topGp.setLayoutData(topGpGd);
+	            	            
+	         // skewt composite
+	            GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            skewtGd.heightHint = skewTHeightHint;
+	        	skewtGd.widthHint = skewTWidthHint;
+	        	nsharpComp[DISPLAY_SKEWT].setLayoutData(skewtGd);
+	            
+	            
+	            // wito composite
+	            GridData witoGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            witoGd.heightHint = witoHeightHint;
+	        	witoGd.widthHint = witoWidthHint;
+	        	nsharpComp[DISPLAY_WITO].setLayoutData(witoGd);	            
+	            
+	          // right-top group : right part of top group
+	            rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            rightTopGpGd.widthHint = (int) (baseWidth*hodoWidthHintRatio);
+	            rightTopGp.setLayoutData(rightTopGpGd);
+	            	            
+	          //hodo composite
+	           GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            hodoGd.heightHint = hodoHeightHint;
+	        	hodoGd.widthHint = hodoWidthHint;
+	        	nsharpComp[DISPLAY_HODO].setLayoutData(hodoGd);
+	
+	    		
+	            //inset composite
+	            GridData insetGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            insetGd.heightHint =  insetHeightHint;
+	        	insetGd.widthHint = insetWidthHint;
+	        	nsharpComp[DISPLAY_INSET].setLayoutData(insetGd);
+	    		/*
+	    		//time-stn composite
+	            Composite timeStnComp = new Composite(rightTopGp, SWT.NONE);
+	            GridData timeStnGd = new GridData(SWT.END, SWT.FILL, false,
+	                    true);
+	            timeStnComp.setLayoutData(timeStnGd);
+	    		*/
+	    		
+	    		botGpGd = new GridData(SWT.FILL, SWT.END, true,
+	                    true);
+	    		botGpGd.heightHint = (int) (baseHeight * botGroupHeightRatio);
+	            botGp.setLayoutData(botGpGd);
+	    		//data composite
+	            GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    false);
+	            dataGd.heightHint = dataHeightHint;
+	        	dataGd.widthHint = dataWidthHint;
+	        	nsharpComp[DISPLAY_DATA].setLayoutData(dataGd);
+	    		//spc composite
+	            GridData spcGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    false);
+	            spcGd.heightHint = spcHeightHint;
+	            spcGd.widthHint = spcWidthHint;
+	        	nsharpComp[DISPLAY_SPC_GRAPHS].setLayoutData(spcGd);
+
+	        } else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+	        	topGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            topGpGd.heightHint = skewTHeightHint;
+	            topGp.setLayoutData(topGpGd);
+	            	            
+	         // skewt composite
+	            GridData skewtGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            skewtGd.heightHint = skewTHeightHint;
+	        	skewtGd.widthHint = skewTWidthHint;
+	        	nsharpComp[DISPLAY_SKEWT].setLayoutData(skewtGd);
+	        	
+	        	// right-top group : right part of top group
+	            rightTopGpGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            rightTopGpGd.widthHint = timeStnWidthHint;
+	            rightTopGp.setLayoutData(rightTopGpGd);
+	            
+	        	GridData timeStnGd = new GridData(SWT.FILL, SWT.FILL, true,
+	        			true);//gridDataArray[DISPLAY_TIMESTN];
+	        	timeStnGd.heightHint = timeStnHeightHint;
+	        	timeStnGd.widthHint = timeStnWidthHint;
+	        	nsharpComp[DISPLAY_TIMESTN].setLayoutData(timeStnGd);
+	        	
+	        	//future composite
+	            GridData futureGd = new GridData(SWT.FILL, SWT.FILL, true,
+	                    true);
+	            futureGd.heightHint = futureHeightHint;
+	            futureGd.widthHint = futureWidthHint;
+	        	nsharpComp[DISPLAY_FUTURE].setLayoutData(futureGd);
+	        	
+	        	botGpGd = new GridData(SWT.FILL, SWT.END, true,
+	                    true);
+	    		botGpGd.heightHint = (int) (baseHeight * botGroupHeightRatio);
+	            botGp.setLayoutData(botGpGd);
+	            //hodo composite
+	            GridData hodoGd = new GridData(SWT.FILL, SWT.FILL, true,
+	            		false);
+	            hodoGd.heightHint = hodoHeightHint;
+	            hodoGd.widthHint = hodoWidthHint;
+	            nsharpComp[DISPLAY_HODO].setLayoutData(hodoGd);
+	            GridData dataGd = new GridData(SWT.FILL, SWT.FILL, true,
+	            		false);//gridDataArray[DISPLAY_DATA];
+	            dataGd.heightHint = dataHeightHint;
+	            dataGd.widthHint = dataWidthHint;
+	            nsharpComp[DISPLAY_DATA].setLayoutData(dataGd);
+	        }
+	        //System.out.println("After resizing...nsharpComp[0] w= " + nsharpComp[0].getBounds().width + " h= "+ nsharpComp[0].getBounds().height);
+	        //System.out.println("After resizing...nsharpComp[1] w= " + nsharpComp[1].getBounds().width + " h= "+ nsharpComp[1].getBounds().height);
+
+        	for(int i=0; i< DISPLAY_TOTAL; i++){
+        		if(displayArray[i]!=null){
+        			ResourcePair rscPair =  displayArray[i].getDescriptor().getResourceList().get(0);
+        			if (rscPair.getResource() instanceof NsharpAbstractPaneResource){
+        				NsharpAbstractPaneResource paneRsc = (NsharpAbstractPaneResource)rscPair.getResource() ;
+        				paneRsc.setResize(true);
+        			}
+        		}
+        	}
+
+		}
+		
+	}
+	@Override
+    public boolean isDirty() {
+        if (!isCloseable()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+	@Override
+    protected void setInput(IEditorInput input) {
+        super.setInput(input);
+        this.editorInput = (EditorInput)input;
+    }
+	public static String getPaneConfigurationName() {
+		return paneConfigurationName;
+	}
+	public static void setPaneConfigurationName(String paneConfigurationName) {
+		NsharpEditor.paneConfigurationName = paneConfigurationName;
+	}
+	public static VizDisplayPane[] getDisplayPaneArray() {
+		return displayPane;
+	}
+	public static void setDisplayPaneArray(VizDisplayPane[] displayPane) {
+		NsharpEditor.displayPane = displayPane;
+	}
+	
 }

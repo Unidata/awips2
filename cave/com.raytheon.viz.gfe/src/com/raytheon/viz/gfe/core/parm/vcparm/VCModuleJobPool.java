@@ -63,6 +63,12 @@ public class VCModuleJobPool {
 
     protected List<Job> jobList;
 
+    protected boolean cancel = false;
+
+    protected Object cancelLock = new Object();
+
+    protected Object joinLock = new Object();
+
     public VCModuleJobPool(String name, DataManager dataMgr, int size) {
         this(name, dataMgr, size, null, null);
     }
@@ -88,8 +94,18 @@ public class VCModuleJobPool {
         }
     }
 
-    public synchronized void enqueue(VCModuleRequest request) {
-        workQueue.offer(request);
+    public void enqueue(VCModuleRequest request) {
+        // do not schedule while canceling(cancel should be fast.
+        synchronized (cancelLock) {
+            if (cancel) {
+                return;
+            }
+            // do not schedule while joining, join might be slow but the
+            // javaDoc warns others.
+            synchronized (joinLock) {
+                workQueue.offer(request);
+            }
+        }
     }
 
     /**
@@ -97,12 +113,14 @@ public class VCModuleJobPool {
      * <code>Job</code>s will block until join as returned so be careful when
      * calling
      */
-    public synchronized void join() {
-        for (Job j : jobList) {
-            try {
-                j.join();
-            } catch (InterruptedException e) {
-                // Ignore interrupt
+    public void join() {
+        synchronized (joinLock) {
+            for (Job j : jobList) {
+                try {
+                    j.join();
+                } catch (InterruptedException e) {
+                    // Ignore interrupt
+                }
             }
         }
     }
@@ -111,8 +129,11 @@ public class VCModuleJobPool {
      * Cancel the job pool, will clear out the workQueue then join on all jobs
      * running
      */
-    public synchronized void cancel() {
-        workQueue.clear();
+    public void cancel() {
+        synchronized (cancelLock) {
+            cancel = true;
+            workQueue.clear();
+        }
         for (Job job : jobList) {
             job.cancel();
         }
@@ -127,7 +148,7 @@ public class VCModuleJobPool {
      * @param request
      * @return
      */
-    public synchronized boolean cancel(VCModuleRequest request) {
+    public boolean cancel(VCModuleRequest request) {
         return workQueue.remove(request);
     }
 
