@@ -23,4 +23,8 @@
    <referenceModel>RFCqpf</referenceModel>
    <nx>175</nx>
    <ny>175</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>
