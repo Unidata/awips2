@@ -36,6 +36,7 @@ import org.apache.camel.impl.DefaultConsumer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2008            chammack     Initial creation
+ * Jul 16, 2012 DR 15073   D. Friedman  Override correct methods
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class DirectVMEndpoint extends DirectEndpoint {
             throws Exception {
         return new DefaultConsumer(this, processor) {
             @Override
-            public void start() throws Exception {
+            protected void doStart() throws Exception {
                 if (!allowMultipleConsumers && !consumers.isEmpty()) {
                     throw new IllegalStateException(
                             "Endpoint "
@@ -81,12 +82,12 @@ public class DirectVMEndpoint extends DirectEndpoint {
                 }
 
                 consumers.add(this);
-                super.start();
+                super.doStart();
             }
 
             @Override
-            public void stop() throws Exception {
-                super.stop();
+            protected void doStop() throws Exception {
+                super.doStop();
                 consumers.remove(this);
             }
         };

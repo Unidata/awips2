@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.ffmp.ffti;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
@@ -45,6 +46,17 @@ import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 
+/**
+ * FFTI Setting Composite.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 08/07/2012   578        mpduff      FFTI now only a single selection and populates
+ *                                     correctly.
+ * </pre>
+ */
 public class SettingComp extends Composite implements DurationInterface {
     /**
      * Parent tab folder.
@@ -102,6 +114,8 @@ public class SettingComp extends Composite implements DurationInterface {
 
     // temporary storage for qpf
     private String selectedQpfVal = "0";
+    
+    private FFTISettingXML fftiSetting;
 
     public SettingComp(TabFolder parent) {
         super(parent, 0);
@@ -115,7 +129,8 @@ public class SettingComp extends Composite implements DurationInterface {
         super(parent, 0);
 
         this.parent = parent;
-
+        this.fftiSetting = fftiSetting;
+        
         init();
 
         // set the attributes
@@ -217,6 +232,8 @@ public class SettingComp extends Composite implements DurationInterface {
 
         accumRdo.setEnabled(true);
         accumAction(accumAttrib);
+        
+        setSettings();
     }
 
     private void createAttributeControls() {
@@ -318,7 +335,7 @@ public class SettingComp extends Composite implements DurationInterface {
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = listWidth;
         gd.heightHint = listHeight;
-        qpeList = new List(precipSrcComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        qpeList = new List(precipSrcComp, SWT.BORDER | SWT.V_SCROLL);
         qpeList.setLayoutData(gd);
         fillQpeList();
 
@@ -327,8 +344,7 @@ public class SettingComp extends Composite implements DurationInterface {
         gd.horizontalSpan = 2;
         gd.widthHint = listWidth - 75;
         gd.heightHint = listHeight;
-        guidList = new List(precipSrcComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
+        guidList = new List(precipSrcComp, SWT.BORDER | SWT.V_SCROLL);
         guidList.setLayoutData(gd);
         fillGuidList();
 
@@ -337,7 +353,7 @@ public class SettingComp extends Composite implements DurationInterface {
         gd.horizontalSpan = 2;
         gd.widthHint = listWidth;
         gd.heightHint = listHeight;
-        qpfList = new List(precipSrcComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        qpfList = new List(precipSrcComp, SWT.BORDER | SWT.V_SCROLL);
         qpfList.setLayoutData(gd);
         fillQpfList();
 
@@ -393,9 +409,6 @@ public class SettingComp extends Composite implements DurationInterface {
             guidSet.add(sourceName);
             guidList.add(sourceName);
         }
-        if (guidList.getItemCount() > 0) {
-            guidList.setSelection(0);
-        }
 
         guidList.addSelectionListener(new SelectionListener() {
 
@@ -438,9 +451,10 @@ public class SettingComp extends Composite implements DurationInterface {
 
                 if (source.isMosaic()) {
                     if (!qpeSet.contains(product.getProductKey())) {
-                        if (!qpeSet.contains(source.getDisplayName())) {
-                            qpeSet.add(source.getDisplayName());
-                            qpeList.add(source.getDisplayName());
+                        String displayName = source.getDisplayName();
+                        if (!qpeSet.contains(displayName)) {
+                            qpeSet.add(displayName);
+                            qpeList.add(displayName);
                         }
                         break;
                     }
@@ -459,10 +473,6 @@ public class SettingComp extends Composite implements DurationInterface {
                     }
                 }
             }
-        }
-
-        if (qpeList.getItemCount() > 0) {
-            qpeList.setSelection(0);
         }
     }
 
@@ -515,10 +525,6 @@ public class SettingComp extends Composite implements DurationInterface {
                     }
                 }
             }
-        }
-
-        if (qpfList.getItemCount() > 0) {
-            qpfList.setSelection(0);
         }
     }
 
@@ -597,6 +603,55 @@ public class SettingComp extends Composite implements DurationInterface {
         attrLbl.setForeground(parent.getDisplay().getSystemColor(
                 SWT.COLOR_WHITE));
         attrLbl.setLayoutData(gd);
+    }
+    
+    /**
+     * Set the dialog to reflect the saved configuration.
+     */
+    private void setSettings() {
+        // Select the configured items, otherwise select the first
+        
+        if (this.fftiSetting != null) {
+            // QPE
+            if (fftiSetting.getQpeSource().getDisplayNameList() == null || 
+                    fftiSetting.getQpeSource().getDisplayNameList().isEmpty()) {
+                qpeList.setSelection(0);
+            } else {
+                // Only using the first one in the list to match A1
+                java.util.List<String> items = Arrays.asList(qpeList.getItems());
+                String name = fftiSetting.getQpeSource().getDisplayNameList().get(0);
+                int idx = items.indexOf(name);
+                qpeList.select(idx);
+                qpeList.showSelection();
+            }
+    
+            // GUID
+            if (fftiSetting.getGuidSource().getDisplayNameList() == null || 
+                    fftiSetting.getGuidSource().getDisplayNameList().isEmpty()) {
+                guidList.setSelection(0);
+            } else {
+                // Only using the first one in the list to match A1
+                java.util.List<String> items = Arrays.asList(guidList.getItems());
+                String name = fftiSetting.getGuidSource().getDisplayNameList().get(0);
+                int idx = items.indexOf(name);
+                guidList.select(idx);
+                guidList.showSelection();
+            }
+            
+            // QPF
+            if (fftiSetting.getQpfSource().getDisplayNameList() == null || 
+                    fftiSetting.getQpfSource().getDisplayNameList().isEmpty()) {
+                qpfList.setSelection(0);
+            } else {
+                // Only using the first one in the list to match A1
+                java.util.List<String> items = Arrays.asList(qpfList.getItems());
+                String name = fftiSetting.getQpfSource().getDisplayNameList().get(0);
+                int idx = items.indexOf(name);
+                qpfList.select(idx); 
+                qpfList.showSelection();
+            }
+
+        }
     }
 
     private void accumAction(FFTIAttribute attribVal) {

@@ -18,6 +18,7 @@
 # further licensing information.
 ##
 
+import TimeRange, AbsTime
 import logging
 import TextFormatter
 import time, os, string, inspect, sys
@@ -288,6 +289,17 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     logger.info("Text Formatter Finished")
     return forecasts
 
+def getAbsTime(timeStr):
+    "Create an AbsTime from a string: YYYYMMDD_HHMM"
+
+    year = int(timeStr[0:4])
+    month = int(timeStr[4:6])
+    day = int(timeStr[6:8])
+    hour = int(timeStr[9:11])
+    minute = int(timeStr[11:13])
+
+    return AbsTime.absTimeYMD(year, month, day, hour, minute)
+    
 def writeToFile(forecasts, outputFile, mode):
     if not outputFile is None and outputFile != "":
         outfile = open(outputFile, mode)

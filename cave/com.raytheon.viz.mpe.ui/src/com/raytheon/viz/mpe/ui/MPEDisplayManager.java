@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Dec 1, 2008  1748      snaples      Added enum for Gage Color
  * Aug 11, 2010  5733	  jwang        Removed Polygon Edit and Gages
  * 									   legend from MPE perspective
+ * Aug 8, 2012   15271	  snaples      Updated hourly slot
  * </pre>
  * 
  * @author randerso
@@ -536,7 +537,7 @@ public class MPEDisplayManager {
         clearMPEData();
         try {
             dm.readRadarData(newDate);
-            dm.readGageData(newDate);
+            dm.readGageData(newDate, newDate);
 
             if (gageTableDlg != null) {
                 gageTableDlg.updateDate(newDate);
