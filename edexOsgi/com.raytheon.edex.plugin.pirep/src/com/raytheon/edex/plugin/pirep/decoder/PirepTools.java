@@ -20,16 +20,14 @@
 package com.raytheon.edex.plugin.pirep.decoder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightCondition;
 import com.raytheon.uf.edex.decodertools.aircraft.Entry;
 import com.raytheon.uf.edex.decodertools.aircraft.WordTranslator;
 
 /**
- * TODO Add Description
+ * Perform decode on PIREP turbulence layers.
  * 
  * <pre>
  * 
@@ -38,6 +36,9 @@ import com.raytheon.uf.edex.decodertools.aircraft.WordTranslator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2011            jkorman     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/09/2012         1011 jkorman     Removed test code to unit test.
  * 
  * </pre>
  * 
@@ -50,7 +51,6 @@ public class PirepTools {
     private static final char SPACE = ' ';
     
     private static final char DASH = '-';
-    
 
     private static final char SOLIDUS = '/';
 
@@ -164,13 +164,15 @@ public class PirepTools {
         TURBC_WORDS.enter("-", "-", false, TURBC_SYN_DASH, SYN_ID);
     }
 
+    // Data that may contain layer information.
     private String layerData;
 
+    // Layers decoded from layerData
     private List<String> layers;
 
     /**
-     * 
-     * @param data
+     * Construct zero or more layers from the supplied data.
+     * @param data A string that may contain layer information.
      */
     public PirepTools(String data) {
         layerData = data;
@@ -403,9 +405,9 @@ public class PirepTools {
     }
     
     /**
-     * If there are two intensity modifiers, reorder them so the the
-     * lower intensity occurs first.  
-     * @param layer A layer that may contain intensity modifiers.
+     * If there are two heights, reorder them so the the
+     * lower height occurs first.  
+     * @param layer A layer that may contain layer heights.
      */
     private void reOrderHeight(AircraftFlightCondition layer) {
         if(layer != null) {
@@ -439,58 +441,5 @@ public class PirepTools {
         }
         return retValue;
     } // parseInteger()
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-
-        // PirepTools tools = new
-        // PirepTools("OCNL LGT CHOP/MDT 100-150/LGT 150-200");
-
-
-//        List<AircraftFlightCondition> list = tools.decodeTurbulenceData();
-//        for (AircraftFlightCondition c : list) {
-//            System.out.println(c);
-//        }
-
-        String [] data = {
-                "LGT 100-120",
-                "MOD TO SVR 100",
-                "SVR OCNL MOD 200-300",
-                "LGT CHOP 150 TO 110",
-                "LGT-MDT 120-150",
-                "MDT BLO\n 100",
-                "LIT-MOD CHOP ABOVE 120",
-                "CONTINOUS MOD 120-080"};
-        for(String s : data) {
-            PirepTools tools = new PirepTools(s);
-
-            List<AircraftFlightCondition> list = tools.decodeTurbulenceData();
-            for(AircraftFlightCondition afc : list) {
-                String ss = afc.getFrequency();
-                System.out.print((ss != null) ? ss : "----");
-                System.out.print(" ");
-                ss = afc.getIntensity1();
-                System.out.print((ss != null) ? ss : "----");
-                System.out.print(" ");
-                ss = afc.getIntensity2();
-                System.out.print((ss != null) ? ss : "----");
-                System.out.print(" ");
-                ss = afc.getType();
-                System.out.print((ss != null) ? ss : "----");
-                System.out.print(" ");
-                Integer n = afc.getBaseHeight();
-                System.out.print((n != null) ? n : "----");
-                System.out.print(" ");
-                n = afc.getTopHeight();
-                System.out.print((n != null) ? n : "----");
-                System.out.println();
-                
-            }
-        }
-        
-        
-    }
 
 }

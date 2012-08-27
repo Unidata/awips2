@@ -21,14 +21,18 @@ package com.raytheon.rcm.server;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 
 /**
- * TODO Add Description
+ * Send AlertViz notifications 
  * 
  * <pre>
  * 
@@ -37,6 +41,7 @@ import com.raytheon.rcm.event.RadarEventAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 9, 2011            mnash     Initial creation
+ * 2012-07-27   DR 14896   D. Friedman  Handle multiple RPGs.
  * 
  * </pre>
  * 
@@ -46,13 +51,15 @@ import com.raytheon.rcm.event.RadarEventAdapter;
 
 public class RadarServerAvailable extends RadarEventAdapter {
 
-    private static boolean attempted = false;
+    private static final String CONNECTION_DOWN_MESSAGE = "RPG connection is down.";
+    private static final String CONNECTION_UP_MESSAGE = "RPG connection is back up.";
+    
+    private static final String AWIPS2_FXA_PROPERTY = "awips2_fxa";
+    private static final String DEFAULT_AWIPS2_FXA = "/awips2/fxa";    
+    private static final String ANNOUNCER_PATH = "bin" + File.separator + "fxaAnnounce";
 
-    private ProcessBuilder builder;
+    private HashSet<String> knownFailures = new HashSet<String>();
 
-    /**
-     * 
-     */
     public RadarServerAvailable(RadarServer server) {
     }
 
@@ -65,64 +72,73 @@ public class RadarServerAvailable extends RadarEventAdapter {
      */
     @Override
     public void handleRadarEvent(RadarEvent event) {
-        Process proc = null;
-        String home = System.getProperty("awips2_fxa");
-        if (home != null && !home.endsWith(File.separator)) {
-            home += File.separator;
-        } else if (home == null) {
-            Log.event("Cannot find awips2_fxa system variable");
-            return;
-        }
-        List<String> values = new ArrayList<String>();
-        values.add(home + "bin" + File.separator + "fxaAnnounce");
-        try {
-            if (event.getType() == RadarEvent.CONNECTION_ATTEMPT_FAILED) {
-                if (!attempted) {
-                    Log.event("Executing " + values.get(0));
-                    values.add(event.getRadarID() + " rpg connection is down.");
-                    values.add("RADAR");
-                    values.add("URGENT");
-                    builder = new ProcessBuilder(values);
-                    builder.redirectErrorStream(true);
-
-                    proc = builder.start();
-                    StringBuilder output = new StringBuilder();
-                    Scanner s = new Scanner(proc.getInputStream());
-                    while (s.hasNextLine()) {
-                        if (output.length() > 0)
-                            output.append('\n');
-                        output.append(s.nextLine());
-                    }
-                    proc.waitFor();
-                    attempted = true;
-                }
-            } else if (event.getType() == RadarEvent.CONNECTION_UP) {
-                if (attempted) {
-                    Log.event("Executing " + values.get(0));
-                    values.add(event.getRadarID()
-                            + " rpg connection is back up.");
-                    values.add("RADAR");
-                    values.add("URGENT");
-                    builder = new ProcessBuilder(values);
-                    builder.redirectErrorStream(true);
-                    proc = builder.start();
-                    StringBuilder output = new StringBuilder();
-                    Scanner s = new Scanner(proc.getInputStream());
-                    while (s.hasNextLine()) {
-                        if (output.length() > 0)
-                            output.append('\n');
-                        output.append(s.nextLine());
-                    }
-                    proc.waitFor();
-                    attempted = false;
-                }
+        final String radarId = event.getRadarID();
+        if (event.getType() == RadarEvent.CONNECTION_ATTEMPT_FAILED) {
+            if (! knownFailures.contains(radarId)) {
+                knownFailures.add(radarId);
+                sendNotification(radarId, CONNECTION_DOWN_MESSAGE);
             }
+        } else if (event.getType() == RadarEvent.CONNECTION_UP) {
+            if (knownFailures.contains(radarId)) {
+                knownFailures.remove(radarId);
+                sendNotification(radarId, CONNECTION_UP_MESSAGE);
+            }
+        }
+    }
+    
+    private void sendNotification(final String radarId, final String message) {
+        getExecutorService().submit(new Runnable() {
+            @Override
+            public void run() {
+                sendNotification2(radarId, message);
+            }
+        });
+    }
+    
+    private void sendNotification2(String radarId, String message) {
+        ProcessBuilder builder;
+        Process proc = null;
+        
+        String fxaDir = System.getProperty(AWIPS2_FXA_PROPERTY);
+        if (fxaDir == null)
+            fxaDir = DEFAULT_AWIPS2_FXA;
+        
+        List<String> values = new ArrayList<String>();
+        values.add(fxaDir + File.separator + ANNOUNCER_PATH);
+        Log.event("Executing " + values.get(0));
+        values.add(radarId + ' ' + message);
+        values.add("RADAR");
+        values.add("URGENT");
+        builder = new ProcessBuilder(values);
+        builder.redirectErrorStream(true);
+
+        try {
+            proc = builder.start();
+            Scanner s = new Scanner(proc.getInputStream());
+            while (s.hasNextLine())
+                s.nextLine();
+            proc.waitFor();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.errorf("Error running fxaAnnounce: %s", e);
         } finally {
             if (proc != null) {
                 proc.destroy();
             }
         }
+    }
+
+    // TODO: has to be daemon until there is a shutdown notification
+    private static ExecutorService executorService = Executors
+            .newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r);
+                    t.setDaemon(true);
+                    return t;
+                }
+            });
+
+    private static ExecutorService getExecutorService() {
+        return executorService;
     }
 }

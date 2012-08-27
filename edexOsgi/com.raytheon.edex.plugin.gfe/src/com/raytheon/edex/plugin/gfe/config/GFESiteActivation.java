@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * Oct 26, 2010  #6811    jclark      changed listener type
  * Apr 06, 2012  #457     dgilling    Clear site's ISCSendRecords on
  *                                    site deactivation.
+ * Jul 12, 2012  15162    ryu         added check for invalid db at activation
  * 
  * </pre>
  * 
@@ -335,7 +336,8 @@ public class GFESiteActivation implements ISiteActivationListener {
                             site).get(i));
                     // cluster locked since IFPGridDatabase can modify the grids
                     // based on changes to grid size, etc
-                    db.updateDbs();
+                    if (db.databaseIsValid())
+                        db.updateDbs();
                 }
             }
         } finally {

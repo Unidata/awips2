@@ -20,21 +20,95 @@
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 
 import java.util.List;
 
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
+import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
+import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
     public NsharpSkewTPaneDescriptor(PixelExtent pe) {
         super(pe);
+        setTimeMatcher(new D2DTimeMatcher());
+        setFrameCoordinator();
         //System.out.println("NsharpSkewTPaneDescriptor  created " + this.toString());  
     }
     public NsharpSkewTPaneDescriptor(PixelExtent pe, int paneNumber) {
         super(pe, paneNumber);
+        setTimeMatcher(new D2DTimeMatcher());
+        setFrameCoordinator();
     }
     
-    public NsharpSkewTPaneResource getSkewtResource() {
+    public NsharpSkewTPaneDescriptor() {
+		super();
+		setTimeMatcher(new D2DTimeMatcher());
+		setFrameCoordinator();
+	}
+    
+    private void setFrameCoordinator() {
+    	frameCoordinator = new FrameCoordinator(this) {
+			@Override
+			/*
+			 * Chin Note: this function handles keyboard up/down/left/right arrow keys for station and time line stepping.
+			 */
+            public void changeFrame(
+                    IFrameCoordinator.FrameChangeOperation operation,
+                    IFrameCoordinator.FrameChangeMode mode) {
+				NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
+				if(editor== null || editor.getRscHandler()==null)
+					return;
+				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(operation) called  op="+operation+" mode"+mode);
+				if(mode == IFrameCoordinator.FrameChangeMode.SPACE_ONLY){
+					//up/down arrow keys for stepping stations
+					editor.getRscHandler().setSteppingStnIdList(operation);
+				} else if(mode == IFrameCoordinator.FrameChangeMode.TIME_ONLY){
+					//left/right arrow keys for stepping time lines
+					editor.getRscHandler().setSteppingTimeLine(operation, mode);
+				}
+            }
+			/*
+			 * (non-Javadoc)
+			 * @see com.raytheon.uf.viz.core.drawables.FrameCoordinator#changeFrame(com.raytheon.uf.viz.core.datastructure.LoopProperties)
+			 * This function handling nsharp looping. 
+			 * Chin: 12.8.1: let skewtPaneDescriptor handle looping. All other pane descriptor will do nothing. Otherwise, we will looping X times faster when we
+	    	 *  have X number of panes configured and each pane move frame once.
+			 * 
+			 */
+			@Override
+			public void changeFrame(LoopProperties loopProperties) {
+				NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
+				if(editor== null|| editor.getRscHandler()==null)
+					return;
+				long waitTime = Long.MAX_VALUE;
+				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(loop) called, loopDirection= "+loopDirection + " fwd="+loopProperties.getFwdFrameTime()+
+				//		" back="+loopProperties.getRevFrameTime() + " 1st dt="+loopProperties.getFirstFrameDwell()+ " lasDt="+loopProperties.getLastFrameDwell());
+				if(loopProperties.getMode() == LoopProperties.LoopMode.Forward || loopProperties.getMode() == LoopProperties.LoopMode.Cycle)
+					waitTime = loopProperties.getFwdFrameTime();
+				else
+					waitTime = loopProperties.getRevFrameTime();
+				int frameSize= editor.getRscHandler().getTimeLineStateListSize();
+				int curFrameIndex = editor.getRscHandler().getCurrentTimeLineStateListIndex();
+				if(curFrameIndex == 0)
+					waitTime = loopProperties.getFirstFrameDwell();
+				else if(curFrameIndex == frameSize-1)
+					waitTime = loopProperties.getLastFrameDwell();
+
+				loopProperties.drawAfterWait(waitTime);
+
+				if (loopProperties.isShouldDraw()) {
+					editor.getRscHandler().setLoopingDataTimeLine(loopProperties);
+
+				}
+			}
+			
+		};
+    }
+	public NsharpSkewTPaneResource getSkewtResource() {
         List<NsharpSkewTPaneResource> list = resourceList
                 .getResourcesByTypeAsType(NsharpSkewTPaneResource.class);
         if (list != null && !list.isEmpty()) {
@@ -42,28 +116,32 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
         }
         return null;
     }
-    @Override
+	
+    @SuppressWarnings("deprecation")
+	@Override
+	/*
+	 * Chin Note: this function handles time line stepping from NC Perspective tool bar left/right/first/last arrow Buttons.
+	 */
     public void changeFrame(FrameChangeOperation operation,  FrameChangeMode mode) {
         synchronized (this) {
-        	//Chin Note: there are multiple (4) panes.
+        	//Chin Note: there are multiple (6) panes.
     		//However, we only need to step once. Therefore, only handle stepping by skewt pane.
         	//From stepping commands
         	//System.out.println("NsharpAbstractPaneDescriptor changeFrame called pane= "+paneNumber);
-        	/*if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
-        		System.out.println("changeFrame: current perspective ="+VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
+        	if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
+        		//System.out.println("changeFrame: current perspective ="+VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
     			if(!VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId().equals(NmapCommon.NatlCntrsPerspectiveID)){
-    				if(mode != FrameChangeMode.TIME_AND_SPACE)
-    					//Chin NOTE: for D2D perspective, it will call this function with mode of TIME_ONLY or SPACE_ONLY when Arrow Keys (up/down/left/right)
-    					//hit by users. Since Nsharp implementation uses Arrow Keys for time line and station box operations,
-    					//We have to disable this function when in D2D for Arrow keys. Otherwise, the following setSteppingTimeLine() function will
-    					// be called 2 times when Arrow Keys hit in D2D.
-    					//Therefore, only when TIME_AND_SPACE mode is allowed when in D2D.
+    				if(mode != FrameChangeMode.TIME_ONLY)
     					return;
     			}
-        	}*/
+        	}
+        	//System.out.println("changeFrame");
         	NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
         	if(editor!= null && editor.getRscHandler()!=null){
-        		editor.getRscHandler().setSteppingTimeLine(operation, mode);
+        		// we will have to do conversion here
+        		IFrameCoordinator.FrameChangeOperation dop = IFrameCoordinator.FrameChangeOperation.valueOf(operation.name());
+        		IFrameCoordinator.FrameChangeMode dmode = IFrameCoordinator.FrameChangeMode.valueOf(mode.name());
+        		 	editor.getRscHandler().setSteppingTimeLine(dop, dmode);
         	}
         }
     }

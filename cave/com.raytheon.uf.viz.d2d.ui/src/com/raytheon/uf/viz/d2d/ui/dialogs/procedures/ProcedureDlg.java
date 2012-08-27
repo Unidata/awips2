@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.d2d.ui.dialogs.procedures;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -83,6 +84,22 @@ import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
+/**
+ * 
+ * Dialog for loading or modifying procedures.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *
+ * </pre>
+ *
+ * @author unknown
+ * @version 1.0
+ */
 public class ProcedureDlg extends CaveSWTDialog {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -93,6 +110,8 @@ public class ProcedureDlg extends CaveSWTDialog {
     public static final String CURRENT = "Current Location";
 
     public static final String PROCEDURES_DIR = "/procedures";
+
+    private static Collection<ProcedureDlg> openDialogs = new ArrayList<ProcedureDlg>();
 
     private Font font;
 
@@ -148,7 +167,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private final java.util.List<BundlePair> bundles;
 
-    public ProcedureDlg(String fileName, Procedure p, Shell parent) {
+    private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
@@ -203,6 +222,9 @@ public class ProcedureDlg extends CaveSWTDialog {
     @Override
     protected void disposed() {
         font.dispose();
+        synchronized (openDialogs) {
+            openDialogs.remove(this);
+        }
     }
 
     @Override
@@ -988,5 +1010,45 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         };
         dlg.open();
+    }
+
+    /**
+     * If there is a procedure dialog open for the given filename, return it,
+     * otherwise null.
+     * 
+     * @param fileName
+     * @return
+     */
+    public static ProcedureDlg getDialog(String fileName) {
+        synchronized (openDialogs) {
+            if (fileName != null) {
+                for (ProcedureDlg dialog : openDialogs) {
+                    if (fileName.equals(dialog.fileName)) {
+                        return dialog;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Get the ProcedureDlg for the given fileName. If the fileName is null or if there is no open dialog, create a new ProcedureDlg.
+     * 
+     * @param fileName
+     * @param p
+     * @param parent
+     * @return
+     */
+    public static ProcedureDlg getOrCreateDialog(String fileName, Procedure p,
+            Shell parent) {
+        synchronized (openDialogs) {
+            ProcedureDlg dialog = getDialog(fileName);
+            if (dialog == null) {
+                dialog = new ProcedureDlg(fileName, p, parent);
+                openDialogs.add(dialog);
+            }
+            return dialog;
+        }
     }
 }
