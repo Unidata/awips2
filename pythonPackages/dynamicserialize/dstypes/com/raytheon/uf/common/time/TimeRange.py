@@ -27,9 +27,9 @@ import time
 MAX_TIME = 2147483647
 
 class TimeRange(object):
-    def __init__(self):
-        self.start = None
-        self.end = None
+    def __init__(self, start=None, end=None):
+        self.start = self.__convertToDateTime(start)
+        self.end = self.__convertToDateTime(end)
         
     def __str__(self):
         return self.__repr__()
@@ -42,6 +42,21 @@ class TimeRange(object):
     
     def __ne__(self, other):
         return (not self.__eq__(other))
+    
+    def __convertToDateTime(self, timeArg):
+        if timeArg is None:
+            return None
+        if isinstance(timeArg, datetime.datetime):
+            return timeArg
+        elif isinstance(timeArg, time.struct_time):
+            return datetime.datetime(*timeArg[:6])
+        else:
+            totalSecs = long(timeArg)
+            if totalSecs < MAX_TIME:
+                return datetime.datetime.utcfromtimestamp(totalSecs)
+            else:
+                extraTime = datetime.timedelta(seconds=(totalSecs - MAX_TIME))
+                return datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
 
     def getStart(self):
         return self.start.utctimetuple()
@@ -50,17 +65,7 @@ class TimeRange(object):
         return long(calendar.timegm(self.getStart()) * 1000)
 
     def setStart(self, start):
-        if isinstance(start, datetime.datetime):
-            self.start = start
-        elif isinstance(start, time.struct_time):
-            self.start = datetime.datetime(*start[:6])
-        else:
-            totalSecs = long(start)
-            if totalSecs < MAX_TIME:
-                self.start = datetime.datetime.utcfromtimestamp(totalSecs)
-            else:
-                extraTime = datetime.timedelta(seconds=(totalSecs - MAX_TIME))
-                self.start = datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
+        self.start = self.__convertToDateTime(start)
 
     def getEnd(self):
         return self.end.utctimetuple()
@@ -69,24 +74,43 @@ class TimeRange(object):
         return long(calendar.timegm(self.getEnd()) * 1000)
 
     def setEnd(self, end):
-        if isinstance(end, datetime.datetime):
-            self.end = end
-        elif isinstance(end, time.struct_time):
-            self.end = datetime.datetime(*end[:6])
-        else:
-            totalSecs = long(end)
-            if totalSecs < MAX_TIME:
-                self.end = datetime.datetime.utcfromtimestamp(totalSecs)
-            else:
-                extraTime = datetime.timedelta(seconds=(totalSecs - MAX_TIME))
-                self.end = datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
+        self.end = self.__convertToDateTime(end)
                 
+    def duration(self):
+        delta = self.end - self.start
+        return long(delta.total_seconds())        
+    
+    def contains(self, timeArg):
+        if isinstance(timeArg, TimeRange):
+            if self.duration() == 0:
+                return self.__eq__(timeArg)
+            elif timeArg.duration() == 0:
+                return self.contains(timeArg.start)
+            return (timeArg.start >= self.start and timeArg.end <= self.end)
+        else:
+            convTime = self.__convertToDateTime(timeArg)
+            if type(convTime) is not datetime.datetime:
+                raise TypeError("Invalid type for argument time specified to TimeRange.contains().")
+            if self.duration() != 0:
+                return (convTime >= self.start and convTime < self.end)
+            return convTime == self.start
+    
     def isValid(self):
         return (self.start != self.end)
     
+    def overlaps(self, timeRange):
+        return (timeRange.contains(self.start) or self.contains(timeRange.start))
+    
+    def combineWith(self, timeRange):
+        if self.isValid() and timeRange.isValid():
+            newStart = min(self.start, timeRange.start)
+            newEnd = max(self.end, timeRange.end)
+            return TimeRange(newStart, newEnd)
+        elif self.isValid():
+            return self
+        
+        return timeRange
+    
     @staticmethod        
     def allTimes():
-        tr = TimeRange()
-        tr.setStart(0)
-        tr.setEnd(MAX_TIME)
-        return tr
+        return TimeRange(0, MAX_TIME)

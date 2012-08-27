@@ -25,6 +25,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.TextWarningConstants;
 
 /**
@@ -44,6 +45,22 @@ import com.raytheon.viz.texteditor.TextWarningConstants;
  */
 
 public class SiteAbbreviationUtil {
+
+    private static String mySiteNode;
+
+    /**
+     * Returns the 3 letter site node for the current localization.
+     * 
+     * @return
+     */
+    public static String getMySiteNode() {
+        if (mySiteNode == null) {
+            mySiteNode = getSiteNode(LocalizationManager.getInstance()
+                    .getCurrentSite());
+        }
+
+        return mySiteNode;
+    }
 
     /**
      * Grabs the site node from the FXA database afoslookup table.

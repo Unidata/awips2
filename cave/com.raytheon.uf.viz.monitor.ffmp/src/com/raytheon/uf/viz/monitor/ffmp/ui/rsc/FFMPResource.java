@@ -73,10 +73,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
-import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
-import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -151,6 +149,8 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
+ * 31 July  2012 14517         mpduff      Fix for blanking map on update.
+ * 
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -236,7 +236,7 @@ public class FFMPResource extends
 
     // time used by the resource
     private DataTime paintTime = null;
-
+    
     /** mouse handler **/
     private final IInputHandler inspectAdapter = new InputAdapter() {
 
@@ -378,6 +378,9 @@ public class FFMPResource extends
     /** force utility **/
     private FFFGForceUtil forceUtil = null;
 
+    /** Restore Table flag */
+    private boolean restoreTable = false;
+
     /**
      * FFMP resource
      * 
@@ -409,6 +412,7 @@ public class FFMPResource extends
             FFFGDataMgr.getUpdatedInstance();
             PluginDataObject[] pdos = (PluginDataObject[]) object;
             FFMPRecord ffmpRec = (FFMPRecord) pdos[pdos.length - 1];
+            
             // only care about the most recent one
             try {
                 if (ffmpRec.getSourceName()
@@ -432,23 +436,35 @@ public class FFMPResource extends
                             + previousMostRecentTime + " New: "
                             + ffmpRec.getDataTime().getRefTime());
 
-                    if (getResourceData().tableLoad) {
+					if (getResourceData().tableLoad) {
 
-                        startLoader(previousMostRecentTime, ffmpRec
-                                .getDataTime().getRefTime(),
-                                LOADER_TYPE.GENERAL);
+						if (loader == null) {
+							startLoader(previousMostRecentTime, ffmpRec
+									.getDataTime().getRefTime(),
+									LOADER_TYPE.GENERAL);
+						} else {
+							while (!loader.isDone) {
+								try {
+									Thread.sleep(10);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+							startLoader(previousMostRecentTime, ffmpRec
+									.getDataTime().getRefTime(),
+									LOADER_TYPE.GENERAL);
+						}
 
-                        while (!loader.isDone) {
-                            try {
-                                Thread.sleep(10);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
+						while (!loader.isDone) {
+							try {
+								Thread.sleep(10);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
 
-                        setTableTime();
-                        purge(ffmpRec.getDataTime().getRefTime());
-                    }
+						purge(ffmpRec.getDataTime().getRefTime());
+					}
 
                     qpeRecord = null;
                     isNewQpe = true;
@@ -463,19 +479,17 @@ public class FFMPResource extends
                     isNewQpf = true;
                 }
 
-                if (getResourceData().tableLoad) {
-
-                    isFirst = true;
-                    allowNewTableUpdate();
-                    monitor.updateDialog(this);
-                }
-
             } catch (VizException ve) {
                 statusHandler.handle(Priority.PROBLEM, "Error updating record",
                         ve);
             }
         }
-
+        
+        if (getResourceData().tableLoad) {
+        	allowNewTableUpdate();
+            isFirst = true;
+        }
+        
         refresh();
     }
 
@@ -579,7 +593,7 @@ public class FFMPResource extends
                 return getColorUtil().colorByValue(value);
             } else {
                 if (getCenteredAggregatePfafs().contains(key) && isParent()) {
-
+                	// this is for a reason
                 } else {
                     if (!isMaintainLayer() && isParent()) {
                         return getColorUtil().colorByValue(value);
@@ -652,8 +666,8 @@ public class FFMPResource extends
                     value = getQpeRecord().getBasinData("ALL")
                             .getAccumMaxValue(
                                     pfafs,
-                                    getTableTime(),
                                     recentTime,
+                                    getTableTime(),
                                     getQpeSourceExpiration(),
                                     getResourceData().getPrimarySourceXML()
                                             .isRate());
@@ -683,7 +697,9 @@ public class FFMPResource extends
                                 pfafs);
                         break;
                     }
-                    case RATE:// fall through
+                    case RATE:
+                    	value = getBasin(key, field, recentTime, aggregate).getValue(recentTime);
+                    	break;
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
                                 .getAverageValue(recentTime, getQpfSourceExpiration());
@@ -780,7 +796,13 @@ public class FFMPResource extends
                 sfield = FFMPRecord.FIELDS.QPE;
             }
 
-            PluginDataObject pdo = getRecord(sfield, paintTime.getRefTime());
+            PluginDataObject pdo = null;
+            
+            try {
+            	pdo = getRecord(sfield, paintTime.getRefTime());
+            } catch (NullPointerException npe) {
+            	return "No Data Available";
+            }
 
             if (pdo == null) {
                 return "No Data Available";
@@ -817,9 +839,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getRateRecord(Date recentTime) {
+    public FFMPCacheRecord getRateRecord(Date recentTime) {
 
         if ((rateRecord == null) && isNewRate) {
             try {
@@ -847,9 +869,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getQpeRecord() {
+    public FFMPCacheRecord getQpeRecord() {
         try {
             if ((qpeRecord == null) && (getTableTime() != null) && isNewQpe) {
 
@@ -876,9 +898,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getGuidanceRecord() {
+    public FFMPCacheRecord getGuidanceRecord() {
         try {
             if ((guidRecord == null) || isNewGuid) {
                 Date date = null;
@@ -915,9 +937,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPReFFMPCacheRecordcord
      */
-    public FFMPRecord getQpfRecord(Date recentTime) {
+    public FFMPCacheRecord getQpfRecord(Date recentTime) {
         try {
             if ((qpfRecord == null) && isNewQpf) {
                 Date date = null;
@@ -951,9 +973,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getVirtualRecord() {
+    public FFMPCacheRecord getVirtualRecord() {
         try {
             if ((virtualRecord == null) && isNewVirtual) {
                 virtualRecord = monitor.getVirtualRecord(getProduct(),
@@ -973,9 +995,9 @@ public class FFMPResource extends
      * General get record call
      * 
      * @param pfield
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getRecord(FIELDS pfield, Date recentTime) {
+    public FFMPCacheRecord getRecord(FIELDS pfield, Date recentTime) {
         if (pfield == FIELDS.GUIDANCE) {
             return getGuidanceRecord();
         } else if (pfield == FIELDS.RATIO) {
@@ -1174,10 +1196,11 @@ public class FFMPResource extends
 
                 if (getResourceData().tableLoad
                         && !paintTime.getRefTime().equals(getMostRecentTime())) {
-
                     setMostRecentTime(paintTime.getRefTime());
                     setTableTime();
-                    monitor.updateDialog(this);
+                    if (isLinkToFrame) {
+                        updateDialog();
+                    }
                 }
             } else {
                 if (getResourceData().getMonitor().ffmpSplash != null) {
@@ -1469,6 +1492,20 @@ public class FFMPResource extends
         	shadedShapes.clear();
         }
         
+        if (streamShadedShape != null) {
+        	streamShadedShape.dispose();
+        	streamShadedShape = null;
+        }
+        if (streamOutlineShape != null) {
+        	streamOutlineShape.dispose();
+        	streamOutlineShape = null;
+        }
+        
+        if (smallBasinOverlayShape != null) {
+        	smallBasinOverlayShape.dispose();
+        	smallBasinOverlayShape = null;
+        }
+        
         setQuery(true);
         refresh();
     }
@@ -1731,12 +1768,12 @@ public class FFMPResource extends
         if (getResourceData().tableLoad) {
 
             if (isUpdateDialog) {
-                monitor.updateDialog(this);
+               updateDialog();
             }
 
             // stops the annoying wait cursor every time you re-center
             if (getHuc().equals("ALL")
-                    && (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
+                    || (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
                 basinTableDlg.getShell().setCursor(null);
             }
         }
@@ -2242,9 +2279,9 @@ public class FFMPResource extends
      * @param value
      */
     private void addWorstCase(Long aggPfaf, Date recentTime, Float value) {
-        if (drawables.get(new DataTime(recentTime)) != null) {
-            drawables.get(new DataTime(recentTime)).worstCaseHash.put(aggPfaf,
-                    value);
+    	FFMPDrawable drawable = drawables.get(new DataTime(recentTime));
+        if (drawable != null && drawable.worstCaseHash != null) {
+        	drawable.worstCaseHash.put(aggPfaf, value);
         }
     }
 
@@ -2409,7 +2446,8 @@ public class FFMPResource extends
             }
             if ((cwaBasins.size() == 0)
                     || !req.extent.equals(drawable.getExt())
-                    || !phuc.equals(drawable.getHuc())) {
+                    || !phuc.equals(drawable.getHuc())
+                    || restoreTable) {
                 Envelope env = null;
                 try {
                     Envelope e = req.descriptor.pixelToWorld(req.extent,
@@ -2434,7 +2472,7 @@ public class FFMPResource extends
                             templates, getSiteKey(), cwa, phuc);
                     for (Entry<Long, Envelope> entry : envMap.entrySet()) {
 
-                        if (env.intersects(entry.getValue())) {
+                        if (env.intersects(entry.getValue()) || env.contains(entry.getValue())) {
                             // add the individual basins
                             cwaBasins.add(entry.getKey());
                         }
@@ -2535,7 +2573,6 @@ public class FFMPResource extends
                             } else {
                                 // center selected, determine center key
                                 if (!phuc.equals("ALL")) {
-
                                     if (centeredAggregationKey instanceof String) {
                                         if (lowestCenter != ZOOM.BASIN) {
 
@@ -2546,6 +2583,10 @@ public class FFMPResource extends
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
+                                            // this is a fall back for VGB's
+                                            if (centeredAggr == null) {
+                                            	centeredAggr = templates.findAggregatedVGB((String) centeredAggregationKey, getSiteKey(), phuc);
+                                            }
                                         }
 
                                     } else {
@@ -2554,6 +2595,9 @@ public class FFMPResource extends
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
+                                            if (centeredAggr == null) {
+                                            	centeredAggr = templates.getAggregatedPfaf((Long)centeredAggregationKey, getSiteKey(), phuc);
+                                            }
                                         }
                                     }
 
@@ -2728,6 +2772,10 @@ public class FFMPResource extends
                         }
                     }
 
+                    if (restoreTable) {
+                        restoreTable = false;
+                    }
+                    
                     drawable.setTime(req.time);
                     if (lowestCenter != ZOOM.BASIN) {
                         drawable.setCenterAggrKey(centeredAggregationKey);
@@ -2782,6 +2830,11 @@ public class FFMPResource extends
 
                     // check whether or not the dialog needs to be dumped
                     monitor.splashDisposeAndDataLoad(getResource());
+                    
+                    if (getResourceData().tableLoad && isFirst) {
+                        isFirst = false;
+                        updateDialog();
+                    }
                 }
 
             });
@@ -3112,6 +3165,7 @@ public class FFMPResource extends
         }
 
         refresh();
+
         updateDialog();
     }
 
@@ -3145,7 +3199,8 @@ public class FFMPResource extends
     public void restoreTable() {
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
-
+        restoreTable = true;
+        
         lowestCenter = FFMPRecord.ZOOM.WFO;
         getDescriptor().getRenderableDisplay().getExtent().reset();
         zoom(1.0f);
@@ -3796,7 +3851,7 @@ public class FFMPResource extends
             long fips = monitor.getTemplates(getSiteKey()).getCountyFipsByPfaf(
                     basin.getPfaf());
             basin.setCountyFips(fips);
-
+            
             if (getResourceData().tableLoad) {
                 // interpolating
                 if (getGuidanceInterpolation(guidType).isInterpolate()) {
@@ -4235,7 +4290,7 @@ public class FFMPResource extends
     	if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
     		if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
     			try {
-    				Date startDate = new Date(getMostRecentTime().getTime() - 12 * 3600 * 1000);
+    				Date startDate = new Date(getMostRecentTime().getTime() - (6 * 3600 * 1000));
                     FFMPMonitor.getInstance().startLoad(this, startDate,
                             LOADER_TYPE.TERTIARY);
                 } catch (VizException e) {

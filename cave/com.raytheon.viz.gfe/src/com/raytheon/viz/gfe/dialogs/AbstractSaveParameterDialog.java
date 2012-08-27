@@ -158,77 +158,84 @@ public abstract class AbstractSaveParameterDialog extends CaveJFACEDialog
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 long t0 = System.currentTimeMillis();
-                final CountDownLatch latch = new CountDownLatch(
-                        MAX_CONCURRENT_SAVES);
                 final AtomicBoolean allSuccessful = new AtomicBoolean(true);
-
-                // spawn separate jobs top save parms
-                for (int i = 0; i < MAX_CONCURRENT_SAVES; i++) {
-                    new Job("Saving Parms") {
-                        @Override
-                        protected IStatus run(IProgressMonitor monitor) {
-                            try {
-                                Parm parm = null;
-                                while ((parm = parms.poll()) != null) {
-                                    String parmString = parm.getParmID()
-                                            .toString();
-                                    try {
-                                        // save data
-                                        if (statusHandler
-                                                .isPriorityEnabled(Priority.DEBUG)) {
-                                            statusHandler.handle(
-                                                    Priority.DEBUG, "Save: "
-                                                            + parmString);
-                                        }
-                                        if (!parm.saveParameter(true)) {
-                                            allSuccessful.set(false);
-                                        }
-                                    } catch (Exception e) {
-                                        allSuccessful.set(false);
-                                        statusHandler.handle(Priority.ERROR,
-                                                "Error occurred saving parm "
-                                                        + parmString, e);
-                                    }
-                                }
-                            } finally {
-                                latch.countDown();
-                            }
-
-                            return Status.OK_STATUS;
-                        }
-                    }.schedule();
-                }
-
                 try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                    final CountDownLatch latch = new CountDownLatch(
+                            MAX_CONCURRENT_SAVES);
 
-                if (!allSuccessful.get()) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Some grids were not saved. See log for details.");
-                } else {
-                    statusHandler.handle(Priority.DEBUG, "Save Complete");
-                }
+                    // spawn separate jobs top save parms
+                    for (int i = 0; i < MAX_CONCURRENT_SAVES; i++) {
+                        new Job("Saving Parms") {
+                            @Override
+                            protected IStatus run(IProgressMonitor monitor) {
+                                try {
+                                    Parm parm = null;
+                                    while ((parm = parms.poll()) != null) {
+                                        String parmString = parm.getParmID()
+                                                .toString();
+                                        try {
+                                            // save data
+                                            if (statusHandler
+                                                    .isPriorityEnabled(Priority.DEBUG)) {
+                                                statusHandler.handle(
+                                                        Priority.DEBUG,
+                                                        "Save: " + parmString);
+                                            }
+                                            if (!parm.saveParameter(true)) {
+                                                allSuccessful.set(false);
+                                            }
+                                        } catch (Throwable e) {
+                                            allSuccessful.set(false);
+                                            statusHandler.handle(
+                                                    Priority.ERROR,
+                                                    "Error occurred saving parm "
+                                                            + parmString, e);
+                                        }
+                                    }
+                                } catch (Throwable e) {
+                                    allSuccessful.set(false);
+                                    statusHandler.handle(Priority.ERROR,
+                                            e.getLocalizedMessage(), e);
+                                } finally {
+                                    latch.countDown();
+                                }
 
-                VizApp.runAsync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        AbstractSaveParameterDialog.this.getShell().setCursor(
-                                origCursor);
-                        AbstractSaveParameterDialog.this
-                                .saveFinished(allSuccessful.get());
+                                return Status.OK_STATUS;
+                            }
+                        }.schedule();
                     }
-                });
 
-                long t1 = System.currentTimeMillis();
-                System.out.println("GFE Save Forecast took: " + (t1 - t0)
-                        + " ms");
+                    latch.await();
+                } catch (Throwable e) {
+                    allSuccessful.set(false);
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                } finally {
+                    if (!allSuccessful.get()) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "Some grids were not saved. See log for details.");
+                    } else {
+                        statusHandler.handle(Priority.DEBUG, "Save Complete");
+                    }
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            AbstractSaveParameterDialog.this.getShell()
+                                    .setCursor(origCursor);
+                            AbstractSaveParameterDialog.this
+                                    .saveFinished(allSuccessful.get());
+                        }
+                    });
+
+                    long t1 = System.currentTimeMillis();
+                    System.out.println("GFE Save Forecast took: " + (t1 - t0)
+                            + " ms");
+                }
                 return Status.OK_STATUS;
             }
-
         };
 
         saveJob.setSystem(true);
