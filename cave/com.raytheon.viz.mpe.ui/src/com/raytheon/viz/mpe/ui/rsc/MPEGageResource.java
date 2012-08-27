@@ -94,6 +94,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 8, 2011            mschenke     Initial creation
+ * Aug 8, 2012   15271	  snaples      Updated hourly slot
  * 
  * </pre>
  * 
@@ -152,7 +153,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
         fontFactory = new MPEFontFactory(target, this);
         loadColors();
         lastDate = displayMgr.getCurrentDate();
-        addPoints(MPEDataManager.getInstance().readGageData(lastDate));
+        addPoints(MPEDataManager.getInstance().readGageData(lastDate, lastDate));
     }
 
     @Override
@@ -206,7 +207,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
         synchronized (mutex) {
             if (curDate != null && curDate.equals(lastDate) == false) {
                 lastDate = curDate;
-                addPoints(MPEDataManager.getInstance().readGageData(lastDate));
+                addPoints(MPEDataManager.getInstance().readGageData(lastDate, lastDate));
             }
         }
 

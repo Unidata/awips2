@@ -32,6 +32,8 @@ import PointDataView, PointDataContainer, NoDataException, PointDataRetrieve
 #    ------------    ----------    -----------    --------------------------
 #    25Apr2012       14688         rferrel        Initial Creation.
 #    06JUL2012       15153         zhao           retrieve latest Metar for MetarMonitor & PersistMonitor
+#    16JUL2012       14655         zhao           fixed a problem that occurs when there is no Metar 
+#                                                 record within a selected number of hours
 # 
 #
     
@@ -65,17 +67,17 @@ class RefTimePointDataRetrieve(PointDataRetrieve.PointDataRetrieve):
         from java.lang import String
         import jep
         from com.raytheon.uf.common.time import DataTime
-        #dts = self._createJarray(availableTimes, maxSize)
         length = len(availableTimes)
         dts = jep.jarray(length,DataTime)
 
         if maxSize==0 : #DR15153: retrive latest Metar for Metarmonitor & PersistMonitor
-            #from com.raytheon.uf.common.time import DataTime
             dts = jep.jarray(1,DataTime)
-            #length = len(availableTimes)
             dts[0] = DataTime(availableTimes[length-1])
         else : # for maxSize >= 1
             dts = self._createJarray(availableTimes, maxSize)
+            if len(dts)==0 : 
+                dts = jep.jarray(1,DataTime)
+                dts[0] = DataTime(availableTimes[length-1])
 
         constraints = self._buildConstraints(None) #times are explicitly set so we don't need to constrain those
         params = jep.jarray(len(parameters), String)

@@ -811,7 +811,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     @Override
     public void referenceSetChanged(ReferenceData refSet,
             ArrayList<Envelope> domains) {
-        activeChanged();
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                activeChanged();
+            }
+        });
     }
 
     /*
@@ -822,7 +828,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
      */
     @Override
     public void referenceSetIDChanged(ReferenceID refID) {
-        activeChanged();
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                activeChanged();
+            }
+        });
     }
 
     /*
@@ -838,7 +850,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             java.util.List<ReferenceID> deletions,
             java.util.List<ReferenceID> changes) {
 
-        this.refreshRefsets();
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                refreshRefsets();
+            }
+        });
     }
 
     /*
@@ -849,7 +867,13 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
      */
     @Override
     public void editAreaGroupInvChanged() {
-        this.refreshRefsets();
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                refreshRefsets();
+            }
+        });
     }
 
     /*
@@ -863,34 +887,33 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     @Override
     public void displayedParmListChanged(Parm[] parms, Parm[] deletions,
             Parm[] additions) {
-        refreshParms();
-    }
-
-    private void activeChanged() {
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                // Update display when active refset changes
-                ReferenceData refData = refSetMgr.getActiveRefSet();
-
-                // Fix active refset display
-                if (!activeDisplay.isDisposed()) {
-                    activeDisplay.setText(getActiveRefDesc(refData));
-                }
-
-                // Enable/Disable Undo button
-                if (!undoButton.isDisposed()) {
-                    undoButton.setEnabled(!refData.refType().equals(
-                            RefType.NONE));
-                }
-
-                // Enable/Disable Convert to Location button
-                if (!convertButton.isDisposed()) {
-                    convertButton.setEnabled(refData.isQuery());
-                }
+                refreshParms();
             }
         });
+    }
+
+    private void activeChanged() {
+        // Update display when active refset changes
+        ReferenceData refData = refSetMgr.getActiveRefSet();
+
+        // Fix active refset display
+        if (!activeDisplay.isDisposed()) {
+            activeDisplay.setText(getActiveRefDesc(refData));
+        }
+
+        // Enable/Disable Undo button
+        if (!undoButton.isDisposed()) {
+            undoButton.setEnabled(!refData.refType().equals(RefType.NONE));
+        }
+
+        // Enable/Disable Convert to Location button
+        if (!convertButton.isDisposed()) {
+            convertButton.setEnabled(refData.isQuery());
+        }
     }
 
     private String getActiveRefDesc(ReferenceData refData) {
@@ -947,37 +970,29 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void refreshRefsets() {
-        VizApp.runAsync(new Runnable() {
+        if (groupList.isDisposed() || editAreasList.isDisposed()) {
+            return;
+        }
 
-            @Override
-            public void run() {
-                if (groupList.isDisposed() || editAreasList.isDisposed()) {
-                    return;
-                }
+        String[] groups = groupList.getSelection();
 
-                String[] groups = groupList.getSelection();
+        // Refresh the Group and Areas lists
+        java.util.List<String> availGroups = refSetMgr.getGroupInventory();
+        availGroups.add("Misc");
+        groupList.setItems(availGroups.toArray(new String[availGroups.size()]));
 
-                // Refresh the Group and Areas lists
-                java.util.List<String> availGroups = refSetMgr
-                        .getGroupInventory();
-                availGroups.add("Misc");
-                groupList.setItems(availGroups.toArray(new String[availGroups
-                        .size()]));
-
-                // update selection
-                groupList.deselectAll();
-                for (String group : groups) {
-                    int index = groupList.indexOf(group);
-                    if (index >= 0) {
-                        groupList.select(index);
-                    }
-                }
-
-                groups = groupList.getSelection();
-                String[] areaNames = getAreaNames(groups);
-                editAreasList.setItems(areaNames);
+        // update selection
+        groupList.deselectAll();
+        for (String group : groups) {
+            int index = groupList.indexOf(group);
+            if (index >= 0) {
+                groupList.select(index);
             }
-        });
+        }
+
+        groups = groupList.getSelection();
+        String[] areaNames = getAreaNames(groups);
+        editAreasList.setItems(areaNames);
     }
 
     private void refreshParms() {
