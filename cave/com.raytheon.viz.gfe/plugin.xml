@@ -27,12 +27,17 @@
 	</extension>
 	<extension point="org.eclipse.core.expressions.definitions">
 		<definition id="com.raytheon.viz.gfe.inGFEActionSet">
-			<with variable="activeContexts">
-				<iterate operator="or">
-					<equals value="com.raytheon.viz.gfe.GFEActionSet">
-					</equals>
-				</iterate>
-			</with>
+			<and>
+				<with variable="activeContexts">
+					<iterate operator="or">
+						<equals value="com.raytheon.viz.gfe.GFEActionSet">
+						</equals>
+					</iterate>
+				</with>
+          	  	<with variable="activeEditor">
+       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    	      	</with>
+    		</and>
 		</definition>
 	</extension>
 	<extension point="org.eclipse.ui.commands">
