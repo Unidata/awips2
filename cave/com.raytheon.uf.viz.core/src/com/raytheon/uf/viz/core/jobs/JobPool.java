@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * if you have dozens or hundreds of tasks that each take a short time. Creating
  * a job for each task can result in more threads than is useful. If you instead
  * use a JobPool it reduces the number of threads by limiting the number of
- * eclipse jobs tBhat are created. For many tasks a JobPool may perform faster
+ * eclipse jobs that are created. For many tasks a JobPool may perform faster
  * than using eclipse Jobs directly because thread creation and context
  * switching are reduced.
  * 
@@ -59,6 +59,12 @@ public class JobPool {
 
     protected List<Job> jobList;
 
+    protected boolean cancel = false;
+
+    protected Object cancelLock = new Object();
+
+    protected Object joinLock = new Object();
+
     public JobPool(String name, int size) {
         this(name, size, null, null);
     }
@@ -82,46 +88,75 @@ public class JobPool {
         }
     }
 
-    public synchronized void schedule(Runnable runnable) {
-        workQueue.offer(runnable);
-        Job job = jobQueue.poll();
-        if (job != null) {
-            job.schedule();
+    public void schedule(Runnable runnable) {
+        // do not schedule while canceling(cancel should be fast).
+        synchronized (cancelLock) {
+            if (cancel) {
+                return;
+            }
+            // do not schedule while joining, join might be slow but the javaDoc
+            // warns others.
+            synchronized (joinLock) {
+                workQueue.offer(runnable);
+                Job job = jobQueue.poll();
+                if (job != null) {
+                    job.schedule();
+                }
+            }
         }
     }
 
     /**
      * Join on the Runnables in the pool. Attempting to schedule other Runnables
-     * will block until join as returned so be careful when calling
+     * will block until join has returned so be careful when calling
      */
-    public synchronized void join() {
-        for (Job j : jobList) {
-            try {
-                j.join();
-            } catch (InterruptedException e) {
-                // Ignore interupt
+    public void join() {
+        synchronized (joinLock) {
+            for (Job j : jobList) {
+                try {
+                    j.join();
+                } catch (InterruptedException e) {
+                    // Ignore interupt
+                }
             }
         }
     }
 
     /**
      * Cancel the job pool, will clear out the workQueue then join on all jobs
-     * running
+     * running. Once canceled all future calls to schedule will be ignored.
      */
-    public synchronized void cancel() {
-        workQueue.clear();
-        join();
+    public void cancel() {
+        cancel(true);
+    }
+
+    /**
+     * Cancel the job pool, will clear out the workQueue and optionally join
+     * runnning jobs. Once canceled all future calls to schedule will be
+     * ignored.
+     * 
+     * @param join
+     *            true if you want to join before returning.
+     */
+    public void cancel(boolean join) {
+        synchronized (cancelLock) {
+            cancel = true;
+            workQueue.clear();
+        }
+        if (join) {
+            join();
+        }
     }
 
     /**
      * Cancels the specified runnable. Returns true if the provided runnable was
-     * waiting to be run but now is now. Returns false if the provided runnable
+     * waiting to be run but now is not. Returns false if the provided runnable
      * is already running or if it was not enqueued to begin with.
      * 
      * @param runnable
      * @return
      */
-    public synchronized boolean cancel(Runnable runnable) {
+    public boolean cancel(Runnable runnable) {
         return workQueue.remove(runnable);
     }
 

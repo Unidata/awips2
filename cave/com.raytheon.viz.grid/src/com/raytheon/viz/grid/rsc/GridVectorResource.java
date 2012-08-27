@@ -107,7 +107,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
  *                                         reprojected grids.
  *    05/16/2012   14993       D. Friedman Fix "blocky" contours
- *    06/19/2012   14988       D. Friedman Reproject based on conformality  
+ *    06/19/2012   14988       D. Friedman Reproject based on conformality 
+ *    07/09/2012   14940       M. Porricelli Apply reprojection to streamlines 
+ *    07/23/2012   14968       M. Porricelli Changed wording of streamline legend
  * 
  * </pre>
  * 
@@ -265,7 +267,8 @@ public class GridVectorResource extends AbstractMapVectorResource implements
 
                 boolean isVector = false;
                 if (displayType == DisplayType.BARB
-                        || displayType == DisplayType.ARROW) {
+                        || displayType == DisplayType.ARROW
+                        || displayType == DisplayType.STREAMLINE) {
                     isVector = true;
 
                     for (int i = 0; i < len; i++) {
@@ -489,7 +492,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             legendParams.dataTime = getDisplayedDataTime();
 
             if (displayType == DisplayType.STREAMLINE) {
-                legendParams.type = " Streamlines";
+                legendParams.type = " Strmlns";
             } else if (displayType == DisplayType.BARB) {
                 legendParams.type = "Wind Barbs";
             } else if (displayType == DisplayType.ARROW) {
@@ -524,7 +527,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
         legendParams.dataTime = getDisplayedDataTime();
 
         if (displayType == DisplayType.STREAMLINE) {
-            legendParams.type = " Streamlines";
+            legendParams.type = " Strmlns";
         } else if (displayType == DisplayType.BARB) {
             legendParams.type = "Wind Barbs";
         } else if (displayType == DisplayType.ARROW) {

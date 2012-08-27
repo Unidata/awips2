@@ -34,7 +34,6 @@
                     </resourceData>
                 </resource>
                 <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
-                <numberOfFrames>12</numberOfFrames>
             </descriptor>
         </displays>
     </displayList>
