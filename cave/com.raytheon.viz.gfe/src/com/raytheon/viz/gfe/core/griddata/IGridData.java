@@ -158,7 +158,7 @@ public interface IGridData extends Comparable<IGridData> {
      * 
      * @return time the grid was last accessed
      */
-    public Date getLastAccessTime();
+    public long getLastAccessTime();
 
     /**
      * Returns the time range associated with this grid.

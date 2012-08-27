@@ -58,6 +58,11 @@ import com.vividsolutions.jts.geom.Point;
  * Date         PR#         Engineer    Description
  * -----------  ---------- ------------ --------------------------
  * 20080116            798 jkorman      Changed logging levels.
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/09/2012         1011 jkorman     Changed parser to use TEIInfo to
+ * parse text elements properly. Removed test code to unit-test
+ * parse TEIs.
  * </pre>
  * 
  * @author jkorman
@@ -68,14 +73,6 @@ public class PirepParser {
 
     // Allowable future time in milliseconds (15 minutes).
     private static final int ALLOWABLE_TIME = 15;
-
-    private static final String[] RPIDS = { "UUA", "UA" };
-
-    /**
-     * Note that there are intentionally spaces after some of the teis.
-     */
-    private static final String[] TEIS = { "/OV ", "/TM", "/FL", "/TP", "/SK ",
-            "/WX", "/TA", "/WV", "/TB", "/IC", "/RM" };
 
     private static final String SK_SKC = "SKC";
 
@@ -171,12 +168,6 @@ public class PirepParser {
     // Was character non-alphanumeric but not whitespace?
     private static final int NONALPHANUMERIC = 3;
 
-    // The last search position when looking for TEIs
-    private int theSearchPos = -1;
-
-    // Where was the Token found
-    private int theTokenPos;
-
     private String reportData = null;
 
     private String theReportingStationId = null;
@@ -219,6 +210,7 @@ public class PirepParser {
 
     private Headers headers;
 
+    private int reportType = IDecoderConstants.PIREP_NORMAL;
     /**
      * Construct a PirepParser from given String data. The report is completely
      * parsed and decoded upon success.
@@ -256,7 +248,7 @@ public class PirepParser {
     }
 
     public Integer getReportType() {
-        return IDecoderConstants.PIREP_NORMAL;
+        return reportType;
     }
 
     /**
@@ -397,114 +389,74 @@ public class PirepParser {
      *             An error occurred within this method.
      */
     protected void parse() {
-        int pirepIndex = 0;
-
-        // Look for a 'UUA' or 'UA' indicator to denote the start of
-        // the report.
-        if (!nextString(reportData, pirepIndex, reportData.length(), RPIDS)) {
-            return;
-        }
-
         // if failed to decode reporting station id, this must be Canadian pirep
         // TODO convert!
-
-        // Find the first TEI within the report.
-        if (!nextString(reportData, pirepIndex, reportData.length(), TEIS)) {
-            return;
-        }
-        int pos1 = this.theSearchPos;
-        int tei1 = this.theTokenPos;
-        int teiIndex = pos1 + TEIS[tei1].length();
-        int pos2, tei2;
-
-        while (teiIndex < reportData.length()) {
-            // Find the end of the data for this TEI by finding the next
-            // TEI within the report.
-            int endTeiIndex;
-            boolean lastTei = !nextString(reportData, teiIndex,
-                    reportData.length(), TEIS);
-            pos2 = this.theSearchPos;
-            tei2 = this.theTokenPos;
-            if (lastTei) {
-                // This is the last TEI within the report, so set the end
-                // of the data for this TEI equal to the end of the report.
-                endTeiIndex = reportData.length();
-            } else {
-                endTeiIndex = pos2;
-            }
-
+        
+        List<TEIInfo> positions = TEIInfo.findTEIs(reportData);
+        // Look for a 'UUA' or 'UA' indicator to denote the start of
+        // the report.
+        if ((positions.size() > 0) && (TEI.PIREP.equals(positions.get(0).getTei()))) {
             boolean success = false;
-            switch (tei1) {
-            case 0:
-                // Decode and store the "/OV" (i.e. location) data.
-                success = decodeLocationData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 1:
-                // Decode and store the "/TM" (i.e. time) data.
-                success = decodeTimeData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 2:
-                // Decode and store the "/FL" (i.e. flight level) data.
-                success = decodeFlightLevelData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 3:
-                // Decode and store the "/TP" (i.e. aircraft type) data.
-                success = decodeAircraftTypeData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 4:
-                // Decode and store the "/SK" (i.e. sky cover) data.
-                success = decodeSkyCoverData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 5:
-                // Decode and store the "/WX" (i.e. weather) data.
-                success = decodeWeatherData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 6:
-                // Decode and store the "/TA" (i.e. temperature) data.
-                success = decodeTemperatureData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 7:
-                // Decode and store the "/WV" (i.e. wind) data.
-                success = decodeWindData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 8:
-                // Decode and store the "/TB" (i.e. turbulence) data.
-                success = decodeTurbulenceData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 9:
-                // Decode and store the "/IC" (i.e. icing) data.
-                success = decodeIcingData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            case 10:
-                // Decode and store the "/RM" (i.e. remarks) data.
-                success = decodeRemarksData(reportData.substring(teiIndex,
-                        endTeiIndex));
-                break;
-            } // switch()
+            for (TEIInfo t : positions) {
+                switch (t.getTei()) {
+                case PIREP: {
+                    // success = decodeReportingStationId(t.getTeiText());
+                    success = true;
+                    break;
+                }
+                case OV:
+                    // Decode and store the "/OV" (i.e. location) data.
+                    success = decodeLocationData(t.getTeiText());
+                    break;
+                case TM:
+                    // Decode and store the "/TM" (i.e. time) data.
+                    success = decodeTimeData(t.getTeiText());
+                    break;
+                case FL:
+                    // Decode and store the "/FL" (i.e. flight level) data.
+                    success = decodeFlightLevelData(t.getTeiText());
+                    break;
+                case TP:
+                    // Decode and store the "/TP" (i.e. aircraft type) data.
+                    success = decodeAircraftTypeData(t.getTeiText());
+                    break;
+                case SK:
+                    // Decode and store the "/SK" (i.e. sky cover) data.
+                    success = decodeSkyCoverData(t.getTeiText());
+                    break;
+                case WX:
+                    // Decode and store the "/WX" (i.e. weather) data.
+                    success = decodeWeatherData(t.getTeiText());
+                    break;
+                case TA:
+                    // Decode and store the "/TA" (i.e. temperature) data.
+                    success = decodeTemperatureData(t.getTeiText());
+                    break;
+                case WV:
+                    // Decode and store the "/WV" (i.e. wind) data.
+                    success = decodeWindData(t.getTeiText());
+                    break;
+                case TB:
+                    // Decode and store the "/TB" (i.e. turbulence) data.
+                    success = decodeTurbulenceData(t.getTeiText());
+                    break;
+                case IC:
+                    // Decode and store the "/IC" (i.e. icing) data.
+                    success = decodeIcingData(t.getTeiText());
+                    break;
+                case RM:
+                    // Decode and store the "/RM" (i.e. remarks) data.
+                    success = decodeRemarksData(t.getTeiText());
+                    break;
+                default: {
+                    logger.error(String.format("Invalid PIREP identifier [%s] found", t.getTeiText()));
+                    break;
+                }
+                } // switch()
+            } // for
+        } else {
 
-            // discontinue if processing of any data fails
-            if (!success) {
-                // TODO: add logging
-            }
-
-            if (lastTei) {
-                teiIndex = reportData.length();
-            } else {
-                pos1 = pos2;
-                tei1 = tei2;
-                teiIndex = pos1 + TEIS[tei1].length();
-            }
-        } // while()
+        }        
     } // parse()
 
     /**
@@ -1034,7 +986,7 @@ public class PirepParser {
      *            A possible temperature to be decoded.
      * @return Was the temperature data decoded.
      * @throws DecodeException
-     *             If a decode error occured.
+     *             If a decode error occurred.
      */
     protected boolean decodeTemperatureData(String aTemperature) {
         // Break up the input string into groups of "like-type" in order
@@ -1496,54 +1448,6 @@ public class PirepParser {
     }
 
     /**
-     * The nextString method determines the position of the first occurrence of
-     * any of a list of substrings within the input string. This method provides
-     * equivalent functionality to the routine ST_NXTS in the ported code. The
-     * outputs are provided in member variables.
-     * 
-     * @param str
-     *            Input string
-     * @param firstPos
-     *            First position to check
-     * @param lastPos
-     *            Last position to check
-     * @param subStrings
-     *            List of substrings
-     * @return success or failure
-     */
-    protected boolean nextString(String str, int firstPos, int lastPos,
-            String subStrings[]) {
-        this.theTokenPos = -1;
-        String tstr = str.substring(0, lastPos);
-        for (int i = 0; i < subStrings.length; i++) {
-            if ((this.theSearchPos = tstr.indexOf(subStrings[i], firstPos)) != -1) {
-                this.theTokenPos = i;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * This method finds a string in a string array and returns its index.
-     * 
-     * @param str
-     *            String to find
-     * @param strs
-     *            Strings to compare
-     * @return index of matching string or -1 on failure
-     */
-    protected int findString(String str, String[] strs) {
-        for (int i = 0; i < strs.length; i++) {
-            if (strs[i].equals(str)) {
-                return i;
-            }
-        }
-        return -1;
-    } // findString()
-
-    /**
      * This method groups "like-types" of characters to facilitate decoding.
      * This method provides equivalent functionality to the UT_BKGP subroutine
      * in the ported code.
@@ -1587,63 +1491,4 @@ public class PirepParser {
 
         return strs.toArray(new String[0]);
     }
-
-    public static final void main(String[] args) {
-
-        String[] latlons = { "0000N 00000W", "0000S 00000E", "9000S 00000W",
-                "9000N 00000W", "0000N 09000W", "9000S 09000W", "9000N 09000W",
-
-                "0000N 09000W", "4500S 09000W", "9000N 09000W",
-
-                "9000N 09959W", "0000N 10000W",
-
-                "4500S 09000W", "9000N 09000W",
-
-                "9000N 18000E", "9000S 18000E", "9000N 18000W", "9000S 18000W",
-                "9000N 17959W", "9000S 17959W",
-
-        };
-
-        Pattern p = Pattern.compile(LATLON_PTRN);
-
-        for (String s : latlons) {
-            Matcher m = p.matcher(s);
-            if (m.find()) {
-                BasePoint b = parseLatLon(m.group());
-                if (b != null) {
-                    System.out.println(String.format("%16s %10.6f %11.6f", s,
-                            b.getLatitude(), b.getLongitude()));
-                } else {
-                    System.out.println("Invalid parse " + s);
-                }
-            } else {
-                System.out.println("no match for " + s);
-            }
-        }
-
-        String str = "123 123  123 \r SCT";
-
-        str = str.replaceAll("[\r\n]", " ");
-        str = str.replaceAll(" {2,}", " ");
-
-        System.out.println("[" + str + "]");
-
-        p = Pattern.compile(bearingDistPattern);
-        Matcher m = p.matcher("OMA 080056");
-        if(m.find()) {
-            System.out.println(m.group(1));
-            System.out.println(m.group(2) + " " + m.group(3));
-        }
-        m = p.matcher("OMA080056");
-        if(m.find()) {
-            System.out.println(m.group(1));
-            System.out.println(m.group(2) + " " + m.group(3));
-        }
-        
-        
-        
-        
-        
-    }
-
 }

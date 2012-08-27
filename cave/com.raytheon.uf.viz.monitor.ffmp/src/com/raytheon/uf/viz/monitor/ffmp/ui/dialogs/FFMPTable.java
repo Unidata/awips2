@@ -52,6 +52,7 @@ import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData.COLUMN_NAME;
+import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
 
 /**
@@ -67,17 +68,22 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Apr 7, 2009            lvenable     Initial creation
  * Mar 15,2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
  * Mar 20,2012	DR 14250  gzhang       Eliminating column Missing values 
+ * Aug 01, 2012 14168     mpduff       Only allow filtering if ColorCell is true
  * </pre>
+ * 
  * @author lvenable
  * @version 1.0
  */
 public abstract class FFMPTable extends Composite {
     /** Default column width */
-    protected static final int DEFAULT_COLUMN_WIDTH = 95;//DR14406: old value: 75 too small 
+    protected static final int DEFAULT_COLUMN_WIDTH = 95;// DR14406: old value:
+                                                         // 75 too small
 
-    /** DR14406:  For columns with more words */
+    /** DR14406: For columns with more words */
     protected static final int EXTRA_COLUMN_WIDTH = 28;
-    
+
+    protected String currentPfaf = null;
+
     /**
      * Main table control.
      */
@@ -325,6 +331,9 @@ public abstract class FFMPTable extends Composite {
                         cols[j].setWidth(defaultColWidth);
                     }
 
+                    // reset the tableIndex
+                    tableIndex = -1;
+
                     /*
                      * Check of the column is sortable.
                      */
@@ -372,17 +381,36 @@ public abstract class FFMPTable extends Composite {
         int sortColIndex = table.indexOf(sortedTableColumn);
         boolean isAFilterCol = false;
         ThreshColNames sortedThreshCol = null;
+        boolean reverseFilter = false;
         double filterNum = Double.NaN;
 
-        String columnName = getColumnKeys()[sortColIndex];        
+        String sortedColumnName = getColumnKeys()[sortColIndex];
+
+        FFMPConfigBasinXML ffmpCfgBasin = FFMPConfig.getInstance()
+                .getFFMPConfigData();
+
+        ArrayList<FFMPTableColumnXML> ffmpTableCols = ffmpCfgBasin
+                .getTableColumnData();
+
+        for (ThreshColNames threshColName : ThreshColNames.values()) {
+            if (sortedColumnName.contains(threshColName.name())) {
+                sortedThreshCol = threshColName;
+                break;
+            }
+        }
+
         // Check if the sorted column is a column that will contain a filter.
-        if (!columnName.equalsIgnoreCase("NAME")) {
-            isAFilterCol = true;
-            for (ThreshColNames threshColName : ThreshColNames.values()) {
-                if (columnName.contains(threshColName.name())) {
-                    sortedThreshCol = threshColName;
-                    filterNum = ffmpConfig.getFilterValue(threshColName);
+        // Check the gui config to see if colorCell is true. If false then do
+        // not apply filter
+        for (FFMPTableColumnXML xml : ffmpTableCols) {
+            if (xml.getColumnName().contains(sortedThreshCol.name())) {
+                if (ffmpConfig.isColorCell(sortedThreshCol)) {
+                    // Only filter if colorCell is true
+                    isAFilterCol = true;
+                    filterNum = ffmpConfig.getFilterValue(sortedThreshCol);
+                    reverseFilter = ffmpConfig.isReverseFilter(sortedThreshCol);
                 }
+                break;
             }
         }
 
@@ -409,38 +437,16 @@ public abstract class FFMPTable extends Composite {
                     extent.x);
 
             /*
-             * Check if the sorted column is a filter column.
+             * Check if the data value is Not A Number.
              */
-            if (isAFilterCol == true) {
-                /*
-                 * Check if the data value is Not A Number.
-                 */
-                float dataVal = cellData[sortColIndex]
-                                         .getValueAsFloat();
-                //DR 14250 fix: any value not a number will be omitted
-                if (/*sortedThreshCol.name().equalsIgnoreCase("RATIO") &&*/ Float.isNaN(dataVal)) {
-                    continue;
-                }
-                
-               // if (sortedThreshCol.name().equalsIgnoreCase("RATIO") == false) {
-                
-                    // If the data value is less/more than the filter value
-                    // continue
-                    // so we don't put the data in the table. Less for normal
-                    // filtering,
-                    // more for reverse filtering
-                    ArrayList<FFMPTableColumnXML> tcList = ffmpConfig
-                            .getFFMPConfigData().getTableColumnData();
-                    boolean reverseFilter = false;
-                    for (FFMPTableColumnXML tc : tcList) {
-                        if (tc.getColumnName().equalsIgnoreCase(
-                                sortedThreshCol.name())) {
-                            reverseFilter = tc.getReverseFilter();
-                            break;
-                        }
-                    }
-              //  }
+            float dataVal = cellData[sortColIndex].getValueAsFloat();
+            // DR 14250 fix: any value not a number will be omitted
+            if (/* sortedThreshCol.name().equalsIgnoreCase("RATIO") && */Float
+                    .isNaN(dataVal)) {
+                continue;
+            }
 
+            if (isAFilterCol) {
                 if (reverseFilter) {
                     if (dataVal > filterNum) {
                         continue;
@@ -453,6 +459,11 @@ public abstract class FFMPTable extends Composite {
             }
 
             indexArray.add(t);
+
+            // Check to see if this is the selected row
+            if (rowData.getPfaf().equals(currentPfaf)) {
+                tableIndex = indexArray.indexOf(t);
+            }
         }
         /*
          * VIRTUAL TABLE
@@ -657,7 +668,10 @@ public abstract class FFMPTable extends Composite {
             }
         }
 
-        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;//DR14406: old value 6 too small
+        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;// DR14406:
+                                                                    // old value
+                                                                    // 6 too
+                                                                    // small
         imageHeight = textHeight * 2;
 
         gc.dispose();
@@ -712,25 +726,34 @@ public abstract class FFMPTable extends Composite {
                 String[] tmpArray = colName.split("\n");
 
                 for (int j = 0; j < tmpArray.length; j++) {
-//                    if (tmpArray[j].length() > maxTextLen) {
-//                        maxTextLen = tmpArray[j].length();
-//                    }
-//                }
+                    // if (tmpArray[j].length() > maxTextLen) {
+                    // maxTextLen = tmpArray[j].length();
+                    // }
+                    // }
 
-                	xCoord = Math.round((imageWidth / 2)- (tmpArray[j].length() /*DR14406: old value: maxTextLen*/* textWidth / 2));
-                	yCoord = j*(textHeight+1);//DR14406: old value 0 is only for the 1st line
-                	gc.drawText(tmpArray[j], xCoord, yCoord, true);//DR14406: draw each line separately		
+                    xCoord = Math.round((imageWidth / 2)
+                            - (tmpArray[j].length() /*
+                                                     * DR14406: old value:
+                                                     * maxTextLen
+                                                     */* textWidth / 2));
+                    yCoord = j * (textHeight + 1);// DR14406: old value 0 is
+                                                  // only for the 1st line
+                    gc.drawText(tmpArray[j], xCoord, yCoord, true);// DR14406:
+                                                                   // draw each
+                                                                   // line
+                                                                   // separately
                 }
             } else {
                 xCoord = Math.round((imageWidth / 2)
                         - (colName.length() * textWidth / 2));
                 yCoord = imageHeight / 2 - textHeight / 2 - 1;
-                gc.drawText(colName, xCoord, yCoord, true);//DR14406: draw text with a single line
+                gc.drawText(colName, xCoord, yCoord, true);// DR14406: draw text
+                                                           // with a single line
             }
 
-//            System.out.println("Column name = " + colName);
-            //DR14406: move the below text drawing code into the if-else blocks
-            //gc.drawText(colName, xCoord, yCoord, true);
+            // System.out.println("Column name = " + colName);
+            // DR14406: move the below text drawing code into the if-else blocks
+            // gc.drawText(colName, xCoord, yCoord, true);
 
             gc.dispose();
             tc.setImage(img);
@@ -784,9 +807,10 @@ public abstract class FFMPTable extends Composite {
                         tCols[i].setWidth(table.getColumn(i).getWidth());
                     } else {
                         tCols[i].setWidth(defaultColWidth);
-                    } 
-                    
-                    setQPFColName(tCols[i], col);//DR14406: set QPF title with quicker response
+                    }
+
+                    setQPFColName(tCols[i], col);// DR14406: set QPF title with
+                                                 // quicker response
                 } else {
                     tCols[i].setWidth(0);
                 }
@@ -866,27 +890,24 @@ public abstract class FFMPTable extends Composite {
      */
     protected abstract int getColumnIndex(String sortCol);
 
-
-    
-    
-    
     /**
-     * DR14406 code: QPF column's name should be re-set 
-     * when a user choose another type of QPF from the
-     * Attributes... button. 
+     * DR14406 code: QPF column's name should be re-set when a user choose
+     * another type of QPF from the Attributes... button.
      * 
      * See FfmpTableConfigData.setQpfType() with ColumnAttribData
      * 
-     * @param tCols:	TableColumn
-     * @param col:		Column name
+     * @param tCols
+     *            : TableColumn
+     * @param col
+     *            : Column name
      */
-    private void setQPFColName(TableColumn tCols, String col){
-    	
-    	if(COLUMN_NAME.QPF.getColumnName().equalsIgnoreCase(col)){    	
-    	
-	    	setColumnImages();
-	    	tCols.setWidth(defaultColWidth+EXTRA_COLUMN_WIDTH);//38);
-	    	    	
-    	}
+    private void setQPFColName(TableColumn tCols, String col) {
+
+        if (COLUMN_NAME.QPF.getColumnName().equalsIgnoreCase(col)) {
+
+            setColumnImages();
+            tCols.setWidth(defaultColWidth + EXTRA_COLUMN_WIDTH);// 38);
+
+        }
     }
 }

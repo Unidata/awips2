@@ -23,4 +23,8 @@
    <referenceModel>HiResW-ARW-East</referenceModel>
    <nx>350</nx>
    <ny>350</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>

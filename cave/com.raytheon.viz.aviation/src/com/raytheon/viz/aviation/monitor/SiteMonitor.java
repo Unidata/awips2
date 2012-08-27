@@ -62,7 +62,8 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * Nov  4, 2010 6866       rferrel      Impact statements no longer malformed.
  * May 13, 2011 8611       rferrel      Added type to help determine blink state.
  * Apr 30, 2012 14717      zhao         Indicators turn gray when Metar is outdated
- * 
+ * 20JUL2012    14570      gzhang/zhao  Modified for highlighting correct time groups in TAF Viewer
+ * 11AUG2012    14570      zhao         Added 'cat' to alert_key_map
  * </pre>
  * 
  * @author lvenable
@@ -125,6 +126,8 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
      */
     private static final Map<String, String[]> ALERT_KEY_MAP = new HashMap<String, String[]>();
     {
+    	ALERT_KEY_MAP.put("cat", new String[] { "vsby", "sky" }); // 14570
+    	//ALERT_KEY_MAP.put("tempo", new String[] { "wind", "vsby", "pcp", "obv", "vcnty", "sky" } ); // 14570
         ALERT_KEY_MAP.put("vsby", new String[] { "vsby" });
         ALERT_KEY_MAP.put("wind", new String[] { "wind" });
         ALERT_KEY_MAP.put("wx", new String[] { "pcp", "obv", "vcnty" });
@@ -139,12 +142,13 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
      * @param stationName
      */
     public SiteMonitor(Composite parent, TafSiteComp parentSiteComp,
-            MonitorCfg config, Map<String, String[]> alertMap) {
+            MonitorCfg config, Map<String, String[]> alertMap, Map<String,String> alertTimeMap/* DR 14570 */,Map<String,String[]> tempoMap) {
         this.parent = parent;
         this.parentSiteComp = parentSiteComp;
         this.cfg = config;
         this.alertMap = alertMap;
-
+        this.tempoMap = tempoMap;//20120711
+        this.alertTimeMap = alertTimeMap;// DR 14570
         monitorItems = StringUtil.split(cfg.getMonitorItems(), ",");
         initMonitorLabels(cfg.getMonitorLabels());
 
@@ -446,7 +450,9 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         if (severity > maxSeverity) {
                             maxSeverity = severity;
                         }
-                        
+//                        if ( severity >= 2 ) {
+//                        	System.out.println("0***key/severity: "+key.toString()+" / "+severity);                        
+//                        }
                         String msg = (String) valueMap.get("msg");
                         
                         /**
@@ -526,17 +532,64 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                             ArrayList<Map<?, ?>> group = (ArrayList<Map<?, ?>>) dcd
                                     .get("group");
                             Map<?, ?> oncl = group.get(0);
-                            Map<?, ?> obs = (Map<?, ?>) oncl.get("prev");
+                            Map<?, ?> obs = (Map<?, ?>) oncl.get("prev"); 
                             ArrayList<String> alertValues = new ArrayList<String>();
+                            
+                            Map<?,?> tempo=null;//20120711
+                            ArrayList<String> tempoAlertValues = new ArrayList<String>();//20120711
+                            // DR 14570: based on A1 Python code in TafViewer.highlight()                            
+                            long tsys= SimulatedTime.getSystemTime().getTime().getTime();
+                            long tfrom= ((Float)((Map<?,?>)((Map<?,?>)oncl.get("prev")).get("time")).get("from")).longValue()*1000;
+                            long time = tsys>tfrom ? tsys : tfrom;
+                            long tto = 0;
 
-                            for (String tafKey : tafKeys) {
-                                Map<?, ?> alert = (Map<?, ?>) obs.get(tafKey);
-                                if (alert != null) {
-                                    String value = (String) alert.get("str");
-                                    alertValues.add(value);
-                                }
+                            for(Map<?,?> map : group){
+                            	//for( Object o : map.keySet())System.out.println("^^^^^^^^^^^^ map keys: "+(String)o);
+                            	tto = ((Float)((Map<?,?>)((Map<?,?>)map.get("prev")).get("time")).get("to")).longValue()*1000;
+                            	//System.out.println("---1---time/tto: "+new java.util.Date(time)+" / "+new java.util.Date(tto)+" key: "+key.toString());
+                            	if(time < tto){
+
+
+
+                            		//20120711:  see A1 TafViewer.py's highlight(), should be outside the if(severity >= 2) block?
+
+                            		//System.out.println("1+++map.keySet().contains(oncl): "+new Boolean(map.keySet().contains("oncl")));
+                            		String[] keyArray = map.keySet().toArray(new String[]{});//for TEMPO highlight 
+                            		for(String s : keyArray){
+                            			if(s.equals("ocnl")){
+                            				long oFrom=((Float)((Map<?,?>)((Map<?,?>)map.get("ocnl")).get("time")).get("from")).longValue()*1000; 
+                            				long oTo=((Float)((Map<?,?>)((Map<?,?>)map.get("ocnl")).get("time")).get("to")).longValue()*1000;
+
+                            				//System.out.println("2+++oFrom**time**oTo: "+oFrom+"**"+time+"**"+oTo);
+
+                            				if(oFrom<=time && time<oTo)	
+                            					tempo=(Map<?, ?>) map.get("ocnl");
+                            			}	
+                            		}
+
+                            		obs = (Map<?, ?>) map.get("prev"); //System.out.println("______2___time/tto: "+new java.util.Date(time)+" / "+new java.util.Date(tto)+" key: "+key.toString());
+                            		break;
+                            	}
                             }
 
+                            Map<?, ?> obsTimeMap = (Map<?, ?>) obs.get("time");//for getting correct line using time
+
+                            for (String tafKey : tafKeys) {	
+                            	// DR 14570 20120711                            	
+                            	Map<?,?> tempoAlert = (tempo==null) ? null:(Map<?,?>)tempo.get(tafKey);
+                            	//System.out.println("tempo==null***tempoAlert != null: "+new Boolean(tempo==null)+"***"+new Boolean(tempoAlert != null));
+                            	if(tempoAlert != null){ 
+                            		tempoAlertValues.add((String)tempoAlert.get("str"));
+                            		//System.out.println("(String)tempoAlert.get(str): "+(String)tempoAlert.get("str"));	
+                            	}// END 20120711
+                            	Map<?, ?> alert = (Map<?, ?>) obs.get(tafKey);
+                            	if (alert != null) {
+                            		String value = (String) alert.get("str");
+                            		alertValues.add(value);
+                            	}
+                            }	//System.out.println("________3___obsTimeMap: "+(String)obsTimeMap.get("str"));
+                            tempoMap.put((String)key, tempoAlertValues.toArray(new String[tempoAlertValues.size()]));//20120711
+                            if(alertTimeMap!=null) alertTimeMap.put((String)key, (String)obsTimeMap.get("str"));// DR 14570
                             String[] s = new String[alertValues.size()];
                             alertMap.put((String) key, alertValues.toArray(s));
                         }
@@ -642,5 +695,14 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
      */
     public Color getGraySeverityColor() {
     	return getSeverityColors()[GRAY_COLOR_SEVERITY];
+    }
+    
+    
+    //----------------------DR 14570: 
+    
+    private Map<String, String> alertTimeMap;// = new HashMap<String, String>();
+    public Map<String, String[]> tempoMap;// = new HashMap<String, String[]>();
+    public void setAlertTimeMap(Map<String, String> map){
+    	alertTimeMap = map;
     }
 }

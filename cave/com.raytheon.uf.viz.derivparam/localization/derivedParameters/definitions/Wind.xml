@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="m/s" name="Total Wind (Vector)" abbreviation="Wind">
+<DerivedParameter unit="m/s" name="Wind" abbreviation="Wind">
     <Method name="Vector">
     	<Field abbreviation="uW"/>
     	<Field abbreviation="vW"/>
