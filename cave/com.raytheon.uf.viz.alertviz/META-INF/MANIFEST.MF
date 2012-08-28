@@ -29,3 +29,5 @@ Import-Package: com.raytheon.uf.common.python,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets
 Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: org.apache.log4j
