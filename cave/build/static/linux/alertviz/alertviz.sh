@@ -88,7 +88,8 @@ fi
 while [ $exitVal -ne 0 ]
 do
  curTime=`date +%Y%m%d_%H%M%S`
- LOGFILE=${LOGDIR}/alertviz_${curTime}.log
+ LOGFILE=${LOGDIR}/alertviz_${curTime}_console.log
+ export LOGFILE_ALERTVIZ=${LOGDIR}/alertviz_${curTime}_admin.log
 
  #first check if we can write to the directory
  if [ -w ${LOGDIR} ]; then
