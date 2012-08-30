@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -258,15 +260,33 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 }
 
             } else {
+                /*
+                 * This appears completely un-orthodox for anything in D2D. But
+                 * alas FFMP always does things differently. According to Vada
+                 * Driesbach, FFMP in stand alone mode functions similarly to
+                 * the way it does in table mode. Meaning you have to reach back
+                 * and find time windows for the source displayed +- the
+                 * expirationTime. None of the sources are displayed for exact
+                 * times like everything else in D2D. This forces us to use the
+                 * same Data Population methods the table uses. The only
+                 * difference here is they are done for single sources.
+                 */
 
-                SourceXML source = getPrimarySourceXML();
                 this.domains = monitor.getRunConfig().getDomains();
+                SourceXML source = monitor.getSourceConfig().getSource(
+                        sourceName);
 
-                for (int i = 0; i < objects.length; i++) {
-                    FFMPRecord rec = (FFMPRecord) objects[i];
-                    rec.setExpiration(source.getExpirationMinutes(siteKey));
-                    rec.setRate(source.isRate());
-                    populateRecord(getProduct(), rec, huc);
+                if (source != null) {
+
+                    long oldestTime = availableTimes[0].getRefTime().getTime();
+                    long expirationTime = source.getExpirationMinutes(siteKey) * 60 * 1000;
+                    Date standAloneTime = new Date(oldestTime - expirationTime);
+                    
+                    NavigableMap<Date, List<String>> sourceURIs = getMonitor()
+                            .getAvailableUris(siteKey, dataKey, sourceName,
+                                    standAloneTime);
+                    getMonitor().processUris(sourceURIs, false, siteKey,
+                            sourceName, standAloneTime, "ALL");
                 }
             }
         }
