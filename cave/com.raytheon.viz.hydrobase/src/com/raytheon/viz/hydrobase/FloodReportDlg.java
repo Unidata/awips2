@@ -366,13 +366,14 @@ public class FloodReportDlg extends CaveSWTDialog {
 
         gd = new GridData(550, 250);
         gd.horizontalSpan = 2;
-        locationList = new List(leftComp, SWT.BORDER | SWT.SINGLE
+        locationList = new List(leftComp, SWT.BORDER | SWT.MULTI
                 | SWT.V_SCROLL);
         locationList.setLayoutData(gd);
         locationList.setFont(controlFont);
         locationList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	if (locationList.getSelectionIndices().length==1)
                 handleSelection();
             }
         });
@@ -409,8 +410,6 @@ public class FloodReportDlg extends CaveSWTDialog {
                     mb.setMessage("You must select a river observation !");
                     mb.open();
                 } else {
-                    selectedLid = locationLidList.get(locationList
-                            .getSelectionIndex());
                     MessageBox messageBox = new MessageBox(shell, SWT.OK
                             | SWT.CANCEL);
                     messageBox.setText("Delete Confirmation");
@@ -418,8 +417,17 @@ public class FloodReportDlg extends CaveSWTDialog {
                     int answer = messageBox.open();
 
                     if (answer == SWT.OK) {
-                        deleteRecord();
-                    }
+                    	int selectedIndexes[]=locationList.getSelectionIndices();
+                    	String selectedLids[]= new String[selectedIndexes.length];
+                    	int i=0;
+                    	for (int index:selectedIndexes){ //get the lids to be deleted
+                    		selectedLids[i++] = locationLidList.get(index);
+                    	}
+                    	for (String lid: selectedLids){ //delete the records
+                    		selectedLid=lid;
+                    		deleteRecord();
+                    	}
+                	}
                 }
             }
         });
