@@ -26,6 +26,12 @@
    distribution.   
 */
 
+/*
+  August 2, 2012
+  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+   Modifications marked and described by 'njensen'
+*/
+
 #include "util.h"
 #include "jep.h"
 #include "pyembed.h"
