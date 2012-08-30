@@ -78,8 +78,12 @@ log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary direc
 cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
 log_msg 70
 
+log_msg Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps $caveDest/site
+log_msg 80
+
 # Tar up everything.
-log_msg 75
+log_msg 85
 log_msg Tarring and zipping configuration to file GFEconfig.${SITE}.tar.gz
 tar cf - GFEconfig|gzip -9 - > GFEconfig.${SITE}.tar.gz
 if [ $? -ne 0 ]
@@ -92,12 +96,12 @@ fi
 log_msg Cleaning up temporary files
 rm -fR GFEconfig
 
-log_msg 85
+log_msg 90
 log_msg Preparing compressed file for exporting to central server...
 log_msg Compressing to file svc_bkup_${SITE}.tar
 tar cf svc_bkup_${SITE}.tar *.gz siteID.txt
 
-log_msg 95
+log_msg 93
 
 #check for failure of the tar file
 if [ $? -ne 0 ]
@@ -117,7 +121,7 @@ rm siteID.txt
 
 log_msg Sending the tar file to the central server...
 
-log_msg 100
+log_msg 95
 
 # Check to see if ${SVCBU_WMO_HEADER} is assigned a value. If so, call msg_send with -i.
 # Otherwise, don't call it with -i
@@ -147,5 +151,5 @@ log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
 #echo ${SVCBU_HOME}/* | xargs rm -rf
 rm -f ${LOCK_DIR}/${SITE}exportConfig
 log_msg Configuration data has been exported!
-log_msg 110
+log_msg 100
 exit 0

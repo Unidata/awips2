@@ -1,4 +1,5 @@
-"""
+# -*- coding: utf-8 -*-
+u"""
 NetCDF reader/writer module.
 
 This module implements the Scientific.IO.NetCDF API to read and create
@@ -43,15 +44,20 @@ are automatically stored in the ``_attributes`` attribute by overloading
 ``obj.__dict__['key'] = value``, instead of simply ``obj.key = value``;
 otherwise the key would be inserted into userspace attributes.
 
+Unicode attribute values are allowed (although not required). This deals
+with the common use case of non-ASCII units, placenames, etc. Attribute
+values are encoded via UTF-8, as required by NetCDF and udunits2.
+
 To create a NetCDF file::
 
     >>> import time
     >>> f = netcdf_file('simple.nc', 'w')
     >>> f.history = 'Created for a test'
+    >>> f.location = u'北京'
     >>> f.createDimension('time', 10)
     >>> time = f.createVariable('time', 'i', ('time',))
     >>> time[:] = range(10)
-    >>> time.units = 'days since 2008-01-01'
+    >>> time.units = u'µs since 2008-01-01'
     >>> f.close()
 
 To read the NetCDF file we just created::
@@ -59,9 +65,11 @@ To read the NetCDF file we just created::
     >>> f = netcdf_file('simple.nc', 'r')
     >>> print f.history
     Created for a test
+    >>> print f.location
+    北京
     >>> time = f.variables['time']
     >>> print time.units
-    days since 2008-01-01
+    µs since 2008-01-01
     >>> print time.shape
     (10,)
     >>> print time[-1]
@@ -344,8 +352,12 @@ class netcdf_file(object):
                     ]
             try:
                 sample = values[0]
-            except TypeError:
+            except (IndexError, TypeError):
                 sample = values
+            if isinstance(sample, unicode):
+                assert isinstance(values, unicode), type(values)
+                ## NetCDF requires that text be encoded via UTF-8
+                values = values.encode('utf-8')
             for class_, nc_type in types:
                 if isinstance(sample, class_): break
 
@@ -522,7 +534,8 @@ class netcdf_file(object):
             values = fromstring(values, dtype='>%s%d' % (typecode, size))
             if values.shape == (1,): values = values[0]
         else:
-            values = values.rstrip('\x00') 
+            ## text values are encoded via UTF-8, per NetCDF standard
+            values = values.rstrip('\x00').decode('utf-8')
         return values
 
     def _pack_begin(self, begin):

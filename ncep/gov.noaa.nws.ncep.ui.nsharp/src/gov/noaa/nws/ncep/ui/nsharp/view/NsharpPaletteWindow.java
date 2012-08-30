@@ -108,7 +108,7 @@ DisposeListener, IPartListener{
 	public NsharpPaletteWindow() {
 		super();
 		instance = this;
-		//System.out.println("NsharpPaletteWindow condtructed!!");
+		//System.out.println("view NsharpPaletteWindow constructed!!");
 		printHandle = NsharpPrintHandle.getPrintHandle();
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 
@@ -328,7 +328,10 @@ DisposeListener, IPartListener{
 				compareTmBtn.setEnabled(true);
 				interpolateIsOn = false;
 				interpBtn.setText(INTP_OFF);
+				interpBtn.setEnabled(true);
 				editGraphOn = false;
+				graphEditBtn.setEnabled(true);
+				dataEditBtn.setEnabled(true);
 				graphModeBtnIcing.setEnabled(true);
 				graphModeBtnTurb.setEnabled(true);
 				graphEditBtn.setText(EDIT_GRAPH_OFF);
@@ -431,15 +434,26 @@ DisposeListener, IPartListener{
 		interpBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {  
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
-				if(checkLoadedData()) {
-					
+				if(checkLoadedData()) {			
 					if(interpolateIsOn == false){
 						interpolateIsOn = true;
 						interpBtn.setText(INTP_ON);
+						graphEditBtn.setEnabled(false);
+						dataEditBtn.setEnabled(false);
+						compareTmBtn.setEnabled( false );
+						compareStnBtn.setEnabled( false );
+						overlayBtn.setEnabled( false );
 					}
 					else {
 						interpolateIsOn = false;
 						interpBtn.setText(INTP_OFF);
+						if(currentGraphMode == NsharpConstants.GRAPH_SKEWT){
+							graphEditBtn.setEnabled(true);
+							dataEditBtn.setEnabled(true);
+							compareTmBtn.setEnabled( true );
+							compareStnBtn.setEnabled( true );
+							overlayBtn.setEnabled( true );
+						}
 					}
 					//note:call resetInfoOnInterpolate() and pass interpolate flag to Resource
 					NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
@@ -487,12 +501,22 @@ DisposeListener, IPartListener{
 					overlayBtn.setText(OVLY_ON);
 					compareStnBtn.setEnabled(false);
 					compareTmBtn.setEnabled(false);
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					graphModeBtnTurb.setEnabled( false );
+					graphModeBtnIcing.setEnabled( false );
+					interpBtn.setEnabled( false );
 				}
 				else {
 					overlayIsOn = false;
 					overlayBtn.setText(OVLY_OFF);
 					compareStnBtn.setEnabled(true);
 					compareTmBtn.setEnabled(true);
+					graphEditBtn.setEnabled(true);
+					dataEditBtn.setEnabled(true);
+					graphModeBtnTurb.setEnabled( true );
+					graphModeBtnIcing.setEnabled( true );
+					interpBtn.setEnabled( true );		
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -525,12 +549,22 @@ DisposeListener, IPartListener{
 					compareStnBtn.setText(COMP_STN_ON);
 					overlayBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					graphModeBtnTurb.setEnabled( false );
+					graphModeBtnIcing.setEnabled( false );
+					interpBtn.setEnabled( false );
 				}
 				else {
 					compareStnIsOn = false;
 					compareStnBtn.setText(COMP_STN_OFF);
 					overlayBtn.setEnabled(true);
 					compareTmBtn.setEnabled( true );
+					graphEditBtn.setEnabled(true);
+					dataEditBtn.setEnabled(true);
+					graphModeBtnTurb.setEnabled( true );
+					graphModeBtnIcing.setEnabled( true );
+					interpBtn.setEnabled( true );		
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -564,12 +598,22 @@ DisposeListener, IPartListener{
 					compareTmBtn.setText(COMP_TM_ON);
 					overlayBtn.setEnabled(false);
 					compareStnBtn.setEnabled( false );
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					graphModeBtnTurb.setEnabled( false );
+					graphModeBtnIcing.setEnabled( false );
+					interpBtn.setEnabled( false );		
 				}
 				else {
 					compareTmIsOn = false;
 					compareTmBtn.setText(COMP_TM_OFF);
 					overlayBtn.setEnabled(true);
 					compareStnBtn.setEnabled( true );
+					graphEditBtn.setEnabled(true);
+					dataEditBtn.setEnabled(true);
+					graphModeBtnTurb.setEnabled( true );
+					graphModeBtnIcing.setEnabled( true );
+					interpBtn.setEnabled( true );		
 				}
 				NsharpResourceHandler rsc = getRscHandler();
 				if(rsc!= null){
@@ -582,10 +626,13 @@ DisposeListener, IPartListener{
 		dataEditBtn = new Button(textModeGp, SWT.PUSH);
 		dataEditBtn.setFont(newFont);
 		dataEditBtn.setText("   Edit  Data    ");
-		dataEditBtn.setEnabled( true );
+		if(interpolateIsOn || editGraphOn)
+			dataEditBtn.setEnabled( false );
+		else
+			dataEditBtn.setEnabled( true );
 		dataEditBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
-				if(checkLoadedData()) {
+				if(checkLoadedData() ) {
 					Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 					NsharpEditDataDialog editDia = NsharpEditDataDialog.getInstance(shell);
 					if ( editDia != null ) {						
@@ -600,9 +647,13 @@ DisposeListener, IPartListener{
 		graphEditBtn.setEnabled( true );		
 		if(editGraphOn) {
 			graphEditBtn.setText(EDIT_GRAPH_ON);
+			dataEditBtn.setEnabled(false);
+			interpBtn.setEnabled( false );
 		}
 		else{
 			graphEditBtn.setText(EDIT_GRAPH_OFF);
+			dataEditBtn.setEnabled(true);
+			interpBtn.setEnabled( true );
 		}
 		graphEditBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
@@ -612,14 +663,22 @@ DisposeListener, IPartListener{
 						graphEditBtn.setText(EDIT_GRAPH_OFF);
 						graphModeBtnIcing.setEnabled(true);
 						graphModeBtnTurb.setEnabled(true);
-						
+						dataEditBtn.setEnabled( true );
+						interpBtn.setEnabled( true );	
+						compareTmBtn.setEnabled( true );
+						compareStnBtn.setEnabled( true );
+						overlayBtn.setEnabled( true );
 					}
 					else{
 						editGraphOn= true;
 						graphEditBtn.setText(EDIT_GRAPH_ON);
 						graphModeBtnIcing.setEnabled(false);
 						graphModeBtnTurb.setEnabled(false);
-						
+						dataEditBtn.setEnabled( false );
+						interpBtn.setEnabled( false );	
+						compareTmBtn.setEnabled( false );
+						compareStnBtn.setEnabled( false );
+						overlayBtn.setEnabled( false );
 					}
 					NsharpResourceHandler rsc = getRscHandler();
 					if(rsc!= null) {
@@ -672,16 +731,31 @@ DisposeListener, IPartListener{
 			currentGraphMode = rsc.getCurrentGraphMode();
 		}
 		graphModeBtnSkew.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentGraphMode= NsharpConstants.GRAPH_SKEWT;
-				graphModeBtnSkew.setBackground(colorGrey);
-				graphModeBtnTurb.setBackground(colorButtonOriginalBg);
-				graphModeBtnIcing.setBackground(colorButtonOriginalBg);
-				graphEditBtn.setEnabled(true);
-				dataEditBtn.setEnabled(true);
-				NsharpResourceHandler rsc = getRscHandler();
-				if(rsc!= null ) {
-					rsc.setCurrentGraphMode(currentGraphMode);
+			public void handleEvent(Event event) {      
+				if(currentGraphMode!= NsharpConstants.GRAPH_SKEWT){
+					currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+					graphModeBtnSkew.setBackground(colorGrey);
+					graphModeBtnTurb.setBackground(colorButtonOriginalBg);
+					graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+					if(!interpolateIsOn) {
+						graphEditBtn.setEnabled(true);
+						dataEditBtn.setEnabled(true);
+						compareTmBtn.setEnabled( true );
+						compareStnBtn.setEnabled( true );
+						overlayBtn.setEnabled( true );
+					}
+					else {
+						graphEditBtn.setEnabled(false);
+						dataEditBtn.setEnabled(false);
+						compareTmBtn.setEnabled( false );
+						compareStnBtn.setEnabled( false );
+						overlayBtn.setEnabled( false );
+					}
+					NsharpResourceHandler rsc = getRscHandler();
+					if(rsc!= null ) {
+						rsc.setCurrentGraphMode(currentGraphMode);
+						//rsc.getSkewtPaneRsc().handleResize();
+					}
 				}
 			}          		            	 	
 		} );
@@ -690,16 +764,22 @@ DisposeListener, IPartListener{
 		graphModeBtnTurb.setText("T");
 		graphModeBtnTurb.setEnabled( true );
 		graphModeBtnTurb.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentGraphMode= NsharpConstants.GRAPH_TURB;
-				graphModeBtnTurb.setBackground(colorGrey);
-				graphModeBtnSkew.setBackground(colorButtonOriginalBg);
-				graphModeBtnIcing.setBackground(colorButtonOriginalBg);
-				graphEditBtn.setEnabled(false);
-				dataEditBtn.setEnabled(false);
-				NsharpResourceHandler rsc = getRscHandler();
-				if(rsc!= null ) {
-					rsc.setCurrentGraphMode(currentGraphMode);
+			public void handleEvent(Event event) {   
+				if(currentGraphMode != NsharpConstants.GRAPH_TURB){
+					currentGraphMode= NsharpConstants.GRAPH_TURB;
+					graphModeBtnTurb.setBackground(colorGrey);
+					graphModeBtnSkew.setBackground(colorButtonOriginalBg);
+					graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					compareTmBtn.setEnabled( false );
+					compareStnBtn.setEnabled( false );
+					overlayBtn.setEnabled( false );
+					NsharpResourceHandler rsc = getRscHandler();
+					if(rsc!= null ) {
+						rsc.setCurrentGraphMode(currentGraphMode);
+						rsc.getSkewtPaneRsc().handleResize();
+					}
 				}
 			}          		            	 	
 		} );
@@ -708,16 +788,22 @@ DisposeListener, IPartListener{
 		graphModeBtnIcing.setText("I");
 		graphModeBtnIcing.setEnabled( true );
 		graphModeBtnIcing.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				currentGraphMode= NsharpConstants.GRAPH_ICING;
-				graphModeBtnIcing.setBackground(colorGrey);
-				graphModeBtnSkew.setBackground(colorButtonOriginalBg);
-				graphModeBtnTurb.setBackground(colorButtonOriginalBg);
-				graphEditBtn.setEnabled(false);
-				dataEditBtn.setEnabled(false);
-				NsharpResourceHandler rsc = getRscHandler();
-				if(rsc!= null ) {
-					rsc.setCurrentGraphMode(currentGraphMode);
+			public void handleEvent(Event event) {      
+				if(currentGraphMode != NsharpConstants.GRAPH_ICING){
+					currentGraphMode= NsharpConstants.GRAPH_ICING;
+					graphModeBtnIcing.setBackground(colorGrey);
+					graphModeBtnSkew.setBackground(colorButtonOriginalBg);
+					graphModeBtnTurb.setBackground(colorButtonOriginalBg);
+					graphEditBtn.setEnabled(false);
+					dataEditBtn.setEnabled(false);
+					compareTmBtn.setEnabled( false );
+					compareStnBtn.setEnabled( false );
+					overlayBtn.setEnabled( false );
+					NsharpResourceHandler rsc = getRscHandler();
+					if(rsc!= null ) {
+						rsc.setCurrentGraphMode(currentGraphMode);
+						rsc.getSkewtPaneRsc().handleResize();
+					}
 				}
 			}          		            	 	
 		} );
