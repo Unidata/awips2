@@ -64,8 +64,9 @@ import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
+//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
+//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
+import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -87,6 +88,8 @@ public class NsharpResourceHandler {
 	private NsharpTimeStnPaneResource timeStnPaneRsc;
 	private NsharpInsetPaneResource insetPaneRsc;
 	private NsharpDataPaneResource dataPaneRsc;
+	private NsharpSpcGraphsPaneResource spcGraphsPaneRsc;
+	private NsharpSpcGraphsPaneResource futurePaneRsc;
 	NsharpNative nsharpNative=null;
 	private static final int  DATAPAGEMAX = NsharpConstants.PAGE_MAX_NUMBER/ 2;
 	private static final int  INSETPAGEMAX =2;
@@ -100,8 +103,10 @@ public class NsharpResourceHandler {
 	private static final int HODO_NORMAL	=		0;
 	//private static int HODO_EFFECTIVE=		1; not used in BigNsharp source code
 	private static final int HODO_STORMRELATIVE=	2;
+	@SuppressWarnings("unused")
 	private static final int HODO_BNDRY=			3;
 	private static final int HODO_MEANWIND=		4;
+	@SuppressWarnings("unused")
 	private int currentHodoWindMode = HODO_MEANWIND;
 	private NsharpConfigManager configMgr;
 	private NsharpConfigStore configStore;
@@ -142,7 +147,7 @@ public class NsharpResourceHandler {
 	private List<NcSoundingLayer> previousSoundingLys = null;
 	private String pickedStnInfoStr; // current picked stn info with time line, e.g. "ATLH 2010-12-12 12:00:00"
 	private NsharpStationInfo pickedStnInfo = null;
-	private FrameChangeOperation currentOpDirection = FrameChangeOperation.NEXT; // next =forward
+	private IFrameCoordinator.FrameChangeOperation currentOpDirection = IFrameCoordinator.FrameChangeOperation.NEXT; // next =forward
 	
 	
 	private HashMap<Integer, RGB> stormSlinkyColorMap = new HashMap<Integer, RGB>();
@@ -305,8 +310,10 @@ public class NsharpResourceHandler {
 		preSndProfileProp = null;
 		this.overlayIsOn = overlay;
 		
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		skewtPaneRsc.createRscPressTempCurveShapeAll();
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.handleResize();
 	}
 	public void setInterpolateIsOn(boolean interpolateIsOn) {
 		this.interpolateIsOn = interpolateIsOn;
@@ -347,8 +354,10 @@ public class NsharpResourceHandler {
 		setCurrentSoundingLayerInfo();
 		resetData();
 		if(soundingLys!=null){
-			hodoPaneRsc.createRscHodoWindShapeAll();
-			skewtPaneRsc.createRscPressTempCurveShapeAll();
+			if(hodoPaneRsc!=null)
+				hodoPaneRsc.createRscHodoWindShapeAll();
+			if(skewtPaneRsc!=null)
+				skewtPaneRsc.handleResize();
 		}
 	}
 	public void setCompareTmIsOn(boolean compareIsOn) {
@@ -374,8 +383,10 @@ public class NsharpResourceHandler {
 		setCurrentSoundingLayerInfo();
 		resetData();	 			
 		if(soundingLys!=null){
-			hodoPaneRsc.createRscHodoWindShapeAll();
-			skewtPaneRsc.createRscPressTempCurveShapeAll();
+			if(hodoPaneRsc!=null)
+				hodoPaneRsc.createRscHodoWindShapeAll();
+			if(skewtPaneRsc!=null)
+				skewtPaneRsc.handleResize();
 		}		
 	}
 
@@ -394,7 +405,8 @@ public class NsharpResourceHandler {
 
 	public void setCurrentGraphMode(int currentGraphMode) {
 		this.currentGraphMode = currentGraphMode;
-		skewtPaneRsc.setCurrentGraphMode(currentGraphMode);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.setCurrentGraphMode(currentGraphMode);
 		
 		/*NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
 		//getWitoPaneRsc().recreateShapes();
@@ -474,7 +486,8 @@ public class NsharpResourceHandler {
      */
 	public void setParcelList(List<ParcelData> parcelList) {
 		this.parcelList = parcelList;
-		skewtPaneRsc.createParcelShapes(parcelList);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.createParcelShapes(parcelList);
 	}
 	public void updateParcelFromPanel(short currentParcel){
 		this.currentParcel = currentParcel;
@@ -514,18 +527,22 @@ public class NsharpResourceHandler {
 		this.soundingLysList = soundingLysList;
 	}
 	public void setHodoHouseC(Coordinate hodoHouseC) {
+		if(hodoPaneRsc==null)
+			return;
 		hodoPaneRsc.setHodoHouseC(hodoHouseC);
 		Coordinate c = hodoPaneRsc.getHodoBackground().getWorld().unMap(hodoHouseC.x, hodoHouseC.y);
 		c = WxMath.speedDir((float) c.x, (float) c.y);
 		smWindDir = (float) c.y;
 		smWindSpd = (float)c.x;
 		nsharpNative.nsharpLib.set_storm(smWindSpd, smWindDir);
+		if(insetPaneRsc!=null){
+			WGraphics WGc = insetPaneRsc.getPsblWatchTypeBackground().getWorld();
+			insetPaneRsc.createBkgPsblWatchShape(WGc);
 		
-		WGraphics WGc = insetPaneRsc.getPsblWatchTypeBackground().getWorld();
-		insetPaneRsc.createBkgPsblWatchShape(WGc);
-		//Sr wind vs Height graph shape need to recreate
-		WGc=  insetPaneRsc.getSrWindsBackground().getWorld();	
-		insetPaneRsc.createRscSrWindShape(WGc); 
+			//Sr wind vs Height graph shape need to recreate
+			WGc=  insetPaneRsc.getSrWindsBackground().getWorld();	
+			insetPaneRsc.createRscSrWindShape(WGc); 
+		}
 		
 	}
 	
@@ -556,18 +573,27 @@ public class NsharpResourceHandler {
 		
 	
 		nsharpNative.populateSndgData(soundingLys);
-		skewtPaneRsc.resetData(soundingLys,previousSoundingLys);
-		hodoPaneRsc.resetData(soundingLys,previousSoundingLys);
-		witoPaneRsc.resetData(soundingLys, previousSoundingLys);
-		dataPaneRsc.resetData(soundingLys, previousSoundingLys);
-		insetPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(witoPaneRsc!=null)
+			witoPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(dataPaneRsc!=null)
+			dataPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(insetPaneRsc!=null)
+			insetPaneRsc.resetData(soundingLys, previousSoundingLys);
 		
 		//re-create shape
-		skewtPaneRsc.createRscWireFrameShapes();
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		insetPaneRsc.createInsetWireFrameShapes();
-		witoPaneRsc.createRscWireFrameShapes();
-		insetPaneRsc.createInsetWireFrameShapes();
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.handleResize();
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		if(insetPaneRsc!=null)
+			insetPaneRsc.createInsetWireFrameShapes();
+		if(witoPaneRsc!=null)
+			witoPaneRsc.createRscWireFrameShapes();
+		
 		
 	}
 	
@@ -615,12 +641,16 @@ public class NsharpResourceHandler {
 		//update active sounding layer and picked stn info						
 		//re-populate snd data to nsharp native code lib for later calculating
 		nsharpNative.populateSndgData(soundingLys);
-		
-		skewtPaneRsc.resetData(soundingLys,previousSoundingLys);
-		hodoPaneRsc.resetData(soundingLys,previousSoundingLys);
-		insetPaneRsc.resetData(soundingLys, previousSoundingLys);
-		dataPaneRsc.resetData(soundingLys, previousSoundingLys);
-		witoPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(insetPaneRsc!=null)
+			insetPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(dataPaneRsc!=null)
+			dataPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(witoPaneRsc!=null)
+			witoPaneRsc.resetData(soundingLys, previousSoundingLys);
 		
 		NsharpShowTextDialog textarea =  NsharpShowTextDialog.getAccess();
 		if(textarea != null){
@@ -639,8 +669,10 @@ public class NsharpResourceHandler {
 			FloatByReference bwspd= new FloatByReference(-999);
 			nsharpNative.nsharpLib.bunkers_storm_motion(dummy1, dummy2, bwdir, bwspd);
 			Coordinate c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
-			Coordinate hodoHouseC= hodoPaneRsc.getHodoBackground().getWorld().map(c);
-			hodoPaneRsc.setHodoHouseC(hodoHouseC);
+			if(hodoPaneRsc!=null){
+				Coordinate hodoHouseC= hodoPaneRsc.getHodoBackground().getWorld().map(c);			
+				hodoPaneRsc.setHodoHouseC(hodoHouseC);
+			}
 			smWindSpd = bwspd.getValue();
 			smWindDir = bwdir.getValue();
 			nsharpNative.nsharpLib.set_storm(smWindSpd, smWindDir);
@@ -658,10 +690,14 @@ public class NsharpResourceHandler {
 				drawPanel.resetCurrentParcel();
 			}*/
 		}
-		skewtPaneRsc.handleResize();
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		insetPaneRsc.createInsetWireFrameShapes();	
-		witoPaneRsc.createAllWireFrameShapes();
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.handleResize();
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		if(insetPaneRsc!=null)
+			insetPaneRsc.createInsetWireFrameShapes();	
+		if(witoPaneRsc!=null)
+			witoPaneRsc.createAllWireFrameShapes();
 	}
 	//NOTE: this comparator is coded only for dataTimelineList and stationIdList to use
 	//Typical time line string: e.g. KNJX 110810/00V000 (NAMS) meaning stnId=KNJX date=2011/Aug/10 Hour:00
@@ -1471,6 +1507,7 @@ public class NsharpResourceHandler {
 		}
 	}
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
+		deepCopyDataMap(this.originalDataTimelineSndLysListMap,this.dataTimelineSndLysListMap);
 		//make sure not adding duplicated sounding data
 		//System.out.println("NsharpSkewTResource addRsc called");
 		Set<String> duplicateKeys = new HashSet<String>();
@@ -1481,7 +1518,7 @@ public class NsharpResourceHandler {
 		for(String key: duplicateKeys) {
 			soundMap.remove(key);
 		}
-		if(soundMap.size() <=0){
+		if(soundMap.size() <=0 || (skewtPaneRsc==null)){
 			return;
 		}
 		//add new data 
@@ -1509,7 +1546,7 @@ public class NsharpResourceHandler {
 
 		//set total time line group and stn id list page  number
 		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		
+		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage);
 		totalTimeLinePage = timeLineStateList.size()/numTimeLinePerPage + 1; //NEW CODE
 		curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage + 1; //NEW CODE
 		totalStnIdPage = stnStateList.size()/numTimeLinePerPage + 1; //NEW CODE
@@ -1631,16 +1668,18 @@ public class NsharpResourceHandler {
 				return;
 
 			}
-		
-		findCurrentElementIndexesAfterConfig();
-		setCurSndProfileProp();
-		setCurrentSoundingLayerInfo();
-		resetData();
-		
-		if(compareStnIsOn){
-			hodoPaneRsc.createRscHodoWindShapeAll();
-			skewtPaneRsc.createRscPressTempCurveShapeAll();
-		}
+
+			findCurrentElementIndexesAfterConfig();
+			setCurSndProfileProp();
+			setCurrentSoundingLayerInfo();
+			resetData();
+
+			if(compareStnIsOn){
+				if(hodoPaneRsc!=null)
+					hodoPaneRsc.createRscHodoWindShapeAll();
+				if(skewtPaneRsc!=null)
+					skewtPaneRsc.handleResize();
+			}
 		}
 	}
 	
@@ -1688,11 +1727,11 @@ public class NsharpResourceHandler {
 				currentTimeLineStateListIndex = previousTimeLineStateListIndex;
 				break;
 			}
-			if(currentOpDirection == FrameChangeOperation.NEXT ){
+			if(currentOpDirection == IFrameCoordinator.FrameChangeOperation.NEXT ){
 				currentTimeLineStateListIndex--;
 				if(currentTimeLineStateListIndex <= 0){
 					//the end of forward direction, change direction to backward
-					currentOpDirection = FrameChangeOperation.PREVIOUS;
+					currentOpDirection = IFrameCoordinator.FrameChangeOperation.PREVIOUS;
 					currentTimeLineStateListIndex=0;
 				}
 
@@ -1701,7 +1740,7 @@ public class NsharpResourceHandler {
 				currentTimeLineStateListIndex++;
 				if(currentTimeLineStateListIndex >= timeLineStateList.size()-1){
 					//the end of backward direction, change direction to forward
-					currentOpDirection = FrameChangeOperation.NEXT;
+					currentOpDirection = IFrameCoordinator.FrameChangeOperation.NEXT;
 					currentTimeLineStateListIndex = timeLineStateList.size()-1;
 				}
 			}
@@ -1766,7 +1805,7 @@ public class NsharpResourceHandler {
  		}
  		return n;
  	}
- 	public void setSteppingTimeLine(FrameChangeOperation operation, FrameChangeMode mode) {
+ 	public void setSteppingTimeLine(IFrameCoordinator.FrameChangeOperation operation, IFrameCoordinator.FrameChangeMode mode) {
  		if( this.timeLineStateList.size() > 0 && getActiveTimeLineNumber()>1/* && getAvailTimeLineNumber(currentStnStateListIndex)>1*/) { 
  			int targetIndex = currentTimeLineStateListIndex;
  			//previousTimeLineStateListIndex = currentTimeLineStateListIndex;
@@ -1848,20 +1887,20 @@ public class NsharpResourceHandler {
  	}
  	
  	/*
- 	 * Stn index stepping is only controlled by up/down arrow keys, down key = NEXT operation, up key = PREVIOUS operation
+ 	 * Stn index stepping is only controlled by up/down arrow keys, down key = PREVIOUS operation, up key = NEXT operation
  	 */
- 	public void setSteppingStnIdList(FrameChangeOperation operation) {
+ 	public void setSteppingStnIdList(IFrameCoordinator.FrameChangeOperation operation) {
  		if( this.stnStateList.size() > 0 && getActiveStnNumber()>1/* && getAvailStnNumber(currentTimeLineStateListIndex) > 1*/){ 
  			
  			int counter=0;
  			while(true){
  				switch(operation){
-  				case PREVIOUS:
+  				case NEXT:
   					currentStnStateListIndex= currentStnStateListIndex + this.stnStateList.size();
  					currentStnStateListIndex--;
  					currentStnStateListIndex = currentStnStateListIndex % this.stnStateList.size();	
  					break;
- 				case NEXT:
+ 				case PREVIOUS:
  					// so, we wont get a negative number					
  					currentStnStateListIndex++;
  					currentStnStateListIndex = currentStnStateListIndex % this.stnStateList.size(); 
@@ -1939,8 +1978,10 @@ public class NsharpResourceHandler {
 	*/
 	public Coordinate getClosestHodoPoint(Coordinate inputC){
 		//System.out.println("picked pt  CX "+ inputC.x + " CY "+ inputC.y);
+		Coordinate closeptC = new Coordinate(0,0);
+		if(hodoPaneRsc==null)
+			return closeptC;
 		
-		Coordinate closeptC = new Coordinate();
 		double curSmallestDist=10000; // picked a impossible big number to start with
 		double distance;
 		boolean ptFound = false;
@@ -2069,6 +2110,100 @@ public class NsharpResourceHandler {
 			
 		}
 	}
+	public void updateDisplay(IRenderableDisplay[] displayArray, String paneConfigurationName) {
+		skewtPaneRsc = null;
+		witoPaneRsc = null;
+		hodoPaneRsc = null;
+		timeStnPaneRsc = null;
+		insetPaneRsc = null;
+		dataPaneRsc = null;
+		spcGraphsPaneRsc = null;
+		futurePaneRsc = null;
+		ResourcePair skewtRscPair =  displayArray[NsharpEditor.DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
+		if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
+			skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
+			skewtPaneRsc.setLinePropertyMap(linePropertyMap);
+			skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			skewtPaneRsc.setNsharpNative(nsharpNative);
+		}
+		ResourcePair dataRscPair =  displayArray[NsharpEditor.DISPLAY_DATA].getDescriptor().getResourceList().get(0);
+		if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
+			dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
+			dataPaneRsc.setLinePropertyMap(linePropertyMap);
+			dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			dataPaneRsc.setNsharpNative(nsharpNative);
+			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+		}
+		ResourcePair hodoRscPair =  displayArray[NsharpEditor.DISPLAY_HODO].getDescriptor().getResourceList().get(0);
+		if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
+			hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
+			hodoPaneRsc.setLinePropertyMap(linePropertyMap);
+			hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			hodoPaneRsc.setNsharpNative(nsharpNative);
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+			
+			ResourcePair witoRscPair =  displayArray[NsharpEditor.DISPLAY_WITO].getDescriptor().getResourceList().get(0);
+			if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
+				witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
+				witoPaneRsc.setLinePropertyMap(linePropertyMap);
+				witoPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				witoPaneRsc.setNsharpNative(nsharpNative);
+			}
+			ResourcePair insetRscPair =  displayArray[NsharpEditor.DISPLAY_INSET].getDescriptor().getResourceList().get(0);
+			if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
+				insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
+				insetPaneRsc.setLinePropertyMap(linePropertyMap);
+				insetPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				insetPaneRsc.setNsharpNative(nsharpNative);
+			}
+		}
+		
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			ResourcePair spcRscPair =  displayArray[NsharpEditor.DISPLAY_SPC_GRAPHS].getDescriptor().getResourceList().get(0);
+			if (spcRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
+				spcGraphsPaneRsc = (NsharpSpcGraphsPaneResource)spcRscPair.getResource() ;
+				spcGraphsPaneRsc.setLinePropertyMap(linePropertyMap);
+				spcGraphsPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				spcGraphsPaneRsc.setNsharpNative(nsharpNative);
+			}
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			ResourcePair futureRscPair =  displayArray[NsharpEditor.DISPLAY_FUTURE].getDescriptor().getResourceList().get(0);
+			if (futureRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
+				futurePaneRsc = (NsharpSpcGraphsPaneResource)futureRscPair.getResource() ;
+				futurePaneRsc.setLinePropertyMap(linePropertyMap);
+				futurePaneRsc.setGraphConfigProperty(graphConfigProperty);
+				futurePaneRsc.setNsharpNative(nsharpNative);
+			}
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+			ResourcePair timeStnRscPair =  displayArray[NsharpEditor.DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
+			if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
+				timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
+				timeStnPaneRsc.setLinePropertyMap(linePropertyMap);
+				timeStnPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				timeStnPaneRsc.setNsharpNative(nsharpNative);
+			}
+		}
+		this.displayArray = displayArray;
+	}
+	public void resetRscSoundingData(){
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(hodoPaneRsc!=null) 
+			hodoPaneRsc.resetData(soundingLys,previousSoundingLys);
+		if(witoPaneRsc!=null)
+			witoPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(dataPaneRsc!=null) 
+			dataPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(insetPaneRsc!=null)
+			insetPaneRsc.resetData(soundingLys, previousSoundingLys);
+	}
 	public NsharpResourceHandler(IRenderableDisplay[] displayArray) {
     	//System.out.println("NsharpResourceHandler constructed");
         this.soundingMap = new HashMap<Date, SoundingParams>();
@@ -2092,55 +2227,14 @@ public class NsharpResourceHandler {
 		configMgr = NsharpConfigManager.getInstance();
 		configStore = configMgr.retrieveNsharpConfigStoreFromFs();
 		graphConfigProperty = configStore.getGraphProperty();
+		String paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		
 		int tempOffset = graphConfigProperty.getTempOffset();
 		NsharpWxMath.setTempOffset(tempOffset);
 		linePropertyMap = configStore.getLinePropertyMap();
 		dataPageProperty = configStore.getDataPageProperty();
 		updatePageOrderArray();
-		ResourcePair skewtRscPair =  displayArray[NsharpConstants.DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
-		if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
-			skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
-			skewtPaneRsc.setLinePropertyMap(linePropertyMap);
-			skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			skewtPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair hodoRscPair =  displayArray[NsharpConstants.DISPLAY_HODO].getDescriptor().getResourceList().get(0);
-		if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
-			hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
-			hodoPaneRsc.setLinePropertyMap(linePropertyMap);
-			hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			hodoPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair witoRscPair =  displayArray[NsharpConstants.DISPLAY_WITO].getDescriptor().getResourceList().get(0);
-		if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
-			witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
-			witoPaneRsc.setLinePropertyMap(linePropertyMap);
-			witoPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			witoPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair timeStnRscPair =  displayArray[NsharpConstants.DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
-		if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
-			timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
-			timeStnPaneRsc.setLinePropertyMap(linePropertyMap);
-			timeStnPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			timeStnPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair insetRscPair =  displayArray[NsharpConstants.DISPLAY_INSET].getDescriptor().getResourceList().get(0);
-		if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
-			insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
-			insetPaneRsc.setLinePropertyMap(linePropertyMap);
-			insetPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			insetPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair dataRscPair =  displayArray[NsharpConstants.DISPLAY_DATA].getDescriptor().getResourceList().get(0);
-		if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
-			dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
-			dataPaneRsc.setLinePropertyMap(linePropertyMap);
-			dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			dataPaneRsc.setNsharpNative(nsharpNative);
-			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
-		}
-		this.displayArray = displayArray;
+		updateDisplay(displayArray,paneConfigurationName);
 		pspLsner = new NsharpPerspectiveListener();
 		pspLsner.setRscHandler(this);
 		pspLsner.setMyPerspectiveId(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
@@ -2546,17 +2640,22 @@ public class NsharpResourceHandler {
 
 	public void setPlotInteractiveTemp(boolean plotInteractiveTemp) {
 		this.plotInteractiveTemp = plotInteractiveTemp;
-		skewtPaneRsc.setPlotInteractiveTemp(plotInteractiveTemp);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.setPlotInteractiveTemp(plotInteractiveTemp);
 	}
 	public void setInteractiveTempPointCoordinate(
 			Coordinate interactiveTempPointCoordinate) {
-		System.out.println("setInteractiveTempPointCoordinate called");
+		//System.out.println("setInteractiveTempPointCoordinate called");
 		this.interactiveTempPointCoordinate = interactiveTempPointCoordinate;
 		plotInteractiveTemp = true;
-		skewtPaneRsc.setPlotInteractiveTemp(plotInteractiveTemp);
-		skewtPaneRsc.setInteractiveTempPointCoordinate(interactiveTempPointCoordinate);
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setPlotInteractiveTemp(plotInteractiveTemp);
+			skewtPaneRsc.setInteractiveTempPointCoordinate(interactiveTempPointCoordinate);
+		}
 	}
 	public void setInteractiveHodoPointCoordinate(Coordinate c){
+		if(hodoPaneRsc == null)
+			return;
 		try {
 			NcSoundingLayer hodoLayer = soundingLys.get(hodoEditingSoundingLayerIndex);
 			if(hodoLayer != null){
@@ -2570,9 +2669,12 @@ public class NsharpResourceHandler {
 				hodoLayer.setWindSpeed((float)c1.x);
 				hodoLayer.setWindDirection((float)c1.y);
 				hodoPaneRsc.createRscHodoWindShapeAll();
-				witoPaneRsc.createAllWireFrameShapes();
-				insetPaneRsc.createInsetWireFrameShapes();
-				skewtPaneRsc.createRscWireFrameShapes();
+				if(witoPaneRsc!=null)
+					witoPaneRsc.createAllWireFrameShapes();
+				if(insetPaneRsc!=null)
+					insetPaneRsc.createInsetWireFrameShapes();
+				if(skewtPaneRsc!=null)
+					skewtPaneRsc.handleResize();
 			}
 		}
 		catch(Exception e)  {
@@ -2580,13 +2682,15 @@ public class NsharpResourceHandler {
 		}
 	}
 	public void applyInteractiveTempPoint(){
+		if(skewtPaneRsc==null)
+			return;
 		Coordinate inC = NsharpWxMath.reverseSkewTXY(skewtPaneRsc.getWorld().unMap(interactiveTempPointCoordinate));
 		double inTemp = inC.x;
 		currentSoundingLayerIndex = skewtPaneRsc.getCurrentSoundingLayerIndex();
 		NcSoundingLayer layer = this.soundingLys.get(currentSoundingLayerIndex);
 		currentTempCurveType = skewtPaneRsc.getCurrentTempCurveType();
-		System.out.println("applyInteractiveTempPoint called pressure " + inC.y + " temp "+ inTemp +
-				" currentTempCurveType " + currentTempCurveType );
+		//System.out.println("applyInteractiveTempPoint called pressure " + inC.y + " temp "+ inTemp +
+		//		" currentTempCurveType " + currentTempCurveType );
 		
 		if(currentTempCurveType == TEMP_TYPE){
 			if(inTemp < layer.getDewpoint())
@@ -2609,13 +2713,15 @@ public class NsharpResourceHandler {
 		nsharpNative.populateSndgData(soundingLys);
 		//get storm motion wind data after populate sounding from NsharpLib		
 		skewtPaneRsc.setSoundingLys(soundingLys);
-		skewtPaneRsc.createRscPressTempCurveShapeAll();	
-		skewtPaneRsc.createRscwetBulbTraceShape();
-		skewtPaneRsc.createRscVTempTraceShape();
-		skewtPaneRsc.createParcelShapes(parcelList);
-		
-		hodoPaneRsc.setSoundingLys(soundingLys);
-		hodoPaneRsc.createRscHodoWindShapeAll();
+		skewtPaneRsc.handleResize();
+		//skewtPaneRsc.createRscPressTempCurveShapeAll();	
+		//skewtPaneRsc.createRscwetBulbTraceShape();
+		//skewtPaneRsc.createRscVTempTraceShape();
+		//skewtPaneRsc.createParcelShapes(parcelList);
+		if(hodoPaneRsc!=null){
+			hodoPaneRsc.setSoundingLys(soundingLys);
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		}
 	}
 
 	public void applySfcEditing(float tp, float dp, float ws, float wd, float pressure){
@@ -2631,11 +2737,16 @@ public class NsharpResourceHandler {
 		this.dataTimelineSndLysListMap.put(pickedStnInfoStr, this.soundingLys);
 		//re-populate snd data to nsharp native code lib for later calculating
 		nsharpNative.populateSndgData(soundingLys);
-		skewtPaneRsc.setSoundingLys(soundingLys);
-		hodoPaneRsc.setSoundingLys(soundingLys);
-		insetPaneRsc.setSoundingLys(soundingLys);
-		witoPaneRsc.setSoundingLys(soundingLys);
-		dataPaneRsc.setSoundingLys(soundingLys);
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.setSoundingLys(soundingLys);
+		if(hodoPaneRsc!=null)
+			hodoPaneRsc.setSoundingLys(soundingLys);
+		if(insetPaneRsc!=null)
+			insetPaneRsc.setSoundingLys(soundingLys);
+		if(witoPaneRsc!=null)
+			witoPaneRsc.setSoundingLys(soundingLys);
+		if(dataPaneRsc!=null)
+			dataPaneRsc.setSoundingLys(soundingLys);
 	}
 	public void updateLayer(int layerIndex, float tp, float dp, float ws, float wd, float pressure){
 		if(layerIndex <0 || layerIndex >= soundingLys.size())
@@ -2660,15 +2771,24 @@ public class NsharpResourceHandler {
 		if(textarea != null){
 			textarea.refreshTextData();
 		}
-		skewtPaneRsc.setSoundingLys(soundingLys);
-		skewtPaneRsc.createRscWireFrameShapes();
-		hodoPaneRsc.setSoundingLys(soundingLys);
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		insetPaneRsc.setSoundingLys(soundingLys);
-		insetPaneRsc.createInsetWireFrameShapes();
-		witoPaneRsc.setSoundingLys(soundingLys);
-		witoPaneRsc.createAllWireFrameShapes();
-		dataPaneRsc.setSoundingLys(soundingLys);
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setSoundingLys(soundingLys);
+			skewtPaneRsc.handleResize();
+		}
+		if(hodoPaneRsc!=null){
+			hodoPaneRsc.setSoundingLys(soundingLys);
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		}
+		if(insetPaneRsc!=null){
+			insetPaneRsc.setSoundingLys(soundingLys);
+			insetPaneRsc.createInsetWireFrameShapes();
+		}
+		if(witoPaneRsc!=null) {
+			witoPaneRsc.setSoundingLys(soundingLys);
+			witoPaneRsc.createAllWireFrameShapes();
+		}
+		if(dataPaneRsc!=null)
+			dataPaneRsc.setSoundingLys(soundingLys);
 	}
 	public void addNewLayer(float tp, float dp, float ws, float wd, float pressure){		
 		//NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();		
@@ -2691,15 +2811,24 @@ public class NsharpResourceHandler {
 		if(textarea != null){
 			textarea.refreshTextData();
 		}
-		skewtPaneRsc.setSoundingLys(soundingLys);
-		skewtPaneRsc.createRscWireFrameShapes();
-		hodoPaneRsc.setSoundingLys(soundingLys);
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		insetPaneRsc.setSoundingLys(soundingLys);
-		insetPaneRsc.createInsetWireFrameShapes();
-		witoPaneRsc.setSoundingLys(soundingLys);
-		witoPaneRsc.createAllWireFrameShapes();
-		dataPaneRsc.setSoundingLys(soundingLys);
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setSoundingLys(soundingLys);
+			skewtPaneRsc.handleResize();
+		}
+		if(hodoPaneRsc!=null){
+			hodoPaneRsc.setSoundingLys(soundingLys);
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		}
+		if(insetPaneRsc!=null){
+			insetPaneRsc.setSoundingLys(soundingLys);
+			insetPaneRsc.createInsetWireFrameShapes();
+		}
+		if(witoPaneRsc!=null) {
+			witoPaneRsc.setSoundingLys(soundingLys);
+			witoPaneRsc.createAllWireFrameShapes();
+		}
+		if(dataPaneRsc!=null) 
+			dataPaneRsc.setSoundingLys(soundingLys);
 	}
 	
 	
@@ -2709,15 +2838,23 @@ public class NsharpResourceHandler {
 		this.graphConfigProperty = graphConfigProperty;
 		int tempOffset = graphConfigProperty.getTempOffset();
 		NsharpWxMath.setTempOffset(tempOffset);
-		skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
-		skewtPaneRsc.createRscWireFrameShapes();
-		skewtPaneRsc.getSkewTBackground().setGraphConfigProperty(graphConfigProperty);
-		hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		witoPaneRsc.setGraphConfigProperty(graphConfigProperty);
-		witoPaneRsc.createAllWireFrameShapes();
-		insetPaneRsc.setGraphConfigProperty(graphConfigProperty);
-		insetPaneRsc.createInsetWireFrameShapes();
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			skewtPaneRsc.handleResize();
+			skewtPaneRsc.getSkewTBackground().setGraphConfigProperty(graphConfigProperty);
+		}
+		if(hodoPaneRsc!=null) {
+			hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		}
+		if(witoPaneRsc!=null) {
+			witoPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			witoPaneRsc.createAllWireFrameShapes();
+		}
+		if(insetPaneRsc!=null){
+			insetPaneRsc.setGraphConfigProperty(graphConfigProperty);
+			insetPaneRsc.createInsetWireFrameShapes();
+		}
 	}
 	
 	
@@ -2729,11 +2866,16 @@ public class NsharpResourceHandler {
 	public void setLinePropertyMap(
 			HashMap<String, NsharpLineProperty> linePropertyMap) {
 		this.linePropertyMap = linePropertyMap;
-		skewtPaneRsc.setLinePropertyMap(linePropertyMap);
-		skewtPaneRsc.createRscPressTempCurveShapeAll();
-		hodoPaneRsc.setLinePropertyMap(linePropertyMap);
-		hodoPaneRsc.createRscHodoWindShapeAll();
-		timeStnPaneRsc.setLinePropertyMap(linePropertyMap);
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setLinePropertyMap(linePropertyMap);
+			skewtPaneRsc.handleResize();
+		}
+		if(hodoPaneRsc!=null){
+			hodoPaneRsc.setLinePropertyMap(linePropertyMap);
+			hodoPaneRsc.createRscHodoWindShapeAll();
+		}
+		if(timeStnPaneRsc!=null)
+			timeStnPaneRsc.setLinePropertyMap(linePropertyMap);
 	}
 	private void updatePageOrderArray(){
 		pageDisplayOrderNumberArray[NsharpConstants.PAGE_SUMMARY1 ] = dataPageProperty.getSummary1Page();
@@ -2750,7 +2892,8 @@ public class NsharpResourceHandler {
 	public void setDataPageProperty(NsharpDataPageProperty dataPageProperty) {
 		this.dataPageProperty = dataPageProperty;
 		updatePageOrderArray();
-		dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+		if(dataPaneRsc!=null)
+			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
 	}
 
 
@@ -2768,8 +2911,10 @@ public class NsharpResourceHandler {
 		setCurrentSoundingLayerInfo();
 		resetData();
 		if(compareStnIsOn){
-			hodoPaneRsc.createRscHodoWindShapeAll();
-			skewtPaneRsc.createRscPressTempCurveShapeAll();
+			if(hodoPaneRsc!=null) 
+				hodoPaneRsc.createRscHodoWindShapeAll();
+			if(skewtPaneRsc!=null)
+				skewtPaneRsc.handleResize();
 		}
 	}
 	public void handleStationActConfig(List<String>  stnList, NsharpConstants.State actSt){
@@ -2796,7 +2941,9 @@ public class NsharpResourceHandler {
 	public int getCurrentTimeLineStateListIndex() {
 		return currentTimeLineStateListIndex;
 	}
-
+	public int getTimeLineStateListSize() {
+		return this.timeLineStateList.size();
+	}
 
 	public int getCurrentStnStateListIndex() {
 		return currentStnStateListIndex;
@@ -2850,7 +2997,7 @@ public class NsharpResourceHandler {
 	}
 
 
-	public FrameChangeOperation getCurrentOpDirection() {
+	public IFrameCoordinator.FrameChangeOperation getCurrentOpDirection() {
 		return currentOpDirection;
 	}
 
@@ -2889,7 +3036,7 @@ public class NsharpResourceHandler {
 	}
 
 
-	public void setCnYOrig(int cnYOrig) {
+	/*public void setCnYOrig(int cnYOrig) {
 		this.cnYOrig = cnYOrig;
 	}
 
@@ -2901,14 +3048,31 @@ public class NsharpResourceHandler {
 
 	public void setDtYOrig(int dtYOrig) {
 		this.dtYOrig = dtYOrig;
-	}
-
-
-	public void setCharHeight(int charHeight) {
+	}*/
+	public void setTimeStnBoxData(int cnYOrig,int dtNextPage_end, int dtYOrig , int charHeight){
 		this.charHeight = charHeight;
+		this.dtYOrig = dtYOrig;
+		this.cnYOrig = cnYOrig;
+		this.dtNextPageEnd = dtNextPage_end;
+		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
+		if(numTimeLinePerPage<=0)
+			numTimeLinePerPage=1;
+		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage);
+		totalTimeLinePage = timeLineStateList.size()/numTimeLinePerPage ;
+		if(timeLineStateList.size()%numTimeLinePerPage != 0)
+			totalTimeLinePage= totalTimeLinePage+1;
+		curTimeLinePage = currentTimeLineStateListIndex/numTimeLinePerPage+1;
+		totalStnIdPage = stnStateList.size()/numTimeLinePerPage;
+		if(stnStateList.size()%numTimeLinePerPage != 0)
+			totalStnIdPage++;
+		curStnIdPage= currentStnStateListIndex/numTimeLinePerPage + 1; //NEW CODE
 	}
+
+	/*public void setCharHeight(int charHeight) {
+		this.charHeight = charHeight;
+	}*/
 	public void refreshPane(){
-		for(int i =0; i< NsharpConstants.DISPLAY_TOTAL; i++){
+		for(int i =0; i< NsharpEditor.DISPLAY_TOTAL; i++){
 			displayArray[i].refresh();
 		}
 	}

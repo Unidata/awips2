@@ -38,14 +38,12 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class FFTIRatioDiff {
+public class FFTIRatioDiff extends FFTIData {
 
     private ArrayList<Float> qpes;
 
     private ArrayList<Float> guids;
-
-    private Double gap = 0.0;
-
+   
     public FFTIRatioDiff() {
         
     }
@@ -72,13 +70,5 @@ public class FFTIRatioDiff {
     public void setGuids(ArrayList<Float> guids) {
         this.guids = guids;
     }
-
-    public Double getGap() {
-        return gap;
-    }
-
-    public void setGap(Double gap) {
-        this.gap = gap;
-    }
-
+  
 }
