@@ -415,10 +415,6 @@ public class FFMPResource extends
             FFFGDataMgr.getUpdatedInstance();
             PluginDataObject[] pdos = (PluginDataObject[]) object;
             FFMPRecord ffmpRec = (FFMPRecord) pdos[pdos.length - 1];
-            if (getTimeOrderedKeys().contains(
-                    ffmpRec.getDataTime().getRefTime())) {
-                return;
-            }
             // an update clears everything
             clear();
             // only care about the most recent one
