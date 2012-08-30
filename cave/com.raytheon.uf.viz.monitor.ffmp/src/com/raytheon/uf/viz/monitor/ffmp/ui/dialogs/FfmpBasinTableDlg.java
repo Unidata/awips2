@@ -227,7 +227,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private FFMPTableDataLoader dataRetrieveThread = null;
 
-    private boolean sweet = true;
+    private boolean groupLabelFlag = true;
 
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
@@ -1646,7 +1646,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             @Override
             public void run() {
                 // Must be a full 11 digit pfaf in order to display the graph.
-                System.out.println(pfaf);
                 if ((pfaf.length() < 11) && pfaf.matches("\\d+")) {
                     resetCursor();
                     return;
@@ -1693,7 +1692,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     @Override
     public void tableSelection(String pfaf, String name) {
         if (groupLbl.getText().length() > 0) {
-            sweet = false;
+            groupLabelFlag = false;
         }
 
         if ((groupLbl.getText().length() == 0)
@@ -2011,7 +2010,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         // System.out.println("Status message...");
 
         if (gd.exclude == true) {
-            System.out.println("Showing data load comp");
             ((GridData) dataLoadComp.getLayoutData()).exclude = false;
             dataLoadComp.setVisible(true);
             shell.pack();
@@ -2127,13 +2125,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             dataRetrieveThread = getLoader();
             dataRetrieveThread.start();
             return;
-        } else {
         }
 
-        if (fupdateData.getTableData() != null && sweet) {
+        if (fupdateData.getTableData() != null && groupLabelFlag) {
             resetData(fupdateData.getTableData());
         }
-
+        
+        groupLabelFlag = true;
         if (fupdateData.isFireGraph()) {
             fireGraphDataEvent(fupdateData.getGraphPfaf(), false,
                     fupdateData.getGraphTime());
@@ -2143,7 +2141,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         updateGapValueLabel(fupdateData.getGapValueLabel());
 
         resetCursor();
-        sweet = true;
+        
     }
 
     /**
