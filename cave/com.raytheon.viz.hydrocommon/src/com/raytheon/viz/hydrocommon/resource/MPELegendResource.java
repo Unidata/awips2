@@ -152,7 +152,7 @@ public class MPELegendResource extends
 
                 double cmapHeight = textHeight * 1.25;
 
-                legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
+                legendHeight = cmapHeight + 3.0 * textSpace + 2.0 * padding;
                 double y1 = yMax - legendHeight;
 
                 DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(

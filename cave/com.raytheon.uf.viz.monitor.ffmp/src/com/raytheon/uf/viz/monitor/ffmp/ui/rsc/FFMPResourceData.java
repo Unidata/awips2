@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,7 +42,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
-import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
@@ -230,23 +231,62 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 this.timeBack = new Date(
                         (long) (mostRecentTime.getRefTime().getTime() - (cfgBasinXML
                                 .getTimeFrame() * 3600 * 1000)));
-                ArrayList<String> hucsToLoad = FFMPTemplateConfigurationManager.getInstance().getHucLevels();
+                ArrayList<String> hucsToLoad = monitor.getTemplates(siteKey).getTemplateMgr().getHucLevels();
+                //ArrayList<String> hucsToLoad = new ArrayList<String>();
+                //hucsToLoad.add(cfgBasinXML.getLayer());
+                //hucsToLoad.add("ALL");
                 // goes back X hours and pre populates the Data Hashes
                 FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
                         mostRecentTime.getRefTime(), LOADER_TYPE.INITIAL,
                         hucsToLoad);
                 loader.start();
 
-            } else {
+                int i = 0;
+                // make the table load wait for finish of initial data load
+                while (!loader.isDone) {
+                    try {
+                        // give it 120 or so seconds
+                        if (i > 4000) {
+                            statusHandler
+                                    .handle(Priority.WARN,
+                                            "Didn't load initial data in allotted time, releasing table");
+                            break;
+                        }
+                        Thread.sleep(30);
+                        i++;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-                SourceXML source = getPrimarySourceXML();
+            } else {
+                /*
+                 * This appears completely un-orthodox for anything in D2D. But
+                 * alas FFMP always does things differently. According to Vada
+                 * Driesbach, FFMP in stand alone mode functions similarly to
+                 * the way it does in table mode. Meaning you have to reach back
+                 * and find time windows for the source displayed +- the
+                 * expirationTime. None of the sources are displayed for exact
+                 * times like everything else in D2D. This forces us to use the
+                 * same Data Population methods the table uses. The only
+                 * difference here is they are done for single sources.
+                 */
+
                 this.domains = monitor.getRunConfig().getDomains();
-          
-                for (int i = 0; i < objects.length; i++) {
-                    FFMPRecord rec = (FFMPRecord) objects[i];
-                    rec.setExpiration(source.getExpirationMinutes(siteKey));
-                    rec.setRate(source.isRate());
-                    populateRecord(getProduct(), rec, huc);
+                SourceXML source = monitor.getSourceConfig().getSource(
+                        sourceName);
+
+                if (source != null) {
+
+                    long oldestTime = availableTimes[0].getRefTime().getTime();
+                    long expirationTime = source.getExpirationMinutes(siteKey) * 60 * 1000;
+                    Date standAloneTime = new Date(oldestTime - expirationTime);
+                    
+                    NavigableMap<Date, List<String>> sourceURIs = getMonitor()
+                            .getAvailableUris(siteKey, dataKey, sourceName,
+                                    standAloneTime);
+                    getMonitor().processUris(sourceURIs, false, siteKey,
+                            sourceName, standAloneTime, "ALL");
                 }
             }
         }

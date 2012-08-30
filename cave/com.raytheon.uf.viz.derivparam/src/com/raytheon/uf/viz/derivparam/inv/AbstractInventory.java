@@ -171,11 +171,11 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
 
     protected Map<String, List<String>> sourceAliases = new HashMap<String, List<String>>();
 
-    private List<String> allSources;
+    protected List<String> allSources;
 
-    private List<String> allParameters;
+    protected List<String> allParameters;
 
-    private List<Level> allLevels;
+    protected List<Level> allLevels;
 
     /**
      * A call to this method assigns the passed grid tree to the original grid

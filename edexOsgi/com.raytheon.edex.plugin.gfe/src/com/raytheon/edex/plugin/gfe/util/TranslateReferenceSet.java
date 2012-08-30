@@ -36,6 +36,10 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -62,6 +66,19 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
  */
 
 public class TranslateReferenceSet {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TranslateReferenceSet.class);
+
+    private static JAXBManager jbm;
+    static {
+        try {
+            jbm = new JAXBManager(ReferenceData.class);
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            System.exit(-1);
+        }
+    }
+
     public static class DefaultFilter implements FileFilter {
 
         @Override
@@ -260,21 +277,30 @@ public class TranslateReferenceSet {
     /**
      * @param file
      * @throws SerializationException
-     * @throws JAXBException
      */
-    public static void translateFile(File file) throws SerializationException,
-            JAXBException {
-        JAXBManager jbm = new JAXBManager(ReferenceData.class);
+    public static void translateFile(File file) throws SerializationException {
+        System.out.println("Translating file: " + file.getAbsoluteFile());
         if (file.isDirectory()) {
             for (File f : file.listFiles(new ExtensionFilter(".REFERENCE"))) {
-                System.out.println("Translating: " + f.getAbsoluteFile());
                 translateFile(f);
             }
         } else {
             ReferenceData refData = translate(file);
             if (refData != null) {
-                String path = file.getAbsolutePath();
-                path = path.substring(0, path.lastIndexOf('.')) + ".xml";
+                String dir = file.getParentFile().getAbsolutePath();
+                String fname = file.getName();
+                fname = fname.replace(".REFERENCE", ".xml");
+                fname = FileUtil.unmangle(fname);
+                fname = fname.replace(" ", "_");
+                StringBuilder sb = new StringBuilder();
+                for (char c : fname.toCharArray()) {
+                    if (FileUtil.VALID_FILENAME_CHARS.indexOf(c) == -1) {
+                        sb.append("-");
+                    } else {
+                        sb.append("c");
+                    }
+                }
+                String path = FileUtil.join(dir, fname);
                 jbm.jaxbMarshalToXmlFile(refData, path);
             }
         }
@@ -286,7 +312,7 @@ public class TranslateReferenceSet {
                 File file = new File(arg);
                 try {
                     translateFile(file);
-                } catch (Exception e) {
+                } catch (SerializationException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }

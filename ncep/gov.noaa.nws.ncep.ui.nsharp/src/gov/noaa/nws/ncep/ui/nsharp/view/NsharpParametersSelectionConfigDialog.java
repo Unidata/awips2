@@ -635,7 +635,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		// create OK button but using Apply label for applying user entered data
 		//Chin note: when "apply" button is selected or Return key is entered, 
 		// okPressed() will be called. So, handle event at one place, ie.e at okPressed(). 
-		Button appBtn = createButton(parent, IDialogConstants.OK_ID,
+		createButton(parent, IDialogConstants.OK_ID,
 				"Apply",
 				true);
 		

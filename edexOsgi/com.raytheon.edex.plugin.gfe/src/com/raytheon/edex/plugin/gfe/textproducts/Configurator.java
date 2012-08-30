@@ -57,9 +57,11 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 7, 2008	1222		jelkins	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jul 7, 2008  1222        jelkins     Initial creation
+ * Jul 24,2012  #944        dgilling    Fix text product template generation
+ *                                      to create textProducts and textUtilities.
  * 
  * </pre>
  * 
@@ -108,8 +110,7 @@ public class Configurator {
 
         try {
             destinationDirectory = pathMgr.getFile(caveStaticConfig,
-                    FileUtil.join("gfe", "userPython", "textProducts"))
-                    .getCanonicalPath();
+                    FileUtil.join("gfe", "userPython")).getCanonicalPath();
         } catch (IOException e) {
             log.error("Unable to determine the destination directory", e);
             log.warn("Textproducts will not be configured.");

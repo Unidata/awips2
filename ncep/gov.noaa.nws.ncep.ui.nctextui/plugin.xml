@@ -52,6 +52,15 @@
             id="gov.noaa.nws.ncep.ui.NCTEXTUI"
             name="NCTEXT"/>
    </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.classContext">
+         <classContext
+            class="gov.noaa.nws.ncep.ui.nctextui.palette.NctextuiPaletteWindow">
+             <contextId
+                   id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
+             </contextId>
+         </classContext>
+   </extension>
    <!--
    <extension
        point="org.eclipse.ui.menus">

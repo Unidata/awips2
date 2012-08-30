@@ -18,4 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="MnT12hr" name="12-hr Minimum Temperature" unit="K"/>
+<DerivedParameter abbreviation="MnT12hr" name="12-hr Minimum Temperature" unit="K">
+   <Method name="Alias" levels="Surface"
+    	models="MOSGuide" displayName="Minimum Temperature">
+        <Field abbreviation="MnT12hr" level="2FHAG"/>
+    </Method>    
+</DerivedParameter>
