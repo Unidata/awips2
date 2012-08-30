@@ -242,7 +242,7 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
     	double xmin = ext.getMinX();  
     	world.setWorldCoordinates(NsharpConstants.ICING_RELATIVE_HUMIDITY_LEFT, toLogScale(NsharpConstants.ICING_PRESSURE_LEVEL_TOP),
         		NsharpConstants.ICING_RELATIVE_HUMIDITY_RIGHT, toLogScale(NsharpConstants.ICING_PRESSURE_LEVEL_BOTTOM));
-    	Coordinate c = world.unMap(xmin, ymax);
+    	//Coordinate c = world.unMap(xmin, ymax);
     	double viewablePmax = reverseLogScale(world.unMap(xmin, ymax).y);
         return viewablePmax;
     }

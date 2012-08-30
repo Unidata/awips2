@@ -55,6 +55,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * ------------	----------	-----------	--------------------------
  * Sep 3, 2008				lvenable	Initial creation
  * Nov 20, 2008   1682  dhladky   made interactive.
+ * Jul 16, 2012  15181      wkwock      Init the counts
  * 
  * </pre>
  * 
@@ -533,6 +534,12 @@ public class CrestHistoryCanvas extends Canvas {
             pixelsPerIncX = HLINE_LENGTH / years;
         }
 
+        //Init the counts
+        this.majorCount=0;
+        this.minorCount=0;
+        this.actionCount=0;
+        this.modCount=0;
+        
         for (CrestData crestData : crestHistoryData.getCrestDataArray()) {
 
             int yCoord = (int) (maxPixValue - Math

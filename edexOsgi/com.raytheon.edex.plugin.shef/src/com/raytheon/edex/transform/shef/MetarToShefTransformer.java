@@ -19,8 +19,12 @@
  **/
 package com.raytheon.edex.transform.shef;
 
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +94,12 @@ public class MetarToShefTransformer extends
         // Transformed METAR PluginDataObject to SHEF
         byte[] result = null;
 
+       DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+       Calendar nowCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));              
+       Calendar metarTime = TimeTools.getSystemCalendar((String) headers
+                .get(DecoderTools.INGEST_FILE_NAME));
+        
+   
         logger.debug("report object type = " + report.getClass().getName());
 
         incrementMessageCount();
@@ -131,6 +141,21 @@ public class MetarToShefTransformer extends
                     }
                     
                     startMessageLine(sb);
+                    metarTime=rec.getTimeObs();
+                    if (metarTime.compareTo(nowCalendar)> 0) {
+                		sb.append(": WARNING: observation time is greater than the system time for the same day");
+                		startMessageLine(sb);
+                		sb.append(": observation time= " + rec.getDataTime()  +
+                				" System time= "+ dateFormat.format(nowCalendar.getTime()));
+                		startMessageLine(sb);
+                		} else {                		
+                		sb.append(": WARNING: observation time is less than the system time for the same day");
+                		startMessageLine(sb);
+                		sb.append("observation time= " + rec.getDataTime()  +
+                				" System time= "+ dateFormat.format(nowCalendar.getTime()));
+                		startMessageLine(sb);                		
+                	}
+                  
                     sb.append(":SHEF derived data created by MetarToShefTransformer:");
                     startMessageLine(sb);
                     sb.append(":TRACEID = ");
