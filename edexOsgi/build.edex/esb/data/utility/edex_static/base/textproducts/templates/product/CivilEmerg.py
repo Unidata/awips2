@@ -114,8 +114,6 @@ class TextProduct(GenericReport.TextProduct):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-            else:
-                exec "self._" + key + "= varDict[key]"
         return fcst
 
     def _preProcessArea(self, fcst, editArea, areaLabel, argDict):

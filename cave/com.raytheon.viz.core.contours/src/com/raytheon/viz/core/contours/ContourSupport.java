@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *    May 26, 2009 #2172       chammack    Use zoomLevel to calculate label spacing
  *    Apr 26, 2010 #4583       rjpeter     Replaced fortran fortconbuf with java port.
  *    Mar 4, 2011   #7747       njensen   Cached subgrid envelopes
+ *    Jul 9, 2012  DR 14940    M. Porricelli  Adjust arrow size for streamlines
  * </pre>
  * 
  * @author chammack
@@ -1125,7 +1126,12 @@ public class ContourSupport {
         }
 
         double gridPixelSize = offCenter[0] - center[0];
+        double gridPixelMax = 2000.;
 
+        // If gridPixelSize is large, arrows on streamline will be too small, so adjust here
+        if(gridPixelSize > gridPixelMax) {
+            gridPixelSize = gridPixelSize/5;
+        }
         float arrowSize = (float) (currentMagnification * 5 / zoom / gridPixelSize);
 
         double spadiv = zoom * density * gridPixelSize / 25;

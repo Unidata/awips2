@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -58,6 +58,8 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2010            rjpeter     Initial creation
+ * Jul 31, 2012  #965      dgilling    Force ordering of sites in 
+ *                                     getActiveSites().
  * 
  * </pre>
  * 
@@ -136,7 +138,9 @@ public class SiteAwareRegistry {
      */
     public String[] getActiveSites() {
         // make a set of the strings for each listener site
-        Set<String> tmp = new HashSet<String>();
+        Set<String> tmp = new LinkedHashSet<String>();
+        tmp.add(PropertiesFactory.getInstance().getEnvProperties()
+                .getEnvValue("SITENAME"));
         for (ISiteActivationListener sa : activationListeners) {
             tmp.addAll(sa.getActiveSites());
         }
@@ -160,8 +164,8 @@ public class SiteAwareRegistry {
         }
         return false;
     }
-    
-    public String validateConfig(String siteID){
+
+    public String validateConfig(String siteID) {
         StringBuffer retVal = new StringBuffer();
         for (ISiteActivationListener sa : activationListeners) {
             retVal.append(sa.validateConfig(siteID));

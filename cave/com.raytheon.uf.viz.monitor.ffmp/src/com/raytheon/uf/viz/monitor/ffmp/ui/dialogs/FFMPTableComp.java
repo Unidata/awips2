@@ -33,8 +33,6 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
 public class FFMPTableComp extends FFMPTable {
     private FfmpTableConfig tableConfig;
 
-    private String currentPfaf = null;
-
     /**
      * Table selection callback.
      */

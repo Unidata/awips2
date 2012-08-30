@@ -23,4 +23,8 @@
    <referenceModel>mesoEta215</referenceModel>
    <nx>175</nx>
    <ny>173</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>
