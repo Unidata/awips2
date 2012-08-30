@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.dissemination.StatusConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2009            njensen     Initial creation
+ * 08/20/2012   DR 15340   D. Friedman Fix BBB problems
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class TransmittedProductList {
     }
 
     private static String assignBBB(String productBBB, String transmittedBBB) {
-        if (transmittedBBB == null)
+        if (transmittedBBB == null || transmittedBBB.length() == 0)
             return "RRA";
 
         String newBBB = null;
@@ -91,7 +92,7 @@ public class TransmittedProductList {
         if (newX[0] == 'X') {
             newX[0] = 'A';
         } else {
-            newX[0] = newX[0]++;
+            newX[0]++;
         }
         newBBB = transmittedBBB.substring(0, 2) + new String(newX);
 

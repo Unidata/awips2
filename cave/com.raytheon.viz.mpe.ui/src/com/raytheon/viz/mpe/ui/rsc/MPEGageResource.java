@@ -95,6 +95,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * ------------ ---------- ----------- --------------------------
  * Feb 8, 2011            mschenke     Initial creation
  * Aug 8, 2012   15271	  snaples      Updated hourly slot
+ * Aug 17, 2012  15271    snaples      Added check to add only PP gages
  * 
  * </pre>
  * 
@@ -121,6 +122,8 @@ public class MPEGageResource extends AbstractMPEInputResource {
     private STRtree strTree = null;
 
     private final RGB triangleColor = RGBColors.getRGBColor("YELLOW");
+
+    private final double MILLICVT = 25.4;
 
     private DataMappingPreferences dmPref;
 
@@ -175,6 +178,8 @@ public class MPEGageResource extends AbstractMPEInputResource {
                 gageTriangles = null;
             }
         }
+        lastDate = displayMgr.getCurrentDate();
+        addPoints(MPEDataManager.getInstance().readGageData(lastDate, lastDate));
         issueRefresh();
     }
 
@@ -267,6 +272,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
                     double lon_2 = in.getDouble();
                     lon_2 *= (lon_2 > 0) ? -1 : 1;
                     lat_2 *= (lat_2 < 0) ? -1 : 1;
+                    
                     compiler.handle(gf.createLineString(new Coordinate[] {
                             new Coordinate(lon_1, lat_1),
                             new Coordinate(lon_2, lat_2) }));
@@ -422,9 +428,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
                 // Check for pseudo gage and convert
                 float fltVal = gageData.getGval();
                 if (gageData.getId().contains("PSEUDO")) {
-                    UnitConverter conv = SI.MILLIMETER
-                            .getConverterTo(NonSI.INCH);
-                    fltVal = (float) conv.convert(gageData.getGval());
+                    fltVal = (float) (gageData.getGval() / MILLICVT); 
                 }
                 // System.out.println("--- fltVal = " + fltVal);
                 gageColor = getColorByValue(fltVal);
@@ -452,6 +456,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
             for (ListIterator<MPEGageData> it = gages.listIterator(); it
                     .hasNext();) {
                 MPEGageData gageData = it.next();
+                if (!gageData.getPe().equalsIgnoreCase("PP")) {
+                    continue;
+                }
                 Coordinate latLon = gageData.getLatLon();
                 double[] pixel = descriptor.worldToPixel(new double[] {
                         latLon.x, latLon.y });
@@ -463,8 +470,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
                 Envelope env = new Envelope(p1, p2);
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(latLon);
-                data.add("GAGE: " + gageData.getId() + " VALUE: "
-                        + gageData.getGval());
+                String newData = "GAGE: " + gageData.getId() + " VALUE: "
+                        + gageData.getGval();
+                data.add(newData);                
                 strTree.insert(env, data);
             }
         }
