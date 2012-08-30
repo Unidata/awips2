@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.site.requests;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
@@ -32,7 +31,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011            randerso     Initial creation
+ * Aug 05, 2011            randerso    Initial creation
+ * Jul 31, 2012   #965     dgilling    Remove unnecessary code.
  * 
  * </pre>
  * 
@@ -42,25 +42,5 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 @DynamicSerialize
 public class GetActiveSitesRequest implements IServerRequest {
-    @DynamicSerializeElement
-    private String[] activeSites;
-
-    public GetActiveSitesRequest() {
-    }
-
-    /**
-     * @return the activeSites
-     */
-    public String[] getActiveSites() {
-        return activeSites;
-    }
-
-    /**
-     * @param activeSites
-     *            the activeSites to set
-     */
-    public void setActiveSites(String[] activeSites) {
-        this.activeSites = activeSites;
-    }
-
+    // No fields needed
 }

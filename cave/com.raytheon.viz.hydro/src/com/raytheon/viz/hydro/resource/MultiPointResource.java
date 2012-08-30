@@ -343,24 +343,21 @@ public class MultiPointResource extends
             Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
             gage.setCoordinate(xy);
 
-            double latInc = .05;
-            double lonInc = .03;
+            /* Create a small envelope around the point */
+            double shiftHeightValue = getShiftHeight(gage);
+            double shiftWidthValue = getShiftWidth(gage);
 
             if (existing != null) {
-                Coordinate p1 = new Coordinate(existing.getLon() + lonInc,
-                        existing.getLat() + latInc);
-                Coordinate p2 = new Coordinate(existing.getLon() - lonInc,
-                        existing.getLat() - latInc);
-                Envelope oldEnv = new Envelope(p1, p2);
+            	PixelExtent pe = getPixelExtent(existing, getShiftWidth(existing),
+            		getShiftHeight(existing));
+                Envelope oldEnv = descriptor.pixelToWorld(pe);
                 strTree.remove(oldEnv, existing);
             }
 
             /* Create a small envelope around the point */
-            Coordinate p1 = new Coordinate(gage.getLon() + lonInc,
-                    gage.getLat() + latInc);
-            Coordinate p2 = new Coordinate(gage.getLon() - lonInc,
-                    gage.getLat() - latInc);
-            Envelope newEnv = new Envelope(p1, p2);
+            PixelExtent pe = getPixelExtent(gage, getShiftWidth(gage),
+            	getShiftHeight(gage));
+            Envelope newEnv = descriptor.pixelToWorld(pe);
 
             strTree.insert(newEnv, gage);
             dataMap.put(lid, gage);
@@ -716,13 +713,11 @@ public class MultiPointResource extends
     /**
      * Get the x direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the x direction
      */
-    private double getShiftWidth(PaintProperties props, GageData gage) {
+    private double getShiftWidth(GageData gage) {
         double shiftWidthValue = (gage.getX_shift() / 2.0)
                 / screenToWorldWidthRatio;
 
@@ -732,13 +727,11 @@ public class MultiPointResource extends
     /**
      * Get the y direction shift value.
      * 
-     * @param props
-     *            The PaintProperties object
      * @param gage
      *            The GageData object
      * @return The number of pixels to shift in the y direction
      */
-    private double getShiftHeight(PaintProperties props, GageData gage) {
+    private double getShiftHeight(GageData gage) {
         double shiftHeightValue = (gage.getY_shift() / 2.0)
                 / screenToWorldHeightRatio;
 
@@ -803,9 +796,8 @@ public class MultiPointResource extends
                     double[] pixel = descriptor.worldToPixel(new double[] {
                             c.x, c.y });
                     if (pixel != null && extent.contains(pixel)) {
-                        double shiftHeightValue = getShiftHeight(paintProps,
-                                gage);
-                        double shiftWidthValue = getShiftWidth(paintProps, gage);
+                        double shiftHeightValue = getShiftHeight(gage);
+                        double shiftWidthValue = getShiftWidth(gage);
                         /* Draw the icons */
                         if (pcOptions.getIcon() == 1) {
                             RGB color = null;
@@ -838,9 +830,8 @@ public class MultiPointResource extends
         if (currentData != null) {
             List<GageData> siteList = pdcManager.getObsReportList();
             if ((siteList != null) && siteList.contains(currentData)) {
-                double shiftHeightValue = getShiftHeight(paintProps,
-                        currentData);
-                double shiftWidthValue = getShiftWidth(paintProps, currentData);
+                double shiftHeightValue = getShiftHeight(currentData);
+                double shiftWidthValue = getShiftWidth(currentData);
 
                 PixelExtent pe = getPixelExtent(currentData, shiftWidthValue,
                         shiftHeightValue);
@@ -871,12 +862,19 @@ public class MultiPointResource extends
             Envelope env = new Envelope(coord.asLatLon());
             List<?> elements = strTree.query(env);
             if (elements.size() > 0) {
+            	StringBuffer sb = new StringBuffer();
+            	boolean first = true;
                 Iterator<?> iter = elements.iterator();
                 while (iter.hasNext()) {
                     GageData gage = (GageData) iter.next();
-                    return "GAGE: " + gage.getName() + " VALUE: "
-                            + gage.getGageValue();
+                    if (!first) {
+                    	sb.append("\n");
+                    }
+                    sb.append("GAGE: " + gage.getName() + " VALUE: "
+                            + gage.getGageValue());
+                    first = false;
                 }
+                return sb.toString();
             }
         } catch (Exception e) {
             throw new VizException(e);

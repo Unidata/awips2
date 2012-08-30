@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                     AreaSourceConfiguration to areaFields List.
  * Apr 11, 2012  #14691    Qinglu Lin  For marine warnings, getFeAreaField() returns null.
  *                                     So, do not add the returned value of getFeAreaField() 
- *                                     to areaFields. 
+ *                                     to areaFields.
  * 
  * </pre>
  * 
@@ -116,7 +116,16 @@ public class GeospatialFactory {
 
         GeospatialData[] areas = dataSet.getAreas();
         GeospatialData[] parentAreas = dataSet.getParentAreas();
-        timezones = dataSet.getTimezones();
+        GeospatialData[] myTimeZones = dataSet.getTimezones();
+        if (myTimeZones != null && myTimeZones.length > 0) {
+            if (timezones == null) {
+                timezones = myTimeZones;
+            }
+
+            for (GeospatialData tz : myTimeZones) {
+                tz.prepGeom = PreparedGeometryFactory.prepare(tz.geometry);
+            }
+        }
 
         Map<String, List<GeospatialData>> uniqueAreasMap = new HashMap<String, List<GeospatialData>>();
         for (GeospatialData data : areas) {
@@ -254,20 +263,20 @@ public class GeospatialFactory {
         AreaSourceConfiguration[] ascs = template.getAreaSources();
 
         for (AreaSourceConfiguration asc : ascs) {
-        	List<String> areaFields = new ArrayList<String>();
-        	String feAreaField = asc.getFeAreaField();
-        	String timeZoneField = asc.getTimeZoneField();
-        	areaFields.add(WarningConstants.GID);
+            List<String> areaFields = new ArrayList<String>();
+            String feAreaField = asc.getFeAreaField();
+            String timeZoneField = asc.getTimeZoneField();
+            areaFields.add(WarningConstants.GID);
             areaFields.add(asc.getAreaField());
             if (feAreaField != null) {
-            	areaFields.add(feAreaField);
-            }     
-            
+                areaFields.add(feAreaField);
+            }
+
             if (timeZoneField != null) {
                 areaFields.add(timeZoneField);
             }
             areaFields.add(asc.getFipsField());
-            areaFields.add(asc.getAreaNotationField());            
+            areaFields.add(asc.getAreaNotationField());
 
             GeospatialMetadata gmd = new GeospatialMetadata();
             gmd.setAreaSource(asc.getAreaSource());

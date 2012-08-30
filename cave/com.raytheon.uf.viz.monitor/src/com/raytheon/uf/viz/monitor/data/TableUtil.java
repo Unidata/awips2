@@ -902,192 +902,232 @@ public final class TableUtil {
         return null;
     }
 
-    private static TableRowData getSnowMetarHistTableRowData(ObReport report) {
-        TableRowData tblRowData = new TableRowData(8);
-        tblRowData.setTableCellData(0, new TableCellData(report.getObservationTime(),"HH:mm MMM dd",CellType.ObsHist));
-        tblRowData.setTableCellData(1,
-                new TableCellData(Math.round(new Float(report.getWindDir())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(2,
-                new TableCellData(Math.round(new Float(report.getWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(3,
-                new TableCellData(Math.round(new Float(report.getWindGust())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(4, new TableCellData(report.getPressure(), CellType.ObsHist, CommonTableConfig.obsHistCols.P));
-        tblRowData.setTableCellData(
-                5,
-                new TableCellData(
-                        Math.round(new Float(report.getTemperature())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(6,
-                new TableCellData(Math.round(new Float(report.getDewpoint())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(7, new TableCellData(report.getPressureChange(), CellType.ObsHist, CommonTableConfig.obsHistCols.PTend));
-        return tblRowData;
-    }
+	private static TableRowData getSnowMetarHistTableRowData(ObReport report) {
+		TableRowData tblRowData = new TableRowData(10);
+		tblRowData.setTableCellData(0,
+				new TableCellData(report.getObservationTime(), "HH:mm MMM dd",
+						CellType.ObsHist));
+		tblRowData.setTableCellData(1,
+				new TableCellData(new Float(report.getLatitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(2,
+				new TableCellData(new Float(report.getLongitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(3,
+				new TableCellData(Math.round(new Float(report.getWindDir())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(4,
+				new TableCellData(Math.round(new Float(report.getWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(5,
+				new TableCellData(Math.round(new Float(report.getWindGust())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(6, new TableCellData(report.getPressure(),
+				CellType.ObsHist, CommonTableConfig.obsHistCols.P));
+		tblRowData.setTableCellData(7,
+				new TableCellData(
+						Math.round(new Float(report.getTemperature())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(8,
+				new TableCellData(Math.round(new Float(report.getDewpoint())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(9,
+				new TableCellData(report.getPressureChange(), CellType.ObsHist,
+						CommonTableConfig.obsHistCols.PTend));
+		return tblRowData;
+	}
 
     private static TableRowData getSafeSeasMetarHistTableRowData(ObReport report) {
         // same as getSnowHistTableRowData
         return getSnowMetarHistTableRowData(report);
     }
 
-    private static TableRowData getSafeseasMaritimeHistTableRowData(ObReport report) {
-        TableRowData tblRowData = new TableRowData(15);
-        tblRowData.setTableCellData(0, new TableCellData(report.getObservationTime(),"HH:mm MMM dd",CellType.ObsHist));
-        tblRowData.setTableCellData(1,
-                new TableCellData(Math.round(new Float(report.getWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                2,
-                new TableCellData(
-                        Math.round(new Float(report.getMaxWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(3,
-                new TableCellData(Math.round(new Float(report.getWindGust())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(4,
-                new TableCellData(
-                        Math.round(new Float(report.getVisibility())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(5, new TableCellData(report.getPressure(), CellType.ObsHist, CommonTableConfig.obsHistCols.P));
-        tblRowData.setTableCellData(
-                6,
-                new TableCellData(Math.round(new Float(report
-                        .getPressureChange())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                7,
-                new TableCellData(
-                        Math.round(new Float(report.getTemperature())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(8,
-                new TableCellData(Math.round(new Float(report.getDewpoint())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                9,
-                new TableCellData(Math.round(new Float(report
-                        .getSeaSurfaceTemp())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                10,
-                new TableCellData(Math.round(new Float(report
-                        .getHighResWaveHeight())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                11,
-                new TableCellData(Math.round(new Float(report
-                        .getWaveSteepness())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                12,
-                new TableCellData(
-                        Math.round(new Float(report.getPSwellHeight())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                13,
-                new TableCellData(
-                        Math.round(new Float(report.getPSwellPeriod())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(14,
-                new TableCellData(Math.round(new Float(report.getPSwellDir())),
-                        CellType.ObsHist, true));
-        return tblRowData;
-    }
+	private static TableRowData getSafeseasMaritimeHistTableRowData(
+			ObReport report) {
+		TableRowData tblRowData = new TableRowData(17);
+		tblRowData.setTableCellData(0,
+				new TableCellData(report.getObservationTime(), "HH:mm MMM dd",
+						CellType.ObsHist));
+		tblRowData.setTableCellData(1,
+				new TableCellData(new Float(report.getLatitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(2,
+				new TableCellData(new Float(report.getLongitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(3,
+				new TableCellData(Math.round(new Float(report.getWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				4,
+				new TableCellData(
+						Math.round(new Float(report.getMaxWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(5,
+				new TableCellData(Math.round(new Float(report.getWindGust())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(6,
+				new TableCellData(
+						Math.round(new Float(report.getVisibility())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(7, new TableCellData(report.getPressure(),
+				CellType.ObsHist, CommonTableConfig.obsHistCols.P));
+		tblRowData.setTableCellData(
+				8,
+				new TableCellData(Math.round(new Float(report
+						.getPressureChange())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				9,
+				new TableCellData(
+						Math.round(new Float(report.getTemperature())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(10,
+				new TableCellData(Math.round(new Float(report.getDewpoint())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				11,
+				new TableCellData(Math.round(new Float(report
+						.getSeaSurfaceTemp())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				12,
+				new TableCellData(Math.round(new Float(report
+						.getHighResWaveHeight())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				13,
+				new TableCellData(Math.round(new Float(report
+						.getWaveSteepness())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				14,
+				new TableCellData(
+						Math.round(new Float(report.getPSwellHeight())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				15,
+				new TableCellData(
+						Math.round(new Float(report.getPSwellPeriod())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(16,
+				new TableCellData(Math.round(new Float(report.getPSwellDir())),
+						CellType.ObsHist, true));
+		return tblRowData;
+	}
 
-    private static TableRowData getFogMaritimeHistTableRowData(ObReport report) {
-        TableRowData tblRowData = new TableRowData(16);
-        tblRowData.setTableCellData(0, new TableCellData(report.getObservationTime(),"HH:mm MMM dd",CellType.ObsHist));
-        tblRowData.setTableCellData(1,
-                new TableCellData(Math.round(new Float(report.getWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                2,
-                new TableCellData(
-                        Math.round(new Float(report.getMaxWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(3,
-                new TableCellData(Math.round(new Float(report.getWindGust())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(4,
-                new TableCellData(
-                        Math.round(new Float(report.getVisibility())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(5, new TableCellData(report.getPressure(), CellType.ObsHist, CommonTableConfig.obsHistCols.P));
-        tblRowData.setTableCellData(
-                6,
-                new TableCellData(Math.round(new Float(report
-                        .getPressureChange())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                7,
-                new TableCellData(
-                        Math.round(new Float(report.getTemperature())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(8,
-                new TableCellData(Math.round(new Float(report.getDewpoint())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                9,
-                new TableCellData(Math.round(new Float(report
-                        .getSeaSurfaceTemp())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                10,
-                new TableCellData(Math.round(new Float(report
-                        .getHighResWaveHeight())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                11,
-                new TableCellData(Math.round(new Float(report
-                        .getWaveSteepness())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                12,
-                new TableCellData(
-                        Math.round(new Float(report.getPSwellHeight())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                13,
-                new TableCellData(
-                        Math.round(new Float(report.getPSwellPeriod())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(14,
-                new TableCellData(Math.round(new Float(report.getPSwellDir())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(
-                15,
-                new TableCellData(Math.round(new Float(report
-                        .getRelativeHumidity())), CellType.ObsHist, true));
-        return tblRowData;
-    }
+	private static TableRowData getFogMaritimeHistTableRowData(ObReport report) {
+		TableRowData tblRowData = new TableRowData(18);
+		tblRowData.setTableCellData(0,
+				new TableCellData(report.getObservationTime(), "HH:mm MMM dd",
+						CellType.ObsHist));
+		tblRowData.setTableCellData(1,
+				new TableCellData(new Float(report.getLatitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(2,
+				new TableCellData(new Float(report.getLongitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(3,
+				new TableCellData(Math.round(new Float(report.getWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				4,
+				new TableCellData(
+						Math.round(new Float(report.getMaxWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(5,
+				new TableCellData(Math.round(new Float(report.getWindGust())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(6,
+				new TableCellData(
+						Math.round(new Float(report.getVisibility())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(7, new TableCellData(report.getPressure(),
+				CellType.ObsHist, CommonTableConfig.obsHistCols.P));
+		tblRowData.setTableCellData(
+				8,
+				new TableCellData(Math.round(new Float(report
+						.getPressureChange())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				9,
+				new TableCellData(
+						Math.round(new Float(report.getTemperature())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(10,
+				new TableCellData(Math.round(new Float(report.getDewpoint())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				11,
+				new TableCellData(Math.round(new Float(report
+						.getSeaSurfaceTemp())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				12,
+				new TableCellData(Math.round(new Float(report
+						.getHighResWaveHeight())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				13,
+				new TableCellData(Math.round(new Float(report
+						.getWaveSteepness())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				14,
+				new TableCellData(
+						Math.round(new Float(report.getPSwellHeight())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				15,
+				new TableCellData(
+						Math.round(new Float(report.getPSwellPeriod())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(16,
+				new TableCellData(Math.round(new Float(report.getPSwellDir())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				17,
+				new TableCellData(Math.round(new Float(report
+						.getRelativeHumidity())), CellType.ObsHist, true));
+		return tblRowData;
+	}
 
-    private static TableRowData getFogMetarHistTableRowData(ObReport report) {
-        TableRowData tblRowData = new TableRowData(12);
-        tblRowData.setTableCellData(0, new TableCellData(report.getObservationTime(),"HH:mm MMM dd",CellType.ObsHist));
-        tblRowData.setTableCellData(
-                1,
-                new TableCellData(Math.round(new Float(report
-                        .getRelativeHumidity())), CellType.ObsHist, true));
-        tblRowData.setTableCellData(2,
-                new TableCellData(
-                        Math.round(new Float(report.getVisibility())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(3,
-                new TableCellData(Math.round(new Float(report.getCeiling())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(4,
-                new TableCellData(Math.round(new Float(report.getWindDir())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(5,
-                new TableCellData(Math.round(new Float(report.getWindSpeed())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(6,
-                new TableCellData(Math.round(new Float(report.getWindGust())),
-                        CellType.ObsHist, true));
-        tblRowData.setTableCellData(7, new TableCellData(report.getPressure(), CellType.ObsHist, CommonTableConfig.obsHistCols.P));
-        int tmph = Math.round(new Float(report.getTemperature()));
-        int dpth = Math.round(new Float(report.getDewpoint()));
-        tblRowData.setTableCellData(8, new TableCellData(tmph,
-                CellType.ObsHist, true));
-        tblRowData.setTableCellData(9, new TableCellData(dpth,
-                CellType.ObsHist, true));
-        tblRowData.setTableCellData(10, new TableCellData(tmph - dpth,
-                CellType.ObsHist, true));
-        tblRowData.setTableCellData(11, new TableCellData(report.getPressureChange(), CellType.ObsHist, CommonTableConfig.obsHistCols.PTend));
-        return tblRowData;
-    }
+	private static TableRowData getFogMetarHistTableRowData(ObReport report) {
+		TableRowData tblRowData = new TableRowData(14);
+		tblRowData.setTableCellData(0,
+				new TableCellData(report.getObservationTime(), "HH:mm MMM dd",
+						CellType.ObsHist));
+		tblRowData.setTableCellData(1,
+				new TableCellData(new Float(report.getLatitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(2,
+				new TableCellData(new Float(report.getLongitude()),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(
+				3,
+				new TableCellData(Math.round(new Float(report
+						.getRelativeHumidity())), CellType.ObsHist, true));
+		tblRowData.setTableCellData(4,
+				new TableCellData(
+						Math.round(new Float(report.getVisibility())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(5,
+				new TableCellData(Math.round(new Float(report.getCeiling())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(6,
+				new TableCellData(Math.round(new Float(report.getWindDir())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(7,
+				new TableCellData(Math.round(new Float(report.getWindSpeed())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(8,
+				new TableCellData(Math.round(new Float(report.getWindGust())),
+						CellType.ObsHist, true));
+		tblRowData.setTableCellData(9, new TableCellData(report.getPressure(),
+				CellType.ObsHist, CommonTableConfig.obsHistCols.P));
+		int tmph = Math.round(new Float(report.getTemperature()));
+		int dpth = Math.round(new Float(report.getDewpoint()));
+		tblRowData.setTableCellData(10, new TableCellData(tmph,
+				CellType.ObsHist, true));
+		tblRowData.setTableCellData(11, new TableCellData(dpth,
+				CellType.ObsHist, true));
+		tblRowData.setTableCellData(12, new TableCellData(tmph - dpth,
+				CellType.ObsHist, true));
+		tblRowData.setTableCellData(13,
+				new TableCellData(report.getPressureChange(), CellType.ObsHist,
+						CommonTableConfig.obsHistCols.PTend));
+		return tblRowData;
+	}
 
 }

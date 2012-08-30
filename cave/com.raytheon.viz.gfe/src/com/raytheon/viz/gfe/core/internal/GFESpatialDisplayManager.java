@@ -94,6 +94,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
     private static final String GFE_PERSPECTIVE = GFEPerspective.ID_PERSPECTIVE;
 
     private final ISampleSetChangedListener sampleSetListener = new ISampleSetChangedListener() {
+    	@Override
         public void sampleSetChanged(ISampleSetManager sampleSetMgr) {
             GFESpatialDisplayManager.this.refresh();
         }
@@ -163,14 +164,40 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
             GridLocation gloc = parmManager.compositeGridLocation();
             GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gloc);
             Envelope envelope = gridGeometry.getEnvelope();
-            double dx = (envelope.getSpan(0) / 8.0);
-            double dy = (envelope.getSpan(1) / 8.0);
+            double colorBarHeight = GFEColorbarResource.HEIGHT
+                    * envelope.getSpan(1) / pane.getBounds().height;
+            
+            PythonPreferenceStore prefs = Activator.getDefault()
+                     .getPreferenceStore();
+            
+            double expandLeft = 10;
+            if (prefs.contains("OfficeDomain_expandLeft")) {
+                expandLeft = prefs.getDouble("OfficeDomain_expandLeft");
+            }
+            double expandRight = 0.1;
+            if (prefs.contains("OfficeDomain_expandRight")) {
+                expandRight = prefs.getDouble("OfficeDomain_expandRight");
+            }
+            double expandTop = 0.1;
+            if (prefs.contains("OfficeDomain_expandTop")) {
+                expandTop = prefs.getDouble("OfficeDomain_expandTop");
+            }
+            double expandBottom = 0.1;
+            if (prefs.contains("OfficeDomain_expandBottom")) {
+                expandBottom = prefs.getDouble("OfficeDomain_expandBottom");
+            }
+            
+            double dxLeft = (envelope.getSpan(0) * expandLeft / 100.0);
+            double dxRight = (envelope.getSpan(0) * expandRight / 100.0);
+            double dyTop = (envelope.getSpan(1) * expandTop / 100.0);
+            double dyBottom = (envelope.getSpan(1) * expandBottom / 100.0);
+
             GeneralEnvelope newEnvelope = new GeneralEnvelope(
                     envelope.getCoordinateReferenceSystem());
-            newEnvelope.setRange(0, envelope.getMinimum(0) - dx,
-                    envelope.getMaximum(0) + dx);
-            newEnvelope.setRange(1, envelope.getMinimum(1) - dy,
-                    envelope.getMaximum(1) + dy);
+            newEnvelope.setRange(0, envelope.getMinimum(0) - dxLeft,
+                    envelope.getMaximum(0) + dxRight);
+            newEnvelope.setRange(1, envelope.getMinimum(1) - dyBottom,
+            		envelope.getMaximum(1) + colorBarHeight + dyTop);
             GridGeometry2D newGridGeometry = new GridGeometry2D(
                     gridGeometry.getGridRange(), newEnvelope);
             descriptor.setGridGeometry(newGridGeometry);
@@ -323,6 +350,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
      * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setGlobalTimeRange(com
      * .raytheon.edex.plugin.time.TimeRange)
      */
+    @Override
     public void setGlobalTimeRange(TimeRange timeRange) {
         this.globalTimeRange = timeRange;
 
@@ -337,6 +365,7 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
      * @see
      * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getGlobalTimeRange()
      */
+    @Override
     public TimeRange getGlobalTimeRange() {
         return this.globalTimeRange;
     }
