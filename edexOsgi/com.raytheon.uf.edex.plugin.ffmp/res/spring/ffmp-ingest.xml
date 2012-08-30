@@ -8,11 +8,11 @@
 
 	<bean id="ffmpThreadPool"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="4" />
+		<property name="corePoolSize" value="4" />
+		<property name="maxPoolSize" value="6" />
 		<property name="keepAliveSeconds" value="60000" />
 	</bean>
-
+	
    <bean id="ffmpGenerator" class="com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator">
    	    <constructor-arg ref="ffmpThreadPool"/>
    </bean>
@@ -34,4 +34,10 @@
             </doTry>
         </route>
     </camelContext>
+    
+    <bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="ffmp-camel" />
+  	</bean>
+    
 </beans>
