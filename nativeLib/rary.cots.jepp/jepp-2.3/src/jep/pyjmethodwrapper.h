@@ -26,6 +26,13 @@
    distribution.   
 */ 	
 
+/*
+  August 2, 2012
+  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+   New file created with modifications to pyjmethod.h
+*/
+
+
 
 // shut up the compiler
 #ifdef _POSIX_C_SOURCE
