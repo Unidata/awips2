@@ -594,7 +594,7 @@ public class MeanArealPrecipResource extends
         StringBuilder sb = new StringBuilder();
         sb.append(dman.getAccumInterval()
                 + " hr Accumulated Best Estimate QPE Ending "
-                + HydroConstants.DISPLAY_DATE_FORMAT.format(dman.getDataDate()));
+                + HydroConstants.DISPLAY_DATE_FORMAT.format(dman.getDataDate())+"z (in)");
 
         if (noData) {
             sb.append(" No Data Available");

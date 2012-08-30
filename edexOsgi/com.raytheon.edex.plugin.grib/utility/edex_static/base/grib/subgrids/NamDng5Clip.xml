@@ -23,4 +23,8 @@
    <referenceModel>NamDNG5</referenceModel>
    <nx>1000</nx>
    <ny>689</ny>
+   <!-- 
+   <centerLatitude>46.0</centerLatitude>
+   <centerLongitude>-95.5</centerLongitude>
+    -->
 </subGridDef>

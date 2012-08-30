@@ -34,6 +34,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------	----------	-----------	--------------------------
  * Jun 3, 2008	1167		mnash	    Initial creation
  * Sep 3, 2008  1283        njensen     Fixed issues
+ * Aug 9, 2012  #1036       dgilling    Fixed NullPointerException
+ *                                      in compareTo().
  * 
  * </pre>
  * 
@@ -141,7 +143,7 @@ public class SamplerRequest implements Comparable<SamplerRequest> {
      * @return
      */
     public boolean isRefID() {
-        if (_areaID != null && _areaID.getName().length() > 0) {
+        if ((_areaID != null) && (!_areaID.getName().isEmpty())) {
             return true;
         } else {
             return false;
@@ -154,59 +156,98 @@ public class SamplerRequest implements Comparable<SamplerRequest> {
      * @return
      */
     public boolean isRefArea() {
-        if (_area.getId().getName().length() > 0) {
+        if ((_area != null) && (!_area.getId().getName().isEmpty())) {
             return true;
         } else {
             return false;
         }
     }
 
-    /**
-     * Outputs the class information
-     * 
-     * @param o
-     */
-    public String printOn() {
-        return "(" + _parmID + "," + _timeRange + "," + _areaID + "," + _area
-                + ")";
+    @Override
+    public int compareTo(SamplerRequest samp) {
+        // 1st level - parmID
+        int pid = _parmID.compareTo(samp._parmID);
+        if (pid != 0) {
+            return pid;
+        } else {
+            // 2nd level, time range
+            int tr = _timeRange.compareTo(samp._timeRange);
+            if (tr != 0) {
+                return tr;
+            } else {
+                // 3rd level, reference id
+                String left = (_area != null) ? _area.getId().getName()
+                        : _areaID.getName();
+                String right = (samp._area != null) ? samp._area.getId()
+                        .getName() : samp._areaID.getName();
+                return left.compareTo(right);
+            }
+        }
     }
 
     @Override
-    public int compareTo(SamplerRequest samp) {
-        int pid = _parmID.compareTo(samp._parmID);
-        if (pid == -1) {
-            return -1;
-        } else if (pid == 1) {
-            return 1;
-        } else if (pid == 0) {
-            int tr = _timeRange.compareTo(samp._timeRange);
-            if (tr == -1) {
-                return -1;
-            } else if (tr == 1) {
-                return 1;
-            } else if (tr == 0) {
-                int rid = _area.getId().getName().compareTo(
-                        samp._area.getId().getName());
-                if (rid == -1) {
-                    return -1;
-                } else if (rid == 1) {
-                    return 1;
-                } else if (rid == 0) {
-                    return 0;
-                }
-            }
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return 0; // should never reach this
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SamplerRequest other = (SamplerRequest) obj;
+        if (_area == null) {
+            if (other._area != null) {
+                return false;
+            }
+        } else if (!_area.equals(other._area)) {
+            return false;
+        }
+        if (_areaID == null) {
+            if (other._areaID != null) {
+                return false;
+            }
+        } else if (!_areaID.equals(other._areaID)) {
+            return false;
+        }
+        if (_parmID == null) {
+            if (other._parmID != null) {
+                return false;
+            }
+        } else if (!_parmID.equals(other._parmID)) {
+            return false;
+        }
+        if (_timeRange == null) {
+            if (other._timeRange != null) {
+                return false;
+            }
+        } else if (!_timeRange.equals(other._timeRange)) {
+            return false;
+        }
+        return true;
     }
 
+    @Override
     public String toString() {
-        String s = "SamplerRequest: " + _parmID.getParmName() + " "
-                + _timeRange.toString() + " ";
-        if (_area != null) {
-            s += _area.getId().getName();
-        } else if (_areaID != null) {
-            s += _areaID.getName();
+        StringBuilder builder = new StringBuilder();
+        builder.append("SamplerRequest (");
+        builder.append(_parmID);
+        builder.append(", ");
+        builder.append(_timeRange);
+        builder.append(", ");
+        if (_areaID != null) {
+            builder.append(_areaID.getName());
+        } else {
+            builder.append("null");
         }
-        return s;
+        builder.append(", ");
+        if (_area != null) {
+            builder.append(_area.getId().getName());
+        } else {
+            builder.append("null");
+        }
+        builder.append(")");
+        return builder.toString();
     }
 }

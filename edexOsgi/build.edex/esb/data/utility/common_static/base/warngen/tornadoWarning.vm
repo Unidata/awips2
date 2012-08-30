@@ -11,6 +11,8 @@
 ##         EVAN BOOKBINDER   WFO EAX 11-04-11 - OB11.9-3 (DRs)               ##
 ##         EVAN BOOKBINDER   WFO EAX  2-24-12 - OB12.2.1                     ##
 ##         MIKE REGA                  5-03-12 - DR 14885 MND blank line      ##
+##         QINGLU LIN                 7-31-2012 DR 15217 use roundAndPad     ##
+##         QINGLU LIN                 8-14-2012 DR 14493 use TMLtime         ##
 ###############################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
 #set($preAmble = "")
@@ -420,8 +422,8 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

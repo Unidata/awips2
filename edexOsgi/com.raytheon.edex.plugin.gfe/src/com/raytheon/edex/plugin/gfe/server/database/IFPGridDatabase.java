@@ -100,6 +100,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/18/08                njensen     Added discrete/wx to getGridData()
  * 05/04/12     #574       dgilling    Restructure class to better match AWIPS1.
+ * 07/11/12     15162      ryu         No raising exception in c'tor
  * 
  * </pre>
  * 
@@ -148,7 +149,7 @@ public class IFPGridDatabase extends GridDatabase {
      * @param dbId
      *            The database ID for this database
      */
-    public IFPGridDatabase(DatabaseID dbId) throws GfeException {
+    public IFPGridDatabase(DatabaseID dbId) {
         super(dbId);
         try {
             this.gridConfig = IFPServerConfigManager.getServerConfig(
@@ -159,12 +160,11 @@ public class IFPGridDatabase extends GridDatabase {
                         "Server config contains no gridDbConfig for database "
                                 + dbId.toString());
             }
+            valid = true;
         } catch (GfeException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to get gridConfig for: " + dbId, e);
-            throw e;
         }
-        valid = true;
     }
 
     /**

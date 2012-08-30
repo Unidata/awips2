@@ -29,9 +29,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
-
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;

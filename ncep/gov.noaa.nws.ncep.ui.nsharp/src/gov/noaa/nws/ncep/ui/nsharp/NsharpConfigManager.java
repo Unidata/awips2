@@ -22,7 +22,6 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp;
 
-import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;

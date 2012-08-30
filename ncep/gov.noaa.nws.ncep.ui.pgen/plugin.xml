@@ -3214,5 +3214,13 @@
 	         extensionFilter=".xml,.tbl,.png,.txt,.xsl,.xlt,.xslt">
        </path>
     </extension>
-
+   <extension
+         point="com.raytheon.uf.viz.core.classContext">
+         <classContext
+            class="gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow">
+             <contextId
+                   id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
+             </contextId>
+         </classContext>
+   </extension>
 </plugin>
