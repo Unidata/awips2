@@ -235,13 +235,13 @@ public class XmrgResource extends
                 name = "FFG No Data Available";
             } else {
                 name = "FFG " + res.getResolution() + " " + hours + " "
-                        + hourStr + " " + sdf.format(dataDate) + noData;
+                        + hourStr + " " + sdf.format(dataDate)+"z (in)" + noData;
             }
         } else {
             name = dman.getAccumInterval()
                     + " hr Accumulated Best Estimate QPE Ending "
                     + HydroConstants.DISPLAY_DATE_FORMAT.format(dman
-                            .getDataDate()) + noData;
+                            .getDataDate()) +"z (in)"+ noData;
         }
         return name;
     }
