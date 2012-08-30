@@ -170,7 +170,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     public ArrayList<String> loadedData = new ArrayList<String>();
     
     /** thread the productkeys **/
-    public HashMap<String, ArrayList<String>> productKeys = new HashMap<String, ArrayList<String>>();
+    public ConcurrentHashMap<String, ArrayList<String>> productKeys = new ConcurrentHashMap<String, ArrayList<String>>();
 
     /** template config manager **/
     public FFMPTemplateConfigurationManager tempConfig = null;
@@ -510,7 +510,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                     + " ms, wrote " + records.size() + " ");
 
                 } else {
-                    statusHandler.handle(Priority.INFO, config.getCWA()
+                    statusHandler.handle(Priority.WARN, config.getCWA()
                             + " no new products to produce.");
                 }
                 // dump data we don't need anymore
@@ -1371,12 +1371,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             source, ffmpRec.getBasinData(huc), huc,
                             ffmpRec.getSiteKey());
                 }
-                // purge it up
-                fdc.purge(backDate);
                 // set the name
                 fdc.setFilePath("" + sharePath + ffmpRec.getWfo() + "/"
                         + sourceSiteDataKey);
-                
                 // cache it temporarily for FFTI use
                 if (source.getSourceType().equals(
                         SOURCE_TYPE.GUIDANCE.getSourceType())) {
@@ -1396,7 +1393,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                 + (System.currentTimeMillis() - ptime)
                                 + " ms: source: " + sourceSiteDataKey);
             } catch (Exception e) {
-                statusHandler.handle(Priority.INFO,
+                statusHandler.handle(Priority.ERROR,
                         "Failed Processing FFMPDataContainer" + e.getMessage());
 
             } finally {
@@ -1413,10 +1410,20 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         }
                     }
                 }
-                
-                if (write) {
-                    // write it out
-                    writeLoaderBuddyFiles(fdc);
+                // purge it up
+                if (fdc != null) {
+                    // this is defensive for if errors get thrown
+                    if (backDate == null) {
+                        backDate = new Date((System.currentTimeMillis())
+                                - (3600 * 1000 * 6));
+                    }
+                    
+                    fdc.purge(backDate);
+
+                    if (write) {
+                        // write it out
+                        writeLoaderBuddyFiles(fdc);
+                    }
                 }
             }
         }
@@ -1624,6 +1631,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                         statusHandler.handle(Priority.ERROR,
                                                 "IO Error Writing buddy file: "
                                                         + e.getMessage());
+                                    } catch (Exception e) {
+                                        statusHandler.handle(Priority.ERROR,
+                                                "General Error Writing buddy file: "
+                                                        + e.getMessage());
                                     } finally {
                                         if (os != null) {
                                             os.close();
@@ -1643,7 +1654,17 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     try {
                         for (String tmpName : fileNames.keySet()) {
                             File file = new File(tmpName);
-                            file.renameTo(new File(fileNames.get(tmpName)));
+                            if (file.renameTo(new File(fileNames.get(tmpName)))) {
+                                statusHandler
+                                .handle(Priority.DEBUG,
+                                        "Successful rename: : "
+                                                +fileNames.get(tmpName));
+                            } else {
+                                statusHandler
+                                .handle(Priority.ERROR,
+                                        "UN-Successful rename: : "
+                                                +fileNames.get(tmpName));
+                            }
                         }
 
                         if (lockfile.exists()) {
@@ -1849,13 +1870,16 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     .file2bytes(f.getFile(), true));
         } catch (FileNotFoundException fnfe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to locate file " + f.getName());
+                    "Unable to locate file " + f.getName(), fnfe);
         } catch (SerializationException se) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to read file " + f.getName());
+                    "Unable to serialize file " + f.getName(), se);
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
-                    "Unable to read file " + f.getName());
+                    "IO problem reading file " + f.getName(), ioe);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "General Exception reading file " + f.getName(), e);
         }
 
         return ffti;
