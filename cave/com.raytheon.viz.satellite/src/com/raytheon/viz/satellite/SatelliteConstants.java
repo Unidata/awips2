@@ -151,7 +151,12 @@ public class SatelliteConstants {
 		    } else if(creatingEntity.equals(DMSP)){
 		        rVal = "DMSP SSM/I " + rVal;
 		    } else if(creatingEntity.equals(POES)){
-		        rVal = "POES AMSU " + rVal;
+		    	if (productName.equals("Rain fall rate")) {
+		    		rVal = "Blended Rain Rate (mm/hr)";
+		    	}
+	    		else {
+	    			rVal = "POES AMSU " + rVal;
+	    		}
             } else if(creatingEntity.equals(MISC)){
                 rVal = "Blended " + rVal;
             }
