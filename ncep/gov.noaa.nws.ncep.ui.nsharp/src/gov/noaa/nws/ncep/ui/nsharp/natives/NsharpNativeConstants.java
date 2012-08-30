@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 7/2012					T. Lee		Changed Rogash QPF to Rainfall Rate
  *
  * </pre>
  * 
@@ -339,8 +340,9 @@ public static final String OPC_MIXINGPRESSURE_MISSING = "Mixing Pressure        
 	 * HEAVY RAINFALL data strings
 	 */
 	public static final String HEAVY_RAINFALL_STR = "\t\t\t\t    HEAVY RAINFALL    \r\n";
-	public static final String HEAVY_ROGASH_LINE = "Rogash QPF =    %.2f in\r\n";
-	public static final String HEAVY_ROGASH_MISSING = "Rogash QPF =    M \r\n";
+	// change Rogash QPF to Rainfall Rate (TL)
+	public static final String HEAVY_ROGASH_LINE = "Rogash Rainfall Rate =    %.2f in/hr\r\n";
+	public static final String HEAVY_ROGASH_MISSING = "Rogash Rainfall Rate =    M \r\n";
 
 	
 	// use parcel type to retrieve parcel header string for display

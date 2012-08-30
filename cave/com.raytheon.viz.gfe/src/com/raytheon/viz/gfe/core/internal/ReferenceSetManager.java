@@ -407,9 +407,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 areas.add(areaName);
             }
         }
+        Collections.sort(areas);
         return areas;
     }
 
+    @Override
     public void saveGroup(String groupName, List<String> areaNames) {
         statusHandler.handle(Priority.VERBOSE, "Save Edit Area Group: "
                 + groupName + " areas:" + areaNames);
@@ -469,6 +471,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
     }
 
+    @Override
     public void deleteGroup(String groupName) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -545,7 +548,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
             refDataCache.remove(add.getName());
         }
     }
-    
+
     /**
      * Constructor for ReferenceSet taking a pointer to the Data Manager
      * 
@@ -655,6 +658,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getActiveRefSet()
      */
+    @Override
     public ReferenceData getActiveRefSet() {
         return new ReferenceData(activeRefSet);
     }
@@ -666,6 +670,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setActiveRefSet
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceData)
      */
+    @Override
     public void setActiveRefSet(final ReferenceData refData) {
         refData.getGrid(); // force it to a grid
 
@@ -706,6 +711,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getAvailableSets
      * ()
      */
+    @Override
     public List<ReferenceID> getAvailableSets() {
         return Collections.unmodifiableList(availableSets);
     }
@@ -716,6 +722,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#emptyRefSet()
      */
+    @Override
     public ReferenceData emptyRefSet() {
         return EMPTY;
     }
@@ -725,6 +732,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#fullRefSet()
      */
+    @Override
     public ReferenceData fullRefSet() {
         return FULL;
     }
@@ -736,6 +744,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#loadRefSet(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceID)
      */
+    @Override
     public ReferenceData loadRefSet(final ReferenceID refSetID) {
         // UFStatus.handle(Priority.VERBOSE, Activator.PLUGIN_ID,
         // StatusConstants.CATEGORY_GFE, null, "LoadRefSet: " + refSetID);
@@ -789,6 +798,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      *            the referenceIDs
      * @return a List of ReferenceData
      */
+    @Override
     public List<ReferenceData> getReferenceData(List<ReferenceID> need) {
         List<ReferenceData> refData = new ArrayList<ReferenceData>();
         for (int i = 0; i < need.size(); i++) {
@@ -804,6 +814,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveActiveRefSet
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceID)
      */
+    @Override
     public boolean saveActiveRefSet(final ReferenceID refID) {
         statusHandler.handle(Priority.VERBOSE, "saveActiveRefSet req=" + refID);
 
@@ -832,6 +843,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveRefSet(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceData)
      */
+    @Override
     public boolean saveRefSet(final ReferenceData orefData) {
         statusHandler.handle(Priority.VERBOSE,
                 "SaveRefSet id=" + orefData.getId());
@@ -867,9 +879,9 @@ public class ReferenceSetManager implements IReferenceSetManager,
                             "Unable to save reference set", e));
             return false;
         }
-        
+
         // cache it temporarily
-        refDataCache.put(refData.getId().getName(), refData);        
+        refDataCache.put(refData.getId().getName(), refData);
 
         return true;
     }
@@ -881,6 +893,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#deleteRefSet(
      * com.raytheon.edex.plugin.gfe.reference.ReferenceID)
      */
+    @Override
     public boolean deleteRefSet(final ReferenceID refID,
             boolean withVerification) {
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -911,6 +924,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#undoRefSet()
      */
+    @Override
     public void undoRefSet() {
         ReferenceData newRefSet = prevRefSet;
         setActiveRefSet(newRefSet);
@@ -1020,6 +1034,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#taperGrid(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceData, int)
      */
+    @Override
     public Grid2DFloat taperGrid(final ReferenceData refData, int taperFactor) {
         // Get some info and make a grid of zeros
 
@@ -1106,6 +1121,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#directionTaperGrid
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceData, java.lang.String)
      */
+    @Override
     public Grid2DFloat directionTaperGrid(final ReferenceData refData,
             final String direction) {
 
@@ -1230,6 +1246,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#mySiteGridpoints
      * ()
      */
+    @Override
     public Grid2DBit mySiteGridpoints() {
         return siteGridpoints(Arrays.asList(dataManager.getSiteID()), true);
     }
@@ -1263,6 +1280,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getMode()
      */
+    @Override
     public RefSetMode getMode() {
         return mode;
     }
@@ -1274,6 +1292,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setMode(com.raytheon
      * .viz.gfe.core.internal.ReferenceSetManager.RefSetMode)
      */
+    @Override
     public void setMode(RefSetMode mode) {
         this.mode = mode;
     }
@@ -1514,6 +1533,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @param slot
      * @return the quickset area
      */
+    @Override
     public ReferenceData getQuickSet(int slot) {
         // Return the ReferenceData contents of the given quickSet button
         ReferenceData result = emptyRefSet();
