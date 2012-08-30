@@ -34,6 +34,7 @@
                 <multicast>
                     <to uri="jms-generic:queue:cpgsrvFiltering"/>
                     <to uri="jms-generic:queue:scanCpgsrvFiltering"/>
+                    <to uri="jms-generic:queue:ffmpCpgsrvFiltering"/>
                 </multicast>
 		        <doCatch>
 		            <exception>java.lang.Throwable</exception>

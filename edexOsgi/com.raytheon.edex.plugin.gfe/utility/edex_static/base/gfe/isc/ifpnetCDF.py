@@ -21,13 +21,13 @@
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
 import numpy
-#import pupynere as NetCDF
-try:
-    # dev environment
-    from Scientific.IO import NetCDF
-except:
-    # runtime we don't have the whole scientific package
-    import NetCDF
+import pupynere as NetCDF
+#try:
+#    # dev environment
+#    from Scientific.IO import NetCDF
+#except:
+#    # runtime we don't have the whole scientific package
+#    import NetCDF
 import JUtil
 import iscUtil
 
@@ -1492,9 +1492,9 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
 
     argDict = checkArgs(argDict) 
     
-    start = time.time()
     a = os.times()
     cpu0 = a[0] + a[1]
+    start = a[4]
     client = None
 
     try:
@@ -1568,9 +1568,9 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
     fu = os.stat(argDict['outputFilename'])[stat.ST_SIZE]
     mb = fu / (1024.0 * 1024.0)
     logEvent("Uncompressed Size: ", "%-.3f" % (mb), " MBytes")
-    stop1 = time.time()
     a = os.times()
     cpu = a[0] + a[1]
+    stop1 = a[4]
 
     # Grid statistics
     logEvent("Original Grid Size:", origGridSize)
@@ -1611,10 +1611,10 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
 
     a = os.times()
     cpugz = a[0] + a[1]
-    stop = time.time()
-    logEvent("Elapsed/CPU time: ", "%-.2f" % (stop1 - start),
-      "/", "%-.2f" % (cpu - cpu0), "processing,", "%-.2f" % (stop - stop1), "/",
-      "%-.2f" % (cpugz - cpu), "compress,",
+    stop = a[4]
+    logEvent("Elapsed/CPU time: ", 
+      "%-.2f" % (stop1 - start), "/", "%-.2f" % (cpu - cpu0), "processing,", 
+      "%-.2f" % (stop - stop1), "/", "%-.2f" % (cpugz - cpu), "compress,",
       "%-.2f" % (stop - start), "/", "%-.2f" % (cpugz - cpu0), "total")
     #logEvent("stats: ", client.getStats())
     

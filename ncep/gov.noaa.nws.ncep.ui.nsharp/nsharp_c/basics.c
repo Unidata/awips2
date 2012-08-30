@@ -682,12 +682,14 @@ float mtof ( float value )
 /*  John Hart  NSSFC KCMO                                    */
 /*                                                           */
 /*  Converts given distance (m) to (ft).                     */
+/*															 */
+/*  T. Lee 7/2012	Changed .3049 to .3048					 */
 /*************************************************************/
 {
 	if( value <= -998.0F )
 	   { return -999; }
 	else
-	   { return value / .3049F; }
+	   { return value / .3048F; }
 	}
 
 /*=============================================================================*/
@@ -698,12 +700,14 @@ float ftom ( float value )
 /*  John Hart  NSSFC KCMO                                    */
 /*                                                           */
 /*  Converts given distance (ft) to (m).                     */
+/*															 */
+/*  T. Lee 7/2012	Changed .3049 to .3048					 */
 /*************************************************************/
 {
 	if( value <= -998.0F )
 	   { return -999; }
 	else
-	   { return value * .3049F; }
+	   { return value * .3048F; }
 	}
 
 /*=============================================================================*/
