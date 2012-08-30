@@ -165,6 +165,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
         if (!latestOnly) {
             request.addRequestField(LEVEL_FIELD);
         }
+        request.setDistinct(true);
         return request;
     }
 

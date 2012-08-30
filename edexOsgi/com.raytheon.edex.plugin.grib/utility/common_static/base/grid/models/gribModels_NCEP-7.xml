@@ -1220,6 +1220,19 @@
 	</model>
 
 	<model>
+		<title>Aviation</title>
+		<name>Aviation</name>
+		<center>7</center>
+		<subcenter>8</subcenter>
+		<grid>130</grid>
+		<process>
+			<id>105</id>
+		</process>
+		<paramInfo></paramInfo>
+		<dt>1</dt>
+	</model>
+	
+	<model>
 		<title>AK-NamDNG5</title>
 		<name>AK-NamDNG5</name>
 		<center>7</center>
