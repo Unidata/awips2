@@ -19,20 +19,17 @@
  **/
 package com.raytheon.uf.edex.auth;
 
-import java.text.DecimalFormat;
-
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.resp.AuthServerErrorResponse;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
+import com.raytheon.uf.common.serialization.comm.RequestWrapper;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.serialization.comm.util.ExceptionWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.common.util.SizeUtil;
 
 /**
  * Wrapper for camel route so Serialization exceptions can be caught and
@@ -44,6 +41,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2009            mschenke     Initial creation
+ * Jul 24, 2012              njensen         Enhanced logging
  * 
  * </pre>
  * 
@@ -52,62 +50,33 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  */
 
 public class RemoteRequestRouteWrapper {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RemoteRequestRouteWrapper.class);
+
+    private static final IUFStatusHandler thriftSrvLogger = UFStatus
+            .getNamedHandler("ThriftSrvRequestLogger");
 
     private RemoteRequestServer server;
-
-    private static final int MEGABYTE = 1024 * 1024;
-
-    private static final int timeLogLevel;
-
-    private static final long sizeLogLevel;
-
-    static {
-        EnvProperties props = PropertiesFactory.getInstance()
-                .getEnvProperties();
-        int tmp = 0;
-        String prop = props.getEnvValue("REQUEST_TIME_FILTER");
-        if (prop != null) {
-            try {
-                tmp = Integer.parseInt(prop);
-            } catch (NumberFormatException e) {
-
-            }
-        }
-        timeLogLevel = (tmp <= 0 ? Integer.MAX_VALUE : tmp);
-
-        tmp = 0;
-        prop = props.getEnvValue("RESPONSE_SIZE_FILTER");
-        if (prop != null) {
-            try {
-                tmp = Integer.parseInt(prop) * MEGABYTE;
-            } catch (NumberFormatException e) {
-
-            }
-        }
-        sizeLogLevel = (tmp <= 0 ? Integer.MAX_VALUE : tmp);
-    }
 
     public byte[] executeThrift(byte[] data) {
         try {
             long startTime = System.currentTimeMillis();
             Object obj = SerializationUtil.transformFromThrift(data);
-            Object rvalObj = server.handleThriftRequest((IServerRequest) obj);
+            IServerRequest request = null;
+            if (obj instanceof RequestWrapper) {
+                request = ((RequestWrapper) obj).getRequest();
+            } else {
+                request = (IServerRequest) obj;
+            }
+            Object rvalObj = server.handleThriftRequest(request);
             byte[] rval = SerializationUtil.transformToThrift(rvalObj);
             long endTime = System.currentTimeMillis();
-            if (rval.length > sizeLogLevel
-                    || (endTime - startTime) > timeLogLevel) {
-                DecimalFormat df = new DecimalFormat("0.##");
-                statusHandler.handle(
-                        Priority.INFO,
-                        "Request " + obj + " took " + (endTime - startTime)
-                                + "ms, request was size "
-                                + df.format((double) data.length / 1024)
-                                + "kb, and has response size "
-                                + df.format(((double) rval.length / MEGABYTE))
-                                + "mb");
-            }
+            StringBuilder sb = new StringBuilder(300);
+            sb.append("Handled ").append(obj.toString()).append(" in ")
+                    .append((endTime - startTime)).append("ms, ");
+            sb.append("request was size ").append(
+                    SizeUtil.prettyByteSize(data.length));
+            sb.append(", response was size ").append(
+                    SizeUtil.prettyByteSize(rval.length));
+            thriftSrvLogger.info(sb.toString());
             return rval;
         } catch (AuthException e) {
             AuthServerErrorResponse resp = new AuthServerErrorResponse();

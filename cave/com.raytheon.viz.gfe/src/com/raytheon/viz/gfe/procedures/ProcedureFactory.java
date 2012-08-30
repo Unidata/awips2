@@ -62,8 +62,8 @@ public class ProcedureFactory {
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
                 GfePyIncludeUtil.getVtecIncludePath(),
                 GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getUtilitiesIncludePath(),
-                GfePyIncludeUtil.getProceduresIncludePath());
+                GfePyIncludeUtil.getProceduresIncludePath(),
+                GfePyIncludeUtil.getUtilitiesIncludePath());
 
         ProcedureController procCont = null;
         if (ui) {

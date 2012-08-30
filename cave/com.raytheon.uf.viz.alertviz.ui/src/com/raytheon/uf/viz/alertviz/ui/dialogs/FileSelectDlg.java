@@ -341,7 +341,7 @@ public class FileSelectDlg extends Dialog {
         importNewBtn1.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 FileDialog newFileDlg = new FileDialog(shell, SWT.OPEN
-                        | SWT.MULTI);
+                        | SWT.SINGLE);
                 newFileDlg.setFilterExtensions(fileExtensions);
                 String newFileName = newFileDlg.open();
                 if (newFileName != null) {
