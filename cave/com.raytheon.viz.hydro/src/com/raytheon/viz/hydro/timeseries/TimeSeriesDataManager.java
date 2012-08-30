@@ -897,41 +897,73 @@ public class TimeSeriesDataManager extends HydroDataManager {
 				HydroConstants.IHFS, QueryLanguage.SQL);
 	}
 
+	private Object getDataFromDB (ForecastData dr, String field) {
+		StringBuilder sql = new StringBuilder("select "+field+" from ");
+		String tablename = DbUtils.getTableName(dr.getPe(), dr.getTs());
+		sql.append(tablename + " where ");
+		sql.append("lid = '" + dr.getLid() + "' ");
+		sql.append("and pe = '" + dr.getPe().toUpperCase() + "' ");
+		sql.append("and dur =" +dr.getDur()+" ");
+		sql.append("and ts = '"+dr.getTs().toUpperCase()+"' ");
+		sql.append("and extremum = '" +dr.getExtremum().toUpperCase()+"' ");
+		if (dr.getTs().toUpperCase().startsWith("F") || dr.getTs().toUpperCase().startsWith("C")){
+			sql.append("and validtime = '"+dr.getValidTime()+"' ");
+			sql.append("and basistime = '"+dr.getBasisTime()+"';");
+		}else {//obs data
+			sql.append("and obstime = '"+dr.getObsTime()+"';");
+		}
+		List<Object[]> sqlResult;
+		try {
+			sqlResult = (ArrayList<Object[]>) (DirectDbQuery.executeQuery(sql.toString(), HydroConstants.IHFS, QueryLanguage.SQL));
+			if (sqlResult !=null && sqlResult.size()>0 && sqlResult.get(0)[0]!=null)
+				return sqlResult.get(0)[0];
+		} catch (VizException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return null;
+	}
+	
 	public int insertRejectedData(List<ForecastData> deleteList) throws VizException {
 		StringBuilder sb = new StringBuilder();
 
 		Date currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
 		for (ForecastData dr : deleteList) {
-
-			Date productTime=dr.getProductTime();
-			if(productTime==null){ //get product time from DB if not available
-				StringBuilder sql = new StringBuilder("select producttime from ");
-				String tablename = DbUtils.getTableName(dr.getPe(), dr.getTs());
-				sql.append(tablename + " where ");
-				sql.append("lid = '" + dr.getLid() + "' ");
-				sql.append("and dur = " + dr.getDur() + " ");
-				sql.append("and ts = '" + dr.getTs().toUpperCase() + "' ");
-				sql.append("and extremum = '" + dr.getExtremum().toUpperCase() + "' ");
-				sql.append("and obstime = '" + dr.getObsTime() + "' ");
-				sql.append("and value = "+dr.getValue());
-				List<Object[]> sqlResult = (ArrayList<Object[]>) (DirectDbQuery.executeQuery(sql.toString(), HydroConstants.IHFS, QueryLanguage.SQL));
-				if (sqlResult !=null && sqlResult.size()>0 && sqlResult.get(0)[0]!=null)
-					productTime=(Date)sqlResult.get(0)[0];
-				else
-					productTime=currentTime; //use current time if still not available
+			
+			int probability=-1;
+			int revision=0;
+			if (dr.getTs().toUpperCase().startsWith("F") || dr.getTs().toUpperCase().startsWith("C")) {
+				probability=0;
+				revision=1;
 			}
-
+			
+			Date productTime=dr.getProductTime();
+			if (productTime==null) {
+				productTime=(Date)getDataFromDB(dr,"producttime");
+			}
+			
+			String productID=(String)getDataFromDB(dr,"product_id");
+			if (productID==null) {
+				productID=dr.getProductID();
+			}
+			
+			Integer qualityCode=(Integer)getDataFromDB(dr,"quality_code");
+			if (qualityCode==null) {
+				qualityCode=new Integer(dr.getQualityCode());
+			}
+			
 			sb.append("insert into rejecteddata(lid, pe, dur, ts, extremum, ");
 			sb.append("probability, validtime, basistime, postingtime, value, ");
 			sb.append("revision, shef_qual_code, product_id, producttime, quality_code, ");
 			sb.append("reject_type, userid) VALUES(");
 
 			sb.append("'" + dr.getLid() + "', ");
-			sb.append("'" + dr.getPe() + "', ");
+			sb.append("'" + dr.getPe().toUpperCase() + "', ");
 			sb.append(dr.getDur() + ", ");
-			sb.append("'" + dr.getTs() + "', ");
-			sb.append("'" + dr.getExtremum() + "', ");
-			sb.append(-1 + ", ");
+			sb.append("'" + dr.getTs().toUpperCase() + "', ");
+			sb.append("'" + dr.getExtremum().toUpperCase() + "', ");
+			sb.append(probability + ", ");
 
 			/* set validtime for observed data */
 			if (dr.getValidTime() != null) {
@@ -955,13 +987,13 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 			sb.append("'" + HydroConstants.DATE_FORMAT.format(currentTime) + "', ");
 			sb.append(dr.getValue() + ", ");
-			sb.append(dr.getRevision() + ", ");
-			sb.append("'" + dr.getShefQualCode() + "', ");
-			sb.append("'" + dr.getProductID() + "', ");
+			sb.append(revision + ", ");
+			sb.append("'M', ");//shef_qual_code always M
+			sb.append("'" + productID + "', ");
 			sb.append("'"
 					+ HydroConstants.DATE_FORMAT.format(productTime)
 					+ "', ");
-			sb.append(dr.getQualityCode() + ", ");
+			sb.append(qualityCode + ", ");
 			sb.append("'M', ");
 			sb.append("'" + LocalizationManager.getInstance().getCurrentUser()
 					+ "');");
@@ -1001,9 +1033,12 @@ public class TimeSeriesDataManager extends HydroDataManager {
 			StringBuilder sql = new StringBuilder("delete from ");
 			sql.append(tablename + " where ");
 			sql.append("lid = '" + data.getLid() + "' ");
-			sql.append("and dur = " + data.getDur() + " ");
-			sql.append("and extremum = '" + data.getExtremum().toUpperCase()
+			sql.append("and pe = '"+data.getPe().toUpperCase()+"' ");
+	        sql.append("and dur = " + data.getDur() + " ");
+		    sql.append("and ts = '"+data.getTs().toUpperCase()+"' ");
+		    sql.append("and extremum = '" + data.getExtremum().toUpperCase()
 					+ "' ");
+			
 			if (data.getValidTime() != null) {
 				sql.append("and validtime = '"
 						+ dbFormat.format(data.getValidTime()) + "'");

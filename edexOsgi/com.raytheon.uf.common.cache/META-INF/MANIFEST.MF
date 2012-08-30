@@ -9,4 +9,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.util
-Export-Package: com.raytheon.uf.common.cache
+Export-Package: com.raytheon.uf.common.cache,
+ com.raytheon.uf.common.cache.disk

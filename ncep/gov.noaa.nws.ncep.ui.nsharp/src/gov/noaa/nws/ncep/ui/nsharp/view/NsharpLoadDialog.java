@@ -22,8 +22,9 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -31,7 +32,6 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
 import com.raytheon.uf.viz.core.exception.VizException;
 
 public class NsharpLoadDialog extends Dialog {
@@ -387,7 +388,7 @@ public class NsharpLoadDialog extends Dialog {
 	public void createButtonsForButtonBar(Composite parent) {
 		
 		// create Cancel buttons by default, but use close label
-		Button cancelBtn = createButton(parent, IDialogConstants.CANCEL_ID,
+		createButton(parent, IDialogConstants.CANCEL_ID,
 				IDialogConstants.CLOSE_LABEL, false);
 		
 		
