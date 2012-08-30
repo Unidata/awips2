@@ -385,11 +385,12 @@ public class MasterDerivScript extends PythonInterpreter {
     private void setDataRecordArg(String argName, IDataRecord argValue)
             throws JepException {
         boolean reshape = true;
+        long[] sizes = argValue.getSizes();
         if (argValue instanceof FloatDataRecord) {
             FloatDataRecord record = (FloatDataRecord) argValue;
-            if (record.getDimension() == 2) {
-                jep.setNumeric(argName, record.getFloatData(),
-                        (int) record.getSizes()[0], (int) record.getSizes()[1]);
+            if (sizes.length == 2) {
+                jep.setNumeric(argName, record.getFloatData(), (int) sizes[0],
+                        (int) sizes[1]);
                 reshape = false;
             } else {
                 evaluateArgument(argName, record.getFloatData());
@@ -401,18 +402,18 @@ public class MasterDerivScript extends PythonInterpreter {
             jep.eval("del globals()['numpy']");
         } else if (argValue instanceof IntegerDataRecord) {
             IntegerDataRecord record = (IntegerDataRecord) argValue;
-            if (record.getDimension() == 2) {
-                jep.setNumeric(argName, record.getIntData(),
-                        (int) record.getSizes()[0], (int) record.getSizes()[1]);
+            if (sizes.length == 2) {
+                jep.setNumeric(argName, record.getIntData(), (int) sizes[0],
+                        (int) sizes[1]);
                 reshape = false;
             } else {
                 evaluateArgument(argName, record.getIntData());
             }
         } else if (argValue instanceof ByteDataRecord) {
             ByteDataRecord record = (ByteDataRecord) argValue;
-            if (record.getDimension() == 2) {
-                jep.setNumeric(argName, record.getByteData(),
-                        (int) record.getSizes()[0], (int) record.getSizes()[1]);
+            if (sizes.length == 2) {
+                jep.setNumeric(argName, record.getByteData(), (int) sizes[0],
+                        (int) sizes[1]);
                 reshape = false;
             } else {
                 evaluateArgument(argName, record.getByteData());
