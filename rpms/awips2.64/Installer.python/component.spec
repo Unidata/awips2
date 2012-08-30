@@ -6,7 +6,7 @@
 Name: awips2-python
 Summary: AWIPS II Python Distribution - 64 Bit
 Version: 2.7.1
-Release: 1
+Release: 3
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A
@@ -174,7 +174,7 @@ fi
 popd > /dev/null
 
 PYTHON_SRC_DIR="${PYTHON_PROJECT_DIR}/src"
-LAPACK_TAR="lapack-3.0.tgz"
+LAPACK_TAR="lapack-3.1.1.tgz"
 LAPACK_PATCH="lapack.patch1"
 
 # Copy the LAPACK tar file and patch to our build directory.
@@ -198,14 +198,18 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 rm -fv ${LAPACK_TAR}
-if [ ! -d LAPACK ]; then
-   file LAPACK
+if [ ! -d lapack-3.1.1 ]; then
+   file lapack-3.1.1
    exit 1
 fi
-cd LAPACK
+cd lapack-3.1.1
 patch -p1 -i ../${LAPACK_PATCH}
 RC=$?
 if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+mv make.inc.example make.inc
+if [ $? -ne 0 ]; then
    exit 1
 fi
 make blaslib
