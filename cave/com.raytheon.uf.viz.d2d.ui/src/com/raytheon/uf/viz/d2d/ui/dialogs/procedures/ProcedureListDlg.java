@@ -54,6 +54,24 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * 
+ * A dialog which displays a list of procedures for opening, saving, or deleting.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???                                 Initial creation
+ * 07/31/2012   DR 15036   D. Friedman Ensure current user's procedures
+ *                                     are visible.
+ * </pre>
+ *
+ * @author unknown
+ * @version 1.0
+ */
 public class ProcedureListDlg extends CaveSWTDialog {
 
     protected boolean oneLevel = true;
@@ -317,10 +335,18 @@ public class ProcedureListDlg extends CaveSWTDialog {
             if (treeViewer.getContentProvider() instanceof ProcedureTreeContentProvider) {
                 ProcedureTreeContentProvider content = (ProcedureTreeContentProvider) treeViewer
                         .getContentProvider();
-                Object find = content.findItem(user);
+                final Object find = content.findItem(user);
                 if (find != null) {
                     treeViewer.setExpandedElements(new Object[] { find });
-                    treeViewer.reveal(find);
+                    treeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            TreeItem[] items = treeViewer.getTree().getItems();
+                            if (items != null && items.length > 0)
+                                treeViewer.getTree().showItem(items[items.length - 1]);
+                            treeViewer.reveal(find);
+                        }
+                    });
                 }
             }
         }
@@ -449,14 +475,25 @@ public class ProcedureListDlg extends CaveSWTDialog {
                 procedureTF.setText(procedureTF.getText().concat(".xml"));
             }
             if (dataListContains(procedureTF.getText())) {
-                // Pop up a warning
-                boolean result = MessageDialog.openQuestion(shell,
-                        "Confirm Overwrite",
-                        "The procedure " + procedureTF.getText()
-                                + " already exists.  Overwrite anyways?");
-                if (result == true) {
-                    fileName = procedureTF.getText();
-                    shell.dispose();
+                if (ProcedureDlg.getDialog(procedureTF.getText()) != null) {
+                    // User cannot save if dialog is open.
+                    MessageDialog
+                            .openError(
+                                    shell,
+                                    "Cannot Save Procedure",
+                                    "The procedure "
+                                            + procedureTF.getText()
+                                            + " is currently open. It cannot be overwritten until it is closed or saved under another name.");
+                } else {
+                    // Pop up a warning
+                    boolean result = MessageDialog.openQuestion(shell,
+                            "Confirm Overwrite",
+                            "The procedure " + procedureTF.getText()
+                                    + " already exists.  Overwrite anyways?");
+                    if (result == true) {
+                        fileName = procedureTF.getText();
+                        shell.dispose();
+                    }
                 }
             } else {
                 fileName = procedureTF.getText();

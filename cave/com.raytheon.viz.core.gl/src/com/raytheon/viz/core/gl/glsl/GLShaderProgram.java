@@ -209,7 +209,10 @@ public class GLShaderProgram {
      * @param value
      */
     private void setUniformInternal(String uniformName, Object value) {
-        if (value instanceof Float) {
+        if (value instanceof Double) {
+            gl.glUniform1f(getUniformLocation(uniformName),
+                    ((Double) value).floatValue());
+        } else if (value instanceof Float) {
             gl.glUniform1f(getUniformLocation(uniformName), (Float) value);
         } else if (value instanceof Integer) {
             gl.glUniform1i(getUniformLocation(uniformName), (Integer) value);

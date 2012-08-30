@@ -85,6 +85,9 @@ import com.vividsolutions.jts.geom.Envelope;
  *  04/13/2009      2251   jsanchez    Plot profilers.
  *  05/12/2009      2338   jsanchez    Updated resourceChanged. Registered units.
  *  06/08/2009      2450   jsanchez    Updated inpsect method to find closest plot.
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/09/2012         1011 jkorman     Added screenToWorldRatio calc to paintInternal.
  * 
  * 
  * </pre>
@@ -230,6 +233,8 @@ public class PlotResource extends
         if (this.stationsToParse.size() > 0) {
             this.updateRecords();
         }
+        this.screenToWorldRatio = paintProps.getCanvasBounds().width
+        / paintProps.getView().getExtent().getWidth(); 
         boolean delayLoop = false;
         DataTime thisFrameTime = this.displayedObsTime;
         if (thisFrameTime != null) {
@@ -847,14 +852,18 @@ public class PlotResource extends
             ArrayList<Coordinate> availableCoord) {
         double x1 = latlon.x;
         double y1 = latlon.y;
-        double minDistance = MAX_SAMPLE_DISANCE;
+//        double minDistance = MAX_SAMPLE_DISANCE;
+        double minDistance = MAX_SAMPLE_DISANCE * MAX_SAMPLE_DISANCE;
         int minIndex = -1;
 
         for (int i = 0; i < availableCoord.size(); i++) {
             Coordinate coord = availableCoord.get(i);
             double x2 = coord.x;
             double y2 = coord.y;
-            double d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+//            double d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            double dx = x2 - x1;
+            double dy = y2 - y1;
+            double d = (dx * dx) + (dy * dy);
 
             if (d < minDistance) {
                 minDistance = d;

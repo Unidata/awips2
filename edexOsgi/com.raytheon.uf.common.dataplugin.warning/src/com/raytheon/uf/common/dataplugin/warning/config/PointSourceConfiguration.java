@@ -40,11 +40,19 @@ public class PointSourceConfiguration {
         TRACK, POINTS;
     }
 
+    @XmlAccessorType(XmlAccessType.NONE)
+    public static enum PointType {
+        AREA, POINT;
+    }
+
     @XmlAttribute
     private String variable;
 
     @XmlElement
     private String pointSource;
+
+    @XmlElement
+    private Double geometryDecimationTolerance;
 
     @XmlElement
     private String pointField;
@@ -59,6 +67,9 @@ public class PointSourceConfiguration {
      */
     @XmlElement
     private SearchMethod searchMethod = SearchMethod.TRACK;
+
+    @XmlElement
+    private PointType type = PointType.POINT;
 
     @XmlElement
     private boolean withinPolygon = false;
@@ -143,6 +154,23 @@ public class PointSourceConfiguration {
 
     public void setWithinPolygon(boolean withinPolygon) {
         this.withinPolygon = withinPolygon;
+    }
+
+    public Double getGeometryDecimationTolerance() {
+        return geometryDecimationTolerance;
+    }
+
+    public void setGeometryDecimationTolerance(
+            Double geometryDecimationTolerance) {
+        this.geometryDecimationTolerance = geometryDecimationTolerance;
+    }
+
+    public PointType getType() {
+        return type;
+    }
+
+    public void setType(PointType type) {
+        this.type = type;
     }
 
 }
