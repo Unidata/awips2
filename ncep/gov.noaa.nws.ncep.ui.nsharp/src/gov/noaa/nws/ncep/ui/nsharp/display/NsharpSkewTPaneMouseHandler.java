@@ -19,24 +19,27 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
-    private boolean cursorInSkewT = false;
+	private  Cursor editingCursor ;
+    
+    //private boolean cursorInSkewT = false;
     public NsharpSkewTPaneMouseHandler(NsharpEditor editor, IDisplayPane pane) {
     	super(editor,pane);
+    	editingCursor = new Cursor( display, SWT.CURSOR_CROSS);
     }
     @Override
     public boolean handleKeyDown(int keyCode) {
@@ -60,7 +63,8 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		return false;
     	}
     	NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
-    	if (keyCode == SWT.ARROW_DOWN)  {
+    	// Arrow key handling is now under NsharpSkewTPaneDescriptor.frameCoordinator.changeFrame()
+    	/*if (keyCode == SWT.ARROW_DOWN)  {
             skewRsc.getRscHandler().setSteppingStnIdList(FrameChangeOperation.NEXT) ;
             return true;
         }else if (keyCode == SWT.ARROW_UP)  {
@@ -75,7 +79,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
             //System.out.println("Arrow right");
             skewRsc.getRscHandler().setSteppingTimeLine(FrameChangeOperation.NEXT, FrameChangeMode.TIME_ONLY) ;
             return true;
-        } else if (keyCode == SWT.SHIFT) {
+        } else */if (keyCode == SWT.SHIFT) {
             shiftDown = false;
             return true;
         }else if (zDownWhileShiftDown && keyCode == KEY_Z ) {
@@ -86,9 +90,24 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
         }
         return false;
     }
-
+    /*public static void startEditingCursor(){
+    	editingCursor = new Cursor( display, SWT.CURSOR_CROSS);
+		cursorControl = display.getCursorControl();
+		if(cursorControl!=null && editingCursor!=null)
+			cursorControl.setCursor(editingCursor);
+   	}
+   	public static void stopEditingCursor(){
+   		if(editingCursor!=null&&cursorControl!=null ){
+   			cursorControl.setCursor(null);
+   		}
+   		if(editingCursor!=null){
+   			editingCursor.dispose();
+   			editingCursor= null;
+   		}
+   	}*/
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
+    	//ystem.out.println("handleMouseDown x="+ x+ " y="+y);
     	theLastMouseX = x;
 		theLastMouseY = y;
         if (getPaneDisplay() == null) {
@@ -111,7 +130,11 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
             	int xdiff = x- curPoint.x;
             	int ydiff = y- curPoint.y;
             	Coordinate anchoredPtC;
+            	//get editing cursor point
             	anchoredPtC= skewRsc.getPickedTempPoint(c);
+            	if(anchoredPtC.x == 0 && anchoredPtC.y==0)
+            		//cursor is not within editing range ( i.e within 2 degree range from temp/dew line)
+            		return false;
             	skewRsc.getRscHandler().setInteractiveTempPointCoordinate(anchoredPtC);
             	//System.out.println("returned pt before reverse translate x " + anchoredPtC.x + " y "+ anchoredPtC.y);
 
@@ -133,7 +156,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     }
     @Override
     public boolean handleMouseDownMove(int aX, int aY, int button) {
-    	
+    	//System.out.println("handleMouseDownMove x="+ aX+ " y="+aY);
     	if (getPaneDisplay() == null || editor == null) {
     		return false;
     	}
@@ -201,8 +224,9 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		}
     		theLastMouseX = aX;
     		theLastMouseY = aY;
-    		
-    		skewRsc.getRscHandler().getWitoPaneRsc().createAllWireFrameShapes();
+    		NsharpWitoPaneResource witoRsc = skewRsc.getRscHandler().getWitoPaneRsc();
+    		if(witoRsc != null)
+    			witoRsc.createAllWireFrameShapes();
     		return true;
 
     	}
@@ -226,7 +250,22 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		//System.out.println(" skewt-handleMouseMove! x="+x+" y="+y+" C.x="+c.x + " c.y="+c.y);
     		if (skewRsc.getSkewTBackground().contains(c)){
     			//always update coordinate C to SkewT editor
-    			cursorInSkewT=true;
+    			boolean graphEditOn = skewRsc.getRscHandler().isEditGraphOn();
+    			if(graphEditOn == true){
+    				//Point curPoint = display.getCursorLocation();
+                	//int xdiff = x- curPoint.x;
+                	//int ydiff = y- curPoint.y;
+                	Coordinate anchoredPtC;
+                	//get editing cursor point
+                	anchoredPtC= skewRsc.getPickedTempPoint(c);
+                	if(anchoredPtC.x != 0 || anchoredPtC.y!=0){
+                		//cursor is  within editing range ( i.e within 2 degree range from temp/dew line)
+                		display.getCursorControl().setCursor(editingCursor);      	
+                	}
+                	else
+                		display.getCursorControl().setCursor(null);
+    			}
+    			//cursorInSkewT=true;
     			skewRsc.setCursorInSkewT(true);
     			try {
     				skewRsc.updateDynamicData(c);
@@ -237,12 +276,10 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		}
     		else{
     			skewRsc.setCursorInSkewT(false);
-    			cursorInSkewT=false;
     		}
     	}
         return false;
     }
-
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
     	//System.out.println("skewtRsc handleMouseUp");
@@ -255,6 +292,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		if (mouseButton == 1 ){
     			Coordinate c = editor.translateClick(x, y);
     			if(skewRsc.getSkewTBackground().contains(c) == true && this.mode == Mode.SKEWT_DOWN) {// && mouseDownMove == true) {
+    				//stopEditingCursor();
     				skewRsc.getRscHandler().setPlotInteractiveTemp(false);
     				skewRsc.getRscHandler().applyInteractiveTempPoint();
     				//System.out.println("skewtRsc handleMouseUp MOVE_POINT");
@@ -282,4 +320,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
  		skewRsc.setCursorInSkewT(false);
 		return false;
 	}
+ 	public void disposeCursor(){
+ 		editingCursor.dispose();
+ 	}
 }

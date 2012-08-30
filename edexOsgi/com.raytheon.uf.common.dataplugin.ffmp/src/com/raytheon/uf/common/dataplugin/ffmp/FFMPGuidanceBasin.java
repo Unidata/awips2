@@ -1,5 +1,6 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -99,6 +100,28 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
             return Float.NaN;
         }
     }
+    
+    /**
+     * purge out old entries
+     * 
+     * @param date
+     */
+    public void purgeData(Date date) {
+        if (guidValues != null) {
+            synchronized (guidValues) {
+                ArrayList<Date> removes = new ArrayList<Date>();
+                for (Date mdate : guidValues.keySet()) {
+                    if (mdate.before(date)) {
+                        removes.add(mdate);
+                    }
+                }
+
+                for (Date rdate : removes) {
+                    guidValues.remove(rdate);
+                }
+            }
+        }
+    }
 
     /**
      * Check for a source, only recent date
@@ -155,7 +178,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
 
         return val;
     }
-
+    
     /**
      * Gets a Value for a FFG source
      * 
@@ -186,15 +209,23 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
      */
     public Float getValue(String sourceName, Date date,
             FFMPGuidanceInterpolation interpolation, long expiration) {
+    	
         Float dvalue = Float.NaN;
-
-        if (getValue(sourceName, expiration) != null) {
-            dvalue = getValue(date, sourceName);
+        Float value = Float.NaN;
+        Date closestDate = getClosest(sourceName, date, expiration);
+        
+        if (closestDate != null) {
+            value = getValue(closestDate, sourceName);
+        }
+        
+        if (!value.isNaN()) {
             FFFGDataMgr dman = FFFGDataMgr.getInstance();
             if (dman.isExpired() == false) {
 
                 dvalue = dman.adjustValue(dvalue, sourceName, this.pfaf,
                         this.countyFips);
+            } else {
+            	dvalue = value;
             }
         }
 
@@ -203,48 +234,88 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     }
 
     /**
-     * get youngest key
+     * Get Youngest Key
      * 
      * @param sourceName
      * @return
      */
     public Date getMostRecent(String sourceName, long expiration) {
 
-        Date markerDate = null;
+        Date rdate = null;
 
-        if ((guidValues != null) && !guidValues.keySet().isEmpty()) {
-            markerDate = guidValues.firstKey();
+        if (guidValues != null && guidValues.size() > 0) {
+        	
+        	Date markerDate = guidValues.firstKey();
+        	
+			for (Date checkDate : guidValues.keySet()) {
+	    
+				if (guidValues.get(checkDate).containsKey(sourceName)) {
+					float val = guidValues.get(checkDate).get(sourceName);
+					if (val != FFMPUtils.MISSING) {
+						
+						long time1 = markerDate.getTime();
+	                    long time2 = checkDate.getTime();
+	                    
+		                if ((time1 - time2) < expiration) {
+		                	rdate = checkDate;
+		                } 
+		                break;
+					}
+				}
+			}
         }
 
-        Date rdate = null;
-        // System.out.println("Highest time: " + markerDate);
+        return rdate;
+    }
+    
+    /**
+     * Get Closest Key
+     * 
+     * @param sourceName
+     * @param Date
+     * @param expiration
+     * @return
+     */
+    public Date getClosest(String sourceName, Date date, long expiration) {
 
-        if ((markerDate != null) && (guidValues.size() > 0)) {
-            if (guidValues.get(markerDate).containsKey(sourceName)) {
-                float val = guidValues.get(markerDate).get(sourceName);
-                if (val != FFMPUtils.MISSING) {
-                    rdate = markerDate;
+        Date rdate = null;
+
+        if (guidValues != null && guidValues.size() > 0) {
+
+            if (guidValues.containsKey(date)) {
+                if (guidValues.get(date).containsKey(sourceName)) {
+                
+                    float val = guidValues.get(date).get(sourceName);
+                
+                    if (val != FFMPUtils.MISSING) {
+                        rdate = date;
+                    }
                 }
-            }
+            } 
 
             if (rdate == null) {
-                // take care of interpolated guidance delays (updates to
-                // guidance
-                // data essentially)
-                long time1 = markerDate.getTime();
-                for (Date date : guidValues.keySet()) {
 
-                    long time2 = date.getTime();
-                    if ((time1 - time2) < expiration) {
-                        if (rdate == null) {
-                            rdate = date;
-                        } else {
-                            if (date.before(rdate)) {
-                                // System.out.println("New Date: " + date);
-                                Float val = guidValues.get(rdate).get(
-                                        sourceName);
-                                if ((val != null) && (val != FFMPUtils.MISSING)) {
-                                    return rdate;
+                long time1 = date.getTime();
+
+                for (Date checkDate : guidValues.descendingKeySet()) {
+                    if (guidValues.get(checkDate).containsKey(sourceName)) {
+
+                        float val2 = guidValues.get(checkDate).get(sourceName);
+
+                        if (val2 != FFMPUtils.MISSING) {
+
+                            long time2 = checkDate.getTime();
+                            // as long as it is +- expiration from orig date,
+                            // golden
+                            if (date.after(checkDate)) {
+                                if ((time1 - time2) < expiration) {
+                                    rdate = checkDate;
+                                    break;
+                                }
+                            } else {
+                                if ((time2 - time1) < expiration) {
+                                    rdate = checkDate;
+                                    break;
                                 }
                             }
                         }

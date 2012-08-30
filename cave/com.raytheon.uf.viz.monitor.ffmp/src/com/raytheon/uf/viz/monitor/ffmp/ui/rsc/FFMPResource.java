@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -73,10 +73,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
-import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
-import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -151,7 +149,10 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
+ * 31 July  2012 14517         mpduff      Fix for blanking map on update.
+ * 
  * </pre>
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -217,7 +218,7 @@ public class FFMPResource extends
     private IShadedShape streamShadedShape = null;
 
     /** always the same vertexes, one for each CWA **/
-	private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
+    private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
 
     /** Basin shaded shape **/
     protected ConcurrentHashMap<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
@@ -307,7 +308,7 @@ public class FFMPResource extends
 
     /** show ffmp color display */
     private boolean showFfmpData = true;
-    
+
     /** qpf split window */
     private boolean isSplit = false;
 
@@ -319,7 +320,7 @@ public class FFMPResource extends
 
     /** table slider time **/
     private Date tableTime = null;
-    
+
     // complete reset
     public boolean isQuery = true;
 
@@ -342,7 +343,7 @@ public class FFMPResource extends
 
     /** guidance source expiration **/
     public long guidSourceExpiration = 0l;
-    
+
     /** QPF source expiration **/
     public long qpfSourceExpiration = 0l;
 
@@ -373,10 +374,15 @@ public class FFMPResource extends
     private RGB basinBoundaryColor = null;
 
     /** ordered list of times **/
-    private ArrayList<Date> timeOrderedKeys = null;
+    private ArrayList<Date> timeOrderedKeys = new ArrayList<Date>();
+    
+    private boolean toKeysInitialized = false;
 
     /** force utility **/
     private FFFGForceUtil forceUtil = null;
+
+    /** Restore Table flag */
+    private boolean restoreTable = false;
 
     /**
      * FFMP resource
@@ -409,8 +415,11 @@ public class FFMPResource extends
             FFFGDataMgr.getUpdatedInstance();
             PluginDataObject[] pdos = (PluginDataObject[]) object;
             FFMPRecord ffmpRec = (FFMPRecord) pdos[pdos.length - 1];
+            // an update clears everything
+            clear();
             // only care about the most recent one
             try {
+
                 if (ffmpRec.getSourceName()
                         .equals(getResourceData().sourceName)) {
                     // go back an extra time step
@@ -426,6 +435,11 @@ public class FFMPResource extends
                     }
 
                     updateTimeOrderedkeys(ffmpRec.getDataTime().getRefTime());
+                    
+                    if (getResourceData().tableLoad) {
+                        setTableTime();
+                    }
+                    
                     setRecord(ffmpRec);
 
                     statusHandler.handle(Priority.INFO, "Updating : Previous: "
@@ -434,19 +448,31 @@ public class FFMPResource extends
 
                     if (getResourceData().tableLoad) {
 
-                        startLoader(previousMostRecentTime, ffmpRec
-                                .getDataTime().getRefTime(),
-                                LOADER_TYPE.GENERAL);
+                        if (loader == null) {
+                            startLoader(previousMostRecentTime, ffmpRec
+                                    .getDataTime().getRefTime(),
+                                    LOADER_TYPE.GENERAL);
+                        } else {
+                            while (!loader.isDone) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            startLoader(previousMostRecentTime, ffmpRec
+                                    .getDataTime().getRefTime(),
+                                    LOADER_TYPE.GENERAL);
+                        }
 
                         while (!loader.isDone) {
                             try {
-                                Thread.sleep(10);
+                                Thread.sleep(1000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
 
-                        setTableTime();
                         purge(ffmpRec.getDataTime().getRefTime());
                     }
 
@@ -463,17 +489,15 @@ public class FFMPResource extends
                     isNewQpf = true;
                 }
 
-                if (getResourceData().tableLoad) {
-
-                    isFirst = true;
-                    allowNewTableUpdate();
-                    monitor.updateDialog(this);
-                }
-
             } catch (VizException ve) {
                 statusHandler.handle(Priority.PROBLEM, "Error updating record",
                         ve);
             }
+        }
+
+        if (getResourceData().tableLoad) {
+            allowNewTableUpdate();
+            isFirst = true;
         }
 
         refresh();
@@ -486,7 +510,7 @@ public class FFMPResource extends
         }
         issueRefresh();
     }
-     
+
     @Override
     public void hucChanged() {
 
@@ -579,7 +603,7 @@ public class FFMPResource extends
                 return getColorUtil().colorByValue(value);
             } else {
                 if (getCenteredAggregatePfafs().contains(key) && isParent()) {
-
+                    // this is for a reason
                 } else {
                     if (!isMaintainLayer() && isParent()) {
                         return getColorUtil().colorByValue(value);
@@ -635,7 +659,8 @@ public class FFMPResource extends
                 }
                 case QPF: {
                     value = getQpfRecord(recentTime).getBasinData("ALL")
-                            .getAverageMaxValue(pfafs, recentTime, getQpfSourceExpiration());
+                            .getAverageMaxValue(pfafs, recentTime,
+                                    getQpfSourceExpiration());
                     break;
                 }
                 case GUIDANCE: {
@@ -652,8 +677,8 @@ public class FFMPResource extends
                     value = getQpeRecord().getBasinData("ALL")
                             .getAccumMaxValue(
                                     pfafs,
-                                    getTableTime(),
                                     recentTime,
+                                    getTableTime(),
                                     getQpeSourceExpiration(),
                                     getResourceData().getPrimarySourceXML()
                                             .isRate());
@@ -683,10 +708,14 @@ public class FFMPResource extends
                                 pfafs);
                         break;
                     }
-                    case RATE:// fall through
+                    case RATE:
+                        value = getBasin(key, field, recentTime, aggregate)
+                                .getValue(recentTime);
+                        break;
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
-                                .getAverageValue(recentTime, getQpfSourceExpiration());
+                                .getAverageValue(recentTime,
+                                        getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -713,7 +742,8 @@ public class FFMPResource extends
                     switch (field) {
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
-                                .getAverageValue(recentTime, getQpfSourceExpiration());
+                                .getAverageValue(recentTime,
+                                        getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -739,9 +769,9 @@ public class FFMPResource extends
         if (forceUtil == null) {
             forceUtil = new FFFGForceUtil(this, getFFGName());
         }
-        
+
         forceUtil.setSliderTime(this.getTime());
-        
+
         if (pfafs != null) {
             forceUtil.calculateForcings(pfafs,
                     monitor.getTemplates(getSiteKey()), basin);
@@ -780,7 +810,13 @@ public class FFMPResource extends
                 sfield = FFMPRecord.FIELDS.QPE;
             }
 
-            PluginDataObject pdo = getRecord(sfield, paintTime.getRefTime());
+            PluginDataObject pdo = null;
+
+            try {
+                pdo = getRecord(sfield, paintTime.getRefTime());
+            } catch (NullPointerException npe) {
+                return "No Data Available";
+            }
 
             if (pdo == null) {
                 return "No Data Available";
@@ -817,9 +853,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getRateRecord(Date recentTime) {
+    public FFMPCacheRecord getRateRecord(Date recentTime) {
 
         if ((rateRecord == null) && isNewRate) {
             try {
@@ -840,16 +876,15 @@ public class FFMPResource extends
                 e.printStackTrace();
             }
         }
-
         return rateRecord;
     }
 
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getQpeRecord() {
+    public FFMPCacheRecord getQpeRecord() {
         try {
             if ((qpeRecord == null) && (getTableTime() != null) && isNewQpe) {
 
@@ -869,6 +904,7 @@ public class FFMPResource extends
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // System.out.println("FFMPResource.getQPERecord(): " + getTableTime());
 
         return qpeRecord;
     }
@@ -876,9 +912,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getGuidanceRecord() {
+    public FFMPCacheRecord getGuidanceRecord() {
         try {
             if ((guidRecord == null) || isNewGuid) {
                 Date date = null;
@@ -895,11 +931,13 @@ public class FFMPResource extends
                 }
 
                 if (isWorstCase()) {
-                    guidRecord = monitor.getGuidanceRecord(getProduct(),
-                            getSiteKey(), sourceName, date, "ALL", isStandAlone);
+                    guidRecord = monitor
+                            .getGuidanceRecord(getProduct(), getSiteKey(),
+                                    sourceName, date, "ALL", isStandAlone);
                 } else {
                     guidRecord = monitor.getGuidanceRecord(getProduct(),
-                            getSiteKey(), sourceName, date, getHuc(), isStandAlone);
+                            getSiteKey(), sourceName, date, getHuc(),
+                            isStandAlone);
                 }
 
                 isNewGuid = false;
@@ -915,9 +953,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPReFFMPCacheRecordcord
      */
-    public FFMPRecord getQpfRecord(Date recentTime) {
+    public FFMPCacheRecord getQpfRecord(Date recentTime) {
         try {
             if ((qpfRecord == null) && isNewQpf) {
                 Date date = null;
@@ -951,9 +989,9 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getVirtualRecord() {
+    public FFMPCacheRecord getVirtualRecord() {
         try {
             if ((virtualRecord == null) && isNewVirtual) {
                 virtualRecord = monitor.getVirtualRecord(getProduct(),
@@ -973,9 +1011,9 @@ public class FFMPResource extends
      * General get record call
      * 
      * @param pfield
-     * @return FFMPRecord
+     * @return FFMPCacheRecord
      */
-    public FFMPRecord getRecord(FIELDS pfield, Date recentTime) {
+    public FFMPCacheRecord getRecord(FIELDS pfield, Date recentTime) {
         if (pfield == FIELDS.GUIDANCE) {
             return getGuidanceRecord();
         } else if (pfield == FIELDS.RATIO) {
@@ -1051,12 +1089,12 @@ public class FFMPResource extends
     }
 
     /**
-     * DR 14522 fixing: enclosing font setting 
-     * into GUI thread to avoid invalid thread
-     * access.
+     * DR 14522 fixing: enclosing font setting into GUI thread to avoid invalid
+     * thread access.
      */
-    @Override  
-    protected void initInternal(final IGraphicsTarget target) throws VizException {
+    @Override
+    protected void initInternal(final IGraphicsTarget target)
+            throws VizException {
         EditableManager.makeEditable(this,
                 getCapability(EditableCapability.class).isEditable());
         IDisplayPaneContainer container = getResourceContainer();
@@ -1081,40 +1119,45 @@ public class FFMPResource extends
         } catch (Exception ex) {
             statusHandler.handle(Priority.PROBLEM, "Error opening FFMP", ex);
         }
-        
-        //DR 14522: use Display.getDefault().asyncExec() for GUI thread.
-        org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable(){ 
-        	
-        	public void run(){
-        	
-		        if (/*this.*/font == null) {
-		            /*this.*/font = target.initializeFont("Dialog", 11, null);
-		        }
 
-		        font.setMagnification(getCapability(MagnificationCapability.class)
-		                .getMagnification().floatValue());
-		
-		        if (/*this.*/xfont == null) {
-		            IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
-		            /*this.*/xfont = target.initializeFont("Monospace", 12, styles);
-		        }
+        // DR 14522: use Display.getDefault().asyncExec() for GUI thread.
+        org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable() {
 
-		        xfont.setMagnification(getCapability(MagnificationCapability.class)
-		                .getMagnification().floatValue());
-		
-		        fieldDescString = new DrawableString("FFMP " + df.format(getTime())
-		                + " hour " + FFMPRecord.getFieldLongDescription(getField()),
-		                getCapability(ColorableCapability.class).getColor());
-		        fieldDescString.font = font;
-		        fieldDescString.horizontalAlignment = HorizontalAlignment.CENTER;
-		        fieldDescString.verticallAlignment = VerticalAlignment.MIDDLE;
+            public void run() {
 
-		        basinLocatorString = new DrawableString("X", new RGB(255, 255, 255));
-		        basinLocatorString.font = xfont;
-		        basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
-		        basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
-		        basinLocatorString.textStyle = TextStyle.BLANKED;					
-        	}
+                if (/* this. */font == null) {
+                    /* this. */font = target.initializeFont("Dialog", 11, null);
+                }
+
+                font.setMagnification(getCapability(
+                        MagnificationCapability.class).getMagnification()
+                        .floatValue());
+
+                if (/* this. */xfont == null) {
+                    IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
+                    /* this. */xfont = target.initializeFont("Monospace", 12,
+                            styles);
+                }
+
+                xfont.setMagnification(getCapability(
+                        MagnificationCapability.class).getMagnification()
+                        .floatValue());
+
+                fieldDescString = new DrawableString("FFMP "
+                        + df.format(getTime()) + " hour "
+                        + FFMPRecord.getFieldLongDescription(getField()),
+                        getCapability(ColorableCapability.class).getColor());
+                fieldDescString.font = font;
+                fieldDescString.horizontalAlignment = HorizontalAlignment.CENTER;
+                fieldDescString.verticallAlignment = VerticalAlignment.MIDDLE;
+
+                basinLocatorString = new DrawableString("X", new RGB(255, 255,
+                        255));
+                basinLocatorString.font = xfont;
+                basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
+                basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
+                basinLocatorString.textStyle = TextStyle.BLANKED;
+            }
         });
     }
 
@@ -1148,13 +1191,17 @@ public class FFMPResource extends
             FFMPDrawable drawable = null;
 
             if (paintTime != null) {
-
+                if (loader != null && !loader.isDone && loader.loadType == LOADER_TYPE.GENERAL) {
+                    return;
+                }
                 if (!drawables.containsKey(paintTime)) {
+
                     drawable = new FFMPDrawable(getDomains());
                     drawables.put(paintTime, drawable);
                 } else {
                     // we found it!
                     drawable = drawables.get(paintTime);
+//                    System.out.println("Found the drawable");
 
                     if (!paintTime.equals(drawable.getTime())) {
                         drawable.setDirty(true);
@@ -1174,10 +1221,12 @@ public class FFMPResource extends
 
                 if (getResourceData().tableLoad
                         && !paintTime.getRefTime().equals(getMostRecentTime())) {
-
                     setMostRecentTime(paintTime.getRefTime());
                     setTableTime();
-                    monitor.updateDialog(this);
+//                    if (isLinkToFrame && loader != null && loader.loadType != LOADER_TYPE.GENERAL) {
+                    if (isLinkToFrame) {
+                        updateDialog();
+                    }
                 }
             } else {
                 if (getResourceData().getMonitor().ffmpSplash != null) {
@@ -1464,11 +1513,25 @@ public class FFMPResource extends
 
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
-    	  
+
         if (shadedShapes != null) {
-        	shadedShapes.clear();
+            shadedShapes.clear();
         }
-        
+
+        if (streamShadedShape != null) {
+            streamShadedShape.dispose();
+            streamShadedShape = null;
+        }
+        if (streamOutlineShape != null) {
+            streamOutlineShape.dispose();
+            streamOutlineShape = null;
+        }
+
+        if (smallBasinOverlayShape != null) {
+            smallBasinOverlayShape.dispose();
+            smallBasinOverlayShape = null;
+        }
+
         setQuery(true);
         refresh();
     }
@@ -1544,9 +1607,9 @@ public class FFMPResource extends
             if (getHuc().equals("ALL") || centeredAggregationKey != null) {
                 pfaf = metaBasin.getPfaf();
                 if (isMaintainLayer) {
-                	pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
-                            pfaf, getSiteKey(), getHuc());
-                	aggregate = true;
+                    pfaf = monitor.getTemplates(getSiteKey())
+                            .findAggregatedPfaf(pfaf, getSiteKey(), getHuc());
+                    aggregate = true;
                 }
             } else {
                 pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
@@ -1574,8 +1637,8 @@ public class FFMPResource extends
                 if (val.isNaN() || (val == FFMPUtils.MISSING)) {
                     valst = "NO DATA";
                 } else {
-                    valst = df.format(getBasinValue(pfaf,
-                    		getPaintTime().getRefTime(), aggregate));
+                    valst = df.format(getBasinValue(pfaf, getPaintTime()
+                            .getRefTime(), aggregate));
                 }
 
                 if (!valst.equals("NO DATA")) {
@@ -1731,12 +1794,12 @@ public class FFMPResource extends
         if (getResourceData().tableLoad) {
 
             if (isUpdateDialog) {
-                monitor.updateDialog(this);
+                updateDialog();
             }
 
             // stops the annoying wait cursor every time you re-center
             if (getHuc().equals("ALL")
-                    && (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
+                    || (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
                 basinTableDlg.getShell().setCursor(null);
             }
         }
@@ -1970,7 +2033,7 @@ public class FFMPResource extends
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
                 entry.getValue().dispose();
             }
-            
+
             drawables.clear();
         }
     }
@@ -2234,7 +2297,7 @@ public class FFMPResource extends
     public DataTime getPaintTime() {
         return paintTime;
     }
-  
+
     /**
      * Add a value to worst case hash
      * 
@@ -2242,9 +2305,9 @@ public class FFMPResource extends
      * @param value
      */
     private void addWorstCase(Long aggPfaf, Date recentTime, Float value) {
-        if (drawables.get(new DataTime(recentTime)) != null) {
-            drawables.get(new DataTime(recentTime)).worstCaseHash.put(aggPfaf,
-                    value);
+        FFMPDrawable drawable = drawables.get(new DataTime(recentTime));
+        if (drawable != null && drawable.worstCaseHash != null) {
+            drawable.worstCaseHash.put(aggPfaf, value);
         }
     }
 
@@ -2409,7 +2472,7 @@ public class FFMPResource extends
             }
             if ((cwaBasins.size() == 0)
                     || !req.extent.equals(drawable.getExt())
-                    || !phuc.equals(drawable.getHuc())) {
+                    || !phuc.equals(drawable.getHuc()) || restoreTable) {
                 Envelope env = null;
                 try {
                     Envelope e = req.descriptor.pixelToWorld(req.extent,
@@ -2434,7 +2497,8 @@ public class FFMPResource extends
                             templates, getSiteKey(), cwa, phuc);
                     for (Entry<Long, Envelope> entry : envMap.entrySet()) {
 
-                        if (env.intersects(entry.getValue())) {
+                        if (env.intersects(entry.getValue())
+                                || env.contains(entry.getValue())) {
                             // add the individual basins
                             cwaBasins.add(entry.getKey());
                         }
@@ -2518,11 +2582,11 @@ public class FFMPResource extends
                         // the
                         // the basin when the color map changes.
                         if (globalRegen || drawable.genCwa(cwa)) {
-                             //System.out
-                             //.println("Regenerating the entire image: CWA: +"
-                             //+ cwa
-                             //+ " Table:"
-                             //+ resourceData.tableLoad);
+                            // System.out
+                            // .println("Regenerating the entire image: CWA: +"
+                            // + cwa
+                            // + " Table:"
+                            // + resourceData.tableLoad);
                             // get base aggr basins that are in screen area
                             Set<Long> cwaPfafs = null;
                             cwaPfafs = getAreaBasins(cwa, req, phuc);
@@ -2535,7 +2599,6 @@ public class FFMPResource extends
                             } else {
                                 // center selected, determine center key
                                 if (!phuc.equals("ALL")) {
-
                                     if (centeredAggregationKey instanceof String) {
                                         if (lowestCenter != ZOOM.BASIN) {
 
@@ -2546,6 +2609,14 @@ public class FFMPResource extends
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
+                                            // this is a fall back for VGB's
+                                            if (centeredAggr == null) {
+                                                centeredAggr = templates
+                                                        .findAggregatedVGB(
+                                                                (String) centeredAggregationKey,
+                                                                getSiteKey(),
+                                                                phuc);
+                                            }
                                         }
 
                                     } else {
@@ -2554,6 +2625,13 @@ public class FFMPResource extends
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
+                                            if (centeredAggr == null) {
+                                                centeredAggr = templates
+                                                        .getAggregatedPfaf(
+                                                                (Long) centeredAggregationKey,
+                                                                getSiteKey(),
+                                                                phuc);
+                                            }
                                         }
                                     }
 
@@ -2728,6 +2806,10 @@ public class FFMPResource extends
                         }
                     }
 
+                    if (restoreTable) {
+                        restoreTable = false;
+                    }
+
                     drawable.setTime(req.time);
                     if (lowestCenter != ZOOM.BASIN) {
                         drawable.setCenterAggrKey(centeredAggregationKey);
@@ -2782,6 +2864,11 @@ public class FFMPResource extends
 
                     // check whether or not the dialog needs to be dumped
                     monitor.splashDisposeAndDataLoad(getResource());
+
+                    if (getResourceData().tableLoad && isFirst) {
+                        isFirst = false;
+                        updateDialog();
+                    }
                 }
 
             });
@@ -3006,13 +3093,13 @@ public class FFMPResource extends
         centeredAggregatePfafList = null;
 
         if (isAutoRefresh) {
-        	if (basinTableDlg != null) {
-        		// Gets rid of the aggregate name if it is zoomed into one
-        		basinTableDlg.blankGroupLabel();
-        	}
-        	clearTables();
-        	hucChanged();
-        	refresh();
+            if (basinTableDlg != null) {
+                // Gets rid of the aggregate name if it is zoomed into one
+                basinTableDlg.blankGroupLabel();
+            }
+            clearTables();
+            hucChanged();
+            refresh();
         }
 
         updateDialog();
@@ -3022,12 +3109,12 @@ public class FFMPResource extends
     public void timeChanged(FFMPTimeChangeEvent fhce, FFMPRecord.FIELDS fieldArg)
             throws VizException {
 
-    	FFMPTime ffmpTime = (FFMPTime) fhce.getSource();
-    	
+        FFMPTime ffmpTime = (FFMPTime) fhce.getSource();
+
         if (ffmpTime.getTime() != time || isSplit != ffmpTime.isSplit()) {
 
-        	isSplit = ffmpTime.isSplit();
-        	setTime(ffmpTime.getTime());
+            isSplit = ffmpTime.isSplit();
+            setTime(ffmpTime.getTime());
             setTableTime();
             if (interpolationMap != null) {
                 interpolationMap.clear();
@@ -3112,6 +3199,7 @@ public class FFMPResource extends
         }
 
         refresh();
+
         updateDialog();
     }
 
@@ -3145,6 +3233,7 @@ public class FFMPResource extends
     public void restoreTable() {
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
+        restoreTable = true;
 
         lowestCenter = FFMPRecord.ZOOM.WFO;
         getDescriptor().getRenderableDisplay().getExtent().reset();
@@ -3168,7 +3257,8 @@ public class FFMPResource extends
     @Override
     public FFMPGraphData getGraphData(String pfafString) throws VizException {
         FfmpTableConfig tableConfig = FfmpTableConfig.getInstance();
-        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey()).getFfgGraphType();
+        String ffgGraphType = tableConfig.getTableConfigData(getSiteKey())
+                .getFfgGraphType();
         Long basinPfaf = null;
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
@@ -3342,7 +3432,7 @@ public class FFMPResource extends
 
         if (fvgbmd != null) {
             try {
-                // VGB's use a different timing sequence
+                // VGB's use a different timing sequenceFFMPResource
                 String lid = fvgbmd.getLid();
 
                 virtualBasin = monitor.getVirtualGageBasinData(dataId, lid,
@@ -3502,13 +3592,18 @@ public class FFMPResource extends
      * Sets the time used for accumulation drawn from the slider time
      */
     private void setTableTime() {
-
-        Date recentTime = getMostRecentTime();
-        long time = new Double(recentTime.getTime() - (1000 * 3600) * getTime())
-                .longValue();
-        Date date = new Date();
-        date.setTime(time);
-        this.tableTime = date;
+        if (tableTime == null) {
+            tableTime = new Date();
+        }
+        
+        synchronized (tableTime) {
+            Date recentTime = getMostRecentTime();
+            long time = new Double(recentTime.getTime() - (1000 * 3600)
+                    * getTime()).longValue();
+            Date date = new Date();
+            date.setTime(time);
+            this.tableTime = date;
+        }
     }
 
     /**
@@ -3666,9 +3761,10 @@ public class FFMPResource extends
      * @param set
      * @return ordered dates
      */
-    public ArrayList<Date> getTimeOrderedKeys() {
-        if (timeOrderedKeys == null) {
-
+    public synchronized ArrayList<Date> getTimeOrderedKeys() {
+        if (timeOrderedKeys == null || !toKeysInitialized) {
+            toKeysInitialized = true;
+            
             // stand alone displays use this
             timeOrderedKeys = new ArrayList<Date>();
 
@@ -3849,9 +3945,9 @@ public class FFMPResource extends
     public boolean isLinkToFrame() {
         return isLinkToFrame;
     }
-    
+
     public boolean isSplit() {
-    	return isSplit;
+        return isSplit;
     }
 
     /**
@@ -3966,30 +4062,29 @@ public class FFMPResource extends
         }
         return qpeSourceExpiration;
     }
-    
+
     /**
      * source expiration value as a long
      * 
      * @return
      */
     public long getQpfSourceExpiration() {
-		if (qpfSourceExpiration == 0l) {
-			SourceXML source = null;
-			if (getProduct() != null) {
-				FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig
-						.getInstance().getTableConfigData(getSiteKey());
-				String qpfType = ffmpTableCfgData.getQpfType();
+        if (qpfSourceExpiration == 0l) {
+            SourceXML source = null;
+            if (getProduct() != null) {
+                FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig
+                        .getInstance().getTableConfigData(getSiteKey());
+                String qpfType = ffmpTableCfgData.getQpfType();
 
-				source = getProduct().getQpfSourcesByType(qpfType).get(0);
-			} else {
-				source = FFMPSourceConfigurationManager.getInstance()
-						.getSource(getResourceData().sourceName);
-			}
-			qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * 60 * 1000;
-		}
+                source = getProduct().getQpfSourcesByType(qpfType).get(0);
+            } else {
+                source = FFMPSourceConfigurationManager.getInstance()
+                        .getSource(getResourceData().sourceName);
+            }
+            qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * 60 * 1000;
+        }
         return qpfSourceExpiration;
     }
-
 
     /**
      * Gets the guidance source expiration
@@ -4000,12 +4095,13 @@ public class FFMPResource extends
         if (guidSourceExpiration == 0l) {
             if (getProduct() != null) {
 
-                String guidSrc = FFMPConfig.getInstance().getFFMPConfigData().getIncludedGuids();
+                String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
+                        .getIncludedGuids();
                 if (guidSrc.contains(",")) {
                     String[] parts = guidSrc.split(",");
                     guidSrc = parts[0];
                 }
-                SourceXML source = getProduct().getGuidanceSourcesByType(                        
+                SourceXML source = getProduct().getGuidanceSourcesByType(
                         guidSrc).get(0);
                 guidSourceExpiration = source
                         .getExpirationMinutes(getSiteKey()) * 60 * 1000;
@@ -4068,7 +4164,8 @@ public class FFMPResource extends
         String ffgName = null;
 
         if (getResourceData().tableLoad) {
-            String guidSrc = FFMPConfig.getInstance().getFFMPConfigData().getGuidSrc();
+            String guidSrc = FFMPConfig.getInstance().getFFMPConfigData()
+                    .getGuidSrc();
             if (guidSrc.startsWith("xxx")) {
                 ffgName = "";
             } else {
@@ -4155,9 +4252,7 @@ public class FFMPResource extends
         ArrayList<String> hucsToLoad = new ArrayList<String>();
 
         if (isWorstCase) {
-        	if (!hucsToLoad.contains("ALL")) {
-        		hucsToLoad.add("ALL");
-        	}
+            hucsToLoad.add("ALL");
         }
 
         // tertiary loader only loads ALL
@@ -4190,62 +4285,61 @@ public class FFMPResource extends
             loader.removeListener(this);
         }
     }
-    
+
     /**
      * Get the purge file time
      */
     public long getPurgePeriod() {
 
-    	IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
         LocalizationFile lfFile = pm.getLocalizationFile(lc,
                 "purge/ffmpPurgeRules.xml");
-        
+
         if (lfFile.exists()) {
-       
-        	//TODO  Need to figure out why we can't read in the purgeRules!
-        	/*try {
-				PurgeRuleSet prs = (PurgeRuleSet) SerializationUtil
-				.jaxbUnmarshalFromXmlFile(lfFile.getFile().getAbsolutePath());
-				
-				for (PurgeRule rule: prs.getRules()) {
-					if (rule.getId().equals("ffmp")) {
-						return rule.getPeriodInMillis();
-					}
-				}
-				
-			} catch (SerializationException e) {
-				e.printStackTrace();
-				return 3600*24*1000;
-			} */
-        	
+
+            // TODO Need to figure out why we can't read in the purgeRules!
+            /*
+             * try { PurgeRuleSet prs = (PurgeRuleSet) SerializationUtil
+             * .jaxbUnmarshalFromXmlFile(lfFile.getFile().getAbsolutePath());
+             * 
+             * for (PurgeRule rule: prs.getRules()) { if
+             * (rule.getId().equals("ffmp")) { return rule.getPeriodInMillis();
+             * } }
+             * 
+             * } catch (SerializationException e) { e.printStackTrace(); return
+             * 3600*24*1000; }
+             */
+
         }
-        
-        return 3600*24*1000;
+
+        return 3600 * 24 * 1000;
     }
-    
+
     /**
      * Kicks off additional loaders that need to be fired off
+     * 
      * @param loader
      * @param isDone
      */
     public void manageLoaders(FFMPLoaderStatus status) {
-    	
-    	if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
-    		if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
-    			try {
-    				Date startDate = new Date(getMostRecentTime().getTime() - 12 * 3600 * 1000);
+
+        if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
+            if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
+                try {
+                    Date startDate = new Date(getMostRecentTime().getTime()
+                            - (6 * 3600 * 1000));
                     FFMPMonitor.getInstance().startLoad(this, startDate,
                             LOADER_TYPE.TERTIARY);
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Secondary Data Load failure", e);
                 }
-    		}
-    	} 
-    	
-    	// We don't really care about status of tertiary and general loaders
+            }
+        }
+
+        // We don't really care about status of tertiary and general loaders
     }
 
 }

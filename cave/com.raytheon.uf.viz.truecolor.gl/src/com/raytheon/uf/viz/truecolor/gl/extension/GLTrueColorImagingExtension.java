@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.truecolor.gl.extension;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -61,6 +64,11 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
 
     private Channel renderingChannel;
 
+    /** The current rendering bit mask, specifies what bands we rendered */
+    private int currentMask = 0;
+
+    private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
+
     /*
      * (non-Javadoc)
      * 
@@ -102,6 +110,9 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
         if (image instanceof GLTrueColorImage) {
             GLTrueColorImage trueColorImage = (GLTrueColorImage) image;
             if (trueColorImage.isRepaint()) {
+                // Reset current bit mask
+                currentMask = 0;
+                parameters.clear();
                 writeToImage = trueColorImage;
                 GLOffscreenRenderingExtension extension = target
                         .getExtension(GLOffscreenRenderingExtension.class);
@@ -114,17 +125,17 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
+                            // Mark the channel bit in the current bit mask
+                            currentMask |= (1 << channel.ordinal());
+
                             // Make sure images are staged before we mosaic them
                             ImagingSupport.prepareImages(target, imagesToDraw);
 
                             // Each image needs to draw separately due to gl
-                            // issues when
-                            // zoomed in very far, rendered parts near the
-                            // corners don't
-                            // show all the pixels for each image. Pushing and
-                            // popping
-                            // GL_TEXTURE_BIT before/after each render fixes
-                            // this issue
+                            // issues when zoomed in very far, rendered parts
+                            // near the corners don't show all the pixels for
+                            // each image. Pushing and popping GL_TEXTURE_BIT
+                            // before/after each render fixes this issue
                             for (DrawableImage di : imagesToDraw) {
                                 allPainted &= drawRasters(paintProps, di);
                             }
@@ -133,18 +144,21 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                             trueColorImage.setRepaint(allPainted == false);
                         }
                     }
-                } finally {
+                } catch (VizException e) {
                     extension.renderOnscreen();
+                    throw e;
                 }
                 renderingChannel = null;
                 writeToImage = null;
+                trueColorImage.setImageParameters(parameters.keySet());
+                trueColorImage.bind(target.getGl());
+                return imageCoverage;
+            } else {
+                target.drawRasters(paintProps,
+                        new DrawableImage(trueColorImage.getWrappedImage(),
+                                imageCoverage));
+                return null;
             }
-
-            target.drawRasters(paintProps,
-                    new DrawableImage(trueColorImage.getWrappedImage(),
-                            imageCoverage));
-            // Don't actually render this image now since we just did it
-            return null;
         } else {
             GL gl = target.getGl();
             // bind on GL_TEXTURE1 as 0 is channel image
@@ -164,10 +178,18 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     @Override
     public void postImageRender(PaintProperties paintProps,
             AbstractGLImage image, Object data) throws VizException {
-        GL gl = target.getGl();
-        // Unbind the writeToImage from GL_TEXTURE1
-        gl.glActiveTexture(GL.GL_TEXTURE1);
-        gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
+        if (image instanceof GLTrueColorImage) {
+            target.getExtension(GLOffscreenRenderingExtension.class)
+                    .renderOnscreen();
+            target.drawRasters(paintProps, new DrawableImage(
+                    ((GLTrueColorImage) image).getWrappedImage(),
+                    (PixelCoverage) data));
+        } else if (writeToImage != null) {
+            GL gl = target.getGl();
+            // Unbind the writeToImage from GL_TEXTURE1
+            gl.glActiveTexture(GL.GL_TEXTURE1);
+            gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
+        }
     }
 
     /*
@@ -182,32 +204,54 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     @Override
     public void loadShaderData(GLShaderProgram program, IImage image,
             PaintProperties paintProps) throws VizException {
-        if (image instanceof GLColormappedImage == false) {
-            throw new VizException(
-                    "Can only render colormapped images in true color");
+        if (image instanceof GLTrueColorImage) {
+            program.setUniform("band", -1);
+            program.setUniform("rawTex", 0);
+            program.setUniform("expectedMask", currentMask);
+        } else {
+            if (image instanceof GLColormappedImage == false) {
+                throw new VizException(
+                        "Can only render colormapped images in true color");
+            }
+
+            GLColormappedImage cmapImage = (GLColormappedImage) image;
+            ColorMapParameters colorMapParameters = cmapImage
+                    .getColorMapParameters();
+            parameters.put(colorMapParameters, null);
+            int textureType = cmapImage.getTextureType();
+
+            // Set the band image data
+            program.setUniform("rawTex", 0);
+            program.setUniform("naturalMin", colorMapParameters.getDataMin());
+            program.setUniform("naturalMax", colorMapParameters.getDataMax());
+            program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
+            program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
+            program.setUniform("isFloat", textureType == GL.GL_FLOAT
+                    || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
+            program.setUniform("noDataValue",
+                    colorMapParameters.getNoDataValue());
+
+            // Set the composite image data
+            program.setUniform("trueColorTexture", 1);
+            program.setUniform("width", writeToImage.getWidth());
+            program.setUniform("height", writeToImage.getHeight());
+
+            // Set the band we are rendering to
+            program.setUniform("band", renderingChannel.ordinal());
         }
+    }
 
-        GLColormappedImage cmapImage = (GLColormappedImage) image;
-        ColorMapParameters colorMapParameters = cmapImage
-                .getColorMapParameters();
-        int textureType = cmapImage.getTextureType();
-
-        // Set the band image data
-        program.setUniform("rawTex", 0);
-        program.setUniform("naturalMin", colorMapParameters.getDataMin());
-        program.setUniform("naturalMax", colorMapParameters.getDataMax());
-        program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
-        program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
-        program.setUniform("isFloat", textureType == GL.GL_FLOAT
-                || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
-
-        // Set the composite image data
-        program.setUniform("trueColorTexture", 1);
-        program.setUniform("width", writeToImage.getWidth());
-        program.setUniform("height", writeToImage.getHeight());
-
-        // Set the band we are rendering to
-        program.setUniform("band", renderingChannel.ordinal());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#enableBlending
+     * (javax.media.opengl.GL)
+     */
+    @Override
+    protected void enableBlending(GL gl) {
+        // Do not enable blending for this extension as it messes with alpha
+        // values between passes
     }
 
 }
