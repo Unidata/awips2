@@ -12,6 +12,13 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+#
+# August 2, 2012
+# Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+#  Modifications marked and described by 'njensen'
+#
+
+
 
 
 srcdir = .
