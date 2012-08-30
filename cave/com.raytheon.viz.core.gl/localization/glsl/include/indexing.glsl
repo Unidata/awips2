@@ -96,9 +96,9 @@ float findFloatIndexLog(float rawValue, float cmapMin, float cmapMax, int mirror
 }
 
 /**
- * Given a raw data value linearly determine the index into cmapMin/cmapMax.
- * Index is not capped and may be outsite of 0-1
+ * Given a raw data value linearly determine the index(0-1) into cmapMin/cmapMax
  */
 float findIndex(float rawValue, float cmapMin, float cmapMax) {
-	return ((rawValue - cmapMin) / abs(cmapMax-cmapMin));
+	float index = ((rawValue - cmapMin) / abs(cmapMax-cmapMin));
+	return capIndex(index);
 }

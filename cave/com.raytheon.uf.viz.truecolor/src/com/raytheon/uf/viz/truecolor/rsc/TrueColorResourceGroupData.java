@@ -19,12 +19,18 @@
  **/
 package com.raytheon.uf.viz.truecolor.rsc;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -35,8 +41,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
 
 /**
  * {@link TrueColorResourceGroup} resource data. Contains a red/blue/green
- * channel resource and a name. Sub resources that .equal each other will be
- * replaced with the first reference to save time
+ * channel resource and a name.
  * 
  * <pre>
  * 
@@ -51,7 +56,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * @author mschenke
  * @version 1.0
  */
-
+@XmlAccessorType(XmlAccessType.NONE)
 public class TrueColorResourceGroupData extends AbstractResourceData implements
         IResourceGroup {
 
@@ -60,23 +65,10 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
     @XmlElement
     private String groupName;
 
-    @XmlElement
-    private AbstractResourceData redChannelResource;
+    @XmlElement(name = "channelResource")
+    private List<ChannelResource> channelResources;
 
-    @XmlElement
-    private AbstractResourceData greenChannelResource;
-
-    @XmlElement
-    private AbstractResourceData blueChannelResource;
-
-    public TrueColorResourceGroupData() {
-        nameGenerator = new AbstractNameGenerator() {
-            @Override
-            public String getName(AbstractVizResource<?, ?> resource) {
-                return groupName;
-            }
-        };
-    }
+    private Map<Channel, ChannelInfo> channelInfo = new HashMap<Channel, ChannelInfo>();
 
     /*
      * (non-Javadoc)
@@ -86,27 +78,23 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
     @Override
     public ResourceList getResourceList() {
         if (resourceList == null) {
-            resourceList = new ResourceList();
-            // Initialize the resource list, if any of the resources equal each
-            // other, replace with reference instead of copy to save memory
-            if (redChannelResource != null) {
-                addResource(redChannelResource);
-            }
-            if (greenChannelResource != null) {
-                if (greenChannelResource.equals(redChannelResource)) {
-                    greenChannelResource = redChannelResource;
-                } else {
-                    addResource(greenChannelResource);
+            resourceList = new ResourceList() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected boolean canAdd(ResourcePair e) {
+                    // Don't allow a ResourcePair that == another in the list
+                    Iterator<ResourcePair> iter = iterator();
+                    while (iter.hasNext()) {
+                        if (iter.next() == e) {
+                            return false;
+                        }
+                    }
+                    return true;
                 }
-            }
-            if (blueChannelResource != null) {
-                if (blueChannelResource.equals(redChannelResource)) {
-                    blueChannelResource = redChannelResource;
-                } else if (blueChannelResource.equals(greenChannelResource)) {
-                    blueChannelResource = greenChannelResource;
-                } else {
-                    addResource(blueChannelResource);
-                }
+            };
+            for (ChannelResource resource : channelResources) {
+                addResource(resource.getResourceData());
             }
         }
         return resourceList;
@@ -118,50 +106,6 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
         rp.setLoadProperties(new LoadProperties());
         rp.setProperties(new ResourceProperties());
         resourceList.add(rp);
-    }
-
-    /**
-     * Removes a resource from the resource data
-     * 
-     * @param rp
-     */
-    public void removeResource(ResourcePair rp) {
-        resourceList.remove(rp);
-        if (rp.getResourceData() == redChannelResource) {
-            redChannelResource = null;
-        }
-        if (rp.getResourceData() == greenChannelResource) {
-            greenChannelResource = null;
-        }
-        if (rp.getResourceData() == blueChannelResource) {
-            blueChannelResource = null;
-        }
-    }
-
-    /**
-     * Get the composite name of the resource pair (Red, Red/Green, Blue, etc)
-     * 
-     * @param rp
-     * @return
-     */
-    public String getCompositeName(ResourcePair rp) {
-        String name = "";
-        if (rp.getResourceData() == redChannelResource) {
-            name += "Red";
-        }
-        if (rp.getResourceData() == greenChannelResource) {
-            if (name.isEmpty() == false) {
-                name += "/";
-            }
-            name += "Green";
-        }
-        if (rp.getResourceData() == blueChannelResource) {
-            if (name.isEmpty() == false) {
-                name += "/";
-            }
-            name += "Blue";
-        }
-        return name;
     }
 
     /*
@@ -191,33 +135,6 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
     }
 
     /**
-     * Get the resource pair associated with the {@link Channel}
-     * 
-     * @param channel
-     * @return
-     */
-    public ResourcePair getResource(Channel channel) {
-        AbstractResourceData toCheckFor = null;
-        switch (channel) {
-        case RED:
-            toCheckFor = redChannelResource;
-            break;
-        case GREEN:
-            toCheckFor = greenChannelResource;
-            break;
-        case BLUE:
-            toCheckFor = blueChannelResource;
-            break;
-        }
-        for (ResourcePair rp : getResourceList()) {
-            if (rp.getResourceData() == toCheckFor) {
-                return rp;
-            }
-        }
-        return null;
-    }
-
-    /**
      * @return the groupName
      */
     public String getGroupName() {
@@ -233,49 +150,68 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
     }
 
     /**
-     * @return the redChannelResource
+     * @return the channelResources
      */
-    public AbstractResourceData getRedChannelResource() {
-        return redChannelResource;
+    public List<ChannelResource> getChannelResources() {
+        return channelResources;
     }
 
     /**
-     * @param redChannelResource
-     *            the redChannelResource to set
+     * @param channelResources
+     *            the channelResources to set
      */
-    public void setRedChannelResource(AbstractResourceData redChannelResource) {
-        this.redChannelResource = redChannelResource;
+    public void setChannelResources(List<ChannelResource> channelResources) {
+        this.channelResources = channelResources;
     }
 
     /**
-     * @return the greenChannelResource
+     * @return the channelInfo
      */
-    public AbstractResourceData getGreenChannelResource() {
-        return greenChannelResource;
+    public ChannelInfo getChannelInfo(Channel channel) {
+        return channelInfo.get(channel);
     }
 
     /**
-     * @param greenChannelResource
-     *            the greenChannelResource to set
+     * @param channelInfo
+     *            the channelInfo to set
      */
-    public void setGreenChannelResource(
-            AbstractResourceData greenChannelResource) {
-        this.greenChannelResource = greenChannelResource;
+    public void setChannelInfo(ChannelInfo channelInfo) {
+        this.channelInfo.put(channelInfo.getChannel(), channelInfo);
     }
 
-    /**
-     * @return the blueChannelResource
-     */
-    public AbstractResourceData getBlueChannelResource() {
-        return blueChannelResource;
+    public ChannelInfo[] getChannelInfoArray() {
+        return this.channelInfo.values().toArray(
+                new ChannelInfo[channelInfo.size()]);
     }
 
-    /**
-     * @param blueChannelResource
-     *            the blueChannelResource to set
+    @XmlElement(name = "channelInfo")
+    public void setChannelInfoArray(ChannelInfo[] channelInfo) {
+        if (channelInfo == null) {
+            channelInfo = new ChannelInfo[0];
+        }
+        this.channelInfo.clear();
+        for (ChannelInfo ci : channelInfo) {
+            setChannelInfo(ci);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
      */
-    public void setBlueChannelResource(AbstractResourceData blueChannelResource) {
-        this.blueChannelResource = blueChannelResource;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((channelInfo == null) ? 0 : channelInfo.hashCode());
+        result = prime
+                * result
+                + ((channelResources == null) ? 0 : channelResources.hashCode());
+        result = prime * result
+                + ((groupName == null) ? 0 : groupName.hashCode());
+        return result;
     }
 
     /*
@@ -292,25 +228,20 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
         if (getClass() != obj.getClass())
             return false;
         TrueColorResourceGroupData other = (TrueColorResourceGroupData) obj;
-        if (blueChannelResource == null) {
-            if (other.blueChannelResource != null)
+        if (channelInfo == null) {
+            if (other.channelInfo != null)
                 return false;
-        } else if (!blueChannelResource.equals(other.blueChannelResource))
+        } else if (!channelInfo.equals(other.channelInfo))
             return false;
-        if (greenChannelResource == null) {
-            if (other.greenChannelResource != null)
+        if (channelResources == null) {
+            if (other.channelResources != null)
                 return false;
-        } else if (!greenChannelResource.equals(other.greenChannelResource))
+        } else if (!channelResources.equals(other.channelResources))
             return false;
         if (groupName == null) {
             if (other.groupName != null)
                 return false;
         } else if (!groupName.equals(other.groupName))
-            return false;
-        if (redChannelResource == null) {
-            if (other.redChannelResource != null)
-                return false;
-        } else if (!redChannelResource.equals(other.redChannelResource))
             return false;
         return true;
     }

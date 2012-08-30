@@ -24,7 +24,7 @@ import java.awt.Toolkit;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.progress.UIJob;
 
 /**
  * TODO Add Description
@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 19, 2009            mnash     Initial creation
+ * Jul 25, 2012 15122      rferrel     Add sound repeat interval.
  * 
  * </pre>
  * 
@@ -42,17 +43,29 @@ import org.eclipse.core.runtime.jobs.Job;
  * @version 1.0
  */
 
-public class AlarmBeepJob extends Job {
+public class AlarmBeepJob extends UIJob {
+
+    private static final int BEEP_COUNT = 5;
+
+    private static final long BEEP_INTERVAL = 1000L;
 
     private boolean disposed;
+
+    private long delay;
 
     private int count = 0;
 
     /**
      * @param name
      */
-    public AlarmBeepJob(String name) {
+    public AlarmBeepJob(String name, long delay) {
         super(name);
+
+        if (delay > (BEEP_COUNT * BEEP_INTERVAL)) {
+            this.delay = delay;
+        } else {
+            this.delay = (BEEP_COUNT + 1) * BEEP_INTERVAL;
+        }
     }
 
     /*
@@ -62,25 +75,19 @@ public class AlarmBeepJob extends Job {
      * IProgressMonitor)
      */
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
+    public IStatus runInUIThread(IProgressMonitor monitor) {
         IStatus status = Status.OK_STATUS;
-        if (count < 5) {
+        if (count < BEEP_COUNT) {
             Toolkit.getDefaultToolkit().beep();
-            reSchedule();
+            if (!disposed) {
+                this.schedule(BEEP_INTERVAL);
+            }
             count++;
-        } else {
-            dispose();
+        } else if (!disposed) {
+            schedule(delay - (BEEP_COUNT * BEEP_INTERVAL));
+            count = 0;
         }
         return status;
-    }
-
-    /**
-     * Schedule this job to run after the desired interval
-     */
-    public void reSchedule() {
-        if (!disposed) {
-            this.schedule(1 * 1000);
-        }
     }
 
     /**

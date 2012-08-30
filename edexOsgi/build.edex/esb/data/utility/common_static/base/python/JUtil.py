@@ -20,8 +20,9 @@
 
 
 from java.lang import Integer, Float, Long, Boolean, String
-from java.util import HashMap, ArrayList
+from java.util import HashMap, LinkedHashMap, ArrayList
 from java.util import Collections
+from collections import OrderedDict
 
 #
 # Provides convenience methods for Java-Python bridging
@@ -72,15 +73,22 @@ def javaStringMapToPyDict(javaMap):
 def javaMapToPyDict(javaMap, customConverter=None):
     keys = javaMap.keySet()
     itr = keys.iterator()
-    pyDict = {}
+    if javaMap.jclassname == "java.util.LinkedHashMap":
+        pyDict = OrderedDict()
+    else:
+        pyDict = {}
     while itr.hasNext():
         key = itr.next()
         obj = javaMap.get(key)
         pyDict[javaObjToPyVal(key)] = javaObjToPyVal(obj, customConverter)
     return pyDict
 
-def pyDictToJavaMap(pyDict):    
-    jmap = HashMap()
+def pyDictToJavaMap(pyDict):
+    if isinstance(pyDict, OrderedDict):
+        jmap = LinkedHashMap()
+    else:
+        jmap = HashMap()
+        
     for key in pyDict:   
         jmap.put(pyValToJavaObj(key), pyValToJavaObj(pyDict[key]))
     return jmap
@@ -105,7 +113,7 @@ def pyValToJavaObj(val):
         for i in val:
             tempList.add(pyValToJavaObj(i))
         retObj = Collections.unmodifiableList(tempList)
-    elif valtype is dict:
+    elif issubclass(valtype, dict):
         retObj = pyDictToJavaMap(val)
     elif issubclass(valtype, JavaWrapperClass):
         retObj = val.toJavaObj()
@@ -129,22 +137,15 @@ def javaObjToPyVal(obj, customConverter=None):
         retVal = []
         size = obj.size()
         for i in range(size):
-            retVal.append(javaObjToPyVal(obj.get(i)))
+            retVal.append(javaObjToPyVal(obj.get(i), customConverter))
     elif objtype == "java.util.Collections$UnmodifiableRandomAccessList":
         tempList = []
         size = obj.size()
         for i in range(size):
-            tempList.append(javaObjToPyVal(obj.get(i)))
+            tempList.append(javaObjToPyVal(obj.get(i), customConverter))
         retVal = tuple(tempList)
     elif objtype == "java.util.HashMap":
-        keys = obj.keySet()
-        itr = keys.iterator()
-        retVal = {}
-        while itr.hasNext():
-            key = itr.next()
-            val = obj.get(key)
-            fval = javaObjToPyVal(val)
-            retVal[str(key)] = fval
+        retVal = javaMapToPyDict(obj, customConverter)
     elif customConverter is not None:
         retVal = customConverter(obj)
     

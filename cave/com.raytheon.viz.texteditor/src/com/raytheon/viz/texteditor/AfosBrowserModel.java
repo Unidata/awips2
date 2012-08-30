@@ -64,7 +64,10 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 11/8/2007    520         grichard    Implemented build 11 features.
  * 11/26/2007   520         grichard    Implemented SuperSite in preparation for JiBX'ng.
  * 12/14/2007   582         grichard    Implemented build 12 features.
- * 
+ * ======================================
+ * AWIPS2 DR Work
+ * 07/24/2012          939  jkorman     Modified parseAfosMasterPil() handle blank lines as well
+ * as lines with trailing whitespace.
  * </pre>
  * 
  * @author grichard
@@ -73,6 +76,21 @@ public final class AfosBrowserModel {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AfosBrowserModel.class);
 
+    // Need at least this many characters in an afosMasterPIL entry
+    // Need the CCCNNN and at least a 1 character XXX
+    private static final int MIN_MASTPIL_LEN = 7;
+    // but no more than 9 characters.
+    private static final int MAX_MASTPIL_LEN = 9;
+    
+    private static final int CCC_PIL_POS = 0;
+    
+    private static final int NNN_PIL_POS = 3;
+    
+    private static final int XXX_PIL_POS = 6;
+    
+    private static final String SITE_WILDCARD = "@@@";
+    
+    private static final String COMMENT_DELIM = "#";
     /**
      * The VTEC Afos Product enumeration
      */
@@ -265,7 +283,7 @@ public final class AfosBrowserModel {
                 br = new BufferedReader(new FileReader(fileToParse));
                 while ((line = br.readLine()) != null) {
                     // skip comments.
-                    if (line.startsWith("#")) {
+                    if (line.startsWith(COMMENT_DELIM)) {
                         continue;
                     }
 
@@ -294,7 +312,7 @@ public final class AfosBrowserModel {
                 br = new BufferedReader(new FileReader(fileToParse));
                 while ((line = br.readLine()) != null) {
                     // skip comments.
-                    if (line.startsWith("#")) {
+                    if (line.startsWith(COMMENT_DELIM)) {
                         continue;
                     }
 
@@ -324,7 +342,7 @@ public final class AfosBrowserModel {
                 br = new BufferedReader(new FileReader(fileToParse));
                 while ((line = br.readLine()) != null) {
                     // skip comments.
-                    if (line.startsWith("#")) {
+                    if (line.startsWith(COMMENT_DELIM)) {
                         continue;
                     }
 
@@ -351,42 +369,69 @@ public final class AfosBrowserModel {
         return cccOriginMap;
     }
 
+    /**
+     * Read and parse an afos PIL list. In the event of processing multiple
+     * files, the most recent entry overwrites a current entry.
+     * 
+     * @param fileToParse
+     *            File reference containing the PIL list.
+     */
     private void parseAfosMasterPil(File fileToParse) {
         if (fileToParse != null && fileToParse.exists()) {
             BufferedReader br = null;
             String line = null;
 
+            String localCCC = SiteMap.getInstance()
+                    .getCCCFromXXXCode(localSite);
             try {
                 br = new BufferedReader(new FileReader(fileToParse));
 
                 while ((line = br.readLine()) != null) {
-                    // skip comments.
-                    if (line.startsWith("#")) {
+                    // Remove any trailing spaces.
+                    line = line.trim();
+                    // skip blank lines or comments.
+                    if ((line.length() == 0) || line.startsWith(COMMENT_DELIM)) {
                         continue;
                     }
-                    String ccc = line.substring(0, 3);
+                    if (line.length() >= MIN_MASTPIL_LEN) {
+                        String ccc = line.substring(CCC_PIL_POS, NNN_PIL_POS);
+                        if (ccc.equals(SITE_WILDCARD)) {
+                            ccc = localCCC;
+                        }
+                        String nnn = line.substring(NNN_PIL_POS, XXX_PIL_POS);
+                        String xxx;
+                        if(line.length() > MAX_MASTPIL_LEN) {
+                            // Only take the first 9 characters of the line.
+                            // Trim in case there are any internal spaces.
+                            xxx = line.substring(XXX_PIL_POS, MAX_MASTPIL_LEN + 1).trim();
+                        } else {
+                            // Just grab the remainder of the input line.
+                            // Its already been trimmed.
+                            xxx = line.substring(6);
+                        }
 
-                    if (ccc.equals("@@@")) {
-                        ccc = SiteMap.getInstance()
-                                .getCCCFromXXXCode(localSite);
+                        Map<String, SortedSet<String>> nnnxxx = masterPil
+                                .get(ccc);
+                        if (nnnxxx == null) {
+                            nnnxxx = new HashMap<String, SortedSet<String>>();
+                            masterPil.put(ccc, nnnxxx);
+                        }
+
+                        SortedSet<String> xxxList = nnnxxx.get(nnn);
+                        if (xxxList == null) {
+                            xxxList = new TreeSet<String>();
+                            nnnxxx.put(nnn, xxxList);
+                        }
+
+                        xxxList.add(xxx);
+                    } else {
+                        String msg = String.format(
+                                "Line [%s] in file %s incorrect", line,
+                                fileToParse.getPath());
+
+                        statusHandler.handle(Priority.SIGNIFICANT, msg);
                     }
 
-                    String nnn = line.substring(3, 6);
-                    String xxx = line.substring(6);
-
-                    Map<String, SortedSet<String>> nnnxxx = masterPil.get(ccc);
-                    if (nnnxxx == null) {
-                        nnnxxx = new HashMap<String, SortedSet<String>>();
-                        masterPil.put(ccc, nnnxxx);
-                    }
-
-                    SortedSet<String> xxxList = nnnxxx.get(nnn);
-                    if (xxxList == null) {
-                        xxxList = new TreeSet<String>();
-                        nnnxxx.put(nnn, xxxList);
-                    }
-
-                    xxxList.add(xxx);
                 } // while
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -519,7 +564,7 @@ public final class AfosBrowserModel {
     public boolean contains(String ccc, String nnn, String xxx) {
         boolean rval = false;
         Map<String, SortedSet<String>> catMap = masterPil.get(ccc);
-        if (catMap != null) {
+        if ((catMap != null) && (xxx != null)) {
             SortedSet<String> desList = catMap.get(nnn);
             if (desList != null) {
                 rval = desList.contains(xxx);
