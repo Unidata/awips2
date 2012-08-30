@@ -158,6 +158,7 @@ import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.CommandHistory;
 import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
+import com.raytheon.viz.texteditor.dialogs.WarnGenConfirmationDlg.SessionDelegate;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -281,7 +282,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 06/19/2012  14975        D.Friedman  Prevent zeroed-out WMO header times.
  * 18JUL2012   14457        rferrel     Add mouse listener to clear site's update obs when clicked on.
  * 25JUL2012   14459        rferrel     Strip WMH headers when getting all METARs.
- * 13AUG2012   14613        M.Gamazaychikov	Ensured the WMO and MND header times are the same. 
+ * 13AUG2012   14613        M.Gamazaychikov	Ensured the WMO and MND header times are the same.
+ * 20AUG2012   15340        D.Friedman  Use callbacks for stop sign dialog.  Prevent NOR in header. 
  * </pre>
  * 
  * @author lvenable
@@ -4358,43 +4360,50 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param resend
      *            true if product is to be resent
      */
-    synchronized private void sendProduct(boolean resend) {
-        CAVEMode mode = CAVEMode.getMode();
+    synchronized private void sendProduct(final boolean resend) {
+        final CAVEMode mode = CAVEMode.getMode();
         StdTextProduct prod = getStdTextProduct();
         String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        String title = QualityControl.getProductWarningType(prod.getNnnid());
-        StringBuilder productMessage = new StringBuilder();
+        final String title = QualityControl.getProductWarningType(prod.getNnnid());
+        final StringBuilder productMessage = new StringBuilder();
 
-        StringBuilder modeMessage = new StringBuilder();
+        final StringBuilder modeMessage = new StringBuilder();
         modeMessage.append("The workstation is in ").append(mode)
                 .append(" mode.");
 
         if (resend) {
-            productMessage = new StringBuilder();
             productMessage.append("You are about to RESEND a " + afosId + "\n");
             productMessage.append(title).append(".\n");
             modeMessage.append("\nThere is no QC check for resend product.");
         } else if (warnGenFlag) {
+            productMessage.append("You are about to SEND a " + afosId + "\n");
+            productMessage.append(title).append(".\n");
+            
             QualityControl qcCheck = new QualityControl();
             if (qcCheck.checkWarningInfo(headerTF.getText().toUpperCase(),
                     textEditor.getText().toUpperCase(), prod.getNnnid()) == false) {
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         "Problem Detected by QC", qcCheck.getErrorMessage(),
                         "Do you really want to Send?\n", mode);
-                wgcd.open();
-                if (!Boolean.TRUE.equals(wgcd.getReturnValue())) {
-                    return;
-                }
+                wgcd.open(new SessionDelegate() {
+                    @Override
+                    public void dialogDismissed(Object dialogResult) {
+                        if (Boolean.TRUE.equals(dialogResult))
+                            finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+                    }
+                });
+
+                return;
             }
-
-            productMessage.append("You are about to SEND a " + afosId + "\n");
-            productMessage.append(title).append(".\n");
         }
+        finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+    }
 
+    private void finishSendProduct1(final boolean resend, String title, CAVEMode mode, StringBuilder productMessage, StringBuilder modeMessage) {
         Pattern p = Pattern.compile(".\\%[s].");
         Matcher m = p.matcher(STORED_SENT_MSG);
 
-        boolean result = (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
+        final boolean result = (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
                 .equals(mode));
         modeMessage.append(result ? m.replaceAll(" ") : m.replaceAll(" not "));
 
@@ -4423,11 +4432,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell, title,
                 productMessage.toString(), modeMessage.toString(), mode);
-        wgcd.open();
+        wgcd.open(new SessionDelegate() {
+            @Override
+            public void dialogDismissed(Object dialogResult) {
+                if (Boolean.TRUE.equals(dialogResult))
+                    finishSendProduct2(resend, result);
+            }
+        });
+    }
 
-        if (!Boolean.TRUE.equals(wgcd.getReturnValue())) {
-            return;
-        }
+    private void finishSendProduct2(boolean resend, boolean result) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
@@ -4450,7 +4464,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         token);
                 OUPRequest req = new OUPRequest();
                 OfficialUserProduct oup = new OfficialUserProduct();
-                prod = getStdTextProduct();
+                StdTextProduct prod = getStdTextProduct(); // TODO: makes me nervous...
                 String awipsWanPil = prod.getSite() + prod.getNnnid()
                         + prod.getXxxid();
                 String awipsID = prod.getNnnid() + prod.getXxxid();
@@ -4462,7 +4476,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 oup.setNeedsWmoHeader(false);
                 oup.setProductText(product);
                 oup.setSource("TextWS");
-                oup.setWmoType(prod.getBbbid());
+                oup.setWmoType(fixNOR(prod.getBbbid()));
                 oup.setUserDateTimeStamp(prod.getHdrtime());
                 oup.setFilename(awipsID + ".wan"
                         + (System.currentTimeMillis() / 1000));
@@ -4872,7 +4886,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         StdTextProductServerRequest request = new StdTextProductServerRequest();
 
-        request.setBbbid(product.getBbbid());
+        request.setBbbid(fixNOR(product.getBbbid()));
         request.setCccid(product.getCccid());
         request.setCreatetime(product.getRefTime());
         request.setDataCrc(product.getDataCrc());
@@ -5182,7 +5196,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     public void setCurrentBbbId(String bbbId) {
-        TextDisplayModel.getInstance().setBbbId(token, bbbId);
+        TextDisplayModel.getInstance().setBbbId(token, fixNOR(bbbId));
     }
 
     public void setCurrentWsfoId(String wsfoId) {
@@ -7278,5 +7292,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         job.setPriority(Job.LONG);
         job.setSystem(true);
         job.schedule();
+    }
+    
+    private static String fixNOR(String bbb) {
+        if ("NOR".equals(bbb))
+            return "";
+        else
+            return bbb;
     }
 }
