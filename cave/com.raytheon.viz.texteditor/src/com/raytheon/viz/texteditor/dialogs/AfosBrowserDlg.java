@@ -535,22 +535,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         loadContinueBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                /*
-                 * if ((nodeList.getSelectionIndex() > -1) &&
-                 * (categoryList.getSelectionIndex() > -1) &&
-                 * designatorList.getSelectionIndex() > -1) {
-                 */
-                /*
-                 * TextDisplayModel.getInstance().setProductNode(token,
-                 * selectedNode);
-                 * TextDisplayModel.getInstance().setProductCategory(token,
-                 * selectedCategory);
-                 * TextDisplayModel.getInstance().setProductDesignator(token,
-                 * selectedDesignator);
-                 */
                 callbackClient.executeCommand(CommandFactory
                         .getAfosCommand(currentAfosCommand));
-                // }
+                loadContinueBtn.setFocus();
             }
         });
 
@@ -563,20 +550,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         loadCloseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                /*
-                 * if ((nodeList.getSelectionIndex() > -1) &&
-                 * (categoryList.getSelectionIndex() > -1) &&
-                 * designatorList.getSelectionIndex() > -1) {
-                 * TextDisplayModel.getInstance().setProductNode(token,
-                 * selectedNode);
-                 * TextDisplayModel.getInstance().setProductCategory(token,
-                 * selectedCategory);
-                 * TextDisplayModel.getInstance().setProductDesignator(token,
-                 * selectedDesignator);
-                 */
                 callbackClient.executeCommand(CommandFactory
                         .getAfosCommand(currentAfosCommand));
-                // }
 
                 setReturnValue(false);
                 shell.setVisible(false);
@@ -778,7 +753,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             // Get the designator list - ensure that the entries are three
             // characters in length.
             for (String s : xxx) {
-                if(s.length() == 1) {
+                if (s.length() == 1) {
                     s = s + "  ";
                 } else if (s.length() == 2) {
                     s = s + " ";

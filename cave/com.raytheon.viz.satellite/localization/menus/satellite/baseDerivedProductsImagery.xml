@@ -19,6 +19,13 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		   	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                        menuText="Blended Rain Rate" id="rainfallRate">
+	                <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Rain_fall_rate</dataURI>
+	                <substitute key="element" value="Rain fall rate"/>
+	                <substitute key="entity" value="POES-NPOESS"/>
+	                <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+	             </contribute>
 		<contribute xsi:type="titleItem" titleText="------ GOES ------" 
             id="GOESLine"/>
     	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
@@ -66,13 +73,6 @@
 			<substitute key="colormap" value="Sat/Low Cloud Base" />
 		</contribute> 
 	    <contribute xsi:type="titleItem" titleText="------ DMSP SSM/I ------" id="DMSPLine"/>
-   	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Rainfall Rate" id="rainfallRate">
-	        <dataURI>/satellite/%/NESDIS/DMSP/Supernational/Rain_fall_rate</dataURI>
-	        <substitute key="element" value="Rain fall rate"/>
-	        <substitute key="entity" value="DMSP"/>
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
 	        <dataURI>/satellite/%/NESDIS/DMSP/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
@@ -81,13 +81,6 @@
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
 	    </contribute>
 	    <contribute xsi:type="titleItem" titleText="------ POES AMSU ------" id="POESAMSULine"/>
-		   	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Rainfall Rate" id="rainfallRate">
-	        <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Rain_fall_rate</dataURI>
-	        <substitute key="element" value="Rain fall rate"/>
-	        <substitute key="entity" value="POES-NPOESS"/>
-	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
-	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
 	        <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>

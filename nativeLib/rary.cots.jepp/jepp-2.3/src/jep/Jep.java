@@ -41,6 +41,13 @@ import jep.python.PyObject;
  * @author [mrjohnson0 at sourceforge.net] Mike Johnson
  * @version $Id: Jep.java 448 2007-11-27 00:30:23Z mrjohnson0 $
  */
+
+/*
+  August 2, 2012
+  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+   Modifications marked and described by 'njensen'
+*/
+
 public final class Jep {
     
     private boolean closed = false;

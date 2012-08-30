@@ -349,6 +349,7 @@ and place into this template  -->
  
  <pointSource variable="riverdrainages">
  	<pointSource>ffmp_basins</pointSource>
+    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
  	<pointField>streamname</pointField>
  	<filter>
  		<mapping key="cwa">
