@@ -1584,6 +1584,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             try {
 
+                File sharePathFile = new File(sharePath + config.getCWA());
+                if (!sharePathFile.exists()) {
+                    sharePathFile.mkdirs();
+                }
+
                 String fileName = fdc.getFilePath();
                 // lock for atomic write and read
                 HashMap<String, String> fileNames = new HashMap<String, String>();
@@ -1655,15 +1660,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         for (String tmpName : fileNames.keySet()) {
                             File file = new File(tmpName);
                             if (file.renameTo(new File(fileNames.get(tmpName)))) {
-                                statusHandler
-                                .handle(Priority.DEBUG,
+                                statusHandler.handle(
+                                        Priority.DEBUG,
                                         "Successful rename: : "
-                                                +fileNames.get(tmpName));
+                                                + fileNames.get(tmpName));
                             } else {
-                                statusHandler
-                                .handle(Priority.ERROR,
+                                statusHandler.handle(
+                                        Priority.ERROR,
                                         "UN-Successful rename: : "
-                                                +fileNames.get(tmpName));
+                                                + fileNames.get(tmpName));
                             }
                         }
 
@@ -1683,7 +1688,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 statusHandler.handle(Priority.ERROR,
                         "IO Error writing buddy files: " + e.getMessage());
             }
-
         }
     }
 

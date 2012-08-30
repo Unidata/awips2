@@ -269,7 +269,7 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     }
     
     /**
-     * Get Youngest Key
+     * Get Closest Key
      * 
      * @param sourceName
      * @param Date
@@ -308,19 +308,16 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
                             // as long as it is +- expiration from orig date,
                             // golden
                             if (date.after(checkDate)) {
-                                if ((time1 - time2) > expiration) {
+                                if ((time1 - time2) < expiration) {
                                     rdate = checkDate;
                                     break;
                                 }
                             } else {
-                                if ((time2 - time1) > expiration) {
+                                if ((time2 - time1) < expiration) {
                                     rdate = checkDate;
                                     break;
                                 }
                             }
-                            
-                            rdate = checkDate;
-                            break;
                         }
                     }
                 }
