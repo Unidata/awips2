@@ -66,27 +66,33 @@ import com.vividsolutions.jts.geom.Polygon;
 public class GisUtil {
 
     private static final float PORTION_OF_CENTER = 0.16875f;
-    
+
     private static final float DIRECTION_DELTA = 15;
 
     private static final float EXTREME_DELTA = 0.0625f;
 
     private static final double CONTAINS_PERCENTAGE = 0.1;
-    
-    // When both xDirection and yDirection are Direction.CENTRAL, for a rectangle
-    // polygon, MIN1 is the maximum value of either distanceX or distanceY 
+
+    // When both xDirection and yDirection are Direction.CENTRAL, for a
+    // rectangle
+    // polygon, MIN1 is the maximum value of either distanceX or distanceY
     // for EnumSet.of(xDirection,yDirection) to be returned.
     private static final float MIN1 = 0.01f;
-    
-    // When both xDirection and yDirection are Direction.CENTRAL, for a right triangle
-    // polygon, MIN2 is the maximum value of both distanceX and distanceY 
+
+    // When both xDirection and yDirection are Direction.CENTRAL, for a right
+    // triangle
+    // polygon, MIN2 is the maximum value of both distanceX and distanceY
     // for EnumSet.of(xDirection,yDirection) to be returned.
     private static final float MIN2 = 0.045f;
-    
-    // When yDirection is NORTH or SOUTH, in order to add CENTRAL to retval, required 
-    // minimum ratio of width of intersection envelope to that of county envelope;
-    // when xDirection is EAST or WEST,  in order to add CENTRAL to retval, required 
-    // minimum ratio of height of intersection envelope to that of county envelope;
+
+    // When yDirection is NORTH or SOUTH, in order to add CENTRAL to retval,
+    // required
+    // minimum ratio of width of intersection envelope to that of county
+    // envelope;
+    // when xDirection is EAST or WEST, in order to add CENTRAL to retval,
+    // required
+    // minimum ratio of height of intersection envelope to that of county
+    // envelope;
     private static final float RATIO = 0.5f;
 
     public static enum Direction {
@@ -135,12 +141,12 @@ public class GisUtil {
     }
 
     public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Geometry geom2) {
-    	return calculatePortion(geom, geom2, SuppressMap.NONE);
+            Geometry geom2, GeodeticCalculator gc) {
+        return calculatePortion(geom, geom2, gc, SuppressMap.NONE);
     }
 
     public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Geometry intersection, String suppressType) {
+            Geometry intersection, GeodeticCalculator gc, String suppressType) {
         Direction xDirection = null;
         Direction yDirection = null;
 
@@ -161,23 +167,25 @@ public class GisUtil {
         double extremaThresholdY = approximateHeight * EXTREME_DELTA;
 
         if (distanceX < centerThresholdX) {
-        	xDirection = Direction.CENTRAL;
-        	if (distanceY < centerThresholdY)
-        		yDirection = Direction.CENTRAL;
+            xDirection = Direction.CENTRAL;
+            if (distanceY < centerThresholdY)
+                yDirection = Direction.CENTRAL;
         }
 
         if (xDirection != null && yDirection != null) {
-            // Both xDirection equals Direction.CENTRAL and yDirection equals Direction.CENTRAL 
-        	// calculated above is not always correct for returning EnumSet.of(xDirection,yDirection).
-        	// The following 'if statement' filters out some cases.
-        	if (distanceX < MIN1 || distanceY < MIN1 || (distanceX < MIN2 && distanceY < MIN2))
-        		return EnumSet.of(xDirection,yDirection);
+            // Both xDirection equals Direction.CENTRAL and yDirection equals
+            // Direction.CENTRAL
+            // calculated above is not always correct for returning
+            // EnumSet.of(xDirection,yDirection).
+            // The following 'if statement' filters out some cases.
+            if (distanceX < MIN1 || distanceY < MIN1
+                    || (distanceX < MIN2 && distanceY < MIN2))
+                return EnumSet.of(xDirection, yDirection);
         }
-        	
+
         xDirection = null;
         yDirection = null;
-        
-        GeodeticCalculator gc = new GeodeticCalculator();
+
         gc.setStartingGeographicPoint(centroid.x, centroid.y);
         gc.setDestinationGeographicPoint(point.x, point.y);
         double azimuth = gc.getAzimuth();
@@ -229,26 +237,32 @@ public class GisUtil {
                 && !suppressType.equals(SuppressMap.ALL))
             retVal.add(yDirection);
 
-        if (xDirection != null && 
-       		(xDirection.equals(Direction.WEST) || xDirection.equals(Direction.EAST))) {
-            if ( env.getHeight() < RATIO*approximateHeight) {
+        if (xDirection != null
+                && (xDirection.equals(Direction.WEST) || xDirection
+                        .equals(Direction.EAST))) {
+            if (env.getHeight() < RATIO * approximateHeight) {
                 retVal.add(Direction.CENTRAL);
             }
         }
 
-        if (yDirection != null && 
-        		(yDirection.equals(Direction.NORTH) || yDirection.equals(Direction.SOUTH))) {
-        	if ( env.getWidth() < RATIO*approximateWidth) {
+        if (yDirection != null
+                && (yDirection.equals(Direction.NORTH) || yDirection
+                        .equals(Direction.SOUTH))) {
+            if (env.getWidth() < RATIO * approximateWidth) {
                 retVal.add(Direction.CENTRAL);
             }
         }
-        
-        if ((retVal.contains(Direction.NORTH) && retVal.contains(Direction.WEST)) || 
-        		(retVal.contains(Direction.NORTH) && retVal.contains(Direction.EAST)) ||
-        		(retVal.contains(Direction.SOUTH) && retVal.contains(Direction.WEST)) ||
-        		(retVal.contains(Direction.SOUTH) && retVal.contains(Direction.EAST)) ) {
-                if (retVal.contains(Direction.CENTRAL))
-        	       retVal.remove(Direction.CENTRAL);
+
+        if ((retVal.contains(Direction.NORTH) && retVal
+                .contains(Direction.WEST))
+                || (retVal.contains(Direction.NORTH) && retVal
+                        .contains(Direction.EAST))
+                || (retVal.contains(Direction.SOUTH) && retVal
+                        .contains(Direction.WEST))
+                || (retVal.contains(Direction.SOUTH) && retVal
+                        .contains(Direction.EAST))) {
+            if (retVal.contains(Direction.CENTRAL))
+                retVal.remove(Direction.CENTRAL);
         }
 
         if (isExtreme && !suppressType.equals(SuppressMap.ALL))
@@ -286,11 +300,11 @@ public class GisUtil {
             coord.x = oldCoord.x;
         }
         coord.y = oldCoord.y;
-        
+
         return coord;
-        
+
     }
-    
+
     public static Coordinate[] d2dCoordinates(Coordinate[] oldCoords) {
         int length = oldCoords.length;
         Coordinate[] coords = new Coordinate[length];
@@ -327,15 +341,15 @@ public class GisUtil {
     /**
      * restoreAlaskaLon()
      * 
-     * Feb 28, 2012  DR13596  Qinglu Lin Created.
+     * Feb 28, 2012 DR13596 Qinglu Lin Created.
      * 
-     * If the longitude of a Coordinate is less than -180 and corresponding 
-     * latitude is larger than 45 degree North, convert it to a value 
-     * equivalent to (360 + the longitude).
+     * If the longitude of a Coordinate is less than -180 and corresponding
+     * latitude is larger than 45 degree North, convert it to a value equivalent
+     * to (360 + the longitude).
      */
     public static Coordinate restoreAlaskaLon(Coordinate oldCoords) {
         Coordinate coord = new Coordinate();
-    	if (oldCoords.x < -180. && oldCoords.y > 45.) {
+        if (oldCoords.x < -180. && oldCoords.y > 45.) {
             coord.x = 360. + oldCoords.x;
         } else {
             coord.x = oldCoords.x;

@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    7/1/06                    chammack    Initial Creation.
  *    1/10/08       562         bphillip    Modified to handle .bcx files
  *    02/11/09                  njensen     Refactored to new rsc architecture
+ *    07/31/12      DR 14935    D. Friedman Handle little-endian files
  * 
  * </pre>
  * 
@@ -189,6 +191,14 @@ public class BCDResource extends
                 fc = fis.getChannel();
 
                 ByteBuffer buffer = fc.map(MapMode.READ_ONLY, 0, file.length());
+
+                // Determine byte order of data
+                if (buffer.remaining() >= 4) {
+                    // Whether BCX or not, first value is an int.
+                    // Note: Different from A1 which tests >31 or >500
+                    if (buffer.getInt(0) > Short.MAX_VALUE)
+                        buffer.order(ByteOrder.LITTLE_ENDIAN);
+                }
 
                 int i = 0;
 

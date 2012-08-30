@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Aug 25, 2011 10719      rferrel     Removed the no longer common ugcPtrn.
+ * Aug  6, 2012 15219      Qinglu Lin  For tmlPtrn, changed d{1,3}DEG to d{3}DEG.
+
  * </pre>
  * 
  * @version 1.0
@@ -72,7 +74,7 @@ public interface IQCCheck {
             .compile("\\s{1,}\\d{3,4}\\s\\d{3,5}(|(\\s\\d{3,4}\\s\\d{3,5}){1,})");
 
     public static final Pattern tmlPtrn = Pattern
-            .compile("TIME...MOT...LOC \\d{3,4}Z\\s\\d{1,3}DEG\\s\\d{1,3}KT((\\s\\d{3,4}\\s\\d{3,5}){1,})");
+            .compile("TIME...MOT...LOC \\d{3,4}Z\\s\\d{3}DEG\\s\\d{1,3}KT((\\s\\d{3,4}\\s\\d{3,5}){1,})");
 
     public static final Pattern subTMLPtrn = Pattern
             .compile("(\\d{3,5}\\s){1,}");

@@ -9,6 +9,7 @@
 ##         BY EVAN BOOKBINDER            2-24-2012  OB12.2.1   ##
 ##         BY MIKE REGA       5-3-2012 DR 14885 MND blank line ##
 ##         BY QINGLU LIN     6-18-2012 DR 15043 use duration   ##
+##         BY QINGLU LIN     7-31-2012 DR 15217 use roundAndPad##
 #################################################################
 ##
 ###################################################################
@@ -277,7 +278,7 @@ REMEMBER...A TORNADO WARNING STILL REMAINS IN EFFECT FOR !** PORTION AND COUNTY 
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${now}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
@@ -859,7 +860,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 TIME...MOT...LOC ##
 ${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##

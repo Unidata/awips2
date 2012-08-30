@@ -187,6 +187,8 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
     private boolean mirror;
 
+    private double noDataValue = Double.NaN;
+
     @XmlElement
     private PersistedParameters persisted = new PersistedParameters();
 
@@ -1009,4 +1011,20 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
             this.colorMapMax = params.colorMapMax;
         }
     }
+
+    /**
+     * @return the noDataValue
+     */
+    public double getNoDataValue() {
+        return noDataValue;
+    }
+
+    /**
+     * @param noDataValue
+     *            the noDataValue to set
+     */
+    public void setNoDataValue(double noDataValue) {
+        this.noDataValue = noDataValue;
+    }
+
 }

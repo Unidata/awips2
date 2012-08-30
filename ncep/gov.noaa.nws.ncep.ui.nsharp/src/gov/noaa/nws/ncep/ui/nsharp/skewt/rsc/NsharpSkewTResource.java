@@ -4016,7 +4016,9 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
         double windX = xPosition;
         float lastHeight = -999;
         double windY=0;
-        double barbScaleFactorx=1, barbScaleFactory=1;
+        double barbScaleFactorx, barbScaleFactory;
+        barbScaleFactorx = zoomLevel;
+        barbScaleFactory = zoomLevel;
         //System.out.println("zoom="+zoomLevel +"world viewYmin="+world.getViewYmin()+" viewYmax="+world.getViewYmax()+" wolrdYmin="+ world.getWorldYmin()+" wolrdYmax="+ world.getWorldYmax()
         //		+"world viewXmin="+world.getViewXmin()+" viewXmax="+world.getViewXmax()+" wolrdXmin="+ world.getWorldXmin()+" wolrdXmax="+ world.getWorldXmax());
         for (NcSoundingLayer layer : sndLys) {
@@ -4041,15 +4043,15 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
             	//Chin:Y axis (pressure) is scaled using log scale and increaing downward
             	//WorldYmin= at pressure 1000,its value actually is 1000 (max), wolrdYmax = at pressure 300, its value is 825 (min)
             	windY = world.getWorldYmax() + (world.getWorldYmin()-bkRsc.getIcingBackground().toLogScale(pressure));
-            	barbScaleFactorx = 2.5;
-            	barbScaleFactory=3.5;//experimental value: depends on the world coordinate size set
+            	barbScaleFactorx = 2.5*zoomLevel;
+            	barbScaleFactory= 3.5*zoomLevel;//experimental value: depends on the world coordinate size set
             }else if( currentGraphMode== NsharpConstants.GRAPH_TURB){
             	NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();
             	//Chin:Y axis (pressure) is scaled using log scale and increaing downward
             	//WorldYmin= at pressure 1000,its value actually is 1000 (max), wolrdYmax = at pressure 300, its value is 825 (min)
             	windY = world.getWorldYmax() + (world.getWorldYmin()-bkRsc.getTurbBackground().toLogScale(pressure));
-            	barbScaleFactorx = .23;//experimental value: depends on the world coordinate size set
-            	barbScaleFactory=5.5;
+            	barbScaleFactorx = .23*zoomLevel;//experimental value: depends on the world coordinate size set
+            	barbScaleFactory=5.5*zoomLevel;
             }
             else
             	continue;
@@ -6651,7 +6653,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		for (NcSoundingLayer layer : this.soundingLys) {
         	p = layer.getPressure();
         	t = layer.getTemperature();
-        	omega = layer.getOmega()* 10 ;//to have same scale as legacy Nsharp 
+        	omega = layer.getOmega()* -10 ;//to have same scale as legacy Nsharp 
         	if (p > 140 && p < 1000 && omega > -10){
         		//since 40 units of skewT X-axis is 10 unit of Omega, we have to convert it by 
         		// multiply 4 to omega unit for plotting
