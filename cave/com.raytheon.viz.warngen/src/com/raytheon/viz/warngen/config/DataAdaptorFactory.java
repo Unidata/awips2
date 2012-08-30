@@ -19,10 +19,8 @@
  **/
 package com.raytheon.viz.warngen.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration.PointType;
 
 /**
  * Creates data adaptors for PointSource and Pathcast data.
@@ -43,16 +41,17 @@ import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration
 
 public class DataAdaptorFactory {
 
-    private static Map<Class<?>, IPointSourceDataAdaptor> adapterMap = new HashMap<Class<?>, IPointSourceDataAdaptor>();
-    static {
-        // Only data source config so far
-        adapterMap.put(PointSourceConfiguration.class,
-                new DbPointSourceDataAdaptor());
-    }
-
-    public static IPointSourceDataAdaptor createPointSource(
+    public static AbstractDbSourceDataAdaptor createPointSource(
             PointSourceConfiguration pointConfig) {
-        return adapterMap.get(pointConfig.getClass());
-    }
 
+        AbstractDbSourceDataAdaptor adaptor = null;
+
+        if (pointConfig.getType() == PointType.AREA) {
+            adaptor = new DbAreaSourceDataAdaptor();
+        } else if (pointConfig.getType() == PointType.POINT) {
+            adaptor = new DbPointSourceDataAdaptor();
+        }
+
+        return adaptor;
+    }
 }

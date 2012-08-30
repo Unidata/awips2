@@ -23,6 +23,8 @@ package com.raytheon.viz.texteditor.dialogs;
 import java.io.InputStream;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -48,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 27Jul2010    4773        cjeanbap    Initial development
  * 10Aug2010    2187        cjeanbap    Removed warnGenFlag.
  * 10Nov2011    11552       rferrel     returnvalue no longer null
+ * 08/20/2012   DR 15340    D. Friedman Use callbacks for closing
  * 
  * </pre>
  * 
@@ -66,10 +69,17 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
     private String IMAGE_TEST = "res/images/twsTest.gif";
 
     private String IMAGE_PRACTICE = "res/images/twsPractice.gif";
+    
+    public static interface SessionDelegate {
+        void dialogDismissed(Object result);
+    }
+    
+    private SessionDelegate sessionDelegate;
 
     protected WarnGenConfirmationDlg(Shell parentShell, String title,
             String productMessage, String modeMessage, CAVEMode mode) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.NONE);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, 
+                CAVE.NONE | CAVE.DO_NOT_BLOCK);
 
         setText(title);
 
@@ -77,6 +87,13 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
         this.modeMessage = modeMessage;
         this.mode = mode;
         setReturnValue(Boolean.FALSE);
+    }
+    
+    public void open(SessionDelegate sessionDelegate) {
+        if (sessionDelegate != null && isOpen())
+            throw new RuntimeException(String.format("Dialog \"%s\" already open", getText()));
+        this.sessionDelegate = sessionDelegate;
+        super.open();
     }
 
     @Override
@@ -86,7 +103,13 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
         createImage(mainComposite);
         createMessageLabel(mainComposite);
         createButtonRow(mainComposite);
-
+        shell.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (sessionDelegate != null)
+                    sessionDelegate.dialogDismissed(getReturnValue());
+            }
+        });
     }
 
     private void createImage(Composite mainComposite) {

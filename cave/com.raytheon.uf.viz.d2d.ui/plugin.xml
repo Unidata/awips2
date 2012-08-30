@@ -1568,7 +1568,7 @@
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
-            commandId="com.raytheon.viz.ui.actions.printScreenAction"
+            commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+P">
       </key>

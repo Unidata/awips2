@@ -20,12 +20,16 @@
 package com.raytheon.edex.plugin.gfe.smartinit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
@@ -36,8 +40,12 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
@@ -62,10 +70,11 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 7, 2008				njensen	    Initial creation
- * Jan 22, 2010      4248   njensen      Better error msgs
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 7, 2008              njensen     Initial creation
+ * Jan 22, 2010  4248       njensen     Better error msgs
+ * Jul 25, 2012  #957       dgilling    Implement getEditArea().
  * 
  * </pre>
  * 
@@ -454,5 +463,31 @@ public class IFPWE {
 
     public ParmID getParmid() {
         return parmId;
+    }
+
+    public Grid2DBit getEditArea(String name) {
+        try {
+            IFPServerConfig config = IFPServerConfigManager
+                    .getServerConfig(siteId);
+            ReferenceMgr refMgr = new ReferenceMgr(config);
+
+            ServerResponse<List<ReferenceData>> sr = refMgr.getData(Arrays
+                    .asList(new ReferenceID(name)));
+            if (sr.isOkay()) {
+                ReferenceData data = sr.getPayload().get(0);
+                if (data.refType() != RefType.POLYGON) {
+                    throw new Exception("Edit area is not a polygon");
+                }
+                return data.getGrid();
+            } else {
+                statusHandler.error("Unable to retrieve edit area [" + name
+                        + "]: " + sr.message());
+            }
+        } catch (Exception e) {
+            statusHandler.error("Unable to retrieve edit area [" + name + "].",
+                    e);
+        }
+
+        return null;
     }
 }
