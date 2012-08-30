@@ -132,8 +132,8 @@ cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
 log_msg 80
 cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 log_msg 90
-cp -r GFEconfig/cave_static/site/gfe ${cave_site_dest}
-log_msg 100
+cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
+log_msg 93
 log_msg "Files successfully copied!"
 
 log_msg "Changing ownership of received configuration"
@@ -150,7 +150,7 @@ else
 fi
 
  
-log_msg 105
+log_msg 95
 
 #Change the MHS ID of the received configuration
 backup_config=${LOCALIZATION_PATH}/edex_static/site/${my_site_caps}/config/gfe/siteConfig.py
@@ -170,6 +170,6 @@ cd ${SVCBU_HOME}
 rm -rf *
 
 rm -f ${LOCK_DIR}/importConfiguration
-log_msg 110
+log_msg 100
 touch ${LOCK_DIR}/${SITE}svcbuMode
 log_msg "Configuration Import Complete!"

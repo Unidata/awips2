@@ -194,7 +194,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
          	editor.refresh();
         }
 	}
-	private void setDisplay(){
+	/*private void setDisplay(){
 		int pageIndex = 0;
 		for(int orderNum=1; orderNum <= NsharpConstants.PAGE_MAX_NUMBER; orderNum++){
 			for(int j=1; j <= NsharpConstants.PAGE_MAX_NUMBER; j++){
@@ -208,7 +208,7 @@ public class NsharpDataPageConfigDialog extends Dialog {
 			newOrderTextArray[orderNum].setText(Integer.toString(pageOrderNumberArray[pageIndex]));
 			pageNameLblArray[orderNum].setText(NsharpConstants.PAGE_NAME_ARRAY[pageIndex]);
 		}
-	}
+	}*/
 	@Override
 	public void okPressed() {
 		//"Enter" key is pressed, or "Apply" button is pressed.

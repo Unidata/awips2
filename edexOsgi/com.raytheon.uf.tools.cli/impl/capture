@@ -13,9 +13,11 @@ REMOTE_SERVERS_TO_CHECK="dx1f dx3 dx4"
 # Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
 RUN_JSTACK="Y"
 RUN_JMAP="Y"
+RUN_QPID_STAT="Y"
 MOVE_ALL_HS_ERR_PID="Y"
 # For remote top you must have ssh keys setup to allow automatic login, otherwise password prompt will get sent to log file and script will never exit
 GRAB_REMOTE_TOP="Y"
+GRAB_REMOTE_VMSTAT="Y"
 GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
 EDEX_MODE="N"
 FORCE="N"
@@ -46,6 +48,9 @@ usage() {
    echo -e "-f {y/n}\t\tdefault [$FORCE]"
    echo "  Force a jstack/jmap by default"
    echo
+   echo -e "-q {y/n}\t\tdefault [$RUN_QPID_STAT]"
+   echo "  Force a qpid-stat by default"
+   echo
    echo -e "-m {y/n}\t\tdefault [$MOVE_ALL_HS_ERR_PID]"
    echo "  Captures all hs_err_pid's found"
    echo
@@ -54,6 +59,9 @@ usage() {
    echo
    echo -e "-t {y/n}\t\tdefault [$GRAB_REMOTE_TOP]"
    echo "  Captures top information from servers, auto login must be enabled"
+   echo
+   echo -e "-v {y/n}\t\tdefault [$GRAB_REMOTE_VMSTAT]"
+   echo "  Captures vmstat information from servers, auto login must be enabled"
    echo
    echo -e "-c \"{host names}\"\tdefault [$REMOTE_SERVERS_TO_CHECK]"
    echo "  The servers to grab top information from, make sure list is quoted and space delimited"
@@ -116,10 +124,25 @@ grabRemoteTop() {
          t1=`date "+%Y%m%d %H:%M:%S"`
          echo "${t1}: Capturing top for $server" >> $processFile
          out_file="${dataPath}/top_$server.log"
-         ssh $server "export COLUMNS=160; top -b -c -n1" >> $out_file 2>&1 &
+         ssh $server "sh -c 'export COLUMNS=160; top -b -c -n1' " >> $out_file 2>&1 &
       done
    fi
 }
+
+# runs ssh command to grab vmstat on a remote server, requires auto login to be setup
+grabRemoteVmstat() {
+   if [ "$GRAB_REMOTE_VMSTAT" == "y" ]; then
+      echo "Capturing vmstat on remote servers"
+      for server in ${REMOTE_SERVERS_TO_CHECK};
+      do
+         t1=`date "+%Y%m%d %H:%M:%S"`
+         echo "${t1}: Capturing vmstat for $server" >> $processFile
+         out_file="${dataPath}/vmstat_$server.log"
+         ssh $server "sh -c 'vmstat -w 1 5' " >> $out_file 2>&1 &
+      done
+   fi
+}
+
 
 checkForProcsAsOtherUsers() {
    if [ ! -z "$procs" ]; then
@@ -225,6 +248,21 @@ runJmap() {
    $cmd >> ${prePath}dump.log 2>&1 &
 }
 
+# runs qpid-stat 
+runQpidStat() {
+   local qpidHost=cp1f 
+   local prePath="${dataPath}/"
+   local t1=`date "+%Y%m%d %H:%M:%S"`
+   local cmd="/awips2/python/bin/qpid-stat -q -Smsg -L100 ${qpidHost}" 
+   echo "${t1}: Running command: $cmd >> ${prepath}qpid-stat.log 2>&1 &" >> $processFile
+   if [ "$ACCUM" = "y" ]; then
+	echo >> ${prePath}qpid-stat.log
+	echo >> ${prePath}qpid-stat.log
+	echo "Running for $t1" >> ${prePath}qpid-stat.log
+   fi
+   $cmd >> ${prePath}qpid-stat.log 2>&1 &
+}
+
 # runs versions.sh to grab version info
 runVersions() {
    local t1=`date "+%Y%m%d %H:%M:%S"`
@@ -240,6 +278,7 @@ while [ ! -z "$1" ]; do
 
    case $arg in
       -p) cavePid="$1"; shift 1;;
+      -q) RUN_QPID_STAT="$1"; shift 1;;
       -g) grepString="$1"; shift 1;;
       -r) REMOTE_SERVERS_TO_CHECK="$1"; shift 1;;
       -s) RUN_JSTACK="$1"; shift 1;;
@@ -251,6 +290,7 @@ while [ ! -z "$1" ]; do
       -z) TGZ_OUTPUT="$1"; shift 1;;
       -e) EDEX_MODE="Y"; edexProcs[$edexProcCount]="$1"; shift 1; let "edexProcCount+=1";;
       -a) ACCUM="$1"; shift 1;;
+      -v) GRAB_REMOTE_VMSTAT="$1"; shift 1;;
       -h|*) usage;;
    esac
 done
@@ -258,9 +298,11 @@ done
 # validate inputs
 checkYes RUN_JSTACK $RUN_JSTACK
 checkYes RUN_JMAP $RUN_JMAP
+checkYes RUN_QPID_STAT $RUN_QPID_STAT
 checkYes FORCE $FORCE
 checkYes MOVE_ALL_HS_ERR_PID $MOVE_ALL_HS_ERR_PID
 checkYes GRAB_REMOTE_TOP $GRAB_REMOTE_TOP
+checkYes GRAB_REMOTE_VMSTAT $GRAB_REMOTE_VMSTAT
 checkYes GRAB_CAVE_AND_ALERTVIZ_LOGS $GRAB_CAVE_AND_ALERTVIZ_LOGS
 checkYes EDEX_MODE $EDEX_MODE
 checkYes TGZ_OUTPUT $TGZ_OUTPUT
@@ -283,6 +325,7 @@ if [ "$EDEX_MODE" == "y" ]; then
    GRAB_CAVE_AND_ALERTVIZ_LOGS="n"
    MOVE_ALL_HS_ERR_PID="n"
    GRAB_REMOTE_TOP="n"
+   GRAB_REMOTE_VMSTAT="n"
 fi
 
 umask 0002
@@ -315,10 +358,12 @@ cd $dataPath
 processFile=${dataPath}/capture_info.log
 export COLUMNS=160
 top -b -c -n1 >> "${dataPath}/top_$hostName.log"
+vmstat -w 1 5 >> "${dataPath}/vmstat_$hostName.log"
 
 if [ "$ACCUM" == "y" ]; then
    echo "" >> "${dataPath}/top_$hostName.log"
    echo "" >> "${dataPath}/top_$hostName.log"
+   echo "" >> "${dataPath}/vmstat_$hostName.log"
 fi
 
 
@@ -412,7 +457,11 @@ if [ ! -z "${myProcs}" ]; then
       done
    fi
 
+   runQpidStat
+
    grabRemoteTop
+
+   grabRemoteVmstat
 
    # grab all jmaps
    if [ "$RUN_JMAP" == "y" ]; then
@@ -450,7 +499,9 @@ else
    echo "${t1}: NO processes found for $user" >> $processFile
    echo "" >> $processFile
 
+   runQpidStat
    grabRemoteTop
+   grabRemoteVmstat
 fi
 
 # move all hs_err_pid from user's home directory to capture directory
