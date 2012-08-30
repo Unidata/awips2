@@ -32,10 +32,11 @@
 #    12/09/09        DR3778        M. Huang      Add acknowledgment handling
 #    09/05/11        DR9602        M. Huang      Fix acknowledgment handling error
 #    04/13/12        DR 10388      D. Friedman   Correct acknowledgment handling
+#    08/17/12        DR 15304      D. Friedman   Use unique output file names  
 # 
 #
 
-import time, os, os.path, sys, subprocess, select
+import time, os, os.path, sys, subprocess, select, errno
 import logging, UFStatusHandler
 from com.raytheon.uf.common.dissemination import OUPResponse
 _Logger = logging.getLogger("HandleOUP")
@@ -126,8 +127,9 @@ def process(oup, afosID, resp, ackMgr = None):
     #----------
     # Locally store OUP in text database and archive
     #----------    
-    awipsPathname = OUT_DIR + '/' + oup.getFilename()
-    if not createTargetFile(contents, awipsPathname):
+    awipsPathname = createTargetFile(contents, 
+            OUT_DIR + '/' + oup.getFilename())
+    if not awipsPathname:
         _Logger.debug('Unable to store product to text database:')
         storageCompleted = DB_FAILURE
         msg = 'Product ' + awipsWanPil + ' failed to be ingested and archived.\n'
@@ -499,9 +501,8 @@ def isNWWSProduct(myAwipsId, myAfosId, myWmoId, siteID):
 #       product contents
 #       target product pathname (Output)
 # 
-#   Returns:                                     
-#       1 (TRUE) = target product successfully created
-#       0 (FALSE) = target product creation failed
+#   Returns:
+#       The output path (which may differ from targetPathname)        
 #
 #   Implementation:
 #
@@ -509,13 +510,27 @@ def isNWWSProduct(myAwipsId, myAfosId, myWmoId, siteID):
 def createTargetFile(fileData, targetPathname):
     _Logger.debug('createTargetFile():')
     _Logger.debug('target product pathname = ' + targetPathname)
+
+    pathToUse = targetPathname
+    i = 0
+    while True:
+        try:
+            fd = os.open(pathToUse, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0666)
+        except OSError, e:
+            if e.errno == errno.EEXIST:
+                i += 1
+                pathToUse = targetPathname + '.' + str(i)
+                continue
+            raise e
+        else:
+            break
+   
+    if i > 0:
+       _Logger.info('Renamed target file to ' + pathToUse)
     
-    outFile = open(targetPathname, 'w')
+    outFile = os.fdopen(fd, 'w')
     outFile.write(fileData)
     outFile.flush()
     outFile.close()
-    return True
-       
-    
-    
+    return pathToUse
     

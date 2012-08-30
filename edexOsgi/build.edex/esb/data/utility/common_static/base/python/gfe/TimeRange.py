@@ -126,12 +126,27 @@ class TimeRange(JUtil.JavaWrapperClass):
     def __ne__(self, other):
         return not self == other
     
+    def __lt__(self, other):
+        return self.__tr.compareTo(other.toJavaObj()) < 0
+
+    def __le__(self, other):
+        return self.__tr.compareTo(other.toJavaObj()) <= 0
+
+    def __gt__(self, other):
+        return self.__tr.compareTo(other.toJavaObj()) > 0
+
+    def __ge__(self, other):
+        return self.__tr.compareTo(other.toJavaObj()) >= 0
+
     def __hash__(self):
         if not self.__hash:
             self.__hash = self.startTime().unixTime() ^ self.endTime().unixTime()
         return self.__hash
     
     def __str__(self):
+        return str(self.__tr.toString())
+
+    def __repr__(self):
         return str(self.__tr.toString())
 
 def javaTimeRangeListToPyList(timeRanges):

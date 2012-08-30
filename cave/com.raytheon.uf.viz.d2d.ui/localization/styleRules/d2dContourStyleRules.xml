@@ -4084,4 +4084,13 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
   </contourStyle>
 </styleRule>
 
+<styleRule>
+	<paramLevelMatches>
+		<parameter>Wind</parameter>
+		<parameter>Gust</parameter>
+	</paramLevelMatches>
+	<contourStyle>
+			<displayUnits>kts</displayUnits>
+		</contourStyle>
+	</styleRule>
 </styleRuleset>

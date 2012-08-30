@@ -23,6 +23,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    02/16/12        14439         jdynina        modified haines thresholds
 #    02/16/12        13917         jdynina        merged in changes from TRAC ticket 11391
+#    07/25/12        #957          dgilling       implement edit areas as args to calc methods.
 #    
 # 
 ##
@@ -36,7 +37,7 @@ pytime = time
 #--------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------
-#  Definitiona for model database class.
+#  Definition for model database class.
 #--------------------------------------------------------------------------
 class MDB:
     def __init__(self, dblist):
@@ -336,11 +337,7 @@ class Forecaster(GridUtilities):
 #            LogStream.logProblem("staticTopo not available, using topo")
 #            self.__stopo = self.__topo
         
-        areas = self._client.getEditAreaNames()
-        areasize = areas.size()
-        self._editAreas = []
-        for i in range(areasize):            
-            self._editAreas.append(str(areas.get(i)))        
+        self._editAreas = self._client.getEditAreaNames()
         self._empty = self.__topo * 0
         self._minus = self._empty - 1
 
@@ -958,8 +955,8 @@ class Forecaster(GridUtilities):
         for arg in args:
             if arg in self._editAreas:
                 if cache[arg][0] is None:
-                    p = self.newdb()[we]
-                    ea = p.getEditArea(arg)
+                    p = self.newdb().getItem(we)
+                    ea = p.getEditArea(arg).__numpy__[0]
                     cache[arg] = (ea, (0, sys.maxint))
                 gargs.append(cache[arg][0])
                 continue

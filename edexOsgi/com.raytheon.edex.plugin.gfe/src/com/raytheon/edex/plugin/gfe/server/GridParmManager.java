@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 07/09/09     #2590     njensen   Changed from singleton to static
+ * 07/12/12     15162     ryu       added check for invalid db
  * 
  * </pre>
  * 
@@ -1144,12 +1145,15 @@ public class GridParmManager {
                 }
             }
 
+            boolean isIFP = (db == null);
             if (db == null) {
                 db = new IFPGridDatabase(dbId);
-                ((IFPGridDatabase) db).updateDbs();
+                if (db.databaseIsValid())
+                    ((IFPGridDatabase) db).updateDbs();
             }
 
-            dbMap.put(dbId, db);
+            if (!isIFP || db.databaseIsValid())
+                dbMap.put(dbId, db);
         }
         return db;
     }

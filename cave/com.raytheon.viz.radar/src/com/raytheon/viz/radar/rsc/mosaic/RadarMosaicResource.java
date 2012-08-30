@@ -30,6 +30,10 @@ import java.util.Set;
 
 import javax.measure.unit.UnitFormat;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -39,6 +43,9 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -84,6 +91,9 @@ public class RadarMosaicResource extends
         AbstractVizResource<RadarMosaicResourceData, MapDescriptor> implements
         IResourceDataChanged, IRadarTextGeneratingResource, IRefreshListener {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarMosaicResource.class);
+
     private static final RGB DEFAULT_COLOR = new RGB(255, 255, 255);
 
     private IRadarMosaicRenderer mosaicRenderer;
@@ -99,6 +109,16 @@ public class RadarMosaicResource extends
     private DataTime lastTime = null;
 
     private Map<AbstractVizResource<?, ?>, DataTime[]> timeMatchingMap = new HashMap<AbstractVizResource<?, ?>, DataTime[]>();
+
+    private Job timeUpdateJob = new Job("Time Matching Mosaic") {
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            updateTimes();
+            return Status.OK_STATUS;
+        }
+
+    };
 
     protected RadarMosaicResource(RadarMosaicResourceData rrd,
             LoadProperties loadProps) throws VizException {
@@ -178,6 +198,8 @@ public class RadarMosaicResource extends
                 rp.getResource().registerListener(this);
             }
         }
+
+         timeUpdateJob.setSystem(true);
     }
 
     private int getSeverity(ResourcePair rp) {
@@ -217,10 +239,12 @@ public class RadarMosaicResource extends
             PaintProperties paintProps) throws VizException {
         DataTime[] frameTimes = paintProps.getFramesInfo().getTimeMap()
                 .get(this);
-        if (force || !Arrays.equals(timeMatchingMap.get(this), frameTimes)) {
-            redoTimeMatching(
-                    !Arrays.equals(timeMatchingMap.get(this), frameTimes),
-                    frameTimes);
+        if (!Arrays.equals(timeMatchingMap.get(this), frameTimes)) {
+            timeUpdateJob.schedule();
+            force = true;
+        }
+        if (force) {
+            redoTimeMatching(frameTimes);
         }
         List<RadarRecord> recordsToMosaic = constructRecordsToMosaic(target);
         if (recordsToMosaic.isEmpty() == false) {
@@ -312,80 +336,117 @@ public class RadarMosaicResource extends
         return dt[idx];
     }
 
-    private void redoTimeMatching(boolean requery, DataTime[] frameTimes)
-            throws VizException {
+    /**
+     * redoTimeMatching will not trigger an server requests and should be safe
+     * to run within paint to guarantee that the latest times for any resources
+     * match the frame times for the mosaic resource.
+     * 
+     * @param frameTimes
+     * @throws VizException
+     */
+    private void redoTimeMatching(DataTime[] frameTimes) throws VizException {
         timeMatchingMap.clear();
         if (frameTimes == null) {
             return;
         }
-        List<DataTime> dataTimes = Arrays.asList(frameTimes);
         timeMatchingMap.put(this, frameTimes);
         for (ResourcePair pair : getResourceList()) {
             DataTime[] availableTimes = pair.getResource().getDataTimes();
-            if (requery
-                    && pair.getResourceData() instanceof AbstractRequestableResourceData) {
-                availableTimes = ((AbstractRequestableResourceData) pair
-                        .getResourceData()).getAvailableTimes();
-            }
-            DataTime[] displayTimes = new DataTime[frameTimes.length];
-            for (int i = 0; i < frameTimes.length; i++) {
-                DataTime frameTime = frameTimes[i];
-                if (frameTime == null) {
+            DataTime[] displayTimes = timeMatch(frameTimes, availableTimes);
+            timeMatchingMap.put(pair.getResource(), displayTimes);
+        }
+    }
+
+    /**
+     * Update times will cause all times to be requested for all child resources
+     * and possibly also trigger data requests therefore it should always be run
+     * off the UI thread, preferably in the timeUpdateJob.
+     */
+    private void updateTimes() {
+        for (ResourcePair pair : getResourceList()) {
+            try {
+                if (!(pair.getResourceData() instanceof AbstractRequestableResourceData)) {
                     continue;
                 }
-                if (resourceData.getBinOffset() != null) {
-                    frameTime = resourceData.getBinOffset().getNormalizedTime(
-                            frameTime);
-                    long frameSeconds = frameTime.getMatchValid() / 1000;
-                    for (DataTime displayTime : availableTimes) {
-                        long dispSeconds = displayTime.getMatchValid() / 1000;
-                        // Match at twice the range of binOffset this makes
-                        // things much smoother
-                        if (Math.abs(dispSeconds - frameSeconds) < resourceData
-                                .getBinOffset().getInterval() * 2) {
-                            if (displayTimes[i] != null) {
-                                long d1 = Math.abs(frameTime.getMatchValid()
-                                        - displayTimes[i].getMatchValid());
-                                long d2 = Math.abs(frameTime.getMatchValid()
-                                        - displayTime.getMatchValid());
-                                if (d1 < d2) {
-                                    continue;
-                                }
-                            }
-                            displayTimes[i] = displayTime;
-                        }
-                    }
-                } else if (Arrays.asList(availableTimes).contains(frameTime)) {
-                    displayTimes[i] = frameTime;
-                }
-            }
-            timeMatchingMap.put(pair.getResource(), displayTimes);
-            availableTimes = pair.getResource().getDataTimes();
-            // request any new times.
-            if (requery
-                    && pair.getResourceData() instanceof AbstractRequestableResourceData) {
                 AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) pair
                         .getResourceData();
+                DataTime[] availableTimes = arrd.getAvailableTimes();
+                DataTime[] frameTimes = descriptor.getTimeMatchingMap().get(
+                        this);
+                DataTime[] displayTimes = timeMatch(frameTimes, availableTimes);
+                // request any new times.
                 PluginDataObject[] pdos = arrd.getLatestPluginDataObjects(
                         displayTimes, availableTimes);
                 if (pdos.length > 1) {
                     resourceData.update(pdos);
+                    refresh();
                 }
-            }
-            // remove any extra times
-            for (DataTime availableTime : availableTimes) {
-                DataTime adjAvailTime = availableTime;
-                if (resourceData.getBinOffset() != null) {
-                    adjAvailTime = resourceData.getBinOffset()
-                            .getNormalizedTime(availableTime);
+                // remove any extra times
+                List<DataTime> displayList = Arrays.asList(displayTimes);
+                List<DataTime> frameList = Arrays.asList(frameTimes);
+                for (DataTime availableTime : pair.getResource().getDataTimes()) {
+                    DataTime adjAvailTime = availableTime;
+                    if (resourceData.getBinOffset() != null) {
+                        adjAvailTime = resourceData.getBinOffset()
+                                .getNormalizedTime(availableTime);
+                    }
+                    if (!frameList.contains(adjAvailTime)
+                            && !displayList.contains(availableTime)) {
+                        pair.getResourceData().fireChangeListeners(
+                                ChangeType.DATA_REMOVE, availableTime);
+                    }
                 }
-                if (!dataTimes.contains(adjAvailTime)
-                        && !Arrays.asList(displayTimes).contains(availableTime)) {
-                    pair.getResourceData().fireChangeListeners(
-                            ChangeType.DATA_REMOVE, availableTime);
-                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
+    }
+
+    /**
+     * Attempt to match the times for the mosaic with the times for an individual radar.
+     * 
+     * @param frameTimes the frame times for the mosaic resource
+     * @param availableTimes the times for a radar within a mosaic
+     * @return
+     */
+    private DataTime[] timeMatch(DataTime[] frameTimes,
+            DataTime[] availableTimes) {
+        DataTime[] displayTimes = new DataTime[frameTimes.length];
+        for (int i = 0; i < frameTimes.length; i++) {
+            DataTime frameTime = frameTimes[i];
+            if (frameTime == null) {
+                continue;
+            }
+            if (resourceData.getBinOffset() != null) {
+                frameTime = resourceData.getBinOffset().getNormalizedTime(
+                        frameTime);
+                long frameValid = frameTime.getMatchValid();
+                // Match at twice the range of binOffset this makes
+                // things much smoother
+                int interval = resourceData.getBinOffset().getInterval() * 2000;
+                for (DataTime displayTime : availableTimes) {
+                    if(displayTime == null){
+                        continue;
+                    }
+                    long dispValid = displayTime.getMatchValid();
+                    if (Math.abs(dispValid - frameValid) < interval) {
+                        if (displayTimes[i] != null) {
+                            long d1 = Math.abs(frameValid
+                                    - displayTimes[i].getMatchValid());
+                            long d2 = Math.abs(frameValid - dispValid);
+                            if (d1 < d2) {
+                                continue;
+                            }
+                        }
+                        displayTimes[i] = displayTime;
+                    }
+                }
+            } else if (Arrays.asList(availableTimes).contains(frameTime)) {
+                displayTimes[i] = frameTime;
+            }
+        }
+        return displayTimes;
     }
 
     /*
