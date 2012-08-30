@@ -40,7 +40,6 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
@@ -57,7 +56,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 Feb, 2011   7587    dhladky     Initial creation
- * 25 Jan, 2012   DR13839 gzhang	  Handle Uris and Huc processing
+ * 25 Jan, 2012   DR13839 gzhang      Handle Uris and Huc processing
  * </pre>
  * 
  * @author dhladky
@@ -65,8 +64,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  */
 public class FFMPDataLoader extends Thread {
 
-    //private static final transient IUFStatusHandler statusHandler = UFStatus
-    //        .getHandler(FFMPDataLoader.class);
+    // private static final transient IUFStatusHandler statusHandler = UFStatus
+    // .getHandler(FFMPDataLoader.class);
 
     private String sharePath = null;
 
@@ -102,7 +101,7 @@ public class FFMPDataLoader extends Thread {
 
         sharePath = AppsDefaults.getInstance().getToken("apps_dir")
                 + File.separator + "ffmp" + File.separator;
-        
+
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
         this.dataKey = resourceData.dataKey;
@@ -151,9 +150,8 @@ public class FFMPDataLoader extends Thread {
         long time = System.currentTimeMillis();
 
         try {
-        	resourceData.setLoader(loadType);
-        	System.out.println("Starting Loader: "+loadType.getLoaderType());
-        	
+            resourceData.setLoader(loadType);
+
             ProductRunXML productRun = runner.getProduct(siteKey);
             ArrayList<String> qpfSources = new ArrayList<String>();
 
@@ -164,8 +162,8 @@ public class FFMPDataLoader extends Thread {
                     || (loadType == LOADER_TYPE.GENERAL)) {
                 rateURI = getMonitor().getAvailableUri(siteKey, dataKey,
                         product.getRate(), mostRecentTime);
-            } 
-        
+            }
+
             NavigableMap<Date, List<String>> qpeURIs = getMonitor()
                     .getAvailableUris(siteKey, dataKey, product.getQpe(),
                             timeBack);
@@ -206,7 +204,7 @@ public class FFMPDataLoader extends Thread {
 
                     NavigableMap<Date, List<String>> iguidURIs = null;
                     Date guidTime = timeBack;
-                   
+
                     if (loadType == LOADER_TYPE.GENERAL) {
                         guidTime = getMonitor().getPreviousQueryTime(siteKey,
                                 guidSource.getSourceName());
@@ -220,11 +218,12 @@ public class FFMPDataLoader extends Thread {
                     }
                 }
             }
-            // We only load all for long range data, all + layer for medium range
+            // We only load all for long range data, all + layer for medium
+            // range
             if (loadType == LOADER_TYPE.TERTIARY) {
-            	hucsToLoad.clear();
-            	hucsToLoad.add("ALL");
-            } 
+                hucsToLoad.clear();
+                hucsToLoad.add("ALL");
+            }
 
             for (String phuc : hucsToLoad) {
 
@@ -238,9 +237,10 @@ public class FFMPDataLoader extends Thread {
                 } else {
                     // rate
                     if (rateURI != null) {
-                    	fireLoaderEvent(loadType, "Processing "+product.getRate() + "/" + phuc,
+                        fireLoaderEvent(loadType,
+                                "Processing " + product.getRate() + "/" + phuc,
                                 isDone);
-                    	
+
                         getMonitor().processUri(isProductLoad, rateURI,
                                 siteKey, product.getRate(), timeBack, phuc);
                         fireLoaderEvent(loadType, product.getRate() + "/"
@@ -248,8 +248,8 @@ public class FFMPDataLoader extends Thread {
                     }
 
                     // qpes
-                    fireLoaderEvent(loadType, "Processing "+product.getQpe() + "/" + phuc,
-                            isDone);
+                    fireLoaderEvent(loadType, "Processing " + product.getQpe()
+                            + "/" + phuc, isDone);
                     FFMPBasinData qpeData = null;
 
                     if (loadType == LOADER_TYPE.INITIAL) {
@@ -265,13 +265,13 @@ public class FFMPDataLoader extends Thread {
                             getMonitor().insertFFMPData(qpeData, siteKey,
                                     product.getQpe(), phuc);
                         }
-                    } 
+                    }
 
                     if (!qpeURIs.isEmpty() && qpeData == null) {
-                        if (phuc.equals(config.getFFMPConfigData().getLayer()) || phuc.equals("ALL")) {
+                        if (phuc.equals(config.getFFMPConfigData().getLayer())
+                                || phuc.equals("ALL")) {
                             getMonitor().processUris(qpeURIs, isProductLoad,
-                                    siteKey, product.getQpe(), timeBack, phuc,
-                                    loadType);
+                                    siteKey, product.getQpe(), timeBack, phuc);
                         }
                     }
 
@@ -281,7 +281,8 @@ public class FFMPDataLoader extends Thread {
                     int i = 0;
                     for (NavigableMap<Date, List<String>> qpfURIs : qpfs) {
                         // qpf
-                        fireLoaderEvent(loadType, "Processing "+product.getQpf(i) + "/" + phuc,
+                        fireLoaderEvent(loadType,
+                                "Processing " + product.getQpf(i) + "/" + phuc,
                                 isDone);
                         FFMPBasinData qpfData = null;
                         if (loadType == LOADER_TYPE.INITIAL) {
@@ -306,7 +307,7 @@ public class FFMPDataLoader extends Thread {
                                         getMonitor().processUris(qpfURIs,
                                                 isProductLoad, siteKey,
                                                 source.getSourceName(),
-                                                timeBack, phuc, loadType);
+                                                timeBack, phuc);
                                     }
                                 }
 
@@ -314,15 +315,19 @@ public class FFMPDataLoader extends Thread {
                                         source.getSourceName(), phuc);
                             }
                         }
-                        //if (isUrisProcessNeeded(qpfData,qpfURIs)) {/*DR13839*/
+                        // if (isUrisProcessNeeded(qpfData,qpfURIs))
+                        // {/*DR13839*/
                         if ((qpfData == null) && !qpfURIs.isEmpty()) {
                             if (phuc.equals(config.getFFMPConfigData()
-                                    .getLayer()) || phuc.equals("ALL")) { //old code: keep for reference*/
-                        	//if (isHucProcessNeeded(phuc)) {/*DR13839*/
+                                    .getLayer()) || phuc.equals("ALL")) { // old
+                                                                            // code:
+                                                                            // keep
+                                                                            // for
+                                                                            // reference*/
+                                // if (isHucProcessNeeded(phuc)) {/*DR13839*/
                                 getMonitor().processUris(qpfURIs,
                                         isProductLoad, siteKey,
-                                        product.getQpf(i), timeBack, phuc,
-                                        loadType);
+                                        product.getQpf(i), timeBack, phuc);
                             }
                         }
 
@@ -335,7 +340,8 @@ public class FFMPDataLoader extends Thread {
                 }
                 // virtuals only have data for ALL
                 if (phuc.equals("ALL")) {
-                    fireLoaderEvent(loadType, "Processing "+product.getVirtual() + "/" + phuc,
+                    fireLoaderEvent(loadType,
+                            "Processing " + product.getVirtual() + "/" + phuc,
                             isDone);
                     FFMPBasinData vgbData = null;
 
@@ -356,8 +362,7 @@ public class FFMPDataLoader extends Thread {
 
                     if ((vgbData == null) && !virtualURIs.isEmpty()) {
                         getMonitor().processUris(virtualURIs, isProductLoad,
-                                siteKey, product.getVirtual(), timeBack, phuc,
-                                loadType);
+                                siteKey, product.getVirtual(), timeBack, phuc);
                     }
 
                     fireLoaderEvent(loadType,
@@ -366,20 +371,21 @@ public class FFMPDataLoader extends Thread {
 
                 // process guidance all at once
                 for (String type : productRun.getGuidanceTypes(product)) {
-                
+
                     ArrayList<SourceXML> guidSources = productRun
                             .getGuidanceSources(product, type);
                     for (SourceXML guidSource : guidSources) {
-                    	
+
                         NavigableMap<Date, List<String>> iguidURIs = guids
                                 .get(guidSource.getSourceName());
-                        
-                        fireLoaderEvent(loadType, "Processing "+guidSource.getSourceName() + "/" + phuc,
-                                isDone);
+
+                        fireLoaderEvent(loadType,
+                                "Processing " + guidSource.getSourceName()
+                                        + "/" + phuc, isDone);
 
                         getMonitor().processUris(iguidURIs, isProductLoad,
                                 siteKey, guidSource.getSourceName(), timeBack,
-                                phuc, loadType);
+                                phuc);
 
                         fireLoaderEvent(loadType, guidSource.getSourceName()
                                 + "/" + phuc, isDone);
@@ -390,7 +396,6 @@ public class FFMPDataLoader extends Thread {
                 fireLoaderEvent(loadType, phuc + " Load complete", isDone);
             }
         } catch (Exception e) {
-            isDone = true;
             System.err.println("FFMP Data Loader terminated...."
                     + e.getMessage());
         } finally {
@@ -477,72 +482,73 @@ public class FFMPDataLoader extends Thread {
                 + "-" + siteKey + "-" + pdataKey + "-" + huc + ".bin");
         File lockFile = new File(sharePath + wfo + File.separator + sourceName
                 + "-" + siteKey + "-" + pdataKey + ".lock");
-        
-		while (lockFile.exists()) {
-			for (int i = 0; i < 4; i++) {
-				try {
-					sleep(100);
-					i++;
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			break;
-		}
 
-        System.out.println("Buddy File expected path: " + file.getAbsolutePath());
-		FFMPBasinData basinData = null;
+        while (lockFile.exists()) {
+            for (int i = 0; i < 4; i++) {
+                try {
+                    sleep(100);
+                    i++;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
-		if (file.exists()) {
-			
-			System.out.println("Last mod: " + new Date(file.lastModified()));
+            break;
+        }
 
-			if (file.lastModified() > (System.currentTimeMillis() - (6 * 1000 * 3600))) {
-		
-				while (lockFile.exists()) {
-					for (int i = 0; i < 4; i++) {
-						try {
-							System.out.println("Waiting for new file: " + file.getAbsolutePath());
-							sleep(100);
-							i++;
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					
-					break;
-				}
+        System.out.println("Buddy File expected path: "
+                + file.getAbsolutePath());
+        FFMPBasinData basinData = null;
 
-				BufferedInputStream is = null;
-				
-				try {
-					
-					System.out.println("Loading file: " + file.getName());
-					is = new BufferedInputStream(
-							new FileInputStream(file));
-					DynamicSerializationManager dsm = DynamicSerializationManager
-							.getManager(SerializationType.Thrift);
-					basinData = (FFMPBasinData) dsm.deserialize(is);
-				} catch (SerializationException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					if (is != null) {
-						try {
-							is.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
+        if (file.exists()) {
 
-		return basinData;
+            System.out.println("Last mod: " + new Date(file.lastModified()));
 
-	}
+            if (file.lastModified() > (System.currentTimeMillis() - (6 * 1000 * 3600))) {
+
+                while (lockFile.exists()) {
+                    for (int i = 0; i < 4; i++) {
+                        try {
+                            System.out.println("Waiting for new file: "
+                                    + file.getAbsolutePath());
+                            sleep(100);
+                            i++;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    break;
+                }
+
+                BufferedInputStream is = null;
+
+                try {
+
+                    System.out.println("Loading file: " + file.getName());
+                    is = new BufferedInputStream(new FileInputStream(file));
+                    DynamicSerializationManager dsm = DynamicSerializationManager
+                            .getManager(SerializationType.Thrift);
+                    basinData = (FFMPBasinData) dsm.deserialize(is);
+                } catch (SerializationException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        return basinData;
+
+    }
 
     /**
      * Finds the home datakey identifier for QPF sources
@@ -568,5 +574,5 @@ public class FFMPDataLoader extends Thread {
         return siteKey;
 
     }
-    
+
 }
