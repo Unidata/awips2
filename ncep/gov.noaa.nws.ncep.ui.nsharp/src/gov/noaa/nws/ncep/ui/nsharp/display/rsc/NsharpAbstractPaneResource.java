@@ -18,6 +18,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  */
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpAbstractPaneDescriptor;
@@ -36,7 +37,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -74,16 +75,18 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
     protected int commonLinewidth;
     protected LineStyle commonLineStyle;
     protected Coordinate interactiveTempPointCoordinate;
-    protected double currentZoomLevel=1;
-    protected int currentCanvasBoundWidth;//= NsharpConstants.DEFAULT_CANVAS_WIDTH;
-    protected int currentCanvasBoundHeight;  //= NsharpConstants.DEFAULT_CANVAS_HEIGHT;
-    protected int myDefaultCanvasHeight;// = NsharpConstants.DEFAULT_CANVAS_HEIGHT*4/5;
-    protected int myDefaultCanvasWidth;//= NsharpConstants.DEFAULT_CANVAS_WIDTH/2;
-	protected double zoomLevel;
+    protected Float currentZoomLevel=1f;
+    protected float currentCanvasBoundWidth;//= NsharpConstants.DEFAULT_CANVAS_WIDTH;
+    protected float currentCanvasBoundHeight;  //= NsharpConstants.DEFAULT_CANVAS_HEIGHT;
+    protected float myDefaultCanvasHeight;// = NsharpConstants.DEFAULT_CANVAS_HEIGHT*4/5;
+    protected float myDefaultCanvasWidth;//= NsharpConstants.DEFAULT_CANVAS_WIDTH/2;
+	//protected Float zoomLevel;
 	protected boolean resize=false;
+	protected String paneConfigurationName; 
     public static final float INVALID_DATA = NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA;
 	protected Coordinate cursorCor;
-	
+	protected int charHeight = NsharpConstants.CHAR_HEIGHT_;
+    protected PaintProperties paintProps;
 	
 	public NsharpAbstractPaneResource(AbstractResourceData resourceData,
 			LoadProperties loadProperties, NsharpAbstractPaneDescriptor desc) {
@@ -118,17 +121,19 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 	@Override
 	protected void paintInternal(IGraphicsTarget target,
 			PaintProperties paintProps) throws VizException {
+		this.paintProps = paintProps;
 		if(rscHandler== null)
 			return;
-		zoomLevel = paintProps.getZoomLevel();
-		if( currentCanvasBoundWidth!= paintProps.getCanvasBounds().width || currentCanvasBoundHeight!=paintProps.getCanvasBounds().height){
+		float zoomLevel = paintProps.getZoomLevel();
+		/*if( currentCanvasBoundWidth!= paintProps.getCanvasBounds().width || currentCanvasBoundHeight!=paintProps.getCanvasBounds().height){
 
 			currentCanvasBoundWidth= paintProps.getCanvasBounds().width;
 			currentCanvasBoundHeight=paintProps.getCanvasBounds().height;
 			adjustFontSize(currentCanvasBoundWidth,currentCanvasBoundHeight);
 		}
-		
-		if(zoomLevel != currentZoomLevel ){
+		*/
+		//System.out.println("currentZoomLevel="+currentZoomLevel+" paintProps's zoomLevel="+zoomLevel);
+		if((zoomLevel != currentZoomLevel) && zoomLevel<=1.0f ){
 			currentZoomLevel = zoomLevel;
 			handleZooming();
 			
@@ -157,6 +162,7 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 		commonLinewidth = getCapability(OutlineCapability.class).getOutlineWidth();
         commonLineStyle = getCapability(OutlineCapability.class)
                 .getLineStyle();
+        this.resize=true ;
 		//nsharpNative = new NsharpNative();	
 		//System.out.println("NsharpDefaultPaneResource ::: initInternal with native "+ nsharpNative.toString());
 	}
@@ -173,7 +179,7 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 	}
 	
 	
-	protected void adjustFontSize(int canvasW, int canvasH ) {
+	protected void adjustFontSize(float canvasW, float canvasH ) {
 		float font9Size,font10Size,font11Size,font12Size;
 		
 		float fontAdjusted=0;
@@ -259,6 +265,8 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 
 	public void setGraphConfigProperty(NsharpGraphProperty graphConfigProperty) {
 		this.graphConfigProperty = graphConfigProperty;
+		paneConfigurationName = this.graphConfigProperty.getPaneConfigurationName();
+		
 	}
 
 	public NsharpResourceHandler getRscHandler() {
@@ -278,6 +286,16 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 	}
 	public void handleResize(){
 		this.resize=false;
+		//double vertRatio = paintProps.getView().getExtent().getHeight() / paintProps.getCanvasBounds().height;
+		//double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
+		//System.out.println(descriptor.getPaneNumber()+"viewWidth="+paintProps.getView().getExtent().getWidth()+" viewHeight="+paintProps.getView().getExtent().getHeight() );
+		//System.out.println(descriptor.getPaneNumber()+"canvWidth="+paintProps.getCanvasBounds().width+" canvHeight="+paintProps.getCanvasBounds().height );
+		//System.out.println(descriptor.getPaneNumber()+": vertRatio="+vertRatio + " hRatio="+hRatio);	
+		if(paintProps!=null &&  (currentCanvasBoundWidth!= paintProps.getCanvasBounds().width || currentCanvasBoundHeight!=paintProps.getCanvasBounds().height)){
+			currentCanvasBoundWidth= paintProps.getCanvasBounds().width;
+			currentCanvasBoundHeight=paintProps.getCanvasBounds().height;
+			adjustFontSize(currentCanvasBoundWidth,currentCanvasBoundHeight);
+		}
 		
 	}
 	public void setResize(boolean resize) {
@@ -285,5 +303,13 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 	}
 	public void handleZooming(){
 		
+	}
+	protected void defineCharHeight(IFont font){
+		DrawableString str =new DrawableString("CHINCHEN",NsharpConstants.color_black);
+		str.font = font;
+		double vertRatio = paintProps.getView().getExtent().getHeight() / paintProps.getCanvasBounds().height;
+		charHeight = (int) (target.getStringsBounds(str).getHeight() * vertRatio);
+		
+		//System.out.println(descriptor.getPaneNumber()+": font10 char height ="+charHeight+ " vertRatio="+vertRatio);	
 	}
 }
