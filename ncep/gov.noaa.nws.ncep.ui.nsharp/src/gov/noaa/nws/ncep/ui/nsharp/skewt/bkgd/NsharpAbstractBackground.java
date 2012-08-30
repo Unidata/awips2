@@ -47,6 +47,8 @@ public abstract class NsharpAbstractBackground implements IRenderable {
 		if(smallFont!=null){
 			smallFont.dispose();
 		}
+		if(target==null)
+			return;
 		smallFont = target.initializeFont(
                 target.getDefaultFont().getFontName(), currentFontSize, null);
 	}

@@ -8,7 +8,7 @@
 Name: awips2-python-h5py
 Summary: AWIPS II Python h5py Distribution - 64 Bit
 Version: 1.3.0
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A
@@ -88,6 +88,14 @@ popd > /dev/null
 rm -rf ${HDF5_PATH}
 rm -rf %{_build_root}/build-python
 
+# patch: copy the szip libraries into the installation.
+szip_lib=%{_baseline_workspace}/Installer.rpm/awips2.64/Installer.h5py/lib
+cp -vP ${szip_lib}/* \
+   %{_build_root}/awips2/python/lib
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 %pre
 
 %post
@@ -101,5 +109,5 @@ rm -rf %{_build_root}
 
 %files
 %defattr(644,awips,fxalpha,755)
-%dir /awips2/python/lib/python2.7/site-packages
-/awips2/python/lib/python2.7/site-packages/*
+%dir /awips2/python/lib
+/awips2/python/lib/*

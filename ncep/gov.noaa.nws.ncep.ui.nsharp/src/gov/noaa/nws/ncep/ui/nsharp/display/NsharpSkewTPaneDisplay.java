@@ -19,6 +19,10 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResourceData;
 
@@ -29,12 +33,25 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
 public class NsharpSkewTPaneDisplay extends NsharpAbstractPaneDisplay {
     public NsharpSkewTPaneDisplay(PixelExtent pixelExtent,int paneNumber) {
         super(pixelExtent,paneNumber, "SkewTPane",(NsharpAbstractPaneDescriptor)( new NsharpSkewTPaneDescriptor(pixelExtent, paneNumber)));
     }
-    @Override
+    
+    public NsharpSkewTPaneDisplay() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public NsharpSkewTPaneDisplay(PixelExtent pixelExtent, int paneNumber,
+			String name, NsharpAbstractPaneDescriptor desc) {
+		super(pixelExtent, paneNumber, name, desc);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
     public NsharpSkewTPaneDescriptor getDescriptor() {
         return (NsharpSkewTPaneDescriptor) super.getDescriptor();
     }
