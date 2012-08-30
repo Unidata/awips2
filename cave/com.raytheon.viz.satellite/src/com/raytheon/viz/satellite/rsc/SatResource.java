@@ -514,15 +514,16 @@ public class SatResource extends
 
     @Override
     public void remove(DataTime dataTime) {
-        if (!this.dataTimes.contains(dataTime))
-            return;
+        synchronized (this) {
+            if (!this.dataTimes.contains(dataTime))
+                return;
 
-        this.dataTimes.remove(dataTime);
+            this.dataTimes.remove(dataTime);
 
-        FileBasedTileSet tile = tileSet.remove(dataTime);
-        if (tile != baseTile && tile != null)
-            tile.dispose();
-
+            FileBasedTileSet tile = tileSet.remove(dataTime);
+            if (tile != baseTile && tile != null)
+                tile.dispose();
+        }
     }
 
     @Override

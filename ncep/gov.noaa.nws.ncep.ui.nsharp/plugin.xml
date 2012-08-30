@@ -10,9 +10,9 @@
     </extension>
    <extension 
          point="org.eclipse.ui.handlers">
-       <handler 
-            class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteAction"
-            commandId="gov.noaa.nws.ncep.ui.nsharp.palette">
+        <handler
+             class="gov.noaa.nws.ncep.ui.nsharp.NsharpViewAction"
+             commandId="gov.noaa.nws.ncep.ui.nsharp.palette">
        </handler>     
  	</extension>
 
@@ -25,9 +25,25 @@
             category="gov.noaa.nws.ncep.ui.nsharp.view"
             allowMultiple="false"
             restorable="true"
-            class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow"
+            class="gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow"
             id="gov.noaa.nws.ncep.ui.nsharp"
             name="NSHARP"/>
+           <view
+                 allowMultiple="false"
+                 category="gov.noaa.nws.ncep.ui.nsharp.view"
+                 class="gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow"
+                 id="gov.noaa.nws.ncep.ui.nsharp.defaultview1"
+                 name="Nsharp"
+                 restorable="false">
+           </view>
+           <view
+                 allowMultiple="false"
+                 category="gov.noaa.nws.ncep.ui.nsharp.view"
+                 class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow"
+                 id="gov.noaa.nws.ncep.ui.nsharp.defaultview2"
+                 name="Nsharp"
+                 restorable="false">
+           </view>
    </extension> 
    <extension
          point="com.raytheon.uf.viz.core.resource">

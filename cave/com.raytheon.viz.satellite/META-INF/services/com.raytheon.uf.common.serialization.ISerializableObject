@@ -1,5 +1,4 @@
 com.raytheon.viz.satellite.rsc.SatResourceData
 com.raytheon.viz.satellite.rsc.SatBlendedResourceData
 com.raytheon.viz.satellite.rsc.SatBestResResourceData
-com.raytheon.viz.satellite.rsc.SatTrueColorResourceData
 com.raytheon.viz.satellite.SatelliteProductBrowserDataDefinition

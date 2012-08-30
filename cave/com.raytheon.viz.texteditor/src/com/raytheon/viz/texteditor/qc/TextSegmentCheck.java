@@ -48,6 +48,10 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  *                                     Initial creation
  * 25 AUG 2011  10719      rferrel     Changed ugcPtrn to handle multi-line UGCs
  * 01 SEP 2011  10764      rferrel     Allow multiple bullet types for given Vtec.
+ * 20 JUL 2012  15003	   mgamazaychikov	Allow standalone MWS have no headline
+ * 											Add vtec to checkHeadline signature
+ * 20 JUL 2012  15006	   mgamazaychikov	Do not perform search for a list of 
+ * 											county/zones names in the MWS segment heading.
  * 
  * </pre>
  * 
@@ -135,7 +139,12 @@ public class TextSegmentCheck implements IQCCheck {
                 segment = "Secondary";
                 ugc = "";
 
-                errorMsg.append(checkHeadline(headline, nnn));
+                /*
+                 * DR15003 - Add vtec to signature ias n order 
+                 * to distinguish between standalone
+                 * and followup MWS a check of VTEC is needed.
+                 */
+                errorMsg.append(checkHeadline(headline, nnn, vtec));
                 headline = "";
 
                 if (segmentCount > 1
@@ -221,9 +230,16 @@ public class TextSegmentCheck implements IQCCheck {
 
             if (expectNamesList) {
                 m = listOfAreaNamePtrn.matcher(line);
-                if (!m.find()) {
-                    errorMsg.append("List of county/zone names missing.\n");
-                }
+                /*
+                 * DR15006 - MWS does not have the list of 
+                 * marine zones names in the segment heading,
+                 * so skip the check for MWS
+                 */
+                if ( !nnn.equalsIgnoreCase("MWS")) {
+                	if (!m.find()) {
+                        errorMsg.append("List of county/zone names missing.\n");
+                    }
+                }                
                 expectNamesList = false;
                 continue;
             }
@@ -477,11 +493,25 @@ public class TextSegmentCheck implements IQCCheck {
         return errorMsg;
     }
 
-    private String checkHeadline(String headline, String nnn) {
+    private String checkHeadline(String headline, String nnn, VtecObject vtec) {
         String errorMsg = "";
         if (!QualityControl.segmentedNNN.contains(nnn) || nnn.equals("FLS")) {
             // non-follow ups do not have a head line
             return errorMsg;
+        }
+        /*
+         * DR15003 standalone MWS can have no headline.
+         * To distinguish between standalone and follow up MWS
+         * the VTEC check is performed as standalone MWS 
+         * do not contain VTEC
+         */
+        if (nnn.equals("MWS") && vtec == null) {
+        	if (headline.length() == 0) {
+        		return errorMsg;
+            } else if (!headline.endsWith("...")) {
+                errorMsg += "Headline should end with '...'.\n";
+            }
+            return errorMsg;     	
         }
 
         if (headline.length() == 0) {

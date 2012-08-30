@@ -23,10 +23,7 @@ package com.raytheon.viz.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.dialogs.MessageDialog;
 
-import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.dialogs.SetTimeDialog;
 
 /**
@@ -39,6 +36,9 @@ import com.raytheon.viz.ui.dialogs.SetTimeDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30,2007  461        bphillip    Initial Creation
+ * Aug 23,2012  #1087      dgilling    Allow DRT mode to be engaged 
+ *                                     regardless of practice or 
+ *                                     operational mode.
  * 
  * </pre>
  * 
@@ -49,19 +49,10 @@ public class ShowTimeDialog extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        if (CAVEMode.getMode() == CAVEMode.PRACTICE) {
-            if (!SetTimeDialog.getInstance().isOpen()) {
-                SetTimeDialog.getInstance().open();
-            }
-        } else {
-            MessageDialog
-                    .openError(
-                            VizWorkbenchManager.getInstance()
-                                    .getCurrentWindow().getShell(),
-                            "DRT Error",
-                            "The Displaced Real Time functionality is only available when running in practice mode");
+        if (!SetTimeDialog.getInstance().isOpen()) {
+            SetTimeDialog.getInstance().open();
         }
+
         return null;
     }
 }

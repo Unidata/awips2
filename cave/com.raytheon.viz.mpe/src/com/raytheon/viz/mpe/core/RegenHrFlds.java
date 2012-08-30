@@ -54,6 +54,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2008            snaples     Initial creation
+ * Aug 8, 2012   15271	   snaples     Updated hourly slot
  * </pre>
  * 
  * @author snaples
@@ -114,7 +115,7 @@ public class RegenHrFlds {
 
     double new_hourly_value;
 
-    short[] revision = new short[24];
+    short revision;
 
     short[] revision_6hour = new short[4];
 
@@ -237,15 +238,12 @@ public class RegenHrFlds {
                         hour_slot = GagePPWrite.gage_pp_init(datetime,
                                 gData.id, gData.ts, new_hourly_value, obsdate,
                                 zero_offset_code, manual_qc_code);
-                        for (j = 0; j < NUM_HOURLY_SLOTS; ++j) {
-                            revision[j] = 0;
-                        }
 
                         for (j = 0; j < NUM_6HOURLY_SLOTS; ++j) {
                             revision_6hour[j] = 0;
                         }
 
-                        revision[hour_slot - 1] = 1;
+                        revision = 1;
 
                         try {
                             GagePPWrite.gage_pp_write_rec("PP", gData.id,
@@ -281,6 +279,7 @@ public class RegenHrFlds {
             Calendar cl = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             cl.setTime(datetime);
             int hh = cl.get(Calendar.HOUR_OF_DAY);
+            hh = hour_slot;
             String hour = "" + hh;
             if (hh < 10) {
                 hour = "0" + hh;
@@ -301,7 +300,7 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
-            MPEDataManager.getInstance().readGageData(datetime);
+            MPEDataManager.getInstance().readGageData(datetime, datetime);
             /* Read radar data */
             MPEDataManager.getInstance().readRadarData(datetime);
             MPEDataManager.getInstance().clearEditGages();
@@ -356,9 +355,22 @@ public class RegenHrFlds {
     private void update_rawPP(Date datetime, String id, String ts,
             char manual_qc_code, int pp_1hr_dur, double pp_value) {
 
+        Date dto = new Date(datetime.getTime());
+        Calendar dt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        dt.setTime(dto);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        int hr = dt.get(Calendar.HOUR_OF_DAY);
+        
+        //
+        if (hr==0) {
+        	hr=24;
+        	dt.add(Calendar.DAY_OF_MONTH, -1);
+        }
+
         String where = "WHERE lid='" + id + "' AND pe='PP'" + " AND dur="
                 + pp_1hr_dur + " AND ts='" + ts + "' AND extremum='Z'"
-                + " AND obstime='" + sdf.format(datetime) + "'";
+                + " AND obstime='" + sdf.format(dt.getTime()) + "'";
         List<Rawpp> rawpp_rec = MPEDataManager.getInstance().getRawPP(where);
 
         if (rawpp_rec.isEmpty()) {
@@ -372,9 +384,9 @@ public class RegenHrFlds {
                     + ts
                     + "','Z'"
                     + ",'"
-                    + sdf.format(datetime)
+                    + sdf.format(dt.getTime())
                     + "','"
-                    + sdf.format(datetime)
+                    + sdf.format(dt.getTime())
                     + "','"
                     + manual_qc_code
                     + "',"
@@ -390,11 +402,11 @@ public class RegenHrFlds {
             where = "set value=" + pp_value + ",shef_Qual_Code='"
                     + manual_qc_code + "',revision=1" + ",quality_Code="
                     + ShefConstants.QC_MANUAL_PASSED + ",producttime='"
-                    + sdf.format(datetime) + "',postingtime='"
-                    + sdf.format(datetime) + "' WHERE lid='" + id
+                    + sdf.format(dt.getTime()) + "',postingtime='"
+                    + sdf.format(dt.getTime()) + "' WHERE lid='" + id
                     + "' AND pe='PP'" + " AND dur=" + pp_1hr_dur + " AND ts='"
                     + ts + "' AND extremum='Z'" + " AND obstime='"
-                    + sdf.format(datetime) + "'";
+                    + sdf.format(dt.getTime()) + "'";
             MPEDataManager.getInstance().updateRawPP(where);
         }
     }
