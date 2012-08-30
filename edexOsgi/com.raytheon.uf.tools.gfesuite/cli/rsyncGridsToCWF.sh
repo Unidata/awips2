@@ -205,7 +205,7 @@ mask=ISC_Send_Area
                                    
 # Parameter list for the netcdf file
 parmlist=""                         #send all parameters
-. ${IFPS_DATA}/rsync_parms.${1}
+. ${IFPS_DATA}/rsync_parms.${site}
 
 creationAttempts=3                  # How many times do you want script to create and 
                                     # quality control netcdf files if bad netcdf files
@@ -272,7 +272,7 @@ find ${WRKDIR}/. -mmin +60 -exec rm {} -f \;
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
-if [ "$parmlist" != "" ]; then
+if [ "$parmlist" != "" ] && [ "$parmlist" != "     " ]; then
   echo "Will trim elements to $parmlist" >> $LOG_FILE
 else
   echo "Will send all elements" >> $LOG_FILE

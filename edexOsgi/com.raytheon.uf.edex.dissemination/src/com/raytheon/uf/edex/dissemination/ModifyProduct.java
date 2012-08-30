@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2009            njensen     Initial creation
+ * 08/20/2012   DR 15340   D. Friedman Fix BBB problems
  * 
  * </pre>
  * 
@@ -124,7 +125,8 @@ public class ModifyProduct {
                     sb.append(DDHHMM.format(new Date()));
                 }
             }
-            if (req.getProduct().getWmoType() != null) {
+            if (req.getProduct().getWmoType() != null
+                    && req.getProduct().getWmoType().length() > 0) {
                 sb.append(" ");
                 sb.append(req.getProduct().getWmoType());
             }
@@ -173,6 +175,7 @@ public class ModifyProduct {
                 product.setProductText(sb.toString());
                 changed = true;
             }
+            header.setBbb(productBBB);
         }
         product.setWmoType(productBBB);
 
