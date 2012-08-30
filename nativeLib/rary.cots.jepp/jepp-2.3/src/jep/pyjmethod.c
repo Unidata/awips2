@@ -26,6 +26,13 @@
    distribution.   
 */ 	
 
+/*
+  August 2, 2012
+  Modified by Raytheon (c) 2012 Raytheon Company. All Rights Reserved.
+   Modifications marked and described by 'njensen'
+*/
+
+
 #ifdef WIN32
 # include "winconfig.h"
 #endif
