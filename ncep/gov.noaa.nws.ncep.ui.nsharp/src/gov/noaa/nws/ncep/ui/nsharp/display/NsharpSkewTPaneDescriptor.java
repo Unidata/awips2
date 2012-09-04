@@ -24,13 +24,18 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
+
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
-
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(name = "nsharpSkewTPaneDescriptor")
 public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
     public NsharpSkewTPaneDescriptor(PixelExtent pe) {
         super(pe);
@@ -59,16 +64,20 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
             public void changeFrame(
                     IFrameCoordinator.FrameChangeOperation operation,
                     IFrameCoordinator.FrameChangeMode mode) {
-				NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
-				if(editor== null || editor.getRscHandler()==null)
+				//NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
+				//if(editor== null || editor.getRscHandler()==null)
+				//	return;
+				if(rscHandler == null)
 					return;
 				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(operation) called  op="+operation+" mode"+mode);
 				if(mode == IFrameCoordinator.FrameChangeMode.SPACE_ONLY){
 					//up/down arrow keys for stepping stations
-					editor.getRscHandler().setSteppingStnIdList(operation);
-				} else if(mode == IFrameCoordinator.FrameChangeMode.TIME_ONLY){
+					//editor.getRscHandler().setSteppingStnIdList(operation);
+					rscHandler.setSteppingStnIdList(operation);
+				} else if(mode == IFrameCoordinator.FrameChangeMode.TIME_ONLY || mode == IFrameCoordinator.FrameChangeMode.TIME_AND_SPACE){
 					//left/right arrow keys for stepping time lines
-					editor.getRscHandler().setSteppingTimeLine(operation, mode);
+					//editor.getRscHandler().setSteppingTimeLine(operation, mode);
+					rscHandler.setSteppingTimeLine(operation, mode);
 				}
             }
 			/*
@@ -81,8 +90,7 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
 			 */
 			@Override
 			public void changeFrame(LoopProperties loopProperties) {
-				NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
-				if(editor== null|| editor.getRscHandler()==null)
+				if(rscHandler == null)
 					return;
 				long waitTime = Long.MAX_VALUE;
 				//System.out.println("NsharpSkewTPaneDescriptor changeFrame(loop) called, loopDirection= "+loopDirection + " fwd="+loopProperties.getFwdFrameTime()+
@@ -91,8 +99,8 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
 					waitTime = loopProperties.getFwdFrameTime();
 				else
 					waitTime = loopProperties.getRevFrameTime();
-				int frameSize= editor.getRscHandler().getTimeLineStateListSize();
-				int curFrameIndex = editor.getRscHandler().getCurrentTimeLineStateListIndex();
+				int frameSize= rscHandler.getTimeLineStateListSize();
+				int curFrameIndex = rscHandler.getCurrentTimeLineStateListIndex();
 				if(curFrameIndex == 0)
 					waitTime = loopProperties.getFirstFrameDwell();
 				else if(curFrameIndex == frameSize-1)
@@ -101,7 +109,7 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
 				loopProperties.drawAfterWait(waitTime);
 
 				if (loopProperties.isShouldDraw()) {
-					editor.getRscHandler().setLoopingDataTimeLine(loopProperties);
+					rscHandler.setLoopingDataTimeLine(loopProperties);
 
 				}
 			}
@@ -136,13 +144,13 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
     			}
         	}
         	//System.out.println("changeFrame");
-        	NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
-        	if(editor!= null && editor.getRscHandler()!=null){
-        		// we will have to do conversion here
-        		IFrameCoordinator.FrameChangeOperation dop = IFrameCoordinator.FrameChangeOperation.valueOf(operation.name());
-        		IFrameCoordinator.FrameChangeMode dmode = IFrameCoordinator.FrameChangeMode.valueOf(mode.name());
-        		 	editor.getRscHandler().setSteppingTimeLine(dop, dmode);
-        	}
+        	if(rscHandler == null)
+        		return;
+        	// we will have to do conversion here
+        	IFrameCoordinator.FrameChangeOperation dop = IFrameCoordinator.FrameChangeOperation.valueOf(operation.name());
+        	IFrameCoordinator.FrameChangeMode dmode = IFrameCoordinator.FrameChangeMode.valueOf(mode.name());
+        	rscHandler.setSteppingTimeLine(dop, dmode);
+
         }
     }
 }
