@@ -702,7 +702,7 @@
                 </visibleWhen>
             </command>
             <command
-                  commandId="com.raytheon.viz.ui.actions.notImplemented"
+                  commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
                   icon="icons/print.gif"
                   label="Print">
                 <visibleWhen>
