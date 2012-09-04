@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 08/17/2012	655			B. Hebbard	Added paintProps as parameter to IDisplayable draw (2)
  * 
  * </pre>
  * 
@@ -48,8 +49,10 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.input.EditableManager;
 
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
@@ -102,6 +105,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	public void setPickedPoint(NsharpStationInfo point) {
 		this.pickedPoint.add(point);
 	}
+	
 	public List<NsharpStationInfo> getPoints() {
 		return points;
 	}
@@ -128,6 +132,10 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	protected NsharpMapResource(NsharpMapResourceData resourceData,
 			LoadProperties loadProperties) {
 		super(resourceData, loadProperties);
+		
+		//set the editable capability
+        getCapability(EditableCapability.class).setEditable(true);
+
 		this.nsharpMapResourceData = resourceData;
 		//System.out.println("NsharpMapResource constructed");
 		
@@ -337,6 +345,10 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		//System.out.println("NsharpMapResource:initInternal called");
 		//mapfont = target.initializeFont("Monospace",
 		//		(float) (12 * nsharpMapResourceData.getMarkerTextSize().getSoftwareSize()), null);
+		
+		//make the nsharp map resource editable
+        EditableManager.makeEditable(this,
+                getCapability(EditableCapability.class).isEditable());
 	}
 
 	/* (non-Javadoc)
@@ -548,6 +560,15 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
         		}
         	}
         }
+	}
+
+	/**
+	 * Check if the resource is currently editable
+	 * 
+	 * @return editable
+	 */
+	public boolean isEditable() {
+		return getCapability(EditableCapability.class).isEditable();
 	}
 }
 
