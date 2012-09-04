@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.volumebrowser.vbui;
 
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,7 +69,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDisplay;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.d2d.ui.map.actions.NewMapEditor;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
@@ -1006,7 +1008,8 @@ public class ProductTableComp extends Composite {
                 }
             }
             if (!nsharpSkewtResources.isEmpty()) {
-                display = new D2DNSharpDisplay();
+                display = new NsharpSkewTPaneDisplay();
+                display.setDescriptor(new NsharpSkewTPaneDescriptor());
                 if (!legacySkewtResources.isEmpty()) {
                     resourceList.removeAll(legacySkewtResources);
                     loadResources(difference, legacySkewtResources);
