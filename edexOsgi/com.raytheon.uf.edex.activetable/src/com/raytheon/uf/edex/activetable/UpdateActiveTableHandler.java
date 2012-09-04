@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.activetable;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -51,6 +52,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 13, 2010            wldougher     Initial creation
+ * Aug 20, 2012  #1084     dgilling      Properly zero pad incoming
+ *                                       ETN values.
  * 
  * </pre>
  * 
@@ -191,7 +194,10 @@ public class UpdateActiveTableHandler implements
 
                 try {
                     atr.setVtecstr(template.get("vtecstr").toString());
-                    atr.setEtn(template.get("etn").toString());
+                    Integer incomingEtn = (Integer) template.get("etn");
+                    DecimalFormat formatter = new DecimalFormat("0000");
+                    String paddedEtn = formatter.format(incomingEtn);
+                    atr.setEtn(paddedEtn);
                     atr.setSig(template.get("sig").toString());
                     atr.setPhen(template.get("phen").toString());
                     if (template.containsKey("segText")) {

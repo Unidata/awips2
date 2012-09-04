@@ -19,6 +19,10 @@
  **/
 package com.raytheon.viz.gfe;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+
 import jep.Jep;
 import jep.JepException;
 
@@ -46,6 +50,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2010            mschenke     Initial creation
+ * Aug 20, 2012  #1081     dgilling     Don't pass -server and -site args
+ *                                      to python script.
  * 
  * </pre>
  * 
@@ -127,9 +133,17 @@ public class GfeClient extends AbstractCAVEComponent {
             jep.eval("import JavaImporter");
             jep.eval("import sys");
             jep.eval("sys.argv = []");
+            boolean skipNextArg = false;
+            Collection<String> ignoredParams = getIgnoredParameters();
             for (int i = gfeClientArgStartIndex; i < args.length; i++) {
-                jep.eval("sys.argv.append('" + args[i].replaceAll("'", "\\\\'")
-                        + "')");
+                if (ignoredParams.contains(args[i])) {
+                    skipNextArg = true;
+                } else if (skipNextArg) {
+                    skipNextArg = false;
+                } else {
+                    jep.eval("sys.argv.append('"
+                            + args[i].replaceAll("'", "\\\\'") + "')");
+                }
             }
             jep.runScript(args[gfeClientArgStartIndex]);
             // jep.eval("main()");
@@ -156,4 +170,8 @@ public class GfeClient extends AbstractCAVEComponent {
         return (NON_UI | ALERT_VIZ);
     }
 
+    private Collection<String> getIgnoredParameters() {
+        return new HashSet<String>(Arrays.asList("-site", "-server", "-mode",
+                "-time"));
+    }
 }

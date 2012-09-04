@@ -34,8 +34,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class DiskCacheWriter extends Thread {
 	private static final transient IUFStatusHandler statusHandler = UFStatus
-			.getHandler(DiskCacheWriter.class.getPackage().getName(), "CAVE",
-					"WORKSTATION");
+			.getHandler(DiskCacheWriter.class.getPackage().getName(),
+					"WORKSTATION", "CAVE");
 
 	protected static final int MAX_PENDING_WRITES = 100;
 
