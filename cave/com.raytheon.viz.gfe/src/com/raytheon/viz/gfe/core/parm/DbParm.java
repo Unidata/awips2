@@ -447,10 +447,9 @@ public class DbParm extends Parm {
 
             // if only a single unmodified grid exactly matches the time range
             if (grids.length == 1 && !this.isLocked(tr)
-                    && grids[0].getGridSlice().getValidTime().equals(tr)) {
+                    && grids[0].getGridTime().equals(tr)) {
                 List<GridDataHistory> newHist = histories.get(tr);
-                GridDataHistory[] currentHist = grids[0].getGridSlice()
-                        .getHistory();
+                GridDataHistory[] currentHist = grids[0].getHistory();
 
                 // if current history exists and has a matching update time
                 if (currentHist != null
