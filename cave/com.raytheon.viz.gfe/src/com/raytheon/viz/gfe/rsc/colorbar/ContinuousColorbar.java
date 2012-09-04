@@ -26,6 +26,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableColorMap;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -57,6 +58,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * ------------ ---------- ----------- --------------------------
  * 03/26/2008              chammack    Initial Creation.
  * 04/13/2009   2092       njensen     Support for custom labels
+ * 08/20/2012   #1083      randerso    Fixed user defined labels
  * 
  * </pre>
  * 
@@ -175,6 +177,10 @@ public class ContinuousColorbar implements IColorBarDisplay {
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
         dstring.verticallAlignment = VerticalAlignment.MIDDLE;
 
+        DrawableLine dline = new DrawableLine();
+        dline.basics.color = seColorBarTickColor;
+        dline.width = 1.0f;
+
         if ((labels == null) || (labels.length < 1)) {
             float[] val = computeIntervalAndPrecision(minParm, maxParm,
                     paintProps.getCanvasBounds().width, target);
@@ -201,8 +207,10 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
                     if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                             pe.getMaxX(), labelLoc, 0)) {
-                        target.drawLine(labelLoc, pe.getMinY(), 0.0, labelLoc,
-                                pe.getMaxY(), 0.0, seColorBarTickColor, 1.0f);
+                        dline.setCoordinates(labelLoc, pe.getMinY(), 0.0);
+                        dline.addPoint(labelLoc, pe.getMaxY(), 0.0);
+                        target.drawLine(dline);
+
                         dstring.setCoordinates(labelLoc, center);
                         dstring.setText(labelText, seColorBarTextColor);
                         target.drawStrings(dstring);
@@ -224,11 +232,14 @@ public class ContinuousColorbar implements IColorBarDisplay {
                 }
                 if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                         pe.getMaxX(), labelLoc, 0)) {
-                    target.drawLine(labelLoc, pe.getMinY(), 0.0, labelLoc,
-                            pe.getMaxY(), 0.0, seColorBarTickColor, 1.0f);
+                    dline.setCoordinates(labelLoc, pe.getMinY(), 0.0);
+                    dline.addPoint(labelLoc, pe.getMaxY(), 0.0);
+                    target.drawLine(dline);
+
                     String s = GFEColorbarResource.formatString(labelValue,
                             precision);
-                    dstring.font = colorbarResource.getColorbarScaleFont();
+                    dstring.setCoordinates(labelLoc, center);
+                    dstring.setText(s, seColorBarTextColor);
                     target.drawStrings(dstring);
                 }
             }

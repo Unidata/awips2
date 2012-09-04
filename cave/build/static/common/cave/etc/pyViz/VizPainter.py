@@ -31,6 +31,7 @@ from com.raytheon.viz.core.gl import GLTargetProxy
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/01/09                      njensen        Initial Creation.
+#    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    
 # 
 #
@@ -40,13 +41,18 @@ SUPPORTED_FORMATS = ('.png', '.jpg', '.gif')
 
 class VizPainter():
     
-    def __init__(self, renderableDisplay, imageWidth=None, imageHeight=None):
+    def __init__(self, renderableDisplay, imageWidth=None, imageHeight=None, backgroundColor=None):
         self.display = renderableDisplay        
         width = float(self.display.getWorldWidth())
         height = float(self.display.getWorldHeight())
         extent = GraphicsFactory.getGraphicsAdapter().constructExtent(0.0, width, 0.0, height)
         self.display.setExtent(extent)        
         
+        if backgroundColor is not None and type(backgroundColor) is str:
+            from com.raytheon.uf.viz.core import RGBColors
+            backgroundColor = RGBColors.getRGBColor(backgroundColor)                            
+            self.display.setBackgroundColor(backgroundColor)
+            
         if imageWidth is None:
             imageWidth = width
         if imageHeight is None:
@@ -79,7 +85,7 @@ class VizPainter():
         vizResource.init(self.target)
         desc.getResourceList().add(vizResource)
     
-    def paint(self, time, canvas=None, backgroundColor=None):
+    def paint(self, time, canvas=None):
         if type(time) is str:
             from com.raytheon.uf.common.time import DataTime
             time = DataTime(time)
@@ -94,16 +100,10 @@ class VizPainter():
         framesInfo = self.display.getDescriptor().getFramesInfo()
         props = PaintProperties(alpha, zoom, view, canvas, False, framesInfo)
         
-        if backgroundColor is not None and type(backgroundColor) is str:
-            from com.raytheon.uf.viz.core import RGBColors
-            backgroundColor = RGBColors.getRGBColor(backgroundColor)                            
-            
         # requires multiple passes to paint everything                                            
         paint = True        
         while paint:            
             self.target.beginFrame(self.display.getView(), True)
-            if backgroundColor is not None:
-                self.target.setBackgroundColor(backgroundColor)
             self.display.paint(self.target, props)
             self.target.endFrame()
             paint = self.target.isNeedsRefresh()        
