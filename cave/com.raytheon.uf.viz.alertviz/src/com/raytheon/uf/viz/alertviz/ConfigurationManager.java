@@ -199,13 +199,20 @@ public class ConfigurationManager {
             Configuration custom = getCustomConfiguration();
 
             if (custom != null) {
-                /*
-                 * merge custom over base then overlay the current config on
-                 * that result. preserve locking from the base configuration.
-                 */
-                Configuration baseCustom = baseConfiguration.mergeUnder(custom,
-                        true);
-                currentConfig = baseCustom.overlayWith(currentConfig, true);
+				if (baseConfiguration == null) {
+					statusHandler.error("The base configuration "
+							+ DEFAULT_BASE_CONFIG.getLocalizationFileName()
+							+ " was not loaded.  Check your configuration.");
+				} else {
+					/*
+					 * merge custom over base then overlay the current config on
+					 * that result. preserve locking from the base
+					 * configuration.
+					 */
+					Configuration baseCustom = baseConfiguration.mergeUnder(
+							custom, true);
+					currentConfig = baseCustom.overlayWith(currentConfig, true);
+				}
             }
             configurationMap.put(current, currentConfig);
         } else if (DEFAULT_BASE_CONFIG.equals(current) == false) {
