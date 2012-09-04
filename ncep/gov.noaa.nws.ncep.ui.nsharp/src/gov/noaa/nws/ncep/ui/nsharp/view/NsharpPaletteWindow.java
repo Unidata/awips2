@@ -19,7 +19,10 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
@@ -37,13 +40,13 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-//import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -54,18 +57,22 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
-//import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.UiUtil;
 
 
 public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 DisposeListener, IPartListener{
 	private MessageBox mb ;
-	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  compareStnBtn,compareTmBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,graphModeBtnTurb;
+	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  
+	compareStnBtn,compareTmBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,
+	graphModeBtnTurb, effBulkShearBtn, stpBtn, shipBtn, winterBtn, fireBtn,hailBtn,sarsBtn;
 	private Shell shell;
+	private Label spcGplbl;
+	private Composite parent;
+	private Group spcGp;
 	private boolean overlayIsOn=false, compareStnIsOn=false, compareTmIsOn=false;
 	protected boolean interpolateIsOn=false, editGraphOn=false;
 	private static String INTP_OFF = "  Interp(off)    ";
@@ -82,18 +89,127 @@ DisposeListener, IPartListener{
 	private NsharpPrintHandle printHandle; 
 	private Font newFont ;
 	private boolean isEditorVisible=true;
-	private static NsharpPaletteWindow instance;
-	private static int currentGraphMode= NsharpConstants.GRAPH_SKEWT;
-	
+	private static NsharpPaletteWindow instance=null;
+	private  int currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+	private String paneConfigurationName;
+	private static NsharpConstants.SPCGraph leftGraph = NsharpConstants.SPCGraph.EBS;
+	private static NsharpConstants.SPCGraph rightGraph = NsharpConstants.SPCGraph.STP;
+	private boolean spcGpCreated = false;
 	public static NsharpPaletteWindow getInstance() {
 		return instance;
 	}
-	public static int getCurrentGraphMode() {
+	public  int getCurrentGraphMode() {
 		return currentGraphMode;
 	}
-	private Color colorGrey = new Color(Display.getDefault(), 211,211,211);
-	private Color colorButtonOriginalBg;
+	
+	public void restorePaletteWindow( String paneConfigurationName,int currentGraphMode, boolean interpolateIsOn, boolean overlayIsOn, boolean compareStnIsOn,
+			boolean compareTmIsOn, boolean editGraphOn) {
+		updateSpcGraphBtn(paneConfigurationName);
+		this.currentGraphMode = currentGraphMode;
+		this.interpolateIsOn = interpolateIsOn;
+		this.overlayIsOn = overlayIsOn;
+		this.compareStnIsOn =  compareStnIsOn;
+		this.compareTmIsOn =  compareTmIsOn;
+		this.editGraphOn =  editGraphOn;
+		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT){
+			graphModeBtnSkew.setBackground(colorBlue);
+			graphModeBtnTurb.setBackground(colorGrey);
+			graphModeBtnIcing.setBackground(colorGrey);
+			if(!interpolateIsOn) {
+				graphEditBtn.setEnabled(true);
+				dataEditBtn.setEnabled(true);
+				compareTmBtn.setEnabled( true );
+				compareStnBtn.setEnabled( true );
+				overlayBtn.setEnabled( true );
+			}
+			else {
+				graphEditBtn.setEnabled(false);
+				dataEditBtn.setEnabled(false);
+				compareTmBtn.setEnabled( false );
+				compareStnBtn.setEnabled( false );
+				overlayBtn.setEnabled( false );
+			}
+		}
+		else if(currentGraphMode== NsharpConstants.GRAPH_TURB){
+			graphModeBtnTurb.setBackground(colorBlue);
+			graphModeBtnSkew.setBackground(colorGrey);
+			graphModeBtnIcing.setBackground(colorGrey);
+			graphEditBtn.setEnabled(false);
+			dataEditBtn.setEnabled(false);
+			compareTmBtn.setEnabled( false );
+			compareStnBtn.setEnabled( false );
+			overlayBtn.setEnabled( false );
+		}
+		else if(currentGraphMode== NsharpConstants.GRAPH_ICING){
+			graphModeBtnIcing.setBackground(colorBlue);
+			graphModeBtnSkew.setBackground(colorGrey);
+			graphModeBtnTurb.setBackground(colorGrey);
+			graphEditBtn.setEnabled(false);
+			dataEditBtn.setEnabled(false);
+			compareTmBtn.setEnabled( false );
+			compareStnBtn.setEnabled( false );
+			overlayBtn.setEnabled( false );
+		}
+	}
+	public static NsharpConstants.SPCGraph getLeftGraph() {
+		return leftGraph;
+	}
+	public static NsharpConstants.SPCGraph getRightGraph() {
+		return rightGraph;
+	}
 
+	private Color colorGrey = new Color(Display.getDefault(), 211,211,211);
+	private Color colorBlue = new Color(Display.getDefault(),135,206,235);
+	//private Color colorButtonOriginalBg; // will be initialized later
+	private void updateSPCGraphs(){
+		if(leftGraph == NsharpConstants.SPCGraph.EBS || rightGraph == NsharpConstants.SPCGraph.EBS){
+			effBulkShearBtn.setBackground(colorBlue);
+		}
+		else {
+			effBulkShearBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.STP || rightGraph == NsharpConstants.SPCGraph.STP){
+			stpBtn.setBackground(colorBlue);
+		}
+		else {
+			stpBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.SHIP || rightGraph == NsharpConstants.SPCGraph.SHIP){
+			shipBtn.setBackground(colorBlue);
+		}
+		else {
+			shipBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.WINTER || rightGraph == NsharpConstants.SPCGraph.WINTER){
+			winterBtn.setBackground(colorBlue);
+		}
+		else {
+			winterBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.FIRE || rightGraph == NsharpConstants.SPCGraph.FIRE){
+			fireBtn.setBackground(colorBlue);
+		}
+		else {
+			fireBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.HAIL || rightGraph == NsharpConstants.SPCGraph.HAIL){
+			hailBtn.setBackground(colorBlue);
+		}
+		else {
+			hailBtn.setBackground(colorGrey);
+		}
+		if(leftGraph == NsharpConstants.SPCGraph.SARS || rightGraph == NsharpConstants.SPCGraph.SARS){
+			sarsBtn.setBackground(colorBlue);
+		}
+		else {
+			sarsBtn.setBackground(colorGrey);
+		}
+		NsharpResourceHandler rsc = getRscHandler();
+		if(rsc!= null && rsc.getSpcGraphsPaneRsc()!=null) {
+			rsc.getSpcGraphsPaneRsc().setGraphs(leftGraph, rightGraph);
+		}
+		
+	}
 	public void setAndOpenMb(String msg) {
 		if (mb != null) {
 			mb.setMessage(msg);
@@ -115,6 +231,11 @@ DisposeListener, IPartListener{
 		mb = new MessageBox(shell, SWT.ICON_WARNING
 				| SWT.OK );
 		mb.setMessage( "Data is not loaded yet!");
+		NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
+		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
+		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		
 	}
 
 	/**
@@ -222,6 +343,7 @@ DisposeListener, IPartListener{
 	}
 
 	public void createDataControlGp(Composite parent){
+		this.parent = parent;
 		Group textModeGp = new Group(parent,SWT.SHADOW_OUT);
 		textModeGp.setLayout( new RowLayout(SWT.HORIZONTAL) );
 		textModeGp.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
@@ -725,7 +847,7 @@ DisposeListener, IPartListener{
 		graphModeBtnSkew.setFont(newFont);
 		graphModeBtnSkew.setText("S");
 		graphModeBtnSkew.setEnabled( true );
-		colorButtonOriginalBg= graphModeBtnSkew.getBackground();
+		//colorButtonOriginalBg= graphModeBtnSkew.getBackground();
 		rsc = getRscHandler();
 		if(rsc!= null ){
 			currentGraphMode = rsc.getCurrentGraphMode();
@@ -734,9 +856,9 @@ DisposeListener, IPartListener{
 			public void handleEvent(Event event) {      
 				if(currentGraphMode!= NsharpConstants.GRAPH_SKEWT){
 					currentGraphMode= NsharpConstants.GRAPH_SKEWT;
-					graphModeBtnSkew.setBackground(colorGrey);
-					graphModeBtnTurb.setBackground(colorButtonOriginalBg);
-					graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+					graphModeBtnSkew.setBackground(colorBlue);
+					graphModeBtnTurb.setBackground(colorGrey);
+					graphModeBtnIcing.setBackground(colorGrey);
 					if(!interpolateIsOn) {
 						graphEditBtn.setEnabled(true);
 						dataEditBtn.setEnabled(true);
@@ -756,6 +878,7 @@ DisposeListener, IPartListener{
 						rsc.setCurrentGraphMode(currentGraphMode);
 						//rsc.getSkewtPaneRsc().handleResize();
 					}
+
 				}
 			}          		            	 	
 		} );
@@ -767,9 +890,9 @@ DisposeListener, IPartListener{
 			public void handleEvent(Event event) {   
 				if(currentGraphMode != NsharpConstants.GRAPH_TURB){
 					currentGraphMode= NsharpConstants.GRAPH_TURB;
-					graphModeBtnTurb.setBackground(colorGrey);
-					graphModeBtnSkew.setBackground(colorButtonOriginalBg);
-					graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+					graphModeBtnTurb.setBackground(colorBlue);
+					graphModeBtnSkew.setBackground(colorGrey);
+					graphModeBtnIcing.setBackground(colorGrey);
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
@@ -791,9 +914,9 @@ DisposeListener, IPartListener{
 			public void handleEvent(Event event) {      
 				if(currentGraphMode != NsharpConstants.GRAPH_ICING){
 					currentGraphMode= NsharpConstants.GRAPH_ICING;
-					graphModeBtnIcing.setBackground(colorGrey);
-					graphModeBtnSkew.setBackground(colorButtonOriginalBg);
-					graphModeBtnTurb.setBackground(colorButtonOriginalBg);
+					graphModeBtnIcing.setBackground(colorBlue);
+					graphModeBtnSkew.setBackground(colorGrey);
+					graphModeBtnTurb.setBackground(colorGrey);
 					graphEditBtn.setEnabled(false);
 					dataEditBtn.setEnabled(false);
 					compareTmBtn.setEnabled( false );
@@ -808,13 +931,19 @@ DisposeListener, IPartListener{
 			}          		            	 	
 		} );
 		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT){
-			graphModeBtnSkew.setBackground(colorGrey);
+			graphModeBtnSkew.setBackground(colorBlue);
+			graphModeBtnTurb.setBackground(colorGrey);
+			graphModeBtnIcing.setBackground(colorGrey);
 		}
 		else if(currentGraphMode== NsharpConstants.GRAPH_TURB){
-			graphModeBtnTurb.setBackground(colorGrey);
+			graphModeBtnTurb.setBackground(colorBlue);
+			graphModeBtnSkew.setBackground(colorGrey);
+			graphModeBtnIcing.setBackground(colorGrey);
 		}
 		else if(currentGraphMode== NsharpConstants.GRAPH_ICING){
-			graphModeBtnIcing.setBackground(colorGrey);
+			graphModeBtnIcing.setBackground(colorBlue);
+			graphModeBtnSkew.setBackground(colorGrey);
+			graphModeBtnTurb.setBackground(colorGrey);
 		}
 
 		// Push buttons for Print
@@ -831,16 +960,205 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-		textModeGp.redraw();
-
+		
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR))
+			createSPCGp();
+		parent.redraw();
 	}
+	
+	private void createSPCGp(){
+		//System.out.println("createSPCGp..........................................");
+		spcGp = new Group(parent,SWT.SHADOW_OUT);
+		spcGp.setLayout( new RowLayout(SWT.HORIZONTAL) );
+		spcGp.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
+		spcGplbl = new Label(spcGp, SWT.NO);
+		spcGplbl.setText("SPC Graphs");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			spcGplbl.setEnabled( true );
+		}
+		else{
+			spcGplbl.setEnabled( false );
+		}
+		effBulkShearBtn = new Button(spcGp, SWT.PUSH);
+		effBulkShearBtn.setFont(newFont);
+		effBulkShearBtn.setText("EBS Stats ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			effBulkShearBtn.setEnabled( true );
+		}
+		else{
+			effBulkShearBtn.setEnabled( false );
+		}
+		effBulkShearBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				if(leftGraph != NsharpConstants.SPCGraph.EBS && rightGraph != NsharpConstants.SPCGraph.EBS){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.EBS;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
 
+		stpBtn = new Button(spcGp, SWT.PUSH);
+		stpBtn.setFont(newFont);
+		stpBtn.setText("STP Stats ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			stpBtn.setEnabled( true );
+		}
+		else{
+			stpBtn.setEnabled( false );
+		}
+		stpBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				if(leftGraph != NsharpConstants.SPCGraph.STP && rightGraph != NsharpConstants.SPCGraph.STP){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.STP;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		
+		shipBtn = new Button(spcGp, SWT.PUSH);
+		shipBtn.setFont(newFont);
+		shipBtn.setText("SHIP Stats");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			shipBtn.setEnabled( true );
+		}
+		else{
+			shipBtn.setEnabled( false );
+		}
+		shipBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {
+				if(leftGraph != NsharpConstants.SPCGraph.SHIP && rightGraph != NsharpConstants.SPCGraph.SHIP){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.SHIP;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		winterBtn = new Button(spcGp, SWT.PUSH);
+		winterBtn.setFont(newFont);
+		winterBtn.setText(" WINTER  ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			winterBtn.setEnabled( true );
+		}
+		else{
+			winterBtn.setEnabled( false );
+		}
+		winterBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {
+				if(leftGraph != NsharpConstants.SPCGraph.WINTER && rightGraph != NsharpConstants.SPCGraph.WINTER){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.WINTER;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		fireBtn = new Button(spcGp, SWT.PUSH);
+		fireBtn.setFont(newFont);
+		fireBtn.setText("    FIRE    ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			fireBtn.setEnabled( true );
+		}
+		else{
+			fireBtn.setEnabled( false );
+		}
+		fireBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {
+				if(leftGraph != NsharpConstants.SPCGraph.FIRE && rightGraph != NsharpConstants.SPCGraph.FIRE){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.FIRE;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		hailBtn = new Button(spcGp, SWT.PUSH);
+		hailBtn.setFont(newFont);
+		hailBtn.setText("    HAIL    ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			hailBtn.setEnabled( true );
+		}
+		else{
+			hailBtn.setEnabled( false );
+		}
+		hailBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {
+				if(leftGraph != NsharpConstants.SPCGraph.HAIL && rightGraph != NsharpConstants.SPCGraph.HAIL){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.HAIL;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		sarsBtn = new Button(spcGp, SWT.PUSH);
+		sarsBtn.setFont(newFont);
+		sarsBtn.setText("    SARS    ");
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			sarsBtn.setEnabled( true );
+		}
+		else{
+			sarsBtn.setEnabled( false );
+		}
+		sarsBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {
+				if(leftGraph != NsharpConstants.SPCGraph.SARS && rightGraph != NsharpConstants.SPCGraph.SARS){
+					rightGraph = leftGraph;
+					leftGraph = NsharpConstants.SPCGraph.SARS;
+					updateSPCGraphs();
+				}
+			}          		            	 	
+		} );
+		updateSPCGraphs();
+		spcGpCreated = true;
+		parent.layout();
+	}
+	private void disposeSpcGp(){
+		spcGplbl.dispose();
+		effBulkShearBtn.dispose();
+		stpBtn.dispose();
+		shipBtn.dispose();
+		winterBtn.dispose();
+		fireBtn.dispose();
+		hailBtn.dispose();
+		sarsBtn.dispose();
+		spcGp.dispose();
+		
+		spcGplbl = null;
+		effBulkShearBtn = null;
+		stpBtn = null;
+		shipBtn = null;
+		winterBtn = null;
+		fireBtn = null;
+		hailBtn = null;
+		sarsBtn = null;
+		spcGp = null;
+	}
 	public boolean isEditorVisible() {
 		return isEditorVisible;
 	}
 	public void setEditorVisible(boolean isEditorVisible) {
 		this.isEditorVisible = isEditorVisible;
 	}
+	
+	public void updateSpcGraphBtn( String paneConfigurationName) {
+		this.paneConfigurationName = paneConfigurationName;
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			if(spcGpCreated== false){
+				createSPCGp();
+			}
+		}
+		else{
+			if(spcGpCreated){
+				spcGpCreated = false;
+				if(spcGp!= null){
+					disposeSpcGp();
+					parent.layout();
+				}
+					
+			}
+		}
+		
+	}
+	
 	/**
 	 * Invoked by the workbench, this method sets up the SWT controls for the nsharp palette
 	 */

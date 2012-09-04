@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.d2d.nsharp.display;
 
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -77,12 +77,11 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
         }
 
         private void notifyRsc() {
-            NsharpSkewTResource rsc = getSkewTRsc();
+            NsharpResourceHandler rsc = getRscHandler();
             if (rsc == null)
                 return;
 
             rsc.setEditGraphOn(editGraphOn);
-            rsc.issueRefresh();
         }
 
     }
@@ -122,7 +121,7 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
                 }
             }
         });
-        NsharpSkewTResource rsc = getSkewTRsc();
+        NsharpResourceHandler rsc = getRscHandler();
         if (rsc != null && rsc.isEditGraphOn()) {
             enableEdit();
         } else {

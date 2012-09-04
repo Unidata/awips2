@@ -23,8 +23,13 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResource;
 
 import java.util.List;
 
-import com.raytheon.uf.viz.core.PixelExtent;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.viz.core.PixelExtent;
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(name = "nsharpHodoPaneDescriptor")
 public class NsharpHodoPaneDescriptor extends NsharpAbstractPaneDescriptor {
    
     public NsharpHodoPaneDescriptor(PixelExtent pe) {
@@ -33,6 +38,9 @@ public class NsharpHodoPaneDescriptor extends NsharpAbstractPaneDescriptor {
     }
     public NsharpHodoPaneDescriptor(PixelExtent pe, int paneNumber) {
         super(pe, paneNumber);
+    }
+    public NsharpHodoPaneDescriptor() {
+        super();
     }
     public NsharpHodoPaneResource getHodoResource() {
         List<NsharpHodoPaneResource> list = resourceList
