@@ -57,10 +57,13 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
-    <text id="presentWxText" plotMode="recursive_translation" class="weather" plotLookupTable="wx_symbol_trans.txt" plotParam="presWeather" style="text-anchor: end" x="-10" y="0">0</text>
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
     <text id="stdTemperature" class="text" plotMode="text" plotParam="stdTemperature" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">M</text>
     <text id="stdDewpoint" class="text" plotMode="text" plotParam="stdDewpoint" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">M</text>
+
+    <text id="presentWxText" plotMode="recursive_translation" class="weather" plotLookupTable="wx_symbol_trans.txt" plotParam="presWeather" style="text-anchor: end" x="-10" y="0">0</text>
     <text id="stdSkyCover" plotMode="recursive_translation" class="weather" plotParam="stdSkyCover" plotLookupTable="bufrmos/mos_clouds_gfs_s2s.txt" style="text-anchor: middle" x="0" y="0">M</text>
+
     <g id="windVaneText" plotMode="barb" plotParam="stdWindSpeed,stdWindDir" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
       <text id="windVaneText" class="arrow" x="0" y="0">0</text>
       <text id="windArrowText" class="barb" x="0" y="0">arrow</text>

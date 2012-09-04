@@ -72,8 +72,8 @@ import com.raytheon.uf.common.util.SystemUtil;
 
 public class DiskCache<K> implements ICache<K> {
 	private static final transient IUFStatusHandler statusHandler = UFStatus
-			.getHandler(DiskCache.class.getPackage().getName(), "CAVE",
-					"WORKSTATION");
+			.getHandler(DiskCache.class.getPackage().getName(), "WORKSTATION",
+					"CAVE");
 
 	/**
 	 * Should this be static or one writer thread per cache? Only have so much

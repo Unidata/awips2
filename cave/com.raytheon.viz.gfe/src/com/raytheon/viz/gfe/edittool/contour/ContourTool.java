@@ -242,8 +242,7 @@ public class ContourTool extends AbstractFreeformTool implements
     }
 
     private void computeRemaps() {
-        GridLocation gloc = currentGrid.getGridSlice().getGridInfo()
-                .getGridLoc();
+        GridLocation gloc = currentGrid.getParm().getGridInfo().getGridLoc();
         GridLocation lowRes = getLowResGLoc(gloc);
         toLowRes = new RemapGrid(gloc, lowRes);
         toHiRes = new RemapGrid(lowRes, gloc);
@@ -933,8 +932,8 @@ public class ContourTool extends AbstractFreeformTool implements
         // Get the grid coordinate
         float newContourValue;
         Coordinate gridCoord = MapUtil.latLonToGridCoordinate(mapCoord,
-                PixelOrientation.CENTER, currentGrid.getGridSlice()
-                        .getGridInfo().getGridLoc());
+                PixelOrientation.CENTER, currentGrid.getParm().getGridInfo()
+                        .getGridLoc());
         int x = (int) gridCoord.x;
         int y = (int) gridCoord.y;
         Grid2DFloat scalarGrid = ((ScalarGridSlice) currentGrid.getGridSlice())
@@ -1176,8 +1175,8 @@ public class ContourTool extends AbstractFreeformTool implements
         }
 
         // get the size of a grid cell
-        Coordinate cellSize = currentGrid.getGridSlice().getGridInfo()
-                .getGridLoc().gridCellSize();
+        Coordinate cellSize = currentGrid.getParm().getGridInfo().getGridLoc()
+                .gridCellSize();
 
         LineString line = cline.getLineString();
         double distance = line.getCoordinateN(0).distance(
@@ -1595,7 +1594,7 @@ public class ContourTool extends AbstractFreeformTool implements
                 return null;
             }
 
-            GridParmInfo gridInfo = currentGrid.getGridSlice().getGridInfo();
+            GridParmInfo gridInfo = currentGrid.getParm().getGridInfo();
             dataGrid = getToHiRes().remap(dataGrid, gridInfo.getMinValue(),
                     gridInfo.getMaxValue(), gridInfo.getMinValue(),
                     gridInfo.getMinValue());
@@ -1622,7 +1621,7 @@ public class ContourTool extends AbstractFreeformTool implements
             TransformException {
 
         Grid2DFloat dataGrid = null;
-        GridParmInfo gridInfo = currentGrid.getGridSlice().getGridInfo();
+        GridParmInfo gridInfo = currentGrid.getParm().getGridInfo();
         Grid2DFloat lowres = getToLowRes().remap(
                 ((ScalarGridSlice) currentGrid.getGridSlice()).getScalarGrid(),
                 gridInfo.getMinValue(), gridInfo.getMaxValue(),
