@@ -40,11 +40,6 @@ import Exceptions
 from java.lang.System import getProperty
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.viz.gfe.core import DataManager
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.viz.core.localization import LocalizationManager
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel 
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.dataplugin.gfe.python import GfePyIncludeUtil
 
 
 CLASS_NAME = 'Procedure'
@@ -157,8 +152,8 @@ def usage():
     print "             -n procedureName "
     print "             -u userName"
     print "             -c configFile"
-    print "             [-h host]"
-    print "             [-p port]"
+    print "             [-server serverURL -- example ec:9581/services]"
+    print "             [-site siteID]"
     print "             [-a editAreaName]"
     print "             [-s startTime -e endTime]  OR"
     print "             [-t timeRange]"

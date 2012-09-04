@@ -311,15 +311,13 @@ class Tool (SmartScript.SmartScript):
     def __init__(self, dbss):
         self._dbss=dbss
         SmartScript.SmartScript.__init__(self, dbss)
-        self.setToolType("numeric")
         
-    def preProcessGrid(self,WEname,ToolTimeRange):
-        
+    def preProcessGrid(self,WEname):
         #
         #  Setup the arrays of information for the dialog
         #  box that sets the weights
         #
-        #  The mutable database is labelled "Forecast" no matter
+        #  The mutable database is labeled "Forecast" no matter
         #  what you do, and put in the first slot on the dialog.
         #  The "Official" database is hardcoded into the next slot,
         #  then others are added
@@ -327,8 +325,7 @@ class Tool (SmartScript.SmartScript):
 
         self.labels = []
         self.dbIds = []
-        self.selectTR = ToolTimeRange # not sure this is quite the same as old code.
-                                      # can user change selected time range?
+
         db=self.mutableID()
         id=db.modelIdentifier()
         self._addModel('Forecast:', id)
@@ -465,8 +462,6 @@ class Tool (SmartScript.SmartScript):
         if button=="Cancel":
             return
         
-        self._empty = self.getTopo() * 0.0
-        
         #
         #  Get the results from the dialog
         #
@@ -496,7 +491,7 @@ class Tool (SmartScript.SmartScript):
         if not someweights:
             self.statusBarMsg("ModelBlend has no weights","R")
             return
-        if (abs(fcstweight)>0.5)and(otherweights==0):
+        if abs(fcstweight) > 0.5 and otherweights==0:
             self.statusBarMsg("ModelBlend Weights add to no change","R")
             return
         if totweight==0:
@@ -507,18 +502,24 @@ class Tool (SmartScript.SmartScript):
         #     fcst=mutable model database name
         #     selectTR=the selected timerange
         #
-        fcst=self.mutableID().modelIdentifier()
-        #selectTR=self._dbss.dataManager().parmOp().selectionTimeRange()
-        selectTR = self.selectTR
+        fcst = self.mutableID().modelIdentifier()
+        selectTR = self._dbss.getParmOp().getSelectionTimeRange()
         #
         #  get list of parms that are selected and mutable
         #
-        allParms=self.selectedParms()
-        parms=[]
+        # Making a derivation from AWIPS1's version of this script.
+        # Instead of calling direct to Java's ParmManager to get the Parm
+        # objects, we'll use SmartScript's selectedParms() to retrieve native
+        # Python objects which should save us Java heap space which wouldn't
+        # be freed otherwise until the user terminates the SmartTool
+        #
+        # allParms = self._dbss.getParmManager().getSelectedParms()
+        allParms = self.selectedParms()
+        parms = []
         for parm in allParms:
-            parmName, parmLevel, parmDbID = parm
-            model=parmDbID.modelIdentifier()
-            if model==fcst:
+            # model = parm.getParmID().getDbId().getModelId()
+            model = parm[2].modelIdentifier()
+            if model == fcst:
                 parms.append(parm)
                 
         #
@@ -527,16 +528,25 @@ class Tool (SmartScript.SmartScript):
         #        WEname - short parm name string
         #        parmlevel - parm level string
         #
-        for WEName, parmLevel, parmDbID in parms:
-            parm = self.getParm(parmDbID, WEName, parmLevel)
-            parmInfo = parm.getGridInfo()
-            rateParm=parmInfo.isRateParm()
-            wxType=parmInfo.getGridType().toString()
+        for WEname, parmlevel, dbId in parms:
+            # Another AWIPS1 derivation: Use of different selectedParms()
+            # call forces us to retrieve Parm to retrieve some of these 
+            # pieces of information
+            #
+            # rateParm = parm.getGridInfo().isRateParm()
+            # wxType = parm.getGridInfo().getGridType().toString()
+            # WEname = parm.getGridInfo().getParmID().getParmName()
+            # parmlevel = parm.getGridInfo().getParmID().getParmLevel()
+            parm = self.getParm(dbId, WEname, parmlevel)
+            rateParm = parm.getGridInfo().isRateParm()
+            wxType = parm.getGridInfo().getGridType().toString()
+            del parm
+            
             #
             #  Get list of grids for this parm within the selcted time range
             #  and loop over each of those grids
             #
-            gridinfos=self.getGridInfo(fcst,WEName,parmLevel,selectTR)
+            gridinfos=self.getGridInfo(fcst,WEname,parmlevel,selectTR)
             for gridinfo in gridinfos:
                 GridTimeRange=gridinfo.gridTime()
                 #
@@ -551,7 +561,7 @@ class Tool (SmartScript.SmartScript):
                     gsum=self._empty.copy()
                     totweight=0
                     fcstweight=0
-                    oldgrid=self.getGrids(self.dbIds[0],WEName,"SFC",GridTimeRange,noDataError=0,cache=0)
+                    oldgrid=self.getGrids(self.dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
                     if oldgrid==None:
                         self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName,"A")
                     for num, label in enumerate(self.labels):
@@ -564,13 +574,13 @@ class Tool (SmartScript.SmartScript):
                             idx = label.find("(")
                             idx1 = label.find(")",idx)
                             if idx == -1 or idx1 == -1:
-                                WEnameSource = WEName
+                                WEnameSource = WEname
                             else:
                                 ot = label[idx+1:idx1]
                                 if ot == self.myOfficeType():
-                                    WEnameSource = WEName
+                                    WEnameSource = WEname
                                 else:
-                                    WEnameSource = WEName + ot
+                                    WEnameSource = WEname + ot
                             grid=self.getGrids(self.dbIds[num],WEnameSource,"SFC",GridTimeRange,mode=modeType,noDataError=0,cache=0)
                             if grid != None:
                                 gsum+=(grid*weight)
@@ -591,7 +601,7 @@ class Tool (SmartScript.SmartScript):
                         else:    
                             newgrid=gsum/totweight
                             finalgrid=self.inEditArea(newgrid,oldgrid,EdgeType,EdgeWidth)
-                            self.createGrid(fcst,WEName,wxType,finalgrid,GridTimeRange)
+                            self.createGrid(fcst,WEname,wxType,finalgrid,GridTimeRange)
                     else:            
                         self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled","A")
                 #
@@ -603,7 +613,7 @@ class Tool (SmartScript.SmartScript):
                     #  add up the weights again, because we cannot count
                     #  weights for grids that cannot be read.
                     #
-                    oldgrid=self.getGrids(dbIds[0],WEName,"SFC",GridTimeRange,noDataError=0,cache=0)
+                    oldgrid=self.getGrids(dbIds[0],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
                     if oldgrid==None:
                         self.statusBarMsg("ModelBlend tool could not get Fcst data for " + WEName,"A")
                     (mag,direc)=oldgrid
@@ -616,7 +626,7 @@ class Tool (SmartScript.SmartScript):
                     fcstweight=0
                     for num, weight in enumerate(weights):
                         if weight!=0:
-                            grid=self.getGrids(self.dbIds[num],WEName,"SFC",GridTimeRange,noDataError=0,cache=0)
+                            grid=self.getGrids(self.dbIds[num],WEname,"SFC",GridTimeRange,noDataError=0,cache=0)
                             if grid != None:
                                 (mag,direc)=grid
                                 (u,v)=self.MagDirToUV(mag,direc)
@@ -642,7 +652,7 @@ class Tool (SmartScript.SmartScript):
                             ufinal=self.inEditArea(unew,uold,EdgeType,EdgeWidth)
                             vfinal=self.inEditArea(vnew,vold,EdgeType,EdgeWidth)
                             result=self.UVToMagDir(ufinal,vfinal)
-                            self.createGrid(fcst,WEName,wxType,result,GridTimeRange)
+                            self.createGrid(fcst,WEname,wxType,result,GridTimeRange)
                             #self.callSmartTool("DoNothing",WEname,None,GridTimeRange)
                     else:            
                         self.statusBarMsg("ModelBlend weights ended up Zero - so cancelled","A")
@@ -680,8 +690,7 @@ class Tool (SmartScript.SmartScript):
         #  Make edgegrid 0-1 across edit area
         #
         if (EdgeType=="Flat"):
-           edgegrid=editArea.getGrid().__numpy__
-           edgegrid=edgegrid[0]
+           edgegrid=editArea.getGrid().__numpy__[0]
         elif (EdgeType=="Edge"):
            edgegrid=self.taperGrid(editArea,EdgeWidth)
         else:

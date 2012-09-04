@@ -76,17 +76,47 @@ public class SysErrStatusHandler implements IUFStatusHandler {
         handle(status.getPriority(), status.getMessage(), status.getException());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.status.IUFStatusHandler#handle(com.raytheon.uf
-     * .common.status.UFStatus.Priority, java.lang.String)
-     */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.status.IUFStatusHandler#handle(com.raytheon.uf
+	 * .common.status.UFStatus, java.lang.String)
+	 */
+	@Override
+	public void handle(UFStatus status, String category) {
+		handle(status.getPriority(), category, status.getMessage(),
+				status.getException());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.status.IUFStatusHandler#handle(com.raytheon.uf
+	 * .common.status.UFStatus.Priority, java.lang.String)
+	 */
     @Override
     public void handle(Priority priority, String message) {
-        handle(priority, message, null);
+		handle(priority, message, (Throwable) null);
     }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.status.IUFStatusHandler#handle(com.raytheon.uf
+	 * .common.status.UFStatus.Priority, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void handle(Priority priority, String category, String message) {
+		handle(priority, category, message, (Throwable) null);
+	}
+
+	@Override
+	public void handle(Priority priority, String message, Throwable throwable) {
+		handle(priority, category, message, throwable);
+	}
 
     /*
      * (non-Javadoc)
@@ -96,7 +126,8 @@ public class SysErrStatusHandler implements IUFStatusHandler {
      * .common.status.UFStatus.Priority, java.lang.String, java.lang.Throwable)
      */
     @Override
-    public void handle(Priority priority, String message, Throwable throwable) {
+	public void handle(Priority priority, String category, String message,
+			Throwable throwable) {
         StringBuilder sb = new StringBuilder();
         sb.append(priority).append(' ');
         sb.append(this.pluginId).append(": ");
@@ -124,28 +155,58 @@ public class SysErrStatusHandler implements IUFStatusHandler {
     }
 
     @Override
+	public void debug(String category, String message) {
+		handle(Priority.DEBUG, category, message);
+	}
+
+	@Override
     public void info(String message) {
         handle(Priority.INFO, message);
     }
 
     @Override
+	public void info(String category, String message) {
+		handle(Priority.INFO, category, message);
+	}
+
+	@Override
     public void warn(String message) {
         handle(Priority.WARN, message);
     }
 
     @Override
+	public void warn(String category, String message) {
+		handle(Priority.WARN, category, message);
+	}
+
+	@Override
     public void error(String message) {
         handle(Priority.ERROR, message);
     }
 
     @Override
+	public void error(String category, String message) {
+		handle(Priority.ERROR, category, message);
+	}
+
+	@Override
     public void error(String message, Throwable throwable) {
         handle(Priority.ERROR, message, throwable);
     }
 
     @Override
+	public void error(String category, String message, Throwable throwable) {
+		handle(Priority.ERROR, category, message, throwable);
+	}
+
+	@Override
     public void fatal(String message, Throwable throwable) {
         handle(Priority.FATAL, message, throwable);
     }
+
+	@Override
+	public void fatal(String category, String message, Throwable throwable) {
+		handle(Priority.FATAL, category, message, throwable);
+	}
 
 }

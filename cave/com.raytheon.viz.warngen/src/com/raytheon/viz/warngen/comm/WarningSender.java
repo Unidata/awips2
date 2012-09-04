@@ -208,7 +208,7 @@ public class WarningSender implements IWarngenObserver {
 					case 4:
 						statusHandler.handle(Priority.PROBLEM,
 								"Could not reconnect (" + id
-										+ ") after 3 tries: ", null);
+										+ ") after 3 tries: ");
 						break;
 					}
 				}
