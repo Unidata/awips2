@@ -68,7 +68,7 @@ import com.raytheon.uf.common.util.FileUtil;
 public class CAVELocalizationAdapter implements ILocalizationAdapter {
     private static transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CAVELocalizationAdapter.class.getPackage().getName(),
-                    "CAVE", "WORKSTATION");
+					"WORKSTATION", "CAVE");
 
     private static final LocalizationManager manager = LocalizationManager
             .getInstance();

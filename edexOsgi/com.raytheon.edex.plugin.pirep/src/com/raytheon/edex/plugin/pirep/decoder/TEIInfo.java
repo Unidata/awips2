@@ -35,7 +35,8 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * AWIPS2 DR Work
- * Aug 7, 2012        1011 jkorman     Initial creation
+ * Aug  7, 2012       1011 jkorman     Initial creation
+ * Aug 23, 2012       1011 jkorman     Change control characters to spaces. 
  * 
  * </pre>
  * 
@@ -157,6 +158,14 @@ public class TEIInfo implements Comparable<TEIInfo> {
     public static List<TEIInfo> findTEIs(String str) {
         List<TEIInfo> positions = new ArrayList<TEIInfo>();
         if (str != null) {
+            StringBuilder sb = new StringBuilder(str);
+            for(int i = 0;i < sb.length();i++) {
+                char c = sb.charAt(i);
+                if(c < ' ') {
+                    sb.setCharAt(i, ' ');
+                }
+            }
+            str = sb.toString();
             int teiIndex = 0;
             // loop over the valid TEIs
             for (TEI tei : TEI.PIREP) {
