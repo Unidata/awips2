@@ -67,7 +67,7 @@ public class AvnConfigFileUtil {
             String site = LocalizationManager.getInstance().getCurrentSite();
             statusHandler.handle(Priority.CRITICAL, "Unable to find \""
                     + configFile + "\" under the directory for site " + site
-                    + ".", null);
+					+ ".");
         }
 
         return lFile;
@@ -122,8 +122,7 @@ public class AvnConfigFileUtil {
         if (file == null) {
             statusHandler.handle(Priority.PROBLEM, "Unable to find \""
                     + configFile + "\" under the directory for site "
-                    + LocalizationManager.getInstance().getCurrentSite() + ".",
-                    null);
+					+ LocalizationManager.getInstance().getCurrentSite() + ".");
         }
 
         return file;
