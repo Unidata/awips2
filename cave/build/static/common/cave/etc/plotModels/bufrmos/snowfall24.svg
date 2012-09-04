@@ -57,6 +57,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
 	<text id="snow24hr_bestCat" class="text" plotMode="table" plotParam="snow24hr_bestCat" plotLookupTable="bufrmos/mos_gfs_eta_snowamt24.txt" style="text-anchor: start;" x="10px" y="10px">M</text> 
    </symbol>
 </defs>
