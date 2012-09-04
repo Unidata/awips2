@@ -168,7 +168,7 @@ public class ModelSoundingDialogContents {
 						Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 						cal.setTimeInMillis(rangestart.getTime());
 						long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
-						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tHV%2$03d %3$s",  cal, vHour,modelName);
+						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
 						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 						if(sndTimeList.indexOf(gmtTimeStr) != -1){
 							// this indicate that gmtTimeStr is laready in the sndTimeList, then we dont need to add it to list again.

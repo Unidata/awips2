@@ -82,21 +82,24 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	@Override
 	protected void disposeInternal() {	
 		disposeAllWireFrameShapes();
-		windBoxWindRscShapeList=null;
+		for (NsharpShapeAndLineProperty el: windBoxWindRscShapeList) {
+			el.getShape().dispose();
+		}
+		windBoxWindRscShapeList.clear();
 		super.disposeInternal();
 	}
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void paintInternal(IGraphicsTarget target,
 			PaintProperties paintProps) throws VizException {
-		//System.out.println("NsharpWitoPaneResource paintInternal called! I am pane #"+ descriptor.getPaneNumber());
+		//System.out.println("NsharpWitoPaneResource paintInternal called! I am pane #"+ this.toString());
 		//double X = windBoxXOrig;
 		//double Y = 80;
 		super.paintInternal(target, paintProps);
-		if(rscHandler== null)
+		//System.out.println("wito paintInternal zoomL="+currentZoomLevel);
+		if(rscHandler== null || rscHandler.getMyNsharpEditor() == null )
 			return;
 		if(soundingLys!= null){
-			
 			this.font10.setSmoothing(false);
 			this.font10.setScaleFont(false);
 			this.font9.setSmoothing(false);
@@ -263,6 +266,12 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
         double windBoxY;
         float xRatio =  ((float)windBoxWidth) / 140.00F;
         NsharpShapeAndLineProperty shNcolor = new NsharpShapeAndLineProperty();
+        shNcolor.setShape(target.createWireframeShape(true,descriptor) );
+        IWireframeShape shapePline= shNcolor.getShape();
+        shapePline.allocate(NsharpConstants.PRESSURE_MARK_LEVELS.length*2);
+        shNcolor.getLp().setLineColor(NsharpConstants.pressureColor);
+        windBoxWindRscShapeList.add(shNcolor);
+        shNcolor = new NsharpShapeAndLineProperty();
         shNcolor.setShape(target.createWireframeShape(false,descriptor ));
         IWireframeShape shapeR = shNcolor.getShape();
         shapeR.allocate(soundingLys.size()*2);
@@ -293,12 +302,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
         shNcolor.getLp().setLineColor(NsharpConstants.color_violet);
         windBoxWindRscShapeList.add(shNcolor);
         
-        shNcolor = new NsharpShapeAndLineProperty();
-        shNcolor.setShape(target.createWireframeShape(true,descriptor) );
-        IWireframeShape shapePline= shNcolor.getShape();
-        shapePline.allocate(NsharpConstants.PRESSURE_MARK_LEVELS.length*2);
-        shNcolor.getLp().setLineColor(NsharpConstants.pressureColor);
-        windBoxWindRscShapeList.add(shNcolor);
+        
        
         //System.out.println("my wolrd minvY="+ myYViewMin+ " maxVY="+myYViewMax+ " YRange="+myYViewRange);
         for (NcSoundingLayer layer : soundingLys) {
@@ -439,14 +443,17 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	 *  
 	 */
 	public void createAllWireFrameShapes(){
-		//System.out.println("createAllWireFrameShapes called");
-		if(target!=null){
+		if(target== null || rscHandler== null || rscHandler.getMyNsharpEditor() == null )
+			return;
+		//System.out.println("whitoPane="+this.toString()+" createAllWireFrameShapes called");
+		rscHandler.repopulateSndgData();
+		
 			disposeAllWireFrameShapes();
 			createRscWireFrameShapes();;
 			//create static shape
 			createBkgOmegaShape();
 			createBkgWindBoxShape();
-		}
+		
 	}
 	public void createRscWireFrameShapes(){
 		//System.out.println("createRscWireFrameShapes called");
@@ -491,7 +498,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 			verticalWindRShape.dispose();
 			verticalWindRShape=null;
 		}
-		if(windBoxWindRscShapeList.size()>0){
+		if(windBoxWindRscShapeList != null && windBoxWindRscShapeList.size()>0){
 			for(NsharpShapeAndLineProperty shapeColor: windBoxWindRscShapeList){
 				shapeColor.getShape().dispose();
 			}
@@ -508,6 +515,8 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	 * with it (skewtPaneResource).
 	 */
 	public void handleResize() {
+		if(getDescriptor().getRenderableDisplay() == null)
+			return;
 		super.handleResize();
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
