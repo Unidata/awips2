@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.d2d.nsharp.rsc;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,13 +40,15 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
+import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPartListener;
 
 /**
  * 
@@ -67,7 +69,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @version 1.0
  */
 public class D2DNSharpResource extends
-        AbstractVizResource<D2DNSharpResourceData, NsharpSkewTDescriptor> {
+        AbstractVizResource<D2DNSharpResourceData, AbstractDescriptor> {
 
     // A map of all the plugin data objects for times we have data.
     private Map<DataTime, D2DNSharpDataObject> pdos = new HashMap<DataTime, D2DNSharpDataObject>();
@@ -98,6 +100,8 @@ public class D2DNSharpResource extends
 
     };
 
+    private D2DNSharpPartListener partListener;
+
     public D2DNSharpResource(D2DNSharpResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -117,16 +121,14 @@ public class D2DNSharpResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        NsharpSkewTResource skewRsc = descriptor.getSkewtResource();
-        if (skewRsc == null) {
-            return;
-        }
+        NsharpResourceHandler handler = getHandler();
+        // Last time I checked if you try to add or remove data from nsharp on
+        // non-UI threads it can cause major sync issues so all changes to
+        // nsharp are done in the paint loop.
         if (!soundingsToRemove.isEmpty()) {
-            // If this happens on the wrong thread than NsharpSkewTResource
-            // blows up on threading problems.
             List<String> soundingsToRemove = this.soundingsToRemove;
             this.soundingsToRemove = new ArrayList<String>();
-            skewRsc.deleteRsc(soundingsToRemove);
+            handler.deleteRsc(soundingsToRemove);
             issueRefresh();
         }
         if (!dataResponseQueue.isEmpty()) {
@@ -146,32 +148,7 @@ public class D2DNSharpResource extends
             if (stnInfo == null) {
                 return;
             }
-            String picked = skewRsc.getPickedStnInfoStr();
-            // For some reason this has to happen on the UI thread, so do it in
-            // paint.
-            skewRsc.addRsc(myDataMap, stnInfo);
-            // Adding to nsharp changes the frame but in D2D we like to keep the
-            // current frame.
-            backToPicked : while (picked != null
-                    && !skewRsc.getPickedStnInfoStr().equals(picked)) {
-                String initStn = skewRsc.getPickedStnInfoStr().substring(0, 4);
-                do { // for each station...
-                    String initTimePickedStnInfoStr = skewRsc.getPickedStnInfoStr();
-                    do { // ...for each time
-                        skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT, FrameChangeMode.TIME_ONLY);
-                        // see if we're back home; if so, success
-                        if (skewRsc.getPickedStnInfoStr().equals(picked)) {
-                            break backToPicked;
-                        }
-                        // if we've cycled through all times for this station...
-                    } while (!skewRsc.getPickedStnInfoStr().equals(initTimePickedStnInfoStr));
-                    // ...then go to the next station
-                    skewRsc.setSteppingStnIdList(FrameChangeOperation.NEXT);
-                    // if we've cycled through all stations without a station/time match...
-                } while (!skewRsc.getPickedStnInfoStr().substring(0, 4).equals(initStn));
-                // ...then something is wrong
-                //TODO:  consider logging internal error here? -- original "picked" station/time not found
-            }
+            handler.addRsc(myDataMap, stnInfo, false);
             issueRefresh();
         }
     }
@@ -201,10 +178,22 @@ public class D2DNSharpResource extends
         return false;
     }
 
+    private NsharpResourceHandler getHandler() throws VizException {
+        List<NsharpAbstractPaneResource> paneRscs = descriptor
+                .getResourceList().getResourcesByTypeAsType(
+                        NsharpAbstractPaneResource.class);
+        for (NsharpAbstractPaneResource paneRsc : paneRscs) {
+            NsharpResourceHandler handler = paneRsc.getRscHandler();
+            if (handler != null) {
+                return handler;
+            }
+        }
+        throw new VizException("Unable to find a NsharpResourceHandler.");
+    }
+
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        descriptor.getSkewtResource().setSoundingType(
-                resourceData.getSoundingType());
+        getHandler().setSoundingType(resourceData.getSoundingType());
         // listen for updates
         resourceData.addChangeListener(new IResourceDataChanged() {
 
@@ -221,6 +210,8 @@ public class D2DNSharpResource extends
             }
 
         });
+        partListener = new D2DNSharpPartListener(this);
+        partListener.enable();
     }
 
     @Override
@@ -243,6 +234,9 @@ public class D2DNSharpResource extends
             this.remove(time);
         }
         dataRequestJob.cancel();
+        if (partListener != null) {
+            partListener.disable();
+        }
     }
 
     public Collection<String> getTimeLineElements() {
@@ -255,8 +249,24 @@ public class D2DNSharpResource extends
 
     @Override
     public String getName() {
-        return "D2D " + resourceData.getSoundingType() + " "
+        return "D2D NSharp " + resourceData.getSoundingType() + " "
                 + resourceData.getPointName();
+    }
+
+    @Override
+    public ResourceOrder getResourceOrder() {
+        // Have to be highest resource since the builtin nsharp resources are
+        // unknown and they have to be at index 0 on the list or nsharp code
+        // breaks.
+        return ResourceOrder.HIGHEST;
+    }
+
+    @Override
+    protected void setProperties(ResourceProperties properties) {
+        // Have to be highest resource since the builtin nsharp resources are
+        // unknown and they have to be at index 0 on the list or nsharp code
+        // breaks.
+        properties.setRenderingOrder(ResourceOrder.HIGHEST);
     }
 
 }
