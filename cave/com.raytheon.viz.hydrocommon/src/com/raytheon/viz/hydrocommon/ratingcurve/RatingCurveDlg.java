@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Dec 2009  2422        mpduff      Fixed bad label.
  * 21 Feb 2010  4167        mpduff      Added TimeZone to SimpleDateFormat.
  * 29 Apr 2010  4993        mpduff      Fixed date format in error message.
+ * 26 Jul 2012  14711/963   mpduff      Fix problems adding/removing shift points
  * </pre>
  * 
  * @author lvenable
@@ -1332,10 +1333,10 @@ public class RatingCurveDlg extends CaveSWTDialog {
 	        if (currentShift.isActive()) {
 	        	generateShiftList(currentShift);
 	        } else {
-	        	remakeRatingCurveDataList();
+	            generateShiftList(null);
 	        }
         } else {
-        	remakeRatingCurveDataList();
+            generateShiftList(null);
         }
         
         if (noShiftCurveDataList.getItemCount() > 0) {
