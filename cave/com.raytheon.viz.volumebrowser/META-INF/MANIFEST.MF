@@ -67,6 +67,6 @@ Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.viz.xy,
  com.raytheon.uf.viz.xy.varheight.hodo,
  com.vividsolutions.jts.geom,
- gov.noaa.nws.ncep.ui.nsharp.skewt,
+ gov.noaa.nws.ncep.ui.nsharp.display,
  gov.noaa.nws.ncep.viz.common.soundingQuery
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
