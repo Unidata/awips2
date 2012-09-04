@@ -57,6 +57,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
 	<text id="PQPF_12hr" class="text" plotMode="text" plotParam="PQPF_12hr" plotFormat="%3.0f" style="text-anchor: start;" x="10px" y="-10px">M</text>
 </symbol>
 </defs>

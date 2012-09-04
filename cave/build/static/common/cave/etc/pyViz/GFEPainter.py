@@ -45,6 +45,7 @@ from java.util import HashSet
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/01/09                      njensen        Initial Creation.
+#    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    
 # 
 #
@@ -53,7 +54,7 @@ import VizPainter
 
 class GFEPainter(VizPainter.VizPainter):
     
-    def __init__(self, imageWidth=None, imageHeight=None, expandLeft=25.0, expandRight=25.0, expandTop=25.0, expandBottom=25.0, mask=None, wholeDomain=0):    
+    def __init__(self, imageWidth=None, imageHeight=None, expandLeft=25.0, expandRight=25.0, expandTop=25.0, expandBottom=25.0, mask=None, wholeDomain=0, bgColor=None):    
         self.dataMgr = DataManager.getInstance(None) 
         self.refId = None
         envelope = None
@@ -72,7 +73,7 @@ class GFEPainter(VizPainter.VizPainter):
         display.setDataManager(self.dataMgr)
         desc = display.getDescriptor()
         self.dataMgr.getSpatialDisplayManager().setDescriptor(desc)
-        VizPainter.VizPainter.__init__(self, display)
+        VizPainter.VizPainter.__init__(self, display, backgroundColor=bgColor)
         
         gfeSystem = GFESystemResource(self.dataMgr)
         self.addVizResource(gfeSystem)
