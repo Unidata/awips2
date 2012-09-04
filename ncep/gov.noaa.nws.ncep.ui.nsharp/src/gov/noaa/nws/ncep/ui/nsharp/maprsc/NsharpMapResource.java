@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 08/17/2012	655			B. Hebbard	Added paintProps as parameter to IDisplayable draw (2)
  * 
  * </pre>
  * 

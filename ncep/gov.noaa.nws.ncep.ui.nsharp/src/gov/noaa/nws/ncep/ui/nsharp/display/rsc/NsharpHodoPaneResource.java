@@ -19,6 +19,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpShapeAndLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
@@ -384,9 +385,9 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			//target.drawLine(c.x, c.y- radiusUnit/2, 0.0,c.x, c.y + radiusUnit/2, 0.0, color,
 			//		markerWidth);
 			textStr = String.format("DP= %.0f/%.0f",dpwdir.getValue(), dpwspd.getValue());
-			target.drawString(font10, textStr, c.x, c.y+10*zoomLevel*yRatio, 0.0,
+			target.drawString(font10, textStr, c.x, c.y, 0.0,
 					TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-					VerticalAlignment.BOTTOM, null);
+					VerticalAlignment.TOP, null);
 
 			c = WxMath.uvComp(upwspd.getValue(),upwdir.getValue());
 			c= world.map(c);			
@@ -396,15 +397,16 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			//target.drawLine(c.x, c.y- radiusUnit/2, 0.0,c.x, c.y + radiusUnit/2, 0.0, color,
 			//		markerWidth);
 			textStr = String.format("UP= %.0f/%.0f",upwdir.getValue(), upwspd.getValue());
-			target.drawString(font10, textStr, c.x, c.y+10*zoomLevel*yRatio, 0.0,
+			target.drawString(font10, textStr, c.x, c.y, 0.0,
 					TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-					VerticalAlignment.BOTTOM, null);
+					VerticalAlignment.TOP, null);
 		}
 		//plot Bunkers Vector,by default plot them
 		if(((graphConfigProperty != null ) && graphConfigProperty.isSmvBunkersR())||(graphConfigProperty == null)){
 			FloatByReference bwdir= new FloatByReference(-999);
 			FloatByReference bwspd= new FloatByReference(-999);
 			nsharpNative.nsharpLib.bunkers_storm_motion(value1, value2, bwdir, bwspd);
+			//System.out.println("hodo windspd="+  bwspd.getValue()+ " dir="+bwdir.getValue());
 			c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
 			c= world.map(c);
 			RGB color = NsharpConstants.color_firebrick;
@@ -485,12 +487,12 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		target.drawString(fixedFont, sWindDirection+ "  "+ sWindSpeed, dispX, dispY, 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.BOTTOM, null);
-		//plot critical angel
+		//plot critical angle
 		float ca = nsharpNative.nsharpLib.cave_criticalAngel();
 		if(ca != -9999){
 			ymax = ext.getMaxY();
 			dispY = ymax - 20 * zoomLevel;
-			String textStr = String.format("Critical Angel = %.0f",ca);
+			String textStr = String.format("Critical Angle = %.0f",ca);
 			target.drawString(fixedFont, textStr, dispX,dispY, 0.0,
 					TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 					VerticalAlignment.BOTTOM, null);
@@ -690,5 +692,9 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		createRscHodoWindShapeAll();
 		
 	}
-
+	@Override
+	public void setGraphConfigProperty(NsharpGraphProperty graphConfigProperty) {
+		super.setGraphConfigProperty(graphConfigProperty);
+		hodoBackground.setPaneConfigurationName(paneConfigurationName);
+	}
 }
