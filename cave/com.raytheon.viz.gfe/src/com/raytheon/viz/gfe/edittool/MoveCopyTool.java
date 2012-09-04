@@ -163,10 +163,9 @@ public class MoveCopyTool extends AbstractGFEEditTool {
 
                 this.getGrid()
                         .getParm()
-                        .moveCopyArea(
-                                getGrid().getGridSlice().getValidTime()
-                                        .getStart(), moveCopyEditInfluence,
-                                new Point(diffX, diffY), copyOp);
+                        .moveCopyArea(getGrid().getGridTime().getStart(),
+                                moveCopyEditInfluence, new Point(diffX, diffY),
+                                copyOp);
             }
 
             this.endParmEdit();
