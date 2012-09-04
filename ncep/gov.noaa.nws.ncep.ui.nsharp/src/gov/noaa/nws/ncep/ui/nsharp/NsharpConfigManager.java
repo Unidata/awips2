@@ -109,6 +109,7 @@ public class NsharpConfigManager {
 
 					if( xmlObj instanceof NsharpConfigStore ) {
 						nsharpConfigStore = (NsharpConfigStore)xmlObj;
+						nsharpConfigStore.upToDateLinePropertyMap();
 						break;
 
 					}

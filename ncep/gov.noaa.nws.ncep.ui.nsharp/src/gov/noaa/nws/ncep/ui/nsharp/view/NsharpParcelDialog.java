@@ -20,13 +20,10 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
  */
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler.ParcelData;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -41,6 +38,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
 import com.raytheon.uf.viz.core.exception.VizException;
 
 public class NsharpParcelDialog extends Dialog {
@@ -52,19 +50,20 @@ public class NsharpParcelDialog extends Dialog {
 	private String UDL=  "User Defined Level";
 	private String EFF = "Mean Effective Layer";
 	//private boolean surface=false, forcast=false, mml=false, mup=true, udl=false, eff=false;
-	ParcelData surfacePar=null, forcastPar=null, mmlPar=null, mupPar=null, udlPar=null, effPar=null;
+	//ParcelData surfacePar=null, forcastPar=null, mmlPar=null, mupPar=null, udlPar=null, effPar=null;
 	//private static short currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
 	//private static short prevParcel = currentParcel;
-	private int userDefdParcelMb = 850; //default value
+	private static int userDefdParcelMb = 850; //default value
 	private int btnWidth = 300;
 	private int btnHeight = 20;
 	private int labelGap = 20;
 	private int btnGapX = 5;
 	private int btnGapY = 5;
+	private short curParcelType;
 	private Button curSfcBtn,frcstBtn,effBtn,mmlBtn, mupBtn,udlBtn;
 	private Text userDefdMbtext;	
-	private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
-	public int getUserDefdParcelMb() {
+	//private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
+	public static int getUserDefdParcelMb() {
 		return userDefdParcelMb;
 	}
 	
@@ -73,9 +72,10 @@ public class NsharpParcelDialog extends Dialog {
 		userDefdParcelMb = 850;
 	}
 	public void reset(){
-		parcelList.clear();
-		addParcelToList(mupPar);
+		//parcelList.clear();
+		//addParcelToList(mupPar);
 		userDefdParcelMb = 850;
+		curParcelType = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
 		//mup=true;
 		//surface= forcast=mml= udl= eff=false;
 	}
@@ -129,7 +129,7 @@ public class NsharpParcelDialog extends Dialog {
 	protected NsharpParcelDialog(Shell parentShell) throws VizException {
 		super(parentShell);
 		thisDialog = this;
-		NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
+		/*NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
 		if(skewtRsc!=null){
 			surfacePar = skewtRsc.new ParcelData();
 			surfacePar.setParcelLayerPressure(NsharpNativeConstants.OBS_LAYER);
@@ -152,13 +152,13 @@ public class NsharpParcelDialog extends Dialog {
 			
 			//addParcelToList(mupPar);
 			
-		}
+		}*/
 	}
-	private void addParcelToList(ParcelData parcel){
-		if(parcel!=null){
-			parcelList.add(parcel);
-		}
-	}
+	//private void addParcelToList(ParcelData parcel){
+	//	if(parcel!=null){
+	//		parcelList.add(parcel);
+	//	}
+	//}
 	/*private void deleteParcelFromList(ParcelData parceldata){
 		if( parceldata!=null){
 			parcelList.remove(parceldata);
@@ -177,8 +177,8 @@ public class NsharpParcelDialog extends Dialog {
 					if (child instanceof Button) {
 						Button button = (Button) child;
 						if (button.getSelection()) {
-							int parcelType = Integer.parseInt(button.getData().toString());
-							switch(parcelType){
+							curParcelType = Short.parseShort(button.getData().toString());
+							/*switch(parcelType){
 							case NsharpNativeConstants.PARCELTYPE_OBS_SFC:
 								parcelList.clear();
 								parcelList.add(surfacePar);
@@ -205,14 +205,14 @@ public class NsharpParcelDialog extends Dialog {
 								break;
 							default:
 								return;
-							}
+							}*/
 							
 							NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
 							if(editor != null){
 								NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
 								if(skewtRsc!=null){
-									skewtRsc.setCurrentParcel((short)parcelType);
-									skewtRsc.setParcelList(parcelList);
+									skewtRsc.setCurrentParcel(curParcelType);
+									//skewtRsc.setParcelList(parcelList);
 									editor.refresh();
 								}
 							}
@@ -456,11 +456,12 @@ public class NsharpParcelDialog extends Dialog {
 					//System.out.println(userDefdParcelMb);
 				}
 				NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
+				skewtRsc.setCurrentParcel(curParcelType);
+				//if(udl == true) 
+				//udlPar.setParcelLayerPressure(userDefdParcelMb);
 				
-				//if(udl == true) always set it anyway
-				udlPar.setParcelLayerPressure(userDefdParcelMb);
-				
-				skewtRsc.setParcelList(parcelList);
+				//skewtRsc.setParcelList(parcelList);
+				//skewtRsc.setCurrentParcelData(NsharpNativeConstants.PARCELTYPE_USER_DEFINED,userDefdParcelMb);
 				//else {
 				//	parceldata.setParcelLayerPressure(NsharpNativeConstants.parcelToLayerMap.get(currentParcel));
 				//}

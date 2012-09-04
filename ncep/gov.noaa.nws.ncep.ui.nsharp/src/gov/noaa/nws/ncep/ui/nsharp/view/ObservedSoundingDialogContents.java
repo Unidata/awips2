@@ -83,7 +83,7 @@ public class ObservedSoundingDialogContents {
 					//need to format synoptictime to GMT time string.  Timestamp.toString produce a local time Not GMT time
 					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal.setTimeInMillis(synoptictime.getTime());
-					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH %2$s",  cal, currentSndType.toString());
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tM %2$s",  cal, currentSndType.toString());
 					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 					//System.out.println("GMT time " + gmtTimeStr + " msec="+ synoptictime.getTime() + " local time "+synoptictime.toString());
 					if(!timeLimit){
