@@ -57,6 +57,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
 	<text id="ceiling_bestCat" class="text" plotMode="table" plotParam="ceiling_bestCat" plotLookupTable="bufrmos/gfslamp_CIG_codes.txt" style="text-anchor: middle;" x="0px" y="0px">M</text>
 	<text id="vis_bestCat" class="text" plotMode="table" plotParam="vis_bestCat" plotLookupTable="bufrmos/gfslamp_VIS_codes.txt" style="text-anchor: middle;" x="0px" y="10px">M</text>
    </symbol>

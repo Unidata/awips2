@@ -107,6 +107,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Apr 7, 2009            randerso     Initial creation
  * Jun 3, 2011  8919      rferrel      Determine grid's VisMode based
  *                                     on imageOnEdit
+ * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
+ *                                     use in PngWriter
  * 
  * </pre>
  * 
@@ -992,36 +994,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 // }
             }
         }
-        stepTimes = calcStepTimes(parms, new TimeRange());
-    }
-
-    // Now construct the step times.
-    // All startTimes are included.
-    // EndTimes which are contained in another TR are included.
-    private List<Date> calcStepTimes(List<Parm> parms, TimeRange dspTR) {
-        ArrayList<Date> rval = new ArrayList<Date>();
-
-        for (int i = 0; i < parms.size(); i++) {
-            IGridData[] inv = parms.get(i).getGridInventory();
-            for (int j = 0; j < inv.length; j++) {
-                if (!rval.contains(inv[j].getGridTime().getStart())) {
-                    rval.add(inv[j].getGridTime().getStart());
-                }
-                if (!rval.contains(inv[j].getGridTime().getEnd())) {
-                    for (int k = 0; k < parms.size(); k++) {
-                        if (parms.get(i) != parms.get(k)
-                                && parms.get(i).overlappingGrid(
-                                        inv[j].getGridTime().getEnd()) != null) {
-                            rval.add(inv[j].getGridTime().getEnd());
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        Collections.sort(rval);
-        return rval;
+        stepTimes = dataMgr.getParmManager().calcStepTimes(parms,
+                new TimeRange());
     }
 
     /**
