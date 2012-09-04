@@ -610,12 +610,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             if (!groupConfigFile.exists()) {
 	            statusHandler.handle(Priority.PROBLEM,
 	                    "Unable to locate group configuration file - "
-	                            + groupConfigFile.getAbsolutePath(), null);
+								+ groupConfigFile.getAbsolutePath());
 	            this.groupConfigFilePath = null;
             } else {
             	this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
             	statusHandler.handle(Priority.PROBLEM, "Using standard AWIPS 2 group_definition.cfg file.  "
-            			+ "Unable to locate specified group configuration file.", null);
+										+ "Unable to locate specified group configuration file.");
             }
         } else {
             this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
