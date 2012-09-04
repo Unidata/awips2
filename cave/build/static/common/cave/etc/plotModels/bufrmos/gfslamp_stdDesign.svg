@@ -57,6 +57,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
     <text id="temperature" class="text" plotMode="text" plotParam="temperature" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">M</text>
     <text id="dewpoint" class="text" plotMode="text" plotParam="dewpoint" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">M</text>
     <text id="clouds_bestCat" plotMode="recursive_translation" class="weather" plotParam="clouds_bestCat" plotLookupTable="bufrmos/mos_clouds_gfs_s2s.txt" style="text-anchor: middle" x="0" y="0">M</text>

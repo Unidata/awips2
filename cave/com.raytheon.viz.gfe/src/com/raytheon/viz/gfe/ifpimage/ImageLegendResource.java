@@ -36,29 +36,34 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.rsc.GFELegendResource;
 import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * Image legend resource used by GFEPainter.py
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2011            mschenke     Initial creation
  * Jun 25, 2012  15080     ryu          Ron's local time fix
  * Jul 10, 2012  15186     ryu          Set legend font
- *
+ * Aug 20, 2012  #1078     dgilling     Fix handling of ImageLegend_color
+ *                                      setting.
+ * 
  * </pre>
- *
+ * 
  * @author mschenke
  * @version 1.0
  */
@@ -114,28 +119,29 @@ public class ImageLegendResource extends GFELegendResource {
     private LegendData[] makeLegend(Parm[] parms, DataTime curTime) {
         // loop through the grids
         List<LegendData> legendData = new ArrayList<LegendData>();
-        Parm activeParm = dataManager.getSpatialDisplayManager()
-                .getActivatedParm();
         for (int i = parms.length - 1; i >= 0; i--) {
             Parm parm = parms[i];
             String parmName = parm.getParmID().getParmName();
             ResourcePair rp = this.parmToRscMap.get(parm);
             GFEResource rsc = (GFEResource) rp.getResource();
+            ResourceProperties props = rp.getProperties();
             LegendData data = new LegendData();
             data.resource = rp;
 
             // color for the text
-            RGB color;
-            if (colorOverrides != null
-                    && (color = colorOverrides.get(parmName)) != null) {
-                data.color = color;
+            if ((props.isVisible())
+                    && (parm.getDisplayAttributes().getVisMode() == VisMode.IMAGE)) {
+                data.color = imageLegendColor;
+            } else if (!props.isVisible()) {
+                data.color = ColorUtil.GREY;
+            } else if ((colorOverrides != null)
+                    && (colorOverrides.get(parmName) != null)) {
+                // GFEPainter.py populates the colorOverrides map based on the
+                // "<parmName>_Legend_color" values from the gfe config file
+                data.color = colorOverrides.get(parmName);
             } else {
-                if (rsc.getParm().equals(activeParm)) {
-                    data.color = this.imageLegendColor;
-                } else {
-                    data.color = rsc.getCapability(ColorableCapability.class)
-                            .getColor();
-                }
+                data.color = rsc.getCapability(ColorableCapability.class)
+                        .getColor();
             }
 
             String timeString = "";
@@ -341,7 +347,7 @@ public class ImageLegendResource extends GFELegendResource {
 
     /**
      * Specifies the color for a legend entry, overrides the default
-     *
+     * 
      * @param parmName
      * @param colorName
      */
