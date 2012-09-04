@@ -1278,8 +1278,7 @@ public class DailyQcUtils {
                 if (td_fp == null) {
                     statusHandler
                             .handle(Priority.PROBLEM,
-                                    "Could not open mpe_td_details_file in load_gage_data().",
-                                    null);
+									"Could not open mpe_td_details_file in load_gage_data().");
                     return 0;
                 }
                 try {
@@ -1287,8 +1286,7 @@ public class DailyQcUtils {
                 } catch (IOException e) {
                     statusHandler
                             .handle(Priority.PROBLEM,
-                                    "Could not open mpe_td_details_file for writing, in load_gage_data().",
-                                    null);
+									"Could not open mpe_td_details_file for writing, in load_gage_data().");
                 }
             }
 
@@ -1344,8 +1342,7 @@ public class DailyQcUtils {
             if (freezing_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "ERROR, Could not read freezing level station list file. DailyQC stopped.",
-                                null);
+								"ERROR, Could not read freezing level station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Temperature Stations List. ");
@@ -1354,8 +1351,7 @@ public class DailyQcUtils {
             if (temperature_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "ERROR, Could not read temperature station list file. DailyQC stopped.",
-                                null);
+								"ERROR, Could not read temperature station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Precip Stations List. ");
@@ -1364,8 +1360,7 @@ public class DailyQcUtils {
             if (precip_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "ERROR, Could not read precip station list file. DailyQC stopped.",
-                                null);
+								"ERROR, Could not read precip station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
 
@@ -1375,8 +1370,7 @@ public class DailyQcUtils {
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "Could not read precipitation Climo file. DailyQC stopped.",
-                                null);
+								"Could not read precipitation Climo file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
 
@@ -1386,8 +1380,7 @@ public class DailyQcUtils {
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-                                "Could not read temperature Climo file. DailyQC stopped.",
-                                null);
+								"Could not read temperature Climo file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
         }
@@ -1399,8 +1392,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-                            "Could not read precipitation PRISM file. DailyQC stopped.",
-                            null);
+							"Could not read precipitation PRISM file. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
 
@@ -1409,8 +1401,7 @@ public class DailyQcUtils {
                 smonth, emonth);
         if (status == false) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Could not read temperature PRISM file. DailyQC stopped.",
-                    null);
+					"Could not read temperature PRISM file. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         System.out.println("DQC: Finished loading Climo data. ");
@@ -1438,8 +1429,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-                            "Could not map freezing level points to the HRAP grid. DailyQC stopped.",
-                            null);
+							"Could not map freezing level points to the HRAP grid. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         System.out.println("DQC: Mapping temperature gages to grid. ");
@@ -1450,8 +1440,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-                            "Could not map temp level points to the HRAP grid. DailyQC stopped.",
-                            null);
+							"Could not map temp level points to the HRAP grid. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         long elapsed = System.currentTimeMillis() - start;
@@ -1478,7 +1467,7 @@ public class DailyQcUtils {
                     mean_areal_precip_global, tag);
             if (status == false) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error retrieving basin data.  DailyQC Stopped.", null);
+						"Error retrieving basin data.  DailyQC Stopped.");
                 return DAILYQC_FAILED;
             }
         }

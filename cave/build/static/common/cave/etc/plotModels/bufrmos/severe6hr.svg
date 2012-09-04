@@ -57,7 +57,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="severe6hr" class="text" plotMode="text" plotParam="severe6hr" plotFormat="%3.0f" style="text-anchor: middle;" x="0px" y="10px">M</text>
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
+    <text id="severe6hr" class="text" plotMode="text" plotParam="severe6hr" plotFormat="%3.0f" style="text-anchor: middle;" x="0px" y="10px">M</text>
 </symbol>
 </defs>
 <use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>

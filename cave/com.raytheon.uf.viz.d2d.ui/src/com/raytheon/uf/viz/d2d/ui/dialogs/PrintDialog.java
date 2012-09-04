@@ -26,10 +26,15 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -58,6 +63,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -66,6 +79,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
 import com.raytheon.uf.viz.d2d.ui.DensityPopulator;
 import com.raytheon.uf.viz.d2d.ui.MagnificationPopulator;
+import com.raytheon.uf.viz.d2d.ui.dialogs.UserPrintSettings.PRINT_ORIENTATION;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -80,6 +94,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2011            bkowal     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/15/2012         1053 jkorman     Added capability to save/restore user
+ * print settings.
  * 
  * </pre>
  * 
@@ -88,6 +106,11 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class PrintDialog extends CaveSWTDialog {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(PrintDialog.class);
+
+    private static final String SETTINGS_FILENAME = "printSettings";
+    
     private ArrayList<PrinterData> printerDataStore = null;
 
     private PrinterData printToFileData = null;
@@ -104,12 +127,16 @@ public class PrintDialog extends CaveSWTDialog {
     private Button browseButton = null;
 
     /* Print In */
+    private Button colorRadioButton = null;
 
     private Button grayscaleRadioButton = null;
-
+    
     /* Orientation */
     private Button landscapeRadioButton = null;
 
+    private Button portraitRadioButton = null;
+
+    
     /* Remaining Settings */
     private Spinner scaleSpinner = null;
 
@@ -124,8 +151,6 @@ public class PrintDialog extends CaveSWTDialog {
     private Button okButton = null;
 
     private Button cancelButton = null;
-
-    private BufferedImage bi;
 
     private MagnificationInformationStorage magnificationInformationStorage = null;
 
@@ -197,6 +222,8 @@ public class PrintDialog extends CaveSWTDialog {
         this.createPrintInAndOrientationGroups();
         this.createRemainingPrintingSettingsSection();
         this.createPrintDialogButtons();
+        // Now read from the saved user config items, if any.
+        readFromConfig();
     }
 
     private void createPrintToGroup() {
@@ -267,7 +294,7 @@ public class PrintDialog extends CaveSWTDialog {
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                selectDestinationFile();
+                selectDestinationFile(destinationFileText.getText());
             }
         });
         button.setEnabled(false);
@@ -287,7 +314,8 @@ public class PrintDialog extends CaveSWTDialog {
         Button button = new Button(group, SWT.RADIO);
         button.setText("Color");
         button.setSelection(true);
-
+        colorRadioButton = button;
+        
         button = new Button(group, SWT.RADIO);
         button.setText("Grayscale");
         this.grayscaleRadioButton = button;
@@ -300,7 +328,8 @@ public class PrintDialog extends CaveSWTDialog {
         button = new Button(group, SWT.RADIO);
         button.setText("Portrait");
         button.setSelection(true);
-
+        portraitRadioButton = button;
+        
         button = new Button(group, SWT.RADIO);
         button.setText("Landscape");
         this.landscapeRadioButton = button;
@@ -446,7 +475,11 @@ public class PrintDialog extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 okButton.setEnabled(false);
                 cancelButton.setEnabled(false);
+                setText("Printing . . .");
                 print(getPrintPreferences());
+                setText("Print");
+                saveToConfig();
+                close();
             }
         });
         this.okButton = button;
@@ -468,8 +501,21 @@ public class PrintDialog extends CaveSWTDialog {
         this.cancelButton = button;
     }
 
-    private void selectDestinationFile() {
+    private void selectDestinationFile(String fileName) {
+        
         FileDialog fileDialog = new FileDialog(this.shell, SWT.SAVE);
+        
+        if(fileName != null) {
+            int n = fileName.lastIndexOf(File.separator);
+            String path = null;
+            if(n > 0) {
+                path = fileName.substring(0,n);
+                fileName = fileName.substring(n+1);
+            }
+            fileDialog.setFileName(fileName);
+            fileDialog.setFilterPath(path);
+        }
+        
         fileDialog.open();
 
         String filterPath = fileDialog.getFilterPath();
@@ -628,7 +674,7 @@ public class PrintDialog extends CaveSWTDialog {
     private void print(PrinterSettings printerSettings) {
         AbstractEditor editor = (AbstractEditor) EditorUtil.getActiveEditor();
 
-        bi = editor.screenshot();
+        BufferedImage bi = editor.screenshot();
         Display display = editor.getActiveDisplayPane().getDisplay();
         Printer printer = new Printer(printerSettings.selectedPrinter);
         Point screenDPI = display.getDPI();
@@ -664,7 +710,7 @@ public class PrintDialog extends CaveSWTDialog {
         }
 
         if (printerSettings.invert) {
-            // Only invert gray pixels, not colored pixels, awt doesn not have a
+            // Only invert gray pixels, not colored pixels, awt doesn't not have a
             // good filter for this.
             for (int x = 0; x < bi.getWidth(); x += 1) {
                 for (int y = 0; y < bi.getHeight(); y += 1) {
@@ -675,6 +721,7 @@ public class PrintDialog extends CaveSWTDialog {
                                 255 - color.getGreen(), 255 - color.getBlue());
                         bi.setRGB(x, y, color.getRGB());
                     }
+                    
                 }
             }
         }
@@ -736,7 +783,7 @@ public class PrintDialog extends CaveSWTDialog {
         printer.dispose();
 
         this.restoreMagnificationAndDensity();
-        this.close();
+        // this.close();
     }
 
     private String getCurrentMagnification() {
@@ -829,6 +876,158 @@ public class PrintDialog extends CaveSWTDialog {
             return data;
         }
         return null;
+    }
+
+    /**
+     * Save the user print settings.
+     */
+    private void saveToConfig() {
+
+        UserPrintSettings settings = new UserPrintSettings();
+
+        settings.setInvertBlackWhite(invertCheckbox.getSelection());
+        settings.setPrintGrayScale(grayscaleRadioButton.getSelection());
+        settings.setOrientation(PRINT_ORIENTATION.getPrintOrientation(landscapeRadioButton.getSelection()));
+
+        settings.setCopies(copiesSpinner.getSelection());
+        settings.setScale(scaleSpinner.getSelection());
+        
+        settings.setDensity(densityCombo.getSelectionIndex());
+        settings.setMag(magnificationCombo.getSelectionIndex());
+        
+        if(printerRadioButton.getSelection()) {
+            int idx = selectedPrinterCombo.getSelectionIndex();
+            settings.setPrinterUsed(selectedPrinterCombo.getItem(idx));
+            settings.setUsePrinterFile(false);
+        } else {
+            settings.setPrinterFile(destinationFileText.getText());
+            settings.setUsePrinterFile(true);
+        }
+
+        LocalizationContext ctx = initUserLocalization();
+        
+        // Get a list of localization files!
+        LocalizationFile f = PathManagerFactory.getPathManager().getLocalizationFile(ctx, SETTINGS_FILENAME);        
+        OutputStream strm = null;
+        try {
+            strm = f.openOutputStream();
+            JAXB.marshal(settings, strm);
+            // Ensure that the file is saved on the server!
+            f.save();
+        } catch (Exception e) {
+            statusHandler.error("Could not save user print settings", e);
+        } finally {
+            if(f != null) {
+                try {
+                    strm.close();
+                } catch(IOException ioe) {
+                    statusHandler.error("Could not close user print settings", ioe);
+                }
+            }
+        }
+    }
+
+    /**
+     * Read user print settings if they exist.
+     */
+    private void readFromConfig() {
+
+        LocalizationContext ctx = initUserLocalization();
+        
+        // Get a list of localization files!
+        LocalizationFile f = PathManagerFactory.getPathManager().getLocalizationFile(ctx, SETTINGS_FILENAME);        
+        // If its not there, no previous settings have been saved. Just exit.
+        if(f.exists()) {
+            UserPrintSettings settings = null;
+            try {
+                
+                settings = (UserPrintSettings) JAXB.unmarshal(f.openInputStream(),UserPrintSettings.class); 
+
+            } catch (Exception e) {
+                statusHandler.error("Could not read user print settings-using defaults", e);
+            }
+            if(settings != null) {
+                invertCheckbox.setSelection(settings.getInvertBlackWhite());
+                grayscaleRadioButton.setSelection(settings.isPrintGrayScale());
+                colorRadioButton.setSelection(!grayscaleRadioButton.getSelection());
+
+                landscapeRadioButton.setSelection(settings.getOrientation().isPrintLandscape());
+                portraitRadioButton.setSelection(!landscapeRadioButton.getSelection());
+                
+                Integer n = settings.getCopies();
+                if(n != null) {
+                    if(n >= copiesSpinner.getMinimum() && n <= copiesSpinner.getMaximum()) {
+                        copiesSpinner.setSelection(n);
+                    }
+                }
+                
+                n = settings.getScale();
+                if(n != null) {
+                    if(n >= scaleSpinner.getMinimum() && n <= scaleSpinner.getMaximum()) {
+                        scaleSpinner.setSelection(settings.getScale());
+                    }
+                }
+                n = settings.getDensity();
+                if(n != null) {
+                    if((n >= 0) && (n < densityCombo.getItemCount())) {
+                        densityCombo.select(n);
+                    }
+                }
+                n = settings.getMag();
+                if(n != null) {
+                    if((n >= 0) && (n < magnificationCombo.getItemCount())) {
+                        magnificationCombo.select(n);
+                    }
+                }
+                
+                String s = settings.getPrinterFile();
+                if(s != null) {
+                    destinationFileText.setText(s);
+                    destinationFileText.setToolTipText(s);
+                    destinationFileText.setEnabled(true);
+                    browseButton.setEnabled(true);
+                }
+                
+                s = settings.getPrinterUsed();
+                if(s != null) {
+                    int idx = -1;
+                    for(int i = 0;i < selectedPrinterCombo.getItemCount(); i++) {
+                        if(s.equals(selectedPrinterCombo.getItem(i))) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if(idx > -1) {
+                        selectedPrinterCombo.select(idx);
+                    }
+                }
+                printerRadioButton.setSelection(!settings.isUsePrinterFile());
+                fileRadioButton.setSelection(settings.isUsePrinterFile());
+            }
+        }
+    }
+    
+    
+    
+    /**
+     * initialize the localization for user with the save/load functions
+     * 
+     * @return the initialized localization
+     */
+    public static LocalizationContext initUserLocalization() {
+        return initLocalization(LocalizationLevel.USER);
+    }
+
+    /**
+     * Initialize a LocalizationContext for the given LocalizationLevel.
+     * 
+     * @return the initialized localization
+     */
+    public static LocalizationContext initLocalization(LocalizationLevel level) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext localization = pm.getContext(
+                LocalizationType.COMMON_STATIC, level);
+        return localization;
     }
 
 }
