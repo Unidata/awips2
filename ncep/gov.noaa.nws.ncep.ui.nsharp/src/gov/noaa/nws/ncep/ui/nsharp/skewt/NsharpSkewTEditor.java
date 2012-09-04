@@ -235,7 +235,7 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         if (input instanceof EditorInput) {
         	displaysToLoad = editorInput.getRenderableDisplays();
         }
-        //System.out.println("SkewtEditor  title " + this.getTitle() );
+        System.out.println("SkewtEditor  title " + this.getTitle() );
         if (editorNum == 0 ){
         	editorNum = EditorManager.getEditorNumber();
         	
@@ -266,7 +266,7 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
      */
     @Override
     public void dispose() {
-    	//System.out.println("NsharpSkewTEditor disposed!! "  );
+    	System.out.println("NsharpSkewTEditor disposed!! "  );
     	if (EditorManager.unregisterEditorNumber(editorNum) ==0 ){
     		super.dispose();
     		synchronized (this) {
@@ -454,7 +454,7 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
 	public static NsharpSkewTEditor createOrOpenSkewTEditor(  ) {
 		NsharpSkewTEditor editor = getActiveNsharpEditor();
         if (editor != null) {
-        	//System.out.println("createOrOpenSkewTEditor return editor from getActiveNsharpEditor");
+        	System.out.println("createOrOpenSkewTEditor return editor from getActiveNsharpEditor");
             //PlatformUI.getWorkbench().getActiveWorkbenchWindow()
             //        .getActivePage().bringToTop(editor);
             return editor;
