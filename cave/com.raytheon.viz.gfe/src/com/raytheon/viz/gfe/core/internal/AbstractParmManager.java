@@ -32,7 +32,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -63,6 +65,7 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
+import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -96,6 +99,8 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  *                                     correspond to a visible mutable parm.
  * 06/25/2012    #766      dgilling    Move to a shared thread pool for VCModule
  *                                     execution.
+ * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
+ *                                     use in PngWriter
  * 
  * </pre>
  * 
@@ -2096,5 +2101,33 @@ public abstract class AbstractParmManager implements IParmManager {
     @Override
     public VCModuleJobPool getVCModulePool() {
         return vcModulePool;
+    }
+
+    // Now construct the step times.
+    // All startTimes are included.
+    // EndTimes which are contained in another TR are included.
+    @Override
+    public List<Date> calcStepTimes(List<Parm> parms, TimeRange dspTR) {
+        SortedSet<Date> dateSet = new TreeSet<Date>();
+
+        for (Parm pi : parms) {
+            IGridData[] inv = pi.getGridInventory();
+            for (IGridData grid : inv) {
+                dateSet.add(grid.getGridTime().getStart());
+
+                if (!dateSet.contains(grid.getGridTime().getEnd())) {
+                    for (Parm pk : parms) {
+                        if (pi != pk
+                                && pi.overlappingGrid(grid.getGridTime()
+                                        .getEnd()) != null) {
+                            dateSet.add(grid.getGridTime().getEnd());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<Date>(dateSet);
     }
 }
