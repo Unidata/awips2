@@ -38,9 +38,6 @@ import FormatterRunner
 import loadConfig
 
 from com.raytheon.viz.gfe.core import DataManager
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel 
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 
 
 LOGGER = None
