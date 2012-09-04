@@ -82,6 +82,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 05/23/2008              dfitch      Initial Creation.
  * Aug 20, 2008            dglazesk    Updated for the new ColorMap interface
+ * Aug 20, 2012      1079  randerso    Changed to display all discrete values for
+ *                                     non-overlapping discretes
  * 
  * </pre>
  * 
@@ -148,6 +150,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
      * 
      * @see com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#dispose()
      */
+    @Override
     public void dispose() {
         parm.getListeners().removeGridChangedListener(this);
     }
@@ -264,13 +267,30 @@ public class DiscreteColorbar implements IColorBarDisplay,
     }
 
     private List<ColorEntry> calcGridColorTable(IGridData gridData) {
+        List<ColorEntry> cEntries = new ArrayList<ColorEntry>();
         if (gridData == null) {
-            return new ArrayList<ColorEntry>();
+            return cEntries;
         }
 
         GridType gridType = parm.getGridInfo().getGridType();
         ParmID parmId = parm.getParmID();
         String siteId = parmId.getDbId().getSiteId();
+        String compName = parmId.getCompositeName();
+
+        // special case: discrete non-overlapping, use all keys
+        if (gridType.equals(GridType.DISCRETE)
+                && !DiscreteKey.discreteDefinition(siteId).overlaps(compName)) {
+            List<String> dkeys = DiscreteKey.discreteDefinition(siteId)
+                    .symbols(compName);
+            for (String key : dkeys) {
+                DiscreteKey dk = new DiscreteKey(siteId, key, parmId);
+                WxValue v = new DiscreteWxValue(dk, parm);
+                List<ImageAttr> attrs = DiscreteDisplayUtil
+                        .getFillAttributes(v);
+                cEntries.add(new ColorEntry(v, attrs));
+            }
+            return cEntries;
+        }
 
         // get the grid slice for the grid data
         IGridSlice gs = gridData.getGridSlice();
@@ -322,7 +342,6 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
 
         // map each WxValue and append ColorEntry to list
-        List<ColorEntry> cEntries = new ArrayList<ColorEntry>();
         for (WxValue wxValue : gridWValues) {
             List<ImageAttr> attrs = DiscreteDisplayUtil
                     .getFillAttributes(wxValue);

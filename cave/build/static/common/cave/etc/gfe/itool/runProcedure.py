@@ -40,11 +40,6 @@ import Exceptions
 from java.lang.System import getProperty
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.viz.gfe.core import DataManager
-from com.raytheon.uf.common.localization import PathManagerFactory
-from com.raytheon.uf.viz.core.localization import LocalizationManager
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel 
-from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
-from com.raytheon.uf.common.dataplugin.gfe.python import GfePyIncludeUtil
 
 
 CLASS_NAME = 'Procedure'
