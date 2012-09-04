@@ -49,41 +49,91 @@ public interface IUFStatusHandler {
      */
     public void handle(UFStatus status);
 
-    /**
-     * Send a message to Status handler for logging/display.
-     * 
-     * @param priority
-     *            Message priority.
-     * @param message
-     *            Text to be displayed in the message
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send a message to Status handler for logging/display.
+	 * 
+	 * @param status
+	 */
+	public void handle(UFStatus status, String category);
+
+	/**
+	 * Send a message to Status handler for logging/display.
+	 * 
+	 * @param priority
+	 *            Message priority.
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
     public void handle(Priority priority, String message);
 
-    /**
-     * Send a message to Status handler for logging/display.
-     * 
-     * @param priority
-     *            Message priority.
-     * @param message
-     *            Text to be displayed in the message
-     * @param throwable
-     *            associated exception
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send a message to Status handler for logging/display.
+	 * 
+	 * @param priority
+	 *            Message priority.
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
+	public void handle(Priority priority, String category, String message);
+
+	/**
+	 * Send a message to Status handler for logging/display.
+	 * 
+	 * @param priority
+	 *            Message priority.
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
     public void handle(Priority priority, String message, Throwable throwable);
 
-    /**
-     * Send a debug message to Status handler for logging/display.
-     * 
-     * @param message
-     *            Text to be displayed in the message
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send a message to Status handler for logging/display.
+	 * 
+	 * @param priority
+	 *            Message priority.
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
+	public void handle(Priority priority, String category, String message,
+			Throwable throwable);
+
+	/**
+	 * Send a debug message to Status handler for logging/display.
+	 * 
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
     public void debug(String message);
+
+	/**
+	 * Send a debug message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
+	public void debug(String category, String message);
 
     /**
      * Send an info message to Status handler for logging/display.
@@ -95,47 +145,111 @@ public interface IUFStatusHandler {
      */
     public void info(String message);
 
-    /**
-     * Send a warn message to Status handler for logging/display.
-     * 
-     * @param message
-     *            Text to be displayed in the message
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send an info message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
+	public void info(String category, String message);
+
+	/**
+	 * Send a warn message to Status handler for logging/display.
+	 * 
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
     public void warn(String message);
 
-    /**
-     * Send an error message to Status handler for logging/display.
-     * 
-     * @param message
-     *            Text to be displayed in the message
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send a warn message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
+	public void warn(String category, String message);
+
+	/**
+	 * Send an error message to Status handler for logging/display.
+	 * 
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
     public void error(String message);
 
-    /**
-     * Send an error message to Status handler for logging/display.
-     * 
-     * @param message
-     *            Text to be displayed in the message
-     * @param throwable
-     *            associated exception
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send an error message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * 
+	 * @see UFStatus
+	 */
+    public void error(String category, String message);
+
+	/**
+	 * Send an error message to Status handler for logging/display.
+	 * 
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
     public void error(String message, Throwable throwable);
 
-    /**
-     * Send a fatal message to Status handler for logging/display.
-     * 
-     * @param message
-     *            Text to be displayed in the message
-     * @param throwable
-     *            associated exception
-     * 
-     * @see UFStatus
-     */
+	/**
+	 * Send an error message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
+	public void error(String category, String message, Throwable throwable);
+
+	/**
+	 * Send a fatal message to Status handler for logging/display.
+	 * 
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
     public void fatal(String message, Throwable throwable);
+
+	/**
+	 * Send a fatal message to Status handler for logging/display.
+	 * 
+	 * @param category
+	 *            Message category
+	 * @param message
+	 *            Text to be displayed in the message
+	 * @param throwable
+	 *            associated exception
+	 * 
+	 * @see UFStatus
+	 */
+	public void fatal(String category, String message, Throwable throwable);
 }
