@@ -8,3 +8,15 @@ gov.noaa.nws.ncep.ui.nsharp.display.NsharpDataPaneDisplay
 gov.noaa.nws.ncep.ui.nsharp.display.NsharpHodoPaneDisplay
 gov.noaa.nws.ncep.ui.nsharp.display.NsharpTimeStnPaneDisplay
 gov.noaa.nws.ncep.ui.nsharp.display.NsharpWitoPaneDisplay
+gov.noaa.nws.ncep.ui.nsharp.display.NsharpSpcGraphsPaneDisplay
+gov.noaa.nws.ncep.ui.nsharp.display.NsharpAbstractPaneDescriptor
+gov.noaa.nws.ncep.ui.nsharp.display.NsharpHodoPaneDescriptor
+gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor
+gov.noaa.nws.ncep.ui.nsharp.display.NsharpSpcGraphsPaneDescriptor
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpDataPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpInsetPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSpcGraphsPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResourceData
