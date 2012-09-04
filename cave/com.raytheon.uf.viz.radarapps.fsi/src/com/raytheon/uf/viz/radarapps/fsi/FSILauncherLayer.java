@@ -628,7 +628,7 @@ public class FSILauncherLayer extends
                                 statusHandler
                                         .handle(Priority.PROBLEM,
                                                 "FSI failed to start: "
-                                                        + sb.toString(), null);
+														+ sb.toString());
                                 return;
                             }
                         } catch (InterruptedException e) {

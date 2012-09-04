@@ -57,6 +57,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+    <text id="mosStaId" plotMode="sample" class="text" plotParam="stationId" x="0" y="0">0</text>
 	<text id="QPF12hr_bestCat" class="text" plotMode="table" plotParam="QPF12hr_bestCat" plotLookupTable="bufrmos/mos_gfs_gfsex_eta_QPF12hr.txt" style="text-anchor: start;" x="10px" y="0px">M</text>
     </symbol>
 </defs>
