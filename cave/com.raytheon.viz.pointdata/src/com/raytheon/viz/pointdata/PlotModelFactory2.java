@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Formatter;
@@ -85,6 +86,9 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * 11/20/2006              brockwoo    Initial creation.
  * 03/16/2009              jsanchez    Added processAvailDirective.
  * 06/29/2009       2538   jsanchez    Implemented pointdata.
+ * ======================================
+ * AWIPS2 DR Work
+ * 08/09/2012         1085 jkorman     Corrected data construction.
  * 
  * </pre>
  * 
@@ -978,7 +982,12 @@ public class PlotModelFactory2 {
         case INT:
         case LONG:
             if (dimensions == 1) {
-                display = String.valueOf((ob.getNumber(element.parameter)));
+                Number n = ob.getNumber(element.parameter);
+                if((n != null) && (n.doubleValue() != -9999)) {
+                    if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                        display = n.toString();
+                    }
+                }
             } else if (dimensions == 2) {
                 Number[] values = ob.getNumberAllLevels(element.parameter);
                 fields = numberToStringArray(values);
@@ -998,13 +1007,13 @@ public class PlotModelFactory2 {
             display = fields[element.index];
         } else if (element.ranking != null && fields != null) {
             display = element.ranking.getRankedField(fields);
-        } else if (fields != null) {
-            display = fields[0];
-            for (int i = 1; i < fields.length; i++) {
-                if (fields[i].length() > 0) {
-                    display = fields[i] + " " + display;
-                }
+        } else if ((fields != null)&&(fields.length > 0)) {
+            StringBuilder sb = new StringBuilder(fields[fields.length-1]);
+            for(int i = fields.length-2; i >= 0;i--) {
+                sb.append(" ");
+                sb.append(fields[i]);
             }
+            display = sb.toString();
         }
 
         if (element.lookup != null) {
@@ -1186,20 +1195,25 @@ public class PlotModelFactory2 {
         return this.plotFields;
     }
 
+    /**
+     * Convert an array of Numbers to their String representation. Note that indexing
+     * may be used on the return array so the output size must match the input size.
+     * @param values An array of Number to convert.
+     * @return The converted data. If the input is null, the return will be null.
+     */
     private String[] numberToStringArray(Number[] values) {
-        ArrayList<String> list = new ArrayList<String>();
-        // String[] retVal = new String[values.length];
-        for (int i = 0; i < values.length; i++) {
-            if (!String.valueOf(values[i]).equals("")) {
-                list.add(String.valueOf(values[i]));
+        String[] retVal = null;
+        if(values != null) {
+            retVal = new String[values.length];
+            Arrays.fill(retVal,"");
+            for(int i = 0;i < values.length;i++) {
+                Number n = values[i];
+                if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                    retVal[i] = n.toString();
+                }
             }
         }
-
-        if (list.size() > 0) {
-            return list.toArray(new String[list.size()]);
-        } else {
-            return null;
-        }
+        return retVal;
     }
 
     public void setLowerLimit(double lowerLimit) {
