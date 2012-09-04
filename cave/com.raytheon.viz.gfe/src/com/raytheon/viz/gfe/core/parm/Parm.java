@@ -865,8 +865,7 @@ public abstract class Parm implements Comparable<Parm> {
             if (errMsg != null) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         "ReplaceGriddedData aborted for " + getParmID() + ' '
-                                + grid.getGridSlice().getValidTime() + ' '
-                                + errMsg);
+                                + grid.getGridTime() + ' ' + errMsg);
                 return false;
             }
             grid.resetSavePublishHistory();
@@ -1466,12 +1465,10 @@ public abstract class Parm implements Comparable<Parm> {
 
                 }
                 // update history
-                GridDataHistory[] his = grids.get(j).getGridSlice()
-                        .getHistory();
+                GridDataHistory[] his = grids.get(j).getHistory();
                 List<GridDataHistory> historyAsList = new ArrayList<GridDataHistory>(
                         Arrays.asList(his));
-                historyAsList.addAll(Arrays.asList(grid.getGridSlice()
-                        .getHistory()));
+                historyAsList.addAll(Arrays.asList(grid.getHistory()));
 
                 grids.get(j).updateHistory(
                         historyAsList.toArray(new GridDataHistory[historyAsList
@@ -3597,7 +3594,7 @@ public abstract class Parm implements Comparable<Parm> {
         // get some stuff for later use
         Point gridSize = this.getGridInfo().getGridLoc().gridSize();
         int gridCount = grids.length;
-        GridParmInfo thisGridInfo = grids[0].getGridSlice().getGridInfo();
+        GridParmInfo thisGridInfo = grids[0].getParm().getGridInfo();
 
         // Make a new GridSlice into which the result will go
         IGridSlice gridSlice = null;
