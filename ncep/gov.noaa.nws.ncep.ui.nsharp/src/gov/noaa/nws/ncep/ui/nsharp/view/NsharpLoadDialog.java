@@ -263,7 +263,7 @@ public class NsharpLoadDialog extends Dialog {
 	public NsharpLoadDialog(Shell parentShell)throws VizException  {
 		super(parentShell);
 		// set modeless, so mouse button can be used by others
-		this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE );
+		this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE |SWT.SHELL_TRIM);
 		
 		//System.out.println("loadDia constructed");
 		activeLoadSoundingType = OBSER_SND;
@@ -342,7 +342,7 @@ public class NsharpLoadDialog extends Dialog {
 	        //System.out.println("createDialogArea called");
 	        // Initialize all of the menus, controls, and layouts
 	        createLoadContents(top);
-	        shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+	        //shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 	        if(waitCursor==null)
 	        	waitCursor = new Cursor( top.getDisplay(), SWT.CURSOR_WAIT);
 	        return top;

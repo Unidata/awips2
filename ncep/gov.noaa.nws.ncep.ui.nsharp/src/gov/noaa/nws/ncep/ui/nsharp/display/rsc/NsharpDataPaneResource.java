@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -139,7 +140,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			myDefaultCanvasWidth = (int) (NsharpConstants.DISPLAY_WIDTH * (1-NsharpConstants.PANE_DEF_CFG_1_LEFT_GP_WIDTH_RATIO)* NsharpConstants.PANE_DEF_CFG_1_DATA_WIDTH_RATIO);
 			myDefaultCanvasHeight = (int) (NsharpConstants.DISPLAY_HEIGHT*NsharpConstants.PANE_DEF_CFG_1_DATA_HEIGHT_RATIO);				
 		} 
-		System.out.println("data pane default canv W="+myDefaultCanvasWidth+" h="+myDefaultCanvasHeight);
+		//System.out.println("data pane default canv W="+myDefaultCanvasWidth+" h="+myDefaultCanvasHeight);
 		panelRectArray[0] = dataPanel1Background.getRectangle();
 		panelRectArray[1] = dataPanel2Background.getRectangle();
 		dataPanel1Background.initInternal(target);
@@ -253,7 +254,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		FloatByReference botPF= new FloatByReference(0);
 		nsharpNative.nsharpLib.get_effectLayertopBotPres(topPF, botPF);
    		
-   		String textStr, CAPE3Str="3CAPE= M", NCAPEStr = "NCAPE= M";
+   		String textStr, CAPE3Str="", NCAPEStr="";
    		curY=rect.y;
    		
    		//
@@ -261,7 +262,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		// 
    		Rectangle2D strBD = target.getStringBounds(font10, NsharpNativeConstants.PAGE1TEXT1_FCST_STR+"XX");
 		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
-		
+		double startX = rect.x + 0.5*charWidth;
    		double widthGap = (rect.width-strBD.getWidth()*hRatio*xRatio)/6;//was -100*xRatio)/6;
    		firstToken=rect.x+strBD.getWidth()*hRatio*xRatio;//was +100.0*xRatio;
    		secondToken=firstToken+widthGap;
@@ -269,7 +270,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		forthToken=thirdToken+widthGap;
    		fifthToken = forthToken+widthGap;
    		sixthToken = fifthToken+widthGap;
-   		target.drawString(font10, "Sum1", rect.x, rect.y , 0.0,
+   		target.drawString(font10, "Sum1", startX, rect.y , 0.0,
 	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 	                VerticalAlignment.TOP, null);
    		target.drawString(font10, "CAPE", firstToken, rect.y , 0.0,
@@ -295,24 +296,10 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    	    parcelLineYStart = curY;
    		float layerPressure = 0; 
    		
-   		
-   		//get current parcel type here to use it later
-   		//if(NsharpParcelDialog.getAccess() != null){
-
-   			//currentParcel = NsharpParcelDialog.getAccess().getCurrentParcel();
-   			//if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED)
-   			//	layerPressure = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
-   			//else
-   				//layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
-   		//}
-   		
-   		//else {//default - use mU
-   		//	currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
-   		//	layerPressure = NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
-   		//}
    		//get user selected parcel type
    		_lplvalues lpvls;
    		_parcel pcl;
+   		curY = curY+ (double)charHeight * 0.5;
    		for (short parcelNumber=1; parcelNumber <= NsharpNativeConstants.PARCEL_MAX  ; parcelNumber++){
    			if(parcelNumber == currentParcel ){
    				PixelExtent pixExt = new PixelExtent(rect.x, rect.x+ rect.width,curY, curY+charHeight);
@@ -321,7 +308,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			}
    			//call native define_parcel() with parcel type and user defined pressure (if user defined it)
    			textStr = NsharpNativeConstants.parcelToTypeStrMap.get(parcelNumber);
-   			target.drawString(font10, textStr, rect.x, curY , 0.0,
+   			target.drawString(font10, textStr, startX, curY , 0.0,
    					TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
    					VerticalAlignment.TOP, null);
    			float layerPressure1 = NsharpNativeConstants.parcelToLayerMap.get(parcelNumber);
@@ -409,17 +396,17 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			//get 3CAPE value for later to use	
    			if(parcelNumber == NsharpNativeConstants.PARCELTYPE_MEAN_MIXING){
    				if(nsharpNative.nsharpLib.qc(pcl.cape3km)==1) {
-   					CAPE3Str = String.format("3CAPE=%.0fJ/kg", pcl.cape3km);  			
+   					CAPE3Str = String.format("%.0fJ/kg", pcl.cape3km);  			
    				}
    				else {
-   					CAPE3Str = "3CAPE= M";
+   					CAPE3Str = " M";
    				}
    			}//get NCAPE value for later to use	
    			else if(parcelNumber == NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE){
    				float j1 = pcl.bplus;
    		        float j2 = nsharpNative.nsharpLib.ihght(pcl.elpres) - nsharpNative.nsharpLib.ihght(pcl.lfcpres);
    		        if(nsharpNative.nsharpLib.qc(j1/j2)==1) {
-   		        	NCAPEStr = String.format("NCAPE=%.2f",j1/j2);
+   		        	NCAPEStr = String.format("%.2f",j1/j2);
    		   		}
    		   		else {
    		   			NCAPEStr = "NCAPE= M";
@@ -454,104 +441,127 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//
    		// THERMO DYNAMIC DATA
    		// 
-   		firstToken = rect.x + rect.width/48*11*xRatio;
+   		firstToken = rect.x + rect.width/48*12*xRatio;
    		secondToken = rect.x + rect.width/48*27*xRatio;
    		thirdToken = rect.x + rect.width/48*38*xRatio;
-   		
-   		fValue.setValue(0);
+   		curY = curY+ (double)charHeight * 0.5;
+   		DrawableString str = new DrawableString("ABCDE=", NsharpConstants.color_white);  
+   		str.font = font10;
+		double equalSignPos=(startX+target.getStringsBounds(str).getWidth())*hRatio*xRatio;
+		fValue.setValue(0);
    		nsharpNative.nsharpLib.precip_water(fValue, -1.0F, -1.0F);
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
-   			textStr = String.format("PW=%.2f in", fValue.getValue());
-   			target.drawString(font10, textStr, rect.x, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
+   			textStr = String.format("%.2f in", fValue.getValue());
    		}
    		else {
-   			target.drawString(font10, "PW=M", rect.x, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
+   			textStr = " M";
    		}
+   		str.setCoordinates(startX, curY);
+		str.horizontalAlignment = HorizontalAlignment.LEFT;
+		str.verticallAlignment = VerticalAlignment.TOP;
+		str.font = font10;
+		str.setText("PW=", NsharpConstants.color_white);
+   		DrawableString str1 =new DrawableString(textStr,NsharpConstants.color_white);
+		str1.setCoordinates(equalSignPos, curY);
+		str1.horizontalAlignment = HorizontalAlignment.LEFT;
+		str1.verticallAlignment = VerticalAlignment.TOP;
+		str1.font = font10;
+		target.drawStrings(str, str1);
+		
    		//3CAPE...value was retrieved earlier
-   		target.drawString(font10, CAPE3Str, firstToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+		str.setText("3CAPE=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(CAPE3Str,NsharpConstants.color_white);
+ 		str1.setCoordinates(firstToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
    		
    		fValue.setValue(0);
    		float wbzft = nsharpNative.nsharpLib.mtof(nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(nsharpNative.nsharpLib.wb_lvl( 0, fValue ))));
    		if(nsharpNative.nsharpLib.qc(wbzft)==1) {
-   			textStr = String.format("WBZ=%.0f'",wbzft);
+   			textStr = String.format("%.0f'",wbzft);
    		}
    		else {
-   			textStr = "WBZ= M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, secondToken, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
+   		str.setText("WBZ=", NsharpConstants.color_white);
+   		str.setCoordinates(secondToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(secondToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
+   		
    		
    		//WNDG
    		float wndg = nsharpNative.nsharpLib.damaging_wind();
    		if(nsharpNative.nsharpLib.qc(wndg)==1) {
-   			textStr = String.format("WNDG=%.2f",wndg);
+   			textStr = String.format("%.2f",wndg);
    		}
    		else {
-   			textStr = "WNDG= M";
+   			textStr = " M";
    		}
-   		
-		target.drawString(font10, textStr, thirdToken, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
-
+   		str.setText("WNDG=", NsharpConstants.color_white);
+   		str.setCoordinates(thirdToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(thirdToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
    		
 		curY = curY+charHeight; //move to new line
 
    		fValue.setValue(0);
    		nsharpNative.nsharpLib.k_index(fValue);
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
-   			textStr = String.format("K=%.0f",fValue.getValue());
+   			textStr = String.format("%.0f",fValue.getValue());
    		}
    		else {
-   			textStr = "K= M";
-   		}		
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
+   			textStr = " M";
+   		}	
+   		str.setText("K=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
 		//DCAPE
 		//fValue1 will be used for DownT to use
    		float dcape= nsharpNative.nsharpLib.dcape(fValue, fValue1);
    		float downT = fValue1.getValue();
    		if(nsharpNative.nsharpLib.qc(dcape)==1) {
-   			textStr = String.format("DCAPE=%.0fJ/kg",dcape);
+   			textStr = String.format("%.0fJ/kg",dcape);
    		}
    		else {
-   			textStr = "DCAPE= M";
-   		}	   		
-		target.drawString(font10, textStr, firstToken, curY , 0.0,
-   	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-   	                VerticalAlignment.TOP, null);
-
+   			textStr = " M";
+   		}	  
+   		str.setText("DCAPE=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(firstToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
+		
 		//FZL
    		fValue.setValue(0);
    		float fgzft = nsharpNative.nsharpLib.mtof(nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(nsharpNative.nsharpLib.temp_lvl( 0, fValue ))));
    		if(nsharpNative.nsharpLib.qc(fgzft)==1) {
-   			textStr = String.format("FZL=%.0f'",fgzft);
+   			textStr = String.format("%.0f'",fgzft);
    		}
    		else {
-   			textStr = "FZL= M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, secondToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+   		str.setText("FZL=", NsharpConstants.color_white);
+   		str.setCoordinates(secondToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(secondToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 		//ESP
 		float esp= nsharpNative.nsharpLib.esp();
 		if(nsharpNative.nsharpLib.qc(esp)==1) {
-   			textStr = String.format("ESP=%.2f",esp);
+   			textStr = String.format("%.2f",esp);
    		}
    		else {
-   			textStr = "ESP= M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, thirdToken, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		str.setText("ESP=", NsharpConstants.color_white);
+   		str.setCoordinates(thirdToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(thirdToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
    		
 		curY = curY+charHeight; //move to new line
    		
@@ -560,54 +570,60 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		nsharpNative.nsharpLib.get_surface(fValue1, fValue2, fValue3); //fValue 2 and fValue3 are not of concern here
 		nsharpNative.nsharpLib.mean_relhum( fValue, fValue1.getValue() - 150, fValue1.getValue() - 350 );
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
-   			textStr = String.format("MidRH=%.0f%c",fValue.getValue(),NsharpConstants.PERCENT_SYMBOL);
+   			textStr = String.format("%.0f%c",fValue.getValue(),NsharpConstants.PERCENT_SYMBOL);
    		}
    		else {
-   			textStr = "MidRH = M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+   		str.setText("MidRH=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
    		//DownT
 		downT = nsharpNative.nsharpLib.ctof(downT) ; //convert to F
 		if(nsharpNative.nsharpLib.qc( downT)==1) {
-   			textStr = String.format("DownT=%.0fF",downT);
+   			textStr = String.format("%.0fF",downT);
    		}
    		else {
-   			textStr = "DownT= M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, firstToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
-
+		str.setText("DownT=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(firstToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
    		//ConvT
    		fValue.setValue(0);
    		float conTempF = nsharpNative.nsharpLib.ctof(nsharpNative.nsharpLib.cnvtv_temp( fValue, -1));
    		
    		if(nsharpNative.nsharpLib.qc( conTempF )==1) {
-   			textStr = String.format("ConvT=%.0fF",conTempF);
+   			textStr = String.format("%.0fF",conTempF);
    		}
    		else {
-   			textStr = "ConvT = M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, secondToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+   		str.setText("ConvT=", NsharpConstants.color_white);
+   		str.setCoordinates(secondToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(secondToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 
 		//MMP:  Coniglio MCS Maintenance Parameter 
 		float mmp = nsharpNative.nsharpLib.coniglio1();
 		if(nsharpNative.nsharpLib.qc( mmp )==1) {
-   			textStr = String.format("MMP=%.2f",mmp);
+   			textStr = String.format("%.2f",mmp);
    		}
    		else {
-   			textStr = "MMP= M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, thirdToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+		str.setText("MMP=", NsharpConstants.color_white);
+   		str.setCoordinates(thirdToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(thirdToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 
-   		
-   		curY = curY+charHeight; //move to new line
+		curY = curY+charHeight; //move to new line
 
    		fValue.setValue(0);
    		fValue1.setValue(0);
@@ -616,63 +632,62 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		nsharpNative.nsharpLib.mean_relhum( fValue, -1.0F, fValue1.getValue() - 150 );
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
    			//textStr = NsharpNativeConstants.THERMO_MEANLRH_LINE;
-   			textStr = String.format("LowRH=%.0f%c",fValue.getValue(),NsharpConstants.PERCENT_SYMBOL);
+   			textStr = String.format("%.0f%c",fValue.getValue(),NsharpConstants.PERCENT_SYMBOL);
    		}
    		else {
-   			textStr = "LowRH = M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
-
+   		str.setText("LowRH=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
    		
    		fValue.setValue(0);
    		nsharpNative.nsharpLib.mean_mixratio(fValue, -1.0F, -1.0F);
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
-   			textStr = String.format("MeanW=%.1fg/kg",fValue.getValue());
+   			textStr = String.format("%.1fg/kg",fValue.getValue());
    		}
    		else {
-   			textStr = "MeanW = M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, firstToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+   		str.setText("MeanW=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(firstToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 
-
-   		fValue.setValue(0);
+		fValue.setValue(0);
    		float maxT= nsharpNative.nsharpLib.ctof(nsharpNative.nsharpLib.max_temp( fValue, -1));
    		if(nsharpNative.nsharpLib.qc(maxT)==1) {
-   			textStr = String.format("MaxT=%.0fF",maxT);
+   			textStr = String.format("%.0fF",maxT);
    		}
    		else {
-   			textStr = "MaxT= M";
+   			textStr = " M";
    		}
-		target.drawString(font10, textStr, secondToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+   		str.setText("MaxT=", NsharpConstants.color_white);
+   		str.setCoordinates(secondToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(secondToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 
    		//NCAPE
-		/*float j1 = pcl.bplus;
-        float j2 = nsharpNative.nsharpLib.ihght(pcl.elpres) - nsharpNative.nsharpLib.ihght(pcl.lfcpres);
-        if(nsharpNative.nsharpLib.qc(j1/j2)==1) {
-   			textStr = String.format("NCAPE=%.2f",j1/j2);
-   		}
-   		else {
-   			textStr = "NCAPE= M";
-   		}       */
-		target.drawString(font10, NCAPEStr, thirdToken, curY , 0.0,
-	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-	                VerticalAlignment.TOP, null);
+		str.setText("NCAPE=", NsharpConstants.color_white);
+   		str.setCoordinates(thirdToken, curY);
+ 		str1.setText(NCAPEStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(thirdToken+equalSignPos, curY);
+		target.drawStrings(str, str1);
 
    		curY = curY+charHeight; //move to new line
    		target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
    		
    		//draw a vertical line from 2/3 of x axis
-   		strBD = target.getStringBounds(font10, "sfc-3km AglLapseRate=xxC/x.xC/kmX");
-		firstToken=rect.x+strBD.getWidth()*hRatio*xRatio;
-   		//firstToken = rect.x + (rect.width/3*2+ 25)*xRatio;
-   		
+		str.setText("sfc-3km AglLapseRate=xxC/x.xC/kmX",NsharpConstants.color_black);
+		str.font = font10;
+		firstToken=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
    		target.drawLine(firstToken, curY, 0.0, firstToken, rect.y+rect.height, 0.0, NsharpConstants.color_white, 1);
+   		curY = curY+ (double)charHeight * 0.5;
+   		firstToken = firstToken + 0.5*charWidth;
    		
    		// more thermodynamic data
    		// the following follow show_parcel_new() at xwvid.c of bigNsharp implementation
@@ -690,18 +705,26 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    			fValue1.setValue(0);
    			nsharpNative.nsharpLib.lapse_rate( fValue1, fValue.getValue(), threekmPre );
    			if(nsharpNative.nsharpLib.qc(fValue1.getValue())==1) {
-   				textStr = String.format("sfc-3km AglLapseRate=%.0fC/%.1fC/km", tDelta, fValue1.getValue());
+   				//textStr = String.format("sfc-3km AglLapseRate=%.0fC/%.1fC/km", tDelta, fValue1.getValue());
+   				textStr = String.format("%.0fC/%.1fC/km", tDelta, fValue1.getValue());
    			}
    			else {
-   				textStr = "sfc-3km AglLapseRate=  M";
+   				textStr = " M";// "sfc-3km AglLapseRate=  M";
    			}
    		}
    		else {
-   			textStr = "sfc-3km AglLapseRate=  M";
+   			textStr = " M";//"sfc-3km AglLapseRate=  M";
    		}
-   		target.drawString(font10, textStr, rect.x, curY , 0.0,
+   		str.setText("sfc-3km Agl LapseRate= ", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+		equalSignPos=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+		str1.setText(textStr,NsharpConstants.color_white);
+		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
+		
+   		/*target.drawString(font10, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
    		
    		
    		//"Supercell"
@@ -709,14 +732,20 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		float smspd = rscHandler.getSmWindSpd();//bkRsc.getSmSpd();
    		float superCell = nsharpNative.nsharpLib.scp(smdir, smspd);
    		if(nsharpNative.nsharpLib.qc(superCell)==1) {
-   			textStr = String.format("Supercell=%.1f",superCell);
+   			textStr = String.format("%.1f",superCell);
    		}
    		else {
-   			textStr = "Supercell = M";
+   			textStr = " M";
    	   	}  
-   		target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		str.setText("Supercell=  ", NsharpConstants.color_yellow);
+   		double equalSignPos1=firstToken+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_yellow);
+ 		str1.setCoordinates(equalSignPos1, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
    		
    		curY = curY+charHeight; //move to new line
    		
@@ -730,26 +759,36 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		fValue1.setValue(0);
    		nsharpNative.nsharpLib.lapse_rate( fValue1, threekmPre,sixkmPre );
    		if(nsharpNative.nsharpLib.qc(fValue1.getValue())==1) {
-   			textStr = String.format("3-6km AglLapseRate=%.0fC/%.1fC/km", tDelta, fValue1.getValue());
+   			textStr = String.format("%.0fC/%.1fC/km", tDelta, fValue1.getValue());
 
    		}
    		else {
-   			textStr = "3-6km AglLapseRate  =  M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, rect.x, curY , 0.0,
+   		str.setText("3-6km Agl LapseRate=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
    		// "STP (CIN)"
    		float cin = nsharpNative.nsharpLib.sigtorn_cin(smdir, smspd);
    		if(nsharpNative.nsharpLib.qc(cin)==1) {
-   			textStr = String.format("STP(CIN)=%.1f",cin);
+   			textStr = String.format("%.1f",cin);
    		}
    		else {
-   			textStr = "STP(CIN) = M";
+   			textStr = " M";
    	   	}
-   		target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		str.setText("STP(CIN)=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos1, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
 
    		curY = curY+charHeight; //move to new line
 
@@ -760,25 +799,35 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		float delta= nsharpNative.nsharpLib.itemp(850) - nsharpNative.nsharpLib.itemp(500);
    		nsharpNative.nsharpLib.lapse_rate( fValue1, 850.0F, 500.0F );		
    		if(nsharpNative.nsharpLib.qc(delta)==1 && nsharpNative.nsharpLib.qc(fValue1.getValue())==1) {
-   			textStr = String.format("850-500mb LapseRate=%3.0fC/%3.1fC/km",delta, fValue1.getValue());
+   			textStr = String.format("%.0fC/%.1fC/km",delta, fValue1.getValue());
    		}
    		else {
-   			textStr = "850-500mb LapseRate  = M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, rect.x, curY , 0.0,
+   		str.setText("850-500mb LapseRate=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
    		// "STP(fixed)"
    		float fixedStp = nsharpNative.nsharpLib.sigtorn_fixed(smdir, smspd);
    		if(nsharpNative.nsharpLib.qc(fixedStp)==1) {
-   			textStr = String.format("STP(fixed)=%.1f",fixedStp);
+   			textStr = String.format("%.1f",fixedStp);
    		}
    		else {
-   			textStr = "STP(fixed) = M";
+   			textStr = " M";
    	   	}
-   		target.drawString(font10, textStr, firstToken, curY , 0.0,
+   		str.setText("STP(fixed)=", NsharpConstants.color_white);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos1, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
 
    		curY = curY+charHeight; //move to new line
 
@@ -788,24 +837,34 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		nsharpNative.nsharpLib.lapse_rate( fValue1, 700.0F, 500.0F );	
    		delta= nsharpNative.nsharpLib.itemp(700) - nsharpNative.nsharpLib.itemp(500);
    		if(nsharpNative.nsharpLib.qc(/*fValue.getValue())*/delta)==1 && nsharpNative.nsharpLib.qc(fValue1.getValue())==1) {
-   			textStr = String.format("700-500mb LapseRate=%3.0fC/%3.1fC/km",delta/*fValue.getValue()*/, fValue1.getValue());
+   			textStr = String.format("%.0fC/%.1fC/km",delta/*fValue.getValue()*/, fValue1.getValue());
    		}
    		else {
-   			textStr = "700-500mb LapseRate  = M";
+   			textStr = " M";
    		}
-   		target.drawString(font10, textStr, rect.x, curY , 0.0,
+   		str.setText("700-500mb LapseRate=", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, startX, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
    		// "SHIP"
    		float ship = nsharpNative.nsharpLib.cave_ship();
    		if(nsharpNative.nsharpLib.qc(ship)==1) {
-   			textStr = String.format("SHIP=%4.1f",ship);
+   			textStr = String.format("%.1f",ship);
    		}
    		else 
-   			textStr = "SHIP = M";
-   		target.drawString(font10, textStr, firstToken, curY , 0.0,
+   			textStr = " M";
+   		str.setText("SHIP=", NsharpConstants.color_red);
+   		str.setCoordinates(firstToken, curY);
+ 		str1.setText(textStr,NsharpConstants.color_red);
+ 		str1.setCoordinates(equalSignPos1, curY);
+		target.drawStrings(str, str1);
+   		/*target.drawString(font10, textStr, firstToken, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+                VerticalAlignment.TOP, null);*/
         //System.out.println("shop="+ship);
    		//font10.dispose();
     }
@@ -837,16 +896,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
     	//
     	//  Start with Header SRH(m%c/s%c)   Shear(kt)    MnWind     SRW
     	// 
-   		/*firstToken=rect.x+80.0;
-   		secondToken=firstToken+80;
-   		thirdToken=secondToken+80;
-   		forthToken=thirdToken+80;*/
+    	double startX = rect.x + 0.5*charWidth;
    		double widthGap = (rect.width)/5;
    		firstToken=rect.x+widthGap;
    		secondToken=firstToken+widthGap;
    		thirdToken=secondToken+widthGap;
    		forthToken=thirdToken+widthGap;
-   		target.drawString(font10, "Sum2", rect.x, rect.y , 0.0,
+   		target.drawString(font10, "Sum2", startX, rect.y , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
@@ -865,7 +921,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
                                 VerticalAlignment.TOP, null);
     	curY = curY+charHeight; //move to new line
     	target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
-
+    	curY = curY+ (double)charHeight * 0.5;
 		FloatByReference smdir=new FloatByReference(0), smspd = new FloatByReference(0);
 		nsharpNative.nsharpLib.get_storm(smspd, smdir);
 		FloatByReference topPF= new FloatByReference(0);
@@ -897,7 +953,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 
 				float totHeli = nsharpNative.nsharpLib.helicity( h1, 
 						h2, smdir.getValue(), smspd.getValue(), fValue, fValue1);
-				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR1[i], rect.x, curY , 0.0,
+				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR1[i], startX, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1039,7 +1095,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 				//calculate helicity 
 				float totHeli = nsharpNative.nsharpLib.helicity( h1, 
 						h2, smdir.getValue(), smspd.getValue(), fValue, fValue1);
-				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR2[i], rect.x, curY , 0.0,
+				target.drawString(font10, NsharpNativeConstants.STORM_MOTION_TYPE_STR2[i], startX, curY , 0.0,
 						TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 						VerticalAlignment.TOP, null);
 
@@ -1108,9 +1164,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 			
 			
 		}
-		
-		//target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
-		
+		//align all following  parameters output with "Corfidi Downshear"
+		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
+   		DrawableString str = new DrawableString("Corfidi Downshear = ", NsharpConstants.color_white);  		
+		double equalSignPos=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
+
 		//BRN Shear		
 		// get parcel data by calling native nsharp parcel() API. value is returned in pcl 
 		// current parcel is reset earlief already we dont have to call define_parcel() again.
@@ -1122,83 +1180,78 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 
 		nsharpNative.nsharpLib.cave_bulk_rich2(  fValue );
 		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) 
-			textStr = String.format("BRN Shear = %.0f m%c/s%c",fValue.getValue(),NsharpConstants.SQUARE_SYMBOL, NsharpConstants.SQUARE_SYMBOL);
+			textStr = String.format("%.0f m%c/s%c",fValue.getValue(),NsharpConstants.SQUARE_SYMBOL, NsharpConstants.SQUARE_SYMBOL);
 		else
-			textStr = "BRN Shear =   M";	
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+			textStr = "  M";	
+		str.setCoordinates(startX, curY);
+		str.horizontalAlignment = HorizontalAlignment.LEFT;
+		str.verticallAlignment = VerticalAlignment.TOP;
+		str.font = font10;
+		str.setText("BRN Shear = ", NsharpConstants.color_white);
+   		DrawableString str1 =new DrawableString(textStr,NsharpConstants.color_white);
+		str1.setCoordinates(equalSignPos, curY);
+		str1.horizontalAlignment = HorizontalAlignment.LEFT;
+		str1.verticallAlignment = VerticalAlignment.TOP;
+		str1.font = font10;
+		target.drawStrings(str, str1);
+		
 		curY = curY+charHeight; //move to new line
 		//4-6km srw
 		nsharpNative.nsharpLib.sr_wind( nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(4000)), 
 				nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(6000)), smdir.getValue(), smspd.getValue(), 
 				fValue, fValue1,fValue2, fValue3);
 		if(nsharpNative.nsharpLib.qc(fValue2.getValue())==1) {
-			textStr = String.format("4-6km SR Wind =  %.0f/%.0f kt",fValue2.getValue(), fValue3.getValue());
+			textStr = String.format("%.0f/%.0f kt",fValue2.getValue(), fValue3.getValue());
 		}
 		else {
-			textStr = "4-6km SR Wind =     M";		
+			textStr = " M";		
 		}
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		str.setText("4-6km SR Wind =", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
+		
 		curY = curY+charHeight; //move to new line
 		
 		//Corfidi Downshear, we use  fValue3, fValue4 only by calling corfidi_MCS_motion
 		nsharpNative.nsharpLib.corfidi_MCS_motion(fValue1, fValue2, fValue3, fValue4, fValue5, fValue6, fValue7, fValue8);
-		textStr = String.format("Corfidi Downshear = %4.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		textStr = String.format("%.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
+		str.setText("Corfidi Downshear =", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
 		curY = curY+charHeight; //move to new line
 		
 		//Corfidi Upshear, we use fValue7, fValue8 only by calling corfidi_MCS_motion
-		textStr = String.format("Corfidi Upshear = %4.0f/%.0f kt",fValue7.getValue(), fValue8.getValue());
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		textStr = String.format("%.0f/%.0f kt",fValue7.getValue(), fValue8.getValue());
+		str.setText("Corfidi Upshear =", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+		target.drawStrings(str, str1);
 		curY = curY+charHeight; //move to new line
 		
 		//Bunkers Right
 		nsharpNative.nsharpLib.bunkers_storm_motion(fValue1, fValue2, fValue3, fValue4);
-		textStr = String.format("Bunkers Right = %4.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
-		
-		Rectangle2D strBD = target.getStringBounds(font10, textStr+"XXXX");
-		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
-		
-   		double xGap = strBD.getWidth()*hRatio*xRatio;
-		textStr = "1km";
-		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
-		strBD = target.getStringBounds(font10, textStr);
-		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
-		textStr = " & ";
-		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
-		strBD = target.getStringBounds(font10, textStr);
-		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
-		textStr = "6km";
-		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
-		strBD = target.getStringBounds(font10, textStr);
-		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
-		textStr = " AGL Wind Barb";
-		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		textStr = String.format("%.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
+		str.setText("Bunkers Right =", NsharpConstants.color_red);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_red);
+ 		str1.setCoordinates(equalSignPos, curY);
+ 		target.drawStrings(str, str1);
+ 		
+ 		
 		curY = curY+charHeight; //move to new line
 		//Bunkers Left
 		nsharpNative.nsharpLib.bunkers_left_motion(fValue1, fValue2, fValue3, fValue4);
-		textStr = String.format("Bunkers Left = %4.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
+		textStr = String.format("%.0f/%.0f kt",fValue3.getValue(), fValue4.getValue());
+		str.setText("Bunkers Left =", NsharpConstants.color_cyan);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_cyan);
+ 		str1.setCoordinates(equalSignPos, curY);
+ 		target.drawStrings(str, str1);
 		curY = curY+charHeight; //move to new line
 		
 		// STPC(test) - test STP using cape6km 
@@ -1207,17 +1260,43 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		//System.out.println("smdir="+smdir.getValue()+"smspd="+ smspd.getValue()+"stpTest="+stpTest+
 		//		"p_bot="+botPF.getValue()+"p_top="+topPF.getValue());
 		if(nsharpNative.nsharpLib.qc(stpTest)==1) 
-			textStr = String.format("STPC(test) = %4.1f", stpTest);
+			textStr = String.format("%.1f", stpTest);
 		else
-			textStr = "STPC(test) = M";
-		target.drawString(font10, textStr, rect.x, curY , 0.0,
-                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, null);
-		
+			textStr = " M";
+		str.setText("STPC(test) =", NsharpConstants.color_white);
+   		str.setCoordinates(startX, curY);
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(equalSignPos, curY);
+ 		target.drawStrings(str, str1);
+ 		
+ 		//wind barb labels
+ 		str1.setText("12345SPACE",NsharpConstants.color_red); // rest str1 to get a right x position
+ 		firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
+		textStr = "1km";
+		str.setText(textStr, NsharpConstants.color_red);
+   		str.setCoordinates(firstToken, curY);
+   		textStr = " & ";
+ 		str1.setText(textStr,NsharpConstants.color_white);
+ 		str1.setCoordinates(firstToken + target.getStringsBounds(str).getWidth()*hRatio*xRatio, curY);
+ 		textStr = "6km";
+		DrawableString str2 =new DrawableString(textStr,NsharpConstants.color_cyan);
+		str2.horizontalAlignment = HorizontalAlignment.LEFT;
+		str2.verticallAlignment = VerticalAlignment.TOP;
+		str2.font = font10;
+ 		str2.setCoordinates(firstToken+ (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth())*hRatio*xRatio, curY);
+   		textStr = " AGL Wind Barb";
+   		DrawableString str3 =new DrawableString(textStr,NsharpConstants.color_white);
+   		str3.horizontalAlignment = HorizontalAlignment.LEFT;
+		str3.verticallAlignment = VerticalAlignment.TOP;
+		str3.font = font10;
+ 		str3.setCoordinates(firstToken + (target.getStringsBounds(str).getWidth()+target.getStringsBounds(str1).getWidth()+target.getStringsBounds(str2).getWidth())*hRatio*xRatio, curY);
+ 		target.drawStrings(str, str1, str2, str3);
 
 		//1 km wind barb
-		firstToken = rect.x+  rect.width * 3/4;
-		double yOri =  curY- 4* charHeight;
+ 		//firstToken = rect.x+  rect.width * 3/4;
+ 		str1.setText("1234/56 ktSPACESPACESPACE",NsharpConstants.color_red); // rest str1 to get a right x position
+ 		firstToken = equalSignPos+ (target.getStringsBounds(str1).getMaxX())*hRatio*xRatio;
+		double yOri =  curY- 3* charHeight;
 		double barbScaleF= charHeight;//12;
 		List<LineStroke> barb = WindBarbFactory.getWindGraphics(
 			(double)nsharpNative.nsharpLib.iwspd(nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(1000))), 

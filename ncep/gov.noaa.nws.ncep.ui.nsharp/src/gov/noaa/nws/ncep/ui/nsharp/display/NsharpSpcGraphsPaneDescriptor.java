@@ -23,13 +23,21 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSpcGraphsPaneResource;
 
 import java.util.List;
 
-import com.raytheon.uf.viz.core.PixelExtent;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.viz.core.PixelExtent;
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(name = "nsharpSpcGraphsPaneDescriptor")
 public class NsharpSpcGraphsPaneDescriptor extends NsharpAbstractPaneDescriptor {
    
     public NsharpSpcGraphsPaneDescriptor(PixelExtent pe) {
         super(pe);
         //System.out.println("NsharpSpcGraphsPaneDescriptor  created " + this.toString());  
+    }
+    public NsharpSpcGraphsPaneDescriptor() {
+        super();
     }
     public NsharpSpcGraphsPaneDescriptor(PixelExtent pe, int paneNumber) {
         super(pe, paneNumber);

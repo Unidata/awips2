@@ -96,45 +96,37 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 		DrawableString str =new DrawableString( "State:",color);
 		str.font = font10;
 		str.setCoordinates(x, y);
-		str.horizontalAlignment = HorizontalAlignment.LEFT;
-		str.verticallAlignment = VerticalAlignment.BOTTOM;
-		target.drawStrings(str);
 		double horizRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
 		x = x + target.getStringsBounds(str).getWidth() * horizRatio ;
 		
 		color = NsharpConstants.color_green;
-		str.setText( "Current", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
-		x = x + target.getStringsBounds(str).getWidth() * horizRatio *1.1;
+		DrawableString str1 =new DrawableString( "Current", color);
+		str1.setCoordinates(x, y);
+		x = x + target.getStringsBounds(str1).getWidth() * horizRatio *1.1;
 
 		color = NsharpConstants.color_yellow;
-		str.setText( "Active", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
-		x = x + target.getStringsBounds(str).getWidth() * horizRatio * 1.1;
+		DrawableString str2 =new DrawableString( "Active", color);
+		str2.setCoordinates(x, y);
+		x = x + target.getStringsBounds(str2).getWidth() * horizRatio * 1.1;
 
 		color = NsharpConstants.color_white;
-		str.setText( "InActive", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
+		DrawableString str3 =new DrawableString( "InActive", color);
+		str3.setCoordinates(x, y);
 		
 		x = cnXOrig+5*xRatio;
 		y=y+charHeight;
 		color = NsharpConstants.color_white;
-		str.setText( "Status:", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
-		x = x + target.getStringsBounds(str).getWidth() * horizRatio * 1.1;
+		DrawableString str4 =new DrawableString( "Status:", color);
+		str4.setCoordinates(x, y);
+		x = x + target.getStringsBounds(str4).getWidth() * horizRatio * 1.1;
 		color = NsharpConstants.color_red;
-		str.setText( "* :Loaded", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
-		x = x + target.getStringsBounds(str).getWidth() * horizRatio * 1.1;
+		DrawableString str5 =new DrawableString( "* :Loaded", color);
+		str5.setCoordinates(x, y);
+		x = x + target.getStringsBounds(str5).getWidth() * horizRatio * 1.1;
 		color = NsharpConstants.color_cyan;
-		str.setText( "* :UnLoaded", color);
-		str.setCoordinates(x, y);
-		target.drawStrings(str);
+		DrawableString str6 =new DrawableString( "* :UnLoaded", color);
+		str6.setCoordinates(x, y);
+		target.drawStrings(str,str1,str2,str3,str4,str5,str6);
 		target.clearClippingPlane();
 
 	}
@@ -155,8 +147,14 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     	y = dtYOrig;
     	target.drawLine(dtXOrig, y, 0.0,dtXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
     	//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
-    	x = dtXOrig + 5;//, x1 ;
+    	
+    	x = dtXOrig +dtWidth/2;
+    	// line divide nextPage and prevPage strings
+    	target.drawLine(x, y, 0.0, 
+    			x , y+1.2*charHeight*yRatio, 0.0, 
+    			NsharpConstants.color_white,1, LineStyle.SOLID);
 
+    	x = dtXOrig + 5;
     	y = y+1.2*charHeight*yRatio;
     	s = "nextPage";
     	target.drawString(font10, s, x,
@@ -165,6 +163,16 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			NsharpConstants.color_yellow,
     			HorizontalAlignment.LEFT,  
     			VerticalAlignment.BOTTOM, null);
+    	x= dtXOrig + dtWidth/2 + 5;
+    	s = "prevPage";
+    	target.drawString(font10, s, x,
+    			y, 0.0,
+    			IGraphicsTarget.TextStyle.NORMAL,
+    			NsharpConstants.color_yellow,
+    			HorizontalAlignment.LEFT,  
+    			VerticalAlignment.BOTTOM, null);
+    	
+    	//line below nextPage string
     	target.drawLine(dtXOrig, y, 0.0, 
     			dtXEnd , y, 0.0, 
     			NsharpConstants.color_white,1, LineStyle.SOLID);
@@ -261,8 +269,13 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     	y = dtYOrig;
     	target.drawLine(stnXOrig, y, 0.0,stnXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
     	//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
+    	x = stnXOrig +dtWidth/2;
+    	// line divide nextPage and prevPage strings
+    	target.drawLine(x, y, 0.0, 
+    			x , y+1.2*charHeight*yRatio, 0.0, 
+    			NsharpConstants.color_white,1, LineStyle.SOLID);
+    	
     	x = stnXOrig + 5;
-
     	y = y+1.2*charHeight*yRatio;
     	s = "nextPage";
     	target.drawString(font10, s, x,
@@ -271,6 +284,17 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     			NsharpConstants.color_yellow,
     			HorizontalAlignment.LEFT,  
     			VerticalAlignment.BOTTOM, null);
+    	
+    	x= stnXOrig + dtWidth/2 + 5;
+    	s = "prevPage";
+    	target.drawString(font10, s, x,
+    			y, 0.0,
+    			IGraphicsTarget.TextStyle.NORMAL,
+    			NsharpConstants.color_yellow,
+    			HorizontalAlignment.LEFT,  
+    			VerticalAlignment.BOTTOM, null);
+    	
+    	//line below neextPage string
     	target.drawLine(stnXOrig, y, 0.0, 
     			stnXEnd , y, 0.0, 
     			NsharpConstants.color_white,1, LineStyle.SOLID);
@@ -358,6 +382,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 			PaintProperties paintProps) throws VizException {
 		super.paintInternal(target, paintProps);
 		//defineCharHeight(font10);
+		//System.out.println("timeStn paintInternal zoomL="+currentZoomLevel);
 		if(rscHandler== null)
 			return;
 		timeLineStateList = rscHandler.getTimeLineStateList();	//System.out.println("NsharpTimeStnPaneResource "+ descriptor.getPaneNumber());
@@ -378,7 +403,6 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 
 		//plot station id
 		drawNsharpStationIdBox(target, stnIdRectangle);
-
 		//plot color notations
 		drawNsharpColorNotation(target, colorNoteRectangle );
 
@@ -451,7 +475,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
         		stnWidth,paneHeight-cnHeight);
 		colorNoteRectangle = new Rectangle(cnXOrig,cnYOrig,
 				cnWidth,cnHeight);
-		rscHandler.setTimeStnBoxData( cnYOrig, dtNextPageEnd,  dtYOrig ,  charHeight);
+		rscHandler.setTimeStnBoxData( cnYOrig, dtNextPageEnd,  dtYOrig ,dtXOrig, dtWidth, charHeight);
 		/*rscHandler.setDtNextPageEnd(dtNextPageEnd);
 		rscHandler.setDtYOrig(dtYOrig);
 		rscHandler.setCnYOrig(cnYOrig);
