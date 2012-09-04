@@ -621,7 +621,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
         if (includeGridID) {
             info.append("Grid Valid Time: ");
-            if (gridData != null && gridData.getGridSlice() != null) {
+            if (gridData != null) {
                 info.append(this.timeRangeToGMT(gridData.getGridTime()));
             } else {
                 info.append("No Grid");

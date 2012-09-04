@@ -25,6 +25,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    08/20/2012           #1082    randerso       fixed 1 image per grid
+#    08/29/2012           #1081    dgilling       Update usage statement.
 #    
 # 
 #
@@ -431,7 +432,7 @@ class PngWriter:
 
 def usage():
     msg = """
-    usage: ifpIMAGE [-c config] [-u username] [-h host] [-p port] -o directory
+    usage: ifpIMAGE [-c config] [-u username] [-server serverURL] [-site siteID] -o directory
       [-b baseTime] [-s startTime] [-e endTime] [-t usrTimeRng]
 
          config   : Name of GFE style config file to use.
@@ -439,8 +440,8 @@ def usage():
          username : The name of the user (for config file lookup).
          baseTime : Output filenames are relative to baseTime. Basetime
                     format is yyyymmdd_hhmm.
-         host     : The host the ifpServer is running on.
-         port     : The rpc port number the ifpServer is using.
+         serverURL: The URL of the Thrift service, example: ec:9581/services
+         siteID   : The site ID to localize as.
          startTime: starting time for images in format yyyymmdd_hhmm
          endTime  : ending time for images in format yyyymmdd_hhmm\n\n
          usrTimeRng: used to specify a user selected time range (e.g., "Day_3")
