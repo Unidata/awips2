@@ -144,6 +144,7 @@ if [ "${1}" = "-delta" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-edex-environment"
 
    exit 0
 fi
@@ -197,6 +198,7 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-edex-environment"
 
    exit 0
 fi
