@@ -138,18 +138,33 @@ public class TileLevel {
                             DefaultGeographicCRS.WGS84));
             corrector = new WorldWrapCorrector(targetGeometry);
 
-            // Calculate pixel density
-            // Grab the center x, 3/4 y of the map
-            double mapXCenter = targetGeometry.getGridRange().getSpan(0) * 0.5;
-            double mapYCenter = targetGeometry.getGridRange().getSpan(1) * 0.75;
+            Envelope levelEnv = levelGeometry.getEnvelope();
+            double[] in = new double[] {
+                    levelEnv.getMinimum(0) + (levelEnv.getSpan(0) / 2),
+                    levelEnv.getMinimum(1) + (levelEnv.getSpan(1) / 2) };
+            double[] out = new double[in.length];
+            tileCRSToTargetGrid.transform(in, 0, out, 0, 1);
 
-            double[] input = new double[] { mapXCenter, mapYCenter,
-                    mapXCenter + 1, mapYCenter + 1 };
+            double mapPointX = out[0];
+            double mapPointY = out[1];
+            GridEnvelope targetEnv = targetGeometry.getGridRange();
+            if (targetEnv.getLow(0) > mapPointX
+                    || targetEnv.getHigh(0) < mapPointX
+                    || targetEnv.getLow(1) > mapPointY
+                    || targetEnv.getHigh(1) < mapPointY) {
+                // Center of tile level outside target grid, use something on
+                // target grid for calculations
+                mapPointX = targetEnv.getLow(0) + targetEnv.getSpan(0) * 0.5;
+                mapPointY = targetEnv.getLow(1)
+                        + targetGeometry.getGridRange().getSpan(1) * 0.75;
+            }
+
+            double[] input = new double[] { mapPointX, mapPointY,
+                    mapPointX + 1, mapPointY + 1 };
             double[] output = new double[input.length];
 
             tileCRSToTargetGrid.inverse().transform(input, 0, output, 0, 2);
-            levelGeometry.getGridToCRS(PixelInCell.CELL_CORNER).inverse()
-                    .transform(output, 0, input, 0, 2);
+            crsToGrid.transform(output, 0, input, 0, 2);
             pixelDensity = 1.0 / Math.abs(new Coordinate(input[0], input[1],
                     0.0).distance(new Coordinate(input[2], input[3], 0.0)));
         } catch (Exception e) {
