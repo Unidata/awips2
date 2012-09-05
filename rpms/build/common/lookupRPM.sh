@@ -243,6 +243,10 @@ function lookupRPM()
    if [ "${1}" = "-edex" ]; then
       return 0
    fi
+   if [ "${1}" = "awips2-edex-environment" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.edex-environment/edex"
+      return 0
+   fi
 
    return 1
 }
