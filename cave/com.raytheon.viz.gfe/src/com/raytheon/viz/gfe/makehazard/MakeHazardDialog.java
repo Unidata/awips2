@@ -235,7 +235,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             Map<String, List<String>> localEffectAreas,
             Map<String, List<Object>> localAreaData) {
 
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.NO_PACK);
         this.dataManager = dataManager;
         this.defaultMapWidth = defaultMapWidth;
         this.timeScaleEndTime = timeScaleEndTime;
@@ -279,6 +280,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
         initializeComponents();
+        shell.pack();
 
         this.comboDict = new HashMap<String, Integer>();
         setHazardType(this.defaultHazardType);
@@ -1100,6 +1102,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // create the start time slider
         startTimeSlider = new Scale(startGroup, SWT.HORIZONTAL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = 200;
         startTimeSlider.setLayoutData(gd);
         startTimeSlider.addSelectionListener(new SelectionListener() {
 
@@ -1130,7 +1133,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         startTimeSlider.setMaximum(this.timeScaleEndTime);
         startTimeSlider.setIncrement(1);
         startTimeSlider.setPageIncrement(1);
-        startTimeSlider.setLayoutData(new GridData(200, SWT.DEFAULT));
 
         // Force start time to an hourly boundary
         Calendar cal = Calendar.getInstance();
@@ -1158,6 +1160,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // Create the end time slider
         endTimeSlider = new Scale(endGroup, SWT.HORIZONTAL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = 200;
         endTimeSlider.setLayoutData(gd);
 
         endTimeSlider.setMinimum(1);
@@ -1165,7 +1168,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         endTimeSlider.setIncrement(1);
         endTimeSlider.setPageIncrement(1);
         endTimeSlider.setSelection(1);
-        endTimeSlider.setLayoutData(new GridData(200, SWT.DEFAULT));
         endTimeSlider.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -1215,6 +1217,21 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         leCombo.setLayoutData(gd);
         leCombo.addSelectionListener(selAdapt);
+
+        GC gc = new GC(this.getDisplay());
+        String longest = "";
+        int widest = 0;
+        for (List<String> list : localEffectAreas.values()) {
+            for (String s : list) {
+                int width = gc.stringExtent(s).x;
+                if (width > widest) {
+                    widest = width;
+                    longest = s;
+                }
+            }
+        }
+        gc.dispose();
+        leCombo.add(longest);
     }
 
     private Map<String, List<String>> getHazardsDictionary() {
@@ -1347,7 +1364,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             this.hazLocalEffect = "None";
             this.etnSegNumberField.setText("");
         }
-        leGroup.getParent().pack();
     }
 
     /**
