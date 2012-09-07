@@ -98,17 +98,7 @@
 			<fileset dir="${esb.directory}">
 				<include name="**/bin/linux-x86-64/**" />
 			</fileset>
-		</copy>
-		
-		<if>
-			<available file="${edex.root.directory}/lib/native/linux32/libjep.so"
-				type="file" />
-			<then>
-				<delete>
-					<fileset file="${edex.root.directory}/lib/native/linux32/libjep.so" />
-				</delete>
-			</then>
-		</if>
+		</copy>		
 		
 		<!-- update permissions on the wrapper. -->
 		<chmod file="${edex.root.directory}/bin/linux-x86-64/wrapper" 
