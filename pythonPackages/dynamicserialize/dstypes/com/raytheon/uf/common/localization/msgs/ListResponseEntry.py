@@ -28,7 +28,7 @@ class ListResponseEntry(object):
         self.date = None
         self.checksum = None
         self.directory = None
-        self.protectedFile = None
+        self.protectedLevel = None
         self.existsOnServer = None
 
     def getFileName(self):
@@ -62,10 +62,13 @@ class ListResponseEntry(object):
         self.directory = directory
 
     def getProtectedFile(self):
-        return self.protectedFile
+        return self.protectedLevel is not None
 
-    def setProtectedFile(self, protectedFile):
-        self.protectedFile = protectedFile
+    def getProtectedLevel(self):
+        return self.protectedLevel
+
+    def setProtectedLevel(self, protectedLevel):
+        self.protectedLevel = protectedLevel
 
     def getExistsOnServer(self):
         return self.existsOnServer
