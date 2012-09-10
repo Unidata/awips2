@@ -126,19 +126,16 @@ public class ProtectedFiles {
      */
     public static LocalizationLevel getProtectedLevel(String localizedSite,
             LocalizationType type, String path) {
-        // Check base first
-        if (base == null) {
-            return null;
+        LocalizationLevel protectedLevel = null;
+        if (localizedSite != null) {
+            ProtectedFiles site = getSiteLevelFiles(localizedSite);
+            protectedLevel = site.getProtectedLevelInternal(type, path);
         }
-        LocalizationLevel level = base.getProtectedLevelInternal(type, path);
-
-        // If not protected in base file, check the site
-        if (level == null && localizedSite != null) {
-            ProtectedFiles files = getSiteLevelFiles(localizedSite);
-            level = files.getProtectedLevelInternal(type, path);
+        if (protectedLevel == null) {
+            protectedLevel = base.getProtectedLevelInternal(type, path);
         }
 
-        return level;
+        return protectedLevel;
     }
 
     /**
@@ -230,11 +227,12 @@ public class ProtectedFiles {
         LocalizationLevel[] levels = PathManagerFactory.getPathManager()
                 .getAvailableLevels();
 
-        for (LocalizationLevel level : levels) {
-            String levelPath = level.toString().toUpperCase() + ":" + path;
-            boolean isProtected = protectedFiles.contains(levelPath);
-
-            if (isProtected) {
+        for (int i = levels.length - 1; i >= 0; --i) {
+            // Search backwards so we get highest protected level in case of
+            // duplicate entries at different levels
+            LocalizationLevel level = levels[i];
+            String levelPath = level.name() + ":" + path;
+            if (protectedFiles.contains(levelPath)) {
                 protectionLevel = level;
                 break;
             }

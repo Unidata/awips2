@@ -231,7 +231,7 @@ public class PathManager implements IPathManager {
                         file = new LocalizationFile(this.adapter, lr.context,
                                 local, lr.date, name, lr.checkSum,
                                 lr.isDirectory, lr.existsOnServer,
-                                lr.isProtected);
+                                lr.protectedLevel);
                         availableFiles.put(file.getContext(), file);
                     }
                     fileCache.put(new LocalizationFileKey(lr.fileName,
@@ -301,7 +301,7 @@ public class PathManager implements IPathManager {
                                     entry.context, file, entry.date,
                                     entry.fileName, entry.checkSum,
                                     entry.isDirectory, entry.existsOnServer,
-                                    entry.isProtected);
+                                    entry.protectedLevel);
                             fileCache.put(key, lf);
                         }
                         if (lf.exists()) {
@@ -314,7 +314,7 @@ public class PathManager implements IPathManager {
                                     entry.context, file, entry.date,
                                     entry.fileName, entry.checkSum,
                                     entry.isDirectory, entry.existsOnServer,
-                                    entry.isProtected);
+                                    entry.protectedLevel);
                             if (lf.exists()) {
                                 files.add(lf);
                                 fileCache.put(key, lf);
@@ -476,7 +476,7 @@ public class PathManager implements IPathManager {
             lre.setDirectory(file.isDirectory());
             lre.setExistsOnServer(file.isAvailableOnServer());
             lre.setFileName(file.getName());
-            lre.setProtectedFile(file.isProtected());
+            lre.setProtectedLevel(file.getProtectedLevel());
             cacheObject.put(new SerializableKey(entry.getKey()), lre);
         }
         try {
@@ -514,7 +514,7 @@ public class PathManager implements IPathManager {
                                     lre.getFileName()), lre.getDate(),
                             lre.getFileName(), lre.getChecksum(),
                             lre.isDirectory(), lre.isExistsOnServer(),
-                            lre.isProtectedFile());
+                            lre.getProtectedLevel());
                 }
                 fileCache.put(
                         new LocalizationFileKey(key.getFileName(), key
