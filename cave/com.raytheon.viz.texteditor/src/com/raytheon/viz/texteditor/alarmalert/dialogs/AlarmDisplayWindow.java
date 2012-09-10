@@ -42,7 +42,8 @@ import com.raytheon.viz.texteditor.print.PrintDisplay;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * This is a dialog to display the desired products from the current alarm
+ * queue.
  * 
  * <pre>
  * 
@@ -58,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 15, 2011 11616      rferrel     Change font to fixed width; and text now
  *                                     uses the font.
  * Feb 03, 2012 14317      mhuang      Make alarm display window wider
+ * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * 
  * </pre>
  * 
@@ -67,6 +69,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class AlarmDisplayWindow extends CaveSWTDialog {
 
+    /**
+     * State to place the accumulate into after adding products in the preopen.
+     */
+    public static enum ACCUMULATE_STATE {
+        UNCHANGE, TRUE, FALSE
+    }
+
+    private ACCUMULATE_STATE accum_state;
+
     private Font font;
 
     private StyledText text;
@@ -74,6 +85,8 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     private Composite shellComp = null;
 
     private static boolean accumulate;
+
+    private Button accumButton;
 
     private Button printWindow;
 
@@ -85,10 +98,12 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
 
     /**
      * @param parentShell
-     * @param style
+     * @param prodList
+     * @param accum_state
      */
     protected AlarmDisplayWindow(Shell parentShell,
-            java.util.List<StdTextProduct> prodList) {
+            java.util.List<StdTextProduct> prodList,
+            ACCUMULATE_STATE accum_state) {
         super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL);
         setText("Alarm Display Window");
@@ -96,6 +111,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         if (prods == null) {
             prods = new ArrayList<StdTextProduct>();
         }
+        this.accum_state = accum_state;
     }
 
     @Override
@@ -132,7 +148,6 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     private void initializeComponents() {
         createMenus();
         createTextArea();
-        populateText();
     }
 
     /**
@@ -166,16 +181,9 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         final Button clearButton = new Button(buttonMenuComp, SWT.PUSH);
         clearButton.setText("Clear");
 
-        final Button accumButton = new Button(buttonMenuComp, SWT.CHECK);
+        accumButton = new Button(buttonMenuComp, SWT.CHECK);
         accumButton.setText("Accumulate");
-        accumButton.setSelection(accumulate);
-        if (accumulate) {
-            accumButton.setBackground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_YELLOW));
-        } else {
-            accumButton.setBackground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_WIDGET_BACKGROUND));
-        }
+        setAccumulate(accumulate);
 
         printWindow.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -215,14 +223,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
         accumButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                accumulate = !accumulate;
-                if (accumulate) {
-                    accumButton.setBackground(Display.getCurrent()
-                            .getSystemColor(SWT.COLOR_YELLOW));
-                } else {
-                    accumButton.setBackground(Display.getCurrent()
-                            .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-                }
+                setAccumulate(!accumulate);
             }
         });
     }
@@ -236,22 +237,28 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     }
 
     private void populateText() {
-        if (prods != null) {
-            if (!prods.isEmpty()) {
-                for (int i = 0; i < prods.size(); i++) {
-                    addText(prods.get(i).getProduct());
-                }
-            } else {
-                addText(actualText);
-            }
+        if (prods == null || prods.isEmpty()) {
+            text.setText(actualText);
         } else {
-            addText(actualText);
+            if (accumulate) {
+                text.setText(actualText);
+            } else {
+                text.setText("");
+            }
+            boolean saveAccumulate = accumulate;
+
+            // Make sure all products in the list are displayed then restore
+            // accumulate.
+            accumulate = true;
+            for (StdTextProduct prod : prods) {
+                addText(prod.getProduct());
+            }
+            accumulate = saveAccumulate;
         }
     }
 
     public void setProds(java.util.List<StdTextProduct> prodList) {
         prods = prodList;
-        text.setText(actualText);
         populateText();
     }
 
@@ -269,20 +276,39 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     }
 
     /**
+     * Sets the accumulate to the desired state and if active updates the
+     * display.
+     * 
      * @param accumulate
      *            the accumulate to set
      */
     public void setAccumulate(boolean accumulate) {
         AlarmDisplayWindow.accumulate = accumulate;
+        if (accumButton != null && !accumButton.isDisposed()) {
+            accumButton.setSelection(accumulate);
+            if (accumulate) {
+                accumButton.setBackground(Display.getCurrent().getSystemColor(
+                        SWT.COLOR_YELLOW));
+            } else {
+                accumButton.setBackground(Display.getCurrent().getSystemColor(
+                        SWT.COLOR_WIDGET_BACKGROUND));
+            }
+        }
     }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO take this method out
-        AlarmDisplayWindow curr = new AlarmDisplayWindow(new Shell(), null);
-        curr.open();
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        populateText();
+        switch (accum_state) {
+        case TRUE:
+            setAccumulate(true);
+            break;
+        case FALSE:
+            setAccumulate(false);
+            break;
+        }
+        accum_state = ACCUMULATE_STATE.UNCHANGE;
     }
 
     @Override
