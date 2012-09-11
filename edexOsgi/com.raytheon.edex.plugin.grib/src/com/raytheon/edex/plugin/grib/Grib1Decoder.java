@@ -58,16 +58,16 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.MercatorGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.PolarStereoGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -465,7 +465,8 @@ public class Grib1Decoder extends AbstractDecoder {
         }
 
         String newAbbr = GribParamTranslator.getInstance().translateParameter(
-                1, model, dataTime);
+                1, parameterAbbreviation, centerid, subcenterid,
+                model.getGenprocess(), dataTime, gridCoverage);
 
         if (newAbbr == null) {
             if (!model.getParameterName().equals(MISSING)
@@ -768,7 +769,6 @@ public class Grib1Decoder extends AbstractDecoder {
                 latLonCoverage.setDy(latLonCoverage.getDx());
             }
             latLonCoverage.determineFirstGridPointCorner(gdsVars.getScanMode());
-            latLonCoverage.setId(latLonCoverage.hashCode());
             coverage = getGridFromCache(latLonCoverage, gridNumber);
             break;
         }
@@ -797,7 +797,6 @@ public class Grib1Decoder extends AbstractDecoder {
                 mercator.setDy(gdsVars.getDy() / 1000);
             }
             mercator.determineFirstGridPointCorner(gdsVars.getScanMode());
-            mercator.setId(mercator.hashCode());
             coverage = getGridFromCache(mercator, gridNumber);
             break;
         }
@@ -825,7 +824,6 @@ public class Grib1Decoder extends AbstractDecoder {
                 lambert.setDy(gdsVars.getDy() / 1000);
             }
             lambert.determineFirstGridPointCorner(gdsVars.getScanMode());
-            lambert.setId(lambert.hashCode());
             coverage = getGridFromCache(lambert, gridNumber);
 
             break;
@@ -858,7 +856,6 @@ public class Grib1Decoder extends AbstractDecoder {
                 polar.setDy(gdsVars.getDy() / 1000);
             }
             polar.determineFirstGridPointCorner(gdsVars.getScanMode());
-            polar.setId(polar.hashCode());
             coverage = getGridFromCache(polar, gridNumber);
             break;
         }
