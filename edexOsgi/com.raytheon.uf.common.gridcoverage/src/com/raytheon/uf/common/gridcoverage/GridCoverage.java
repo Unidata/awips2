@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
@@ -27,9 +27,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -42,13 +46,13 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -71,29 +75,34 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1
  */
 @Entity
+@Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@SequenceGenerator(name = "GRIDCOVERAGE_GENERATOR", sequenceName = "gridcoverage_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject implements
         ISpatialObject {
 
     private static final long serialVersionUID = -1355232934065074837L;
-    
-    protected static final String SUBGRID_TOKEN = "-SubGrid-";
+
+    protected static final String SUBGRID_TOKEN = "SubGrid-";
+
+    public static final double SPATIAL_TOLERANCE = 0.1;
 
     /** The id for this grid. This value is generated in the initialize method **/
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GRIDCOVERAGE_GENERATOR")
     @DynamicSerializeElement
-    protected int id;
+    protected Integer id;
 
     /** The name of the grid */
-    @Column(length = 2047)
+    @Column
     @XmlElement
     @DynamicSerializeElement
+    @DataURI(position = 0)
     protected String name;
 
     /** A description of the grid coverage */
-    @Column(length = 3071)
     @XmlElement
     @DynamicSerializeElement
     protected String description;
@@ -198,7 +207,11 @@ public abstract class GridCoverage extends PersistableDataObject implements
 
     @Override
     public String toString() {
-        return "Coverage Information Not Specified yet";
+        if (id == 0) {
+            return "Coverage Information Not Specified yet";
+        } else {
+            return Integer.toString(id);
+        }
     }
 
     @Override
@@ -214,9 +227,6 @@ public abstract class GridCoverage extends PersistableDataObject implements
      */
     public int generateHash() {
         HashCodeBuilder hashBuilder = new HashCodeBuilder();
-        if (getName() == null) {
-            generateName();
-        }
         hashBuilder.append(name);
         hashBuilder.append(nx);
         hashBuilder.append(ny);
@@ -233,10 +243,10 @@ public abstract class GridCoverage extends PersistableDataObject implements
      * Initializes the grib coverage object. Initialization should entail
      * creation of the crs and geometry object as well as assigning the id field
      * 
-     * @throws GribException
+     * @throws GridCoverageException
      *             If problems occur while creating the crs, geometry, or the id
      */
-    public abstract void initialize() throws GribException;
+    public abstract void initialize() throws GridCoverageException;
 
     /**
      * Gets the name of the projection. The projection type is specified by each
@@ -247,19 +257,13 @@ public abstract class GridCoverage extends PersistableDataObject implements
     public abstract String getProjectionType();
 
     /**
-     * If this grid coverage object describes a grid that is not predefined,
-     * this method is used to generate and assign a descriptive name.
-     */
-    public abstract void generateName();
-
-    /**
      * Trim this GridCoverage to a sub grid.
      * 
      * @param subGridDef
      * @param subGrid
      * @return trimmed coverage
      */
-    public abstract GridCoverage trim(SubGridDef subGridDef, SubGrid subGrid);
+    public abstract GridCoverage trim(SubGrid subGrid);
 
     public Geometry getGeometry() {
         return geometry;
@@ -282,7 +286,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
      * 
      * @return The id
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -292,7 +296,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
      * @param id
      *            The id
      */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -401,14 +405,14 @@ public abstract class GridCoverage extends PersistableDataObject implements
         this.lo1 = lo1;
     }
 
-    public Double getLowerLeftLat() throws GribException {
+    public Double getLowerLeftLat() throws GridCoverageException {
         if (lowerLeftLat == null) {
             generateLowerLeft();
         }
         return lowerLeftLat;
     }
 
-    public Double getLowerLeftLon() throws GribException {
+    public Double getLowerLeftLon() throws GridCoverageException {
         if (lowerLeftLon == null) {
             generateLowerLeft();
         }
@@ -490,7 +494,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
     /**
      * 
      */
-    protected void generateLowerLeft() throws GribException {
+    protected void generateLowerLeft() throws GridCoverageException {
         try {
             if ("degree".equals(spacingUnit)) {
                 switch (firstGridPointCorner) {
@@ -520,7 +524,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
                 lowerLeftLon = lo1;
             } else {
                 if (getCrs() == null) {
-                    throw new GribException("CRS is null.");
+                    throw new GridCoverageException("CRS is null.");
                 }
 
                 Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
@@ -561,23 +565,23 @@ public abstract class GridCoverage extends PersistableDataObject implements
                     lowerLeftLon = lonLat[0];
                     lowerLeftLat = lonLat[1];
                 } else {
-                    throw new GribException("Cannot converter " + spacingUnit
-                            + " to meters");
+                    throw new GridCoverageException("Cannot convert "
+                            + spacingUnit + " to meters");
                 }
             }
         } catch (Exception e) {
-            throw new GribException(
+            throw new GridCoverageException(
                     "Cannot determine LowerLeft and UpperRight points of grid",
                     e);
         }
         lowerLeftLon = MapUtil.correctLon(lowerLeftLon);
-        lowerLeftLat = MapUtil.correctLat(lowerLeftLat);
     }
 
-    protected void generateGeometry() throws GribException {
+    protected void generateGeometry() throws GridCoverageException {
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
-            double minLat = MapUtil.correctLat(getLowerLeftLat() - dy / 2);
+            // special case in data delivery
+            double minLat = getLowerLeftLat() - dy / 2;
             double maxLat = minLat + dy * ny;
             double minLon = getLowerLeftLon() - dx / 2;
             if (dx * nx <= 360) {
@@ -599,7 +603,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
                 geometry = MapUtil.createGeometry(minLat, minLon, maxLat,
                         maxLon);
             } catch (Exception e) {
-                throw new GribException("Error creating geometry", e);
+                throw new GridCoverageException("Error creating geometry", e);
             }
         } else {
             try {
@@ -611,11 +615,12 @@ public abstract class GridCoverage extends PersistableDataObject implements
                             getLowerLeftLon(), converter.convert(dx),
                             converter.convert(dy), nx, ny);
                 } else {
-                    throw new GribException("Unable to convert " + spacingUnit
+                    throw new GridCoverageException("Unable to convert "
+                            + spacingUnit
                             + " to meters while creating geometry!");
                 }
             } catch (Exception e) {
-                throw new GribException("Error creating geometry", e);
+                throw new GridCoverageException("Error creating geometry", e);
             }
         }
     }
@@ -671,27 +676,76 @@ public abstract class GridCoverage extends PersistableDataObject implements
         return true;
     }
 
-    public void determineFirstGridPointCorner(int scanMode) {
-        if ((scanMode & 128) > 0) {
-            // -i
-            if ((scanMode & 64) > 0) {
-                // +j
-                setFirstGridPointCorner(Corner.LowerRight);
-            } else {
-                // -j
-                setFirstGridPointCorner(Corner.UpperRight);
-            }
-        } else {
-            // +i
-            if ((scanMode & 64) > 0) {
-                // +j
-                setFirstGridPointCorner(Corner.LowerLeft);
-            } else {
-                // -j
-                setFirstGridPointCorner(Corner.UpperLeft);
-            }
-
+    /**
+     * Compare coverages to see if they are equivelant within a certain
+     * tolerance
+     * 
+     * @param other
+     * @return true to indicate the coverages should be treated as equals, false
+     *         if they are too different.
+     */
+    public boolean spatialEquals(GridCoverage other) {
+        if (!this.getClass().equals(other.getClass())) {
+            return false;
         }
+        if (nx == null) {
+            if (other.nx != null) {
+                return false;
+            }
+        } else if (!nx.equals(other.nx)) {
+            return false;
+        }
+        if (ny == null) {
+            if (other.ny != null) {
+                return false;
+            }
+        } else if (!ny.equals(other.ny)) {
+            return false;
+        }
+        if (spacingUnit == null) {
+            if (other.spacingUnit != null) {
+                return false;
+            }
+        } else if (!spacingUnit.equals(other.spacingUnit)) {
+            return false;
+        }
+        if (firstGridPointCorner != other.firstGridPointCorner) {
+            return false;
+        }
+        if (Math.abs(dx - other.dx) > SPATIAL_TOLERANCE) {
+            return false;
+        } else if (Math.abs(dy - other.dy) > SPATIAL_TOLERANCE) {
+            return false;
+        } else if (Math.abs(la1 - other.la1) > SPATIAL_TOLERANCE) {
+            return false;
+        } else if (Math.abs(MapUtil.correctLon(lo1)
+                - MapUtil.correctLon(other.lo1)) > SPATIAL_TOLERANCE) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Unique key containing the spatial attributes of this coverage.
+     * 
+     * @return
+     */
+    public String spatialKey() {
+        StringBuilder key = new StringBuilder(96);
+        key.append(getProjectionType().replace(" ", "_"));
+        key.append(DataURI.SEPARATOR);
+        key.append(nx);
+        key.append(DataURI.SEPARATOR);
+        key.append(ny);
+        key.append(DataURI.SEPARATOR);
+        key.append(dx);
+        key.append(DataURI.SEPARATOR);
+        key.append(dy);
+        key.append(DataURI.SEPARATOR);
+        key.append(lo1);
+        key.append(DataURI.SEPARATOR);
+        key.append(la1);
+        return key.toString();
     }
 
     public GridCoverage(GridCoverage coverage) {
@@ -717,48 +771,4 @@ public abstract class GridCoverage extends PersistableDataObject implements
         this.includePole = coverage.includePole;
     }
 
-    /**
-     * Determines if this coverage is a subGrid.
-     * 
-     * @return
-     */
-    public boolean isSubGridded() {
-        String subGridName = getName();
-
-        if (subGridName != null) {
-            return getName().contains(SUBGRID_TOKEN);
-        }
-
-        return false;
-    }
-
-    /**
-     * If this coverage is subGridded, return the model it is a subGrid for,
-     * else null.
-     * 
-     * @return
-     */
-    public String getSubGridModel() {
-        String model = null;
-        if (isSubGridded()) {
-            String subGridName = getName();
-            int index = subGridName.lastIndexOf(SUBGRID_TOKEN);
-            if (index >= 0 && index + SUBGRID_TOKEN.length() < subGridName.length()) {
-                model = subGridName.substring(index + SUBGRID_TOKEN.length());
-            }
-        }
-        return model;
-    }
-
-    public String getParentGridName() {
-        String parentName = null;
-        if (isSubGridded()) {
-            String subGridName = getName();
-            int index = subGridName.indexOf(SUBGRID_TOKEN);
-            if (index >= 0) {
-                parentName = subGridName.substring(0, index);
-            }
-        }
-        return parentName;
-    }
 }
