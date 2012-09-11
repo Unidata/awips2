@@ -63,8 +63,8 @@ public class SmartToolFactory {
                 GfePyIncludeUtil.getCommonPythonIncludePath(),
                 GfePyIncludeUtil.getVtecIncludePath(),
                 GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getUtilitiesIncludePath(),
-                GfePyIncludeUtil.getSmartToolsIncludePath());
+                GfePyIncludeUtil.getSmartToolsIncludePath(),
+                GfePyIncludeUtil.getUtilitiesIncludePath());
 
         SmartToolController smartCont = null;
         if (ui) {

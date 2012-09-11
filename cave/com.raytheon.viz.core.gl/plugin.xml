@@ -54,9 +54,6 @@
                class="com.raytheon.viz.core.gl.internal.ext.GLDefaultImagingExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLMultiChannelImageExtension">
-         </graphicsExtension>
-         <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.mosaic.GLMosaicImageExtension">
    		 </graphicsExtension>
          <graphicsExtension
