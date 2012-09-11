@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -533,7 +533,7 @@ public class CcfpResource extends
             synchronized (unprocessedRecords) {
                 records = unprocessedRecords.get(dataTime);
                 if (records == null) {
-                    records = new HashSet<CcfpRecord>();
+                    records = new LinkedHashSet<CcfpRecord>();
                     unprocessedRecords.put(dataTime, records);
                     brandNew = true;
                 }
