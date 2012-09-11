@@ -30,5 +30,5 @@
     Office: (301) 495-2221
     Cell: (301) 787-9925
      -->
-    <regex>TI[^RS]... ....</regex>
+    <regex>TI[CGT]... ....</regex>
 </requestPatterns>
