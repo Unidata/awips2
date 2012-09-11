@@ -2194,8 +2194,8 @@
 	</model>
 
 	<model>
-		<title>HPCGuide-AK</title>
-		<name>HPCGuide-AK</name>
+		<title>AK-HPCGuide</title>
+		<name>AK-HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
 		<grid>198</grid>
@@ -2205,6 +2205,20 @@
 		<paramInfo>hpcGuideNDFD</paramInfo>
 		<dt>6</dt>
 	</model>
+
+	<model>
+		<title>AK-HPCGuide</title>
+		<name>AK-HPCGuide</name>
+		<center>7</center>
+		<subcenter>5</subcenter>
+		<grid>198</grid>
+		<process>
+			<id>0</id>
+		</process>
+		<paramInfo>hpcGuideNDFD</paramInfo>
+		<dt>6</dt>
+	</model>	
+	
 
 	<model>
 		<title>HPC</title>
@@ -2219,18 +2233,6 @@
 		<dt>6</dt>
 	</model>
 	
-	<model>
-		<title>HPC-MODEL0</title>
-		<name>HPC-MODEL0</name>
-		<center>7</center>
-		<subcenter>5</subcenter>
-		<grid>198</grid>
-		<process>
-			<id>0</id>
-		</process>
-		<paramInfo></paramInfo>
-		<dt>6</dt>
-	</model>
 
 	<!-- END SUBCENTER 5: HYDROMETEROLOGICAL PREDICTION CENTER -->
 
