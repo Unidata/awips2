@@ -17,16 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage.subgrid;
 
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 
 /**
- * TODO Add Description
+ * Provides utility methods for trimming grids into subgrids.
  * 
  * <pre>
  * 
@@ -42,29 +41,28 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  */
 
 public class TrimUtil {
-    static class Trim {
-        public int nx;
 
-        public int ny;
-
-        public double lowerLeftLat;
-
-        public double lowerLeftLon;
-
-        public double upperRightLat;
-
-        public double upperRightLon;
-
-        public int upperLeftX;
-
-        public int upperLeftY;
-    }
-
-    public static Trim trimMeterSpace(double parentLLLat, double parentLLLon,
-            SubGridDef subGrid, int nx, int ny, double dxMeter, double dyMeter,
+    /**
+     * Uses the lat/lon values in subGrid to calculate a valid overlapping area
+     * to the parent grid and then sets the nx,ny and the lower Left x and y in
+     * the subgrid object.
+     * 
+     * @param parentLLLat
+     * @param parentLLLon
+     * @param subGrid
+     * @param nx
+     * @param ny
+     * @param dxMeter
+     * @param dyMeter
+     * @param fromLatLon
+     * @param toLatLon
+     * @param checkGridWrap
+     * @throws Exception
+     */
+    public static void trimMeterSpace(double parentLLLat, double parentLLLon,
+            SubGrid subGrid, int nx, int ny, double dxMeter, double dyMeter,
             MathTransform fromLatLon, MathTransform toLatLon,
             boolean checkGridWrap) throws Exception {
-        Trim rval = new Trim();
         double[] lonLats = new double[8];
         double[] lonLatsInMeters = new double[8];
         lonLats[0] = parentLLLon;
@@ -115,7 +113,7 @@ public class TrimUtil {
                 lonLatsInMeters[6] = lonLatsInMeters[2];
             }
             if (lonLatsInMeters[6] < lonLatsInMeters[4]) {
-                throw new GribException(
+                throw new GridCoverageException(
                         "Model does not contain area defined by sub grid.");
             }
         }
@@ -134,40 +132,53 @@ public class TrimUtil {
         lonLatsInMeters[5] = lonLatsInMeters[1] + (ny - lowerY) * dyMeter;
 
         // determine number points, round down to be inside sub grid, inclusive
-        rval.nx = (int) ((lonLatsInMeters[6] - lonLatsInMeters[4]) / dxMeter) + 1;
-        rval.ny = (int) ((lonLatsInMeters[7] - lonLatsInMeters[5]) / dyMeter) + 1;
+        subGrid.setNX((int) ((lonLatsInMeters[6] - lonLatsInMeters[4]) / dxMeter) + 1);
+        subGrid.setNY((int) ((lonLatsInMeters[7] - lonLatsInMeters[5]) / dyMeter) + 1);
 
         // just double check possible rounding error, in case of using
         // subgridding to shift a world wide grid
-        if (rval.nx > nx) {
-            rval.nx = nx;
+        if (subGrid.getNX() > nx) {
+            subGrid.setNX(nx);
         }
-        if (rval.ny > ny) {
-            rval.ny = ny;
+        if (subGrid.getNY() > ny) {
+            subGrid.setNY(ny);
         }
 
         // sub gridding needs the upper left x/y to pull out the data
         // X/Y is 0/0 at UR and NX/NY at LL
-        rval.upperLeftX = leftX;
-        rval.upperLeftY = lowerY - rval.ny;
+        subGrid.setUpperLeftX(leftX);
+        subGrid.setUpperLeftY(lowerY - subGrid.getNY());
 
         // determine exact UR in meter
-        lonLatsInMeters[6] = lonLatsInMeters[4] + (rval.nx - 1) * dxMeter;
-        lonLatsInMeters[7] = lonLatsInMeters[5] + (rval.ny - 1) * dyMeter;
+        lonLatsInMeters[6] = lonLatsInMeters[4] + (subGrid.getNX() - 1)
+                * dxMeter;
+        lonLatsInMeters[7] = lonLatsInMeters[5] + (subGrid.getNY() - 1)
+                * dyMeter;
 
         toLatLon.transform(lonLatsInMeters, 4, lonLats, 4, 1);
-        rval.lowerLeftLon = MapUtil.correctLon(lonLats[4]);
-        rval.lowerLeftLat = MapUtil.correctLat(lonLats[5]);
-        rval.upperRightLon = MapUtil.correctLon(lonLats[6]);
-        rval.upperRightLat = MapUtil.correctLat(lonLats[7]);
-
-        return rval;
+        subGrid.setLowerLeftLon(MapUtil.correctLon(lonLats[4]));
+        subGrid.setLowerLeftLat(MapUtil.correctLat(lonLats[5]));
+        subGrid.setUpperRightLon(MapUtil.correctLon(lonLats[6]));
+        subGrid.setUpperRightLat(MapUtil.correctLat(lonLats[7]));
     }
 
-    public static Trim trimLatLonSpace(double parentLLLat, double parentLLLon,
-            SubGridDef subGrid, int nx, int ny, double dx, double dy)
+    /**
+     * Uses the lat/lon values in subGrid to calculate a valid overlapping area
+     * to the parent grid and then sets the nx,ny and the lower Left x and y in
+     * the subgrid object.
+     * 
+     * @param parentLLLat
+     * @param parentLLLon
+     *            * @param subGrid
+     * @param nx
+     * @param ny
+     * @param dx
+     * @param dy
+     * @throws Exception
+     */
+    public static void trimLatLonSpace(double parentLLLat, double parentLLLon,
+            SubGrid subGrid, int nx, int ny, double dx, double dy)
             throws Exception {
-        Trim rval = new Trim();
 
         double lonLats[] = new double[8];
         lonLats[0] = parentLLLon;
@@ -217,37 +228,35 @@ public class TrimUtil {
         lonLats[5] = lonLats[1] + (ny - lowerY) * dy;
 
         // determine number points, round up and inclusive
-        rval.nx = (int) ((lonLats[6] - lonLats[4]) / dx + 0.5) + 1;
-        rval.ny = (int) ((lonLats[7] - lonLats[5]) / dy + 0.5) + 1;
+        subGrid.setNX((int) ((lonLats[6] - lonLats[4]) / dx + 0.5) + 1);
+        subGrid.setNY((int) ((lonLats[7] - lonLats[5]) / dy + 0.5) + 1);
 
         // just double check possible rounding error, in case of using
         // subgridding to shift a world wide grid
-        if (rval.nx > nx) {
-            rval.nx = nx;
+        if (subGrid.getNX() > nx) {
+            subGrid.setNX(nx);
         }
-        if (rval.ny > ny) {
-            rval.ny = ny;
+        if (subGrid.getNY() > ny) {
+            subGrid.setNY(ny);
         }
 
         // sub gridding needs the upper left x/y to pull out the data
         // X/Y is 0/0 at UR and NX/NY at LL
-        rval.upperLeftX = leftX;
-        rval.upperLeftY = lowerY - rval.ny;
+        subGrid.setUpperLeftX(leftX);
+        subGrid.setUpperLeftY(lowerY - subGrid.getNY());
 
         // determine exact UR
-        lonLats[6] = lonLats[4] + (rval.nx - 1) * dx;
-        lonLats[7] = lonLats[5] + (rval.ny - 1) * dy;
+        lonLats[6] = lonLats[4] + (subGrid.getNX() - 1) * dx;
+        lonLats[7] = lonLats[5] + (subGrid.getNY() - 1) * dy;
 
-        rval.lowerLeftLon = MapUtil.correctLon(lonLats[4]);
-        rval.lowerLeftLat = MapUtil.correctLat(lonLats[5]);
-        rval.upperRightLon = MapUtil.correctLon(lonLats[6]);
-        rval.upperRightLat = MapUtil.correctLat(lonLats[7]);
-
-        return rval;
+        subGrid.setLowerLeftLon(MapUtil.correctLon(lonLats[4]));
+        subGrid.setLowerLeftLat(MapUtil.correctLat(lonLats[5]));
+        subGrid.setUpperRightLon(MapUtil.correctLon(lonLats[6]));
+        subGrid.setUpperRightLat(MapUtil.correctLat(lonLats[7]));
     }
 
     private static void validateLongitudes(double lonLats[])
-            throws GribException {
+            throws GridCoverageException {
         // check > 180 and wrap back around
         if (lonLats[2] > 180) {
             lonLats[2] -= 360;
@@ -282,7 +291,7 @@ public class TrimUtil {
                     // verify LL is before UR of parent
                     if (lonLats[4] > lonLats[2]) {
                         // invalid grid
-                        throw new GribException(
+                        throw new GridCoverageException(
                                 "Model does not contain area defined by sub grid.");
                     }
 
@@ -302,7 +311,7 @@ public class TrimUtil {
                     // verify UR is after LL of parent
                     if (lonLats[6] < lonLats[0]) {
                         // invalid grid
-                        throw new GribException(
+                        throw new GridCoverageException(
                                 "Model does not contain area defined by sub grid.");
                     }
 

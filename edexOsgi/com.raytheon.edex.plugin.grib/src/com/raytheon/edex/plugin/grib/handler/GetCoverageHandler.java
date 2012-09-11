@@ -21,7 +21,7 @@ package com.raytheon.edex.plugin.grib.handler;
 
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**

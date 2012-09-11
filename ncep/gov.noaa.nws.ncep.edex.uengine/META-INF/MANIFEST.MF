@@ -24,7 +24,8 @@ Require-Bundle: com.raytheon.edex.uengine,
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.edex.plugin.ncgrib;bundle-version="1.0.0",
- gov.noaa.nws.ncep.common.dataplugin.ncuair;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.common.dataplugin.ncuair;bundle-version="1.0.0",
+ com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0"
 Export-Package: gov.noaa.nws.ncep.edex.uengine.output,
  gov.noaa.nws.ncep.edex.uengine.tasks.radar,
  gov.noaa.nws.ncep.edex.uengine.tasks.response,
