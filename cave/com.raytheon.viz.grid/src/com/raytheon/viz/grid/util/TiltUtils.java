@@ -30,11 +30,11 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

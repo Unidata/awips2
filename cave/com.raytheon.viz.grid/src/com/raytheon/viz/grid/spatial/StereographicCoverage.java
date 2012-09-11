@@ -21,10 +21,8 @@ package com.raytheon.viz.grid.spatial;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 
 /**
  * Stereographic Coverage used by radar data.
@@ -48,20 +46,16 @@ public class StereographicCoverage extends GridCoverage {
     private Integer ny;
 
     @Override
-    public void generateName() {
-    }
-
-    @Override
     public String getProjectionType() {
         return "Stereographic";
     }
 
     @Override
-    public void initialize() throws GribException {
+    public void initialize() {
     }
 
     @Override
-    public GridCoverage trim(SubGridDef subGridDef, SubGrid subGrid) {
+    public GridCoverage trim(SubGrid subGrid) {
         // NOT SUPPORTED
         return null;
     }

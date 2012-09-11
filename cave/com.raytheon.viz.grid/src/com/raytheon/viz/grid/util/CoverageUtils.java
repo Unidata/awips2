@@ -44,9 +44,9 @@ import org.opengis.geometry.Envelope;
 
 import com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest;
 import com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 

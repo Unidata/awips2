@@ -63,7 +63,6 @@ import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -77,6 +76,7 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -598,7 +598,7 @@ public class StaticTopoData {
          * fully populated
          */
         float[] finalData = null;
-        
+
         for (String topoData : TOPO_FILES) {
             for (String dataSet : TopoAttributes.attributeMap.keySet()) {
                 if (dataSet.startsWith(topoData)) {
@@ -614,15 +614,15 @@ public class StaticTopoData {
                 break;
             }
         }
-        
+
         for (int i = 0; i < finalData.length; i++) {
-        	float v = finalData[i];
-        	if (Float.isNaN(v))
-        		finalData[i] = TOPO_FILL;
-        	else if (v == DATA_FILL || (v > -0.5 && v < 0.5))
-        		finalData[i] = 0.0f;
-        	else
-        		finalData[i] = v;
+            float v = finalData[i];
+            if (Float.isNaN(v))
+                finalData[i] = TOPO_FILL;
+            else if (v == DATA_FILL || (v > -0.5 && v < 0.5))
+                finalData[i] = 0.0f;
+            else
+                finalData[i] = v;
         }
         return finalData;
 
@@ -702,10 +702,12 @@ public class StaticTopoData {
                 inGeom.getEnvelope2D(), inCrs);
         refEnv = refEnv.transform(topoCrs, true);
 
-        DirectPosition upperCorner = topoGeom.getCRSToGrid2D(PixelOrientation.UPPER_LEFT).transform(
-                refEnv.getUpperCorner(), null);
-        DirectPosition lowerCorner = topoGeom.getCRSToGrid2D(PixelOrientation.UPPER_LEFT).transform(
-                refEnv.getLowerCorner(), null);
+        DirectPosition upperCorner = topoGeom.getCRSToGrid2D(
+                PixelOrientation.UPPER_LEFT).transform(refEnv.getUpperCorner(),
+                null);
+        DirectPosition lowerCorner = topoGeom.getCRSToGrid2D(
+                PixelOrientation.UPPER_LEFT).transform(refEnv.getLowerCorner(),
+                null);
 
         int minx = (int) Math.floor(Math.min(lowerCorner.getOrdinate(0),
                 upperCorner.getOrdinate(0)));
@@ -717,48 +719,47 @@ public class StaticTopoData {
                 upperCorner.getOrdinate(1)));
 
         if ("world".equals(name)) {
-        	if (minx - DATA_MARGIN < 0 ||
-        			miny - DATA_MARGIN < 0 ||
-        			maxx + DATA_MARGIN >= nx ||
-        			maxy + DATA_MARGIN >= ny) {
-                /* TODO: Have to do quite a bit more for minimal world
-                 * projection subset.  Just load the whole thing for now.
+            if (minx - DATA_MARGIN < 0 || miny - DATA_MARGIN < 0
+                    || maxx + DATA_MARGIN >= nx || maxy + DATA_MARGIN >= ny) {
+                /*
+                 * TODO: Have to do quite a bit more for minimal world
+                 * projection subset. Just load the whole thing for now.
                  */
-	        	minx = miny = 0;
-	        	maxx = nx;
-	        	maxy = ny;
-        	}
+                minx = miny = 0;
+                maxx = nx;
+                maxy = ny;
+            }
         } else {
-	        if (minx - DATA_MARGIN >= 0) {
-	            minx -= DATA_MARGIN;
-	        } else {
-	            minx = 0;
-	        }
-	
-	        if (miny - DATA_MARGIN >= 0) {
-	            miny -= DATA_MARGIN;
-	        } else {
-	            miny = 0;
-	        }
-	
-	        if (maxx + DATA_MARGIN <= nx) {
-	            maxx += DATA_MARGIN;
-	        } else {
-	            maxx = nx;
-	        }
-	
-	        if (maxy + DATA_MARGIN <= ny) {
-	            maxy += DATA_MARGIN;
-	        } else {
-	            maxy = ny;
-	        }
+            if (minx - DATA_MARGIN >= 0) {
+                minx -= DATA_MARGIN;
+            } else {
+                minx = 0;
+            }
+
+            if (miny - DATA_MARGIN >= 0) {
+                miny -= DATA_MARGIN;
+            } else {
+                miny = 0;
+            }
+
+            if (maxx + DATA_MARGIN <= nx) {
+                maxx += DATA_MARGIN;
+            } else {
+                maxx = nx;
+            }
+
+            if (maxy + DATA_MARGIN <= ny) {
+                maxy += DATA_MARGIN;
+            } else {
+                maxy = ny;
+            }
         }
 
         double[] input = new double[] { minx, miny, maxx, maxy };
         double[] output = new double[input.length];
 
-        topoGeom.getGridToCRS(PixelInCell.CELL_CORNER)
-                .transform(input, 0, output, 0, input.length / 2);
+        topoGeom.getGridToCRS(PixelInCell.CELL_CORNER).transform(input, 0,
+                output, 0, input.length / 2);
 
         DirectPosition dpUpper = new DirectPosition2D(Math.max(output[0],
                 output[2]), Math.max(output[1], output[3]));
@@ -797,12 +798,13 @@ public class StaticTopoData {
         // Reproject the data into the requested CRS and geometry
         float[] f1 = null;
         try {
-        	f1 = simpleResample(topoCoverage, slabData, inGeom, name, minx, miny);
+            f1 = simpleResample(topoCoverage, slabData, inGeom, name, minx,
+                    miny);
         } catch (Exception e) {
-        	statusHandler.error("rasample failed", e);
-        	throw e;
+            statusHandler.error("rasample failed", e);
+            throw e;
         }
-        
+
         if (finalData == null) {
             finalData = f1;
         } else {
@@ -816,182 +818,202 @@ public class StaticTopoData {
         return finalData;
     }
 
-    float[] simpleResample(GridCoverage2D sourceGC, float[][] sourceData, GridGeometry2D targetGG, String pfx, int minx, int miny) {
-    	int sourceWidth = sourceGC.getGridGeometry().getGridRange2D().getSpan(0);
-    	int sourceHeight = sourceGC.getGridGeometry().getGridRange2D().getSpan(1);
-    	int targetWidth = targetGG.getGridRange2D().getSpan(0);
-    	int targetHeight = targetGG.getGridRange2D().getSpan(1);
-    	float[] output = new float[targetWidth * targetHeight];
-    	Arrays.fill(output, Float.NaN);
+    float[] simpleResample(GridCoverage2D sourceGC, float[][] sourceData,
+            GridGeometry2D targetGG, String pfx, int minx, int miny) {
+        int sourceWidth = sourceGC.getGridGeometry().getGridRange2D()
+                .getSpan(0);
+        int sourceHeight = sourceGC.getGridGeometry().getGridRange2D()
+                .getSpan(1);
+        int targetWidth = targetGG.getGridRange2D().getSpan(0);
+        int targetHeight = targetGG.getGridRange2D().getSpan(1);
+        float[] output = new float[targetWidth * targetHeight];
+        Arrays.fill(output, Float.NaN);
 
-    	ArrayList<MathTransform> transforms = new ArrayList<MathTransform>();
-    	ArrayList<MathTransform> toGeoXforms = new ArrayList<MathTransform>();
-    	ArrayList<MathTransform> sourceToGeoXforms = new ArrayList<MathTransform>();
+        ArrayList<MathTransform> transforms = new ArrayList<MathTransform>();
+        ArrayList<MathTransform> toGeoXforms = new ArrayList<MathTransform>();
+        ArrayList<MathTransform> sourceToGeoXforms = new ArrayList<MathTransform>();
 
-    	MathTransform targetGtoCRS = targetGG.getGridToCRS(PixelInCell.CELL_CENTER);
-    	MathTransform sourceCRStoG = sourceGC.getGridGeometry().getCRSToGrid2D(PixelOrientation.CENTER);
-    	CoordinateReferenceSystem targetCRS = targetGG.getCoordinateReferenceSystem();
-    	CoordinateReferenceSystem sourceCRS = sourceGC.getCoordinateReferenceSystem();
-    	
-    	transforms.add(targetGtoCRS);
-    	if (! CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
-    		GeographicCRS sourceGeoCRS = null;
-    		GeographicCRS targetGeoCRS = null;
-    		if (sourceCRS instanceof ProjectedCRS) {
-    			sourceGeoCRS = ((ProjectedCRS) sourceCRS).getBaseCRS();
-    		}
-    		if (targetCRS instanceof ProjectedCRS) {
-    			targetGeoCRS = ((ProjectedCRS) targetCRS).getBaseCRS();
-    		}
-    		try {
-				transforms.add(CRS.findMathTransform(targetCRS, targetGeoCRS, true));
-				toGeoXforms.addAll(transforms);
-	    		if (CRS.equalsIgnoreMetadata(sourceGeoCRS, targetGeoCRS)) {
-	    			// nothing...
-	    		} else {
-	    			transforms.add(CRS.findMathTransform(targetGeoCRS, sourceGeoCRS));
-	    		}
-				transforms.add(CRS.findMathTransform(sourceGeoCRS, sourceCRS, true));
-				sourceToGeoXforms.add(0, CRS.findMathTransform(sourceCRS, sourceGeoCRS));
-    		} catch (FactoryException e) {
-    			// TODO: log
-    			return output;
-    		}
-    	}
-    	transforms.add(sourceCRStoG);
-    	sourceToGeoXforms.add(0, sourceGC.getGridGeometry().getGridToCRS(PixelInCell.CELL_CENTER));
+        MathTransform targetGtoCRS = targetGG
+                .getGridToCRS(PixelInCell.CELL_CENTER);
+        MathTransform sourceCRStoG = sourceGC.getGridGeometry().getCRSToGrid2D(
+                PixelOrientation.CENTER);
+        CoordinateReferenceSystem targetCRS = targetGG
+                .getCoordinateReferenceSystem();
+        CoordinateReferenceSystem sourceCRS = sourceGC
+                .getCoordinateReferenceSystem();
 
-    	MathTransform mt;
-		try {
-			mt = concatenateTransforms(transforms);
-		} catch (FactoryException e1) {
-			// TODO: log
-			return output;
-		}
-		
-    	double[] coord = new double[2];
-    	
-    	/*
-    	 * Output index. Assumes we iterate top-left to bottom-right in
-    	 * row-major order.
-    	 */
-    	int oi = 0;
-    	for (int y = 0; y < targetHeight; ++y) {
-    		for (int x = 0; x < targetWidth; ++x, ++oi) {
-    			coord[0] = x;
-    			coord[1] = y;
-    	    	try {
-    	    		mt.transform(coord, 0, coord, 0, 1);
-    	    	} catch (TransformException e) {
-					continue;
-				}
-    	    	
-    	    	// Integer cell coordinates of upper-left cell of the 2x2 cell sample area
-    	    	int sulx = (int) coord[0];
-    	    	int suly = (int) coord[1];
-    	    	
-	    		double fx = coord[0] - sulx;
-	    		double fy = coord[1] - suly;
-	    		
-	    		double tv = 0; // sum of weighted valid values
-	    		double tw = 0; // sum of valid weights
-	    		float v0;
-	    		double w0;
-	    		if (sulx >= 0 && suly >= 0 && sulx < sourceWidth - 1 
-	    				&& suly < sourceHeight - 1) {
-	    			if (valid(v0 = fix(sourceData[suly][sulx]))) {
-	    				w0 = (1-fx)*(1-fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (valid(v0 = fix(sourceData[suly][sulx+1]))) {
-	    				w0 = (fx)*(1-fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (valid(v0 = fix(sourceData[suly+1][sulx]))) {
-	    				w0 = (1-fx)*(fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (valid(v0 = fix(sourceData[suly+1][sulx+1]))) {
-	    				w0 = (fx)*(fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    		} else {
-	    			if (isValidCoord(sulx, suly, sourceWidth, sourceHeight)
-	    					&& valid(v0 = fix(sourceData[suly][sulx]))) {
-	    				w0 = (1-fx)*(1-fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (isValidCoord(sulx + 1, suly, sourceWidth, sourceHeight)
-	    					&& valid(v0 = fix(sourceData[suly][sulx+1]))) {
-	    				w0 = (fx)*(1-fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (isValidCoord(sulx, suly + 1, sourceWidth, sourceHeight)
-	    					&& valid(v0 = fix(sourceData[suly+1][sulx]))) {
-	    				w0 = (1-fx)*(fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    			if (isValidCoord(sulx + 1, suly + 1, sourceWidth, sourceHeight)
-	    					&& valid(v0 = fix(sourceData[suly+1][sulx+1]))) {
-	    				w0 = (fx)*(fy);
-	    				tv += v0 * w0;
-	    				tw += w0;
-	    			}
-	    		}
-	    		if (tw != 0) {
-	    			output[oi] = (float) (tv / tw);
-	    		}
-	    	}
-    	}
-    	
-    	return output;
-    	
+        transforms.add(targetGtoCRS);
+        if (!CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
+            GeographicCRS sourceGeoCRS = null;
+            GeographicCRS targetGeoCRS = null;
+            if (sourceCRS instanceof ProjectedCRS) {
+                sourceGeoCRS = ((ProjectedCRS) sourceCRS).getBaseCRS();
+            }
+            if (targetCRS instanceof ProjectedCRS) {
+                targetGeoCRS = ((ProjectedCRS) targetCRS).getBaseCRS();
+            }
+            try {
+                transforms.add(CRS.findMathTransform(targetCRS, targetGeoCRS,
+                        true));
+                toGeoXforms.addAll(transforms);
+                if (CRS.equalsIgnoreMetadata(sourceGeoCRS, targetGeoCRS)) {
+                    // nothing...
+                } else {
+                    transforms.add(CRS.findMathTransform(targetGeoCRS,
+                            sourceGeoCRS));
+                }
+                transforms.add(CRS.findMathTransform(sourceGeoCRS, sourceCRS,
+                        true));
+                sourceToGeoXforms.add(0,
+                        CRS.findMathTransform(sourceCRS, sourceGeoCRS));
+            } catch (FactoryException e) {
+                // TODO: log
+                return output;
+            }
+        }
+        transforms.add(sourceCRStoG);
+        sourceToGeoXforms.add(0,
+                sourceGC.getGridGeometry()
+                        .getGridToCRS(PixelInCell.CELL_CENTER));
+
+        MathTransform mt;
+        try {
+            mt = concatenateTransforms(transforms);
+        } catch (FactoryException e1) {
+            // TODO: log
+            return output;
+        }
+
+        double[] coord = new double[2];
+
+        /*
+         * Output index. Assumes we iterate top-left to bottom-right in
+         * row-major order.
+         */
+        int oi = 0;
+        for (int y = 0; y < targetHeight; ++y) {
+            for (int x = 0; x < targetWidth; ++x, ++oi) {
+                coord[0] = x;
+                coord[1] = y;
+                try {
+                    mt.transform(coord, 0, coord, 0, 1);
+                } catch (TransformException e) {
+                    continue;
+                }
+
+                // Integer cell coordinates of upper-left cell of the 2x2 cell
+                // sample area
+                int sulx = (int) coord[0];
+                int suly = (int) coord[1];
+
+                double fx = coord[0] - sulx;
+                double fy = coord[1] - suly;
+
+                double tv = 0; // sum of weighted valid values
+                double tw = 0; // sum of valid weights
+                float v0;
+                double w0;
+                if (sulx >= 0 && suly >= 0 && sulx < sourceWidth - 1
+                        && suly < sourceHeight - 1) {
+                    if (valid(v0 = fix(sourceData[suly][sulx]))) {
+                        w0 = (1 - fx) * (1 - fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (valid(v0 = fix(sourceData[suly][sulx + 1]))) {
+                        w0 = (fx) * (1 - fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (valid(v0 = fix(sourceData[suly + 1][sulx]))) {
+                        w0 = (1 - fx) * (fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (valid(v0 = fix(sourceData[suly + 1][sulx + 1]))) {
+                        w0 = (fx) * (fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                } else {
+                    if (isValidCoord(sulx, suly, sourceWidth, sourceHeight)
+                            && valid(v0 = fix(sourceData[suly][sulx]))) {
+                        w0 = (1 - fx) * (1 - fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (isValidCoord(sulx + 1, suly, sourceWidth, sourceHeight)
+                            && valid(v0 = fix(sourceData[suly][sulx + 1]))) {
+                        w0 = (fx) * (1 - fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (isValidCoord(sulx, suly + 1, sourceWidth, sourceHeight)
+                            && valid(v0 = fix(sourceData[suly + 1][sulx]))) {
+                        w0 = (1 - fx) * (fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                    if (isValidCoord(sulx + 1, suly + 1, sourceWidth,
+                            sourceHeight)
+                            && valid(v0 = fix(sourceData[suly + 1][sulx + 1]))) {
+                        w0 = (fx) * (fy);
+                        tv += v0 * w0;
+                        tw += w0;
+                    }
+                }
+                if (tw != 0) {
+                    output[oi] = (float) (tv / tw);
+                }
+            }
+        }
+
+        return output;
+
     }
-    
+
     private static final boolean isValidCoord(int ulx, int uly, int nx, int ny) {
-    	return ulx >= 0 && uly >= 0 && ulx < nx && uly < ny;
+        return ulx >= 0 && uly >= 0 && ulx < nx && uly < ny;
     }
 
     private static final boolean valid(float v) {
-    	return ! Float.isNaN(v) && v > DATA_FILL;
+        return !Float.isNaN(v) && v > DATA_FILL;
     }
-    
+
     // A1: passes N -9999 to test_grhi_remap, setting
     // all source -9999 values to 0.
     private static float fix(float v) {
-    	return v > DATA_FILL ? v : 0;
+        return v > DATA_FILL ? v : 0;
     }
-    
-	private MathTransform concatenateTransforms(ArrayList<MathTransform> transforms) throws FactoryException {
-    	Hints hints = new Hints();
-        final CoordinateOperationFactory factory =
-            ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
-	    final MathTransformFactory mtFactory;
-	    if (factory instanceof AbstractCoordinateOperationFactory) {
-	        mtFactory = ((AbstractCoordinateOperationFactory) factory).getMathTransformFactory();
-	    } else {
-	        mtFactory = ReferencingFactoryFinder.getMathTransformFactory(hints);
-	    }
-	    
-    	MathTransform mt = null;
-    	for (MathTransform mti : transforms/*int i = 0; i < transforms.size(); ++i*/) {
-    		if (mt == null)
-    			mt = mti;
-    		else {
-				mt = mtFactory.createConcatenatedTransform(mt, mti);
-    		}
-    	}
-    	
-    	return mt != null ? mt : IdentityTransform.create(2);
+
+    private MathTransform concatenateTransforms(
+            ArrayList<MathTransform> transforms) throws FactoryException {
+        Hints hints = new Hints();
+        final CoordinateOperationFactory factory = ReferencingFactoryFinder
+                .getCoordinateOperationFactory(hints);
+        final MathTransformFactory mtFactory;
+        if (factory instanceof AbstractCoordinateOperationFactory) {
+            mtFactory = ((AbstractCoordinateOperationFactory) factory)
+                    .getMathTransformFactory();
+        } else {
+            mtFactory = ReferencingFactoryFinder.getMathTransformFactory(hints);
+        }
+
+        MathTransform mt = null;
+        for (MathTransform mti : transforms/*
+                                            * int i = 0; i < transforms.size();
+                                            * ++i
+                                            */) {
+            if (mt == null)
+                mt = mti;
+            else {
+                mt = mtFactory.createConcatenatedTransform(mt, mti);
+            }
+        }
+
+        return mt != null ? mt : IdentityTransform.create(2);
     }
-    
+
     /**
      * Reads the raw data from the topo files
      * 
@@ -1116,11 +1138,11 @@ public class StaticTopoData {
                     Math.max(ll.getOrdinate(1), ur.getOrdinate(1)));
 
             envelope.setCoordinateReferenceSystem(crs);
-            
+
             GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
             mapper.setEnvelope(envelope);
-            mapper.setGridRange(new GeneralGridEnvelope(
-                    new int[] { 1, 1 }, new int[] { nx, ny }, false));
+            mapper.setGridRange(new GeneralGridEnvelope(new int[] { 1, 1 },
+                    new int[] { nx, ny }, false));
             mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
             mapper.setReverseAxis(new boolean[] { false, true });
             MathTransform mt = mapper.createTransform();
