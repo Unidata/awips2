@@ -169,8 +169,7 @@ public abstract class AbstractRequestableResourceData extends
         // 3. Throw an exception of no data available and user has not specified
         // to suppress load errors
         // 4. Retrieve the PluginDataObjects for all DataTimes
-        // 5. Notify the time matcher that load has completed with the set of
-        // datatimes
+        // 5. Construct resource with loaded pdos
         DataTime[] availableTimes = this.getAvailableTimes();
         DataTime[] dataTimes = descriptor.getTimeMatcher().initialLoad(
                 loadProperties, availableTimes, descriptor);
@@ -205,9 +204,8 @@ public abstract class AbstractRequestableResourceData extends
             }
 
             resource = constructResource(loadProperties, data);
-            descriptor.getTimeMatcher().setTimeList(dataTimes, resource,
-                    descriptor);
         }
+
         return resource;
     }
 
