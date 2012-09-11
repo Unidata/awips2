@@ -65,11 +65,6 @@
             sortID="20">
       </contextualMenu>
       <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.MultiChannelImagingAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability"
-            name="MultiChannelImaging"
-            sortID="25"/>
-      <contextualMenu
             actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
             name="100-------------"
             sortID="100"/>
@@ -451,10 +446,20 @@
    <handler
          class="com.raytheon.viz.ui.actions.SaveBundle"
          commandId="com.raytheon.viz.ui.saveBundle">
+ 		<activeWhen>
+       		<with variable="activeEditor">
+				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+			</with>
+       </activeWhen>
    </handler>
    <handler
          class="com.raytheon.viz.ui.actions.SaveProcedure"
          commandId="com.raytheon.viz.ui.saveProcedure">
+ 		<activeWhen>
+       		<with variable="activeEditor">
+				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+			</with>
+       </activeWhen>
    </handler>
    <handler
          class="com.raytheon.viz.ui.actions.LoadSerializedXml"

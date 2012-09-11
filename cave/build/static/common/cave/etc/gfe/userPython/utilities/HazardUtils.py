@@ -1061,10 +1061,7 @@ class HazardUtils(SmartScript.SmartScript):
 
     #print areas, from dictionary
     def _printAreas(self, areas):
-        ara = []
-        for a in areas.keys():
-            if areas[a] == 1:
-                ara.append(a)
+        ara = list(areas)
         ara.sort()
         return ara
 

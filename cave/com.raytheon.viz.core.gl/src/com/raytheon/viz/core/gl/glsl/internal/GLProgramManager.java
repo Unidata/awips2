@@ -74,6 +74,8 @@ public class GLProgramManager {
 
     private final Map<String, File> programFiles = new HashMap<String, File>();
 
+    private final Map<String, Long> programFileModTimes = new HashMap<String, Long>();
+
     private final IPathManager pm;
 
     private GLProgramManager() {
@@ -86,6 +88,7 @@ public class GLProgramManager {
             File fileObj = file.getFile();
             String name = fileObj.getName();
             programFiles.put(name, fileObj);
+            programFileModTimes.put(name, fileObj.lastModified());
             programsCode.put(name, readProgramContents(fileObj));
         }
     }
@@ -107,9 +110,15 @@ public class GLProgramManager {
      * @throws VizException
      */
     public String getProgramCode(String aProgramName) throws VizException {
-        String fileName = aProgramName + GLSL_EXTENSION;
-        hasBeenModified(aProgramName);
-        return programsCode.get(fileName);
+        if (aProgramName.endsWith(GLSL_EXTENSION) == false) {
+            aProgramName += GLSL_EXTENSION;
+        }
+        if (hasBeenModified(aProgramName)) {
+            File programFile = programFiles.get(aProgramName);
+            programsCode.put(aProgramName, readProgramContents(programFile));
+            programFileModTimes.put(aProgramName, programFile.lastModified());
+        }
+        return programsCode.get(aProgramName);
     }
 
     /**
@@ -119,9 +128,16 @@ public class GLProgramManager {
      * @return
      */
     public boolean hasBeenModified(String programName) {
-        // TODO: Check file modification time and reload contents. Should also
-        // check modification times of files depends on and reload if any
-        // changes
+        if (programName.endsWith(GLSL_EXTENSION) == false) {
+            programName += GLSL_EXTENSION;
+        }
+        File programFile = programFiles.get(programName);
+        if (programFile != null) {
+            long lastMod = programFileModTimes.get(programName);
+            if (lastMod != programFile.lastModified()) {
+                return true;
+            }
+        }
         return false;
     }
 
