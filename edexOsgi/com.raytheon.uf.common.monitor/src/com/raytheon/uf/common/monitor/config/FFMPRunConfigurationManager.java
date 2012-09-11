@@ -42,6 +42,21 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
+
+/**
+ * FFMPRunConfigurationManager
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2012-09-04   DR 14404   gzhang      Fixing ConcurrentModificationException
+ * 
+ * </pre>
+ * 
+ */
+
 public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
 
     /** Path to FFMP Source config. */
@@ -56,8 +71,9 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
     protected boolean isPopulated;
 
     private LocalizationFile lf = null;
-
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    
+    private java.util.concurrent.CopyOnWriteArrayList<MonitorConfigListener> listeners = new java.util.concurrent.CopyOnWriteArrayList<MonitorConfigListener>();// DR 14404
+    //private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();// DR 14404
 
     /** Singleton instance of this class */
     private static FFMPRunConfigurationManager instance = new FFMPRunConfigurationManager();
@@ -259,11 +275,11 @@ public class FFMPRunConfigurationManager implements ILocalizationFileObserver {
             try {
                 readConfigXml();
                 // inform listeners
-                synchronized (listeners) {
+                //synchronized (listeners) {// DR 14404
                     for (MonitorConfigListener fl : listeners) {
                         fl.configChanged(new MonitorConfigEvent(this));
                     }
-                }
+                //}// DR 14404
             } catch (SerializationException e) {
                 e.printStackTrace();
             }
