@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
@@ -36,11 +36,11 @@ import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.TrimUtil.Trim;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -121,7 +121,7 @@ public class MercatorGridCoverage extends GridCoverage {
     }
 
     @Override
-    public void initialize() throws GribException {
+    public void initialize() throws GridCoverageException {
         double meridian = 0;
         if (la2 == null || lo2 == null) {
             initializeSecondCorner();
@@ -157,11 +157,9 @@ public class MercatorGridCoverage extends GridCoverage {
         crs = MapUtil.constructMercator(majorAxis, minorAxis, latin, meridian);
         crsWKT = crs.toWKT();
         generateGeometry();
-        id = generateHash();
-
     }
 
-    private void initializeSecondCorner() throws GribException {
+    private void initializeSecondCorner() throws GridCoverageException {
 
         // Since the CRS has not been produced yet, we create a dummy CRS for
         // calculation purposes
@@ -203,7 +201,7 @@ public class MercatorGridCoverage extends GridCoverage {
                         firstPosition.y - dy * ny);
                 break;
             default:
-                throw new GribException(
+                throw new GridCoverageException(
                         "Inavalid grid point corner specified: "
                                 + this.firstGridPointCorner);
             }
@@ -213,22 +211,13 @@ public class MercatorGridCoverage extends GridCoverage {
             lo2 = cornerPosition.x;
             la2 = cornerPosition.y;
         } catch (Exception e) {
-            throw new GribException(
+            throw new GridCoverageException(
                     "Error calculating la2/lo2 for mercator projection!", e);
         }
     }
 
     @Override
-    public void generateName() {
-        String nameAndDescription = "Unknown " + nx + " X " + ny + " "
-                + Math.round(dx) + " " + spacingUnit + " "
-                + getProjectionType() + " grid";
-        this.setName(nameAndDescription);
-        this.setDescription(nameAndDescription);
-    }
-
-    @Override
-    public GridCoverage trim(SubGridDef subGridDef, SubGrid subGrid) {
+    public GridCoverage trim(SubGrid subGrid) {
         MercatorGridCoverage rval = new MercatorGridCoverage();
         rval.description = this.description;
         rval.dx = this.dx;
@@ -237,7 +226,6 @@ public class MercatorGridCoverage extends GridCoverage {
         rval.latin = this.latin;
         rval.majorAxis = this.majorAxis;
         rval.minorAxis = this.minorAxis;
-        rval.setName(this.name + SUBGRID_TOKEN + subGrid.getModelName());
 
         try {
             Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
@@ -250,37 +238,27 @@ public class MercatorGridCoverage extends GridCoverage {
                         .getTransformFromLatLon(getCrs());
                 MathTransform toLatLon = fromLatLon.inverse();
 
-                Trim trim = null;
                 try {
-                    trim = TrimUtil.trimMeterSpace(getLowerLeftLat(),
-                            getLowerLeftLon(), subGridDef, this.nx, this.ny,
+                    TrimUtil.trimMeterSpace(getLowerLeftLat(),
+                            getLowerLeftLon(), subGrid, this.nx, this.ny,
                             dxMeter, dyMeter, fromLatLon, toLatLon, true);
-                } catch (GribException e) {
+                } catch (GridCoverageException e) {
                     statusHandler.handle(Priority.WARN, "Grib coverage ["
                             + this.getName() + "] not applicable to this site");
                     return null;
                 }
 
-                subGrid.setUpperLeftX(trim.upperLeftX);
-                subGrid.setUpperLeftY(trim.upperLeftY);
-
-                subGrid.setNX(trim.nx);
-                subGrid.setNY(trim.ny);
-
                 rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = trim.lowerLeftLon;
-                rval.la1 = trim.lowerLeftLat;
-                rval.lo2 = trim.upperRightLon;
-                rval.la2 = trim.upperRightLat;
-                rval.nx = trim.nx;
-                rval.ny = trim.ny;
-
-                rval.setId(rval.hashCode());
+                rval.lo1 = subGrid.getLowerLeftLon();
+                rval.la1 = subGrid.getLowerLeftLat();
+                rval.lo2 = subGrid.getUpperRightLon();
+                rval.la2 = subGrid.getUpperRightLat();
+                rval.nx = subGrid.getNX();
+                rval.ny = subGrid.getNY();
+                rval.setName(SUBGRID_TOKEN + this.getId());
             } else {
-                statusHandler.handle(
-                        Priority.PROBLEM,
-                        "Error creating sub grid definition ["
-                                + subGrid.getModelName()
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error creating sub grid definition [" + this.name
                                 + "], units are not compatible with meter ["
                                 + spacingUnit + "]");
                 rval = null;
@@ -394,6 +372,26 @@ public class MercatorGridCoverage extends GridCoverage {
                 .doubleToLongBits(other.minorAxis))
             return false;
         return true;
+    }
+
+    public boolean spatialEquals(GridCoverage other) {
+        if (super.spatialEquals(other)) {
+            MercatorGridCoverage otherMercator = (MercatorGridCoverage) other;
+            if (Math.abs(latin - otherMercator.latin) > SPATIAL_TOLERANCE) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String spatialKey() {
+        StringBuilder key = new StringBuilder(96);
+        key.append(super.spatialKey());
+        key.append(DataURI.SEPARATOR);
+        key.append(latin);
+        return key.toString();
     }
 
     public MercatorGridCoverage() {
