@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage;
 
 /**
- * TODO Add Description
+ * enum for starting corner of GridCoverages
  * 
  * <pre>
  * 

@@ -46,11 +46,11 @@ from com.raytheon.uf.common.serialization import SerializationUtil
 from com.raytheon.uf.common.dataplugin.grib import GribRecord
 from com.raytheon.uf.common.dataplugin.grib import GribModel
 
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import LambertConformalGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import LatLonGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import MercatorGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import PolarStereoGridCoverage 
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import Corner 
+from com.raytheon.uf.common.gridcoverage import LambertConformalGridCoverage
+from com.raytheon.uf.common.gridcoverage import LatLonGridCoverage
+from com.raytheon.uf.common.gridcoverage import MercatorGridCoverage
+from com.raytheon.uf.common.gridcoverage import PolarStereoGridCoverage 
+from com.raytheon.uf.common.gridcoverage import Corner 
 from com.raytheon.uf.common.dataplugin.grib.util import GribModelLookup
 
 from com.raytheon.uf.common.dataplugin.level import Level
@@ -368,6 +368,7 @@ class GribDecoder():
         # check sub gridding
         modelName = pdsSectionValues['model'].getModelName()
         spatialCache = GribSpatialCache.getInstance()
+        gridCoverage = gdsSectionValues['coverage']
         subCoverage = spatialCache.getSubGridCoverage(modelName)
 
         if subCoverage is not None:
@@ -399,11 +400,9 @@ class GribDecoder():
             # set the new coverage
             gdsSectionValues['coverage'] = subCoverage
 
-        numpyDataArray = numpy.resize(numpyDataArray, (1, metadata[4]))
-        pdsSectionValues['model'].setLocation(gdsSectionValues['coverage'])
+        numpyDataArray = numpy.resize(numpyDataArray, (1, metadata[4]))        
         
-        
-        newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['model'], dataTime)
+        newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['model'].getParameterAbbreviation(), pdsSectionValues['model'].getCenterid(), pdsSectionValues['model'].getSubcenterid(),  pdsSectionValues['model'].getGenprocess(), dataTime, gridCoverage)
         
         if newAbbr is None:
             if pdsSectionValues['model'].getParameterName() != MISSING and dataTime.getValidPeriod().getDuration() > 0:
@@ -816,7 +815,6 @@ class GribDecoder():
             coverage.setDx(dx)
             coverage.setDy(dy)
             coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
             
             coverage = self._getGrid(coverage)
             
@@ -860,7 +858,6 @@ class GribDecoder():
             coverage.setDx(dx)
             coverage.setDy(dy)
             coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
             
             coverage = self._getGrid(coverage)
             
@@ -892,8 +889,6 @@ class GribDecoder():
             coverage.setDx(dx)
             coverage.setDy(dy)
             coverage.determineFirstGridPointCorner(scanMode)
-
-            coverage.setId(coverage.hashCode())
             
             coverage = self._getGrid(coverage)
 
@@ -927,7 +922,6 @@ class GribDecoder():
             coverage.setLatin1(latin1)
             coverage.setLatin2(latin2)
             coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
             
             coverage = self._getGrid(coverage)
             
