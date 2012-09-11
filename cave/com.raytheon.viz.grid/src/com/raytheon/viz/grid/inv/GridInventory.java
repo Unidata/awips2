@@ -33,7 +33,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
@@ -46,6 +45,7 @@ import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
 import com.raytheon.uf.common.derivparam.tree.ParameterNode;
 import com.raytheon.uf.common.derivparam.tree.SourceNode;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

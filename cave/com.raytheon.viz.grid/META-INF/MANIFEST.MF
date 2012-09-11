@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- com.raytheon.uf.viz.points;bundle-version="1.0.0"
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ com.raytheon.uf.common.gridcoverage
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.gridcache,
@@ -37,7 +38,6 @@ Import-Package: com.raytheon.edex.scriptfactory,
  com.raytheon.uf.common.dataplugin.grib,
  com.raytheon.uf.common.dataplugin.grib.exception,
  com.raytheon.uf.common.dataplugin.grib.request,
- com.raytheon.uf.common.dataplugin.grib.spatial.projections,
  com.raytheon.uf.common.dataplugin.grib.subgrid,
  com.raytheon.uf.common.dataplugin.grib.util,
  com.raytheon.uf.common.dataplugin.level,
