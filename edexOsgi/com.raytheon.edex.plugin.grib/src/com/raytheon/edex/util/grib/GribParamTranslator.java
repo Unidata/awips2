@@ -27,11 +27,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -129,16 +128,19 @@ public class GribParamTranslator {
      * @param model
      *            The grib model object from the record
      * @param dataTime
-     *            The datatime of the grib data
+     *            The datatime of the grib data the geospatial location of the
+     *            grib data, if this model is being subgridded then this expects
+     *            the full coverage, not the subgridded coverage.
      * @return The translated grib parameter
      */
-    public String translateParameter(int gribVersion, GribModel model,
-            DataTime dataTime) {
+    public String translateParameter(int gribVersion, String parName,
+            int center, int subcenter, int genProcess, DataTime dataTime,
+            GridCoverage location) {
 
-        String parName = model.getParameterAbbreviation();
-        String pcs = parName + "_" + getGenProcess(model);
-        String centerName = getCenterName(model);
-        String subcenterName = getSubcenterName(model);
+        String pcs = parName + "_"
+                + getGenProcess(center, subcenter, genProcess);
+        String centerName = getCenterName(center, subcenter);
+        String subcenterName = getSubcenterName(center, subcenter);
         if (centerName != null && !centerName.equals("NONE")) {
             pcs += "-" + centerName;
         }
@@ -147,15 +149,7 @@ public class GribParamTranslator {
             pcs += "-" + subcenterName;
         }
 
-        String dimstr = "";
-        GridCoverage location = model.getLocation();
-        if (location.isSubGridded()) {
-            GridCoverage fullCoverage = GribSpatialCache.getInstance()
-                    .getGridByName(location.getParentGridName());
-            dimstr = "_" + fullCoverage.getNx() + "x" + fullCoverage.getNy();
-        } else {
-            dimstr = "_" + location.getNx() + "x" + location.getNy();
-        }
+        String dimstr = "_" + location.getNx() + "x" + location.getNy();
 
         long duration = dataTime.getValidPeriod().getDuration() / 1000;
 
@@ -205,49 +199,42 @@ public class GribParamTranslator {
 
     /**
      * Gets the name of the center for the parameter contained in the provided
-     * grib model object
+     * center and subcenter
      * 
-     * @param model
-     *            The grib model object
+     * @param center
+     * @param subcenter
      * @return The center name
      */
-    private String getCenterName(GribModel model) {
-        int center = model.getCenterid();
-        int subcenter = model.getSubcenterid();
+    private String getCenterName(int center, int subcenter) {
         return (String) GribTableLookup.getInstance().getTableValue(center,
                 subcenter, "0", center);
     }
 
     /**
      * Gets the name of the sub-center for the parameter contained in the
-     * provided grib model object
+     * provided center and subcenter
      * 
-     * @param model
-     *            The grib model object
+     * @param center
+     * @param subcenter
      * @return The sub-center name
      */
-    private String getSubcenterName(GribModel model) {
-        int center = model.getCenterid();
-        int subcenter = model.getSubcenterid();
-
+    private String getSubcenterName(int center, int subcenter) {
         return (String) GribTableLookup.getInstance().getTableValue(center,
                 subcenter, "C-center" + center, subcenter);
     }
 
     /**
      * Gets the name of the generating process contained in the provided grib
-     * model object
+     * center and subcenter
      * 
-     * @param model
-     *            The grib model object
+     * @param center
+     * @param subcenter
      * @return The generating process name
      */
-    private String getGenProcess(GribModel model) {
-        int center = model.getCenterid();
-        int subcenter = model.getSubcenterid();
+    private String getGenProcess(int center, int subcenter, int genProcess) {
 
         return (String) GribTableLookup.getInstance().getTableValue(center,
-                subcenter, "A-center" + center, model.getGenprocess());
+                subcenter, "A-center" + center, genProcess);
     }
 
     /**
