@@ -35,7 +35,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationInternalFile;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
@@ -43,9 +42,6 @@ import com.raytheon.uf.common.localization.msgs.ListResponseEntry;
 import com.raytheon.uf.common.localization.msgs.ProtectedFileCommand;
 import com.raytheon.uf.common.localization.msgs.ProtectedFileResponse;
 import com.raytheon.uf.common.localization.msgs.UtilityRequestMessage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
@@ -66,9 +62,6 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public class CAVELocalizationAdapter implements ILocalizationAdapter {
-    private static transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CAVELocalizationAdapter.class.getPackage().getName(),
-					"WORKSTATION", "CAVE");
 
     private static final LocalizationManager manager = LocalizationManager
             .getInstance();
@@ -198,7 +191,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             response.date = null;
             response.existsOnServer = false;
             response.fileName = fileName;
-            response.isProtected = false;
+            response.protectedLevel = null;
             File file = getPath(caveConfigBase, fileName);
             response.isDirectory = file != null && file.isDirectory();
             responses.add(response);
@@ -229,17 +222,6 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         }
 
         manager.retrieve(file);
-        if (file.isProtected()) {
-            File f;
-            try {
-                f = file.getFile(false);
-                f.setReadOnly();
-            } catch (LocalizationException e) {
-                // shouldn't happen since file was just retrieved
-                statusHandler.handle(Priority.PROBLEM, "Error retrieving file",
-                        e);
-            }
-        }
     }
 
     /*
@@ -253,7 +235,6 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     @Override
     public boolean save(File localFile, LocalizationContext context,
             String fileName) throws LocalizationOpFailedException {
-
         if (context.getLocalizationLevel().isSystemLevel()) {
             throw new UnsupportedOperationException(
                     "Saving to the System Level, "
@@ -416,7 +397,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                     ListResponse response = new ListResponse();
                     response.context = context;
                     response.isDirectory = configFile.isDirectory();
-                    response.isProtected = false;
+                    response.protectedLevel = null;
                     response.existsOnServer = false;
                     response.fileName = p;
                     response.date = new Date(configFile.lastModified());
@@ -442,10 +423,13 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 response.existsOnServer = false;
                 response.fileName = pfr.getPathName();
                 response.isDirectory = locFile.isDirectory();
-                response.isProtected = pfr.isProtectedFile();
+                response.protectedLevel = pfr.getProtectedLevel();
 
-                if (!response.isProtected
-                        || (response.context.getLocalizationLevel() == LocalizationLevel.BASE)) {
+                if (response.protectedLevel == null
+                        || response.context.getLocalizationLevel().compareTo(
+                                response.protectedLevel) <= 0) {
+                    // if not protected or protected level is less than/equal to
+                    // our level, add response
                     responses.add(response);
                 }
             }
@@ -486,7 +470,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             lr.isDirectory = entry.isDirectory();
         }
         lr.context = context;
-        lr.isProtected = entry.isProtectedFile();
+        lr.protectedLevel = entry.getProtectedLevel();
         lr.existsOnServer = entry.isExistsOnServer();
         return lr;
     }
