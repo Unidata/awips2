@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
@@ -43,12 +43,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -64,10 +59,13 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -84,7 +82,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -106,7 +103,6 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.localization.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
-import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileGroupData;
@@ -121,6 +117,7 @@ import com.raytheon.uf.viz.localization.perspective.view.actions.OpenAction;
 import com.raytheon.uf.viz.localization.perspective.view.actions.OpenWithAction;
 import com.raytheon.uf.viz.localization.perspective.view.actions.PasteFileAction;
 import com.raytheon.uf.viz.localization.perspective.view.actions.ShowAllAction;
+import com.raytheon.uf.viz.localization.perspective.view.actions.ShowLevelsAction;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 /**
@@ -199,74 +196,35 @@ public class FileTreeView extends ViewPart implements IPartListener2,
 
     }
 
-    private static final String PATH_DEFINITION_ID = "com.raytheon.uf.viz.localization.localizationpath";
-
-    private static final LocalizationPerspectiveAdapter DEFAULT_ADAPTER = new LocalizationPerspectiveAdapter();
-
+    /** Flag for linking view to active editor */
     private boolean linkWithEditor = true;
 
+    /** Determines what levels we should show in the view */
+    private Set<LocalizationLevel> showSet = new HashSet<LocalizationLevel>();
+
+    /** Set for determining what leves we should display all contexts for */
     private Set<LocalizationLevel> showAllSet = new HashSet<LocalizationLevel>();
 
+    /** Cache of available contexts for each level */
     private Map<LocalizationLevel, Set<String>> contextMap = new HashMap<LocalizationLevel, Set<String>>();
 
-    /**
-     * The File Tree widget.
-     */
+    /** The File Tree widget. */
     private TreeViewer viewer;
 
-    /** Image map */
+    /** Image map for TreeItem icons */
     private Map<ImageDescriptor, Image> imageMap = new HashMap<ImageDescriptor, Image>();
 
-    /**
-     * Director Game
-     */
-    private Image dirImg;
+    /** TreeItem image icon for directories */
+    private Image directoryImage;
 
-    /**
-     * Extension list
-     */
-    private IExtension[] extensions;
-
-    /**
-     * The wait mouse pointer.
-     */
+    /** Waiting cursor */
     private Cursor waitCursor = null;
 
-    /**
-     * The normal arrow mouse pointer.
-     */
-    private Cursor arrowCursor = null;
-
+    /** Last file selected for "Copy" */
     private LocalizationFile copyFile = null;
 
-    /** Application map for root tree nodes */
-    private Map<String, List<TreeItem>> applicationMap = new TreeMap<String, List<TreeItem>>();
-
+    /** Workspace project used to store links to localization files */
     private IProject localizationProject;
-
-    public FileTreeView() {
-        super();
-        localizationProject = ResourcesPlugin
-                .getWorkspace()
-                .getRoot()
-                .getProject(
-                        com.raytheon.uf.viz.localization.Activator.LOCALIZATION_PROJECT);
-        dirImg = getImageDescriptor("directory.gif").createImage();
-
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-
-        IExtensionPoint point = registry.getExtensionPoint(PATH_DEFINITION_ID);
-        if (point != null) {
-            extensions = point.getExtensions();
-        } else {
-            extensions = new IExtension[0];
-        }
-
-        Display display = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell().getDisplay();
-        waitCursor = display.getSystemCursor(SWT.CURSOR_WAIT);
-        arrowCursor = display.getSystemCursor(SWT.CURSOR_ARROW);
-    }
 
     /**
      * @return the tree
@@ -284,12 +242,24 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
 
+        localizationProject = ResourcesPlugin
+                .getWorkspace()
+                .getRoot()
+                .getProject(
+                        com.raytheon.uf.viz.localization.Activator.LOCALIZATION_PROJECT);
+        directoryImage = getImageDescriptor("directory.gif").createImage();
+        Display display = site.getShell().getDisplay();
+        waitCursor = display.getSystemCursor(SWT.CURSOR_WAIT);
+
         site.getPage().addPartListener(this);
         LocalizationNotificationObserver.getInstance()
                 .addGlobalFileChangeObserver(this);
 
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
+
+        // Show all levels by default
+        showSet.addAll(Arrays.asList(LocalizationLevel.values()));
     }
 
     /*
@@ -300,8 +270,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     @Override
     public void dispose() {
         super.dispose();
-        if (dirImg.isDisposed() == false) {
-            dirImg.dispose();
+        if (directoryImage.isDisposed() == false) {
+            directoryImage.dispose();
         }
 
         for (Image img : imageMap.values()) {
@@ -346,21 +316,57 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         viewer = new TreeViewer(tree);
 
+        // Tooltip listeners for showing tool tip for protected files
+        final String[] toolTip = new String[1];
+        tree.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
+            public void mouseHover(MouseEvent e) {
+                Tree tree = getTree();
+                TreeItem item = tree.getItem(new Point(e.x, e.y));
+                if (item != null) {
+                    LocalizationLevel protectedLevel = null;
+                    if (item.getData() instanceof LocalizationFileEntryData) {
+                        protectedLevel = ((LocalizationFileEntryData) item
+                                .getData()).getFile().getProtectedLevel();
+                    } else if (item.getData() instanceof LocalizationFileGroupData) {
+                        for (LocalizationFileEntryData entry : ((LocalizationFileGroupData) item
+                                .getData()).getChildrenData()) {
+                            protectedLevel = entry.getFile()
+                                    .getProtectedLevel();
+                            break;
+                        }
+                    }
+                    if (protectedLevel != null) {
+                        String tip = "Protected @ " + protectedLevel.name();
+                        tree.setToolTipText(tip);
+                        toolTip[0] = tip;
+                    }
+                }
+            }
+        });
+        tree.addMouseMoveListener(new MouseMoveListener() {
+            @Override
+            public void mouseMove(MouseEvent e) {
+                if (toolTip[0] != null) {
+                    getTree().setToolTipText("");
+                    toolTip[0] = null;
+                }
+            }
+        });
+
         tree.addListener(SWT.Expand, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                populateNode((TreeItem) event.item);
+                setWaiting();
+                try {
+                    populateNode((TreeItem) event.item);
+                } finally {
+                    setDoneWaiting();
+                }
             }
         });
 
         tree.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 Tree tree = getTree();
@@ -395,22 +401,24 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                 if (selections.length == 0) {
                     return;
                 }
-                TreeItem ti = selections[0];
-                if (ti.getData() instanceof LocalizationFileEntryData) {
-                    FileTreeEntryData data = (FileTreeEntryData) ti.getData();
-                    if (data instanceof LocalizationFileEntryData) {
-                        new OpenAction(
-                                getSite().getPage(),
-                                new LocalizationFileEntryData[] { (LocalizationFileEntryData) data })
-                                .run();
-                    }
-                } else {
-                    populateNode(ti);
-                    if (ti.getExpanded() == false) {
-                        ti.setExpanded(true);
+                setWaiting();
+                try {
+                    TreeItem ti = selections[0];
+                    if (ti.getData() instanceof LocalizationFileEntryData) {
+                        LocalizationFileEntryData data = (LocalizationFileEntryData) ti
+                                .getData();
+                        new OpenAction(getSite().getPage(),
+                                new LocalizationFileEntryData[] { data }).run();
                     } else {
-                        ti.setExpanded(false);
+                        populateNode(ti);
+                        if (ti.getExpanded() == false) {
+                            ti.setExpanded(true);
+                        } else {
+                            ti.setExpanded(false);
+                        }
                     }
+                } finally {
+                    setDoneWaiting();
                 }
             }
         });
@@ -469,6 +477,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         mgr.add(linkAction);
 
         IMenuManager viewMenu = getViewSite().getActionBars().getMenuManager();
+        viewMenu.add(new ShowLevelsAction(this));
         viewMenu.add(new ShowAllAction(this));
         viewMenu.add(new Separator());
         viewMenu.add(linkAction);
@@ -482,13 +491,18 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     }
 
     /**
-     * Repopulates all tree items in the tree.
+     * Repopulates all expanded tree items in the tree.
      * 
      * @param item
      */
     private void repopulateTree(Tree tree) {
-        for (TreeItem item : tree.getItems()) {
-            repopulateTree(item);
+        setWaiting();
+        try {
+            for (TreeItem item : tree.getItems()) {
+                repopulateTreeItem(item);
+            }
+        } finally {
+            setDoneWaiting();
         }
     }
 
@@ -497,58 +511,87 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      * 
      * @param item
      */
-    private void repopulateTree(TreeItem item) {
-        repopulateTree(item, false);
+    private void repopulateTreeItem(TreeItem item) {
+        Tree tree = item.getParent();
+        // Get set of selected data objects
+        Set<Object> selectionSet = new HashSet<Object>();
+        buildSelectionSet(tree.getSelection(), selectionSet, item);
+        // Recursively repopulate
+        repopulateTreeItemRecursive(item);
+        if (item.isDisposed() == false) {
+            // If item wasn't removed, reselect items
+            List<TreeItem> selected = new ArrayList<TreeItem>();
+            select(selected, selectionSet, item);
+            selected.addAll(Arrays.asList(tree.getSelection()));
+            tree.setSelection(selected.toArray(new TreeItem[selected.size()]));
+        }
     }
 
-    private void repopulateTree(TreeItem item, boolean force) {
-        if (item.getData() == null) {
-            return;
-        } else if (item.getData() instanceof LocalizationFileEntryData) {
-            IResource rsc = ((LocalizationFileEntryData) item.getData())
-                    .getResource();
-            try {
-                rsc.refreshLocal(IResource.DEPTH_INFINITE, null);
-            } catch (CoreException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error refreshing file: " + e.getLocalizedMessage(), e);
-            }
-            return;
-        }
-        if (item.getData() instanceof LocalizationFileGroupData == false) {
-            for (TreeItem ti : item.getItems()) {
-                repopulateTree(ti, force);
-            }
-        }
-
-        boolean removeEmpty = true;
+    private void repopulateTreeItemRecursive(TreeItem item) {
         if (item.getData() instanceof FileTreeEntryData) {
+            // These are directory nodes
             FileTreeEntryData data = (FileTreeEntryData) item.getData();
-            if (data.hasRequestedChildren() || force) {
-                boolean wasExpanded = item.getExpanded();
+            if (data instanceof LocalizationFileEntryData == false
+                    && data.hasRequestedChildren()) {
+                // Item has been populated, refresh
+                Map<FileTreeEntryData, Boolean> expandMap = new HashMap<FileTreeEntryData, Boolean>();
+                buildExpandedMap(expandMap, item);
                 item.removeAll();
                 data.setRequestedChildren(false);
-                // We only want to remove empty nodes if we successfully
-                // populated the node (no errors)
-                removeEmpty = populateNode(item);
-                item.setExpanded(wasExpanded);
+                new TreeItem(item, SWT.NONE);
+                expand(expandMap, item);
             }
-        }
-
-        if (removeEmpty && item.getItemCount() == 0) {
-            removeEmptyNode(item);
+        } else {
+            for (TreeItem child : item.getItems()) {
+                repopulateTreeItemRecursive(child);
+            }
         }
     }
 
-    /**
-     * @param item
-     */
-    private void removeEmptyNode(TreeItem item) {
-        TreeItem parentItem = item.getParentItem();
-        if (parentItem != null && parentItem.getItemCount() == 1) {
-            removeEmptyNode(parentItem);
-        } else {
-            item.dispose();
+    private void buildSelectionSet(TreeItem[] selected, Set<Object> set,
+            TreeItem root) {
+        for (TreeItem selection : selected) {
+            if (selection == root) {
+                set.add(root.getData());
+                break;
+            }
+        }
+
+        for (TreeItem item : root.getItems()) {
+            buildSelectionSet(selected, set, item);
+        }
+    }
+
+    private void buildExpandedMap(Map<FileTreeEntryData, Boolean> map,
+            TreeItem root) {
+        FileTreeEntryData data = (FileTreeEntryData) root.getData();
+        if (data != null) {
+            map.put(data, root.getExpanded());
+            for (TreeItem item : root.getItems()) {
+                buildExpandedMap(map, item);
+            }
+        }
+    }
+
+    private void select(List<TreeItem> selections, Set<Object> set,
+            TreeItem item) {
+        if (item.getData() != null) {
+            if (set.contains(item.getData())) {
+                selections.add(item);
+            }
+        }
+        for (TreeItem child : item.getItems()) {
+            select(selections, set, child);
+        }
+    }
+
+    private void expand(Map<FileTreeEntryData, Boolean> map, TreeItem item) {
+        if (map.containsKey(item.getData()) && map.get(item.getData())) {
+            populateNode(item);
+            item.setExpanded(true);
+            for (TreeItem child : item.getItems()) {
+                expand(map, child);
+            }
         }
     }
 
@@ -556,7 +599,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      * Initial population of the tree.
      */
     private void populateTree() {
-        List<PathData> pathList = getPathData();
+        Collection<PathData> pathList = PathDataExtManager.getPathData();
         for (PathData pd : pathList) {
             addPathDataTreeNode(pd);
         }
@@ -568,34 +611,41 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      * @param pd
      */
     private void addPathDataTreeNode(PathData pd) {
-        if (pd.getApplication().contains(File.separator)) {
+        String application = pd.getApplication();
+        String name = pd.getName();
+        if (application.contains(File.separator)
+                || application.contains(IPathManager.SEPARATOR)) {
             statusHandler
                     .handle(Priority.PROBLEM,
                             "Problem adding "
                                     + pd.getApplication()
-                                    + " folder: Path names cannot contain file separator string");
+                                    + " folder: Path names cannot contain path separator string");
             return;
         }
-        if (pd.getName().contains(File.separator)) {
+        if (name.contains(File.separator)
+                || name.contains(IPathManager.SEPARATOR)) {
             statusHandler
                     .handle(Priority.PROBLEM,
                             "Problem adding "
                                     + pd.getName()
-                                    + " folder: Path names cannot contain file separator string");
+                                    + " folder: Path names cannot contain path separator string");
             return;
         }
 
-        String application = pd.getApplication();
-        List<TreeItem> itemList = null;
-        TreeItem root = null;
+        Tree tree = getTree();
+        TreeItem applicationItem = null;
+        for (TreeItem item : tree.getItems()) {
+            if (application.equals(item.getText())) {
+                applicationItem = item;
+            }
+        }
 
-        if (applicationMap.containsKey(application) == false) {
-            itemList = new ArrayList<TreeItem>();
-            root = new TreeItem(getTree(), SWT.NONE, getInsertionIndex(
-                    getTree().getItems(), application));
-            root.setText(application);
-            root.setImage(getImage((String) null));
-            applicationMap.put(application, itemList);
+        if (applicationItem == null) {
+            // Create tree item for application
+            applicationItem = new TreeItem(tree, SWT.NONE, getInsertionIndex(
+                    tree.getItems(), application));
+            applicationItem.setText(application);
+            applicationItem.setImage(directoryImage);
 
             // Create folder in project for application
             IFolder folder = localizationProject.getFolder(application);
@@ -607,24 +657,21 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                             "Error creating application folder", e);
                 }
             }
-            root.setData(folder);
-        } else {
-            itemList = applicationMap.get(application);
-            root = itemList.get(0).getParentItem();
+            applicationItem.setData(folder);
         }
 
         FileTreeEntryData treeData = new FileTreeEntryData(pd, pd.getPath());
         treeData.setName(pd.getName());
-        TreeItem dataTypeItem = new TreeItem(root, SWT.NONE, getInsertionIndex(
-                root.getItems(), treeData.getName()));
+        TreeItem dataTypeItem = new TreeItem(applicationItem, SWT.NONE,
+                getInsertionIndex(applicationItem.getItems(), name));
         dataTypeItem.setData(treeData);
-        dataTypeItem.setText(treeData.getName());
-        dataTypeItem.setImage(getImage((String) null));
+        dataTypeItem.setText(name);
+        dataTypeItem.setImage(directoryImage);
+        // Add empty item so we get ability to expand
         new TreeItem(dataTypeItem, SWT.NONE);
-        itemList.add(dataTypeItem);
 
         // Create folder for PathData
-        treeData.setResource(createFolder((IFolder) root.getData(),
+        treeData.setResource(createFolder((IFolder) applicationItem.getData(),
                 treeData.getName()));
     }
 
@@ -725,11 +772,11 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             }
         }
 
-        // Add "Open" group
-        if (fileList.size() > 0) {
+        // Add "Open" group if all selected items have files
+        if (fileList.size() == selected.length) {
             mgr.add(new OpenAction(getSite().getPage(), fileDataList
                     .toArray(new LocalizationFileEntryData[fileList.size()])));
-            if (fileList.size() == 1 && selected.length == 1) {
+            if (fileList.size() == 1) {
                 // add open with...
                 LocalizationFileEntryData data = (LocalizationFileEntryData) selected[0]
                         .getData();
@@ -780,31 +827,33 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             mgr.add(new Action("Compare") {
                 @Override
                 public void run() {
-                    loadCompare(
-                            (LocalizationFileEntryData) selected[0].getData(),
-                            (LocalizationFileEntryData) selected[1].getData());
+                    LocalizationFileEntryData left = (LocalizationFileEntryData) selected[0]
+                            .getData();
+                    LocalizationFileEntryData right = (LocalizationFileEntryData) selected[1]
+                            .getData();
+                    LocalizationCompareEditorInput editorInput = new LocalizationCompareEditorInput(
+                            new LocalizationEditorInput(left.getFile(), left
+                                    .getResource()),
+                            new LocalizationEditorInput(right.getFile(), right
+                                    .getResource()));
+                    CompareUI.openCompareEditor(editorInput);
                 }
 
-                @Override
-                public boolean isEnabled() {
-                    if ((getTree().getSelection()[0].getData() instanceof LocalizationFileEntryData)
-                            && (getTree().getSelection()[1].getData() instanceof LocalizationFileEntryData)) {
-                        return true;
-                    }
-                    return false;
-                }
             });
             mgr.add(new Separator());
         }
 
-        if (selected.length == 1) {
-            mgr.add(new Action("Refresh") {
-                @Override
-                public void run() {
-                    refresh(selected[0]);
+        mgr.add(new Action("Refresh") {
+            @Override
+            public void run() {
+                setWaiting();
+                try {
+                    refresh(selected);
+                } finally {
+                    setDoneWaiting();
                 }
-            });
-        }
+            }
+        });
 
         if (selected.length == 1) {
             Object data = selected[0].getData();
@@ -825,81 +874,50 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      * Refresh the selected tree items
      */
     public void refreshSelected() {
-        TreeItem[] selected = getTree().getSelection();
-        if (selected != null && selected.length == 1) {
-            refresh(selected[0]);
+        setWaiting();
+        try {
+            refresh(getTree().getSelection());
+        } finally {
+            setDoneWaiting();
         }
     }
 
-    private void refresh(TreeItem refresh) {
-        refresh.getParent().getShell().setCursor(waitCursor);
-        TreeItem[] items = new TreeItem[] { refresh };
-        if (refresh.getData() instanceof FileTreeEntryData == false) {
-            items = refresh.getItems();
-        }
-
+    /**
+     * Refreshes the TreeItems passed in
+     * 
+     * @param items
+     */
+    private void refresh(TreeItem... items) {
         for (TreeItem item : items) {
-            FileTreeEntryData data = (FileTreeEntryData) item.getData();
-            IResource rsc = data.getResource();
-            if (rsc instanceof IFile) {
-                try {
-                    rsc.refreshLocal(IResource.DEPTH_INFINITE, null);
-                } catch (CoreException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error refreshing file", e);
-                }
-            } else {
-                boolean wasExpanded = item.getExpanded();
-                List<FileTreeEntryData> expanded = new ArrayList<FileTreeEntryData>();
-                if (wasExpanded) {
-                    fillExpanded(item, expanded);
-                }
-                item.removeAll();
-                data.setRequestedChildren(false);
-                populateNode(item);
-                item.setExpanded(wasExpanded);
-                for (FileTreeEntryData expand : expanded) {
-                    TreeItem found = find(
-                            expand.getPath(),
-                            PathManagerFactory.getPathManager().getContext(
-                                    expand.getPathData().getType(),
-                                    LocalizationLevel.BASE), false);
-                    if (found != null) {
-                        populateNode(found);
-                        recursiveExpand(found);
+            if (item.isDisposed() == false) {
+                // If item is disposed, it was a child of a previous item and
+                // already refreshed
+                if (item.getData() instanceof FileTreeEntryData == false) {
+                    // Application level node, refresh children
+                    refresh(item.getItems());
+                } else {
+                    FileTreeEntryData data = (FileTreeEntryData) item.getData();
+                    IResource rsc = data.getResource();
+                    if (rsc instanceof IFile) {
+                        try {
+                            rsc.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        } catch (CoreException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error refreshing file", e);
+                        }
+                    } else {
+                        repopulateTreeItem(item);
                     }
                 }
             }
         }
-
-        refresh.getParent().getShell().setCursor(arrowCursor);
-    }
-
-    private void recursiveExpand(TreeItem item) {
-        if (item.getExpanded() == false) {
-            recursiveExpand(item.getParentItem());
-            item.setExpanded(true);
-        }
-    }
-
-    private boolean fillExpanded(TreeItem item, List<FileTreeEntryData> expanded) {
-        boolean hasExpandedChildren = false;
-        for (TreeItem ti : item.getItems()) {
-            if (ti.getExpanded()) {
-                hasExpandedChildren = true;
-                if (!fillExpanded(ti, expanded)) {
-                    expanded.add((FileTreeEntryData) ti.getData());
-                }
-            }
-        }
-        return hasExpandedChildren;
     }
 
     /**
-     * Expand the given tree node requesting data as needed
+     * Populates the given tree node's child items requesting data as needed
      * 
      * @param parentItem
-     *            The TreeItem node to expand
+     *            The TreeItem node to populate
      */
     private boolean populateNode(TreeItem parentItem) {
         if (parentItem == null) {
@@ -919,96 +937,94 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
 
         // Remove all children to get rid of placeholder child
-        setWaitCursor();
+        boolean checkName = !(data instanceof LocalizationFileGroupData);
 
-        try {
-            boolean checkName = !(data instanceof LocalizationFileGroupData);
+        PathData pd = data.getPathData();
+        String path = data.getPath();
+        String[] filter = pd.getFilter();
+        boolean recursive = pd.isRecursive();
+        LocalizationType type = pd.getType();
 
-            PathData pd = data.getPathData();
-            String path = data.getPath();
-            String[] filter = pd.getFilter();
-            boolean recursive = pd.isRecursive();
-            LocalizationType type = pd.getType();
+        IPathManager pathManager = PathManagerFactory.getPathManager();
 
-            IPathManager pathManager = PathManagerFactory.getPathManager();
+        // Request for base/site/user
 
-            // Request for base/site/user
-
-            List<LocalizationContext> searchContexts = new ArrayList<LocalizationContext>(
-                    Arrays.asList(pathManager.getLocalSearchHierarchy(type)));
-
-            // Use of LocalizationLevels.values() in this case should be okay
-            // since
-            // we are requesting all possible context names for the level,
-            // doesn't
-            // matter if our local context for the level is set
-            LocalizationLevel[] levels = pathManager.getAvailableLevels();
-            for (LocalizationLevel level : levels) {
-                if (showAllSet.contains(level)) {
-                    Set<String> contexts = contextMap.get(level);
-                    if (contexts == null) {
-                        contexts = new HashSet<String>(
-                                Arrays.asList(PathManagerFactory
-                                        .getPathManager().getContextList(level)));
-                        contextMap.put(level, contexts);
-                    }
-                    String myContext = LocalizationManager
-                            .getContextName(level);
-
-                    for (String context : contexts) {
-                        if ((myContext != null && myContext.equals(context))
-                                || (myContext == null && context == null)) {
-                            continue;
-                        }
-
-                        LocalizationContext ctx = pathManager.getContext(type,
-                                level);
-                        ctx.setContextName(context);
-                        searchContexts.add(ctx);
-                    }
-                }
+        LocalizationContext[] searchHierarchy = pathManager
+                .getLocalSearchHierarchy(type);
+        List<LocalizationContext> searchContexts = new ArrayList<LocalizationContext>(
+                searchHierarchy.length);
+        for (LocalizationContext ctx : searchHierarchy) {
+            if (showSet.contains(ctx.getLocalizationLevel())) {
+                searchContexts.add(ctx);
             }
+        }
 
-            boolean success = false;
-            List<LocalizationFile> currentList = new ArrayList<LocalizationFile>();
-            LocalizationFile[] files = pathManager.listFiles(searchContexts
-                    .toArray(new LocalizationContext[searchContexts.size()]),
-                    path, filter, false, !recursive);
-            if (files == null) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error getting list of files");
-            } else {
-                if (parentItem.getItemCount() == 1
-                        && parentItem.getItems()[0].getData() == null) {
-                    parentItem.removeAll();
+        // Use of LocalizationLevels.values() in this case should be okay
+        // since we are requesting all possible context names for the level,
+        // doesn't matter if our local context for the level is set
+        LocalizationLevel[] levels = pathManager.getAvailableLevels();
+        for (LocalizationLevel level : levels) {
+            if (showAllSet.contains(level) && showSet.contains(level)) {
+                Set<String> contexts = contextMap.get(level);
+                if (contexts == null) {
+                    contexts = new HashSet<String>(
+                            Arrays.asList(PathManagerFactory.getPathManager()
+                                    .getContextList(level)));
+                    contextMap.put(level, contexts);
                 }
+                String myContext = LocalizationManager.getContextName(level);
 
-                for (LocalizationFile file : files) {
-                    if (checkName
-                            && (file.getName().isEmpty() || data.getPath()
-                                    .equals(file.getName()))) {
+                for (String context : contexts) {
+                    if ((myContext != null && myContext.equals(context))
+                            || (myContext == null && context == null)) {
                         continue;
                     }
-                    if (file.exists()) {
-                        currentList.add(file);
-                    }
-                }
 
-                // Sort files using specific ordering...
-                Collections.sort(currentList, new FileTreeFileComparator());
-
-                if (data instanceof LocalizationFileGroupData) {
-                    populateGroupDataNode(parentItem, currentList);
-                } else {
-                    populateDirectoryDataNode(parentItem, currentList);
+                    LocalizationContext ctx = pathManager.getContext(type,
+                            level);
+                    ctx.setContextName(context);
+                    searchContexts.add(ctx);
                 }
-                success = true;
+            }
+        }
+
+        boolean success = false;
+        List<LocalizationFile> currentList = new ArrayList<LocalizationFile>();
+        LocalizationFile[] files = pathManager.listFiles(searchContexts
+                .toArray(new LocalizationContext[searchContexts.size()]), path,
+                filter, false, !recursive);
+        if (files == null) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error getting list of files");
+        } else {
+            if (parentItem.getItemCount() == 1
+                    && parentItem.getItems()[0].getData() == null) {
+                parentItem.removeAll();
             }
 
-            return success;
-        } finally {
-            setArrowCursor();
+            for (LocalizationFile file : files) {
+                if (checkName
+                        && (file.getName().isEmpty() || data.getPath().equals(
+                                file.getName()))) {
+                    continue;
+                }
+                if (file.exists()) {
+                    currentList.add(file);
+                }
+            }
+
+            // Sort files using specific ordering...
+            Collections.sort(currentList, new FileTreeFileComparator());
+
+            if (data instanceof LocalizationFileGroupData) {
+                populateGroupDataNode(parentItem, currentList);
+            } else {
+                populateDirectoryDataNode(parentItem, currentList);
+            }
+            success = true;
         }
+
+        return success;
     }
 
     private void populateDirectoryDataNode(TreeItem parentItem,
@@ -1150,16 +1166,12 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                     applicableItems.add(item);
                 }
             }
-            start = Math.max(start, 0);
 
+            start = Math.max(start, 0);
             int insert = getInsertionIndex(
                     applicableItems
                             .toArray(new TreeItem[applicableItems.size()]),
                     treeData.getName());
-
-            if (insert == -1) {
-                return null;
-            }
             idx = start + insert;
         }
 
@@ -1192,18 +1204,6 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         treeData.setResource(rsc);
 
         return fileItem;
-    }
-
-    /**
-     * Display the compare editor.
-     */
-    private void loadCompare(LocalizationFileEntryData left,
-            LocalizationFileEntryData right) {
-        LocalizationCompareEditorInput editorInput = new LocalizationCompareEditorInput(
-                new LocalizationEditorInput(left.getFile(), left.getResource()),
-                new LocalizationEditorInput(right.getFile(), right
-                        .getResource()));
-        CompareUI.openCompareEditor(editorInput);
     }
 
     /**
@@ -1249,7 +1249,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      */
     private Image getImage(String filePath) {
         if (filePath == null) {
-            return dirImg;
+            return directoryImage;
         }
         ImageDescriptor desc = LocalizationPerspectiveUtils.getEditorRegistry()
                 .getImageDescriptor(filePath);
@@ -1263,70 +1263,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             }
             return img;
         } else {
-            return dirImg;
+            return directoryImage;
         }
-    }
-
-    /**
-     * Get the path data for the file tree for all open perspectives
-     * 
-     * @return List of PathData objects
-     */
-    private List<PathData> getPathData() {
-        List<PathData> pathList = new ArrayList<PathData>();
-        for (IExtension ext : extensions) {
-            IConfigurationElement[] config = ext.getConfigurationElements();
-            for (IConfigurationElement element : config) {
-                if (element.getName().equals("path")) {
-                    PathData pd = new PathData();
-                    pd.setName(element.getAttribute("name"));
-                    pd.setPath(element.getAttribute("value"));
-                    pd.setType(LocalizationType.valueOf(element
-                            .getAttribute("localizationType")));
-                    if (pd.getType() == null) {
-                        // Skip if bad localization type specified
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Skipping path with name: "
-                                                + pd.getName()
-                                                + " and path: "
-                                                + pd.getPath()
-                                                + " with invalid localiation type: "
-                                                + element
-                                                        .getAttribute("localizationType"));
-                        continue;
-                    }
-                    pd.setFilter(element.getAttribute("extensionFilter"));
-                    pd.setApplication(element.getAttribute("application"));
-                    LocalizationPerspectiveAdapter adapter = DEFAULT_ADAPTER;
-                    try {
-                        if (element.getAttribute("localizationAdapter") != null) {
-                            adapter = (LocalizationPerspectiveAdapter) element
-                                    .createExecutableExtension("localizationAdapter");
-                        }
-                    } catch (Throwable t) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Skipping path with name: "
-                                                + pd.getName()
-                                                + " and path: "
-                                                + pd.getPath()
-                                                + " due to error constructing adapter: "
-                                                + t.getLocalizedMessage(), t);
-                    }
-                    pd.setAdapter(adapter);
-
-                    String recurse = element.getAttribute("recursive");
-                    if ((recurse != null) && recurse.equalsIgnoreCase("true")) {
-                        pd.setRecursive(true);
-                    }
-                    pd.setElement(element);
-
-                    pathList.add(pd);
-                }
-            }
-        }
-        return pathList;
     }
 
     /**
@@ -1448,14 +1386,18 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         }
     }
 
-    private void setWaitCursor() {
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .setCursor(waitCursor);
+    /**
+     * Set the cursor for waiting
+     */
+    private void setWaiting() {
+        getSite().getShell().setCursor(waitCursor);
     }
 
-    private void setArrowCursor() {
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .setCursor(arrowCursor);
+    /**
+     * Sets the cursor back from waiting
+     */
+    private void setDoneWaiting() {
+        getSite().getShell().setCursor(null);
     }
 
     /*
@@ -1533,52 +1475,15 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    TreeItem[] selections = getTree().getSelection();
-                    List<LocalizationFile> files = new ArrayList<LocalizationFile>();
-                    for (TreeItem item : selections) {
-                        if (item.getData() instanceof LocalizationFileEntryData) {
-                            LocalizationFileEntryData data = (LocalizationFileEntryData) item
-                                    .getData();
-                            files.add(data.getFile());
-                        }
-                    }
-
                     TreeItem toRefresh = find(file, true);
                     if (toRefresh != null) {
-                        if (isParentOf(toRefresh, file)) {
-                            repopulateTree(toRefresh);
-                        }
-                    }
-
-                    for (LocalizationFile file : files) {
-                        selectFile(file);
+                        refresh(toRefresh);
                     }
                 }
             });
         }
     }
 
-    private boolean isParentOf(TreeItem item, LocalizationFile file) {
-        Object obj = item.getData();
-        if (obj instanceof FileTreeEntryData) {
-            FileTreeEntryData data = (FileTreeEntryData) obj;
-            if (data instanceof LocalizationFileGroupData) {
-                return true;
-            }
-
-            String[] parentParts = LocalizationUtil.splitUnique(data.getPath());
-            String[] fileParts = LocalizationUtil.splitUnique(file.getName());
-            if (fileParts.length > 1
-                    && parentParts.length > 0
-                    && fileParts[fileParts.length - 2]
-                            .equals(parentParts[parentParts.length - 1])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** NO-OP Interface operations (Required to implement) */
     /*
      * (non-Javadoc)
      * 
@@ -1586,9 +1491,9 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      */
     @Override
     public void setFocus() {
+        getTree().setFocus();
     }
 
-    /** Editor operations **/
     /*
      * (non-Javadoc)
      * 
@@ -1732,7 +1637,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         if (file != null) {
             TreeItem item = find(file, false);
             if (item != null) {
-                repopulateTree(item);
+                refresh(item);
             }
         }
     }
@@ -1776,16 +1681,28 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         selectItem((IEditorReference) (getSite().getPage().getReference(editor)));
     }
 
-    public void toggleShowAllLevel(LocalizationLevel level) {
-        if (showAllSet.contains(level)) {
-            showAllSet.remove(level);
+    private void toggleSet(Set<LocalizationLevel> set, LocalizationLevel level) {
+        if (set.contains(level)) {
+            set.remove(level);
         } else {
-            showAllSet.add(level);
+            set.add(level);
         }
         repopulateTree(getTree());
     }
 
+    public void toggleShowAllLevel(LocalizationLevel level) {
+        toggleSet(showAllSet, level);
+    }
+
+    public void toggleShowLevel(LocalizationLevel level) {
+        toggleSet(showSet, level);
+    }
+
     public boolean isAllShown(LocalizationLevel level) {
         return showAllSet.contains(level);
+    }
+
+    public boolean isShown(LocalizationLevel level) {
+        return showSet.contains(level);
     }
 }
