@@ -20,13 +20,52 @@
     -->
 <DerivedParameter abbreviation="wx" name="Weather" unit="">
 	<Method name="LinTrans" models="modelsounding">
-		<Field abbreviation="rainType"/>
-		<ConstantField value="1"/>
-		<Field abbreviation="frzgRainTyp"/>
-		<ConstantField value="2"/>
-		<Field abbreviation="iceTyp"/>
-		<ConstantField value="4"/>
-		<Field abbreviation="snowTyp"/>
-		<ConstantField value="8"/>
+		<Field abbreviation="rainType" />
+		<ConstantField value="1" />
+		<Field abbreviation="frzgRainTyp" />
+		<ConstantField value="2" />
+		<Field abbreviation="iceTyp" />
+		<ConstantField value="4" />
+		<Field abbreviation="snowTyp" />
+		<ConstantField value="8" />
+	</Method>
+	<Method name="Mapping" models="HPCGuide AK-HPCGuide" levels="Surface">
+		<Field level="Surface" abbreviation="wxType" />
+		<ConstantField value="1" />
+		<ConstantField value="168" />
+
+		<ConstantField value="2" />
+		<ConstantField value="168" />
+
+		<ConstantField value="3" />
+		<ConstantField value="168" />
+
+		<ConstantField value="4" />
+		<ConstantField value="41" />
+
+		<ConstantField value="5" />
+		<ConstantField value="41" />
+
+		<ConstantField value="6" />
+		<ConstantField value="41" />
+
+		<ConstantField value="7" />
+		<ConstantField value="47" />
+
+		<ConstantField value="8" />
+		<ConstantField value="47" />
+
+		<ConstantField value="9" />
+		<ConstantField value="47" />
+
+		<ConstantField value="10" />
+		<ConstantField value="164" />
+
+		<ConstantField value="11" />
+		<ConstantField value="164" />
+
+		<ConstantField value="12" />
+		<ConstantField value="164" />
+
 	</Method>
 </DerivedParameter>
