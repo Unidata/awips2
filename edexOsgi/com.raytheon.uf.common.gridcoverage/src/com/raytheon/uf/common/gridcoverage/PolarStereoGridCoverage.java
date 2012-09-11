@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
@@ -34,11 +34,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.TrimUtil.Trim;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -110,23 +110,14 @@ public class PolarStereoGridCoverage extends GridCoverage {
     }
 
     @Override
-    public void initialize() throws GribException {
+    public void initialize() throws GridCoverageException {
         crs = MapUtil.constructNorthPolarStereo(majorAxis, minorAxis, lad, lov);
         crsWKT = crs.toWKT();
         generateGeometry();
-        id = generateHash();
-    }
-
-    public void generateName() {
-        String nameAndDescription = "Unknown " + nx + " X " + ny + " "
-                + Math.round(dx) + " " + spacingUnit + " "
-                + getProjectionType() + " grid";
-        this.setName(nameAndDescription);
-        this.setDescription(nameAndDescription);
     }
 
     @Override
-    public GridCoverage trim(SubGridDef subGridDef, SubGrid subGrid) {
+    public GridCoverage trim(SubGrid subGrid) {
         PolarStereoGridCoverage rval = new PolarStereoGridCoverage();
         rval.description = this.description;
         rval.dx = this.dx;
@@ -135,7 +126,6 @@ public class PolarStereoGridCoverage extends GridCoverage {
         rval.lov = this.lov;
         rval.majorAxis = this.majorAxis;
         rval.minorAxis = this.minorAxis;
-        rval.setName(this.name + SUBGRID_TOKEN + subGrid.getModelName());
 
         try {
             Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
@@ -149,35 +139,25 @@ public class PolarStereoGridCoverage extends GridCoverage {
                 MathTransform toLatLon = fromLatLon.inverse();
 
                 // don't check world wrap on a polar stereo grid
-                Trim trim = null;
                 try {
-                    trim = TrimUtil.trimMeterSpace(getLowerLeftLat(),
-                            getLowerLeftLon(), subGridDef, this.nx, this.ny,
+                    TrimUtil.trimMeterSpace(getLowerLeftLat(),
+                            getLowerLeftLon(), subGrid, this.nx, this.ny,
                             dxMeter, dyMeter, fromLatLon, toLatLon, false);
-                } catch (GribException e) {
+                } catch (GridCoverageException e) {
                     statusHandler.handle(Priority.WARN, "Grib coverage ["
                             + this.getName() + "] not applicable to this site");
                     return null;
                 }
 
-                subGrid.setUpperLeftX(trim.upperLeftX);
-                subGrid.setUpperLeftY(trim.upperLeftY);
-
-                subGrid.setNX(trim.nx);
-                subGrid.setNY(trim.ny);
-
                 rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = trim.lowerLeftLon;
-                rval.la1 = trim.lowerLeftLat;
-                rval.nx = trim.nx;
-                rval.ny = trim.ny;
-
-                rval.setId(rval.hashCode());
+                rval.lo1 = subGrid.getLowerLeftLon();
+                rval.la1 = subGrid.getLowerLeftLat();
+                rval.nx = subGrid.getNX();
+                rval.ny = subGrid.getNY();
+                rval.setName(SUBGRID_TOKEN + this.getId());
             } else {
-                statusHandler.handle(
-                        Priority.PROBLEM,
-                        "Error creating sub grid definition ["
-                                + subGrid.getModelName()
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error creating sub grid definition [" + this.name
                                 + "], units are not compatible with meter ["
                                 + spacingUnit + "]");
                 rval = null;
@@ -310,6 +290,30 @@ public class PolarStereoGridCoverage extends GridCoverage {
         } else if (!spacingUnit.equals(other.spacingUnit))
             return false;
         return true;
+    }
+
+    public boolean spatialEquals(GridCoverage other) {
+        if (super.spatialEquals(other)) {
+            PolarStereoGridCoverage otherPolar = (PolarStereoGridCoverage) other;
+            if (Math.abs(lad - otherPolar.lad) > SPATIAL_TOLERANCE) {
+                return false;
+            } else if (Math.abs(lov - otherPolar.lov) > SPATIAL_TOLERANCE) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String spatialKey() {
+        StringBuilder key = new StringBuilder(96);
+        key.append(super.spatialKey());
+        key.append(DataURI.SEPARATOR);
+        key.append(lov);
+        key.append(DataURI.SEPARATOR);
+        key.append(lad);
+        return key.toString();
     }
 
     public PolarStereoGridCoverage() {
