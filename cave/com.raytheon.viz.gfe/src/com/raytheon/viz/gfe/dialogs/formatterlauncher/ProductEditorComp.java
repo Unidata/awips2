@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,6 +136,8 @@ import com.raytheon.viz.gfe.product.TextDBUtil;
  * 27 AUG 2010  6730       jnjanga     Port FixVTEC functionality from A1.
  * 21 SEP 2010  5817       jnjanga     Fix attribution phrase append from issuance to issuance.
  * 27 OCT 2010  5817       jnjanga     Fix N.P.E caused when call getVTECActionCodes on non VTEC products.
+ * 31 AUG 2012 15178       mli         Add autoWrite and autoStore capability
+ * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition             
  * 
  * </pre>
  * 
@@ -311,6 +314,9 @@ public class ProductEditorComp extends Composite implements
     private ProductDataStruct prodDataStruct;
 
     private TimeZone localTimeZone;
+    
+    private enum Action {
+    	STORE, TRANSMIT, AUTOSTORE };
 
     /**
      * Product transmission callback to report the state of transmitting a
@@ -418,12 +424,12 @@ public class ProductEditorComp extends Composite implements
         }
 
         if (!editorCorrectionMode) {
-            wmoId = (String) productDefinition.get("wmoID");
-            pil = (String) productDefinition.get("pil");
-            productId = (String) productDefinition.get("awipsWANPil");
-            textdbPil = (String) productDefinition.get("textdbPil");
-            fullStationId = (String) productDefinition.get("fullStationID");
-            autoSendAddress = (String) productDefinition.get("autoSendAddress");
+            wmoId = getDefString("wmoID");
+            pil = getDefString("pil");
+            productId = getDefString("awipsWANPil");
+            textdbPil = getDefString("textdbPil");
+            fullStationId = getDefString("fullStationID");
+            autoSendAddress = getDefString("autoSendAddress");
             if (autoSendAddress == null) {
                 autoSendAddress = "000";
             }
@@ -635,7 +641,7 @@ public class ProductEditorComp extends Composite implements
         storeMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayStoreTransmitDialog(true);
+                storeTransmit(Action.STORE);
             }
         });
         menuItems.add(storeMI);
@@ -648,7 +654,7 @@ public class ProductEditorComp extends Composite implements
         transmitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayStoreTransmitDialog(false);
+            	storeTransmit(Action.TRANSMIT);
             }
         });
         menuItems.add(transmitMI);
@@ -944,7 +950,7 @@ public class ProductEditorComp extends Composite implements
         transmitBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayStoreTransmitDialog(false);
+                storeTransmit(Action.TRANSMIT);
             }
         });
         buttons.add(transmitBtn);
@@ -1029,13 +1035,14 @@ public class ProductEditorComp extends Composite implements
     }
 
     /**
-     * Display the Store to Transmit dialog.
+     * Store or Transmit text product.
      * 
-     * @param showStore
-     *            If true show the Store dialog, false shows the Transmit
-     *            dialog.
+     * @param action
+     * 				STORE: 		show the Store dialog
+     * 				TRANSMITT: 	shows the Transmit dialog.
+     * 				AUTOSTORE:  implement autoStore
      */
-    private void displayStoreTransmitDialog(boolean showStore) {
+    private void storeTransmit(Action action) {
 
         ProductDataStruct pds = textComp.getProductDataStruct();
 
@@ -1060,6 +1067,20 @@ public class ProductEditorComp extends Composite implements
         }
 
         if (fixText()) {
+        	
+            // autoStore
+            if (action == Action.AUTOSTORE) {
+                if (testVTEC) {
+                    devStore(textdbPil.substring(3));
+                } else {
+                    TextDBUtil.storeProduct(textdbPil, getProductText(), testVTEC);
+                }
+
+                return;
+            }
+        	
+           // Store/transmit...
+            boolean showStore = (action == Action.STORE) ? true : false;
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
                     showStore, this, transmissionCB);
             String pid;
@@ -1075,7 +1096,7 @@ public class ProductEditorComp extends Composite implements
             storeDlg.open(pid);
         }
     }
-
+ 
     private boolean fixText() {
         textComp.startUpdate();
         // mmaron #7285: make sure there is \n in the end - to allow
@@ -2227,11 +2248,69 @@ public class ProductEditorComp extends Composite implements
             }
         }
     }
+    
+    /*
+     *  handle autoWrite, autoStore
+     */
+    public void doAutoStuff() {
+        int autoWrite = 0;
+        Object autoWrite_obj = productDefinition.get("autoWrite");
+        if (autoWrite_obj != null)
+            autoWrite = (Integer)autoWrite_obj;
+        
+        int autoStore = 0;
+        Object autoStore_obj = productDefinition.get("autoStore");
+        if (autoStore_obj != null)
+            autoStore = (Integer)autoStore_obj;
+
+    	if (autoWrite == 1) {
+            autoWrite();
+    	}
+    	
+    	if (autoStore == 1) {
+            storeTransmit(Action.AUTOSTORE);
+    	}
+    }
+    
+    /*
+     * autoWrite
+     */
+    private void autoWrite() {
+        String fname = null; 
+        if (productDefinition.get("outputFile") != null) {
+            fname = getDefString("outputFile");
+            if (fname.equals(EMPTY)) return;
+        } else {
+            return;
+        }
+        
+        fname = fixfname(fname);
+
+        try {
+            ProductFileUtil.writeFile(getProductText(), new File(
+                    fname));
+        } catch (IOException e) {
+            MessageBox mb = new MessageBox(parent.getShell(), SWT.OK
+                    | SWT.ICON_WARNING);
+            mb.setText("Formatter AutoWrite failed: " + this.pil);
+            mb.open();
+        }
+    }
+    
+    /*
+     * Replace {prddir} with siteConfig.GFESUITE_PRDDIR if applicable.
+     */
+    private String fixfname(String fname) {
+        if (fname.contains("{prddir}"))
+            fname = fname.replace("{prddir}", prdDir);
+    	
+        return fname;
+    }
 
     private String guessFilename() {
         if (productDefinition.get("outputFile") != null) {
             String basename = new File(
-                    (String) productDefinition.get("outputFile")).getName();
+                    getDefString("outputFile")).getName();
             return basename;
         } else {
             return guessTDBPil();
@@ -2356,7 +2435,7 @@ public class ProductEditorComp extends Composite implements
 
             if (!HazardCTA && !GenericCTA && !ProductCTA) {
                 String[] Sig = new String[1];
-                String pil = (String) productDefinition.get("pil");
+                String pil = getDefString("pil");
                 if (pil != null) {
                     Sig[0] = pil.substring(0, 3);
                     ProductCTA = true;
@@ -2643,8 +2722,8 @@ public class ProductEditorComp extends Composite implements
         List<String> pils = VTECTableChangeNotification.DisableTable.get(pil);
         String brained = null;
         boolean allFound = false;
-        String sid = (String) productDefinition.get("fullStationID");
-        String pil = (String) productDefinition.get("pil");
+        String sid = getDefString("fullStationID");
+        String pil = getDefString("pil");
         if (pil != null) {
             pil = pil.substring(0, 3);
 
@@ -2872,5 +2951,22 @@ public class ProductEditorComp extends Composite implements
             return Status.OK_STATUS;
         }
 
+    }
+    
+    /*
+     * Handle bad characters in text formatter definition.
+     */
+    private String getDefString(String key) {
+        String str = null;
+    	
+        Object obj = productDefinition.get(key);
+        if (obj != null && obj instanceof Collection ) {
+            Collection<?> collection = (Collection<?>) obj;
+            str = (String)(collection.toArray())[0];
+        } else {
+            str = (String) productDefinition.get(key);
+        }
+    	
+        return str;
     }
 }
