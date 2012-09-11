@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.grib.spatial.projections;
+package com.raytheon.uf.common.gridcoverage;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -28,11 +28,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.TrimUtil.Trim;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.gridcoverage.subgrid.TrimUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -91,7 +90,7 @@ public class LatLonGridCoverage extends GridCoverage {
     private int[] parallels;
 
     @Override
-    public void initialize() throws GribException {
+    public void initialize() throws GridCoverageException {
         // lower left is cell center, we want cell corners.
         double minLon = getLowerLeftLon() - dx / 2;
         double maxLon = minLon + dx * nx;
@@ -104,17 +103,6 @@ public class LatLonGridCoverage extends GridCoverage {
 
         crsWKT = crs.toWKT();
         generateGeometry();
-        id = generateHash();
-    }
-
-    @Override
-    public void generateName() {
-
-        String nameAndDescription = "Unknown " + nx + " X " + ny + " "
-                + getProjectionType() + " grid";
-        this.setName(nameAndDescription);
-        this.setDescription(nameAndDescription);
-
     }
 
     @Override
@@ -133,36 +121,26 @@ public class LatLonGridCoverage extends GridCoverage {
     }
 
     @Override
-    public GridCoverage trim(SubGridDef subGridDef, SubGrid subGrid) {
+    public GridCoverage trim(SubGrid subGrid) {
         LatLonGridCoverage rval = new LatLonGridCoverage();
         rval.description = this.description;
         rval.dx = this.dx;
         rval.dy = this.dy;
         rval.spacingUnit = this.spacingUnit;
 
-        rval.setName(this.name + SUBGRID_TOKEN + subGrid.getModelName());
-
         try {
             if (spacingUnit.equals("degree")) {
-                Trim trim = TrimUtil.trimLatLonSpace(getLowerLeftLat(),
-                        getLowerLeftLon(), subGridDef, this.nx, this.ny,
-                        this.dx, this.dy);
-
-                subGrid.setUpperLeftX(trim.upperLeftX);
-                subGrid.setUpperLeftY(trim.upperLeftY);
-
-                subGrid.setNX(trim.nx);
-                subGrid.setNY(trim.ny);
+                TrimUtil.trimLatLonSpace(getLowerLeftLat(), getLowerLeftLon(),
+                        subGrid, this.nx, this.ny, this.dx, this.dy);
 
                 rval.firstGridPointCorner = Corner.LowerLeft;
-                rval.lo1 = trim.lowerLeftLon;
-                rval.la1 = trim.lowerLeftLat;
-                rval.nx = trim.nx;
-                rval.ny = trim.ny;
-
-                rval.setId(rval.hashCode());
+                rval.lo1 = subGrid.getLowerLeftLon();
+                rval.la1 = subGrid.getLowerLeftLat();
+                rval.nx = subGrid.getNX();
+                rval.ny = subGrid.getNY();
+                rval.setName(SUBGRID_TOKEN + this.getId());
             } else {
-                throw new GribException(
+                throw new GridCoverageException(
                         "SubGridding a lat/lon grid not in lat lon spacing is unimplemented");
             }
         } catch (Exception e) {

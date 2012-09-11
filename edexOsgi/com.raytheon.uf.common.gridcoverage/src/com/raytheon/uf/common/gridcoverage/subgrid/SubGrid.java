@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.grib.subgrid;
+package com.raytheon.uf.common.gridcoverage.subgrid;
 
 /**
  * A sub grid definition
@@ -35,8 +35,6 @@ package com.raytheon.uf.common.dataplugin.grib.subgrid;
  * @version 1.0
  */
 public class SubGrid {
-    /** The model name */
-    private String modelName;
 
     /** the upper left x the subgrid will start with */
     private int upperLeftX;
@@ -50,13 +48,17 @@ public class SubGrid {
     /** the height of the sub grid */
     private int nY;
 
-    public String getModelName() {
-        return modelName;
-    }
+    /** lower left latitude of the subgrid area */
+    private double lowerLeftLat;
 
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
+    /** lower left longitude of the subgrid area */
+    private double lowerLeftLon;
+
+    /** upper right latitude of the subgrid area */
+    private double upperRightLat;
+
+    /** upper right longitude of the subgrid area */
+    private double upperRightLon;
 
     public int getUpperLeftX() {
         return upperLeftX;
@@ -89,4 +91,37 @@ public class SubGrid {
     public void setNY(int ny) {
         nY = ny;
     }
+
+    public double getLowerLeftLat() {
+        return lowerLeftLat;
+    }
+
+    public void setLowerLeftLat(double lowerLeftLat) {
+        this.lowerLeftLat = lowerLeftLat;
+    }
+
+    public double getLowerLeftLon() {
+        return lowerLeftLon;
+    }
+
+    public void setLowerLeftLon(double lowerLeftLon) {
+        this.lowerLeftLon = lowerLeftLon;
+    }
+
+    public double getUpperRightLat() {
+        return upperRightLat;
+    }
+
+    public void setUpperRightLat(double upperRightLat) {
+        this.upperRightLat = upperRightLat;
+    }
+
+    public double getUpperRightLon() {
+        return upperRightLon;
+    }
+
+    public void setUpperRightLon(double upperRightLon) {
+        this.upperRightLon = upperRightLon;
+    }
+
 }
