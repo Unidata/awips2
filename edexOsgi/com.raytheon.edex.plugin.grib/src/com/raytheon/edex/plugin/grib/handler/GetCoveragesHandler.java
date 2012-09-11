@@ -24,7 +24,7 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**

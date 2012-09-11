@@ -17,30 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+CREATE INDEX "gridCoverageType_idx"
+  ON gridcoverage
+  USING btree
+  (dtype);
 
-package com.raytheon.edex.plugin.grib.dao;
-
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-
-/**
- * Interface implemented by grid coverage data access objects
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * 
- * </pre>
- * 
- * @author bphillip
- * @version 1
- */
-public interface IGridCoverageDao {
-
-    public GridCoverage checkGrid(GridCoverage grid)
-            throws DataAccessLayerException;
-}
+CREATE INDEX "gridCoverageNxNy_idx"
+  ON gridcoverage
+  USING btree
+  (nx, ny);
