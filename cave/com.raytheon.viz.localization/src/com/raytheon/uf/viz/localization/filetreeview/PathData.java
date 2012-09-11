@@ -199,21 +199,6 @@ public class PathData {
     }
 
     /**
-     * @param element
-     *            the element to set
-     */
-    public void setElement(IConfigurationElement element) {
-        this.element = element;
-    }
-
-    /**
-     * @return the element
-     */
-    public IConfigurationElement getElement() {
-        return element;
-    }
-
-    /**
      * @param recursive
      *            the recursive to set
      */
