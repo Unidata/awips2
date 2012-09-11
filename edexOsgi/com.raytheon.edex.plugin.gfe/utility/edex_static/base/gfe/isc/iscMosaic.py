@@ -345,10 +345,12 @@ class IscMosaic:
         self.__myOfficeType = IFPServerConfigManager.getServerConfig(DatabaseID(self.__databaseID).getSiteId()).officeType()
         
         #process each input file
-        self.__areaMask = None  
-        
         for i in range(0, self.__inFiles.size()):
+            self.__areaMask = None
             self.__processInputFile(str(self.__inFiles.get(i)))
+            
+            if self.__deleteInput:
+                os.remove(str(self.__inFiles.get(i)))
 
         self.logEvent("iscMosaic Finished")
         
@@ -532,9 +534,10 @@ class IscMosaic:
                     minV = self.__dbwe.getGpi().getMinValue()
                     # compute the site mask 
                     self.__siteID = str(getattr(vars[0], "siteID"))
+
                     if self.__areaMask is None:
                         self.__areaMask = self.__computeAreaMask().getGrid().__numpy__[0]
-                        
+
                     # create the mergeGrid class
                     mGrid = mergeGrid.MergeGrid(self.__creTime, self.__siteID, inFillV,
                       minV, self.__areaMask, gridType, self.__dbwe.getDiscreteKeys())
@@ -968,6 +971,7 @@ class IscMosaic:
         elif self.__altMask is not None:
             try:
                 areaMask = iscUtil.getEditArea(self.__altMask, self.__mysite)
+                areaMask.setGloc(self.__dbwe.getGpi().getGridLoc())
             except:
                 self.logProblem("Unable to access edit mask [",
                   self.__altMask, "]", traceback.format_exc())
