@@ -342,7 +342,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             @Override
             public int compare(Date o1, Date o2) {
                 // Null checks?
-                return (o2.before(o1) ? -1 : (o1.equals(o2) ? 0 : 1));
+            	return (int)Math.signum(o2.getTime() - o1.getTime()) ;
             }
 
         });
