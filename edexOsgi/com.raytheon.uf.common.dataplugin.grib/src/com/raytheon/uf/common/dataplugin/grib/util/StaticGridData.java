@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.opengis.metadata.spatial.PixelOrientation;
 
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
