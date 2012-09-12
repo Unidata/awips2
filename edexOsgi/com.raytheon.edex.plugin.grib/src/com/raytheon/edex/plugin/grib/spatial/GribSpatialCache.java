@@ -29,17 +29,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.util.GribModelLookup;
+import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.Corner;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
@@ -176,10 +178,11 @@ public class GribSpatialCache {
             GridModel model = GribModelLookup.getInstance().getModelByName(
                     modelName);
             if (model != null) {
-                GridCoverage coverage = getGridByName(model.getGrid()
-                        .toString());
-                if (coverage != null) {
-                    rval.add(coverage);
+                for (String coverageName : model.getAllGrids()) {
+                    GridCoverage coverage = getGridByName(coverageName);
+                    if (coverage != null) {
+                        rval.add(coverage);
+                    }
                 }
             }
         }
@@ -253,13 +256,16 @@ public class GribSpatialCache {
     private boolean loadSubGrid(String modelName, GridCoverage coverage) {
         SubGridDef subGridDef = subGridDefMap.get(modelName);
         if (subGridDef != null) {
-            String referenceModel = subGridDef.getReferenceModel();
-            Integer referenceGrid = GribModelLookup.getInstance()
-                    .getModelByName(referenceModel).getGrid();
+            String referenceGrid = subGridDef.getReferenceGrid();
             if (referenceGrid == null) {
-                logger.error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
-                        + subGridDef.getReferenceModel() + "]");
-                return false;
+                referenceGrid = GribModelLookup.getInstance()
+                        .getModelByName(subGridDef.getReferenceModel())
+                        .getGrid();
+                if (referenceGrid == null) {
+                    logger.error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
+                            + subGridDef.getReferenceModel() + "]");
+                    return false;
+                }
             }
 
             GridCoverage referenceCoverage = getGridByName(referenceGrid
@@ -340,9 +346,10 @@ public class GribSpatialCache {
 
         if (f.length() > 0) {
             try {
-                rval = (SubGridDef) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(f);
-                if ((rval.getReferenceModel() == null)
+                JAXBManager manager = new JAXBManager(SubGridDef.class);
+                rval = (SubGridDef) manager.jaxbUnmarshalFromXmlFile(f);
+                if ((rval.getReferenceModel() == null && rval
+                        .getReferenceGrid() == null)
                         || (rval.getModelNames() == null)
                         || (rval.getModelNames().size() == 0)) {
                     // sub grid didn't have required definitions
@@ -359,6 +366,8 @@ public class GribSpatialCache {
                     }
                 }
             } catch (SerializationException e) {
+                logger.error("Failed reading sub grid file: " + filePath, e);
+            } catch (JAXBException e) {
                 logger.error("Failed reading sub grid file: " + filePath, e);
             }
         }
@@ -536,41 +545,6 @@ public class GribSpatialCache {
         return defaultCenterPoint;
     }
 
-    // use GridCoverageLookup.getCoverage
-    @Deprecated
-    public GridCoverage getGrid(int id) {
-        return GridCoverageLookup.getInstance().getCoverage(id);
-    }
-
-    // use GridCoverageLookup.getCoverage
-    @Deprecated
-    public void putGrid(final GridCoverage grid, final boolean initializeGrid,
-            final boolean persistToDb) throws GribException {
-        if (initializeGrid) {
-            try {
-                grid.initialize();
-            } catch (GridCoverageException e) {
-                throw new GribException(e.getLocalizedMessage(), e);
-            }
-        }
-        if (persistToDb) {
-            GridCoverageLookup.getInstance().getCoverage(grid, true);
-        }
-
-    }
-
-    // to support moving grids, use the version that also takes a coverage.
-    @Deprecated
-    public SubGrid getSubGrid(String modelName) {
-        return getSubGrid(modelName, getGrid(modelName));
-    }
-
-    // to support moving grids, use the version that also takes a coverage.
-    @Deprecated
-    public GridCoverage getSubGridCoverage(String modelName) {
-        return getSubGridCoverage(modelName, getGrid(modelName));
-    }
-
     // does not support models with multiple grids, use getGridsForModel instead
     @Deprecated
     public GridCoverage getGrid(String modelName) {
@@ -579,6 +553,28 @@ public class GribSpatialCache {
             return null;
         }
         return grids.get(0);
+    }
+
+    public static Corner determineFirstGridPointCorner(int scanMode) {
+        if ((scanMode & 128) > 0) {
+            // -i
+            if ((scanMode & 64) > 0) {
+                // +j
+                return Corner.LowerRight;
+            } else {
+                // -j
+                return Corner.UpperRight;
+            }
+        } else {
+            // +i
+            if ((scanMode & 64) > 0) {
+                // +j
+                return Corner.LowerLeft;
+            } else {
+                // -j
+                return Corner.UpperLeft;
+            }
+        }
     }
 
 }

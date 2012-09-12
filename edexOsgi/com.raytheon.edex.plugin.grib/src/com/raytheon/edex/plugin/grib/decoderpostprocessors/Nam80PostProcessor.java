@@ -25,17 +25,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Post processor for the NAM80 (ETA) model. This post processor generates the
@@ -77,44 +77,41 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
      * 
      * @see
      * com.raytheon.edex.plugin.grib.decoderpostprocessors.IDecoderPostProcessor
-     * #process(com.raytheon.uf.common.dataplugin.grib.GribRecord)
+     * #process(com.raytheon.uf.common.dataplugin.grib.GridRecord)
      */
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         /*
          * Determine if this record is a 6 or 12 hour total precipitation
          * accumulation grid
          */
-        if (record.getModelInfo().getParameterAbbreviation().equals(TP_12HR)) {
+        if (record.getParameter().getAbbreviation().equals(TP_12HR)) {
             return generate6HrGrids(record, false, TP_6HR, TP_12HR);
-        } else if (record.getModelInfo().getParameterAbbreviation()
-                .equals(TP_6HR)) {
+        } else if (record.getParameter().getAbbreviation().equals(TP_6HR)) {
             return generate6HrGrids(record, true, TP_6HR, TP_12HR);
-        } else if (record.getModelInfo().getParameterAbbreviation()
-                .equals(CP_12HR)) {
+        } else if (record.getParameter().getAbbreviation().equals(CP_12HR)) {
             return generate6HrGrids(record, false, CP_6HR, CP_12HR);
-        } else if (record.getModelInfo().getParameterAbbreviation()
-                .equals(CP_6HR)) {
+        } else if (record.getParameter().getAbbreviation().equals(CP_6HR)) {
             return generate6HrGrids(record, true, CP_6HR, CP_12HR);
         }
 
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 
     @SuppressWarnings("unchecked")
-    private GribRecord[] generate6HrGrids(GribRecord currentRecord,
+    private GridRecord[] generate6HrGrids(GridRecord currentRecord,
             boolean sixHr, String parameter6hr, String parameter12hr)
             throws GribException {
         // The 12 hr accumulation grid to use in the calculations
-        GribRecord tp12record = null;
+        GridRecord tp12record = null;
 
         // The 6 hr accumulation grid to use in the calculations
-        GribRecord tp6record = null;
+        GridRecord tp6record = null;
         Date refTime = currentRecord.getDataTime().getRefTime();
-        GribDao dao = null;
+        GridDao dao = null;
         try {
-            dao = new GribDao();
+            dao = new GridDao();
         } catch (PluginException e) {
             throw new GribException("Error instantiating Grib Dao!", e);
         }
@@ -123,27 +120,27 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
          * If the current record is a 6 hr accumulation grid, get the 12 hr grid
          * and vice versa
          */
-        DatabaseQuery dbQuery = new DatabaseQuery(GribRecord.class);
-        dbQuery.addQueryParam("modelInfo.modelName", "ETA");
+        DatabaseQuery dbQuery = new DatabaseQuery(GridRecord.class);
+        dbQuery.addQueryParam(GridConstants.DATASET_ID, "ETA");
         dbQuery.addQueryParam("dataTime.refTime", refTime);
         if (sixHr) {
             tp6record = currentRecord;
-            dbQuery.addQueryParam("modelInfo.parameterAbbreviation",
+            dbQuery.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                     parameter12hr);
             dbQuery.addQueryParam("dataTime.fcstTime", currentRecord
                     .getDataTime().getFcstTime() + SECONDS_IN_6_HRS);
         } else {
             tp12record = currentRecord;
-            dbQuery.addQueryParam("modelInfo.parameterAbbreviation",
+            dbQuery.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                     parameter6hr);
             dbQuery.addQueryParam("dataTime.fcstTime", currentRecord
                     .getDataTime().getFcstTime() - SECONDS_IN_6_HRS);
         }
         try {
-            List<GribRecord> results = (List<GribRecord>) dao
+            List<GridRecord> results = (List<GridRecord>) dao
                     .queryByCriteria(dbQuery);
             if (results.isEmpty()) {
-                return new GribRecord[] { currentRecord };
+                return new GridRecord[] { currentRecord };
             }
             if (sixHr) {
                 tp12record = results.get(0);
@@ -156,30 +153,30 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
                     e);
         }
 
-        Set<GribRecord> retVal = new HashSet<GribRecord>();
+        Set<GridRecord> retVal = new HashSet<GridRecord>();
         retVal.add(currentRecord);
         retVal.add(generateGrid(tp12record, tp6record, dao, parameter6hr));
 
-        return retVal.toArray(new GribRecord[] {});
+        return retVal.toArray(new GridRecord[] {});
     }
 
-    private GribRecord generateGrid(GribRecord tp12HrRecord,
-            GribRecord tp6HrRecord, GribDao dao, String parameter)
+    private GridRecord generateGrid(GridRecord tp12HrRecord,
+            GridRecord tp6HrRecord, GridDao dao, String parameter)
             throws GribException {
 
-        GribRecord newRecord = new GribRecord();
+        GridRecord newRecord = new GridRecord();
         try {
             float[] newData = null;
             float[] tp6Data = null;
             if (tp12HrRecord.getMessageData() == null) {
                 newData = (float[]) ((FloatDataRecord) dao.getHDF5Data(
-                        tp12HrRecord, 0)[0]).getFloatData();
+                        tp12HrRecord, -1)[0]).getFloatData();
             } else {
                 newData = (float[]) tp12HrRecord.getMessageData();
             }
             if (tp6HrRecord.getMessageData() == null) {
                 tp6Data = (float[]) ((FloatDataRecord) dao.getHDF5Data(
-                        tp6HrRecord, 0)[0]).getFloatData();
+                        tp6HrRecord, -1)[0]).getFloatData();
             } else {
                 tp6Data = (float[]) tp6HrRecord.getMessageData();
             }
@@ -191,18 +188,12 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
             throw new GribException("Error retrieving precipitation data", e);
         }
 
-        newRecord.setModelInfo(tp6HrRecord.getModelInfo());
-        newRecord.getModelInfo().setParameterAbbreviation(parameter);
-        newRecord.getModelInfo().generateId();
-        try {
-            GribModel model = GribModelCache.getInstance().getModel(
-                    newRecord.getModelInfo());
-            newRecord.setModelInfo(model);
-        } catch (DataAccessLayerException e) {
-            throw new GribException("Unable to get model info from the cache!",
-                    e);
-        }
-
+        newRecord.setLocation(tp6HrRecord.getLocation());
+        newRecord.setDatasetId(tp6HrRecord.getDatasetId());
+        newRecord.setLevel(tp6HrRecord.getLevel());
+        Parameter param = new Parameter(parameter, tp6HrRecord.getParameter()
+                .getUnit());
+        newRecord.setParameter(param);
         Calendar refTime = tp12HrRecord.getDataTime().getRefTimeAsCalendar();
         Date start = new Date(tp12HrRecord.getDataTime().getValidPeriod()
                 .getEnd().getTime()
@@ -214,9 +205,10 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
 
         // Reset the datauri since the datauri contains the DataTime
         newRecord.setDataTime(newDataTime);
+        newRecord.getInfo().setId(null);
         newRecord.setDataURI(null);
         try {
-            newRecord.setPluginName("grib");
+            newRecord.setPluginName(GridConstants.GRID);
             newRecord.constructDataURI();
         } catch (PluginException e) {
             throw new GribException("Error constructing dataURI!", e);

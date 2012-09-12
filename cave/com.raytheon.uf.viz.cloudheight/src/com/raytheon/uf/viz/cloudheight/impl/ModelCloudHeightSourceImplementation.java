@@ -32,8 +32,8 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -256,7 +256,7 @@ public class ModelCloudHeightSourceImplementation extends
      */
     @Override
     protected long getValidTimeInterval() {
-        GridModel gm = GribModelLookup.getInstance().getModelByName(
+        DatasetInfo gm = DatasetInfoLookup.getInstance().getInfo(
                 source.getName());
         // TODO: Why is Laps null?
         int dt = gm != null ? gm.getDt() : 1;
