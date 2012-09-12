@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 
 /**
  * AbstractDescriptor
@@ -192,33 +193,37 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 }
 
                 if (basis != newBasis) {
-                    redoTimeMatching();
+                    TimeMatchingJob.scheduleTimeMatch(AbstractDescriptor.this);
+                    if (renderableDisplay != null
+                            && renderableDisplay.getContainer() != null) {
+                        IDisplayPaneContainer container = renderableDisplay.getContainer();
+                        for (IDisplayPane pane : container.getDisplayPanes()) {
+                            if (pane.getDescriptor() != AbstractDescriptor.this) {
+                                TimeMatchingJob.scheduleTimeMatch(pane.getDescriptor());
+                            }
+                        }
+                    }
                 }
             }
         });
     }
 
-    private void redoTimeMatching() throws VizException {
-        if (getTimeMatcher() != null) {
-            getTimeMatcher().redoTimeMatching(this);
-        }
-
-        if (renderableDisplay != null
-                && renderableDisplay.getContainer() != null) {
-            IDisplayPaneContainer container = renderableDisplay.getContainer();
-            for (IDisplayPane pane : container.getDisplayPanes()) {
-                if (pane.getDescriptor() != this) {
-                    if (pane.getDescriptor().getTimeMatcher() != null) {
-                        pane.getDescriptor().getTimeMatcher()
-                                .redoTimeMatching(pane.getDescriptor());
-                    }
-                }
-            }
-        }
-    }
 
     protected void postAddListener(ResourcePair rp) {
-
+        if (rp.getResource() != null && getTimeMatcher() != null) {
+            // We need to run time matching immediately beacuse order
+            // constructed is important for time matching so we must do it now
+            // instead of scheduling since another resource could be added by
+            // the time it runs
+            AbstractTimeMatcher tm = getTimeMatcher();
+            tm.redoTimeMatching(rp.getResource());
+            try {
+                tm.redoTimeMatching(this);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -62,6 +62,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Jul 7, 2008  1222        jelkins     Initial creation
  * Jul 24,2012  #944        dgilling    Fix text product template generation
  *                                      to create textProducts and textUtilities.
+ * Sep 07,2012  #1150       dgilling    Fix isConfigured to check for textProducts
+ *                                      and textUtilities dirs.
  * 
  * </pre>
  * 
@@ -158,7 +160,11 @@ public class Configurator {
                 task.getLastExecution(), true);
 
         // if the destination dir does not exist, configurator needs run
-        if (!new File(destinationDirectory).exists()) {
+
+        if ((!new File(FileUtil.join(destinationDirectory, "textProducts"))
+                .isDirectory())
+                || (!new File(FileUtil.join(destinationDirectory,
+                        "textUtilities")).isDirectory())) {
             filesHaveChanges = true;
         }
 

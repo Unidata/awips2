@@ -84,6 +84,42 @@ if [ "${2}" = "-nobinlightning" ]; then
    LIGHTNING=false
 fi
 
+if [ "${1}" = "-64bit" ]; then
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-cherrypy"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-pmw"
+   buildRPM "awips2-python-pupynere"
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-thrift"
+   buildRPM "awips2-python-tpg"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-java"
+   buildRPM "awips2"
+
+   exit 0
+fi
+
 if [ "${1}" = "-delta" ]; then
    buildCAVE
    if [ $? -ne 0 ]; then
@@ -108,6 +144,7 @@ if [ "${1}" = "-delta" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-edex-environment"
 
    exit 0
 fi
@@ -161,6 +198,7 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "awips2-edex-environment"
 
    exit 0
 fi
