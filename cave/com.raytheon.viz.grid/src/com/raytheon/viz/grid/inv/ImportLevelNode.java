@@ -28,8 +28,8 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
@@ -162,11 +162,11 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
         NavigableSet<DataTime> sourceDataTimes = new TreeSet<DataTime>(
                 sourceNode.timeQuery(originalRequest, latestOnly, cache,
                         latestOnlyCache));
-        GridModel sourceModel = GribModelLookup.getInstance().getModelByName(
+        DatasetInfo sourceInfo = DatasetInfoLookup.getInstance().getInfo(
                 sourceNodeModelName);
         long sourceDt = 0;
-        if (sourceModel != null) {
-            sourceDt = sourceModel.getDt();
+        if (sourceInfo != null) {
+            sourceDt = sourceInfo.getDt();
         }
 
         if (sourceDt <= 24) {
