@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -82,13 +82,13 @@ public class GridAlterBundleContributor implements IAlterBundleContributor {
                         modelTitleToNameMap.put(source.getName(),
                                 source.getKey());
                     } else {
-                        GridModel model = GribModelLookup.getInstance()
-                                .getModelByName(source.getKey());
-                        if (model == null) {
+                        DatasetInfo info = DatasetInfoLookup.getInstance()
+                                .getInfo(source.getKey());
+                        if (info == null) {
                             modelTitleToNameMap.put(source.getKey(),
                                     source.getKey());
                         } else {
-                            modelTitleToNameMap.put(model.getTitle(),
+                            modelTitleToNameMap.put(info.getTitle(),
                                     source.getKey());
                         }
                     }
@@ -121,23 +121,22 @@ public class GridAlterBundleContributor implements IAlterBundleContributor {
         if (selectedString != null) {
             reqMap.put("modelInfo.modelName", new RequestConstraint(
                     selectedString));
+            DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
 
             // next, need to modify for other displays (not plan view)
             if (data instanceof VarHeightResourceData) {
-                GribModelLookup lookup = GribModelLookup.getInstance();
-                ((VarHeightResourceData) data).setSource(lookup.getModelByName(
+                ((VarHeightResourceData) data).setSource(lookup.getInfo(
                         selectedString).getTitle());
             } else if (data instanceof TimeSeriesResourceData) {
-                GribModelLookup lookup = GribModelLookup.getInstance();
-                ((TimeSeriesResourceData) data).setSource(lookup
-                        .getModelByName(selectedString).getTitle());
+                ((TimeSeriesResourceData) data).setSource(lookup.getInfo(
+                        selectedString).getTitle());
             } else if (data instanceof GribNSharpResourceData) {
                 ((D2DNSharpResourceData) data).setSoundingType(selectedString);
             } else if (data instanceof CrossSectionResourceData) {
-                GribModelLookup lookup = GribModelLookup.getInstance();
-                ((CrossSectionResourceData) data).setSource(lookup
-                        .getModelByName(selectedString).getTitle());
+                ((CrossSectionResourceData) data).setSource(lookup.getInfo(
+                        selectedString).getTitle());
             }
+
         }
     }
 
