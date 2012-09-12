@@ -34,8 +34,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -227,10 +227,10 @@ public class GridProductBrowserDataDefinition extends
             return labels;
         }
         if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
-            GribModelLookup lookup = GribModelLookup.getInstance();
+            DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
             for (int i = 0; i < parameters.length; i++) {
-                GridModel model = lookup.getModelByName(parameters[i]);
-                if (model == null) {
+                DatasetInfo info = lookup.getInfo(parameters[i]);
+                if (info == null) {
                     if (!(Boolean) getPreference(SHOW_UNKNOWN_MODELS)
                             .getValue()) {
                         continue;
@@ -238,7 +238,7 @@ public class GridProductBrowserDataDefinition extends
                     labels.add(new ProductBrowserLabel(parameters[i],
                             parameters[i]));
                 } else {
-                    labels.add(new ProductBrowserLabel(model.getTitle() + " ("
+                    labels.add(new ProductBrowserLabel(info.getTitle() + " ("
                             + parameters[i] + ")", parameters[i]));
                 }
             }

@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>TPCSurgeProb</modelNames>
-   <referenceModel>TPCSurgeProb</referenceModel>
+   <referenceGrid>374</referenceGrid>
    <nx>1300</nx>
    <ny>1200</ny>
    <!-- 

@@ -32,18 +32,18 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.GenProcess;
 import com.raytheon.edex.plugin.grib.util.Grib1Parameter;
 import com.raytheon.edex.plugin.grib.util.Grib1ParameterLookup;
 import com.raytheon.edex.plugin.grib.util.GribLevel;
 import com.raytheon.edex.plugin.grib.util.GribParameter;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
@@ -325,9 +325,9 @@ public class GribTableLookup {
 
                     GribParameter param = null;
                     int number = Integer.parseInt(tokens[0]);
-                    param = new GribParameter(center, subcenter, Integer
-                            .parseInt(tableTokens[2]), Integer
-                            .parseInt(tableTokens[3]), number, name,
+                    param = new GribParameter(center, subcenter,
+                            Integer.parseInt(tableTokens[2]),
+                            Integer.parseInt(tableTokens[3]), number, name,
                             abbreviation, unit, d2dAbbrev);
 
                     table.addEntry(Integer.valueOf(tokens[0]), param);
