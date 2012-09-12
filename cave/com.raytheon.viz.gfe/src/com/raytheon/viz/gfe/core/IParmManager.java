@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.core;
 
+import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -49,6 +50,8 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * ------------ ---------- ----------- --------------------------
  * 01/28/2008              chammack    Initial creation of skeleton.
  * 06/25/2012    #766      dgilling    Added getVCModulePool().
+ * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
+ *                                     use in PngWriter
  * 
  * </pre>
  * 
@@ -548,4 +551,6 @@ public interface IParmManager extends IParmInventoryChangedListener,
     public JobPool getNotificationPool();
 
     public VCModuleJobPool getVCModulePool();
+
+    public abstract List<Date> calcStepTimes(List<Parm> parms, TimeRange dspTR);
 }
