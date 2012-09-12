@@ -55,6 +55,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
  * 20080219            861 jkorman     Clean up javadoc.
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120911           1011 jkorman     Changed to handle end of report
+ *                                     properly.
  * </pre>
  * 
  * @author jkorman
@@ -65,6 +69,10 @@ public class PirepSeparator extends AbstractRecordSeparator {
     private Log logger = LogFactory.getLog(getClass());
 
     private static final String PIREP_HDR = "[\\r\\n]*.*(UA|UUA) +/OV";
+
+    private static final String EOR_E = "=";
+
+    private static final String EOR_S = ";";
 
     private WMOHeader wmoHeader = null;
 
@@ -182,6 +190,9 @@ public class PirepSeparator extends AbstractRecordSeparator {
                         bodyRecords.get(i + 1)).trim();
             } else {
                 observation = message.substring(bodyRecords.get(i)).trim();
+            }
+            if(observation.endsWith(EOR_E) || observation.endsWith(EOR_S)) {
+                observation = observation.substring(0, observation.length() - 1);
             }
             reports.add(observation);
         }
