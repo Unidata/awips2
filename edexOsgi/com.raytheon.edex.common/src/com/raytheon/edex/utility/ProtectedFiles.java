@@ -25,13 +25,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class ProtectedFiles {
+
     private static transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProtectedFiles.class);
 
@@ -82,23 +82,6 @@ public class ProtectedFiles {
                     LocalizationLevel.BASE));
 
     private static Map<String, ProtectedFiles> sites = new HashMap<String, ProtectedFiles>();
-
-    private Set<String> protectedFiles;
-
-    private LocalizationLevel level;
-
-    private File file;
-
-    private long lastModifiedTime = 0;
-
-    private ProtectedFiles(LocalizationContext context) {
-        level = context.getLocalizationLevel();
-        file = PathManagerFactory.getPathManager()
-                .getLocalizationFile(context, PROTECTED_FILE).getFile();
-        protectedFiles = Collections
-                .synchronizedSortedSet(new TreeSet<String>());
-        reloadFile();
-    }
 
     /**
      * Add the list of protected files into protectedFiles.txt for the site with
@@ -126,19 +109,18 @@ public class ProtectedFiles {
      */
     public static LocalizationLevel getProtectedLevel(String localizedSite,
             LocalizationType type, String path) {
-        // Check base first
-        if (base == null) {
-            return null;
+        LocalizationLevel protectedLevel = null;
+        if (localizedSite != null) {
+            ProtectedFiles site = getSiteLevelFiles(localizedSite);
+            protectedLevel = site.getProtectedLevelInternal(type, path);
         }
-        LocalizationLevel level = base.getProtectedLevelInternal(type, path);
-
-        // If not protected in base file, check the site
-        if (level == null && localizedSite != null) {
-            ProtectedFiles files = getSiteLevelFiles(localizedSite);
-            level = files.getProtectedLevelInternal(type, path);
+        // base can be null when constructing the base ProtectedFile object and
+        // the ProtectedFiles constructor looks up it's localization file
+        if (protectedLevel == null && base != null) {
+            protectedLevel = base.getProtectedLevelInternal(type, path);
         }
 
-        return level;
+        return protectedLevel;
     }
 
     /**
@@ -157,27 +139,42 @@ public class ProtectedFiles {
         return site;
     }
 
+    private Set<String> protectedFiles;
+
+    private LocalizationLevel level;
+
+    private File file;
+
+    private long lastModifiedTime = 0;
+
+    private ProtectedFiles(LocalizationContext context) {
+        this.level = context.getLocalizationLevel();
+        this.protectedFiles = new LinkedHashSet<String>();
+        this.file = PathManagerFactory.getPathManager()
+                .getLocalizationFile(context, PROTECTED_FILE).getFile();
+        reloadFile();
+    }
+
     /**
      * Write the protectedFiles.txt file.
      */
     private synchronized void writeProtectedFile() {
-        String str;
         try {
             file.createNewFile();
 
             BufferedWriter out = new BufferedWriter(new FileWriter(file));
             out.write(level == LocalizationLevel.BASE ? BASE_HEADER : String
-                    .format(LEVEL_HEADER, level.toString()));
+                    .format(LEVEL_HEADER, level));
             Iterator<String> iter = protectedFiles.iterator();
             while (iter.hasNext()) {
-                str = iter.next();
-                out.write(str + "\n");
+                out.write(iter.next() + "\n");
             }
 
             out.flush();
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error writing protected file list", e);
         }
     }
 
@@ -230,11 +227,12 @@ public class ProtectedFiles {
         LocalizationLevel[] levels = PathManagerFactory.getPathManager()
                 .getAvailableLevels();
 
-        for (LocalizationLevel level : levels) {
-            String levelPath = level.toString().toUpperCase() + ":" + path;
-            boolean isProtected = protectedFiles.contains(levelPath);
-
-            if (isProtected) {
+        for (int i = levels.length - 1; i >= 0; --i) {
+            // Search backwards so we get highest protected level in case of
+            // duplicate entries at different levels
+            LocalizationLevel level = levels[i];
+            String levelPath = level.name() + ":" + path;
+            if (protectedFiles.contains(levelPath)) {
                 protectionLevel = level;
                 break;
             }
