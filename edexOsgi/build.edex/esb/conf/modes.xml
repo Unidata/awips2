@@ -74,7 +74,9 @@
 	 	<include>grib-common.xml</include>
 	 	<include>grib-ingest.xml</include>
 	 	<include>level-common.xml</include>
-	 	<include>gridcoverage-common.xml</include>	 	
+	 	<include>grid-common.xml</include>
+	 	<include>gridcoverage-common.xml</include>
+	 	<include>parameter-common.xml</include>	 	
 	 	<include>persist-ingest.xml</include>
 	 	<include>management-common.xml</include>
 	 	<include>database-common.xml</include>

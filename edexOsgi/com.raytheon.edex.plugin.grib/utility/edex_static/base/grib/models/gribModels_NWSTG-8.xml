@@ -10,21 +10,18 @@
 
 <gribModelSet>
 
-	<!-- SUBCENTER 1 -->
+	<!-- SUBCENTER 8 -->
 
 	<model>
-		<title>GLERL</title>
-		<name>GLERL</name>
-		<center>161</center>
-		<subcenter>1</subcenter>
-		<grid>306</grid>
+		<name>RCM</name>
+		<center>8</center>
+		<subcenter>0</subcenter>
+		<grid>301</grid>
 		<process>
-			<id>99</id>
+			<id>0</id>
 		</process>
-		<paramInfo>glerl</paramInfo>
-		<dt>12</dt>
+		<paramInfo></paramInfo>
 	</model>
-	
-	<!-- END SUBCENTER 1 -->
 
+	<!-- END SUBCENTER 8 -->
 </gribModelSet>

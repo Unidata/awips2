@@ -1,5 +1,2 @@
 com.raytheon.uf.common.dataplugin.grib.GribModel
 com.raytheon.uf.common.dataplugin.grib.GribRecord
-com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef
-com.raytheon.uf.common.dataplugin.grib.util.GridModel
-com.raytheon.uf.common.dataplugin.grib.util.GridModelSet

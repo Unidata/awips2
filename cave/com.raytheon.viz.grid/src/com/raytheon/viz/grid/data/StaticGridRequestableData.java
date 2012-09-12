@@ -22,10 +22,10 @@ package com.raytheon.viz.grid.data;
 import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridData;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -88,11 +88,10 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
         if (StaticGridDataType._dt.equals(dataType)) {
             int dTinSeconds = 0;
-            GridModel model = GribModelLookup.getInstance().getModelByName(
-                    source);
+            DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(source);
 
-            if (model != null) {
-                dTinSeconds = model.getDt();
+            if (info != null) {
+                dTinSeconds = info.getDt();
 
                 // dT <= 24 is in hours, need to convert to seconds
                 if (Math.abs(dTinSeconds) <= 24) {

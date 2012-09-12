@@ -20,8 +20,8 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
  * Grib decoder post processor interface
@@ -51,5 +51,5 @@ public interface IDecoderPostProcessor {
      *         processing
      * @throws GribException
      */
-    public GribRecord[] process(GribRecord record) throws GribException;
+    public GridRecord[] process(GridRecord record) throws GribException;
 }
