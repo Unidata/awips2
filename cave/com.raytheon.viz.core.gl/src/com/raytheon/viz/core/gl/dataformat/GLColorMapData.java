@@ -112,4 +112,8 @@ public class GLColorMapData {
     public int[] getDimensions() {
         return dimensions;
     }
+
+    public int getBytesPerPixel() {
+        return dataFormat.getBytesPerPixel();
+    }
 }

@@ -655,11 +655,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             String text = curItems[i].getText();
             int comp = text.compareToIgnoreCase(name);
             if (comp >= 0) {
-                if (comp == 0 && text.compareTo(name) == 0) {
-                    idx = -1;
-                } else {
-                    idx = i;
-                }
+                idx = i;
                 break;
             }
         }
