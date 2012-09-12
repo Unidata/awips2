@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd    
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="parameterProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginName" value="parameter" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.parameter" />
+		<property name="database" value="metadata" />
+	</bean>
+
+    <bean id="parameterRegistered" factory-bean="dbPluginRegistry" factory-method="register">	
+		<constructor-arg value="com.raytheon.uf.common.parameter"/>
+		<constructor-arg ref="parameterProperties"/>
+	</bean>
+	
+</beans>
