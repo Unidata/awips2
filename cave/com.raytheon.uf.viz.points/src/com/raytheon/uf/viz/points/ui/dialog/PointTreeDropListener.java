@@ -119,7 +119,7 @@ public class PointTreeDropListener extends ViewerDropAdapter {
      * @return true if child group node exists.
      */
     private boolean childGroupExists(IPointNode parent, String name) {
-        for (IPointNode child : manager.getChildren(parent)) {
+        for (IPointNode child : manager.getChildren(parent, true)) {
             if (child.isGroup() && name.equals(child.getName())) {
                 return true;
             }

@@ -574,7 +574,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     }
 
     private boolean groupExists(IPointNode parent, String name) {
-        for (IPointNode child : dataManager.getChildren(parent)) {
+        for (IPointNode child : dataManager.getChildren(parent, true)) {
             if (child.isGroup() && name.equals(child.getName())) {
                 return true;
             }
