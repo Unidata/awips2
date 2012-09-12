@@ -38,10 +38,8 @@ import com.raytheon.uf.common.dataplugin.text.request.SendFaxRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.texteditor.TextWorkstationConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -287,7 +285,7 @@ public class FaxMessageDlg extends CaveSWTDialog {
                 Object retval = ThriftClient.sendRequest(faxReq);
                 if (retval instanceof String && !"Success".equals(retval)) {
                     statusHandler.handle(Priority.SIGNIFICANT,
-                            (String) retval, null);
+ (String) retval);
                 }
             } catch (VizException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
