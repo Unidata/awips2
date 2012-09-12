@@ -1,8 +1,78 @@
+# Configuration file for rsyncGridsToCWF.sh
+
+GFESUITE_BIN="/awips2/GFESuite/bin"
+
+### Work Directory for Netcdf files. ###
+DXwrkDir=$IFPS_DATA/rsyncGridsToCWF  # must be a non-nas1 drive with enough space
+if [ ! -d  ${DXwrkDir} ] ;then
+   mkdir -p ${DXwrkDir}
+   chmod 777 ${DXwrkDir}
+   chown awips:fxalpha ${DXwrkDir}
+fi
+
+### Turn On/Off certain script functionality. ###
+QCnetCDF="no"                       # Do you want the netCDF file checked before
+                                    # it is rsynced? This takes 5-15 minutes to
+                                    # complete depending on size of domain.
+                                    # *** Leave "no" for AWIPS 2. QC doesn't work ***
+
+checkCWFavailability="no"           # Do you want the script to check to see if
+                                    # the netcdf file made it to the Consolidated
+                                    # web farm?
+
+### Banner notification configuration ###
+SendQCgoodNotification="no"         # Tell forecaster that netcdf file passed
+                                    # QC check.
+
+sendCWFnotification="no"            # Tell forecaster when netcdf rsync complete
+                                    # to the consolidated web farm.
+
+turnOffAllNotifications="yes"       # This will turn off all banner messages.
+
+### new ldad configuration ###
+locServer="ldad@ls1"                # Name of local rsync server.
+locDirectory="/data/ldad/grid"      # Directory where grids are stored on the
+                                    # local rsync server. Note that file will be
+                                    # stored in $site sub directory.
+locRsyncSwitches="--address=192.168.1.10" # Needed to fix a noaanet rysnc problem.
+
+# Consolidated web farm
+remServer1="sync.weather.gov"       # Name of remote rsync server.
+remDirectory1="netcdf-wfo"          # Directory where grids are stored on the
+                                    # remote rsync server.
+
+# Edit area to limit the portion of the grid domain to send to the webfarms.
+mask=ISC_Send_Area
+
 # Parameter list for the netcdf file
-# Example: parmlist1="-p ClearIndex -p MaxT"
-parmlist1=""
-parmlist2=""
-parmlist3="" 
+parmlist1="-p MaxT -p MinT -p MaxRH -p MinRH -p T -p Td -p RH -p WindChill -p HeatIndex -p ApparentT"
+parmlist2="-p PoP -p PoP12 -p Sky -p Wx -p Hazards -p SnowLevel -p QPF -p SnowAmt -p IceAccum -p Wind -p WindGust"
+parmlist3="-p ClearIndex -p FreeWind -p LAL -p Haines -p MixHgt -p VentRate -p TransWind -p Wind20ft -p CLRIndx"
 parmlist5=""
 parmlist6=""
 parmlist="$parmlist1 $parmlist2 $parmlist3 $parmlist4 $parmlist5 $parmlist6"
+parmlist=""                         #uncomment to send all parameters
+
+creationAttempts=3                  # How many times do you want script to create and
+                                    # quality control netcdf files if bad netcdf files
+                                    # are detected?
+
+rsyncWait=30                        # Minutes to wait for free rsync connection.
+CWFcheckWait=360                    # Delay in seconds to wait to check to see if file made it
+                                    # to the consolidated web farm.
+
+iscMosaicDelay=0.0                  # Delay of 0.0 causes GFE pauses.
+
+probAlertNum=1                      # Guardian alert level when problems occur.
+
+# Email notification configuration
+sendEmailNotification="no"          # Do you want to send email notification of grids are not sent?
+emailAddress1=""
+emailAddress2=""
+emailAddress3=""
+
+# Set some paths
+WRKDIR="${DXwrkDir}/data"
+FXA_BIN="/awips2/fxa/bin"
+CDSHOST="ec"
+CDSPORT="9581"
