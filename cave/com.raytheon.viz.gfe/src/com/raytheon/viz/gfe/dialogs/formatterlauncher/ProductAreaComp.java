@@ -56,6 +56,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *  2 SEP 2011 10654       gzhou       Delete running/pending task and close tab.
  * 23 MAY 2012 14859       ryu         Select VTEC formatting in practice mode
  *                                     based on VTECMessageType setting.
+ * 10 AUG 2012 15178  	   mli		   Add autoWrite and autoStore capability                                    
  *
  * </pre>
  *
@@ -642,6 +643,9 @@ public class ProductAreaComp extends Composite implements
             if (productText != null) {
                 productEditorComp.retrieveActiveVTEC();
                 productEditorComp.setProductText(productText);
+                
+                // handle autoWrite and autoStore...
+                productEditorComp.doAutoStuff();
             }
 
             productEditorBtn.setSelection(true);

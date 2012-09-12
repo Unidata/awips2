@@ -112,6 +112,10 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="edu.*/**"/>
                 </copy>
+            	<echo message="de.*/**"/>
+                <copy todir="${buildDirectory}/plugins">
+                    <fileset dir="${buildDirectory}/../../../" includes="de.*/**"/>
+                </copy>
                 <antcall target="getBaseComponents" />
         </target>
 

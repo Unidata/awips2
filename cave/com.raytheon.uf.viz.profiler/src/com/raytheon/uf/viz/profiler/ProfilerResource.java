@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerLevel;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
@@ -39,6 +40,7 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -73,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * AWIPS2 DR Work
  * 08/10/2012         1035 jkorman     Changed number of 'staffs' from 12 to 13 and changed time
  *                                     display to match AWIPS I.
+ * 08/13/2012         1046 jkorman     Changed to load colorMap file.                                     
  * </pre>
  * 
  * @author dhladky
@@ -85,7 +88,10 @@ public class ProfilerResource extends
             .getHandler(ProfilerResource.class);
 
     private static final int NUM_PROFILE_STAFFS = 13;
-    
+
+    /* graph max height in meters*/
+    private static double MAX_Y = 18000;
+
     /* Graphic target */
     private IGraphicsTarget target = null;
 
@@ -104,9 +110,6 @@ public class ProfilerResource extends
     private double incX = 0;
 
     private double incYheight = 0;
-
-    /* graph max height */
-    private static double maxY = 18000;
 
     private long earliestTime = Long.MAX_VALUE;
 
@@ -142,27 +145,31 @@ public class ProfilerResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.target = target;
         dataTimes = new ArrayList<DataTime>();
-        incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
 
-        incYheight = ProfilerUtils.profilerRectangle.height / maxY;
+        incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
+        incYheight = ProfilerUtils.profilerRectangle.height / MAX_Y;
 
         this.font = target.initializeFont("Dialog", 11, null);
 
-        // Setup the colormap and colormap parameters
-        ColorMapParameters params = this
-                .getCapability(ColorMapCapability.class)
+        ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         if (params == null) {
             params = new ColorMapParameters();
             this.getCapability(ColorMapCapability.class).setColorMapParameters(
                     params);
         }
+
+        String cmName = null;
+        if ((cmName = params.getColorMapName()) != null) {
+            IColorMap colorMap = ColorMapLoader.loadColorMap(cmName);
+            params.setColorMap(colorMap);
+        }
+        // If we failed to load a colorMap, load a default!
         if (params.getColorMap() == null) {
             params.setColorMap(ProfilerUtils.getColorMap());
-            params.setColorMapMin(ProfilerUtils.colorRange[0]);
-            params.setColorMapMax(ProfilerUtils.colorRange[1]);
         }
-
+        params.setColorMapMin(ProfilerUtils.colorRange[0]);
+        params.setColorMapMax(ProfilerUtils.colorRange[1]);
         params.setColorBarIntervals(ProfilerUtils.colorLabels);
 
         resourceData.addChangeListener(new IResourceDataChanged() {
@@ -574,7 +581,7 @@ public class ProfilerResource extends
 
         for (int i = 0; i < ProfilerUtils.PRESSURES.length; i++) {
             double height = WxMath.pressureToHeight(ProfilerUtils.PRESSURES[i]);
-            if (height <= maxY) {
+            if (height <= MAX_Y) {
                 parameters.setText(
                         ProfilerUtils.decimalFormat.format(new Double(
                                 ProfilerUtils.PRESSURES[i])) + " mb",
