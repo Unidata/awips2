@@ -12,7 +12,6 @@
 	<!-- SUBCENTER 0 -->
 
 	<model>
-		<title>GFSLAMP-Stn</title>
 		<name>GFSLAMP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -21,11 +20,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>NAM80</title>
 		<name>ETA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -34,11 +31,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>eta211</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFS180</title>
 		<name>AVN</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -49,11 +44,9 @@
 			<id>81</id>
 		</process>
 		<paramInfo>avn202</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NGM80</title>
 		<name>NGM</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -62,11 +55,9 @@
 			<id>39</id>
 		</process>
 		<paramInfo>ngm211</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>gfsLR</title>
 		<name>MRF</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -78,11 +69,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR21</title>
 		<name>MRF21</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -94,11 +83,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR22</title>
 		<name>MRF22</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -110,11 +97,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR23</title>
 		<name>MRF23</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -126,11 +111,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR24</title>
 		<name>MRF24</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -142,11 +125,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR25</title>
 		<name>MRF25</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -158,11 +139,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfsLR26</title>
 		<name>MRF26</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -174,11 +153,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf202</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>GFS360</title>
 		<name>GFS201</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -188,11 +165,9 @@
 			<id>81</id>
 		</process>
 		<paramInfo>gfs201</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>gfsLR</title>
 		<name>mrfNH</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -204,11 +179,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf201</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>GFS90</title>
 		<name>GFS213</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -219,11 +192,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>gfs213</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NGM90</title>
 		<name>NGM213</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -232,11 +203,9 @@
 			<id>39</id>
 		</process>
 		<paramInfo>ngm213</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NGM180</title>
 		<name>NGM202</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -245,12 +214,10 @@
 			<id>39</id>
 		</process>
 		<paramInfo>ngm202</paramInfo>
-		<dt>6</dt>
 	</model>
 
 
 	<model>
-		<title>GFS80</title>
 		<name>AVN211</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -261,11 +228,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>avn211</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NAM40</title>
 		<name>mesoEta212</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -274,13 +239,10 @@
 			<id>84</id>
 		</process>
 		<paramInfo>mesoEta212</paramInfo>
-		<dt>3</dt>
 	</model>
-
+	
 	<model>
-		<title>NAM20</title>
 		<name>mesoEta215</name>
-		<alias>mesoEta212</alias>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>215</grid>
@@ -288,11 +250,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>mesoEta215</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>WAFS</title>
 		<name>WAFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -305,11 +265,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NAMWX</title>
 		<name>ETA212</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -318,11 +276,9 @@
 			<id>89</id>
 		</process>
 		<paramInfo>eta212</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>GFS190</title>
 		<name>AVN203</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -333,11 +289,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>avn203</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>gfs190</title>
 		<name>MRF203</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -349,11 +303,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf203</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>GFS150</title>
 		<name>MRF204</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -365,11 +317,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf204</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>GFS150</title>
 		<name>MRF205</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -381,11 +331,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>mrf205</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>NGM95</title>
 		<name>NGM207</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -394,11 +342,9 @@
 			<id>39</id>
 		</process>
 		<paramInfo>ngm207</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NAM95</title>
 		<name>ETA207</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -407,11 +353,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>eta207</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN-NorthernHemisphere</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -423,11 +367,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN37</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -439,11 +381,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN38</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -455,11 +395,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN39</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -471,11 +409,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -487,11 +423,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN41</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -503,11 +437,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN42</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -519,11 +451,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN43</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -535,11 +465,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSGbl</title>
 		<name>AVN44</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -551,11 +479,9 @@
 			<id>94</id>
 		</process>
 		<paramInfo>avnNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GWW</title>
 		<name>GWW233</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -564,11 +490,9 @@
 			<id>10</id>
 		</process>
 		<paramInfo>gww233</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GWW21</title>
 		<name>GWW21</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -577,11 +501,9 @@
 			<id>10</id>
 		</process>
 		<paramInfo>gww233</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GWW22</title>
 		<name>GWW22</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -590,11 +512,9 @@
 			<id>10</id>
 		</process>
 		<paramInfo>gww233</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GWW23</title>
 		<name>GWW23</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -603,11 +523,9 @@
 			<id>10</id>
 		</process>
 		<paramInfo>gww233</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GWW24</title>
 		<name>GWW24</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -616,11 +534,9 @@
 			<id>10</id>
 		</process>
 		<paramInfo>gww233</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>SeaIce</title>
 		<name>SeaIce</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -629,11 +545,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>seaIce219</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>SeaIce220</title>
 		<name>SeaIce220</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -642,11 +556,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>seaIce219</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>SeaIce173</title>
 		<name>SeaIce173</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -655,11 +567,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>seaIce219</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>SeaIce235</title>
 		<name>SeaIce235</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -668,12 +578,10 @@
 			<id>120</id>
 		</process>
 		<paramInfo>seaIce219</paramInfo>
-		<dt>1</dt>
 	</model>
 
 
 	<model>
-		<title>RAP40</title>
 		<name>RUC236</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -682,11 +590,9 @@
 			<id>105</id>
 		</process>
 		<paramInfo>ruc236</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GFS75</title>
 		<name>AVN225</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -697,11 +603,9 @@
 			<id>81</id>
 		</process>
 		<paramInfo>avn225</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AKWAVE</title>
 		<name>AKWAVE239</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -710,11 +614,9 @@
 			<id>122</id>
 		</process>
 		<paramInfo>akWave239</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>WNAwave</title>
 		<name>WNAWAVE238</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -723,11 +625,9 @@
 			<id>121</id>
 		</process>
 		<paramInfo>wnaWave238</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-NAM40</title>
 		<name>mesoEta216</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -736,11 +636,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>mesoEta216</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-NAM20</title>
 		<name>mesoEta217</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -749,11 +647,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>mesoEta217</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NAM12</title>
 		<name>ETA218</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -762,11 +658,9 @@
 			<id>84</id>
 		</process>
 		<paramInfo>eta218</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>AK-NAM12</title>
 		<name>ETA242</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -775,11 +669,21 @@
 			<id>84</id>
 		</process>
 		<paramInfo>eta242</paramInfo>
+	</model>
+	
+	<model>
+		<title>NAM over the contiguous US 16X Resolution(5Km) Lambert Conformal</title>
+		<name>NAM227</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>227</grid>
+		<process>
+			<id>84</id>
+		</process>
 		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>ENPwave</title>
 		<name>ENPWAVE253</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -788,11 +692,9 @@
 			<id>124</id>
 		</process>
 		<paramInfo>enpWave253</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>HurWave238</title>
 		<name>HurWave238</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -801,11 +703,9 @@
 			<id>123</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>HurWave253</title>
 		<name>HurWave253</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -814,11 +714,9 @@
 			<id>125</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>TPC-HurWind</title>
 		<name>HurWind226</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -827,11 +725,9 @@
 			<id>30</id>
 		</process>
 		<paramInfo>TPCtcm226</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GuamHurWind</title>
 		<name>HurWind175</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -840,11 +736,9 @@
 			<id>30</id>
 		</process>
 		<paramInfo>TCPtcm175</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>HawHurWind</title>
 		<name>HurWind250</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -853,11 +747,9 @@
 			<id>30</id>
 		</process>
 		<paramInfo>TPCtpm250</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>NICICE</title>
 		<name>NICICE</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -866,11 +758,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>nic218</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>AK-NICICE</title>
 		<name>AK-NICICE</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -879,11 +769,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>nic242</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>DGEX</title>
 		<name>DGEX185</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -892,11 +780,9 @@
 			<id>115</id>
 		</process>
 		<paramInfo>dgex185</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>DGEX</title>
 		<name>DGEX186</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -905,11 +791,9 @@
 			<id>115</id>
 		</process>
 		<paramInfo>dgex186</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFS40</title>
 		<name>GFS212</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -920,11 +804,9 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfs212</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-GFS</title>
 		<name>GFS160</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -935,11 +817,9 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfs160</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>PR-GFS</title>
 		<name>GFS254</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -950,11 +830,9 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfs254</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>SJU-GFS</title>
 		<name>GFS161</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -965,11 +843,9 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfs161</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>Guam-GFS</title>
 		<name>GFS199</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -980,11 +856,21 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfs161</paramInfo>
-		<dt>6</dt>
+	</model>
+	
+	<model>
+		<name>GFS230</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>230</grid>
+		<process>
+			<id>96</id>
+			<id>77</id>
+			<id>81</id>
+		</process>
 	</model>
 
 	<model>
-		<title>RAP13</title>
 		<name>RUC130</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -993,11 +879,9 @@
 			<id>105</id>
 		</process>
 		<paramInfo>ruc130</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>RTMA</title>
 		<name>RTMA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1006,11 +890,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>rtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	<model>
-		<title>RTMA-Mosaic</title>
 		<name>RTMA-Mosaic</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1019,11 +901,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>rtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>AK-RTMA</title>
 		<name>AK-RTMA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1032,11 +912,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>aKrtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>NamDNG5</title>
 		<name>NamDNG5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1045,11 +923,9 @@
 			<id>89</id>
 		</process>
 		<paramInfo>NamDNG5</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>RaobOA</title>
 		<name>RaobOA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1058,11 +934,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>MetarOA</title>
 		<name>MetarOA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1071,11 +945,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GlobalWave</title>
 		<name>GlobalWave</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1084,11 +956,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>GlobalWave</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>AKwave10</title>
 		<name>AKwave10</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1097,11 +967,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>AKwave10</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>AKwave4</title>
 		<name>AKwave4</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1110,11 +978,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>AKwave4</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>EPwave10</title>
 		<name>EPwave10</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1123,11 +989,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>EPwave10</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>WCwave10</title>
 		<name>WCwave10</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1136,11 +1000,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>WCwave10</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>WCwave4</title>
 		<name>WCwave4</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1149,11 +1011,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>WCwave4</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>WNAwave10</title>
 		<name>WNAwave10</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1162,11 +1022,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>WNAwave10</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>WNAwave4</title>
 		<name>WNAwave4</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1175,11 +1033,9 @@
 			<id>11</id>
 		</process>
 		<paramInfo>WNAwave4</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>Aviation</title>
 		<name>Aviation</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1189,11 +1045,9 @@
 			<id>105</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Aviation</title>
 		<name>Aviation</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1203,11 +1057,9 @@
 			<id>105</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Aviation</title>
 		<name>Aviation</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1216,24 +1068,9 @@
 			<id>191</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Aviation</title>
-		<name>Aviation</name>
-		<center>7</center>
-		<subcenter>8</subcenter>
-		<grid>130</grid>
-		<process>
-			<id>105</id>
-		</process>
-		<paramInfo></paramInfo>
-		<dt>1</dt>
-	</model>
-	
-	<model>
-		<title>AK-NamDNG5</title>
 		<name>AK-NamDNG5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1242,11 +1079,9 @@
 			<id>89</id>
 		</process>
 		<paramInfo>AkNamDNG5</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HI-NamDNG5</title>
 		<name>HI-NamDNG5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1255,11 +1090,9 @@
 			<id>89</id>
 		</process>
 		<paramInfo>HiNamDNG5</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>PR-NamDNG5</title>
 		<name>PR-NamDNG5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1268,11 +1101,9 @@
 			<id>89</id>
 		</process>
 		<paramInfo>PrNamDNG5</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-ARW-East</title>
 		<name>HiResW-ARW-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1281,11 +1112,9 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwEast</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-ARW-West</title>
 		<name>HiResW-ARW-West</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1294,11 +1123,9 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwWest</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-ARW-AK</title>
 		<name>HiResW-ARW-AK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1307,11 +1134,9 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwAK</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-ARW-SJU</title>
 		<name>HiResW-ARW-SJU</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1320,11 +1145,9 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwSJU</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-ARW-HI</title>
 		<name>HiResW-ARW-HI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1333,12 +1156,10 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwHI</paramInfo>
-		<dt>3</dt>
 	</model>
 
 
 	<model>
-		<title>HiResW-ARW-GU</title>
 		<name>HiResW-ARW-GU</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1347,11 +1168,9 @@
 			<id>116</id>
 		</process>
 		<paramInfo>HiResW-arwGU</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-NMM-East</title>
 		<name>HiResW-NMM-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1360,12 +1179,10 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmEast</paramInfo>
-		<dt>3</dt>
 	</model>
 
 
 	<model>
-		<title>HiResW-NMM-West</title>
 		<name>HiResW-NMM-West</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1374,11 +1191,9 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmWest</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-NMM-AK</title>
 		<name>HiResW-NMM-AK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1387,11 +1202,9 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmAK</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-NMM-SJU</title>
 		<name>HiResW-NMM-SJU</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1400,11 +1213,9 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmSJU</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-NMM-HI</title>
 		<name>HiResW-NMM-HI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1413,11 +1224,9 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmHI</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>HiResW-NMM-GU</title>
 		<name>HiResW-NMM-GU</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1426,11 +1235,9 @@
 			<id>112</id>
 		</process>
 		<paramInfo>HiResW-nmmGU</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>GRLKwave</title>
 		<name>GRLKwave</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1439,11 +1246,9 @@
 			<id>131</id>
 		</process>
 		<paramInfo>GRLKwave</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>MSAS</title>
 		<name>MSAS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1452,11 +1257,9 @@
 			<id>100</id>
 		</process>
 		<paramInfo>msas</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GFSBufr</title>
 		<name>GfsBufr</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1465,11 +1268,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GFSSouthernHemisphere</title>
 		<name>GFSSouthernHemisphere</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1479,11 +1280,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>gfs201</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GoesBufr</title>
 		<name>GoesBufr</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1492,11 +1291,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Metar</title>
 		<name>Metar</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1505,11 +1302,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Ldad</title>
 		<name>Ldad</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1518,11 +1313,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>DMD</title>
 		<name>DMD</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1531,11 +1324,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>-10</dt>
 	</model>
 
 	<model>
-		<title>MDCRS</title>
 		<name>MDCRS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1544,11 +1335,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>NAM Bufr</title>
 		<name>EtaBufr</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1557,11 +1346,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>PoesBufr</title>
 		<name>PoesBufr</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1570,11 +1357,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Profiler</title>
 		<name>Profiler</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1583,11 +1368,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>Raob</title>
 		<name>Raob</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1596,11 +1379,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>VWP</title>
 		<name>VWP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1609,11 +1390,9 @@
 			<id>999</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>-6</dt>
 	</model>
 
 	<model>
-		<title>PR-NAM12</title>
 		<name>mesoEta237</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1622,7 +1401,18 @@
 			<id>84</id>
 		</process>
 		<paramInfo>eta218</paramInfo>
-		<dt>3</dt>
+	</model>
+	
+	<model>
+		<name>GFS0.5</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>4</grid>
+		<process>
+			<id>96</id>
+			<id>77</id>
+			<id>81</id>
+		</process>
 	</model>
 
 	<!-- END SUBCENTER 0 -->
@@ -1630,7 +1420,6 @@
 
 	<!-- SUBCENTER 2: NCEP ENSEMBLE PRODUCTS -->
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1643,11 +1432,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE37</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1660,11 +1447,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE38</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1677,11 +1462,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE39</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1694,11 +1477,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE40</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1711,11 +1492,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE41</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1728,11 +1507,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE42</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1745,11 +1522,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE43</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1762,11 +1537,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>GFSensemble</title>
 		<name>ENSEMBLE44</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1779,11 +1552,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>ensembleNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>SREF</title>
 		<name>SREF212</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1792,11 +1563,9 @@
 			<id>113</id>
 		</process>
 		<paramInfo>sref212</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>AK-SREF</title>
 		<name>SREF216</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1805,11 +1574,9 @@
 			<id>113</id>
 		</process>
 		<paramInfo>sref216</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>PR-SREF</title>
 		<name>SREF243</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
@@ -1818,7 +1585,6 @@
 			<id>113</id>
 		</process>
 		<paramInfo>sref243</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<!-- END SUBCENTER 2: NCEP ENSEMBLE PRODUCTS -->
@@ -1826,7 +1592,6 @@
 	<!-- SUBCENTER 4: ENVIRONMENTAL MODELING CENTER -->
 
 	<model>
-		<title>RTG-SST-Analysis</title>
 		<name>RTGSST</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1835,11 +1600,9 @@
 			<id>44</id>
 		</process>
 		<paramInfo>RTGSST235</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>GFSGuide</title>
 		<name>GFSGuide</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1850,11 +1613,9 @@
 			<id>77</id>
 		</process>
 		<paramInfo>gfsGuide232</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>RTMA</title>
 		<name>RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1863,11 +1624,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>rtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	<model>
-		<title>RTMA-Mosaic</title>
 		<name>RTMA-Mosaic</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1876,11 +1635,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>rtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>AK-RTMA</title>
 		<name>AK-RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1889,11 +1646,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>aKrtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>HI-RTMA</title>
 		<name>HI-RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1902,11 +1657,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>HIrtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>PR-RTMA</title>
 		<name>PR-RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1915,11 +1668,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>PRrtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	<model>
-		<title>Guam-RTMA</title>
 		<name>Guam-RTMA</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1928,11 +1679,9 @@
 			<id>109</id>
 		</process>
 		<paramInfo>rtmaNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>RTG-SST-HR-Analysis</title>
 		<name>RTGSSTHR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1941,11 +1690,9 @@
 			<id>44</id>
 		</process>
 		<paramInfo>rtgssthr173</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>QPE</title>
 		<name>QPE</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1954,11 +1701,9 @@
 			<id>182</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>SeaSfcAnalysis21</title>
 		<name>SeaSfcAnalysis21</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1967,11 +1712,9 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>SeaSfcAnalysis22</title>
 		<name>SeaSfcAnalysis22</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1980,10 +1723,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis23</title>
 		<name>SeaSfcAnalysis23</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -1992,10 +1733,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis24</title>
 		<name>SeaSfcAnalysis24</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2004,10 +1743,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis37</title>
 		<name>SeaSfcAnalysis37</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2016,10 +1753,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis38</title>
 		<name>SeaSfcAnalysis38</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2028,10 +1763,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis39</title>
 		<name>SeaSfcAnalysis39</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2040,10 +1773,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis40</title>
 		<name>SeaSfcAnalysis40</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2052,10 +1783,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis41</title>
 		<name>SeaSfcAnalysis41</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2064,10 +1793,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis42</title>
 		<name>SeaSfcAnalysis42</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2076,10 +1803,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis43</title>
 		<name>SeaSfcAnalysis43</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2088,10 +1813,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis44</title>
 		<name>SeaSfcAnalysis44</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2100,10 +1823,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis61</title>
 		<name>SeaSfcAnalysis61</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2112,10 +1833,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis62</title>
 		<name>SeaSfcAnalysis62</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2124,10 +1843,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis63</title>
 		<name>SeaSfcAnalysis63</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2136,10 +1853,8 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 	<model>
-		<title>SeaSfcAnalysis64</title>
 		<name>SeaSfcAnalysis64</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2148,14 +1863,12 @@
 			<id>44</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<!-- END SUBCENTER 4: ENVIRONMENTAL MODELING CENTER -->
 
 	<!-- SUBCENTER 5: HYDROMETEROLOGICAL PREDICTION CENTER -->
 	<model>
-		<title>RFCqpf</title>
 		<name>RFCqpf</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
@@ -2164,11 +1877,9 @@
 			<id>181</id>
 		</process>
 		<paramInfo>qpf218</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>HPCqpf</title>
 		<name>HPCqpf</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
@@ -2177,11 +1888,9 @@
 			<id>180</id>
 		</process>
 		<paramInfo>hpc_qpf218</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>HPCGuide</title>
 		<name>HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
@@ -2190,12 +1899,10 @@
 			<id>183</id>
 		</process>
 		<paramInfo>hpcGuideNDFD</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-HPCGuide</title>
-		<name>AK-HPCGuide</name>
+		<name>HPCGuide-AK</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
 		<grid>198</grid>
@@ -2203,25 +1910,9 @@
 			<id>183</id>
 		</process>
 		<paramInfo>hpcGuideNDFD</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-HPCGuide</title>
-		<name>AK-HPCGuide</name>
-		<center>7</center>
-		<subcenter>5</subcenter>
-		<grid>198</grid>
-		<process>
-			<id>0</id>
-		</process>
-		<paramInfo>hpcGuideNDFD</paramInfo>
-		<dt>6</dt>
-	</model>	
-	
-
-	<model>
-		<title>HPC</title>
 		<name>HPCqpfNDFD</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
@@ -2230,16 +1921,24 @@
 			<id>180</id>
 		</process>
 		<paramInfo>HPCqpfNDFD</paramInfo>
-		<dt>6</dt>
 	</model>
 	
+	<model>
+		<name>HPC-MODEL0</name>
+		<center>7</center>
+		<subcenter>5</subcenter>
+		<grid>198</grid>
+		<process>
+			<id>0</id>
+		</process>
+		<paramInfo></paramInfo>
+	</model>
 
 	<!-- END SUBCENTER 5: HYDROMETEROLOGICAL PREDICTION CENTER -->
 
 	<!-- SUBCENTER 6: MARINE PREDICTION CENTER -->
 
 	<model>
-		<title>OPCWave-W-ATL</title>
 		<name>OPCWave180</name>
 		<center>7</center>
 		<subcenter>6</subcenter>
@@ -2248,11 +1947,9 @@
 			<id>30</id>
 		</process>
 		<paramInfo>opcWave180</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>OPCWave-NE-PAC</title>
 		<name>OPCWave181</name>
 		<center>7</center>
 		<subcenter>6</subcenter>
@@ -2261,7 +1958,6 @@
 			<id>30</id>
 		</process>
 		<paramInfo>opcWave181</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<!-- END SUBCENTER 6: MARINE PREDICTION CENTER -->
@@ -2269,7 +1965,6 @@
 	<!-- SUBCENTER 7: CLIMATE PREDICTION CENTER -->
 
 	<model>
-		<title>CPCoutlook-Short</title>
 		<name>CPCoutlook-Short</name>
 		<center>7</center>
 		<subcenter>7</subcenter>
@@ -2278,11 +1973,9 @@
 			<id>201</id>
 		</process>
 		<paramInfo>CPCoutlookShort</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>CPCoutlook-Medium</title>
 		<name>CPCoutlook-Medium</name>
 		<center>7</center>
 		<subcenter>7</subcenter>
@@ -2291,11 +1984,9 @@
 			<id>200</id>
 		</process>
 		<paramInfo>CPCoutlookMedium</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>CPCoutlook-Short-AK</title>
 		<name>CPCoutlook-Short-AK</name>
 		<center>7</center>
 		<subcenter>7</subcenter>
@@ -2304,11 +1995,9 @@
 			<id>201</id>
 		</process>
 		<paramInfo>CPCoutlookShort_AK</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>CPCoutlook-Medium-AK</title>
 		<name>CPCoutlook-Medium-AK</name>
 		<center>7</center>
 		<subcenter>7</subcenter>
@@ -2317,11 +2006,9 @@
 			<id>200</id>
 		</process>
 		<paramInfo>CPCoutlookMedium_AK</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>CPCoutlook-Long</title>
 		<name>CPCoutlook211</name>
 		<center>7</center>
 		<subcenter>7</subcenter>
@@ -2330,7 +2017,6 @@
 			<id>30</id>
 		</process>
 		<paramInfo>CPCoutlook211</paramInfo>
-		<dt>720</dt>
 	</model>
 
 	<!-- END SUBCENTER 7: CLIMATE PREDICTION CENTER -->
@@ -2338,7 +2024,6 @@
 	<!-- SUBCENTER 8: AVIATION WEATHER CENTER -->
 
 	<model>
-		<title>Aviation</title>
 		<name>Aviation</name>
 		<center>7</center>
 		<subcenter>8</subcenter>
@@ -2348,11 +2033,9 @@
 			<id>105</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>NCWF</title>
 		<name>NCWF</name>
 		<center>7</center>
 		<subcenter>8</subcenter>
@@ -2361,7 +2044,6 @@
 			<id>190</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>1</dt>
 		<analysisOnly>true</analysisOnly>
 	</model>
 
@@ -2370,7 +2052,6 @@
 	<!-- SUBCENTER 9: STORM PREDICTION CENTER -->
 	
 	<model>
-		<title>SPCGuide</title>
 		<name>SPCGuide</name>
 		<center>7</center>
 		<subcenter>9</subcenter>
@@ -2379,7 +2060,6 @@
 			<id>0</id>
 		</process>
 		<paramInfo>spcGuideNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	<!-- END SUBCENTER 9: STORM PREDICTION CENTER -->
@@ -2387,7 +2067,6 @@
 	<!-- SUBCENTER 10: NATIONAL HURRICANE PREDICTION CENTER -->
 
 	<model>
-		<title>TPCWindProb</title>
 		<name>TPCWindProb</name>
 		<center>7</center>
 		<subcenter>10</subcenter>
@@ -2396,11 +2075,9 @@
 			<id>30</id>
 		</process>
 		<paramInfo>tpcWind231</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>OPCWave-TE-PAC</title>
 		<name>OPCWave182</name>
 		<center>7</center>
 		<subcenter>10</subcenter>
@@ -2409,7 +2086,6 @@
 			<id>30</id>
 		</process>
 		<paramInfo>opcWave182</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<!-- END SUBCENTER 10: NATIONAL HURRICANE PREDICTION CENTER -->
@@ -2417,7 +2093,6 @@
 	<!-- SUBCENTER 14: NWS METEOROLOGICAL DEVELOPMENT LABORATORY -->
 
 	<model>
-		<title>GriddedMOS</title>
 		<name>MOSGuide</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2426,11 +2101,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>mosGuideNDFD</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>AK-GriddedMOS</title>
 		<name>MOSGuide-AK</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2439,11 +2112,9 @@
 			<id>96</id>
 		</process>
 		<paramInfo>mosGuideNDFD_AK</paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>GFSLAMP-Grid</title>
 		<name>GFSLAMPTstorm</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2452,11 +2123,9 @@
 			<id>108</id>
 		</process>
 		<paramInfo>lampNDFD</paramInfo>
-		<dt>1</dt>
 	</model>
 
 	<model>
-		<title>TPCSurgeProb</title>
 		<name>TPCSurgeProb</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2466,11 +2135,9 @@
 			<id>0</id>
 		</process>
 		<paramInfo>TPCSurgeProb</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>TPCSurgeProb197</title>
 		<name>TPCSurgeProb197</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2479,11 +2146,9 @@
 			<id>12</id>
 		</process>
 		<paramInfo>TPCSurgeProb</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>TPCSurgeProb-AK</title>
 		<name>TPCSurgeProb-AK</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2492,11 +2157,9 @@
 			<id>12</id>
 		</process>
 		<paramInfo>TPCSurgeProb</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>PROB3HR</title>
 		<name>PROB3HR</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -2505,7 +2168,6 @@
 			<id>0</id>
 		</process>
 		<paramInfo></paramInfo>
-		<dt>3</dt>
 	</model>
 
 	<!-- END SUBCENTER 14: NWS METEOROLOGICAL DEVELOPMENT LABORATORY -->
