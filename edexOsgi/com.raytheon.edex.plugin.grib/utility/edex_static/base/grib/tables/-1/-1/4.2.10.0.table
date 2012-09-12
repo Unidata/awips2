@@ -3,15 +3,15 @@
 1:1:Wave spectra (2)::WVSP2:WSp2
 2:2:Wave spectra (3)::WVSP3:WSp3
 3:3:Significant height of combined wind waves and swell:m:HTSGW
-4:4:Direction of wind waves:Degree true:WVDIR
+4:4:Direction of wind waves:Degree:WVDIR
 5:5:Significant height of wind waves (m):m:WVHGT
 6:6:Mean period of wind waves:s:WVPER
-7:7:Direction of swell waves:Degree true:SWDIR
+7:7:Direction of swell waves:Degree:SWDIR
 8:8:Significant height of swell waves:m:SWELL
 9:9:Mean period of swell waves:s:SWPER
-10:10:Primary wave direction:Degree true:DIRPW
+10:10:Primary wave direction:Degree:DIRPW
 11:11:Primary wave mean period:s:PERPW
-12:12:Secondary wave direction:Degree true:DIRSW
+12:12:Secondary wave direction:Degree:DIRSW
 13:13:Secondary wave mean periods:s:PERSW
 # 14-191 Reserved
 # 192-254 Reserved for local use

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -68,7 +68,7 @@ public class GribNotifyQueue {
         if (gribs != null && gribs.length > 0) {
             synchronized (syncObj) {
                 for (PluginDataObject grib : gribs) {
-                    queuedMsgs.add(new GribNotifyMessage((GribRecord) grib));
+                    queuedMsgs.add(new GribNotifyMessage((GridRecord) grib));
                 }
                 syncObj.notifyAll();
             }

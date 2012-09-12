@@ -28,10 +28,10 @@ import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.grib.util.GribModelLookup;
+import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;

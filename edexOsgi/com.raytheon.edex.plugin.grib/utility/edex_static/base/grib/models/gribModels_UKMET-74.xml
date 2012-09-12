@@ -13,7 +13,6 @@
 	<!-- SUBCENTER 0 -->
 	
 	<model>
-		<title>UKMET-MODEL1</title>
 		<name>UKMET-MODEL1</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -24,12 +23,10 @@
 			<id>89</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 	
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET-NorthernHemisphere</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -40,11 +37,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET37</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -55,11 +50,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET38</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -70,11 +63,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET39</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -85,11 +76,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET40</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -100,11 +89,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET41</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -115,11 +102,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET42</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -130,11 +115,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET43</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -145,11 +128,9 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 
 	<model>
-		<title>UKMET</title>
 		<name>UKMET44</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
@@ -160,7 +141,6 @@
 			<id>45</id>
 		</process>
 		<paramInfo>ukmetNH</paramInfo>
-		<dt>6</dt>
 	</model>
 	
 	<!-- END SUBCENTER 0 -->

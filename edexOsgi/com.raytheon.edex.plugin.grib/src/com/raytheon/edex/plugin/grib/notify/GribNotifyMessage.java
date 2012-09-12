@@ -21,8 +21,7 @@ package com.raytheon.edex.plugin.grib.notify;
 
 import java.util.Date;
 
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -84,17 +83,15 @@ public class GribNotifyMessage implements ISerializableObject {
 
     }
 
-    public GribNotifyMessage(GribRecord grib) {
-        GribModel modelInfo = grib.getModelInfo();
+    public GribNotifyMessage(GridRecord grib) {
 
         this.setInsertTime(grib.getInsertTime().getTime());
         this.setDataTime(grib.getDataTime());
-        this.setModel(modelInfo.getModelName());
-        this.setLevelName(modelInfo.getLevelName());
-        this.setLevelOne(modelInfo.getLevelOneValue());
-        this.setLevelTwo(modelInfo.getLevelTwoValue());
-        this.setParamAbbreviation(grib.getModelInfo()
-                .getParameterAbbreviation());
+        this.setModel(grib.getDatasetId());
+        this.setLevelName(grib.getLevel().getMasterLevel().getName());
+        this.setLevelOne(grib.getLevel().getLevelonevalue());
+        this.setLevelTwo(grib.getLevel().getLeveltwovalue());
+        this.setParamAbbreviation(grib.getParameter().getAbbreviation());
         this.setDataURI(grib.getDataURI());
     }
 
