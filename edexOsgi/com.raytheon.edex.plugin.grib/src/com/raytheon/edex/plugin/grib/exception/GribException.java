@@ -18,17 +18,12 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.plugin.grib;
+package com.raytheon.edex.plugin.grib.exception;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.DefaultPluginInitializer;
-import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
+import com.raytheon.uf.common.dataplugin.PluginException;
 
 /**
- * Initializer implementation for the grib plugin
+ * Exception class for wrapping errors that occur with GribDecoder
  * 
  * <pre>
  * 
@@ -43,28 +38,33 @@ import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
  * @author bphillip
  * @version 1
  */
-public class GribInitializer extends DefaultPluginInitializer {
+public class GribException extends PluginException {
 
-	/** The logger */
-	protected transient Log logger = LogFactory.getLog(getClass());
+    /**
+     * Default serial version id
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Creates a new GribInitializer instance
-	 * 
-	 * @param pluginName
-	 *            "grib"
-	 */
-	public GribInitializer(String pluginName) {
-		super(pluginName);
-	}
+    /**
+     * Parser exception set with a cause.
+     * 
+     * @param aCause
+     *            The cause of the exception
+     */
+    public GribException(String aCause) {
+        super(aCause);
+    }
 
-	@Override
-	public void initializePlugin() throws Exception {
-		super.initializePlugin();
-		logger.info("Initializing grib plugin");
-		GribModelLookup.getInstance();
-		GribSpatialCache.getInstance();
-		logger.info("Grib plugin initialized");
-	}
-
+    /**
+     * Parser exception set with a cause and an existing exception. Used for
+     * exception chaining to preserve state.
+     * 
+     * @param aCause
+     *            The cause of the exception
+     * @param anException
+     *            The exception object
+     */
+    public GribException(String aCause, Exception anException) {
+        super(aCause, anException);
+    }
 }

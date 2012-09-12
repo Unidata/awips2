@@ -22,12 +22,12 @@ package com.raytheon.viz.grid.util;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.Interpolation;
@@ -42,13 +42,23 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.processing.Operations;
 import org.opengis.geometry.Envelope;
 
-import com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest;
-import com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest;
+import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter;
+import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.viz.alerts.IAlertObserver;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
  * TODO Add Description
@@ -66,10 +76,12 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * @version 1.0
  */
 
-public class CoverageUtils {
+public class CoverageUtils implements IAlertObserver {
     private static CoverageUtils instance;
 
-    private final Map<String, GridCoverage> coverageCache = new HashMap<String, GridCoverage>();
+    private final Map<String, Set<GridCoverage>> coverageCache = new HashMap<String, Set<GridCoverage>>();
+
+    private boolean hasPerformedBulkQuery = false;
 
     private CoverageUtils() {
     }
@@ -77,62 +89,51 @@ public class CoverageUtils {
     public static synchronized CoverageUtils getInstance() {
         if (instance == null) {
             instance = new CoverageUtils();
+            ConvertUtil.registerConverter(new GridCoverageConverter(),
+                    GridCoverage.class);
+            ProductAlertObserver.addObserver(GridConstants.GRID, instance);
         }
 
         return instance;
     }
 
-    public GridCoverage getCoverage(String modelName) throws VizException {
-        synchronized (coverageCache) {
-            GridCoverage rval = coverageCache.get(modelName);
-
-            if (rval == null) {
-                GetCoverageRequest request = new GetCoverageRequest();
-                request.setModelName(modelName);
-                Object obj = ThriftClient.sendRequest(request);
-
-                if (obj != null) {
-                    if (obj instanceof GridCoverage) {
-                        rval = (GridCoverage) obj;
-                        coverageCache.put(modelName, rval);
-                    } else {
-                        throw new VizException(
-                                "GetCoverageRequest returned object of type ["
-                                        + obj.getClass().getName()
-                                        + "], expected ["
-                                        + GridCoverage.class.getName() + "]");
-                    }
-                }
-            }
-            return rval;
-        }
-    }
-
-    public Map<String, GridCoverage> getCoverages(Collection<String> modelNames)
+    public Collection<GridCoverage> getCoverages(String modelName)
             throws VizException {
-        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
-        List<String> toRequest = new ArrayList<String>();
-        synchronized (coverageCache) {
-            for (String modelName : modelNames) {
-                GridCoverage coverage = coverageCache.get(modelName);
-                if (coverage == null) {
-                    toRequest.add(modelName);
-                } else {
-                    coverages.put(modelName, coverage);
-                }
+        Collection<GridCoverage> rval = coverageCache.get(modelName);
+
+        if (rval == null) {
+            DbQueryRequest query = new DbQueryRequest();
+            query.setEntityClass(GridInfoRecord.class.getName());
+            query.setDistinct(true);
+            query.addRequestField(GridInfoConstants.DATASET_ID);
+            query.addRequestField(GridInfoConstants.LOCATION_ID);
+            if (hasPerformedBulkQuery) {
+                // first time through just request everything.
+                // if the cache is empty request data for all models.
+                query.addConstraint(GridInfoConstants.DATASET_ID,
+                        new RequestConstraint(modelName));
             }
-            if (!toRequest.isEmpty()) {
-                GetCoveragesRequest request = new GetCoveragesRequest();
-                request.setModelNames(toRequest);
-                List<?> list = (List<?>) ThriftClient.sendRequest(request);
-                for (int i = 0; i < list.size(); i++) {
-                    coverageCache.put(toRequest.get(i),
-                            (GridCoverage) list.get(i));
-                    coverages.put(toRequest.get(i), (GridCoverage) list.get(i));
+            hasPerformedBulkQuery = true;
+            DbQueryResponse resp = (DbQueryResponse) ThriftClient
+                    .sendRequest(query);
+            for (Map<String, Object> map : resp.getResults()) {
+                Integer locationId = (Integer) map
+                        .get(GridInfoConstants.LOCATION_ID);
+                String datasetId = (String) map
+                        .get(GridInfoConstants.DATASET_ID);
+                GridCoverage coverage = GridCoverageLookup.getInstance()
+                        .getCoverage(locationId);
+                Set<GridCoverage> set = coverageCache.get(datasetId);
+                if (set == null) {
+                    set = new HashSet<GridCoverage>();
+                    coverageCache.put(datasetId, set);
                 }
+                set.add(coverage);
             }
+            rval = coverageCache.get(modelName);
         }
-        return coverages;
+
+        return rval;
     }
 
     /**
@@ -144,7 +145,12 @@ public class CoverageUtils {
      */
     public void setCoverage(String modelName, GridCoverage coverage) {
         if (modelName != null && coverage != null) {
-            coverageCache.put(modelName, coverage);
+            Set<GridCoverage> set = coverageCache.get(modelName);
+            if (set == null) {
+                set = new HashSet<GridCoverage>();
+                coverageCache.put(modelName, set);
+            }
+            set.add(coverage);
         }
     }
 
@@ -295,6 +301,42 @@ public class CoverageUtils {
         scaledImg = JAI.create("Scale", param, hint).getRendering();
 
         return scaledImg;
+    }
+
+    @Override
+    public void alertArrived(Collection<AlertMessage> alertMessages) {
+        for (AlertMessage alertMessage : alertMessages) {
+            String datasetId = (String) alertMessage.decodedAlert
+                    .get(GridConstants.DATASET_ID);
+            GridCoverage coverage = (GridCoverage) alertMessage.decodedAlert
+                    .get(GridConstants.LOCATION);
+            Set<GridCoverage> set = coverageCache.get(datasetId);
+            if (set != null && coverage != null) {
+                set.add(coverage);
+            }
+        }
+    }
+
+    // to support grids with multiple coverages, use getCoverages for each model
+    // individually
+    public Map<String, GridCoverage> getCoverages(Collection<String> sources)
+            throws VizException {
+        Map<String, GridCoverage> rval = new HashMap<String, GridCoverage>(
+                sources.size());
+        for (String source : sources) {
+            rval.put(source, getCoverage(source));
+        }
+        return rval;
+    }
+
+    // to support grids with multiple coverages, use getCoverages instead.
+    @Deprecated
+    public GridCoverage getCoverage(String source) throws VizException {
+        Collection<GridCoverage> coverages = getCoverages(source);
+        if (coverages == null || coverages.isEmpty()) {
+            return null;
+        }
+        return coverages.iterator().next();
     }
 
 }
