@@ -77,12 +77,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -1287,7 +1287,7 @@ public class GFEResource extends
 
             // Convert to a gridpoint and get the contiguous area from grid
 
-            final GridLocation gridLocation = grid.getGridSlice().getGridInfo()
+            final GridLocation gridLocation = grid.getParm().getGridInfo()
                     .getGridLoc();
             Coordinate gridCoord = MapUtil.latLonToGridCoordinate(coord,
                     PixelOrientation.CENTER, gridLocation);
@@ -1399,8 +1399,7 @@ public class GFEResource extends
             return;
         }
 
-        Point gridDim = grid.getGridSlice().getGridInfo().getGridLoc()
-                .gridSize();
+        Point gridDim = grid.getParm().getGridInfo().getGridLoc().gridSize();
         Rectangle gDomain = new Rectangle(0, 0, gridDim.x, gridDim.y);
         Rectangle rect = gDomain.intersection(screenRect);
 
@@ -1424,7 +1423,10 @@ public class GFEResource extends
 
                 // now, using this string's size in pixels, figure out how
                 // many grid cells it needs.
-                Rectangle2D labelExtent = target.getStringBounds(font, label);
+                DrawableString ds = new DrawableString(label, parm
+                        .getDisplayAttributes().getBaseColor());
+                ds.font = font;
+                Rectangle2D labelExtent = target.getStringsBounds(ds);
 
                 int xLabelGrid = (int) (labelExtent.getWidth() * multiplier) + 1;
                 int yLabelGrid = (int) (labelExtent.getHeight() * multiplier) + 1;
@@ -1457,11 +1459,11 @@ public class GFEResource extends
                             MapUtil.getGridGeometry(parm.getGridInfo()
                                     .getGridLoc()), Type.GRID_CENTER);
                     Coordinate coord = c.asPixel(descriptor.getGridGeometry());
-                    target.drawString(font, label, coord.x, coord.y, 0.0,
-                            TextStyle.NORMAL, parm.getDisplayAttributes()
-                                    .getBaseColor(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, 0.0);
+                    ds.setCoordinates(coord.x, coord.y);
+                    ds.horizontalAlignment = HorizontalAlignment.CENTER;
+                    ds.verticallAlignment = VerticalAlignment.MIDDLE;
+                    ds.rotation = 0.0;
+                    target.drawStrings(ds);
                 }
                 printLabel = true;
             } catch (Exception e) {

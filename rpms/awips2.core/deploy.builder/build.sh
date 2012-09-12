@@ -189,6 +189,7 @@ buildRPM "Installer.notification"
 buildRPM "Installer.pypies"
 buildRPM "Installer.rcm"
 buildRPM "Installer.localapps-environment"
+buildRPM "Installer.edex-configuration"
 
 unset AWIPSII_VERSION
 unset AWIPSII_RELEASE

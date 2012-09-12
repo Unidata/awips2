@@ -378,11 +378,11 @@ public abstract class OrderedGridData extends AbstractGridData {
     }
 
     protected float getMinValue() {
-        return this.getGridSlice().getGridInfo().getMinValue();
+        return this.getParm().getGridInfo().getMinValue();
     }
 
     protected float getMaxValue() {
-        return this.getGridSlice().getGridInfo().getMaxValue();
+        return this.getParm().getGridInfo().getMaxValue();
     }
 
 }

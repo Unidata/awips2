@@ -629,7 +629,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             }
             for (String product : productDisplayList) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error no stations configured for " + product, null);
+						"Error no stations configured for " + product);
             }
         } else {
             tafMonitorDlg = new TafMonitorDlg(shell, stationList,
