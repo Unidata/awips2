@@ -17,11 +17,24 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    08/20/2012           #1077    randerso       Fixed backgroundColor setting
+#    08/20/2012           #1082    randerso       fixed 1 image per grid
+#    08/29/2012           #1081    dgilling       Update usage statement.
+#    
+# 
+#
 import string, LogStream, getopt, sys, os, time
 import time, TimeRange, AbsTime
 import GFEPainter
 import loadConfig
 from operator import attrgetter
+from java.util import ArrayList
 from com.raytheon.uf.common.time import DataTime
 from com.raytheon.uf.viz.core import RGBColors
 from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisMode as VisMode
@@ -244,7 +257,10 @@ class PngWriter:
         maskBasedOnHistory = self.getConfig('Png_historyMask', 0, int)
         wholeDomain = self.getConfig('Png_wholeDomain', 0, int)
 
-        viz = GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain)
+        #TODO handle transparent background
+        bgColor, trans = self.getBG()   
+        
+        viz = GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain, bgColor)
 
         if not omitColorbar:
             viz.enableColorbar()
@@ -253,8 +269,17 @@ class PngWriter:
                         
         # allow user to specify precise interval for creation of images
         # rather than the automatically generated set
-        try:
-            paintInterval  = self.getConfig('Png_interval', 6, int)
+        paintInterval  = self.getConfig('Png_interval', None, int)
+        if paintInterval is None:
+            parmList = ArrayList();
+            for p in prms:
+                parmList.add(p)
+            jtimes = self.dm.getParmManager().calcStepTimes(parmList,
+                       self.dm.getParmManager().getSystemTimeRange())
+            times = []
+            for i in xrange(jtimes.size()):
+                times.append(AbsTime.AbsTime(jtimes.get(i)))
+        else:
             paintIntervalOffset = self.getConfig('Png_intervalOffset', 0, int)
             if paintInterval < 0:
                 paintInterval = 1
@@ -274,9 +299,7 @@ class PngWriter:
                 if t >= firstTime:
                     times.append(t)
                 t = t + paintInterval
-        except KeyError:
-            times = Graphics.calcStepTimes(prms,
-                       self.dm.parmMgr().systemTimeRange())
+                
         if len(times) == 0:
             LogStream.logEvent("No grids to generate")
                            
@@ -305,9 +328,6 @@ class PngWriter:
                     overrideColors[pname] = color
             lang = self.getConfig('Png_legendLanguage', '');
             viz.setupLegend(localTime, snapshotTime, snapshotFmt, descName, durFmt, startFmt, endFmt, overrideColors, lang)        
-        
-        #TODO handle transparent background
-        bgColor, trans = self.getBG()   
         
         xOffset = self.getConfig("MapLabelXOffset", None, int)
         yOffset = self.getConfig("MapLabelYOffset", None, int)
@@ -351,7 +371,7 @@ class PngWriter:
         
         # paint once to get map retrieval started
         if len(times) > 0:
-            viz.paint(times[0], backgroundColor=bgColor)
+            viz.paint(times[0])
 
         for t in times:
             paintTime = t
@@ -381,7 +401,7 @@ class PngWriter:
                             RGBColors.getColorName(p.getDisplayAttributes().getBaseColor()), p.getDisplayAttributes().getVisMode().toString() == 'Image')                        
                     visualInfo.append(info)
 
-                viz.paint(paintTime, backgroundColor=bgColor)
+                viz.paint(paintTime)
                 fname = self.getFileName(dir, t) + '.' + fexten
                 viz.outputFiles(fname, showLogo, logoString)
                 self.writeInfo(dir, paintTime, visualInfo)
@@ -412,7 +432,7 @@ class PngWriter:
 
 def usage():
     msg = """
-    usage: ifpIMAGE [-c config] [-u username] [-h host] [-p port] -o directory
+    usage: ifpIMAGE [-c config] [-u username] [-server serverURL] [-site siteID] -o directory
       [-b baseTime] [-s startTime] [-e endTime] [-t usrTimeRng]
 
          config   : Name of GFE style config file to use.
@@ -420,8 +440,8 @@ def usage():
          username : The name of the user (for config file lookup).
          baseTime : Output filenames are relative to baseTime. Basetime
                     format is yyyymmdd_hhmm.
-         host     : The host the ifpServer is running on.
-         port     : The rpc port number the ifpServer is using.
+         serverURL: The URL of the Thrift service, example: ec:9581/services
+         siteID   : The site ID to localize as.
          startTime: starting time for images in format yyyymmdd_hhmm
          endTime  : ending time for images in format yyyymmdd_hhmm\n\n
          usrTimeRng: used to specify a user selected time range (e.g., "Day_3")

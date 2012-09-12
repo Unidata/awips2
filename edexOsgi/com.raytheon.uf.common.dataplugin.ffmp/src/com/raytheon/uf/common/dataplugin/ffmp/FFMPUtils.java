@@ -71,6 +71,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
  * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
+ * 09/05/12		 DR 15164   G. Zhang	Fix FFMP Table county/state name null issue
  * </pre>
  * 
  * @author dhladky
@@ -467,9 +468,11 @@ public class FFMPUtils {
      * @return
      */
     public static FFMPCounty getCounty(Long pfaf, String mode) {
-
+    	
+    	String ftxt = (pfaf>=10000 ? ""+pfaf : "0"+pfaf);// DR 15164
+    	
         String sql = "SELECT county.countyname, county.state FROM "
-                + " mapdata.county WHERE county.fips = '" + pfaf + "'";
+                + " mapdata.county WHERE county.fips = '" + ftxt/*pfaf*/ + "'";// DR 15164
 
         ISpatialQuery sq = null;
         FFMPCounty county = new FFMPCounty();

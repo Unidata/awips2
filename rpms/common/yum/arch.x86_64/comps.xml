@@ -91,7 +91,6 @@
          <packagereq type="default">awips2-psql</packagereq>
          <packagereq type="default">awips2-cave</packagereq>
          <packagereq type="default">awips2-cave-etc</packagereq>
-         <packagereq type="default">awips2-cave-viz-alertviz-localization</packagereq>
          <packagereq type="default">awips2-cave-viz-avnfps</packagereq>
          <packagereq type="default">awips2-cave-viz-common-core</packagereq>
          <packagereq type="default">awips2-cave-viz-core</packagereq>
