@@ -21,6 +21,7 @@ package com.raytheon.viz.grid.util;
 
 import java.awt.Point;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,11 +36,14 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.grib.GribPathProvider;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -47,11 +51,9 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
@@ -127,12 +129,20 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
                     throw new VizException("Error retrieving staticTopo data!");
                 }
             } else {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
-                        dataset);
+                String file = HDF5Util.findHDF5Location(obj).getAbsolutePath();
+                file = file.replace("grib", GridConstants.GRID);
+                IDataStore ds = DataStoreFactory.getDataStore(new File(file));
+                String group = GribPathProvider.getInstance().getGroup(
+                        (GribRecord) obj);
+                record = ds.retrieve(group, "Data", req);
             }
             return new IDataRecord[] { record };
 
         } catch (VizException e) {
+            throw new VizDataCubeException("Error retrieving grid record.", e);
+        } catch (FileNotFoundException e) {
+            throw new VizDataCubeException("Error retrieving grid record.", e);
+        } catch (StorageException e) {
             throw new VizDataCubeException("Error retrieving grid record.", e);
         }
     }
@@ -286,6 +296,7 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
             GribRecord record = data.getGribSource();
             area = record.getSpatialObject();
             String file = HDF5Util.findHDF5Location(record).getAbsolutePath();
+            file = file.replace("grib", GridConstants.GRID);
             if (file != null) {
                 List<GribRequestableData> list = fileMap.get(file);
                 if (list == null) {
@@ -322,7 +333,8 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
                 if (list.size() > 0) {
                     List<String> groups = new ArrayList<String>(list.size());
                     for (GribRequestableData data : list) {
-                        groups.add(data.getGribSource().getDataURI());
+                        groups.add(GribPathProvider.getInstance().getGroup(
+                                data.getGribSource()));
                     }
 
                     IDataStore ds = DataStoreFactory.getDataStore(new File(

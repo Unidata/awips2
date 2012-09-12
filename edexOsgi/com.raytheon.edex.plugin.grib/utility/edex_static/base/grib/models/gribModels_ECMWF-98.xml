@@ -12,7 +12,6 @@
 
 	<!-- SUBCENTER 0 -->
 	<model>
-		<title>ECMWF-HiRes</title>
 		<name>ECMWF-HiRes</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -276,11 +275,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmwf</paramInfo>
-		<dt>12</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF-NorthernHemisphere</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -424,10 +421,8 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF1</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -571,11 +566,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF2</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -719,11 +712,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF3</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -867,11 +858,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF4</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1015,11 +1004,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF5</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1163,11 +1150,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF6</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1311,11 +1296,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF7</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1459,11 +1442,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF8</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1607,11 +1588,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF9</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1755,11 +1734,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF10</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -1903,11 +1880,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF11</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -2051,11 +2026,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 
 	<model>
-		<title>ECMWF-LowRes</title>
 		<name>ECMF12</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -2199,11 +2172,9 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 	
 	<model>
-		<title>ECMWF-MODEL0</title>
 		<name>ECMF-MODEL0</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
@@ -2347,7 +2318,6 @@
 			<id>255</id>
 		</process>
 		<paramInfo>ecmfNH</paramInfo>
-		<dt>24</dt>
 	</model>
 	
 	<!-- END SUBCENTER 0 -->

@@ -20,8 +20,8 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
  * Grib post processor implementation to eliminate 2-3hr duration grids from the
@@ -43,14 +43,13 @@ import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 public class RUC130GribPostProcessor implements IDecoderPostProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         // Toss out all 2-3hr duration grids
-        if (record.getModelInfo().getParameterAbbreviation().endsWith("hr")
-                && !record.getModelInfo().getParameterAbbreviation().endsWith(
-                        "1hr")) {
-            return new GribRecord[] {};
+        if (record.getParameter().getAbbreviation().endsWith("hr")
+                && !record.getParameter().getAbbreviation().endsWith("1hr")) {
+            return new GridRecord[] {};
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

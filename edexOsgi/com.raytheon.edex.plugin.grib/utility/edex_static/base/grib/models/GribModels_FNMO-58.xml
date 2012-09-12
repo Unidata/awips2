@@ -25,7 +25,6 @@
 	<!-- SUBCENTER 20 -->
 
 	<model>
-		<title>NOGAPS</title>
 		<name>NOGAPS</name>
 		<center>58</center>
 		<subcenter>20</subcenter>
@@ -34,11 +33,9 @@
 			<id>120</id>
 		</process>
 		<paramInfo>nogaps</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	<model>
-		<title>AK-NOGAPS</title>
 		<name>AK-NOGAPS</name>
 		<center>58</center>
 		<subcenter>20</subcenter>
@@ -47,7 +44,6 @@
 			<id>120</id>
 		</process>
 		<paramInfo>nogaps</paramInfo>
-		<dt>1</dt>
 	</model>
 	
 	
