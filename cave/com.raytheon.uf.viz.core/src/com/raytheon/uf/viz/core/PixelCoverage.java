@@ -74,6 +74,11 @@ public class PixelCoverage {
                 new Coordinate(center.x - width / 2, center.y + height / 2));
     }
 
+    public PixelCoverage(IMesh mesh) {
+        this(new Coordinate(0, 0), 0, 0);
+        this.mesh = mesh;
+    }
+
     public Coordinate getLl() {
         return ll;
     }
