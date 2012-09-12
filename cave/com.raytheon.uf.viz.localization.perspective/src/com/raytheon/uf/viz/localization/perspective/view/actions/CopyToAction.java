@@ -63,9 +63,26 @@ public class CopyToAction extends AbstractToAction {
     protected ILocalizationService service;
 
     public CopyToAction(LocalizationFile file, ILocalizationService service) {
-        super(file.isProtected() ? "Copy To (Protected)" : "Copy To", file);
-        setEnabled(file.isProtected() == false);
+        super("Copy To", file);
         this.service = service;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
+     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
+     * LocalizationLevel)
+     */
+    @Override
+    protected boolean isLevelEnabled(LocalizationLevel level) {
+        boolean enabled = super.isLevelEnabled(level);
+        if (enabled && file.isProtected()) {
+            // Ensure protected level is greater than copy to level
+            enabled = file.getProtectedLevel().compareTo(level) >= 0;
+        }
+        return enabled;
     }
 
     /*

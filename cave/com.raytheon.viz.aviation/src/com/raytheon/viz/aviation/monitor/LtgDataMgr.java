@@ -194,7 +194,7 @@ public class LtgDataMgr {
                     k++;
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getMessage(), null);
+				statusHandler.handle(Priority.PROBLEM, e.getMessage());
             } catch (Exception e) {
                 // TODO
                 e.printStackTrace();

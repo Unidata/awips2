@@ -881,11 +881,11 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
                 identList.add(siteList.get(i));
             }
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getMessage(), null);
+			statusHandler.handle(Priority.PROBLEM, e.getMessage());
         } catch (ConfigurationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.toString(), null);
+			statusHandler.handle(Priority.PROBLEM, e.toString());
         } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getMessage(), null);
+			statusHandler.handle(Priority.PROBLEM, e.getMessage());
         }
     }
 
