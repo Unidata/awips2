@@ -164,6 +164,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
    buildRPM "awips2-rcm"
+   buildRPM "awips2-edex-environment"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
@@ -243,6 +244,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-postgresql"
    buildRPM "awips2-psql"
    buildRPM "awips2-tools"
+   buildRPM "awips2-edex-environment"
 
    exit 0
 fi

@@ -120,6 +120,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 10, 2012 #15099      Qinglu Lin  Add updatePolygon() and apply it in xxxSelected methods. 
  *  Jul 26, 2012 #15227      Qinglu Lin  Added removeDuplicateVertices(), removeOverlaidSegments(),
  *                                       adjustLatLon(), etc.
+ *  Sep 05, 2012 DR 15261    D. Friedman Prevent additional counties from being selected for EXPs
  * 
  * </pre>
  * 
@@ -1904,7 +1905,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
 
         updatePolygon(newWarn);
-
+        warngenLayer.setOldWarningPolygon(newWarn);
         setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
                 .getEndTime().getTime());
         try {

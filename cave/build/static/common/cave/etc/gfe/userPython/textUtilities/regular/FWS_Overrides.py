@@ -1749,7 +1749,7 @@ class FWS_Overrides:
             # Add a "custom" component to sample data from current time
             # to product start time
             ct = self._issuanceInfo.issueTime()
-            currentTime = AbsTime.AbsTimeYMD(ct.year, ct.month, ct.day,
+            currentTime = AbsTime.absTimeYMD(ct.year, ct.month, ct.day,
                                           ct.hour)
             productStart = self._issuanceInfo.timeRange().startTime()
             tr = TimeRange.TimeRange(currentTime, productStart)
@@ -3928,6 +3928,8 @@ in the future. *|''' % self._timeLabel
             elif rank == hiRank and subkey.wxType() != "T":
                 coKey = subkey
                 coRank = rank
+        if hiRank == -1:
+            return ""
         keyAttrs = hiKey.attributes()
         keyType = hiKey.wxType()
         if coRank == hiRank:

@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Point;
  * 08/09/2012         1011 jkorman     Changed parser to use TEIInfo to
  * parse text elements properly. Removed test code to unit-test
  * parse TEIs.
+ * 08/23/2012         1011 jkorman     Corrected test for icing NEG.
  * </pre>
  * 
  * @author jkorman
@@ -1266,7 +1267,7 @@ public class PirepParser {
 
         theIcingLayers = new ArrayList<AircraftFlightCondition>();
 
-        if (str.indexOf(NEG_ENTRY) > 0) {
+        if (str.indexOf(NEG_ENTRY) >= 0) {
             AircraftFlightCondition at = new AircraftFlightCondition();
 
             // NEG should be the only value! Used to indicate forecasted but
