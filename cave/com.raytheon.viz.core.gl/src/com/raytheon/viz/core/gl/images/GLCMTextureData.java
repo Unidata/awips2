@@ -250,7 +250,7 @@ public class GLCMTextureData implements IImageCacheable {
     public int getSize() {
         if (data != null) {
             int[] dimensions = data.getDimensions();
-            int totalSize = 1;
+            int totalSize = data.getBytesPerPixel();
             for (int i = 0; i < dimensions.length; ++i) {
                 totalSize *= dimensions[i];
             }
