@@ -33,9 +33,9 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -352,12 +352,12 @@ public class GridInventory extends AbstractInventory implements
     private void initAliasModels(DataTree newGridTree) {
         Set<String> allAliasModels = new HashSet<String>();
         sourceAliases.clear();
-        GribModelLookup lookup = GribModelLookup.getInstance();
+        DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
         for (String modelName : newGridTree.getSources()) {
-            GridModel model = lookup.getModelByName(modelName);
-            if (model != null && model.getAlias() != null) {
+            DatasetInfo info = lookup.getInfo(modelName);
+            if (info != null && info.getAlias() != null) {
                 SourceNode source = newGridTree.getSourceNode(modelName);
-                SourceNode dest = newGridTree.getSourceNode(model.getAlias());
+                SourceNode dest = newGridTree.getSourceNode(info.getAlias());
                 if (source != null && dest != null) {
                     allAliasModels.add(source.getValue());
                     allAliasModels.add(dest.getValue());

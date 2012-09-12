@@ -17,9 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.grib.util;
+package com.raytheon.edex.plugin.grib.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -45,7 +46,11 @@ public class GridModel implements ISerializableObject {
 
     /** The NCEP grid associated with this model */
     @XmlElement
-    private Integer grid;
+    private String grid;
+
+    @XmlElementWrapper(name = "grids")
+    @XmlElement(name = "id")
+    private ArrayList<String> grids;
 
     @XmlElement
     private String subcenter;
@@ -70,10 +75,18 @@ public class GridModel implements ISerializableObject {
     @XmlElement
     private boolean analysisOnly;
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public String getTitle() {
         return title;
     }
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public void setTitle(String title) {
         this.title = title;
     }
@@ -86,11 +99,11 @@ public class GridModel implements ISerializableObject {
         this.name = name;
     }
 
-    public Integer getGrid() {
+    public String getGrid() {
         return grid;
     }
 
-    public void setGrid(Integer grid) {
+    public void setGrid(String grid) {
         this.grid = grid;
     }
 
@@ -118,18 +131,34 @@ public class GridModel implements ISerializableObject {
         this.subcenter = subcenter;
     }
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public String getAlias() {
         return alias;
     }
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public Integer getDt() {
         return dt;
     }
 
+    /**
+     * use datasetInfo instead
+     */
+    @Deprecated
     public void setDt(Integer dt) {
         this.dt = dt;
     }
@@ -151,5 +180,30 @@ public class GridModel implements ISerializableObject {
 
     public boolean getAnalysisOnly() {
         return analysisOnly;
+    }
+
+    public ArrayList<String> getGrids() {
+        return grids;
+    }
+
+    public void setGrids(ArrayList<String> grids) {
+        this.grids = grids;
+    }
+
+    /**
+     * Returns a list containing both the grid element if present and the grids
+     * element if present
+     * 
+     * @return
+     */
+    public List<String> getAllGrids() {
+        List<String> grids = new ArrayList<String>();
+        if (this.grids != null) {
+            grids.addAll(this.grids);
+        }
+        if (this.grid != null) {
+            grids.add(this.grid);
+        }
+        return grids;
     }
 }

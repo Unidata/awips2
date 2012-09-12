@@ -10,34 +10,19 @@
 
 <gribModelSet>
 
-	<!-- SUBCENTER 0 -->
+	<!-- SUBCENTER 1 -->
 
 	<model>
-		<title>CanadianModel</title>
-		<name>CanadianModel</name>
-		<center>54</center>
-		<subcenter>0</subcenter>
-		<grid>999001</grid>
+		<name>GLERL</name>
+		<center>161</center>
+		<subcenter>1</subcenter>
+		<grid>306</grid>
 		<process>
-			<id>41</id>
+			<id>99</id>
 		</process>
-		<paramInfo>localMPE</paramInfo>
-		<dt>1</dt>
+		<paramInfo>glerl</paramInfo>
 	</model>
 	
-		<model>
-		<title>CanadianModel</title>
-		<name>CanadianModel</name>
-		<center>54</center>
-		<subcenter>0</subcenter>
-		<grid>21</grid>
-		<process>
-			<id>41</id>
-		</process>
-		<paramInfo>localMPE</paramInfo>
-		<dt>1</dt>
-	</model>
-
-	<!-- END SUBCENTER 0 -->
+	<!-- END SUBCENTER 1 -->
 
 </gribModelSet>
