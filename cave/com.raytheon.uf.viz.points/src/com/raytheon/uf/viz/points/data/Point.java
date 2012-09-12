@@ -58,6 +58,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlRootElement(name = "point")
 @DynamicSerialize
 public class Point implements IPointNode, Comparable<IPointNode> {
+    /**
+     * This is used to compare the double values of latitude and longitude.
+     */
+    private static final double DELTA = 0.000001;
 
     @XmlElement(name = "name")
     @DynamicSerializeElement
@@ -105,7 +109,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
     }
 
     /**
-     * Copy contructor.
+     * Copy constructor.
      * 
      * @param point
      */
@@ -135,7 +139,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      */
     public Point(String pointName, Coordinate p, boolean colorActive, RGB c,
             boolean hidden, boolean Movable, PointSize ms, String group) {
-        this.name = PointUtilities.trimAll(pointName);
+        setName(pointName);
         this.longitude = p.x;
         this.latitude = p.y;
         this.colorActive = colorActive;
@@ -145,7 +149,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         this.hidden = hidden;
         this.movable = Movable;
         this.fontSize = ms;
-        this.group = group;
+        setGroup(group);
     }
 
     /**
@@ -162,7 +166,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      */
     public Point(String pointName, double lat, double lon, boolean hidden,
             boolean movable, boolean colorActive, RGB c, String group) {
-        this.name = PointUtilities.trimAll(pointName);
+        setName(pointName);
         this.fontSize = PointSize.DEFAULT;
         this.colorActive = colorActive;
         this.red = c.red;
@@ -172,7 +176,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         this.hidden = hidden;
         this.longitude = lon;
         this.latitude = lat;
-        this.group = group.replace(' ', PointUtilities.DELIM_CHAR);
+        setGroup(group);
     }
 
     /**
@@ -189,7 +193,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      */
     public Point(String pointName, double lat, double lon, boolean movable,
             boolean colorActive, RGB c, PointSize size, String group) {
-        this.name = PointUtilities.trimAll(pointName);
+        setName(pointName);
         this.fontSize = size;
         this.colorActive = colorActive;
         this.red = c.red;
@@ -199,7 +203,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         this.hidden = false;
         this.longitude = lon;
         this.latitude = lat;
-        this.group = group.replace(' ', PointUtilities.DELIM_CHAR);
+        setGroup(group);
     }
 
     /**
@@ -259,7 +263,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @param pointName
      */
     public void setName(String pointName) {
-        name = pointName;
+        name = PointUtilities.trimAll(pointName);
     }
 
     /**
@@ -364,7 +368,8 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @param group
      */
     public void setGroup(String group) {
-        this.group = group;
+        this.group = PointUtilities.trimAll(group).replace(
+                PointUtilities.DELIM_CHAR, ' ');
     }
 
     /*
@@ -454,5 +459,39 @@ public class Point implements IPointNode, Comparable<IPointNode> {
             return 1;
         }
         return getName().compareToIgnoreCase(o.getName());
+    }
+
+    /**
+     * Determine if any of the contains of point is different.
+     * 
+     * @param point
+     * @return state true when contains differ otherwise false
+     */
+    public boolean differentContent(Point point) {
+        boolean state = false;
+        if (!name.equals(point.name)) {
+            state = true;
+        } else if (Math.abs(latitude - point.latitude) > DELTA) {
+            state = true;
+        } else if (Math.abs(longitude - point.longitude) > DELTA) {
+            state = true;
+        } else if (colorActive != point.colorActive) {
+            state = true;
+        } else if (red != point.red) {
+            state = true;
+        } else if (green != point.green) {
+            state = true;
+        } else if (blue != point.blue) {
+            state = true;
+        } else if (hidden != point.hidden) {
+            state = true;
+        } else if (movable != point.movable) {
+            state = true;
+        } else if (fontSize != point.fontSize) {
+            state = true;
+        } else if (!group.equals(point.group)) {
+            state = true;
+        }
+        return state;
     }
 }
