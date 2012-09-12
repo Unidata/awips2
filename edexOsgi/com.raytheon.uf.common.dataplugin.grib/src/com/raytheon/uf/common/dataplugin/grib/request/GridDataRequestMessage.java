@@ -19,8 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.grib.request;
 
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -69,7 +68,7 @@ public class GridDataRequestMessage implements IServerRequest {
     private String parameterAbbreviation;
 
     @DynamicSerializeElement
-    private int pert = -999;
+    private String ensemble;
 
     @DynamicSerializeElement
     private int version = -999;
@@ -130,12 +129,12 @@ public class GridDataRequestMessage implements IServerRequest {
         this.parameterAbbreviation = parameterAbbreviation;
     }
 
-    public int getPert() {
-        return pert;
+    public String getEnsemble() {
+        return ensemble;
     }
 
-    public void setPert(int pert) {
-        this.pert = pert;
+    public void setEnsemble(String ensemble) {
+        this.ensemble = ensemble;
     }
 
     public int getVersion() {
@@ -146,18 +145,16 @@ public class GridDataRequestMessage implements IServerRequest {
         this.version = version;
     }
 
-    public void setInfoFromRecord(GribRecord record) {
-        GribModel info = record.getModelInfo();
+    public void setInfoFromRecord(GridRecord record) {
         DataTime time = record.getDataTime();
-        this.modelName = info.getModelName();
-        this.levelOne = info.getLevel().getLevelonevalue();
-        this.levelTwo = info.getLevel().getLeveltwovalue();
-        this.levelType = info.getLevel().getMasterLevel().getName();
-        this.parameterAbbreviation = info.getParameterAbbreviation();
-        if (info.getPerturbationNumber() != null) {
-            this.pert = info.getPerturbationNumber();
+        this.modelName = record.getDatasetId();
+        this.levelOne = record.getLevel().getLevelonevalue();
+        this.levelTwo = record.getLevel().getLeveltwovalue();
+        this.levelType = record.getLevel().getMasterLevel().getName();
+        this.parameterAbbreviation = record.getParameter().getAbbreviation();
+        if (record.getEnsembleId() != null) {
+            this.ensemble = record.getEnsembleId();
         }
-        this.version = record.getGridVersion();
         this.startTime = time.getRefTime().getTime();
         this.forecastTime = time.getFcstTime();
     }

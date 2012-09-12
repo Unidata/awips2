@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.grib.util;
+package com.raytheon.edex.plugin.grib.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
