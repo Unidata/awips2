@@ -27,14 +27,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -102,21 +102,20 @@ public class GribParamTranslator {
         }
     }
 
-    public String getParameterNameAlias(GribModel model) {
-        Map<String, String> modelMap = parameterNameMap.get(model
-                .getModelName());
+    public void getParameterNameAlias(String modelName, Parameter parameter) {
+        Map<String, String> modelMap = parameterNameMap.get(modelName);
         if (modelMap != null) {
-            String newName = modelMap.get(model.getParameterAbbreviation());
+            String newName = modelMap.get(parameter.getAbbreviation());
             if (newName != null) {
-                return newName;
+                parameter.setName(newName);
+                return;
             }
         }
         String newName = DataFieldTableLookup.getInstance().lookupName(
-                model.getParameterAbbreviation());
+                parameter.getAbbreviation());
         if (newName != null) {
-            return newName;
+            parameter.setName(newName);
         }
-        return model.getParameterName();
     }
 
     /**
@@ -125,8 +124,14 @@ public class GribParamTranslator {
      * @param gribVersion
      *            The version of the grib. Necessary so the correct table is
      *            used for translations
-     * @param model
-     *            The grib model object from the record
+     * @param parName
+     *            the original parameter abbreviation from the grib file
+     * @param center
+     *            the center from the grib data
+     * @param subcenter
+     *            the subcenter from the grib data
+     * @param genProcess
+     *            the genProcess of the grib data.
      * @param dataTime
      *            The datatime of the grib data the geospatial location of the
      *            grib data, if this model is being subgridded then this expects
