@@ -60,13 +60,13 @@ public class PointTreeContentProvider implements ITreeContentProvider {
     @Override
     public Object[] getElements(Object inputElement) {
         IPointNode node = (IPointNode) inputElement;
-        return manager.getChildren(node).toArray(new IPointNode[0]);
+        return manager.getChildren(node, true).toArray(new IPointNode[0]);
     }
 
     @Override
     public Object[] getChildren(Object parentElement) {
         IPointNode node = (IPointNode) parentElement;
-        List<IPointNode> children = manager.getChildren(node);
+        List<IPointNode> children = manager.getChildren(node, true);
         return children.toArray(new IPointNode[0]);
     }
 
@@ -79,6 +79,6 @@ public class PointTreeContentProvider implements ITreeContentProvider {
     @Override
     public boolean hasChildren(Object element) {
         IPointNode node = (IPointNode) element;
-        return node.isGroup() && manager.getChildren(node).size() > 0;
+        return node.isGroup() && manager.getChildren(node, true).size() > 0;
     }
 }
