@@ -26,6 +26,9 @@
 				<resource>
                		<loadProperties loadWithoutData="true">
                    		<capabilities>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="Profiler/Wind Speed"/>
+                            </capability>
                        		<capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
                    		</capabilities>
                		</loadProperties>
