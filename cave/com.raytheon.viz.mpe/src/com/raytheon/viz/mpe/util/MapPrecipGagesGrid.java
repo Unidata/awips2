@@ -133,8 +133,7 @@ public class MapPrecipGagesGrid {
         if (DailyQcUtils.topo == null) {
             statusHandler
                     .handle(Priority.PROBLEM,
-                            "Could not retrieve topo information ... Could not create map precipitation gages to HRAP grid. Check if topo file exists.",
-                            null);
+							"Could not retrieve topo information ... Could not create map precipitation gages to HRAP grid. Check if topo file exists.");
             return null;
         }
         topo = DailyQcUtils.topo;

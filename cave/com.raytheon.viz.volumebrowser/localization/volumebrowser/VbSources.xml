@@ -53,6 +53,7 @@
 	<vbSource key="UKMET-NorthernHemisphere" category="Volume" />
 	<vbSource key="radar" name="Radar" category="Volume" />
 	<vbSource key="MOSGuide-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+    <vbSource key="AK-HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
