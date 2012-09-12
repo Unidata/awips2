@@ -81,6 +81,13 @@
 	 				</if>
 	 			</sequential>
 	 		</for>
+			
+			<if>
+				<equals arg1="${plugin.path}" arg2="" />
+				<then>
+					<fail message="Failed to find plugin: @{plugin.name}" />
+				</then>
+			</if>
 	 		
 	 		<var name="plugin.base" value="${plugin.path}/@{plugin.name}" />
 	 		<var name="plugin.bin" value="${plugin.base}/bin" />
@@ -91,12 +98,11 @@
 	 		<if>
 	 			<equals arg1="@{plugin.type}" arg2="cots" />
 	 			<then>	 			
-	 				<!-- copy the cots jars to the destination -->
-	 				<copy todir="${destination.directory}"
-	 				overwrite="true" verbose="true">
-	 					<fileset dir="${plugin.path}"
-	 						includes="@{original.pattern}" />	
-	 				</copy>
+	 				<!-- copy the cots jars to the destination -->	 				
+	 				<copyFOSS
+	 					plugin.directory323="${plugin.base}"
+	 					jar.file323="${jar.destfile}"
+	 					destination.directory323="${destination.directory}/@{plugin.name}" />
 	 				
 	 				<!-- jar any compiled cots source -->
 	 				<if>
@@ -140,7 +146,7 @@
 			maintain uniqueness of variable names 
 		-->
 		<attribute name="plugin.directory323" />
-		<attribute name="jar.file323" />		
+		<attribute name="jar.file323" />
 		
 		<sequential>
 			<!-- 
@@ -196,6 +202,85 @@
  										<fileset 
  										file="@{plugin.directory323}/@{include}" />
  									</jar>
+								</then>
+								<else>
+									<!-- fail: unknown deployment artifact -->
+									<fail
+										message="Unable to deploy '@{include}' specified in @{plugin.directory323}/build.properties; unable to find the file / directory." />
+								</else>
+							</if>
+						</else>
+					</if>
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="copyFOSS">
+		<!-- 
+			random character suffixes added to 
+			maintain uniqueness of variable names 
+		-->
+		<attribute name="plugin.directory323" />
+		<attribute name="jar.file323" />
+		<attribute name="destination.directory323" />
+		
+		<sequential>
+			<mkdir dir="@{destination.directory323}" />
+			
+			<!-- scan build.properties -->
+			<var file="@{plugin.directory323}/build.properties" />		
+			
+			<!--
+				* iterate through bin.includes
+				* '.' is seen as the ${output..} directory, itself
+				* artifacts are only deployed if they are present
+			-->
+			<for list="${bin.includes}" param="include"
+			delimiter="," trim="true">
+				<sequential>					
+					<if>
+						<available file="@{plugin.directory323}/@{include}"
+							type="dir" />
+						<then>
+							<!-- deploy a directory -->
+							
+							<!-- is this the output directory? -->
+							<if>
+								<equals arg1="@{include}" arg2="." />
+								<then>
+									<if>
+										<available file="@{plugin.directory323}/${output..}"
+											type="dir" />
+										<then>
+	 										<jar destfile="@{jar.file323}" update="true">
+	 											<fileset 
+	 											dir="@{plugin.directory323}/${output..}" 
+	 											includes="**" />
+	 										</jar>
+										</then>
+									</if>
+								</then>
+								<else>
+					 				<copy todir="@{destination.directory323}"
+					 				overwrite="true" verbose="true">
+					 					<fileset dir="@{plugin.directory323}"
+					 						includes="@{include}/**" />	
+					 				</copy>
+								</else>
+							</if>
+						</then>
+						<else>
+							<!-- are we deploying a file? -->
+							<if>
+								<available file="@{plugin.directory323}/@{include}"
+									type="file" />
+								<then>
+				 					<copy todir="@{destination.directory323}"
+				 					overwrite="true" verbose="true">
+				 						<fileset dir="@{plugin.directory323}"
+				 							includes="@{include}" />	
+				 					</copy>
 								</then>
 								<else>
 									<!-- fail: unknown deployment artifact -->
