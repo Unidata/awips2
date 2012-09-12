@@ -154,83 +154,21 @@ else
    site=$(echo ${1} | tr '[A-Z]' '[a-z]')
 fi
 
-IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
-GFESUITE_BIN="/awips2/GFESuite/bin"
-
 ################################################################################
 #    Configuration Section                                                     #
 ################################################################################
 
-### Work Directory for Netcdf files. ###
-DXwrkDir=$IFPS_DATA/rsyncGridsToCWF  # must be a non-nas1 drive with enough space
-if [ ! -d  ${DXwrkDir} ] ;then
-   mkdir -p ${DXwrkDir}
-   chmod 777 ${DXwrkDir}
-   chown awips:fxalpha ${DXwrkDir}
+IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
+
+if [ ! -f ${IFPS_DATA}/rsync_parms.${site} ] ;then
+    echo "${IFPS_DATA}/rsync_parms.${site} does not exist!"
+    echo "Please contact your ITO to create this file from /awips2/GFESuite/bin/rsync_parms.ccc"
+    exit
+else
+    . ${IFPS_DATA}/rsync_parms.${site}
 fi
 
-### Turn On/Off certain script functionality. ###
-QCnetCDF="no"                       # Do you want the netCDF file checked before
-                                    # it is rsynced? This takes 5-15 minutes to 
-                                    # complete depending on size of domain.
-                                    # *** Leave "no" for AWIPS 2. QC doesn't work ***
-                                    
-checkCWFavailability="no"           # Do you want the script to check to see if
-                                    # the netcdf file made it to the Consolidated
-                                    # web farm?
-
-### Banner notification configuration ###
-SendQCgoodNotification="no"         # Tell forecaster that netcdf file passed
-                                    # QC check.
-                                    
-sendCWFnotification="no"            # Tell forecaster when netcdf rsync complete
-                                    # to the consolidated web farm.
-                                    
-turnOffAllNotifications="yes"       # This will turn off all banner messages.                                  
- 
-### new ldad configuration ###
-locServer="ldad@ls1"                # Name of local rsync server.
-locDirectory="/data/ldad/grid"      # Directory where grids are stored on the
-                                    # local rsync server. Note that file will be
-                                    # stored in $site sub directory.
-locRsyncSwitches="--address=192.168.1.10" # Needed to fix a noaanet rysnc problem.
-
-# Consolidated web farm
-remServer1="sync.weather.gov"       # Name of remote rsync server.
-remDirectory1="netcdf-wfo"          # Directory where grids are stored on the 
-                                    # remote rsync server.
-                                  
-# Edit area to limit the portion of the grid domain to send to the webfarms.
-mask=ISC_Send_Area
-                                   
-# Parameter list for the netcdf file
-parmlist=""                         #send all parameters
-. ${IFPS_DATA}/rsync_parms.${site}
-
-creationAttempts=3                  # How many times do you want script to create and 
-                                    # quality control netcdf files if bad netcdf files
-                                    # are detected?
-                                    
-rsyncWait=30                        # Minutes to wait for free rsync connection.
-CWFcheckWait=360                    # Delay in seconds to wait to check to see if file made it
-                                    # to the consolidated web farm.
-
-iscMosaicDelay=0.0                  # Delay of 0.0 causes GFE pauses.
-
-probAlertNum=1                      # Guardian alert level when problems occur.
-
-# Email notification configuration
-sendEmailNotification="no"          # Do you want to send email notification of grids are not sent?
-emailAddress1=""
-emailAddress2=""
-emailAddress3=""
-
 ################################################################################
-# Set some paths
-WRKDIR="${DXwrkDir}/data"
-FXA_BIN="/awips2/fxa/bin"
-CDSHOST="ec"
-CDSPORT="9581" 
 
 # set current data and log file name
 currdate=$(date -u +%Y%m%d)
@@ -277,6 +215,8 @@ if [ "$parmlist" != "" ] && [ "$parmlist" != "     " ]; then
 else
   echo "Will send all elements" >> $LOG_FILE
 fi
+
+echo "Using grid domain $mask" >> $LOG_FILE
 
 # Determine the ifpnetCDF start and end times.
 start_time=$(date +%Y%m%d_%H00 -d "6 hours ago")

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Kml
+Bundle-SymbolicName: de.micromata.opengis.kml
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: JavaAPIforKml.jar,
+ .
+Export-Package: de.micromata.opengis.kml.v_2_2_0,
+ de.micromata.opengis.kml.v_2_2_0.annotations,
+ de.micromata.opengis.kml.v_2_2_0.atom,
+ de.micromata.opengis.kml.v_2_2_0.gx,
+ de.micromata.opengis.kml.v_2_2_0.xal
