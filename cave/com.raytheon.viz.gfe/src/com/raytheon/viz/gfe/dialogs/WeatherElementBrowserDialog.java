@@ -51,7 +51,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -69,7 +68,10 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 06/27/2008              ebabin      Updated to properly add fields.
  * 04/30/2009   2282       rjpeter     Refactored.
  * 08/19/2009   2547       rjpeter     Fix Test/Prac database display.
- * 02/22/2012	14351	   mli		   update with incoming new grids.
+ * 02/22/2012    14351      mli         update with incoming new grids.
+ * 09/12/2012   #1117      dgilling    Revert previous changes, retrieve
+ *                                     database list from ParmManager
+ *                                     not EDEX.
  * </pre>
  * 
  * @author ebabin
@@ -106,8 +108,6 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     private ParmID[] availableParmIds;
 
     private ParmID[] currentDisplayedParms;
-
-    private List<DatabaseID> databases;
 
     private static final Point size = new Point(603, 778);
 
@@ -519,48 +519,6 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * check for incoming new databases
-     */
-    private void checkForNewSource() {
-        List<String> sortedSources = selectedType.getUpdatedSources();
-
-        if (sortedSources != null) {
-        	List<String> newSources = new ArrayList<String>();
-
-        	// Check for new new database
-        	for (String source : sortedSources) {
-        		boolean found = false;
-            	for (int i = 0; i < sourceMenu.getItemCount(); i++) {
-            		if (sourceMenu.getItem(i).getText().equals(source)) {
-            			found = true;
-            			break;
-            		}
-            	}
-            	
-            	if (!found) {
-            		newSources.add(source);
-            	}
-            }
-            
-        	// create menuItem for new database
-        	if (newSources != null) {
-        		for (String s : newSources) {
-        			selectedType.addNewParmIDs(s);
-        			final MenuItem item = new MenuItem(sourceMenu, SWT.PUSH);
-        			item.setText(s);
-        			item.addSelectionListener(new SelectionAdapter() {
-        				@Override
-        				public void widgetSelected(SelectionEvent e) {
-        					addToList(item.getText(), sourceList);
-        					processSourceSelection();
-        				}
-        			});
-        		}
-        	}
-        } 
-    }
-    
     private void processSourceSelection() {
         java.util.List<String> currentSourceSelection = java.util.Arrays
                 .asList(sourceList.getSelection());
@@ -858,9 +816,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         sourceToolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	// Check for new source
-            	checkForNewSource();
-            	
+                updateSourceMenu();
                 Rectangle rect = sourceToolItem.getBounds();
                 Point pt = new Point(rect.x, rect.y + rect.height);
                 pt = sourceToolBar.toDisplay(pt);
@@ -1208,10 +1164,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         final CAVEMode mode = CAVEMode.getMode();
 
         if (mutableID.getDbType().equalsIgnoreCase("")) {
-            typeEntries.add(new WEBrowserTypeRecord(IFP, mode));
+            typeEntries.add(new WEBrowserTypeRecord(IFP, mode, dataManager
+                    .getParmManager()));
         } else {
-            typeEntries
-                    .add(new WEBrowserTypeRecord(mutableID.getDbType(), mode));
+            typeEntries.add(new WEBrowserTypeRecord(mutableID.getDbType(),
+                    mode, dataManager.getParmManager()));
         }
 
         for (DatabaseID database : getDatabases()) {
@@ -1229,7 +1186,8 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                     databaseType = IFP;
                 }
 
-                typeEntries.add(new WEBrowserTypeRecord(databaseType, mode));
+                typeEntries.add(new WEBrowserTypeRecord(databaseType, mode,
+                        dataManager.getParmManager()));
             }
             if (!siteList.contains(database.getSiteId())) {
                 siteList.add(database.getSiteId());
@@ -1251,19 +1209,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     }
 
     private List<DatabaseID> getDatabases() {
-        if (databases == null) {
-//            databases = dataManager.getParmManager().getAvailableDbs();
-        	
-        	// Always Retrieve updated databases
-        	try {
-				databases = DataManager.getCurrentInstance().getClient().getAvailableDbs();
-			} catch (GFEServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        
-         return databases;
+        return dataManager.getParmManager().getAvailableDbs();
     }
 
     private ParmID[] getSelectedParmIDS() {
@@ -1294,6 +1240,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
          * 
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
+        @Override
         public int compare(String s1, String s2) {
             // we expect pressure strings to read MBnnnn (e.g., MB100 or
             // MB1000), thus we'll strip the first two letters of the strings
