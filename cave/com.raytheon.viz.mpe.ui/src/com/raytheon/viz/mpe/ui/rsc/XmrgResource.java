@@ -93,6 +93,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2008            randerso     Initial creation
+ * Sep 5, 2012    15079    snaples      Updated interrogate method to handle values without rounding errors.
  * </pre>
  * 
  * @author randerso
@@ -121,6 +122,8 @@ public class XmrgResource extends
 
     private static final GeometryFactory gf = new GeometryFactory();
 
+	private static final double MILLICVT = 25.4;
+
     private XmrgFile xmrg;
 
     private HRAPSubGrid subGrid;
@@ -133,7 +136,7 @@ public class XmrgResource extends
 
     private final float contrast = 1.0f;
 
-    private boolean isInterpolated = true;
+    private final boolean isInterpolated = true;
 
     private final MPEDisplayManager displayMgr;
 
@@ -579,11 +582,16 @@ public class XmrgResource extends
                         } else if (s > 0 && s <= 24) {
                             s = 0;
                         }
-                        f = (float) parameters.getDataToDisplayConverter()
+                        if ((cv_use.equalsIgnoreCase("Locbias") || cv_use.equalsIgnoreCase("height") || cv_use.equalsIgnoreCase("locspan") ||
+                    	tempsval == -1))
+                        {
+                            f = (float) parameters.getDataToDisplayConverter()
                                 .convert(s);
+                        } else {
+                            f = (float) (s / 100 / MILLICVT);
+                        }
                     }
-                    float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
-                    String da = String.format("%2.2f", aa);
+                    String da = String.format("%2.2f", f);
                     values.put("Value", da);
                 }
             }
