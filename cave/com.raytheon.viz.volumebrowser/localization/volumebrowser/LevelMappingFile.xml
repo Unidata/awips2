@@ -19,6 +19,22 @@
         further_licensing_information.
     -->
 <LevelMappings>
+        <Level displayName="ML" key="ML" group="C">
+                <DatabaseLevel levelName="FHAG" levelOneValue="0"
+              levelTwoValue="1000.0" unit="m" />
+        </Level>
+        <Level displayName="MaxT" key="MaxT" group="S">
+                <DatabaseLevel levelName="MAXT" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxOmega" key="MaxOmega" group="S">
+                <DatabaseLevel levelName="MAXOMEGA" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxTW" key="MaxTW" group="S">
+                <DatabaseLevel levelName="MAXTW" levelOneValue="0" />
+        </Level>
+        <Level displayName="MaxR" key="MaxR" group="S">
+                <DatabaseLevel levelName="MAXR" levelOneValue="0" />
+        </Level>
 	<Level displayName="Surface" key="Surface">
 		<DatabaseLevel levelName="SFC" levelOneValue="0.0" />
 		<DatabaseLevel levelName="MSL" levelOneValue="0.0" />
