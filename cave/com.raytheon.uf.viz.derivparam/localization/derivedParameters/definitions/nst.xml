@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// Non-Supercell Tornado Parameter (NST)
+	// Baumgardt and Cook, 2006 AMS SLS Conference
+	// Paper 12.1 
+	
+	AWIPS I format
+	NST | | |Nonsupercell Tornado (>1 NST Threat) | |CONTOUR,IMAGE,OTHER|Layer|      *Multiply,Layer|gamma,0-1kmAgl|loCape,ML|RV,Surface|NST1|NST2|13.9
+	
+	
+	varId: |NST| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Nonsupercell Tornado (>1 NST Threat) | 
+	units: || 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, plane: |Multiply,Layer|
+	varId, plane: |gamma,0-1kmAgl| 
+	varId, plane: |loCape,ML| 
+	varId, plane: |RV,Surface| 
+	varId: |NST1| 
+	varId: |NST2| 
+	const: |13.9| 
+
+
+	AWIPS II NEW FILE - NST.xml
+-->
+<DerivedParameter name="Nonsupercell Tornado (&gt;1 NST Threat)" abbreviation="NST" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Multiply">
+        <Field level="0-1kmAgl" abbreviation="gamma"/>
+        <Field level="ML" abbreviation="loCape"/>
+        <Field level="Surface" abbreviation="RV"/>
+        <Field abbreviation="NST1"/>
+        <Field abbreviation="NST2"/>
+        <ConstantField value="13.9"/>
+    </Method>
+</DerivedParameter>
