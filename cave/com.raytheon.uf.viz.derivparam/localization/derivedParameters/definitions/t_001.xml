@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- COMMENT:
+	
+	
+	AWIPS 1 format
+	T_001| ||Prob of Temp Lstn 0C|%|CONTOUR,IMAGE,OTHER||   *Average|T_001_perts
+	
+	
+	abbreviation: |T_001| 
+	Notused1: | | 
+	Notused2: || 
+	name: |Prob of Temp Lstn 0C| 
+	FIELD: |%| 
+	FIELD: |CONTOUR,IMAGE,OTHER| 
+	
+	
+	NEW FILE - T_001.xml
+ -->
+<DerivedParameter unit="%" name="Prob of Temp Lstn 0C" abbreviation="T_001" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Average">
+        <Field abbreviation="T_001_perts"/>
+    </Method>
+</DerivedParameter>
