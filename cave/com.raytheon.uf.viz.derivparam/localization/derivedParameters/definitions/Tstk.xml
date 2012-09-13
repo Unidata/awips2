@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// T Stack section to try and extract a max or min T,Tw
+	// within a target layer. Provided by Mike Umscheid
+	
+	
+	AWIPS I format
+	Tstk| | |Temp Stack      |      |                   ||     *Union,MB,C|T|    *Union,ZAGL,C|T
+	
+	
+	varId: |Tstk| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Temp Stack      | 
+	units: || 
+	displayTypes: || 						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, plane, source: |Union,MB,C|	
+	varId: |T|
+	
+	functionName, plane, source: |Union,ZAGL,C|	
+	varId: |T|
+	 
+	 
+	AWIPS II NEW FILE - Tstk.xml
+-->
+<DerivedParameter name="Temp Stack" abbreviation="Tstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="MB,C" name="Union">
+        <Field abbreviation="T"/>
+    </Method>
+    <Method levels="ZAGL,C" name="Union">
+        <Field abbreviation="T"/>
+    </Method>
+</DerivedParameter>
