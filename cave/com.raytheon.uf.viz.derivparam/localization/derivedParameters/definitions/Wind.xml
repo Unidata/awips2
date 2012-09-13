@@ -19,6 +19,9 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="m/s" name="Wind" abbreviation="Wind">
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="Windmean"/>
+    </Method>
     <Method name="Vector">
     	<Field abbreviation="uW"/>
     	<Field abbreviation="vW"/>
