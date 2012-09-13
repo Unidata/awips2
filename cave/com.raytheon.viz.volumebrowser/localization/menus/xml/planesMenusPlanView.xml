@@ -297,7 +297,12 @@
          Misc menu item
      -->
     <contribute xsi:type="toolBarItem" toolItemName = "Misc">
-    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Surface"  indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="ML" indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxT" indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxOmega" indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxTW" indentText="false"/>
+        <contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxR" indentText="false"/>
+	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Surface"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="FrzLvl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxWind"  indentText="false"/>
