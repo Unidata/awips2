@@ -609,4 +609,14 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         // Not currently used for TVS
         return false;
     }
+
+	@Override
+	public void turnOffAlarm() {
+		mgr.setRing(false);
+	}
+
+	@Override
+	public void turnOnAlarm() {
+		mgr.setRing(true);
+	}
 }

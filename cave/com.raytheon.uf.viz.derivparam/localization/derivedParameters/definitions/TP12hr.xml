@@ -19,6 +19,9 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="mm" name="12 Hr Accum Precip" abbreviation="TP12hr" xmlns:ns2="group">
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="TP12mean"/>
+    </Method>
     <Method name="Alias">
         <Field abbreviation="2xTP6hr"/>
     </Method>

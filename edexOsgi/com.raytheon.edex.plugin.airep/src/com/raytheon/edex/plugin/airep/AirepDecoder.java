@@ -57,6 +57,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080103            384 jkorman     Initial Coding.
  * 20080408           1039 jkorman     Added traceId for tracing data.
  * 11/11/08           1684 chammack    Camel Refactor
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120911           1011 jkorman     Added decode of AIREP turbulence.
  * </pre>
  * 
  * @author jkorman
@@ -99,10 +102,11 @@ public class AirepDecoder extends AbstractDecoder {
         String traceId = null;
 
         try {
-            // traceId = getTraceId(hdrMap);
-            logger.debug(traceId + "- AirepDecoder.decode()");
             WMOHeader wmoHeader = input.wmoHeader;
             if(wmoHeader != null) {
+                traceId = wmoHeader.getWmoHeader().replace(" ", "_");
+                logger.info(traceId + "- AirepDecoder.decode()");
+
                 Calendar refTime = TimeTools.findDataTime(
                         wmoHeader.getYYGGgg(), header);
                 if(refTime != null) {
@@ -170,10 +174,27 @@ public class AirepDecoder extends AbstractDecoder {
                 record.setLocation(location);
 
                 AIREPWeather wx = parser.getWeatherGroup();
+                int flightConditions = -1;
                 if (wx != null) {
-                    record.setFlightConditions(wx.getFlightConditions());
+                    flightConditions = wx.getFlightConditions();
                     record.setFlightHazard(wx.getHazard());
                     record.setFlightWeather(wx.getWeather());
+                }
+                AirepParser.Turbulence turb = parser.getTurbulence();
+                int t = -1;
+                if(turb != null) {
+                    t = turb.getTurbulence() << 4;
+                }
+                if(flightConditions > -1) {
+                    if(t > -1) {
+                        record.setFlightConditions(flightConditions | t);
+                    } else {
+                        record.setFlightConditions(flightConditions);
+                    }
+                } else {
+                    if(t > -1) {
+                        record.setFlightConditions(t);
+                    }
                 }
             }
         }
