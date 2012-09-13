@@ -475,8 +475,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 alarmDlg.open();
                 if (!alarmBtn.isDisposed()
                         && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
-                    alarmBtn.setVisible(false);
-                    mgr.setRing(false);
+                	turnOffAlarm();
                 }
             }
         });
@@ -488,7 +487,23 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         timeLbl.setLayoutData(gd);
     }
 
-    // private void resetButtonForegroundColor(Button btn)
+    @Override
+    public void turnOffAlarm() {
+    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
+    		alarmBtn.setVisible(false);
+    	}
+        mgr.setRing(false);
+	}
+
+    @Override
+    public void turnOnAlarm() {
+    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
+    		alarmBtn.setVisible(true);
+    	}
+        mgr.setRing(true);
+	}
+
+	// private void resetButtonForegroundColor(Button btn)
     // {
     // btn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
     // }
