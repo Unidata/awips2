@@ -88,6 +88,10 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 04 Mar 2011   7950      rferrel     Allow saving to base configuration.
  * 04 Mar 2011   6532      rferrel     Implemented restart button
  * 24 Mar 2011   5853	   cjeanbap	   Check MonitorMetadata image file for null.
+ * 08 Sep 2012   13528     Xiaochuan   Confirmation message is not necessary when
+ * 									   close. Add setNewConfig and run in common
+ * 									   setting group to perform the updating.
+ * 									   
  * </pre>
  * 
  * @author lvenable
@@ -211,9 +215,9 @@ public class AlertVisConfigDlg extends Dialog implements
 
     /** Configuration list dialog */
     private ConfigurationFileDlg configurationDialog;
-
+    
     private boolean fetchLog;
-
+    
     /**
      * Label default configuration.
      */
@@ -426,7 +430,8 @@ public class AlertVisConfigDlg extends Dialog implements
         showPriorityChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();  
+            	saveNeeded(true);
             }
         });
 
@@ -435,7 +440,9 @@ public class AlertVisConfigDlg extends Dialog implements
         showSourceKeyChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            	
             }
         });
 
@@ -444,7 +451,9 @@ public class AlertVisConfigDlg extends Dialog implements
         showCategoryChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            	
             }
         });
 
@@ -462,7 +471,9 @@ public class AlertVisConfigDlg extends Dialog implements
         expandPopupChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            	
             }
         });
 
@@ -483,7 +494,9 @@ public class AlertVisConfigDlg extends Dialog implements
         msgLengthSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            
             }
         });
 
@@ -504,7 +517,9 @@ public class AlertVisConfigDlg extends Dialog implements
         blinkDurSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            	
             }
         });
 
@@ -525,7 +540,10 @@ public class AlertVisConfigDlg extends Dialog implements
         audioDurSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                saveNeeded(true);
+            	setNewConfig();
+            	saveNeeded(true);
+            	
+
             }
         });
 
@@ -618,7 +636,7 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                handleSourceSelection();
+                    handleSourceSelection();
             }
         });
 
@@ -806,7 +824,7 @@ public class AlertVisConfigDlg extends Dialog implements
 
         for (int i = 0; i < 6; i++) {
             priorityControls.add(new PriorityControls(shell, prioritiesComp, i,
-                    this));
+                    this, this));
         }
 
         // ----------------------------------------------
@@ -856,7 +874,7 @@ public class AlertVisConfigDlg extends Dialog implements
         textLbl.setLayoutData(gd);
 
         for (int i = 0; i < 6; i++) {
-            priorityControls.get(i).createTextCheckbox();
+        	priorityControls.get(i).createTextCheckbox();
         }
 
         addSeparator(prioritiesComp);
@@ -870,7 +888,8 @@ public class AlertVisConfigDlg extends Dialog implements
         blinkLbl.setLayoutData(gd);
 
         for (int i = 0; i < 6; i++) {
-            priorityControls.get(i).createBlinkCheckbox();
+        	priorityControls.get(i).createBlinkCheckbox();
+            
         }
 
         addSeparator(prioritiesComp);
@@ -943,7 +962,6 @@ public class AlertVisConfigDlg extends Dialog implements
         for (int i = 0; i < 6; i++) {
             priorityControls.get(i).createFgBgControls();
         }
-
         handleSourceSelection();
     }
 
@@ -1018,14 +1036,8 @@ public class AlertVisConfigDlg extends Dialog implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (save.isEnabled()) {
-                    if (ConfigurationFileDlg.confirmCloseWithUnsavedChanges(
-                            shell, configContext.toString())) {
-                        close();
-                    }
-                } else {
-                    close();
-                }
+            	close();
+           
             }
         });
 
@@ -1247,7 +1259,7 @@ public class AlertVisConfigDlg extends Dialog implements
         uci = selectedSource.getConfigurationItem();
 
         for (Priority pri : Priority.values()) {
-            amd = uci.lookup(pri);
+        	amd = uci.lookup(pri);
             priorityControls.get(pri.ordinal()).setAlertMetadata(amd);
         }
     }
@@ -1264,9 +1276,8 @@ public class AlertVisConfigDlg extends Dialog implements
         } else {
             selectedItem = sourcesList.getItem(index);
         }
-
+        
         sourcesList.removeAll();
-
         java.util.List<String> keys = new ArrayList<String>(sourceMap.keySet());
         Collections.sort(keys);
 
@@ -1278,11 +1289,11 @@ public class AlertVisConfigDlg extends Dialog implements
         }
 
         if (selectedItem != null) {
-            sourcesList.select(sourcesList.indexOf(selectedItem));
+//            sourcesList.select(sourcesList.indexOf(selectedItem));
+        	sourcesList.select(index);
         } else {
             sourcesList.select(0);
         }
-
         handleSourceSelection();
     }
 
@@ -1325,6 +1336,14 @@ public class AlertVisConfigDlg extends Dialog implements
         }
     }
 
+    /**
+     * 
+     */
+    public void setNewConfig() {
+    	updateGlobalConfiguration();
+        ConfigurationManager.getInstance().setNewConfiguration(configContext, configData);
+        
+    }
     /**
      * Get the source key associated with the selected source in the source list
      * control.
@@ -1429,9 +1448,9 @@ public class AlertVisConfigDlg extends Dialog implements
 
     @Override
     public void configurationChanged() {
-        configData = ConfigurationManager.getInstance()
-                .getCurrentConfiguration();
-        configContext = ConfigurationManager.getInstance().getCurrentContext();
+    	configData = ConfigurationManager.getInstance()
+        		.getCurrentConfiguration();
+    	configContext = ConfigurationManager.getInstance().getCurrentContext();
         sourceMap = configData.getSources();
         layoutControls.reloadConfig(configData);
 
