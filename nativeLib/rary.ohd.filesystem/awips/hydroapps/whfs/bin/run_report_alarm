@@ -5,7 +5,7 @@
 # a product and send them to the text database
 #
 
-# Revised:July 22, 2011   
+# Revised:Sep 11, 2012   
 ######################################################################
 
 
@@ -133,7 +133,28 @@ export CLASSPATH=$HIBERNATE:$SPRING:$DB_DRIVER_PATH:$CAMEL:$GEOTOOLS:$JAVAX_MEAS
 # run the application
 #
 $SYS_JAVA_DIR/bin/java -Xms64m -Xmx512m com.raytheon.edex.plugin.shef.alarms.AlertalarmStdTextProductUtil -d$DB_NAME -p$PRODUCT_ID -s$SUFFIX -rNEAREST >> $LOGFILE 2>&1
+NUM_ALARMS=$?
 
+
+if [ $NUM_ALARMS -eq 0 ]
+then
+   print No alarms reported, info sent to $FILENAME  >> $LOGFILE
+   print File NOT sent to text database >> $LOGFILE
+
+else
+   print $NUM_ALARMS alarms reported, report written to $FILENAME >> $LOGFILE
+
+   echo Writing $FILENAME to textdb as id $PRODUCT_ID >> $LOGFILE
+   /awips2/fxa/bin/textdb -w $PRODUCT_ID < $FILENAME >> $LOGFILE 2>&1
+   RETURN_STATUS=$?
+
+   if [ $RETURN_STATUS -eq 0 ]
+   then
+      print Product successfully sent >> $LOGFILE
+   else
+      print Product send error detected, status= $RETURN_STATUS >> $LOGFILE
+   fi
+fi
 
 Dte=`date -u `
 echo Completed report_alarm at $Dte >> $LOGFILE
