@@ -103,6 +103,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 06/17/09     #2380      randerso    Removed purging of grid history.
  *                                     Should cascade when record deleted.
  * 08/07/09     #2763     njensen   Refactored queryByD2DParmId
+ * 09/10/12     DR15137   ryu       Changed for MOSGuide D2D mxt/mnt grids for consistency
+ *                                  with A1.
  * </pre>
  * 
  * @author bphillip
@@ -625,11 +627,17 @@ public class GFEDao extends DefaultPluginDao {
 
         for (int i = 0; i < records.size(); i++) {
             TimeRange gribTime = records.get(i).getDataTime().getValidPeriod();
-            TimeRange time = info.getTimeConstraints().constraintTime(
-                    gribTime.getStart());
             try {
-                if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)
-                        && !isMos(id)) {
+                if (isMos(id)) {
+                    TimeRange time = info.getTimeConstraints().constraintTime(
+                            gribTime.getEnd());
+                    if (timeRange.getEnd().equals(time.getEnd())
+                            || !info.getTimeConstraints().anyConstraints()) {
+                        GribRecord retVal = records.get(i);
+                        retVal.setPluginName("grib");
+                        return retVal;
+                    }
+                } else if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)) {
                     if (timeRange.getStart().equals(gribTime.getEnd())
                             || timeRange.equals(gribTime)) {
                         GribRecord retVal = records.get(i);
@@ -638,6 +646,8 @@ public class GFEDao extends DefaultPluginDao {
                     }
 
                 } else {
+                    TimeRange time = info.getTimeConstraints().constraintTime(
+                            gribTime.getStart());
                     if ((timeRange.getStart().equals(time.getStart()) || !info
                             .getTimeConstraints().anyConstraints())) {
                         GribRecord retVal = records.get(i);
@@ -651,7 +661,6 @@ public class GFEDao extends DefaultPluginDao {
                                 + id.getDbId().getSiteId(), e);
             }
         }
-        // }
 
         return null;
     }
@@ -843,8 +852,8 @@ public class GFEDao extends DefaultPluginDao {
             List<DataTime> results = executeD2DParmQuery(id);
             for (DataTime o : results) {
                 if (isMos(id)) {
-                    timeList.add(new TimeRange(o.getValidPeriod().getStart(),
-                            3600 * 1000));
+                    timeList.add(new TimeRange(o.getValidPeriod().getEnd(),
+                            o.getValidPeriod().getDuration()));
                 } else {
                     timeList.add(o.getValidPeriod());
                 }
