@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.core.status;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
@@ -168,6 +169,11 @@ public class VizStatusInternal extends UFStatus implements IStatus {
      */
     public String getPluginName() {
         return pluginName;
+    }
+
+    public StatusMessage toStatusMessage() {
+        return new StatusMessage(this.source, this.category, this.priority,
+                this.pluginName, this.message, this.exception);
     }
 
 }

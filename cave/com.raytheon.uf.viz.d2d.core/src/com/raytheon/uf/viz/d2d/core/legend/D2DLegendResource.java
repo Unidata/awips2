@@ -69,6 +69,8 @@ import com.raytheon.viz.ui.cmenu.SetTimeMatchBasisAction;
  *                                      the number of Graphics.
  * Jul 8, 2010  #6146      bkowal       No longer has a separate font size for legend text that is 
  *                                      drawn into the smaller pane.
+ * Sep 4, 2012  15335      kshresth     Will now display lightning/wind fields
+ *                                      when magnification set to 0
  * 
  * </pre>
  * 
@@ -555,7 +557,7 @@ public class D2DLegendResource extends
         float magnification = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
         if (magnification < 0.6f) {
-            magnification = 0.6f;
+            magnification = 1.0f;
         } else if (magnification > 1.0f) {
             magnification = 1 + (magnification / 4.0f);
         }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	
+	
+	AWIPS 1 format
+	T_001_bin| ||Binary Prob of Temp Lstn 0C||||   *Test|T|1.0|-999999.0|273.14|100.0|1.0|273.15|999999.0|0.0
+	
+	
+	abbreviation: |T_001_bin| 
+	Notused1: | | 
+	Notused2: || 
+	name: |Binary Prob of Temp Lstn 0C| 
+	
+	
+	NEW FILE - T_001_bin.xml
+ -->
+<DerivedParameter name="Binary Prob of Temp Lstn 0C" abbreviation="T_001_bin" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="T"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-999999.0"/>
+        <ConstantField value="273.14"/>
+        <ConstantField value="100.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="273.15"/>
+        <ConstantField value="999999.0"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>

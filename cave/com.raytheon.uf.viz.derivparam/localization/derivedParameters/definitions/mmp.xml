@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// MCS Maintenance Probability
+	// Coniglio, et. al. 2006 SLS AMS Conference  
+	
+	
+	AWIPS I format
+	MMP | ||MCS Maintenance Probability |% |CONTOUR,IMAGE,OTHER|Layer|      *LinTrans,100MB|1.0|13.0|-0.0459|BlkMag,0-10kmAgl|-1160.|gamma,3-8kmAgl|-0.000617|muCape,0-3kmAgl|-0.17|wSp,3-12kmAgl|     
+																			 *Power,150MB|2.718|MMP,100MB|     
+																			 *Add,200MB|1.0|MMP,150MB|     
+																			 *Divide,250MB|1.0|MMP,200MB|     
+																			 *Test,Layer|muCape,0-3kmAgl|1.0|-999999.0|99.9999999|0.0|1.0|100.0000000|999999.0|MMP,250MB
+	
+	varId: |MMP| 
+	Cross Section (CS): | | 
+	isAttachToSource: || 
+	varName: |MCS Maintenance Probability | 
+	units: |%| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 			//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 								//No longer used, planes are available and determined by levels attribute in the Method tag, 
+													//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+													//method levels
+	
+		
+	functionName, planeList: |LinTrans,100MB| 
+	const: |1.0| 
+	const: |13.0| 
+	const: |-0.0459| 
+	varId, plane: |BlkMag,0-10kmAgl| 
+	const: |-1160.| 
+	varId, plane: |gamma,3-8kmAgl| 
+	const: |-0.000617| 
+	varId, plane: |muCape,0-3kmAgl| 
+	const: |-0.17| 
+	varId, plane: |wSp,3-12kmAgl| 
+	
+	functionName, planeList: |Power,150MB| 	
+	const: |2.718| 
+	varId, plane: |MMP,100MB| 
+	
+	functionName, planeList: |Add,200MB| 		
+	const: |1.0| 
+	varId, plane: |MMP,150MB| 
+	
+	functionName, planeList: |Divide,250MB| 
+	const: |1.0| 
+	varId, plane: |MMP,200MB| 
+	
+	functionName, planeList: |Test,Layer| 
+	varId, plane: |muCape,0-3kmAgl| 
+	const: |1.0| 
+	const: |-999999.0| 
+	const: |99.9999999| 
+	const: |0.0| 
+	const: |1.0| 
+	const: |100.0000000| 
+	const: |999999.0| 
+	varId, plane: |MMP,250MB| 
+	
+	
+	AWIPS II NEW FILE - MMP.xml
+-->
+<DerivedParameter unit="%" name="MCS Maintenance Probability" abbreviation="MMP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="100MB" name="LinTrans">
+        <ConstantField value="1.0"/>
+        <ConstantField value="13.0"/>
+        <ConstantField value="-0.0459"/>
+        <Field level="0-10kmAgl" abbreviation="BlkMag"/>
+        <ConstantField value="-1160.0"/>
+        <Field level="3-8kmAgl" abbreviation="gamma"/>
+        <ConstantField value="-6.17E-4"/>
+        <Field level="0-3kmAgl" abbreviation="muCape"/>
+        <ConstantField value="-0.17"/>
+        <Field level="3-12kmAgl" abbreviation="wSp"/>
+    </Method>
+    <Method levels="150MB" name="Power">
+        <ConstantField value="2.718"/>
+        <Field level="100MB" abbreviation="MMP"/>
+    </Method>
+    <Method levels="200MB" name="Add">
+        <ConstantField value="1.0"/>
+        <Field level="150MB" abbreviation="MMP"/>
+    </Method>
+    <Method levels="250MB" name="Divide">
+        <ConstantField value="1.0"/>
+        <Field level="200MB" abbreviation="MMP"/>
+    </Method>
+    <Method levels="Layer" name="Test">
+        <Field level="0-3kmAgl" abbreviation="muCape"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-999999.0"/>
+        <ConstantField value="100.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="100.0"/>
+        <ConstantField value="999999.0"/>
+        <Field level="250MB" abbreviation="MMP"/>
+    </Method>
+</DerivedParameter>
