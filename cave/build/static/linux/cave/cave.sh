@@ -116,7 +116,8 @@ fi
 export pid=$$
 
 curTime=`date +%Y%m%d_%H%M%S`
-LOGFILE=${LOGDIR}/cave_${curTime}_pid_${pid}.log
+LOGFILE=${LOGDIR}/cave_${curTime}_pid_${pid}_console.log
+export LOGFILE_CAVE=${LOGDIR}/cave_${curTime}_pid_${pid}_alertviz.log
 
 redirect="TRUE"
 for flag in $@; do
