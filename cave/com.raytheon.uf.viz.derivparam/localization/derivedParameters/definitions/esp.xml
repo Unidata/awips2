@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ESP | | |Enhanced Stretching Potential (ML)||CONTOUR,IMAGE,OTHER|Layer|\
+      *Test,Surface|loCape,ML|1.|0.|100.|loCape,ML|1.|101.|1.e37|100.|\
+      *Multiply,Layer|ESP2,Layer|ESP,Surface
+
+-->
+<DerivedParameter name="Enhanced Stretching Potential (ML)" abbreviation="ESP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="ML" abbreviation="loCape"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="100.0"/>
+        <Field level="ML" abbreviation="loCape"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="101.0"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="100.0"/>
+    </Method>
+    <Method levels="Layer" name="Multiply">
+        <Field level="Layer" abbreviation="ESP2"/>
+        <Field level="Surface" abbreviation="ESP"/>
+    </Method>
+</DerivedParameter>
