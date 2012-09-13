@@ -19,6 +19,12 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="g/kg" name="Mixing Ratio" abbreviation="mixRat" xmlns:ns2="group">
+    <Method levels="MaxR" name="Slice">
+        <Field level="3D" abbreviation="mixRat"/>
+        <Field level="3D" abbreviation="mixRat"/>
+        <ConstantField value="1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
     <Method models="acarssounding" levels="MB" name="Interp">
         <Field level="Station" abbreviation="mixRat"/>
         <Field level="Station" abbreviation="P"/>
