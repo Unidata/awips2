@@ -38,6 +38,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
  * Apr 25, 2012 14499      wkwock     Refine format, query, etc
+ * Sep 11, 2012 13781      wkwock     add print menu
  *
  * </pre>
  *
@@ -47,7 +48,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 
 public class E19AReport extends E19Report {
     private static final int E19A_SUMMARY = 0;
-    private static final int E19A_ALLPAGES = 1;
+    protected static final int E19A_ALLPAGES = 1;
 
     private int e19aFirstPage = E19A_SUMMARY;
     private int e19aLastPage = E19A_SUMMARY;
