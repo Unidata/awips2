@@ -722,6 +722,407 @@
      -->
 	<contribute xsi:type="toolBarItem" toolItemName="Other">
 
+<!-- The following toolbar Submenu, Baumgardt VB Supplemental Package, is new. --> 
+	<contribute xsi:type="toolbarSubMenu" menuText="Baumgardt VB Supplemental Package" >
+
+		<contribute xsi:type="menuItem" menuText="Ageo Vert Circ" key="ageoVC" indentText="false" />
+ 
+                       <!--Partial Thickness Precipitation Type Icons-->
+                <contribute xsi:type="menuItem" menuText="850-1000 sn thk" key="Snow1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="700-850 sn thk" key="Snow2" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Thickness: Snow Likely" key="Snow3" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="850-1000 rn thk" key="Rain1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="700-850 rn thk" key="Rain2" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Thickness: Rain Likely" key="Rain3" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="850-1000 mx thk" key="Mix1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Thickness: Wintery MIX" key="Mix2" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="850-1000 fz thk" key="Fzra1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Thickness: FZRA/FZDZ" key="Fzra2" indentText="false" />
+                 
+			<!--Rossby Number Vag/Vg-->
+		<contribute xsi:type="menuItem" menuText="Ro" key="Ro"  indentText="false" />	
+			
+			<!--Supercell Composite Parameter-->
+		<contribute xsi:type="menuItem" menuText="SuCP" key="SuCP"  indentText="false" />	
+			
+			<!--S-R Flow & Suggests Tor Supercells Submenu-->
+		<contribute xsi:type="toolbarSubMenu" menuText="Thom 5, 5a and 6">
+		<contribute xsi:type="menuItem" menuText="Thom 5" key="Thom5"  indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Thom 5a" key="Thom5a"  indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Thom 6" key="Thom6"  indentText="false" />
+
+                <contribute xsi:type="menuItem" menuText="Vertical Totals" key="vTOT" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Cross Totals" key="cTOT" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="QVec Conv" key="QPV1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Negative EPV" key="QPV2" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="QPV Net" key="QPV3" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="QG-EPV" key="QPV4" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Chc of Measurable FZRA (Dominant)" key="CFRZRc1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Chc of Measurable IP (Dominant)" key="CICEPc1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Chc of Measurable Rain (Dominant)" key="CRAINc1" indentText="false" />
+                <contribute xsi:type="menuItem" menuText="Chc of Measurable Snow (Dominant)" key="CSNOWc1" indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="GHmean Idx" key="GHxSM" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Heat Idx" key="HIdx" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Helicity 0-3km" key="EHI" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Helicity Idx" key="EHIi" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Tornadic" key="BRNEHIi" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="TORi" key="TORi" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="S-Shear" key="36SHRMi" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="S-0-6km" key="TShrMi" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Std Env Pkg" key="EnvPkg0" indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Frontogen Vec Div 2" key="DivF2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Fn Vec Div 2" key="DivFn2" indentText="false" />
+		<contribute xsi:type="menuItem" menuText="Fs Vec Div 2" key="DivFs2" indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Preferred Ice Growth"
+			key="SnowT"  indentText="false" />		
+	
+		<contribute xsi:type="menuItem" menuText="Storm Relative Flow Vecs (Mean Wind)"
+			key="SRMm"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Storm Relative Flow Mag (Mean Wind)"
+			key="SRMmM"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Strong Tornado Parameter"
+			key="StrTP"  indentText="false" />	
+		
+		<contribute xsi:type="menuItem" menuText="Omega from Diabatic Effects"
+			key="DIABi"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="6hr Precipitable Water Change"
+			key="dPW6hr"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="3hr Precipitable Water Change"
+			key="dPW3hr"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="1hr Precipitable Water Change"
+			key="dPW1hr"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Helicity (NCEP Delivered)"
+			key="HeliD"  indentText="false" />	
+						
+		<contribute xsi:type="menuItem" menuText="SFC Cold Lyr Probs Toward SLEET"
+			key="IPLayer"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="Prob of .1in/6hr Precip"
+			key="POP_001"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of .3in/6hr Precip"
+			key="POP_002"  indentText="false" />		
+
+		<contribute xsi:type="menuItem" menuText="Prob of .6in/6hr Precip"
+			key="POP_003"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 1in/6hr Precip"
+			key="POP_004"  indentText="false" />		
+
+		<contribute xsi:type="menuItem" menuText="Prob of 2in/6hr Precip"
+			key="POP_005"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of .1in/12hr Precip"
+			key="POP_006"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of .3in/12hr Precip"
+			key="POP_007"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of .6in/12hr Precip"
+			key="POP_008"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Prob of 1in/12hr Precip"
+			key="POP_009"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 2in/12hr Precip"
+			key="POP_010"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Prob of .05in/6hr Precip"
+			key="POP_011"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of .05in/12hr Precip"
+			key="POP_012"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of RH Grtn 70 percent"
+			key="RH_001_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of RH Grtn 70 percent Perts"
+			key="RH_001_perts"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of RH Grtn 70 percent"
+			key="RH_001"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of RH Grtn 90 percent"
+			key="RH_002_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of RH Grtn 90 percent Perts"
+			key="RH_002_perts"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="Prob of RH Grtn 90 percent"
+			key="RH_002"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of Wind Grtn 40kts"
+			key="wSp_001_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 40kts Perts"
+			key="wSp_001_perts"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 40kts"
+			key="wSp_001"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of Wind Grtn 50kts"
+			key="wSp_002_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 50kts Perts"
+			key="wSp_002_perts"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 50kts"
+			key="wSp_002"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of Wind Grtn 60kts"
+			key="wSp_003_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 60kts Perts"
+			key="wSp_003_perts"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 60kts"
+			key="wSp_003"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Binary Prob of Wind Grtn 30kts"
+			key="wSp_004_bin"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 30kts Perts"
+			key="wSp_004_perts"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="Prob of Wind Grtn 30kts"
+			key="wSp_004"  indentText="false" />
+		
+		<contribute xsi:type="menuItem" menuText="6hr Precip Perturbations"
+			key="TP6hr_perts"  indentText="false" />
+	
+		<contribute xsi:type="menuItem" menuText="6hr Precip Ensemble Mean"
+			key="TP6hr_avg"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="6hr Precip Ensemble Std Dev" 
+                        key="TP6hr_std" indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="50dbz Hgt for 3/4 in. Svr Hail"
+			key="50dbzZ"  indentText="false" />
+														
+		<contribute xsi:type="menuItem" menuText="Min ThetaE"
+			key="minEPT"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Max ThetaE Difference (3-6km Min minus 0-3km Max)"
+			key="BdEPT06"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 1in/24hr Precip"
+			key="POP_013"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 2in/24hr Precip"
+			key="POP_014"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 2in/36hr Precip"
+			key="POP_015"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Prob of 2in/48hr Precip"
+			key="POP_016"  indentText="false" />
+														
+		<contribute xsi:type="menuItem" menuText="Comp Refl"
+			key="ULWRF"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Reflectivity"
+			key="USWRF"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="MCS Maintenance Probability"
+			key="MMP"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Elevated Right Mover Propagation Vector"
+			key="RMprop2"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Elevated Right-Moving Supercell"
+			key="RM6"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Elevated Left-Moving Supercell"
+			key="LM6"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Wind Chill Index"
+			key="WndChl"  indentText="false" />	
+
+		<contribute xsi:type="menuItem" menuText="Precipitation Potential Placement"
+			key="PEC"  indentText="false" />	
+
+		<contribute xsi:type="menuItem" menuText="24h Cumulative Precip Potential Placement"
+			key="PEC_TT24"  indentText="false" />	
+
+		<contribute xsi:type="menuItem" menuText="Nonsupercell Tornado (>1 NST Threat)"
+			key="NST"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Nonsupercell Tornado (>1 NST Threat"
+			key="NST1"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Nonsupercell Tornado (>1 NST Threat"
+			key="NST2"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Apparent Temperature"
+			key="AppT"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Lake Snow Parameter"
+			key="LSP"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Import NARR PW"
+			key="climoPWimp"  indentText="false" />	
+
+		<contribute xsi:type="menuItem" menuText="PW % of normal"
+			key="climoPW"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="24hr Precip Perturbations"
+			key="TP24hr_perts" indentText="false"/>	
+
+		<contribute xsi:type="menuItem" menuText="24hr Precip Ensemble Mean"
+			key="TP24hr_avg"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Warm Cloud Depth Approx.: Frzlvl-LCL Thickness" 
+                        key="WCD"  indentText="false" />
+	
+		<contribute xsi:type="menuItem" menuText="Temp Stack"
+			key="Tstk"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Layer Max Temperature"
+			key="Tmax"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Layer Min Temperature"
+			key="Tmin"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Layer Min Temperature -6C, -10C"
+			key="CritT1"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Wet-bulb Temp Stack"
+			key="Twstk"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Layer Max Wet-bulb Temperature"
+			key="TwMax"  indentText="false" />	
+
+		<contribute xsi:type="menuItem" menuText="Layer Min Wet-bulb Temperature"
+			key="TwMin"  indentText="false" />	
+	
+		<contribute xsi:type="menuItem" menuText="Total Theta Tendency"
+			key="DthDt"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Winter: PV/Trop Family"
+			key="ModFamE"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Winter: Trowal Family"
+			key="ModFamF"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Conv: QLCS/Wind Family"
+			key="ModFamH"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Winter: Big3 Fn Family"
+			key="ModFamI"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Winter: Snow Growth Family"
+			key="ModFamJ"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Winter: PType Family"
+			key="ModFamL"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Winter: Big3 Qn Family"
+			key="ModFamM"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Briefing Family"
+			key="ModFamU"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Conv: Severe Type Family"
+			key="ModFamV"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Conv: Supercell Family"
+			key="ModFamW"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Conv: MCS Family"
+			key="ModFamX"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Conv: Supercell Tor 4P Family"
+			key="ModFamY"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Conv: Supercell Tor Family"
+			key="ModFamYY"  indentText="false" />				
+
+		<contribute xsi:type="menuItem" menuText="Dewpoint"
+			key="DpT"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Rel Humidity"
+			key="RH"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Pot Vorticity Adv"
+			key="PTvA"  indentText="false" />					
+
+		<contribute xsi:type="menuItem" menuText="Ageo Sect Norm Wind"
+			key="SNWA"  indentText="false" />		
+	
+		<contribute xsi:type="menuItem" menuText="CAPE to 3kmAGL"
+			key="loCape"  indentText="false" />
+	
+		<contribute xsi:type="menuItem" menuText="Helicity"
+			key="Heli"  indentText="false" />	
+	
+		<contribute xsi:type="menuItem" menuText="Height"
+			key="GH"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Temperature"
+			key="T"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Omega"
+			key="PVV"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Thickness"
+			key="dZ"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Mixing Ratio"
+			key="mixRat"  indentText="false" />
+	
+		<contribute xsi:type="menuItem" menuText="Pressure"
+			key="P"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="u Component of Wind"
+			key="uW"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="v Component of Wind"
+			key="vW"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Spec Humidity"
+			key="SHx"  indentText="false" />
+				
+		<contribute xsi:type="menuItem" menuText="Potential Temp"
+			key="PoT"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Total Wind (Vector)"
+			key="Wind"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="Omega"
+			key="msl-P"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="MSL Pressure"
+			key="PW"  indentText="false" />
+						
+		<contribute xsi:type="menuItem" menuText="Wind speed"
+			key="wSp"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="3 Hr Accum Precip"
+			key="TP3hr"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="6 Hr Accum Precip"
+			key="TP6hr"  indentText="false" />
+
+		<contribute xsi:type="menuItem" menuText="12 Hr Accum Precip"
+			key="TP12hr"  indentText="false" />
+			
+		<contribute xsi:type="menuItem" menuText="24 Hr Accum Precip"
+			key="TP24hr"  indentText="false" />	
+	
+		<contribute xsi:type="menuItem" menuText="Basic Family"
+			key="ModFam"  indentText="false" />
+	</contribute>
+	<!--  End Baumgardt Submenu   -->
+
 		<contribute xsi:type="menuItem" menuText="Cloud Cover" key="CCP"
 			 indentText="false" />
 		<contribute xsi:type="menuItem" menuText="Cloud Decks" key="clDecks"
@@ -1140,4 +1541,4 @@
 	</contribute>
 
 </menuTemplate>
-    	
+
