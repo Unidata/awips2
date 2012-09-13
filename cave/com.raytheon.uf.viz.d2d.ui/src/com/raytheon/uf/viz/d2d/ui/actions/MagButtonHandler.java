@@ -37,7 +37,8 @@ import com.raytheon.viz.ui.actions.AbstractGlobalsButtonHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2007            randerso    Initial Creation.
- * 
+ * Sep 4, 2012  15335      kshresth    Will now display lightning/wind 
+ *                                     fields when magnification set to 0
  * &#064;author randerso
  * 
  */
@@ -52,6 +53,7 @@ public class MagButtonHandler extends AbstractGlobalsButtonHandler implements
     protected void updateGlobalValue(IWorkbenchWindow changedWindow,
             UIElement element, Object value) {
         Double mag = (Double) value;
+        if (mag <= 0.1) mag=0.0;
         element.setText("Mag: " + mag);
     }
 }

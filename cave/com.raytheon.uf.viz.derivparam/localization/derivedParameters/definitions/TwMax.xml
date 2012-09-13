@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	TwMax| | |Layer Max Wet-bulb Temperature |K     |CONTOUR,IMAGE,OTHER||     *Max|Twstk
+	
+	
+	varId: |TwMax| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Layer Max Wet-bulb Temperature | 
+	units: |K| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Max|	
+	varId: |Twstk|
+
+	
+	AWIPS II NEW FILE - TwMax.xml
+-->
+<DerivedParameter unit="K" name="Layer Max Wet-bulb Temperature" abbreviation="TwMax" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Max">
+        <Field abbreviation="Twstk"/>
+    </Method>
+</DerivedParameter>
