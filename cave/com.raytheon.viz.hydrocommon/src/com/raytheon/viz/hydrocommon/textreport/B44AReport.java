@@ -34,6 +34,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
+ * Sep 11, 2012 13781      wkwock     add print menu
  * 
  * </pre>
  * 
@@ -53,7 +54,7 @@ public class B44AReport extends TextReport {
 
     private int b44aLastPage = B44A_COOPERATIVE;
 
-    private String lid = null;
+    protected String lid = null;
     
     TextReportData locB44AData;
 
@@ -166,7 +167,7 @@ public class B44AReport extends TextReport {
 
         if ((data.getObserver().getLastname() != null)
                 && (data.getObserver().getLastname().length() > 0)) {
-            name.concat(data.getObserver().getLastname());
+            name = name.concat(data.getObserver().getLastname());
         }
 
         String dos;
