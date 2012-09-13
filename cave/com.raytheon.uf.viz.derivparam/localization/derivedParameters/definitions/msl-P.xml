@@ -19,7 +19,10 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="hPa" name="MSL Pressure" abbreviation="msl-P" xmlns:ns2="group">
-	<Method models="modelsounding" levels="Surface" name="Alias">
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="PMSLmean"/>
+    </Method>
+    <Method models="modelsounding" levels="Surface" name="Alias">
         <Field level="Station" abbreviation="seaLvlPress"/>
     </Method>
     <Method name="Alias" levels="Surface" models="modelsounding">

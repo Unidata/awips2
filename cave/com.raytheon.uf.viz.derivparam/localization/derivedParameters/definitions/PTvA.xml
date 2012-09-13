@@ -19,6 +19,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <Method name="Advection">
+        <Field abbreviation="uW"/>
+        <Field abbreviation="vW"/>
+        <Field abbreviation="pV"/>
+        <Field abbreviation="dx"/>
+        <Field abbreviation="dy"/>
+    </Method>
     <Method name="Advection" levels="K">
         <Field abbreviation="uW"/>
         <Field abbreviation="vW"/>

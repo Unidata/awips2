@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// This Helicity was added to remove confusion with NCEP or model
+	// calculated 0-3km Helicity and the D2D/VB calculated Helicity. 
+	// 0-3km Helicity would display as Surface Helicity if delivered 
+	// from NCEP if no changes are made to the baseline. This change 
+	// works with the Heli field further below in this file. 
+	// HeliD is SR Helicity made from model post-processing,usually NCEP. 
+	// Heli is now the SR Helicity, for the layer and model chosen, 
+	// and calculated via VB code
+	// using Bunkers et. al. storm motion.
+	// IF YOU ADD this field, you should also add Heli and EHI
+	// in the nationalData replacement section below.
+	// 
+	
+	
+	AWIPS I format
+	HeliD  | | |Helicity (NCEP Delivered)|m^2/s^2 |CONTOUR,IMAGE,OTHER||       *Alias,0-3kmAgl|Heli,Surface|      
+																			   *Alias,0-3kmAgl|Heli,BLyr
+	
+	
+	varId: |HeliD| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Helicity (NCEP Delivered)| 
+	units: |m^2/s^2| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList: |Alias,0-3kmAgl|	
+	varId, plane: |Heli,Surface| 
+	
+	functionName, planeList: |Alias,0-3kmAgl|	
+	varId, plane: |Heli,BLyr| 
+	
+	AWIPS II NEW FILE - HeliD.xml
+-->
+<DerivedParameter unit="m²/s²" name="Helicity (NCEP Delivered)" abbreviation="HeliD" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="0-3kmAgl" name="Alias">
+        <Field level="Surface" abbreviation="Heli"/>
+    </Method>
+    <Method levels="0-3kmAgl" name="Alias">
+        <Field level="BLyr" abbreviation="Heli"/>
+    </Method>
+</DerivedParameter>
