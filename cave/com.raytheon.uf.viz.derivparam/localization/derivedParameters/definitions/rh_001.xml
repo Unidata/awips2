@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 	
+	AWIPS I format
+	RH_001| ||Prob of RH Grtn 70 percent|%|CONTOUR,IMAGE,OTHER||   *Average|RH_001_perts
+	
+	
+	varId: |RH_001| 
+	Cross Section (CS): | | 				
+	isAttachToSource: || 
+	varName: |Prob of RH Grtn 70 percent| 
+	units: |%| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: | |							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Average|
+	varId:  |RH_001_perts|
+	
+	AWIPS II NEW FILE - RH_001.xml
+ -->
+<DerivedParameter unit="%" name="Prob of RH Grtn 70 percent" abbreviation="RH_001" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Average">
+        <Field abbreviation="RH_001_perts"/>
+    </Method>
+</DerivedParameter>
