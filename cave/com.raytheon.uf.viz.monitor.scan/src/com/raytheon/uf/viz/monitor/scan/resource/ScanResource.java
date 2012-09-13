@@ -157,7 +157,7 @@ public class ScanResource extends
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                if (getScanDrawer().font != null) {
+                if (gc != null && getScanDrawer().font != null) {
                     getScanDrawer().font.setMagnification(getCapability(
                             MagnificationCapability.class).getMagnification()
                             .floatValue());
@@ -560,7 +560,7 @@ public class ScanResource extends
      * @return
      */
     public ScanDrawer getScanDrawer() {
-        if (drawer == null) {
+        if (drawer == null && gc != null) {
             if (getTable().equals(ScanTables.CELL)) {
                 drawer = new ScanDrawer(SCANConfig.getInstance()
                         .getStormCellConfig(), gc, getScan()

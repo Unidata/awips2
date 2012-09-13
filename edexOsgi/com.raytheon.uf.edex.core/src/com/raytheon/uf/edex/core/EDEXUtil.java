@@ -237,7 +237,7 @@ public class EDEXUtil implements ApplicationContextAware {
         sm.setPlugin(pluginName);
         sm.setCategory(category);
         sm.setMessage(message);
-        sm.setMachine(Integer.toString(getServerId()));
+        sm.setMachineToCurrent();
         sm.setSourceKey(source);
         sm.setDetails(details);
         sm.setEventTime(new Date());
