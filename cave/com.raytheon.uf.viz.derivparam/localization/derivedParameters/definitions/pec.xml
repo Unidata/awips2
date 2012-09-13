@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// "Precipitation Efficiency" 
+	//   Contributed by James Noel
+	//   Documentation: NWA Digest December 2002 (Noel and Dobur)
+	//   Field follows a non-traditional precipitation efficiency definition
+	//   and has its strengths in location of precipition. Thus renamed.
+	
+	
+	AWIPS 1 format
+	PEC| |N|Precipitation Potential Placement |in      |CONTOUR,IMAGE,OTHER|Layer|      *Multiply,Layer|RH,0-3kmAgl|PW
+
+
+	varId: |PEC| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |Precipitation Potential Placement | 
+	units: |in| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList: |Multiply,Layer| 
+	FIELD: |RH,0-3kmAgl| 
+	FIELD: |PW| 
+
+
+	AWIPS II NEW FILE - PEC.xml
+-->
+<DerivedParameter unit="in" name="Precipitation Potential Placement" abbreviation="PEC" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Multiply">
+        <Field level="0-3kmAgl" abbreviation="RH"/>
+        <Field abbreviation="PW"/>
+    </Method>
+</DerivedParameter>
