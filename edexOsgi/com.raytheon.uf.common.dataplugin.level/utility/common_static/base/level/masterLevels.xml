@@ -19,6 +19,10 @@
         further_licensing_information.
     -->
 <masterLevelContainer>
+    <masterLevel type="" unitString="" description="Maximum Temperature Speed Level" name="MAXT"/>
+    <masterLevel type="" unitString="" description="Maximum Mixing Ratio level" name="MAXR"/>
+    <masterLevel type="" unitString="" description="Maximum Wet Bulb Tmperature level" name="MAXTW"/>
+    <masterLevel type="" unitString="" description="Maximum Omega level" name="MAXOMEGA"/>
     <masterLevel name="MB" type="DEC" unitString="hPa" description="Isobaric Surface" />
     <masterLevel name="LYRMB" type="MB" unitString="" description="Layer between two Isobaric Surfaces" />
     <masterLevel name="K" type="INC" unitString="K" description="Isentropic (theta) level - Potential Temperature" />

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	
+	
+	AWIPS 1 format
+	T_001_perts| |N|Prob of Temp Lstn 0C Perturbations||||   *Gather|T_001_bin
+	
+	
+	abbreviation: |T_001_perts| 
+	Notused1: | | 
+	Notused2: |N| 
+	name: |Prob of Temp Lstn 0C Perturbations| 
+	
+	
+	NEW FILE - T_001_perts.xml
+ -->
+<DerivedParameter name="Prob of Temp Lstn 0C Perturbations" abbreviation="T_001_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Gather">
+        <Field abbreviation="T_001_bin"/>
+    </Method>
+</DerivedParameter>

@@ -64,6 +64,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  *                                     d)NullointException/locking does not work for special marine warning 
  *                                       and locking beyond first paragragh. 
  * Jul 17, 2012 14989     Qinglu Lin   Removed locks, <L> and </L>, for county names in pathcast line.
+ * Sep 11, 2012 15372     Qinglu Lin   Adjusted code so that <L> and </L> in the line of "MAINLY RURAL AREAS" 
+ *                                     were removed as well.
  * 
  * </pre>
  * 
@@ -349,7 +351,7 @@ public class WarningTextHandler {
             }
         }
 
-        boolean ruralFound = false, ruralReplace = false;
+        boolean ruralFound = false, ruralReplaced = false;
         ArrayList<String> usedAreaNotations = new ArrayList<String>();
         for (int lineIndex = 0; lineIndex < seperatedLines.length; ++lineIndex) {
             String line = seperatedLines[lineIndex];
@@ -359,7 +361,7 @@ public class WarningTextHandler {
                 before = false;
             }
 
-            if (!ruralFound && line.contains("MAINLY RURAL AREAS")) {
+            if (!ruralFound && !ruralReplaced && line.contains("MAINLY RURAL AREAS")) {
                 ruralFound = true;
             }
 
@@ -436,18 +438,16 @@ public class WarningTextHandler {
                 }
 
                 if (ruralFound)
-                    if (!ruralReplace)
-                        ruralReplace = true;
-                    else if (ruralReplace) {
-                        if (line.trim().length() == 0)
-                            ruralFound = false;
-                        else {
-                            line = line.replace("<L>", "");
-                            line = line.replace("</L>", "");
-                            sb.append(line + "\n");
-                            continue;
-                        }
-                    }
+                	if (line.trim().length() == 0)
+                		ruralFound = false;
+                	else {
+                		line = line.replace("<L>", "");
+                		line = line.replace("</L>", "");
+                		sb.append(line + "\n");
+                		if (!ruralReplaced)
+                			ruralReplaced = true;
+                		continue;
+                	}
 
                 if (line.trim().length() == 0) {
                     insideTML = false;

@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * 
  * </pre>
  * 
@@ -149,7 +150,7 @@ public class LambertConformalGridCoverage extends GridCoverage {
         rval.majorAxis = this.majorAxis;
         rval.minorAxis = this.minorAxis;
 
-        rval.setName(this.name + "-SubGrid-" + subGrid.getModelName());
+        rval.setName(this.name + SUBGRID_TOKEN + subGrid.getModelName());
 
         try {
             Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
