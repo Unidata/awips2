@@ -105,7 +105,7 @@ public class SiteAbbreviationUtil {
     public static String getTtaaii(String afosId) {
         String query = "SELECT wmottaaii FROM afos_to_awips WHERE afosid = '"
                 + afosId + "';";
-        String rval = "blank";
+        String rval = "-";
 
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(query,
