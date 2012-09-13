@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	wSp_002| ||Prob of Wind Grtn 50kts|%|CONTOUR,IMAGE,OTHER||   *Average|wSp_002_perts
+	
+	
+	varId: |wSp_002| 
+	Cross Section (CS): | | 
+	isAttachToSource: || 
+	varName: |Prob of Wind Grtn 50kts| 
+	units: |%| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: ||							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+											
+	functionName: |Average|
+	varId:  |wSp_002_perts|				
+	
+	
+	AWIPS II NEW FILE - wSp_002.xml
+ -->
+<DerivedParameter unit="%" name="Prob of Wind Grtn 50kts" abbreviation="wSp_002" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Average">
+        <Field abbreviation="wSp_002_perts"/>
+    </Method>
+</DerivedParameter>

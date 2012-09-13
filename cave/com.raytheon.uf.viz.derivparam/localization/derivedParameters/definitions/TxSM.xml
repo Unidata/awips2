@@ -19,10 +19,16 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="TxSM" name="Filtered-500km Temp" unit="C">
+    <Method models="SREF212" name="Filter">
+        <Field abbreviation="Tmean"/>
+        <ConstantField value="250.0"/>
+        <Field abbreviation="dx"/>
+        <Field abbreviation="dy"/>
+    </Method>
     <Method name="Filter">
-		<Field abbreviation="T"/>
-		<ConstantField value="500.0"/>
-		<Field abbreviation="dx"/>
-		<Field abbreviation="dy"/>
-	</Method>
+	<Field abbreviation="T"/>
+	<ConstantField value="500.0"/>
+	<Field abbreviation="dx"/>
+	<Field abbreviation="dy"/>
+    </Method>
 </DerivedParameter>
