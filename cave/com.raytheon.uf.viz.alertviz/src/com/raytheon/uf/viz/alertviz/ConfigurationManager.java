@@ -61,6 +61,9 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * Apr 7, 2010            mschenke     Initial creation
  * Mar 16, 2011 6531       rferrel     Start up loads host dependent
  *                                     configuration file.
+ * Aug 28 2012  13528	  Xiaochuan	   Using setNewConfiguration() to 
+ * 									   re-set configuration data and
+ * 									   run notifyListeners().  	 	  	                                  
  * 
  * </pre>
  * 
@@ -199,20 +202,20 @@ public class ConfigurationManager {
             Configuration custom = getCustomConfiguration();
 
             if (custom != null) {
-				if (baseConfiguration == null) {
-					statusHandler.error("The base configuration "
-							+ DEFAULT_BASE_CONFIG.getLocalizationFileName()
-							+ " was not loaded.  Check your configuration.");
-				} else {
-					/*
-					 * merge custom over base then overlay the current config on
-					 * that result. preserve locking from the base
-					 * configuration.
-					 */
-					Configuration baseCustom = baseConfiguration.mergeUnder(
-							custom, true);
-					currentConfig = baseCustom.overlayWith(currentConfig, true);
-				}
+            	if (baseConfiguration == null) {
+            		statusHandler.error("The base configuration "
+            			+ DEFAULT_BASE_CONFIG.getLocalizationFileName()
+            			+ " was not loaded.  Check your configuration.");
+            	}
+            	else {
+            		/*
+            		 * merge custom over base then overlay the current config on
+            		 * that result. preserve locking from the base configuration.
+            		 */
+            		Configuration baseCustom = baseConfiguration.mergeUnder(custom,
+            				true);
+            		currentConfig = baseCustom.overlayWith(currentConfig, true);
+            	}
             }
             configurationMap.put(current, currentConfig);
         } else if (DEFAULT_BASE_CONFIG.equals(current) == false) {
@@ -229,15 +232,26 @@ public class ConfigurationManager {
      */
     public boolean saveCurrentConfiguration(ConfigContext context,
             Configuration toSave) {
-        if (saveToFile(context, toSave)) {
-            configurationMap.put(context, toSave);
-            current = context;
-            notifyListeners();
-            return true;
+    	
+    	if (saveToFile(context, toSave)) {
+    		setNewConfiguration(context, toSave);
+             
+    		return true;
         }
         return false;
     }
 
+    /**
+     * @param context
+     * @param configData
+     */
+    public void setNewConfiguration(ConfigContext context,
+            Configuration configData) {
+    	configurationMap.put(context, configData);
+    	current = context;
+        notifyListeners();
+          	
+    }
     /**
      * Delete the configuration passed in
      * 
@@ -383,7 +397,7 @@ fileName.lastIndexOf("/") + 1, // win32
 
     private void notifyListeners() {
         for (IConfigurationChangedListener listener : listeners) {
-            listener.configurationChanged();
+        	listener.configurationChanged();
         }
     }
 
@@ -522,7 +536,7 @@ fileName.lastIndexOf("/") + 1, // win32
     }
 
     public void resetCustomLocalization() {
-        reloadCustomConfiguration = true;
+    	reloadCustomConfiguration = true;
     }
 
     public static boolean isDefaultConfig(ConfigContext context) {

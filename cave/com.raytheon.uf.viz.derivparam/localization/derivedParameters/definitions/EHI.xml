@@ -20,6 +20,27 @@
     -->
 <DerivedParameter abbreviation="EHI" name="Energy Helicity Index">
     <Method name="Multiply" levels="Layer">
+        <Field abbreviation="PBE" level="0FHAG"/>
+        <Field abbreviation="HeliD" level="0-3kmAgl"/>
+        <ConstantField value="0.00000625" />
+    </Method>
+    <Method name="Multiply" >
+        <Field abbreviation="cCape" level="Surface"/>
+        <Field abbreviation="Heli" level="0-3kmAgl"/>
+        <ConstantField value="0.00000625" />
+    </Method>
+    <Method name="Test" levels="Surface">
+        <Field abbreviation="EHI" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1e37" />
+        <ConstantField value="2.49" />
+        <ConstantField value="0.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="2.49" />
+        <ConstantField value="1e37" />
+        <ConstantField value="1.0" />
+     </Method>
+    <Method name="Multiply" levels="Layer">
     	<Field abbreviation="PBE" level="0FHAG"/>
     	<Field abbreviation="Heli" level="0FHAG"/>
     	<ConstantField value="0.00000625"/>
