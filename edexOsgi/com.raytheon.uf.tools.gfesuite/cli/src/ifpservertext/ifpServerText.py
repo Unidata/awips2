@@ -75,7 +75,7 @@ class textInventoryRecord:
 logger = None
 def __initLogger():
     global logger
-    logger = logging.getLogger("purgeAllModelData")
+    logger = logging.getLogger("ifpServerText")
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
