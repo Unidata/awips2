@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.monitor.scan.commondialogs;
 
+import java.util.Set;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -40,8 +42,12 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.monitor.scan.config.AbsConfigMgr;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
+import com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager;
+import com.raytheon.uf.viz.monitor.scan.tables.SCANCellTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
+import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class SCANAlarmThreshDlg extends CaveSWTDialog implements
@@ -239,6 +245,16 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 alarmChoiceChanged();
+                String columnName = attributeCbo.getText();
+                mgr.clearAlertedAlarms(site, scanTable);
+				AbstractTableDlg tableDlg = ScanMonitor.getInstance()
+						.getDialog(scanTable, site);
+				tableDlg.updateThresh(columnName);
+                if (mgr.getAlertedAlarmCount(site, scanTable) == 0) {
+                	tableDlg.turnOffAlarm();
+                } else {
+                	tableDlg.turnOnAlarm();
+                }
                 shell.dispose();
             }
         });
