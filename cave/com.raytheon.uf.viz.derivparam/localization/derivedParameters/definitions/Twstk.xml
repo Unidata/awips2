@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	Twstk| | |Wet-bulb Temp Stack      |      |                   ||     *Union,MB,C|TW|    *Union,ZAGL,C|TW
+	
+	
+	varId: |Twstk| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Wet-bulb Temp Stack      | 
+	units: || 
+	displayTypes: || 						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, plane, source: |Union,MB,C|	
+	varId: |TW|
+
+	functionName, plane, source: |Union,ZAGL,C|	
+	varId: |TW|
+	
+
+	AWIPS II NEW FILE - Twstk.xml
+-->
+<DerivedParameter name="Wet-bulb Temp Stack" abbreviation="Twstk" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="MB,C" name="Union">
+        <Field abbreviation="TW"/>
+    </Method>
+    <Method levels="ZAGL,C" name="Union">
+        <Field abbreviation="TW"/>
+    </Method>
+</DerivedParameter>
