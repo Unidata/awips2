@@ -49,6 +49,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080303            969 jkorman     Initial implementation.
+ * 2012-09-07   DR 15316   M. Porricelli Removed adjustment of
+ *                                       valid time hour
  * 
  * </pre>
  * 
@@ -60,10 +62,10 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
     // Allowable future time in milliseconds (2 hours).
     private static final long ALLOWABLE_TIME = 2 * 3600 * 1000;
 
-    private static final int[] HOUR_MAP = {
-            // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-            0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0,
-            -1, -2, -3, 2, 1 };
+//    private static final int[] HOUR_MAP = {
+//            // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+//            0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, -3, 2, 1, 0,
+//            -1, -2, -3, 2, 1 };
 
     private static final int YEAR_POS = 4;
 
@@ -115,9 +117,9 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
 
                 Calendar relTime = TimeTools.copy(validTime);
 
-                // Now offset the "record" validTime using the hour mapping.
-                int hour = validTime.get(Calendar.HOUR_OF_DAY);
-                validTime.add(Calendar.HOUR_OF_DAY, HOUR_MAP[hour]);
+//               // Now offset the "record" validTime using the hour mapping.
+//                int hour = validTime.get(Calendar.HOUR_OF_DAY);
+//                validTime.add(Calendar.HOUR_OF_DAY, HOUR_MAP[hour]);
                 // Set the new validTime back into the UAObs record.
                 obsData.setValidTime(validTime);
 
