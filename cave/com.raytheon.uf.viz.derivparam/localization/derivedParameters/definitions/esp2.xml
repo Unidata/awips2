@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ESP2 | | |ESP gamma||CONTOUR,IMAGE,OTHER|Layer|\
+      *LinTrans,Layer|gamma,0-2kmAgl|1000.|-1.0|7.0
+-->
+<DerivedParameter name="ESP gamma" abbreviation="ESP2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="LinTrans">
+        <Field level="0-2kmAgl" abbreviation="gamma"/>
+        <ConstantField value="1000.0"/>
+        <ConstantField value="-1.0"/>
+        <ConstantField value="7.0"/>
+    </Method>
+</DerivedParameter>
