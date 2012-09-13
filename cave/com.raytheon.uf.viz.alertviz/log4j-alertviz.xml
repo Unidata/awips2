@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd"> 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
    <!-- general application log --> 
@@ -18,42 +19,20 @@
          <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
       </layout> 
    </appender>
-
-   <appender name="NcepILogAppender" class="com.raytheon.uf.viz.core.status.EclipseILogAppender">
-      <param name="pluginId" value="gov.noaa.nws.ncep"/>
-      <param name="category" value="WORKSTATION"/>
-      <param name="source" value="NCEP"/>
-   </appender>
    
-   <appender name="NcepDailyRollingFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
-      <param name="File" value="${user.home}/caveData/logs/perspectives-daily-file.log" />
-      <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+   <appender name="AlertVizAdminLogAppender" class="com.raytheon.uf.viz.alertviz.EnvConfigurableRollingFileAppender">
+      <param name="envLogVar" value="LOGFILE_ALERTVIZ"  />
+      <param name="maxFileSize" value="2GB"/>
+      <param name="maxBackupIndex" value="5"/>
       <param name="Append" value="true"/>
-      <layout class="org.apache.log4j.PatternLayout">
-         <param name="ConversionPattern" value="%d %-5p [%t] %-17c (%13F:%L) %3x - %m%n"/>
+      <layout class="org.apache.log4j.EnhancedPatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] : %m%n"/> 
       </layout>
-   </appender>
+   </appender> 
    
-   <!--appender name="NcepRollingFileAppender" class="org.apache.log4j.rolling.RollingFileAppender">
-      <param name="File" value="${user.home}/caveData/logs/ffaResource-rolling-file.log" />
-      <param name="MaxFileSize" value="100KB"/>
-      <param name="MaxBackupIndex" value="1"/>
-      <param name="Append" value="true"/>
-      <layout class="org.apache.log4j.PatternLayout">
-         <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
-      </layout>
-   </appender-->
-   
-   <logger name="gov.noaa.nws.ncep">
-      <level value="INFO"/>
-      <appender-ref ref="NcepILogAppender"/>
-      <appender-ref ref="NcepDailyRollingFileAppender"/>
-   </logger>
-
-   <logger name="edu.wisc.ssec">
-      <level value="INFO"/>
-      <appender-ref ref="NcepILogAppender"/>
-      <appender-ref ref="NcepDailyRollingFileAppender"/>
+   <logger name="AlertVizAdminLogger" additivity="false">
+      <level value="ALL"/>
+      <appender-ref ref="AlertVizAdminLogAppender"/>
    </logger>
 
    <logger name="com.raytheon">

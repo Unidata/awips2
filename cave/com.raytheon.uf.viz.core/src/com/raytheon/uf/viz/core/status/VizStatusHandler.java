@@ -88,8 +88,9 @@ public class VizStatusHandler implements IUFStatusHandler {
                 this.source = factory.getSource(source, pluginId);
             }
         }
-        StatusManager.getManager().handle(
-                new VizStatusInternal(status, category, source, pluginId));
+        VizStatusInternal vizStatus = new VizStatusInternal(status, category,
+                source, pluginId);
+        StatusManager.getManager().handle(vizStatus);
     }
 
     @Override

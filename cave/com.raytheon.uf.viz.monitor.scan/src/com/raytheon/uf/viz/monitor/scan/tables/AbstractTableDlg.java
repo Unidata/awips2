@@ -765,4 +765,8 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     protected abstract void handleRankMenuEvent(SelectionEvent event);
 
     public abstract void updateThresh(String attr);
+
+	public abstract void turnOffAlarm();
+
+	public abstract void turnOnAlarm();
 }
