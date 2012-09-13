@@ -34,10 +34,6 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.RGB;
@@ -96,6 +92,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Feb 8, 2011            mschenke     Initial creation
  * Aug 8, 2012   15271	  snaples      Updated hourly slot
  * Aug 17, 2012  15271    snaples      Added check to add only PP gages
+ * Sep 5, 2012   15079    snaples      Added constant for Milli to inches conversion factor
  * 
  * </pre>
  * 
@@ -349,18 +346,14 @@ public class MPEGageResource extends AbstractMPEInputResource {
                         // draw the value
                         if (!gageData.isManedit()) {
                             if (gageData.getId().contains("PSEUDO")) {
-                                UnitConverter conv = SI.MILLIMETER
-                                        .getConverterTo(NonSI.INCH);
                                 gageValue = String.format("%5.2f",
-                                        conv.convert(gageData.getGval()));
+                                		gageData.getGval() / MILLICVT);
                             }
                         } else {
                             if (gageData.getId().contains("PSEUDO")
                                     && !isMissing) {
-                                UnitConverter conv = SI.MILLIMETER
-                                        .getConverterTo(NonSI.INCH);
                                 gageValue = String.format("%5.2f",
-                                        conv.convert(gageData.getGval()));
+                                		gageData.getGval() / MILLICVT);
                             }
                         }
                     }

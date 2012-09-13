@@ -19,6 +19,14 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="dZ" name="Thickness" unit="m">
+    <Method levels="-12C_-18C" name="Difference">
+        <Field level="-18C" abbreviation="GH"/>
+        <Field level="-12C" abbreviation="GH"/>
+    </Method>
+    <Method levels="-12C" name="Difference">
+        <Field level="-18C" abbreviation="GH"/>
+        <Field level="-12C" abbreviation="GH"/>
+    </Method>
     <Method name="Difference" levels="C,MB">
 		<Field abbreviation="GH" level="upper"/>
 		<Field abbreviation="GH" level="lower"/>

@@ -60,6 +60,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 14 Dec 2010  5149       cjeanbap    Added Python Action functionality.
  * 03 Mar 2011  8059       rferrel     Fix tooltip for audioChk
  * 24 Mar 2011	5853	   cjeanbap    Check AlertMetadata for Null.
+ * 08 Sep 2012  13528     Xiaochuan    Run setNewConfig to update priorities
+ * 									   setting.
  * </pre>
  * 
  * @author lvenable
@@ -168,6 +170,8 @@ public class PriorityControls {
     private Shell parentShell;
 
     private Button actionChk;
+    
+    private AlertVisConfigDlg configDialog;
 
     /**
      * Button used to change the audio file.
@@ -191,11 +195,12 @@ public class PriorityControls {
      *            Priority number.
      */
     public PriorityControls(Shell parentShell, Composite parentComp,
-            int priority, INeedsSaveListener needsSaveListener) {
+            int priority, INeedsSaveListener needsSaveListener, AlertVisConfigDlg configDialog ) {
         this.parentComp = parentComp;
         this.priority = priority;
         this.parentShell = parentShell;
-
+        this.configDialog = configDialog;
+        
         createPriorityColor();
 
         this.controlFont = new Font(parentComp.getDisplay(), "Monospace", 10,
@@ -241,8 +246,9 @@ public class PriorityControls {
         textChk.setLayoutData(gd);
         textChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                needsSaveListener.saveNeeded(true);
                 updateBlinkButton();
+                configDialog.setNewConfig();
+                needsSaveListener.saveNeeded(true);
             }
         });
     }
@@ -259,8 +265,9 @@ public class PriorityControls {
         blinkChk.setLayoutData(gd);
         blinkChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+            	alertMetadata.setBlink(blinkChk.getSelection());
+                configDialog.setNewConfig();
                 needsSaveListener.saveNeeded(true);
-                alertMetadata.setBlink(blinkChk.getSelection());
             }
         });
     }
@@ -276,8 +283,9 @@ public class PriorityControls {
         popupChk.setLayoutData(gd);
         popupChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                needsSaveListener.saveNeeded(true);
                 alertMetadata.setPopup(popupChk.getSelection());
+                configDialog.setNewConfig();
+                needsSaveListener.saveNeeded(true);
             }
         });
     }
@@ -301,9 +309,10 @@ public class PriorityControls {
         audioChk.setToolTipText("");
         audioChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                updateAudioChangeButton();
-                needsSaveListener.saveNeeded(true);
+            	updateAudioChangeButton();
                 alertMetadata.setAudioEnabled(audioChk.getSelection());
+                configDialog.setNewConfig();
+                needsSaveListener.saveNeeded(true);
             }
         });
 
@@ -313,6 +322,7 @@ public class PriorityControls {
         changeAudioBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 selectAudioFile();
+                configDialog.setNewConfig();
             }
         });
 
@@ -336,8 +346,9 @@ public class PriorityControls {
         actionChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 updateActionChangeButton();
-                needsSaveListener.saveNeeded(true);
                 alertMetadata.setPythonEnabled(actionChk.getSelection());
+                configDialog.setNewConfig();
+                needsSaveListener.saveNeeded(true);
             }
         });
 
@@ -347,6 +358,7 @@ public class PriorityControls {
         changeActionBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 selectActionFile();
+                configDialog.setNewConfig();
             }
         });
 
@@ -364,8 +376,9 @@ public class PriorityControls {
         logChk.setLayoutData(gd);
         logChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                needsSaveListener.saveNeeded(true);
                 alertMetadata.setLog(logChk.getSelection());
+                configDialog.setNewConfig();
+                needsSaveListener.saveNeeded(true);
             }
         });
 
@@ -403,7 +416,8 @@ public class PriorityControls {
         changeTextColorBtn.setToolTipText("Change foreground/background color");
         changeTextColorBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                showColorDialog();
+            	showColorDialog();
+                configDialog.setNewConfig();
 
             }
         });

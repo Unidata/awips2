@@ -19,6 +19,9 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="in" name="Preciptable H2O" abbreviation="PW" xmlns:ns2="group">
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="PWmean"/>
+    </Method>
     <Method name="Alias" levels="Layer">
         <Field abbreviation="PW" level="Surface"/>
     </Method>
