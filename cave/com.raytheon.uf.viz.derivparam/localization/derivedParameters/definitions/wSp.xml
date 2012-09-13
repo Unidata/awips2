@@ -19,6 +19,9 @@
         further_licensing_information.
     -->
 <DerivedParameter  abbreviation="wSp" name="Wind speed" unit="m/s">
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="wSpmean"/>
+    </Method>
     <Method name="RaobParam" models="bufrua">
     	<Field abbreviation="Raob"/>
     	<ConstantField value="6"/>

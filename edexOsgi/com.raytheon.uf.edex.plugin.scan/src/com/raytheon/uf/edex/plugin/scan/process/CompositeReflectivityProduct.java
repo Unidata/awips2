@@ -69,6 +69,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * 05/07/2009   2037      dhladky    Initial Creation.
  * 02/22/2012	DR14414	  mgamazay   Added initializing the ScanTableData table
  * 									 to an empty map if no features are present.
+ * 09/06/2012	14727	  Xiaochuan	 setIsNew(false) for the storm id should based  	
+ * 									 on FCSTRAN, FCSTDIR values.	 
  * 
  * </pre>
  * 
@@ -168,8 +170,6 @@ public class CompositeReflectivityProduct extends RadarProduct {
                 // by storm ID, update
                 for (String id : getUpdates(catKeys, table)) {
                     if (table.getRow(id) != null) {
-                        // no longer a new row
-                        table.getRow(id).setIsNew(false);
                         // previous position stuff
                         if ((table.getRow(id).getLat() != null)
                                 && (table.getRow(id).getLon() != null)) {
@@ -203,7 +203,7 @@ public class CompositeReflectivityProduct extends RadarProduct {
                                 .purgeCoordinates(rec.getDataTime()
                                         .getRefTime());
                         table.updateRow(id, write(table.getRow(id), rec, id));
-                        // System.out.println("CELL: Updated Row: "+id);
+                        
                     }
                 }
             }
@@ -232,10 +232,10 @@ public class CompositeReflectivityProduct extends RadarProduct {
             }
             // add new rows last
             for (String id : newIds) {
-                table.addRow(id,
+            	table.addRow(id,
                         write(new CellTableDataRow(rec.getDataTime()), rec, id));
             }
-
+         
             // send out an alertViz message
             if (processAlarms) {
                 EDEXUtil.sendMessageAlertViz(Priority.CRITICAL,
@@ -477,6 +477,8 @@ public class CompositeReflectivityProduct extends RadarProduct {
                 && !cellValMap.get(GraphicBlockValues.FCSTDIR).equals(NEW)) {
             ((CellTableDataRow) row).setDir(new Double(cellValMap
                     .get(GraphicBlockValues.FCSTDIR)));
+            
+            ((CellTableDataRow) row).setIsNew(false);
         }
 
         // set the speed
@@ -487,6 +489,7 @@ public class CompositeReflectivityProduct extends RadarProduct {
                 && !cellValMap.get(GraphicBlockValues.FCSTRAN).equals(NEW)) {
             ((CellTableDataRow) row).setSpd(new Double(cellValMap
                     .get(GraphicBlockValues.FCSTRAN)));
+            ((CellTableDataRow) row).setIsNew(false);
         }
 
         // Try setting it here

@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <DerivedParameter unit="K" name="Wind Chill" abbreviation="WndChl" xmlns:ns2="group">
+    <Method levels="925MB" name="LinTrans">
+        <ConstantField value="1.8"/>
+        <Field level="Surface" abbreviation="T"/>
+        <ConstantField value="-459.67"/>
+        <ConstantField value="1.0"/>
+    </Method>
+    <Method levels="900MB" name="Multiply">
+        <ConstantField value="2.24"/>
+        <Field level="Surface" abbreviation="wSp"/>
+    </Method>
+    <Method levels="950MB" name="Power">
+        <Field level="900MB" abbreviation="WndChl"/>
+        <ConstantField value="0.16"/>
+    </Method>
+    <Method levels="975MB" name="Multiply">
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="950MB" abbreviation="WndChl"/>
+    </Method>
+    <Method levels="875MB" name="Poly">
+        <ConstantField value="35.74"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.6215"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-35.75"/>
+        <Field level="950MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.4275"/>
+        <Field level="975MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+    </Method>
+    <Method levels="850MB" name="LinTrans">
+        <ConstantField value="0.55556"/>
+        <Field level="875MB" abbreviation="WndChl"/>
+        <ConstantField value="255.2222"/>
+        <ConstantField value="1.0"/>
+    </Method>
+    <Method levels="Surface" name="Test">
+        <Field level="Surface" abbreviation="T"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="283.15"/>
+        <Field level="850MB" abbreviation="WndChl"/>
+    </Method>
     <Method name="WndChl">
         <Field abbreviation="T"/>
         <Field abbreviation="wSp"/>

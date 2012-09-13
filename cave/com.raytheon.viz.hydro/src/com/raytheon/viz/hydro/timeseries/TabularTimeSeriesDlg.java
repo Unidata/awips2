@@ -1989,7 +1989,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 						|| ts.toUpperCase().startsWith("C")) {
 
 					dr.setBasisTime(basistime);
-					dataRecordList.add(dr);
 					/* Delete all rows that have been selected */
 					String where = createUpdDelWhereFcst(td, dr);
 					queryList.add("delete from " + tablename + " " + where);
@@ -2025,14 +2024,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 							+ " An error occurred executing load_obs_river function", e);
 				}
 			}
-
-			if (pe.toUpperCase().startsWith("H")
+			if (ts.toUpperCase().startsWith("F")
+					|| ts.toUpperCase().startsWith("C")) {
+				if (pe.toUpperCase().startsWith("H")
 					|| pe.toUpperCase().startsWith("Q")) {
-				try {
-					LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
-				} catch (VizException e) {
-					statusHandler.handle(Priority.PROBLEM, "Data Query:"
+					
+					try {
+						LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
+					} catch (VizException e) {
+						statusHandler.handle(Priority.PROBLEM, "Data Query:"
 							+ " An error occurred executing loadMaxFcst function", e);
+					}
 				}
 			}
 		}
@@ -2838,7 +2840,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	private String createUpdDelWhereFcst(TabularData td, DataRecord dr) {
 		final String format = " where lid = '%s' and pe = '%s' "
 				+ "and validtime = '%s' and basistime = '%s' "
-				+ "and dur = %d and ts = '%s'  and extremum = '%s' ";
+				+ "and dur = %d and ts = '%s'  and extremum = '%s' ; ";
 
 		String where = String.format(format, dr.getLid(), dr.getPe(),
 				HydroConstants.DATE_FORMAT.format(dr.getObsTime()),

@@ -27,17 +27,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.Printer;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -66,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 9, 2008				lvenable	Initial creation
  * Dec 16, 2008 1787        askripsk    Started report generation.
  * Sep 23, 2009 2260        mpduff      Finished the dialog,
+ * Aug 20, 2012 13781       wkwock      Added print menu for 6 text reports
  * 
  * </pre>
  * 
@@ -107,29 +100,6 @@ public class TextReportDlg extends CaveSWTDialog {
     private StyledText textViewer;
 
     private TextReport report;
-
-    /* Vars used in the printing methods */
-    private Printer printer;
-
-    private int lineHeight = 0;
-
-    private int tabWidth = 0;
-
-    private int leftMargin;
-
-    private int rightMargin;
-
-    private int topMargin;
-
-    private int bottomMargin;
-
-    private int x, y;
-
-    private int index, end;
-
-    private StringBuffer wordBuffer;
-
-    private GC gc;
 
     /**
      * Constructor.
@@ -400,35 +370,31 @@ public class TextReportDlg extends CaveSWTDialog {
         Button printBtn = new Button(btnComp, SWT.PUSH);
         printBtn.setText("Print");
         printBtn.setLayoutData(gd);
+        final TextReportDlg txtRptDlg=this;
         printBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                final String text = textViewer.getText();
-
-                if (text != null) {
-                    PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
-                    PrinterData data = dialog.open();
-
-                    if (data == null) {
-                        return;
-                    }
-
-                    printer = new Printer(data);
-
-                    /*
-                     * Do the printing in a background thread so that spooling
-                     * does not freeze the UI.
-                     */
-                    Thread printingThread = new Thread("PrintTable") {
-                        @Override
-                        public void run() {
-                            print(printer, text);
-                            printer.dispose();
-                        }
-                    };
-                    printingThread.start();
-
-                }
+            	if (report.getClass().getName().equals(E19Report.class.getName())){
+            		PrintE19TextReportDlg ptr = new PrintE19TextReportDlg(shell,(E19Report)report);
+                	ptr.open();
+            	} else if (report.getClass().getName().equals(E19AReport.class.getName())) {
+            		PrintE19ATextReportDlg ptr = new PrintE19ATextReportDlg(shell,(E19AReport)report);
+                	ptr.open();
+            	} else if (report.getClass().getName().equals(B44AReport.class.getName())) {
+            		PrintB44ATextReportDlg ptr = new PrintB44ATextReportDlg(shell,(B44AReport)report);
+                	ptr.open();
+            	}else if (report.getClass().getName().equals(ServiceBackupReport.class.getName())) {
+            		PrintSvcBkTextReportDlg ptr = new PrintSvcBkTextReportDlg(shell,(ServiceBackupReport)report);
+            		ptr.setTextReportDlg(txtRptDlg);
+                	ptr.open();
+            	}else if (report.getClass().getName().equals(StationClassReport.class.getName())) {
+            		PrintStnClassTextReportDlg ptr = new PrintStnClassTextReportDlg(shell,(StationClassReport)report);
+                	ptr.open();
+            	}else if (report.getClass().getName().equals(StationListReport.class.getName())) {
+            		PrintSortedStnTextReportDlg ptr = new PrintSortedStnTextReportDlg(shell,(StationListReport)report);
+            		ptr.setTextReportDlg(txtRptDlg);
+                	ptr.open();
+            	}
             }
         });
     }
@@ -444,6 +410,13 @@ public class TextReportDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * 
+     */
+    public int getPageSelectionIndex () {
+    	return this.pageCbo.getSelectionIndex();
+    }
+    
     /**
      * Event handler for Report combobox. This populates the page combobox and
      * displays the report
@@ -599,148 +572,5 @@ public class TextReportDlg extends CaveSWTDialog {
         // Now scroll to the text, this puts the
         // text at the top of the page
         textViewer.setSelection(offset);
-    }
-
-    /**
-     * Send the text to the printer
-     * 
-     * @param printer
-     *            The printer
-     * @param text
-     *            The text to print
-     */
-    private void print(Printer printer, String text) {
-        if (printer.startJob("Text")) {
-            Rectangle clientArea = printer.getClientArea();
-            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-            Point dpi = printer.getDPI();
-            leftMargin = dpi.x + trim.x; // one inch from left side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
-            // inch
-            // from
-            // right
-            // side
-            // of
-            // paper
-            topMargin = dpi.y + trim.y; // one inch from top edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one
-            // inch
-            // from
-            // bottom
-            // edge
-            // of
-            // paper
-
-            /* Create a buffer for computing tab width. */
-            int tabSize = 4; // is tab width a user setting in your UI?
-            StringBuffer tabBuffer = new StringBuffer(tabSize);
-            for (int i = 0; i < tabSize; i++) {
-                tabBuffer.append(' ');
-            }
-            String tabs = tabBuffer.toString();
-
-            /*
-             * Create printer GC, and create and set the printer font &
-             * foreground color.
-             */
-            gc = new GC(printer);
-
-            Font printerFont = new Font(printer, "Monospace", 8, SWT.NORMAL);
-
-            Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
-            Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
-                    255));
-
-            gc.setFont(printerFont);
-            gc.setForeground(printerForegroundColor);
-            gc.setBackground(printerBackgroundColor);
-            tabWidth = gc.stringExtent(tabs).x;
-            lineHeight = gc.getFontMetrics().getHeight();
-
-            /* Print text to current gc using word wrap */
-            printText(text);
-
-            printer.endJob();
-
-            /* Cleanup graphics resources used in printing */
-            printerFont.dispose();
-            printerForegroundColor.dispose();
-            printerBackgroundColor.dispose();
-            gc.dispose();
-        }
-    }
-
-    /**
-     * Print the text
-     * 
-     * @param text
-     *            The text to be printed
-     */
-    private void printText(String text) {
-        printer.startPage();
-        wordBuffer = new StringBuffer();
-        x = leftMargin;
-        y = topMargin;
-        index = 0;
-        end = text.length();
-        while (index < end) {
-            char c = text.charAt(index);
-            index++;
-            if (c != 0) {
-                if ((c == 0x0a) || (c == 0x0d)) {
-                    if ((c == 0x0d) && (index < end)
-                            && (text.charAt(index) == 0x0a)) {
-                        index++; // if this is cr-lf, skip the lf
-                    }
-                    printWordBuffer();
-                    newline();
-                } else {
-                    if (c != '\t') {
-                        wordBuffer.append(c);
-                    }
-                    if (Character.isWhitespace(c)) {
-                        printWordBuffer();
-                        if (c == '\t') {
-                            x += tabWidth;
-                        }
-                    }
-                }
-            }
-        }
-        if (y + lineHeight <= bottomMargin) {
-            printer.endPage();
-        }
-    }
-
-    /**
-     * Word buffer for formating lines on the printed page
-     */
-    private void printWordBuffer() {
-        if (wordBuffer.length() > 0) {
-            String word = wordBuffer.toString();
-            int wordWidth = gc.stringExtent(word).x;
-            if (x + wordWidth > rightMargin) {
-                /* word doesn't fit on current line, so wrap */
-                newline();
-            }
-            gc.drawString(word, x, y, false);
-            x += wordWidth;
-            wordBuffer = new StringBuffer();
-        }
-    }
-
-    /**
-     * New line on the printed page
-     */
-    private void newline() {
-        x = leftMargin;
-        y += lineHeight;
-        if (y + lineHeight > bottomMargin) {
-            printer.endPage();
-            if (index + 1 < end) {
-                y = topMargin;
-                printer.startPage();
-            }
-        }
     }
 }
