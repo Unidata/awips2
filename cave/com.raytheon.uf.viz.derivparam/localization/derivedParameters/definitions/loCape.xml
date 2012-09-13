@@ -18,7 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="J/kg" name="CAPE to 3kmAGL" abbreviation="loCape" xmlns:ns2="group">
+<DerivedParameter unit="J/kg" name="CAPE to 3kmAGL (Tv)" abbreviation="loCape" xmlns:ns2="group">
+    <Method levels="Surface,0-1kmAgl,ML" name="Cape">
+        <Field level="3D" abbreviation="TV"/>
+        <Field level="lower" abbreviation="P"/>
+        <Field abbreviation="PoT"/>
+        <Field abbreviation="SHx"/>
+        <ConstantField value="1.0"/>
+        <Field level="3kmAgl" abbreviation="P"/>
+    </Method>
     <Method name="Cape" levels="Surface,BLyr,1kmAgl">
         <Field abbreviation="TV" level="3D"/>
         <Field abbreviation="P"/>

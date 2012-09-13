@@ -49,7 +49,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 18, 2011            mnash     Initial creation
- * 
+ * Sep 10, 2012 15337      kshresth  Changed sector on OCONUS:Products under 
+ * 									 Derived Products Imagery Display
  * </pre>
  * 
  * @author mnash
@@ -110,6 +111,10 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
                 + File.separator + "satellite" + File.separator
                 + "baseCompositeTemplate.xml");
 
+        MenuTemplateFile fileOCONUS = (MenuTemplateFile) fromXml("menuTemplate"
+                + File.separator + "satellite" + File.separator
+                + "baseOCONUSDerivedProductsImageryTemplate.xml");
+        
         String state = "";
         if (results != null && results.length > 0) {
             state = results[0].toString();
@@ -124,18 +129,27 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
         }
         ((CommonIncludeMenuContribution) file.contributions[0]).fileName = new File(
                 "menus/satellite/baseSatellite.xml");
-        if ("Hawaii".equals(state) || "Alaska".equals(state)
+        ((CommonIncludeMenuContribution) fileOCONUS.contributions[0]).fileName = new File(
+        "menus/satellite/baseOCONUSBlendedDerivedProductsImagery.xml");
+        if ("Alaska".equals(state) ||"Hawaii".equals(state)
                 || "Puerto Rico".equals(state)) {
+            ((CommonIncludeMenuContribution) fileOCONUS.contributions[0]).substitutions = new VariableSubstitution[1];
+            // sector
+            VariableSubstitution sub = new VariableSubstitution();
+            sub.key = "sector";
+            sub.value = state + " National";
+            ((CommonIncludeMenuContribution) fileOCONUS.contributions[0]).substitutions[0] = sub;            
+            // ============================================
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions = new VariableSubstitution[5];
             // sector0
-            VariableSubstitution sub = new VariableSubstitution();
+            sub = new VariableSubstitution();
             sub.key = "sector0";
-            sub.value = state + " Regional";
-            ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[0] = sub;
+            sub.value = "Northern Hemisphere Composite";
+            ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[0] = sub;           
             // sector1
             sub = new VariableSubstitution();
             sub.key = "sector1";
-            sub.value = state + " National";
+            sub.value = "Northern Hemisphere Composite";
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[1] = sub;
             // sector2
             sub = new VariableSubstitution();
@@ -219,6 +233,10 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
 
         toXml(file, "menus" + File.separator + "satellite" + File.separator
                 + "baseComposite.xml");
+        
+        toXml(fileOCONUS, "menus" + File.separator + "satellite" + File.separator
+                + "baseDerivedProductsImagery.xml");
+        
         statusHandler.info("Finished creating satellite menus");
     }
 
@@ -232,10 +250,20 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
         MenuTemplateFile file = (MenuTemplateFile) fromXml("menus"
                 + File.separator + "satellite" + File.separator
                 + "baseComposite.xml", caveConfigured);
+        MenuTemplateFile fileO = (MenuTemplateFile) fromXml("menus"
+                + File.separator + "satellite" + File.separator
+                + "baseDerivedProductsImagery.xml", caveConfigured);        
         if (file == null || file.contributions == null
                 || file.contributions.length == 0) {
-            return false;
+        	 return false;
         } else {
+        	if (getSite().equals("AJK") || getSite().equals("AFC")
+                || getSite().equals("AFG") || getSite().equals("HFO") 
+                || getSite().equals("GUM") || getSite().equals("SJU")) {
+                if( fileO == null || fileO.contributions == null
+                    || fileO.contributions.length == 0) 
+                  return false;
+                }
             statusHandler.info("Menus already created for site " + getSite()
                     + " for satellite");
             return true;
