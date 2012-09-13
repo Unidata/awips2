@@ -19,6 +19,13 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="K" name="Dew point temperature" abbreviation="DpT" xmlns:ns2="group">
+    <Method name="Dewpoint">
+        <Field abbreviation="T"/>
+        <Field abbreviation="RH"/>
+    </Method>
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="DpTmean"/>
+    </Method>
     <Method levels="Surface" name="Alias">
         <Field level="Station" abbreviation="dewpoint"/>
     </Method>

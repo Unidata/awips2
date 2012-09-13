@@ -285,6 +285,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 13AUG2012   14613        M.Gamazaychikov	Ensured the WMO and MND header times are the same.
  * 20AUG2012   15340        D.Friedman  Use callbacks for stop sign dialog.  Prevent NOR in header.
  * 10SEP2012   15334        rferrel     No longer wrap text pasted to an empty text field.
+ * 10Sep2012   15103	    M.Gamazaychikov	DR15103 -do not clear AFOS command from the text box 
+ * 						when obs are updated and refactored executeCommand
+ * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * </pre>
  * 
  * @author lvenable
@@ -3905,7 +3908,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 setHeaderTextField(wmoId, siteId, currentDateId, "\n", nnnxxx);
             } else {
                 setHeaderTextField(tdm.getWmoId(token), tdm.getSiteId(token),
-                        currentDateId + " " + bbbid, "\n", nnnxxx);
+                        bbbid.length() > 0 ? currentDateId + " " + bbbid
+                                : currentDateId, "\n", nnnxxx);
             }
 
             // Update the "now editing" title of the text editor window.
@@ -5241,9 +5245,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     public String getAddressee() {
         return addressee;
     }
-
-    @Override
+    
     public void executeCommand(ICommand command) {
+    	executeCommand(command, false);
+    }
+
+    public void executeCommand(ICommand command, boolean isObsUpdated) {
         if (isDisposed()) {
             return;
         }
@@ -5347,7 +5354,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     TextDisplayModel.getInstance().createStdTextProduct(token,
                             w, siteNode);
                 }
-                clearAfosCmdTF();
+                /*
+                 * DR15103 - do not clear AFOS command from the text box
+                 * when obs are updated
+                 */
+                if ( !isObsUpdated ) {
+                	clearAfosCmdTF();
+                }
                 clearWmoTF();
                 clearAwipsIdTF();
             } else {
@@ -6456,7 +6469,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         @Override
         public void run() {
-            executeCommand(command);
+        	/*
+        	 * DR15103 - set the flag to 'true' before executing 
+        	 * AFOS command so the AFOS command box is not cleared 
+        	 * when obs are updated
+        	 */       	
+            executeCommand(command, true);
         }
 
     }
