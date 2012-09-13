@@ -632,7 +632,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                 || statMsg.getSourceKey().equals("GDN_ADMIN");
 
         if (isGdnAdminMessage) {
-            Container.logInternal(statMsg);
+            // Container.logInternal(statMsg);
             if ((statMsg.getDetails() != null)
                     && (statMsg.getDetails().contains("Error")
                             || statMsg.getDetails().contains("Exception")
