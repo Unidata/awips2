@@ -19,6 +19,16 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="K" name="Potential Temp" abbreviation="PoT" xmlns:ns2="group">
+    <Method levels="TEMP,S" name="Slice">
+        <Field level="3D" abbreviation="T"/>
+        <Field level="3D" abbreviation="PoT"/>
+        <Field abbreviation="TEMP"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method models="SREF212" name="Theta">
+        <Field abbreviation="P"/>
+        <Field abbreviation="Tmean"/>
+    </Method>
     <Method name="Alias">
         <Field abbreviation="K"/>
     </Method>
