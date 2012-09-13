@@ -36,6 +36,7 @@ import com.raytheon.viz.hydrocommon.data.ZoneInfoData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2009  1802       askripsky   Initial Creation
+ * Sep 11,2012  15362      wkwock      Fix selected zones
  * 
  * </pre>
  * 
@@ -158,7 +159,7 @@ public class CountyZoneUgcDataManager {
 	 * @throws VizException
 	 */
 	public ArrayList<ZoneInfoData> getZonesSelected() throws VizException {
-		return getZonesSelected(false);
+		return getZonesSelected(true);
 	}
 
 	/**

@@ -18,4 +18,66 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="HIdx" name="Heat Index" unit="K"/>
+<DerivedParameter abbreviation="HIdx" name="Heat Index" unit="K">
+    <Method levels="875MB" name="Poly">
+        <ConstantField value="-42.379"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="2.0490153"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="10.143332"/>
+        <Field level="Surface" abbreviation="RH"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-0.05481717"/>
+        <Field level="Surface" abbreviation="RH"/>
+        <ConstantField value="2.0"/>
+        <ConstantField value="-0.00683783"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <ConstantField value="2.0"/>
+    </Method>
+    <Method levels="900MB" name="Multiply">
+        <ConstantField value="-0.2247554"/>
+        <Field level="Surface" abbreviation="RH"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+    </Method>
+    <Method levels="925MB" name="Multiply">
+        <ConstantField value="0.00122874"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="Surface" abbreviation="RH"/>
+    </Method>
+    <Method levels="950MB" name="Multiply">
+        <ConstantField value="8.5282E-4"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="Surface" abbreviation="RH"/>
+        <Field level="Surface" abbreviation="RH"/>
+    </Method>
+    <Method levels="975MB" name="Multiply">
+        <ConstantField value="-1.99E-6"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <Field level="Surface" abbreviation="RH"/>
+        <Field level="Surface" abbreviation="RH"/>
+    </Method>
+    <Method levels="1000MB" name="Add">
+        <Field level="875MB" abbreviation="HIdx"/>
+        <Field level="900MB" abbreviation="HIdx"/>
+        <Field level="925MB" abbreviation="HIdx"/>
+        <Field level="950MB" abbreviation="HIdx"/>
+        <Field level="975MB" abbreviation="HIdx"/>
+    </Method>
+    <Method levels="850MB" name="LinTrans">
+        <ConstantField value="0.55556"/>
+        <Field level="1000MB" abbreviation="HIdx"/>
+        <ConstantField value="255.2222"/>
+        <ConstantField value="1.0"/>
+    </Method>
+    <Method levels="Surface" name="Test">
+        <Field level="Surface" abbreviation="T"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="293.706"/>
+        <ConstantField value="1e37"/>
+        <Field level="850MB" abbreviation="HIdx"/>
+    </Method>
+</DerivedParameter>
