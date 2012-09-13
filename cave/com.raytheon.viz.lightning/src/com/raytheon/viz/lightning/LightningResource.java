@@ -90,6 +90,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *                                         &quot;-&quot; symbols as well as the font size of the
  *                                         text will be updated when the user changes
  *                                         the magnification level now.
+ *    Sep 4, 2012  15335       kshresth    Will now display lightning/wind 
+ *                                         fields when magnification set to 0                                         
  * 
  * </pre>
  * 
@@ -352,7 +354,9 @@ public class LightningResource extends
 
         int posCount = 0;
         int negCount = 0;
-
+        
+        if (magnification == 0.0) magnification=(float) 0.01;
+        
         IExtent extent = paintProps.getView().getExtent();
 
         CacheObject<LightningFrameMetadata, LightningFrame> cacheObject = cacheObjectMap

@@ -19,7 +19,47 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="hPa" name="Pressure" abbreviation="P" xmlns:ns2="group">
-	<Method models="modelsounding" levels="Surface" name="Alias">
+    <Method levels="PV5" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <ConstantField value="0.000005"/>
+        <ConstantField value="-2"/>        
+    </Method>
+    <Method levels="PV10" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <ConstantField value="0.000010"/>
+        <ConstantField value="-2"/>        
+    </Method>
+    <Method levels="PV15" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <ConstantField value="0.000015"/>
+        <ConstantField value="-2"/>
+    </Method>
+    <Method levels="PV20" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <ConstantField value="0.000020"/>
+        <ConstantField value="-2"/>
+    </Method>
+    <Method levels="MaxOmega" name="Slice">
+        <Field level="3D" abbreviation="PVV"/>
+        <ConstantField value="-1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method levels="MaxT" name="Slice">
+        <Field level="3D" abbreviation="T"/>
+        <ConstantField value="1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method levels="MaxTW" name="Slice">
+        <Field level="3D" abbreviation="TW"/>
+        <ConstantField value="1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method levels="MaxR" name="Slice">
+        <Field level="3D" abbreviation="mixRat"/>
+        <ConstantField value="1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method models="modelsounding" levels="Surface" name="Alias">
         <Field level="Station" abbreviation="sfcPress"/>
     </Method>
     <Method levels="S,MB" name="Alias">

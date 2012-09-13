@@ -19,6 +19,18 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="Pa/s" name="Omega" abbreviation="PVV" xmlns:ns2="group">
+    <Method levels="MaxOmega" name="Slice">
+        <Field level="3D" abbreviation="PVV"/>
+        <Field level="3D" abbreviation="PVV"/>
+        <ConstantField value="-1e35" />
+        <ConstantField value="-1"/>
+    </Method>
+    <Method levels="MaxTW" name="Slice">
+        <Field level="3D" abbreviation="TW"/>
+        <Field level="3D" abbreviation="PVV"/>
+        <ConstantField value="1e35"/>
+        <ConstantField value="-1"/>
+    </Method>
     <Method name="PVV.execute1">
     	<Field abbreviation="omega" />
     </Method>
