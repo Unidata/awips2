@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * 
  * </pre>
  * 
@@ -77,6 +78,8 @@ public abstract class GridCoverage extends PersistableDataObject implements
         ISpatialObject {
 
     private static final long serialVersionUID = -1355232934065074837L;
+    
+    protected static final String SUBGRID_TOKEN = "-SubGrid-";
 
     /** The id for this grid. This value is generated in the initialize method **/
     @Id
@@ -723,7 +726,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
         String subGridName = getName();
 
         if (subGridName != null) {
-            return getName().contains("SubGrid");
+            return getName().contains(SUBGRID_TOKEN);
         }
 
         return false;
@@ -739,9 +742,9 @@ public abstract class GridCoverage extends PersistableDataObject implements
         String model = null;
         if (isSubGridded()) {
             String subGridName = getName();
-            int index = subGridName.lastIndexOf("-");
-            if (index > 0 && index + 1 < subGridName.length()) {
-                model = subGridName.substring(index + 1);
+            int index = subGridName.lastIndexOf(SUBGRID_TOKEN);
+            if (index >= 0 && index + SUBGRID_TOKEN.length() < subGridName.length()) {
+                model = subGridName.substring(index + SUBGRID_TOKEN.length());
             }
         }
         return model;
@@ -751,8 +754,8 @@ public abstract class GridCoverage extends PersistableDataObject implements
         String parentName = null;
         if (isSubGridded()) {
             String subGridName = getName();
-            int index = subGridName.indexOf("-");
-            if (index > 0) {
+            int index = subGridName.indexOf(SUBGRID_TOKEN);
+            if (index >= 0) {
                 parentName = subGridName.substring(0, index);
             }
         }
