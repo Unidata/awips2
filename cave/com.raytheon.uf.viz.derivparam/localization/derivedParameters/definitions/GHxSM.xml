@@ -19,10 +19,16 @@
         further_licensing_information.
     -->
 <DerivedParameter abbreviation="GHxSM" name="Filtered-500km Hgt" unit="m">
+    <Method models="SREF212" name="Filter">
+        <Field abbreviation="GHmean"/>
+        <ConstantField value="250.0"/>
+        <Field abbreviation="dx"/>
+        <Field abbreviation="dy"/>
+    </Method>
     <Method name="Filter">
 		<Field abbreviation="GH"/>
 		<ConstantField value="500.0"/>
 		<Field abbreviation="dx"/>
 		<Field abbreviation="dy"/>
-	</Method>
+    </Method>
 </DerivedParameter>
