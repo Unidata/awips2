@@ -19,7 +19,34 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="m/s" name="v Component of Wind" abbreviation="vW" xmlns:ns2="group">
-	<Method models="modelsounding" levels="Surface" name="Alias">
+    <Method levels="PV5" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <Field level="3D" abbreviation="vW"/>
+        <ConstantField value="0.000005"/>
+        <ConstantField value="-2"/>
+    </Method>
+    <Method levels="PV10" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <Field level="3D" abbreviation="vW"/>
+        <ConstantField value="0.000010"/>
+        <ConstantField value="-2"/>        
+    </Method>
+    <Method levels="PV15" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <Field level="3D" abbreviation="vW"/>
+        <ConstantField value="0.000015"/>
+        <ConstantField value="-2"/>
+    </Method>
+    <Method levels="PV20" name="Slice">
+        <Field level="3D" abbreviation="pV"/>
+        <Field level="3D" abbreviation="vW"/>
+        <ConstantField value="0.000020"/>
+        <ConstantField value="-2"/>
+    </Method>
+    <Method models="SREF212" name="Alias">
+        <Field abbreviation="vWmean"/>
+    </Method>
+    <Method models="modelsounding" levels="Surface" name="Alias">
         <Field level="Station" abbreviation="v10"/>
     </Method>
     <Method levels="Surface" name="Alias">

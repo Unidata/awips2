@@ -18,4 +18,4 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="CICEPc1" name="Prob Categorical Ice Pellets = YES" unit="%"/>
+<DerivedParameter unit="%" name="Chc of Measurable IP (Dominant)" abbreviation="CICEPc1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType"/>
