@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.alertviz.internal;
 
-import java.io.File;
 import java.sql.Timestamp;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,13 +31,9 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.viz.alertviz.Activator;
 import com.raytheon.uf.viz.alertviz.AlertvizException;
 import com.raytheon.uf.viz.alertviz.Constants;
-import com.raytheon.uf.viz.alertviz.LogUtil;
-import com.raytheon.uf.viz.alertviz.LogUtil.Order;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
- * Purges the database, and archives the old log entries to a text file
+ * Purges old database entries.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -50,26 +45,16 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * @author chammack
  * @version 1.0
  */
-public class ArchiveLogJob extends Job {
-
-    private int numberOfLogsToKeep;
+public class PurgeLogJob extends Job {
 
     private int ageOfLogInHours;
-
-    private static final int DEFAULT_NUMBER_OF_LOGS = 10;
 
     private static final int DEFAULT_AGE_OF_LOG_IN_HRS = 12;
 
     private static final int MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 
-    public ArchiveLogJob() {
-        super("Archive Log");
-        this.setSystem(true);
-        numberOfLogsToKeep = Activator.getDefault().getPreferenceStore()
-                .getInt(Constants.P_NUMBER_OF_LOGS);
-        if (numberOfLogsToKeep == 0) {
-            this.numberOfLogsToKeep = DEFAULT_NUMBER_OF_LOGS;
-        }
+    public PurgeLogJob() {
+        super("Archive Log Purge");
 
         ageOfLogInHours = Activator.getDefault().getPreferenceStore()
                 .getInt(Constants.P_MAX_AGE_OF_LOGS);
@@ -90,14 +75,8 @@ public class ArchiveLogJob extends Job {
             long now = System.currentTimeMillis();
 
             if ((now - lastPurgeInMs) > (ageOfLogInHours * MILLISECONDS_IN_HOUR)) {
-                String s = LocalizationManager.getUserDir() + "textLogs"
-                        + File.separator + VizApp.getHostName()
-                        + File.separator + "log";
-                LogUtil.rollLogs(s, numberOfLogsToKeep);
-
                 Timestamp ts = new Timestamp(now
                         - (ageOfLogInHours * MILLISECONDS_IN_HOUR));
-                LogUtil.saveLogToFile(new File(s + ".0"), ts, Order.BEFORE);
                 LogMessageDAO.getInstance().purge(ts);
             }
         } catch (AlertvizException e) {
@@ -111,7 +90,7 @@ public class ArchiveLogJob extends Job {
                             .openError(
                                     Display.getDefault().getActiveShell(),
                                     "Error",
-                                    "Error rotating saving and rotating logs.  Archived logs may not be stored",
+                            "Error purging logs.",
                                     s);
                 }
 
