@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 	
+	AWIPS I format
+	PEC_TT24| |N|24h Cumulative Precip Potential Placement |in|CONTOUR,IMAGE,OTHER|Layer|      *Add,dTime|PEC|0.|PEC|-21600.|PEC|-43200.|PEC|-64800.
+	
+	
+	varId: |PEC_TT24| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |24h Cumulative Precip Potential Placement | 
+	units: |in| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Add|
+	dTime: |dTime|
+	varId: |PEC| 
+	offset: |0| 
+	varId: |PEC| 
+	offset: |-21600| 
+	varId: |PEC| 
+	offset: |-43200| 
+	varId: |PEC| 
+	offset: |-64800| 
+
+	AWIPS II NEW FILE - PEC_TT24.xml
+-->
+<DerivedParameter unit="in" name="24h Cumulative Precip Potential Placement" abbreviation="PEC_TT24" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method dtime="true" name="Add">
+        <Field timeShift="0" abbreviation="PEC"/>
+        <Field timeShift="-21600" abbreviation="PEC"/>
+        <Field timeShift="-43200" abbreviation="PEC"/>
+        <Field timeShift="-64800" abbreviation="PEC"/>
+    </Method>
+</DerivedParameter>

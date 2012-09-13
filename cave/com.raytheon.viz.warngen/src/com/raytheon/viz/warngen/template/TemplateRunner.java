@@ -71,8 +71,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
@@ -122,7 +124,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jun 15, 2012   15043    Qinglu Lin  Added duration to context.
  * Jul 16, 2012   15091    Qinglu Lin  Compute intersection area, which is used for prevent 2nd timezone
  *                                     from appearing in 2nd and 3rd bullets when not necessary.
- * Aug 13, 2012   14493    Qinglu Lin  Handled MND time, event time, and TML time specially for COR to NEW.  
+ * Aug 13, 2012   14493    Qinglu Lin  Handled MND time, event time, and TML time specially for COR to NEW.
+ * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.  
  * 
  * </pre>
  * 
@@ -741,7 +744,8 @@ public class TemplateRunner {
 
         long tz0 = System.currentTimeMillis();
         String script = createScript(warngenLayer.getTemplateName() + ".vm",
-                context, warngenLayer.getLocalizedSite());
+                context, warngenLayer.getLocalizedSite(),
+                FileUtil.join(LocalizationManager.getUserDir(), "logs"));
         System.out.println("velocity time: "
                 + (System.currentTimeMillis() - tz0));
 
@@ -754,7 +758,7 @@ public class TemplateRunner {
     private static VelocityEngine ENGINE = new VelocityEngine();
 
     private static synchronized String createScript(String vmFile,
-            VelocityContext context, String site) throws EdexException {
+            VelocityContext context, String site, String logDir) throws EdexException {
         StringWriter sw = new StringWriter();
         try {
             Properties p = new Properties();
@@ -765,6 +769,8 @@ public class TemplateRunner {
             p.setProperty(
                     "velocimacro.permissions.allow.inline.to.replace.global",
                     "true");
+            p.setProperty("runtime.log",
+                    FileUtil.join(logDir, "velocity.log"));
             ENGINE.init(p);
             context.put("scriptLibrary", "VM_global_library.vm");
             Template template = ENGINE.getTemplate(vmFile,
