@@ -89,6 +89,9 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      current alarm queue window.
  * May 23, 2012 14952      rferrel     Now use refTime/createtime to display
  *                                      selected product
+ * Aug 28, 2012 14795	mgamazaychikov	Fixed problem with "Unhadled event loop" 
+ * 										exception associated with closing 
+ * 										"Current Alarm Queue" GUI
  * </pre>
  * 
  * @author mnash
@@ -477,7 +480,16 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 alarmDisplayDlg.setDialogFocus();
             }
         }
-        displayAll.setEnabled(false);
+        /*
+         * DR14795 - fix the "Unhandled event loop" exception
+         * 			 by calling setEnabled on displayAll only
+         * 			 for a valid list
+         */
+        if (list != null && !list.isDisposed()) {
+            if (list.getItemCount() == 0) {
+                displayAll.setEnabled(false);
+            }
+        }
     }
 
     /**

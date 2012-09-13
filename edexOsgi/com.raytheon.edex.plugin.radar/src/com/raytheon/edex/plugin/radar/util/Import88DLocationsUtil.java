@@ -27,7 +27,10 @@ import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -39,6 +42,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10Oct2011   10520       JWork       Initial check-in.
+ * 09/11/2012   DR 15366    D. Friedman Set SRID on radar stations.
  * </pre>
  * 
  */
@@ -51,6 +55,8 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
 
     private static final String CONFIG_FILE_NAME = "ndm"
             + IPathManager.SEPARATOR;
+
+    private static final int WGS84_SRID = 4326;
 
     // The list of the required file comprising a Shapefile set
     private ArrayList<String> theRadarShapeFileList = new ArrayList<String>() {
@@ -265,6 +271,21 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
         for (RadarStation station : aStationList) {
             radarStationDAO.saveOrUpdate(station);
         }
+        
+        /*
+         * Kludge for DR 15366: The GeoTools WKBWriter does not store SRIDs so
+         * we must update them manually.
+         * 
+         * Once GetTools is updated/fixed, this should be removed.
+         */
+        try {
+            radarStationDAO
+                    .executeNativeSql("update radar_spatial set the_geom=st_setsrid(the_geom, 4326)");
+        } catch (DataAccessLayerException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Failed to update the SRIDs in the radar_spatial_table", e);
+        }
+        
         if (statusHandler.isPriorityEnabled(Priority.INFO)) {
             statusHandler
                     .handle(Priority.INFO,
@@ -301,7 +322,8 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
         String rda_id = null;
         RadarStation tempStation = null;
         Set<String> keySet = null;
-        WKTReader wkt = new WKTReader();
+        GeometryFactory gf = new GeometryFactory(new PrecisionModel(), WGS84_SRID);
+        WKTReader wkt = new WKTReader(gf);
         for (HashMap<String, String> aHashMap : aDataList) {
             keySet = aHashMap.keySet();
             tempStation = new RadarStation();

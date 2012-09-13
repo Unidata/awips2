@@ -28,7 +28,8 @@ package com.raytheon.viz.hydrocommon.textreport;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
- * 
+ * Sep 11, 2012 13781      wkwock     add print menu
+ *  
  * </pre>
  * 
  * @author mpduff
@@ -51,17 +52,17 @@ public class StationListReport extends TextReport {
     private static final int STALIST_RECORD_LIMIT_PER_PAGE = 54;
 
     /* Types used for ordering columns */
-    private static final int STALIST_LID = 1;
+    protected static final int STALIST_LID = 1;
 
-    private static final int STALIST_NAM = 2;
+    protected static final int STALIST_NAM = 2;
 
-    private static final int STALIST_COU = 3;
+    protected static final int STALIST_COU = 3;
 
-    private static final int STALIST_BAS = 4;
+    protected static final int STALIST_BAS = 4;
 
-    private static final int STALIST_WFO = 5;
+    protected static final int STALIST_WFO = 5;
 
-    private static final int STALIST_OBS = 6;
+    protected static final int STALIST_OBS = 6;
 
     private static final int[] sortedby_lid = { STALIST_LID, STALIST_NAM,
             STALIST_COU, STALIST_BAS, STALIST_WFO, STALIST_OBS, 0 };
@@ -100,7 +101,187 @@ public class StationListReport extends TextReport {
     public String loadTextWidget() {
         return getText(0);//, TEXTREPORTS_REASON_NORMAL);
     }
+    
+    
+    public int[] getSortArray(int sort) {
+    	int[] sortArray=null;
+        switch (sort) {
+        case TextReportConstants.STALIST_SORTBY_LID:
+            sortArray = sortedby_lid;
+            break;
+        case TextReportConstants.STALIST_SORTBY_NAME:
+            sortArray = sortedby_name;
+            break;
+        case TextReportConstants.STALIST_SORTBY_COUNTY:
+            sortArray = sortedby_county;
+            break;
+        case TextReportConstants.STALIST_SORTBY_BASIN:
+            sortArray = sortedby_basin;
+            break;
+        case TextReportConstants.STALIST_SORTBY_OBSERVER:
+            sortArray = sortedby_observer;
+            break;
+        }
 
+        return sortArray;
+    }
+    /**
+     * Generate the report.
+     * 
+     * @param sort
+     *      Which column to sort on
+     *      
+     * @return
+     *      The text
+     */
+    public String generateSpecialReport(int sort, int[] sortArray) {
+        StringBuilder buffer = new StringBuilder();
+        String hdrTitle = "LIST OF LOCATIONS";
+
+        // Get the data for the report
+        StationList[] slData = TextReportDataManager.getInstance()
+                .getStnListData(sort);
+
+        int recordLimit; /* max num records per "8 1/2 x 11" page */
+        int count = 0; /* for counting the num of records processed so far */
+        int pageNum = 1;
+
+        recordLimit = STALIST_RECORD_LIMIT_PER_PAGE;
+
+        /* Check sort type. */
+        switch (sort) {
+        case TextReportConstants.STALIST_SORTBY_LID:
+            hdrTitle = TITLE_LID;
+            break;
+        case TextReportConstants.STALIST_SORTBY_NAME:
+            hdrTitle = TITLE_NAME;
+            break;
+        case TextReportConstants.STALIST_SORTBY_COUNTY:
+            hdrTitle = TITLE_COUNTY;
+            break;
+        case TextReportConstants.STALIST_SORTBY_BASIN:
+            hdrTitle = TITLE_BASIN;
+            break;
+        case TextReportConstants.STALIST_SORTBY_OBSERVER:
+            hdrTitle = TITLE_OBSERVER;
+            break;
+        }
+
+        /* Build header line. */
+        buffer.append(getHeaderLine(hdrTitle, pageNum, sortArray));
+
+        /*
+         * Keep building the list of locations (& headers) for the given
+         * pageType until there are no more records or until the record_limit is
+         * reached.
+         */
+        for (int j = 0; j < slData.length; j++) {
+            /* Write out a single output line as specified by the order. */
+            buffer.append("     ");
+            for (int i = 0; i < sortArray.length; i++) {
+                switch (sortArray[i]) {
+                case STALIST_LID:
+                    buffer.append(String.format("%-8s", slData[j].getLid()));
+                    break;
+                case STALIST_NAM:
+                    if (slData[j].getName() != null) {
+                        if (slData[j].getName().length() > 20) {
+                            buffer.append(String.format("%-20s", slData[j]
+                                    .getName().substring(0, 20)));
+                        } else {
+                            buffer.append(String.format("%-20s", slData[j]
+                                    .getName()));
+                        }
+                    } else {
+                        buffer.append(String.format("%-8s", " "));
+                    }
+                    break;
+                case STALIST_COU:
+                    buffer
+                            .append(String.format("%-20s", slData[j]
+                                    .getCounty()));
+                    break;
+                case STALIST_BAS:
+                    if (slData[j].getRb() != null) {
+                        if (slData[j].getRb().length() > 20) {
+                            buffer.append(String.format("%-20s", slData[j]
+                                    .getRb().substring(0, 20)));
+                        } else {
+                            buffer.append(String.format("%-20s", slData[j]
+                                    .getRb()));
+                        }
+                    } else {
+                        buffer.append(String.format("%-20s", " "));
+                    }
+                    break;
+                case STALIST_WFO:
+                    buffer.append(String.format("%-3s", slData[j].getWfo()));
+                    break;
+                case STALIST_OBS:
+                    if (slData[j].getLastname() != null) {
+                        if (slData[j].getLastname().length() > 24) {
+                            buffer.append(String.format("%-24s", slData[j]
+                                    .getLastname().substring(0, 24)));
+                        } else {
+                            buffer.append(String.format("%-24s", slData[j]
+                                    .getLastname()));
+                        }
+                    } else {
+                        buffer.append(String.format("%-24s", " "));
+                    }
+                    break;
+                }
+
+                buffer.append(" ");
+            }
+
+            if (slData[j].getHPhone() != null) {
+                if (slData[j].getHPhone().length() > 12) {
+                    buffer.append(String.format("%-12s", slData[j].getHPhone()
+                            .substring(0, 12)));
+                } else {
+                    buffer
+                            .append(String.format("%-12s", slData[j]
+                                    .getHPhone()));
+                }
+            } else {
+                buffer.append(String.format("%-12s", " "));
+            }
+            buffer.append(" ");
+            
+            if (slData[j].getOPhone() != null) {
+                if (slData[j].getOPhone().length() > 14) {
+                    buffer.append(String.format("%-14s\n", slData[j]
+                            .getOPhone().substring(0, 14)));
+                } else {
+                    buffer.append(String.format("%-14s\n", slData[j]
+                            .getOPhone()));
+                }
+            } else {
+                buffer.append(String.format("%-14s\n", " "));
+            }
+            count++;
+
+            /*
+             * End of page reached, print header and reset count, increment
+             * pageNum
+             */
+            if (count == recordLimit) {
+                pageNum++;
+                buffer.append("\n");
+                buffer.append(getHeaderLine(hdrTitle, pageNum, sortArray));
+                count = 0;
+            }
+        }
+
+        /* Paginate */
+        for (int i = count; i < 60; i++) {
+            buffer.append("\n");
+        }
+
+        return buffer.toString();
+    }
+    
     /**
      * Generate the report.
      * 
