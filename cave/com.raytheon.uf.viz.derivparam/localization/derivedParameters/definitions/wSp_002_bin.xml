@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 	
+	AWIPS I format
+	wSp_002_bin| ||Binary Prob of Wind Grtn 50kts||||   *Test|wSp|1.0|-999999.0|25.0|0.0|1.0|25.72|999999.0|100.0
+	
+	
+	varId: |wSp_002_bin| 
+	Cross Section (CS): | | 
+	isAttachToSource: || 
+	varName: |Binary Prob of Wind Grtn 50kts| 
+	units: | |
+	displayTypes: | |						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: | |							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+		
+	functionName: |Test|
+	varId:  |wSp|
+	const: |1.0|
+	const: |-999999.0| 
+	const: |25.0| 
+	const: |0.0|
+	const: |1.0|
+	const: |25.72| 
+	const: |999999.0| 
+	const: |100.0|											
+												
+	
+	AWIPS II NEW FILE - wSp_002_bin.xml
+ -->
+<DerivedParameter name="Binary Prob of Wind Grtn 50kts" abbreviation="wSp_002_bin" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="wSp"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-999999.0"/>
+        <ConstantField value="25.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="25.72"/>
+        <ConstantField value="999999.0"/>
+        <ConstantField value="100.0"/>
+    </Method>
+</DerivedParameter>
