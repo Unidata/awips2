@@ -293,7 +293,7 @@ public class AlertalarmStdTextProductUtil {
         String suffix = reportOptions.getFileSuffix();
 
         if (suffix.length() > 0)
-            currReport = new File(reportDir + File.separator + pid + suffix);
+            currReport = new File(reportDir + File.separator + pid + "." + suffix);
         else
             currReport = new File(reportDir + File.separator + pid);
 
