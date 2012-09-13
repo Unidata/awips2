@@ -19,7 +19,13 @@
         further_licensing_information.
     -->
 <DerivedParameter unit="g/kg" name="Spec Humidity" abbreviation="SHx" xmlns:ns2="group">
-	<Method models="modelsounding" levels="Surface" name="Alias">
+      <Method levels="TEMP,S" name="Slice">
+        <Field level="3D" abbreviation="T"/>
+        <Field level="3D" abbreviation="SHx"/>
+        <Field abbreviation="TEMP"/>
+        <ConstantField value="-1"/>
+    </Method>
+    <Method models="modelsounding" levels="Surface" name="Alias">
         <Field level="Station" abbreviation="q2"/>
     </Method>
     <Method name="Multiply">

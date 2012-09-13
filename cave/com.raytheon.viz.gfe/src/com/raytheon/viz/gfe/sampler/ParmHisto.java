@@ -22,12 +22,12 @@ package com.raytheon.viz.gfe.sampler;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * May 21, 2008  1167       mnash       Initial creation
  * Sep 3, 2008   1283       njensen     Fixed issues
  * Jun 15, 2012  14994      ryu         Fixed NPE on _minMaxSumHP
+ * Sep 10, 2012  15306      ryu         Order _minMaxSumHP list by HistValue
  * 
  * </pre>
  * 
@@ -444,7 +445,7 @@ public class ParmHisto {
      */
     private List<HistPair> makeHistogramFromPoints(List<Float> points,
             GridParmInfo info) {
-        Map<Float, Integer> hp = new HashMap<Float, Integer>();
+        Map<Float, Integer> hp = new TreeMap<Float, Integer>();
         for (int i = 0; i < points.size(); i++) {
             Float val = binit(points.get(i), _resolution);
             Integer count = hp.get(val);
