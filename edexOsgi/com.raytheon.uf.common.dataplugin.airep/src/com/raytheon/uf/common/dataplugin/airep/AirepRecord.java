@@ -68,6 +68,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20080107            720 jkorman     remove default assignments from attributes.
  * 20120405            435 dgilling    Prevent NullPointerExceptions in
  *                                     buildMessageData().
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120911           1011 jkorman     Added ability to report turbulence from decoded
+ *                                     TB group.
  * </pre>
  * 
  * @author jkorman
@@ -98,6 +102,34 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
 
+    public static final int TURB_TYPE_CAT = 0x4;
+
+    public static final int TURB_TYPE_CHOP = 0x8;
+
+    public static final int TURB_TYPE_LLWS = 0xC;
+
+    public static final int TURB_FREQ_OCN = 0x1;
+
+    public static final int TURB_FREQ_INT = 0x2;
+
+    public static final int TURB_FREQ_CON = 0x3;
+
+    public static final int TURB_NEG = 0x00;
+
+    public static final int TURB_NEG_LGT = 0x10;
+
+    public static final int TURB_LGT = 0x20;
+
+    public static final int TURB_LGT_MOD = 0x30;
+
+    public static final int TURB_MOD = 0x40;
+
+    public static final int TURB_MOD_SEV = 0x50;
+
+    public static final int TURB_SEV = 0x60;
+
+    public static final int TURB_XTRM = 0x70;
+
     // private static final HashMap<Integer, String> WX_MAP = new
     // HashMap<Integer, String>();
 
@@ -119,6 +151,18 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         // WX_MAP.put(7, "CONT SN");
         // WX_MAP.put(8, "SH");
         // WX_MAP.put(9, "TSRA");
+    }
+
+    private static final HashMap<String, Integer> TURB_MAP = new HashMap<String, Integer>();
+    static {
+        TURB_MAP.put("NEG", new Integer(TURB_NEG));
+        TURB_MAP.put("SMOOTHLGT", new Integer(TURB_NEG_LGT));
+        TURB_MAP.put("LGT", new Integer(TURB_LGT));
+        TURB_MAP.put("LGTMOD", new Integer(TURB_LGT_MOD));
+        TURB_MAP.put("MOD", new Integer(TURB_MOD));
+        TURB_MAP.put("MODSEV", new Integer(TURB_MOD_SEV));
+        TURB_MAP.put("SEV", new Integer(TURB_SEV));
+        TURB_MAP.put("EXTRM", new Integer(TURB_XTRM));
     }
 
     @Column
@@ -550,13 +594,89 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         return null;
     }
 
+    /**
+     * Get the String representation of various AIREP parameters.
+     * 
+     * @param The
+     *            parameter value to get.
+     * @return A String array representing the value. A null reference may be
+     *         returned if the parameter does not exist or cannot be
+     *         represented.
+     */
     @Override
     public String[] getStrings(String paramName) {
+        String[] retValue = null;
+        String value = null;
+
         if ("FLT_HZD".matches(paramName) && flightHazard != null) {
-            String[] flightHazards = { flightHazard.toString() };
-            return flightHazards;
+            if (flightHazard != null) {
+                retValue = new String[] { flightHazard.toString() };
+            }
+        } else if ("TBI".matches(paramName) && (flightConditions != null)) {
+            int turb = flightConditions >> 4;
+            // Is there turbulence to decode?
+            if ((turb & 0x80) > 0) {
+                // get the intensity
+                switch (turb & 0x70) {
+                case TURB_NEG: {
+                    value = "NEG";
+                    break;
+                }
+                case TURB_NEG_LGT: {
+                    value = "SMOOTHLGT";
+                    break;
+                }
+                case TURB_LGT: {
+                    value = "LGT";
+                    break;
+                }
+                case TURB_LGT_MOD: {
+                    value = "LGTMOD";
+                    break;
+                }
+                case TURB_MOD: {
+                    value = "MOD";
+                    break;
+                }
+                case TURB_MOD_SEV: {
+                    value = "MODSEV";
+                    break;
+                }
+                case TURB_SEV: {
+                    value = "SEV";
+                    break;
+                }
+                case TURB_XTRM: {
+                    value = "EXTRM";
+                    break;
+                }
+                }
+            }
+        } else if ("TBF".matches(paramName) && (flightConditions != null)) {
+            int turb = flightConditions >> 4;
+            // Is there turbulence to decode?
+            if ((turb & 0x80) > 0) {
+                // get the intensity
+                switch (turb & 0x03) {
+                case TURB_FREQ_OCN: {
+                    value = "OCN";
+                    break;
+                }
+                case TURB_FREQ_INT: {
+                    value = "INT";
+                    break;
+                }
+                case TURB_FREQ_CON: {
+                    value = "CON";
+                    break;
+                }
+                }
+            }
         }
-        return null;
+        if (value != null) {
+            retValue = new String[] { value };
+        }
+        return retValue;
     }
 
     @Override
@@ -622,8 +742,41 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             messageData.append(windSpeed.intValue());
             messageData.append("KT");
         }
-        messageData.append("TB");
-
+        if(flightConditions != null) {
+            int turb = flightConditions >> 4;
+            if ((turb & 0x80) > 0) {
+                messageData.append(" TB");
+                String[] data = getStrings("TBF");
+                if ((data != null) && (data.length == 1)) {
+                    messageData.append(" ");
+                    messageData.append(data[0]);
+                }
+                data = getStrings("TBI");
+                if ((data != null) && (data.length == 1)) {
+                    messageData.append(" ");
+                    messageData.append(data[0]);
+                }
+                String type = null;
+                switch (turb & 0xC) {
+                case TURB_TYPE_CAT: {
+                    type = "CAT";
+                    break;
+                }
+                case TURB_TYPE_CHOP: {
+                    type = "CHOP";
+                    break;
+                }
+                case TURB_TYPE_LLWS: {
+                    type = "LLWS";
+                    break;
+                }
+                }
+                if (type != null) {
+                    messageData.append(" ");
+                    messageData.append(type);
+                }
+            }
+        }
         return messageData.toString();
     }
 

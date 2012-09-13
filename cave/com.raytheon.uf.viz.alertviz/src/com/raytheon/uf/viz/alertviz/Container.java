@@ -36,7 +36,7 @@ import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.config.Configuration;
 import com.raytheon.uf.viz.alertviz.config.ForcedConfiguration;
 import com.raytheon.uf.viz.alertviz.config.Source;
-import com.raytheon.uf.viz.alertviz.internal.ArchiveLogJob;
+import com.raytheon.uf.viz.alertviz.internal.PurgeLogJob;
 import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
 import com.raytheon.uf.viz.core.VizApp;
 
@@ -63,8 +63,8 @@ public class Container implements IConfigurationChangedListener {
 
     public static final String SOURCE_MISSING = "Source was not found";
 
-    private transient static final org.apache.log4j.Logger internalLogger = Logger
-            .getLogger("AlertVizLogger");
+    private transient static final org.apache.log4j.Logger adminLogger = Logger
+            .getLogger("AlertVizAdminLogger");
 
     private Configuration configuration;
 
@@ -96,7 +96,7 @@ public class Container implements IConfigurationChangedListener {
                 .getForcedConfiguration();
         ConfigurationManager.getInstance().addListener(this);
         this.callbacks = callbacks;
-        ArchiveLogJob archive = new ArchiveLogJob();
+        PurgeLogJob archive = new PurgeLogJob();
         archive.schedule();
     }
 
@@ -171,7 +171,7 @@ public class Container implements IConfigurationChangedListener {
         // for now, just send to the regular log
         StatusMessage sm = new StatusMessage();
         sm.setPriority(priority);
-        sm.setMachine("LOCAL");
+        sm.setMachineToCurrent();
         sm.setSourceKey("GDN_ADMIN");
         sm.setCategory("GDN)ADMIN");
         sm.setMessage(msg);
@@ -319,24 +319,25 @@ public class Container implements IConfigurationChangedListener {
         String cat = message.getCategory();
         String source = message.getSourceKey();
 
-        if ((cat != null && cat.equalsIgnoreCase("GDN_ADMIN"))
-                || (source != null && source.equalsIgnoreCase("GDN_ADMIN"))) {
+        boolean isInternal = (cat != null && cat.equalsIgnoreCase("GDN_ADMIN"))
+                || (source != null && source.equalsIgnoreCase("GDN_ADMIN"));
+        if (isInternal) {
             switch (message.getPriority()) {
             case CRITICAL:
-                internalLogger.fatal(message);
+                adminLogger.fatal(message);
                 break;
             case SIGNIFICANT:
-                internalLogger.error(message);
+                adminLogger.error(message);
                 break;
             case PROBLEM:
-                internalLogger.warn(message);
+                adminLogger.warn(message);
                 break;
             case EVENTA: // fall through
             case EVENTB:
-                internalLogger.info(message);
+                adminLogger.info(message);
                 break;
             case VERBOSE:
-                internalLogger.debug(message);
+                adminLogger.debug(message);
                 break;
             }
         }
