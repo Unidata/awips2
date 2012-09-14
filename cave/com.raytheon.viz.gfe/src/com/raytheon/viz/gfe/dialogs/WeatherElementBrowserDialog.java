@@ -499,7 +499,6 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * Automatically checks for dups, and sorts.
      */
     private void updateSourceMenu() {
-        sourceList.removeAll();
         resetMenu(sourceMenu);
         List<String> sortedSources = selectedType.getSources();
 
