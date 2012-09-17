@@ -283,9 +283,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 18JUL2012   14457        rferrel     Add mouse listener to clear site's update obs when clicked on.
  * 25JUL2012   14459        rferrel     Strip WMH headers when getting all METARs.
  * 13AUG2012   14613        M.Gamazaychikov	Ensured the WMO and MND header times are the same.
- * 20AUG2012   15340        D.Friedman  Use callbacks for stop sign dialog.  Prevent NOR in header. 
+ * 20AUG2012   15340        D.Friedman  Use callbacks for stop sign dialog.  Prevent NOR in header.
+ * 10SEP2012   15334        rferrel     No longer wrap text pasted to an empty text field.
  * 10Sep2012   15103	    M.Gamazaychikov	DR15103 -do not clear AFOS command from the text box 
- * 											when obs are updated and refactored executeCommand
+ * 						when obs are updated and refactored executeCommand
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * </pre>
  * 
@@ -4116,6 +4117,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void pasteText() {
         // AWIPS I just does the pasted in both overwrite and insert mode.
         try {
+            // When pasting to empty editor assume text is properly formatted
+            // and does not need wrapping.
+            boolean doWrap = true;
+            if (textEditor.getText().trim().length() == 0) {
+                doWrap = false;
+                textEditor.setText("");
+            }
             int start = -1;
             if (textEditor.getSelectionCount() == 0) {
                 start = textEditor.getCaretOffset();
@@ -4123,7 +4131,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 start = textEditor.getSelectionRange().x;
             }
             textEditor.paste();
-            rewrap(start, textEditor.getCaretOffset());
+            if (doWrap) {
+                rewrap(start, textEditor.getCaretOffset());
+            }
         } catch (IllegalArgumentException ex) {
             // Ignore
         }
@@ -4368,7 +4378,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         final CAVEMode mode = CAVEMode.getMode();
         StdTextProduct prod = getStdTextProduct();
         String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        final String title = QualityControl.getProductWarningType(prod.getNnnid());
+        final String title = QualityControl.getProductWarningType(prod
+                .getNnnid());
         final StringBuilder productMessage = new StringBuilder();
 
         final StringBuilder modeMessage = new StringBuilder();
@@ -4382,7 +4393,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else if (warnGenFlag) {
             productMessage.append("You are about to SEND a " + afosId + "\n");
             productMessage.append(title).append(".\n");
-            
+
             QualityControl qcCheck = new QualityControl();
             if (qcCheck.checkWarningInfo(headerTF.getText().toUpperCase(),
                     textEditor.getText().toUpperCase(), prod.getNnnid()) == false) {
@@ -4393,7 +4404,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     @Override
                     public void dialogDismissed(Object dialogResult) {
                         if (Boolean.TRUE.equals(dialogResult))
-                            finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+                            finishSendProduct1(resend, title, mode,
+                                    productMessage, modeMessage);
                     }
                 });
 
@@ -4403,7 +4415,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         finishSendProduct1(resend, title, mode, productMessage, modeMessage);
     }
 
-    private void finishSendProduct1(final boolean resend, String title, CAVEMode mode, StringBuilder productMessage, StringBuilder modeMessage) {
+    private void finishSendProduct1(final boolean resend, String title,
+            CAVEMode mode, StringBuilder productMessage,
+            StringBuilder modeMessage) {
         Pattern p = Pattern.compile(".\\%[s].");
         Matcher m = p.matcher(STORED_SENT_MSG);
 
@@ -4468,7 +4482,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         token);
                 OUPRequest req = new OUPRequest();
                 OfficialUserProduct oup = new OfficialUserProduct();
-                StdTextProduct prod = getStdTextProduct(); // TODO: makes me nervous...
+                StdTextProduct prod = getStdTextProduct(); // TODO: makes me
+                                                           // nervous...
                 String awipsWanPil = prod.getSite() + prod.getNnnid()
                         + prod.getXxxid();
                 String awipsID = prod.getNnnid() + prod.getXxxid();
@@ -4623,15 +4638,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean successful = false;
 
         /*
-         * DR14613 - string currectDate is derived from Date now
-         * ensuring the same time in WMO heading and in the 
-         * MND heading.
+         * DR14613 - string currectDate is derived from Date now ensuring the
+         * same time in WMO heading and in the MND heading.
          */
         Date now = SimulatedTime.getSystemTime().getTime();
         String currentDate = getCurrentDate(now);
         TextDisplayModel tdmInst = TextDisplayModel.getInstance();
 
-     // Convert the text in the text editor to uppercase
+        // Convert the text in the text editor to uppercase
         if (!isAutoSave) {
             if (!verifyRequiredFields()) {
                 return false;
@@ -4667,10 +4681,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 VtecObject vtecObj = VtecUtil.parseMessage(productText);
                 if (warnGenFlag) {
-                	/*
+                    /*
                      * DR14613 - string currectDate is derived from Date now
-                     * ensuring the same time in WMO heading and in the 
-                     * MND heading.
+                     * ensuring the same time in WMO heading and in the MND
+                     * heading.
                      */
                     productText = updateVtecTimes(productText, vtecObj, now);
                     productText = updateHeaderTimes(productText, now);
@@ -5134,9 +5148,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     private String getCurrentDate(Date now) {
-    	/*
-    	 * DR14613 - pass the Date now as an argument
-    	 */
+        /*
+         * DR14613 - pass the Date now as an argument
+         */
         SimpleDateFormat formatter = new SimpleDateFormat("ddHHmm");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         return (formatter.format(now));
@@ -5163,11 +5177,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             product = product.replace(
                     vtecFormatter.format(vtecObj.getStartTime().getTime()),
                     vtecFormatter.format(now));
-        }        
+        }
 
         return product;
     }
-    
+
     /**
      * Update the MND header time using the Date now.
      * 
@@ -5176,7 +5190,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return
      */
     private String updateHeaderTimes(String product, Date now) {
-    	// Update the header time
+        // Update the header time
         Matcher m = datePtrn.matcher(product);
         if (m.find()) {
             SimpleDateFormat headerFormat = new SimpleDateFormat(
@@ -5187,9 +5201,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             product = product.replace(m.group(1), headerFormat.format(now)
                     .toUpperCase());
         }
-    	return product;
+        return product;
     }
-    
 
     public void setCurrentWmoId(String wmoId) {
         TextDisplayModel.getInstance().setWmoId(token, wmoId);
@@ -7311,7 +7324,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         job.setSystem(true);
         job.schedule();
     }
-    
+
     private static String fixNOR(String bbb) {
         if ("NOR".equals(bbb))
             return "";
