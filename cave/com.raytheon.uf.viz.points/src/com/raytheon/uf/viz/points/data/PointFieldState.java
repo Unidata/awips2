@@ -17,11 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.viz.points.data;
 
-
 /**
- * Interface use to describe a point or group node.
+ * The three states for a point's movable and hidden field.
  * 
  * <pre>
  * 
@@ -29,24 +29,13 @@ package com.raytheon.uf.viz.points.data;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 16, 2012 #875       rferrel     Initial creation
+ * Sep 13, 2012            rferrel     Initial creation
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-
-public interface IPointNode {
-    public String getName();
-
-    public String getGroup();
-
-    public boolean isGroup();
-
-    public int compareTo(IPointNode target);
-
-    public PointFieldState getHidden();
-
-    public PointFieldState getMovable();
+public enum PointFieldState {
+    UNKNOWN, TRUE, FALSE
 }
