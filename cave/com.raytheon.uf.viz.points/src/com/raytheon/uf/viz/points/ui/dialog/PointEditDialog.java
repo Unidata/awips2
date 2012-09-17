@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointSize;
+import com.raytheon.uf.viz.points.data.PointFieldState;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -486,8 +487,9 @@ public class PointEditDialog extends CaveJFACEDialog {
         pointNameText.setText(currPoint.getName());
         coordinateInput.recalculateCoordinateFields(currPoint);
         pointFontSizeChooser.select(currPoint.getFontSize().ordinal());
-        pointMovableButton.setSelection(currPoint.isMovable());
-        pointHiddenButton.setSelection(currPoint.isHidden());
+        pointMovableButton
+                .setSelection(currPoint.getMovable() == PointFieldState.TRUE);
+        pointHiddenButton.setSelection(currPoint.getHidden() == PointFieldState.TRUE);
         RGB color = currPoint.getColor();
         setCurrentColor(color);
         pointAssignColorButton.setSelection(currPoint.isColorActive());
@@ -560,13 +562,15 @@ public class PointEditDialog extends CaveJFACEDialog {
         double latDeg = coordinateInput.getLatAsDegreesOnly();
         double lonDeg = coordinateInput.getLonAsDegreesOnly();
         int ordinal = pointFontSizeChooser.getSelectionIndex();
-        boolean movable = pointMovableButton.getSelection();
+        PointFieldState movable = pointMovableButton.getSelection() ? PointFieldState.TRUE
+                : PointFieldState.FALSE;
         String group = "";
         int selIndex = pointGroupChooser.getSelectionIndex();
         if (selIndex > 0) {
             group = pointGroupChooser.getItem(selIndex);
         }
-        boolean hidden = pointHiddenButton.getSelection();
+        PointFieldState hidden = pointHiddenButton.getSelection() ? PointFieldState.TRUE
+                : PointFieldState.FALSE;
         Point point = new Point(name, latDeg, lonDeg, movable, colorActive,
                 currColor.getRGB(), PointSize.getPointSize(ordinal), group);
         point.setHidden(hidden);
