@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
+import com.raytheon.uf.viz.points.data.PointFieldState;
 import com.raytheon.uf.viz.points.data.PointNameChangeException;
 import com.raytheon.uf.viz.points.ui.dialog.PointEditDialog;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
@@ -274,7 +275,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
                 menuManager.add(editElementAction);
                 menuManager.add(hideElementAction);
                 menuManager.add(deleteElementAction);
-                if (selectedObject.isMovable()) {
+                if (selectedObject.getMovable() == PointFieldState.TRUE) {
                     menuManager.add(moveElementAction);
                 }
             } else {
@@ -306,7 +307,8 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
             }
             for (Point object : objects) {
                 if (isClicked(getResourceContainer(), point, object)) {
-                    return object.getName() + " Movable: " + object.isMovable();
+                    return object.getName() + " Movable: "
+                            + object.getMovable().toString().toLowerCase();
                 }
             }
         }
@@ -352,7 +354,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     @Override
     protected Point move(Coordinate lastClickedCoordinate, Coordinate clickLoc,
             Point point) {
-        if (point.isMovable()) {
+        if (point.getMovable() == PointFieldState.TRUE) {
             if (clickLoc == null) {
                 clickLoc = lastClickedCoordinate;
                 // Get The Current Coordinates Of The "Point".
@@ -395,7 +397,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
 
     public void hidePoint(Point point) {
         if (point != null) {
-            point.setHidden(true);
+            point.setHidden(PointFieldState.TRUE);
             dataManager.addPoint(point);
         }
     }
@@ -432,8 +434,9 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
     }
 
     private void createPoint() {
-        Point point = new Point("", lastMouseLoc.y, lastMouseLoc.x, false,
-                true, false, new RGB(0, 0, 0), "");
+        Point point = new Point("", lastMouseLoc.y, lastMouseLoc.x,
+                PointFieldState.FALSE, PointFieldState.TRUE, false, new RGB(0,
+                        0, 0), "");
 
         Point em = PointEditDialog.createNewPointViaDialog(this, point);
         if (em != null) {
@@ -452,11 +455,11 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         dataManager.updatePoint(point);
     }
 
-    public void updateChildrenHidden(IPointNode node, boolean state) {
+    public void updateChildrenHidden(IPointNode node, PointFieldState state) {
         dataManager.updateChildrenHidden(node, state);
     }
 
-    public void updateChildrenMovable(IPointNode node, boolean state) {
+    public void updateChildrenMovable(IPointNode node, PointFieldState state) {
         dataManager.updateChildrenMovable(node, state);
     }
 }

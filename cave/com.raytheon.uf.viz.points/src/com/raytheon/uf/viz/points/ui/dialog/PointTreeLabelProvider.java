@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.points.ui.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IFontProvider;
@@ -40,6 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.points.Activator;
 import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.uf.viz.points.ui.dialog.TriStateCellEditor.STATE;
 
 /**
  * Provides the label for a point node.
@@ -66,10 +68,6 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
 
     private static final int HIDDEN_COL_INDEX = 2;
 
-    private static final String CHECKED = "checked";
-
-    private static final String UNCHECKED = "unchecked";
-
     private static final String GROUP = "group";
 
     private static final String POINT = "point";
@@ -84,8 +82,11 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
 
     private ImageRegistry imageReg;
 
+    Shell shell;
+
     public PointTreeLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
+        shell = Display.getCurrent().getActiveShell();
 
         // The FontRegistry will dispose of the font.
         boldFont = JFaceResources.getFontRegistry().getBold(
@@ -141,7 +142,7 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
             return null;
         }
         Image image = null;
-        String key = null;
+        Object key = null;
         IPointNode node = (IPointNode) element;
 
         switch (columnIndex) {
@@ -153,54 +154,87 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
             }
             break;
         case MOVABLE_COL_INDEX:
-            if (node.isMovable()) {
-                key = CHECKED;
-            } else {
-                key = UNCHECKED;
+            switch (node.getMovable()) {
+            case TRUE:
+                key = STATE.SELECTED;
+                break;
+            case FALSE:
+                key = STATE.UNSELECTED;
+                ;
+                break;
+            case UNKNOWN:
+                key = STATE.GRAYED;
+                ;
+                break;
+            default:
+                Assert.isTrue(false);
             }
             break;
         case HIDDEN_COL_INDEX:
-            if (node.isHidden()) {
-                key = CHECKED;
-            } else {
-                key = UNCHECKED;
+            switch (node.getHidden()) {
+            case TRUE:
+                key = STATE.SELECTED;
+                break;
+            case FALSE:
+                key = STATE.UNSELECTED;
+                ;
+                break;
+            case UNKNOWN:
+                key = STATE.GRAYED;
+                break;
+            default:
+                Assert.isTrue(false);
             }
             break;
         }
 
         if (key != null) {
-            if (imageReg.getDescriptor(key) != null) {
-                image = imageReg.get(key);
+            if (imageReg.getDescriptor(key.toString()) != null) {
+                image = imageReg.get(key.toString());
             } else {
-                image = getImage(key);
+                image = createImage(key);
                 if (image != null) {
-                    imageReg.put(key, image);
+                    imageReg.put(key.toString(), image);
                 }
             }
         }
         return image;
     }
 
-    private Image getImage(String key) {
+    private Image createImage(Object key) {
         Image image = null;
-        if (key != CHECKED && key != UNCHECKED) {
-            image = PointUtils.getImage(key);
+        if (key instanceof STATE) {
+            image = makeImage((STATE) key);
         } else {
-            image = makeImage(CHECKED.equals(key));
+            image = PointUtils.getImage(key.toString());
         }
         return image;
     }
 
-    private Image makeImage(boolean checked) {
-        Shell shell = Display.getCurrent().getActiveShell();
+    private Image makeImage(STATE state) {
         Shell s = new Shell(shell, SWT.NO_TRIM);
         Button b = new Button(s, SWT.CHECK);
-        b.setSelection(checked);
         Point bsize = b.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         b.setSize(bsize);
         b.setLocation(0, 0);
         s.setSize(bsize);
         b.setBackground(imageBackground);
+        switch (state) {
+        case SELECTED:
+            b.setSelection(true);
+            b.setGrayed(false);
+            break;
+        case UNSELECTED:
+            b.setSelection(false);
+            b.setGrayed(false);
+            break;
+        case GRAYED:
+            b.setSelection(true);
+            b.setGrayed(true);
+            break;
+        default:
+            Assert.isTrue(false);
+        }
         s.open();
 
         GC gc = new GC(b);
