@@ -170,10 +170,8 @@ public class GriddedImageDisplay2 extends AbstractTileSet {
 
     private IImage createShortTile(IGraphicsTarget target, Rectangle rect,
             int width, int i, int j) {
-        // short is 2 bytes
-        int elemSize = 2;
         // buffer to copy into
-        short[] dest = new short[rect.width * rect.height * elemSize];
+        short[] dest = new short[rect.width * rect.height];
         ShortBuffer srcBuff = (ShortBuffer) data;
 
         short[] tmp = new short[rect.width];
