@@ -51,8 +51,8 @@ public class GroupNode extends Point {
     }
 
     public GroupNode(String groupName) {
-        super(groupName, 0.0, 0.0, false, false, new RGB(0, 0, 0),
-                PointSize.DEFAULT, "");
+        super(groupName, 0.0, 0.0, PointFieldState.UNKNOWN,
+                PointFieldState.UNKNOWN, false, new RGB(0, 0, 0), "");
     }
 
     @Override

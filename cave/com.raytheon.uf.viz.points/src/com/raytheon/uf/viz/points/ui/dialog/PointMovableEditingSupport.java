@@ -19,8 +19,8 @@
  ******************************************************************************************/
 package com.raytheon.uf.viz.points.ui.dialog;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -30,6 +30,8 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointNameChangeException;
+import com.raytheon.uf.viz.points.data.PointFieldState;
+import com.raytheon.uf.viz.points.ui.dialog.TriStateCellEditor.STATE;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 
 /**
@@ -52,12 +54,12 @@ public class PointMovableEditingSupport extends EditingSupport {
 
     private PointsToolLayer toolLayer;
 
-    private CheckboxCellEditor cellEditor;
+    private TriStateCellEditor cellEditor;
 
     public PointMovableEditingSupport(TreeViewer viewer, PointsToolLayer layer) {
         super(viewer);
         toolLayer = layer;
-        cellEditor = new CheckboxCellEditor(
+        cellEditor = new TriStateCellEditor(
                 (Composite) viewer.getContentProvider(), SWT.READ_ONLY);
     }
 
@@ -74,21 +76,51 @@ public class PointMovableEditingSupport extends EditingSupport {
     @Override
     protected Object getValue(Object element) {
         IPointNode node = (IPointNode) element;
-        return node.isMovable();
+        STATE value = STATE.GRAYED;
+        switch (node.getMovable()) {
+        case TRUE:
+            value = STATE.SELECTED;
+            break;
+        case FALSE:
+            value = STATE.UNSELECTED;
+            break;
+        case UNKNOWN:
+            value = STATE.GRAYED;
+            break;
+        default:
+            Assert.isTrue(false);
+        }
+        return value;
     }
 
     @Override
     protected void setValue(Object element, Object value) {
         IPointNode node = (IPointNode) element;
+        STATE state = (STATE) value;
+        PointFieldState newValue = PointFieldState.UNKNOWN;
+        switch (state) {
+        case SELECTED:
+            newValue = PointFieldState.TRUE;
+            break;
+        case UNSELECTED:
+            newValue = PointFieldState.FALSE;
+            break;
+        case GRAYED:
+            newValue = PointFieldState.UNKNOWN;
+            break;
+        default:
+            Assert.isTrue(false);
+        }
         try {
             ((TreeViewer) getViewer()).getTree().setCursor(
                     Display.getCurrent().getSystemCursor(SWT.CURSOR_WAIT));
             if (!node.isGroup()) {
                 Point point = (Point) node;
-                point.setMovable((Boolean) value);
+                point.setMovable(newValue);
                 toolLayer.updatePoint(point);
             } else {
-                toolLayer.updateChildrenMovable(node, (Boolean) value);
+                Assert.isTrue(newValue != PointFieldState.UNKNOWN);
+                toolLayer.updateChildrenMovable(node, newValue);
             }
         } catch (PointNameChangeException e) {
             // ignore as point name is not being changed ...
