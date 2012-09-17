@@ -91,8 +91,8 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * May 23, 2012 14952      rferrel     Now use refTime/createtime to display
  *                                      selected product
  * Aug 28, 2012 14795	mgamazaychikov	Fixed problem with "Unhadled event loop" 
- * 					exception associated with closing 
- * 					"Current Alarm Queue" GUI
+ *                                      exception associated with closing "Current 
+ *                                      Alarm Queue" GUI
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * </pre>
  * 
