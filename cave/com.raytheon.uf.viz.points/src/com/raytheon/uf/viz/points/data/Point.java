@@ -93,11 +93,11 @@ public class Point implements IPointNode, Comparable<IPointNode> {
 
     @XmlElement(name = "hidden")
     @DynamicSerializeElement
-    private boolean hidden;
+    private PointFieldState hidden;
 
     @XmlElement(name = "movable")
     @DynamicSerializeElement
-    private boolean movable;
+    private PointFieldState movable;
 
     @XmlElement(name = "fontSize")
     @DynamicSerializeElement
@@ -106,6 +106,8 @@ public class Point implements IPointNode, Comparable<IPointNode> {
     private transient String group;
 
     public Point() {
+        this.movable = PointFieldState.TRUE;
+        this.hidden = PointFieldState.FALSE;
     }
 
     /**
@@ -128,31 +130,6 @@ public class Point implements IPointNode, Comparable<IPointNode> {
     }
 
     /**
-     * @param pointName
-     * @param p
-     * @param colorActive
-     * @param c
-     * @param hidden
-     * @param Movable
-     * @param ms
-     * @param group
-     */
-    public Point(String pointName, Coordinate p, boolean colorActive, RGB c,
-            boolean hidden, boolean Movable, PointSize ms, String group) {
-        setName(pointName);
-        this.longitude = p.x;
-        this.latitude = p.y;
-        this.colorActive = colorActive;
-        this.red = c.red;
-        this.green = c.green;
-        this.blue = c.blue;
-        this.hidden = hidden;
-        this.movable = Movable;
-        this.fontSize = ms;
-        setGroup(group);
-    }
-
-    /**
      * Constructor must take valid lat/lon coordinates!
      * 
      * @param pointName
@@ -164,8 +141,9 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @param c
      * @param group
      */
-    public Point(String pointName, double lat, double lon, boolean hidden,
-            boolean movable, boolean colorActive, RGB c, String group) {
+    public Point(String pointName, double lat, double lon,
+            PointFieldState hidden, PointFieldState movable,
+            boolean colorActive, RGB c, String group) {
         setName(pointName);
         this.fontSize = PointSize.DEFAULT;
         this.colorActive = colorActive;
@@ -191,8 +169,9 @@ public class Point implements IPointNode, Comparable<IPointNode> {
      * @param size
      * @param group
      */
-    public Point(String pointName, double lat, double lon, boolean movable,
-            boolean colorActive, RGB c, PointSize size, String group) {
+    public Point(String pointName, double lat, double lon,
+            PointFieldState movable, boolean colorActive, RGB c,
+            PointSize size, String group) {
         setName(pointName);
         this.fontSize = size;
         this.colorActive = colorActive;
@@ -200,7 +179,7 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         this.green = c.green;
         this.blue = c.blue;
         this.movable = movable;
-        this.hidden = false;
+        this.hidden = PointFieldState.FALSE;
         this.longitude = lon;
         this.latitude = lat;
         setGroup(group);
@@ -267,19 +246,19 @@ public class Point implements IPointNode, Comparable<IPointNode> {
     }
 
     /**
-     * @param h
+     * @param state
      */
-    public void setHidden(boolean h) {
-        hidden = h;
+    public void setHidden(PointFieldState state) {
+        hidden = state;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.points.data.IPointNode#isHidden()
+     * @see com.raytheon.uf.viz.points.data.IPointNode#getHidden()
      */
     @Override
-    public boolean isHidden() {
+    public PointFieldState getHidden() {
         return hidden;
     }
 
@@ -340,17 +319,17 @@ public class Point implements IPointNode, Comparable<IPointNode> {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.points.data.IPointNode#isMovable()
+     * @see com.raytheon.uf.viz.points.data.IPointNode#getMovable()
      */
     @Override
-    public boolean isMovable() {
+    public PointFieldState getMovable() {
         return movable;
     }
 
     /**
      * @param notAnchored
      */
-    public void setMovable(boolean notAnchored) {
+    public void setMovable(PointFieldState notAnchored) {
         movable = notAnchored;
     }
 
@@ -422,10 +401,8 @@ public class Point implements IPointNode, Comparable<IPointNode> {
         sb.append("\t Color: ").append("(").append(red).append(", ")
                 .append(green).append(", ").append(blue).append(")")
                 .append("\n");
-        sb.append("\t isHidden: ").append(Boolean.toString(hidden))
-                .append("\n");
-        sb.append("\t isMovable: ").append(Boolean.toString(movable))
-                .append("\n");
+        sb.append("\t isHidden: ").append(hidden).append("\n");
+        sb.append("\t isMovable: ").append(movable).append("\n");
         sb.append("\t fontSize: ").append(fontSize.toString()).append("\n");
         sb.append("\t group: \"").append(group).append("\"\n");
         sb.append("\t isGroup: ").append(isGroup()).append("\n");
