@@ -70,8 +70,8 @@ import com.raytheon.uf.viz.points.PointRequest.RequestType;
 import com.raytheon.uf.viz.points.data.GroupNode;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
+import com.raytheon.uf.viz.points.data.PointFieldState;
 import com.raytheon.uf.viz.points.data.PointNameChangeException;
-import com.raytheon.uf.viz.points.data.PointSize;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -118,6 +118,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
     private static final String POINT_FILENAME_EXT = ".txt";
 
     private static final String POINTS_DIR = "points";
+
+    private static final String ROOT_NODE_KEY = "";
 
     private static final String AWIPSTOOLS = "awipsTools";
 
@@ -188,6 +190,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         groupDeleteMap = new HashMap<String, List<String>>();
 
         requestList = new LinkedList<PointRequest>();
+
     }
 
     /**
@@ -206,6 +209,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private void processRequests() {
         firePointChangeListeners();
+
         if (processRequestJob == null) {
             processRequestJob = new Job("Point Requests") {
 
@@ -309,7 +313,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         Collection<String> visiblePoints = new ArrayList<String>();
         for (String name : getPointsMap().keySet()) {
             Point point = points.get(name);
-            if (!point.isHidden() && !point.isGroup()) {
+            if (!point.isGroup() && point.getHidden() == PointFieldState.FALSE) {
                 visiblePoints.add(name);
             }
         }
@@ -331,9 +335,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * ILocalizationFileObserver event
      */
     private void storeHome() {
-        Point point = new Point("home", 0.0, 0.0, true, false, false, new RGB(
-                0, 0, 0), "");
-        point.setCoordinate(home);
+        Point point = new Point("", home.y, home.x, PointFieldState.FALSE,
+                PointFieldState.FALSE, false, new RGB(0, 0, 0), ROOT_NODE_KEY);
         storePoint(pointsDir, point, HOME_LOCATION_FILE);
     }
 
@@ -422,7 +425,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 PointRequest request = new PointRequest(RequestType.ADD,
                         d2dPoint);
                 queueRequest(request);
-                String parentKey = "";
+                String parentKey = ROOT_NODE_KEY;
                 childrenKeyMap.get(parentKey).add(d2dKey);
                 childrenKeyMap.put(d2dKey, new ArrayList<String>());
                 put(d2dKey, d2dPoint);
@@ -448,8 +451,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
             Coordinate coordinate = getCoordinateOnCircle(center, baseRingSize,
                     startAngle);
-            Point point = new Point(name, coordinate, false, new RGB(0, 0, 0),
-                    false, true, PointSize.DEFAULT, group);
+            Point point = new Point(name, coordinate.y, coordinate.x,
+                    PointFieldState.FALSE, PointFieldState.TRUE, false,
+                    new RGB(0, 0, 0), group);
             PointRequest request = new PointRequest(RequestType.ADD, point);
             queueRequest(request);
             put(name, point);
@@ -505,7 +509,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
         if (files.length == 0) {
             pointsDir.getFile().mkdirs();
-            Point point = new GroupNode("");
+            Point point = new GroupNode(ROOT_NODE_KEY);
             String key = point.getGroup();
             PointRequest request = new PointRequest(RequestType.ADD, point);
             queueRequest(request);
@@ -528,7 +532,57 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 }
             }
         }
+        doNodeState(points.get(ROOT_NODE_KEY));
         return doRequest;
+    }
+
+    private void doNodeState(IPointNode node) {
+
+        // Make sure all the children are in proper state.
+        for (IPointNode child : getChildren(node, true)) {
+            if (child.isGroup()) {
+                doNodeState(child);
+            }
+        }
+
+        // The children list now have the proper state.
+        List<IPointNode> children = getChildren(node, true);
+        if (children.size() == 0) {
+            ((Point) node).setHidden(PointFieldState.FALSE);
+            ((Point) node).setMovable(PointFieldState.TRUE);
+            put(getPointKey((Point) node), (Point) node);
+            return;
+        }
+
+        IPointNode child = children.remove(0);
+        PointFieldState hidden = child.getHidden();
+        PointFieldState movable = child.getMovable();
+        int unknownCnt = 0;
+
+        if (hidden == PointFieldState.UNKNOWN) {
+            ++unknownCnt;
+        }
+
+        if (movable == PointFieldState.UNKNOWN) {
+            ++unknownCnt;
+        }
+
+        while (children.size() > 0 && unknownCnt < 2) {
+            child = children.remove(0);
+            if (hidden != PointFieldState.UNKNOWN
+                    && hidden != child.getHidden()) {
+                hidden = PointFieldState.UNKNOWN;
+                ++unknownCnt;
+            }
+            if (movable != PointFieldState.UNKNOWN
+                    && movable != child.getMovable()) {
+                movable = PointFieldState.UNKNOWN;
+                ++unknownCnt;
+            }
+        }
+        ((Point) node).setHidden(hidden);
+        ((Point) node).setMovable(movable);
+        put(getPointKey((Point) node), (Point) node);
     }
 
     /**
@@ -607,7 +661,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
     public List<IPointNode> getChildren(IPointNode node, boolean allGroups) {
         String parentKey = null;
         if (node == null) {
-            parentKey = "";
+            parentKey = ROOT_NODE_KEY;
         } else {
             parentKey = getPointKey((Point) node);
         }
@@ -819,6 +873,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
             return;
         }
         doMoveNode(node, destNode);
+        checkGroupState(points.get(oldParentKey));
+        checkGroupState(destNode);
         processRequests();
     }
 
@@ -833,10 +889,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
             put(key, point);
             childrenKeyMap.get(newParentKey).add(key);
         } else {
-            Point newGroup = new GroupNode((Point) destNode);
+            Point newGroup = new GroupNode((Point) point);
             String newGroupKey = newParentKey + File.separator
                     + point.getName();
-            newGroup.setName(point.getName());
             newGroup.setGroup(newGroupKey);
             PointRequest request = new PointRequest(RequestType.ADD, newGroup);
             queueRequest(request);
@@ -1021,12 +1076,14 @@ public class PointsDataManager implements ILocalizationFileObserver {
             if (foundPoint == null) {
                 put(key, point);
                 childrenKeyMap.get(groupKey).add(key);
+                checkGroupState(getParent(point));
                 stateChange = true;
             } else if (!groupKey.equals(foundPoint.getGroup())) {
                 // Finishing up moving the point to a different group.
                 childrenKeyMap.get(foundPoint.getGroup()).remove(key);
                 childrenKeyMap.get(groupKey).add(key);
                 put(key, point);
+                checkGroupState(getParent(point));
                 stateChange = true;
             }
             break;
@@ -1041,6 +1098,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                         "Updated point in wrong group: " + key);
             } else if (point.differentContent(foundPoint)) {
                 put(key, point);
+                checkGroupState(getParent(point));
                 stateChange = true;
             }
             break;
@@ -1049,8 +1107,10 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 // When groups are different assume in the middle of move
                 // (delete/add) do nothing and let the ADDED handle it.
                 if (groupKey.equals(foundPoint.getGroup())) {
+                    IPointNode parent = getParent(foundPoint);
                     childrenKeyMap.get(groupKey).remove(key);
                     remove(key);
+                    checkGroupState(parent);
                     stateChange = true;
                 }
             } else {
@@ -1064,13 +1124,76 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return stateChange;
     }
 
+    /**
+     * Check to see if the node's movable and hidden state and if changed check
+     * its parent node.
+     * 
+     * @param node
+     *            - group node to check
+     * @return true - when either movable or hidden have changed otherwise false
+     */
+    private boolean checkGroupState(IPointNode node) {
+        List<IPointNode> children = getChildren(node, true);
+        if (children.size() == 0) {
+            return false;
+        }
+
+        IPointNode child = children.remove(0);
+        PointFieldState hidden = child.getHidden();
+        PointFieldState movable = child.getMovable();
+
+        int unknownCnt = 0;
+        if (hidden == PointFieldState.UNKNOWN) {
+            ++unknownCnt;
+        }
+
+        if (movable == PointFieldState.UNKNOWN) {
+            ++unknownCnt;
+        }
+
+        while (children.size() > 0 && unknownCnt < 2) {
+            child = children.remove(0);
+            if (hidden != PointFieldState.UNKNOWN
+                    && hidden != child.getHidden()) {
+                hidden = PointFieldState.UNKNOWN;
+                ++unknownCnt;
+            }
+            if (movable != PointFieldState.UNKNOWN
+                    && movable != child.getMovable()) {
+                movable = PointFieldState.UNKNOWN;
+                ++unknownCnt;
+            }
+        }
+        boolean value = false;
+        if (hidden != node.getHidden()) {
+            value = true;
+        }
+        if (movable != node.getMovable()) {
+            value = true;
+        }
+
+        if (value) {
+            Point point = points.get(getPointKey((Point) node));
+            point.setHidden(hidden);
+            point.setMovable(movable);
+            if (!getParent(node).equals(ROOT_NODE_KEY)) {
+                checkGroupState(getParent(node));
+            }
+        }
+        return value;
+    }
+
     private boolean checkGroup(FileUpdatedMessage message) {
         boolean stateChange = false;
         StringBuilder sb = new StringBuilder(message.getFileName());
         sb.setLength(sb.lastIndexOf(File.separator));
         sb.replace(0, pointsDir.getName().length(), "");
         String key = sb.toString().replace(PointUtilities.DELIM_CHAR, ' ');
-        String parentKey = key.substring(0, key.lastIndexOf(File.separator));
+        String parentKey = null;
+        int index = key.lastIndexOf(File.separator);
+        if (index >= 0) {
+            parentKey = key.substring(0, index);
+        }
         Point foundGroup = points.get(key);
 
         switch (message.getChangeType()) {
@@ -1085,6 +1208,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 put(key, point);
                 childrenKeyMap.get(parentKey).add(key);
                 childrenKeyMap.put(key, new ArrayList<String>());
+                checkGroupState(getParent(point));
                 stateChange = true;
             }
             break;
@@ -1097,6 +1221,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
                 childrenKeyMap.remove(key);
                 childrenKeyMap.get(parentKey).remove(key);
                 remove(key);
+                checkGroupState(points.get(parentKey));
                 stateChange = true;
             } else {
                 checkGroupDelete(message);
@@ -1235,8 +1360,8 @@ public class PointsDataManager implements ILocalizationFileObserver {
             request = new PointRequest(RequestType.UPDATE, point);
         }
         queueRequest(request);
-
         put(key, point);
+        checkGroupState(getParent(point));
         processRequests();
     }
 
@@ -1271,7 +1396,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * @return
      */
     public void deletePoint(final Point point) {
+        IPointNode parentNode = getParent(point);
         doDeletePoint(point);
+        checkGroupState(parentNode);
         processRequests();
     }
 
@@ -1359,6 +1486,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
             queueRequest(request);
             put(getPointKey(newPoint), newPoint);
         }
+        checkGroupState(getParent(newPoint));
         processRequests();
     }
 
@@ -1371,21 +1499,22 @@ public class PointsDataManager implements ILocalizationFileObserver {
         addPoint(point);
     }
 
-    public void updateChildrenHidden(IPointNode node, boolean state) {
+    public void updateChildrenHidden(IPointNode node, PointFieldState state) {
         if (!node.isGroup()) {
             return;
         }
         doChildrenHidden(node, state);
+        checkGroupState(getParent(node));
         processRequests();
     }
 
-    private void doChildrenHidden(IPointNode node, boolean state) {
+    private void doChildrenHidden(IPointNode node, PointFieldState state) {
         String key = getPointKey((Point) node);
         Point point = points.get(key);
         PointRequest request = null;
 
         if (!point.isGroup()) {
-            if (point.isHidden() != state) {
+            if (point.getHidden() != state) {
                 point.setHidden(state);
                 request = new PointRequest(RequestType.UPDATE, point);
                 queueRequest(request);
@@ -1399,7 +1528,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
-    public void updateChildrenMovable(IPointNode node, boolean state) {
+    public void updateChildrenMovable(IPointNode node, PointFieldState state) {
         if (!node.isGroup()) {
             return;
         }
@@ -1407,13 +1536,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
-    private void doChildrenMovable(IPointNode node, boolean state) {
+    private void doChildrenMovable(IPointNode node, PointFieldState state) {
         String key = getPointKey((Point) node);
         Point point = points.get(key);
         PointRequest request = null;
 
         if (!point.isGroup()) {
-            if (point.isMovable() != state) {
+            if (point.getMovable() != state) {
                 point.setMovable(state);
                 request = new PointRequest(RequestType.UPDATE, point);
                 queueRequest(request);
