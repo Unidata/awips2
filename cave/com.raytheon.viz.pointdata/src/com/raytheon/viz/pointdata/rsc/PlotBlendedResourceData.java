@@ -44,7 +44,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2009             jsanchez    Initial creation
- * 
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120913           1172 jkorman     Added code to call postAddListeners when
+ *                                     creating sub-resources.
  * </pre>
  * 
  * @author jsanchez
@@ -78,6 +81,18 @@ public class PlotBlendedResourceData extends AbstractResourceData implements
 
     }
 
+    /**
+     * Constructs a resource(s) from this resource data.
+     * 
+     * @param loadProperties
+     *            The load properties
+     * @param descriptor
+     *            The descriptor that the resource will be loaded onto
+     * @throws VizException
+     *             if construction fails
+     * @return The renderable capability. Will return null if any of the sub-resources
+     * fail to construct.
+     */
     @Override
     public PlotBlendedResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
@@ -85,13 +100,16 @@ public class PlotBlendedResourceData extends AbstractResourceData implements
 
         for (ResourcePair rp : resourceList) {
             if (!rp.instantiateResource(descriptor, false)) {
-                // failure to create any sub resources is a failure to construct
+                // failure to create any sub-resource is a failure to construct
                 // the blended resource.
                 return null;
             }
-            this.addChangeListener((IResourceDataChanged) rp.getResource());
         }
-
+        // All sub-resources have been instantiated, add the listeners. 
+        for (ResourcePair rp : resourceList) {
+            addChangeListener((IResourceDataChanged) rp.getResource());
+            resourceList.firePostAddListeners(rp);
+        }
         return rsc;
     }
 
