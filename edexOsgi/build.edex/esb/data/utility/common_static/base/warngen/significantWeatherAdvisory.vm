@@ -322,7 +322,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${dateUtil.format(${TMLtime}, ${timeFormat.time})}Z ##
 ${mathUtil.roundAndPad(${movementDirection})}DEG ##
 ${mathUtil.round(${movementInKnots})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
