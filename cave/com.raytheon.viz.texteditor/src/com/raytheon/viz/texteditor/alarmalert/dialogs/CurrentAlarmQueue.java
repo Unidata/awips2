@@ -53,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmDisplayWindow.ACCUMULATE_STATE;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertLists;
 import com.raytheon.viz.texteditor.alarmalert.util.CurrentAlarmEvent;
@@ -90,8 +91,9 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * May 23, 2012 14952      rferrel     Now use refTime/createtime to display
  *                                      selected product
  * Aug 28, 2012 14795	mgamazaychikov	Fixed problem with "Unhadled event loop" 
- * 										exception associated with closing 
- * 										"Current Alarm Queue" GUI
+ *                                      exception associated with closing "Current 
+ *                                      Alarm Queue" GUI
+ * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * </pre>
  * 
  * @author mnash
@@ -383,7 +385,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         }
 
         if (alarmDisplayDlg == null) {
-            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
+            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+                    ACCUMULATE_STATE.UNCHANGE);
             alarmDisplayDlg.open();
             if (list != null && !list.isDisposed() && list.getItemCount() == 0) {
                 close();
@@ -391,7 +394,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         } else {
             if (alarmDisplayDlg.getShell() == null
                     || alarmDisplayDlg.getShell().isDisposed()) {
-                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
+                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+                        ACCUMULATE_STATE.UNCHANGE);
                 alarmDisplayDlg.open();
                 if (list != null && !list.isDisposed()
                         && list.getItemCount() == 0) {
@@ -445,36 +449,25 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             list.removeAll();
             AlarmAlertFunctions.getAlarmalertbell().close();
         }
-        if (alarmDisplayDlg == null) {
-            java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
-            if (command.length > 0) {
-                for (int i = 0; i < command.length; i++) {
-                    prods.addAll(produceTextProduct(command[i]));
-                }
+
+        java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
+        if (command.length > 0) {
+            for (int i = 0; i < command.length; i++) {
+                prods.addAll(produceTextProduct(command[i]));
             }
-            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
-            alarmDisplayDlg.setAccumulate(true);
+        }
+
+        if (alarmDisplayDlg == null) {
+            alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+                    ACCUMULATE_STATE.TRUE);
             alarmDisplayDlg.open();
         } else {
             if (alarmDisplayDlg.getShell() == null
                     || alarmDisplayDlg.getShell().isDisposed()) {
-                java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
-                if (command.length > 0) {
-                    for (int i = 0; i < command.length; i++) {
-                        prods.addAll(produceTextProduct(command[i]));
-                    }
-                }
-                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
-                alarmDisplayDlg.setAccumulate(true);
+                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
+                        ACCUMULATE_STATE.TRUE);
                 alarmDisplayDlg.open();
             } else {
-                alarmDisplayDlg.setAccumulate(true);
-                java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
-                if (command.length > 0) {
-                    for (int i = 0; i < command.length; i++) {
-                        prods.addAll(produceTextProduct(command[i]));
-                    }
-                }
                 alarmDisplayDlg.setProds(prods);
                 alarmDisplayDlg.setAccumulate(true);
                 alarmDisplayDlg.setDialogFocus();
