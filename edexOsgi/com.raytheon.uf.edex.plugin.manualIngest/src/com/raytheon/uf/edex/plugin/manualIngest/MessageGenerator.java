@@ -90,6 +90,8 @@ public class MessageGenerator implements Processor {
             String messageHeader = WMOHeaderFinder.find(file);
             if (messageHeader == null) {
                 messageHeader = fileName;
+            } else {
+                messageHeader = messageHeader.trim();
             }
 
             arg0.getIn().setBody(file.toString());
