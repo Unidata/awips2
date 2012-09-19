@@ -38,7 +38,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 9, 2008            njensen     Initial creation
+ * Oct  9, 2008            njensen     Initial creation
+ * Sep 18, 2012      #1091 randerso    added base directory to getGfeConfigIncludePath
  * </pre>
  * 
  * @author njensen
@@ -391,8 +392,12 @@ public class GfePyIncludeUtil {
     }
 
     public static String getGfeConfigIncludePath(String siteId) {
-        return getPath(PATH_MANAGER.getContextForSite(
+        String baseConfigDir = getPath(PATH_MANAGER.getContext(
+                LocalizationType.EDEX_STATIC, LocalizationLevel.BASE),
+                GFE_CONFIG);
+        String siteConfigDir = getPath(PATH_MANAGER.getContextForSite(
                 LocalizationType.EDEX_STATIC, siteId), GFE_CONFIG);
+        return PyUtil.buildJepIncludePath(siteConfigDir, baseConfigDir);
     }
 
     public static String getVCModulesIncludePath() {
