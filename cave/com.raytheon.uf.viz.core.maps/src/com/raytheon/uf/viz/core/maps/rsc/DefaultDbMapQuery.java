@@ -39,7 +39,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2011            bsteffen     Initial creation
+ * Dec 9, 2011             bsteffen    Initial creation
+ * Sep 18, 2012      #1019 randerso    cleaned up geometry type query
  * 
  * </pre>
  * 
@@ -143,10 +144,16 @@ public class DefaultDbMapQuery implements DbMapQuery {
         query.append(schema);
         query.append("' AND f_table_name='");
         query.append(table);
-        query.append("' LIMIT 1;");
+        query.append("' AND f_geometry_column='");
+        query.append(this.geomField);
+        query.append("';");
         List<Object[]> results = DirectDbQuery.executeQuery(query.toString(),
                 MAPS, QueryLanguage.SQL);
 
+        if (results.isEmpty()) {
+            throw new VizException("Maps database table \"" + table
+                    + "\" is missing or invalid");
+        }
         return (String) results.get(0)[0];
     }
 
