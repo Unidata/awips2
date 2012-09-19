@@ -90,6 +90,23 @@
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
+
+                <memory-setting>
+                        <command-line-args>
+                                <first-arg>-component</first-arg>
+                                <second-arg>gfeclient</second-arg>
+                        </command-line-args>
+
+                        <ini-substitutions>
+                                <max-memory>
+                                        <value>1536M</value>
+                                </max-memory>
+
+                                <max-perm>
+                                        <value>DEFAULT</value>
+                                </max-perm>
+                        </ini-substitutions>
+                </memory-setting>
 	</arch.x86>
 	
 	<arch.x86_64>
@@ -148,6 +165,23 @@
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
+
+                <memory-setting>
+                        <command-line-args>
+                                <first-arg>-component</first-arg>
+                                <second-arg>gfeclient</second-arg>
+                        </command-line-args>
+
+                        <ini-substitutions>
+                                <max-memory>
+                                        <value>2048M</value>
+                                </max-memory>
+
+                                <max-perm>
+                                        <value>DEFAULT</value>
+                                </max-perm>
+                        </ini-substitutions>
+                </memory-setting>
 	</arch.x86_64>
 
 </cave-memory-settings>
