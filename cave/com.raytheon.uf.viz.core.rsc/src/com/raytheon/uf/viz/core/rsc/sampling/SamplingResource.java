@@ -148,8 +148,8 @@ public class SamplingResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
-            container
-                    .registerMouseHandler(inputAdapter, InputPriority.RESOURCE);
+            container.registerMouseHandler(inputAdapter,
+                    InputPriority.SYSTEM_RESOURCE);
         }
         hoverFont = target.initializeFont(getClass().getName());
     }
@@ -391,15 +391,13 @@ public class SamplingResource extends
                         while (j < split.length) {
                             String s = split[j];
                             if (s.length() + line.length() <= approxLenPerStr) {
-                                if (!s.isEmpty()){
-                                	if (j == split.length -1 && split[1].equalsIgnoreCase("=")) 
-                                	{
-                                	line = split[split.length-1];
-                                	}
-                                	else
-                                	{
-                                	line += " " + s;	
-                                	}
+                                if (!s.isEmpty()) {
+                                    if (j == split.length - 1
+                                            && split[1].equalsIgnoreCase("=")) {
+                                        line = split[split.length - 1];
+                                    } else {
+                                        line += " " + s;
+                                    }
                                 } else {
                                     line += " ";
                                 }
