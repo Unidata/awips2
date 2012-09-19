@@ -113,7 +113,7 @@ public class TestSmartScript extends TestCase {
             // Create a SmartScript instance for use by the tests.
             boolean evalResult;
             evalResult = testScript
-                    .eval("smartScript = SmartScript.SmartScript(dataManager)");
+                    .evaluate("smartScript = SmartScript.SmartScript(dataManager)");
 
             // If eval somehow failed without throwing a JepException, fail.
             assertTrue(evalResult);
@@ -163,10 +163,11 @@ public class TestSmartScript extends TestCase {
         argmap.put("::numericGrid", "discreteGrid");
         Object obj = null;
         try {
-            if (!testScript.eval("tcTuple = (1000, 1200, 600)")) {
+            if (!testScript.evaluate("tcTuple = (1000, 1200, 600)")) {
                 throw new Exception("eval(\"tcTuple... failed.");
             }
-            if (!testScript.eval("dkList = ['One', ('Singular', 'Sensation')]")) {
+            if (!testScript
+                    .evaluate("dkList = ['One', ('Singular', 'Sensation')]")) {
                 throw new Exception("eval(\"dklist = ... failed.");
             }
             obj = testScript.execute("createGrid", "smartScript", argmap);
@@ -200,7 +201,7 @@ public class TestSmartScript extends TestCase {
 
         Integer outInt = null;
         try {
-            testScript.eval("keyList = []");
+            testScript.evaluate("keyList = []");
             argmap.put("::keys", "keyList");
             argmap.put("uglyStr", key1);
             outInt = (Integer) testScript.execute("getIndex", "smartScript",
