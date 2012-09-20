@@ -19,32 +19,29 @@
  **/
 package com.raytheon.uf.viz.qpf;
 
+import java.nio.FloatBuffer;
+import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.measure.unit.Unit;
-
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
+import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.raytheon.viz.grid.rsc.AbstractMapVectorResource;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
+import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
+import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
  * QPFVectorResource
@@ -65,56 +62,54 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
  * @version 1
  */
 
-public class QPFResource extends AbstractMapVectorResource implements
-        IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(QPFResource.class);
-
-    protected String icao;
-
-    protected String fieldName;
-
-    protected String fieldUnitString;
+public class QPFResource extends AbstractGridResource<QPFResourceData> {
 
     public QPFResource(QPFResourceData data, LoadProperties props) {
         super(data, props);
+        this.getCapability(DisplayTypeCapability.class)
+                .setAlternativeDisplayTypes(null);
+    }
 
-        data.addChangeListener(this);
-        for (QPFRecord rec : data.getRecords()) {
-            try {
-                this.addRecord(rec);
-            } catch (VizException ve) {
-                ve.printStackTrace();
+    @Override
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        for (QPFRecord rec : resourceData.getRecords()) {
+            this.addDataObject(rec);
+        }
+        super.initInternal(target);
+    }
+
+    @Override
+    public ParamLevelMatchCriteria getMatchCriteria() {
+        ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
+        ArrayList<String> paramList = new ArrayList<String>();
+        paramList.add("qpf");
+        match.setParameterName(paramList);
+        for (DataTime time : getDataTimes()) {
+            List<PluginDataObject> pdos = getPluginDataObjects(time);
+            if (pdos != null && !pdos.isEmpty()) {
+                paramList.clear();
+                paramList.add(((QPFRecord) pdos.get(0)).getParameterName());
+                break;
             }
         }
+        return match;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.contours.AbstractMapContourResource#getQPFGeometry
-     * (com.raytheon.edex.db.objects.PluginDataObject)
-     */
     @Override
-    protected GeneralGridGeometry getGridGeometry(PluginDataObject obj) {
-        QPFRecord qpfRecord = (QPFRecord) obj;
-
-        GridGeometry2D qpfGeometry2D = qpfRecord.getGridGeometry();
-
-        return qpfGeometry2D;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.contours.AbstractMapContourResource#validateRecord
-     * (com.raytheon.edex.db.objects.PluginDataObject)
-     */
-    @Override
-    protected boolean validateRecord(PluginDataObject obj) {
-        return (obj instanceof QPFRecord);
+    public List<GeneralGridData> getData(DataTime time,
+            List<PluginDataObject> pdos) throws VizException {
+        if (pdos.isEmpty()) {
+            return Collections.emptyList();
+        }
+        QPFRecord rec = (QPFRecord) pdos.get(0);
+        IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(rec);
+        FloatDataRecord fdr = (FloatDataRecord) dataRecs[0];
+        FloatBuffer data = FloatBuffer.wrap(fdr.getFloatData());
+        Unit<?> unit = UnitFormat.getInstance().parseObject(
+                rec.getParameterUnit(), new ParsePosition(0));
+        GeneralGridData ggd = GeneralGridData.createScalarData(
+                rec.getGridGeometry(), data, unit);
+        return Arrays.asList(ggd);
     }
 
     /*
@@ -125,9 +120,9 @@ public class QPFResource extends AbstractMapVectorResource implements
     @Override
     public String getName() {
         PluginDataObject pdo = null;
-        for (PluginDataObject obj : getDataObjectMap().values()) {
-            pdo = obj;
-            break;
+        List<PluginDataObject> pdos = getCurrentPluginDataObjects();
+        if (pdos != null && !pdos.isEmpty()) {
+            pdo = pdos.get(0);
         }
         if (pdo == null) {
             return "No Data Available";
@@ -143,85 +138,6 @@ public class QPFResource extends AbstractMapVectorResource implements
         prefix.append(record.getParameterUnit());
 
         return prefix.toString();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.contours.rsc.AbstractMapContourResource#getStyleRule
-     * (com.raytheon.edex.db.objects.PluginDataObject)
-     */
-    @Override
-    public StyleRule getStyleRule(PluginDataObject obj) throws VizException {
-        QPFRecord record = (QPFRecord) obj;
-
-        ParamLevelMatchCriteria match = getMatchCriteria(record);
-        ArrayList<String> paramList = new ArrayList<String>();
-        paramList.add(record.getParameterName());
-        match.setParameterName(paramList);
-        StyleRule sr = StyleManager.getInstance().getStyleRule(
-                StyleManager.StyleType.CONTOUR, match);
-        if (sr != null
-                && ((ContourPreferences) sr.getPreferences()).getDisplayUnits() != null) {
-            this.fieldUnitString = ((ContourPreferences) sr.getPreferences())
-                    .getDisplayUnits().toString();
-        }
-        return sr;
-    }
-
-    /**
-     * Get and load the style rule
-     * 
-     * @return
-     */
-    public ParamLevelMatchCriteria getMatchCriteria(QPFRecord record) {
-        ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
-        ArrayList<String> paramList = new ArrayList<String>();
-        paramList.add(record.getPluginName());
-        match.setParameterName(paramList);
-        return match;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getImageryResource()
-            throws VizException {
-        Collection<PluginDataObject> pdo = this.getDataObjectMap().values();
-        QPFRecord[] recs = new QPFRecord[pdo.size()];
-        Iterator<PluginDataObject> pdoIter = pdo.iterator();
-        int i = 0;
-        while (pdoIter.hasNext()) {
-            recs[i] = (QPFRecord) pdoIter.next();
-            i++;
-        }
-
-        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) this.resourceData
-                .construct(new GridLoadProperties(
-                        com.raytheon.uf.viz.core.rsc.DisplayType.IMAGE),
-                        descriptor);
-    }
-
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type.equals(ChangeType.DATA_UPDATE)) {
-            PluginDataObject[] pdos = (PluginDataObject[]) object;
-            for (PluginDataObject pdo : pdos) {
-                try {
-                    addRecord(pdo);
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating QPF resource", e);
-                }
-            }
-        }
-        issueRefresh();
-    }
-
-    @Override
-    protected Unit<?> getDataUnits(PluginDataObject obj) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

@@ -26,11 +26,10 @@ import java.util.List;
 
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
@@ -45,7 +44,7 @@ import com.raytheon.viz.grid.GridLevelTranslator;
 
 /**
  * 
- * TODO Add Description
+ * A version of AbstractGridResource that displays data from GridRecords.
  * 
  * <pre>
  * 
@@ -60,59 +59,55 @@ import com.raytheon.viz.grid.GridLevelTranslator;
  * @author bsteffen
  * @version 1.0
  */
-public class GribGridResource<T extends AbstractResourceData> extends
+public class GridResource<T extends AbstractResourceData> extends
         AbstractGridResource<T> {
 
-    protected GribModel gribModel;
-
-    public GribGridResource(T resourceData, LoadProperties loadProperties) {
+    public GridResource(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
     }
 
     @Override
-    public void addDataObject(PluginDataObject pdo) {
-        if (pdo instanceof GribRecord) {
-            if (gribModel == null) {
-                GribRecord gribRecord = (GribRecord) pdo;
-                gribModel = gribRecord.getModelInfo();
-            }
-            super.addDataObject(pdo);
-        }
-    }
-
-    @Override
-    public GridGeometry2D getGridGeometry() {
-        return gribModel.getLocation().getGridGeometry();
-    }
-
-    @Override
-    public GeneralGridData getData(DataTime time, List<PluginDataObject> pdos)
-            throws VizException {
+    public List<GeneralGridData> getData(DataTime time,
+            List<PluginDataObject> pdos) throws VizException {
         if (pdos == null) {
             return null;
         }
-        GribRecord gribRecord = (GribRecord) pdos.get(0);
-        Unit<?> dataUnit = gribRecord.getModelInfo().getParameterUnitObject();
-        IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(gribRecord);
-        return getData(dataRecs, dataUnit);
+        List<GeneralGridData> dataList = new ArrayList<GeneralGridData>(
+                pdos.size());
+        for (PluginDataObject pdo : pdos) {
+            dataList.add(getData((GridRecord) pdo));
+        }
+        return dataList;
     }
 
-    protected GeneralGridData getData(IDataRecord[] dataRecs, Unit<?> dataUnit) {
+    protected GeneralGridData getData(GridRecord gridRecord)
+            throws VizException {
+        Unit<?> dataUnit = gridRecord.getParameter().getUnit();
+        IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+        return getData(dataRecs, gridRecord.getLocation().getGridGeometry(),
+                dataUnit);
+    }
+
+    protected GeneralGridData getData(IDataRecord[] dataRecs,
+            GeneralGridGeometry gridGeometry, Unit<?> dataUnit) {
         if (dataRecs.length == 1) {
             if (dataRecs[0] instanceof FloatDataRecord) {
-                return GeneralGridData.createScalarData(
+                return GeneralGridData.createScalarData(gridGeometry,
                         wrapDataRecord(dataRecs[0]), dataUnit);
+
             }
         } else if (dataRecs.length == 2) {
             FloatBuffer mag = wrapDataRecord(dataRecs[0]);
             FloatBuffer dir = wrapDataRecord(dataRecs[1]);
-            return GeneralGridData.createVectorData(mag, dir, dataUnit);
+            return GeneralGridData.createVectorData(gridGeometry, mag, dir,
+                    dataUnit);
         } else if (dataRecs.length == 4) {
             FloatBuffer mag = wrapDataRecord(dataRecs[0]);
             FloatBuffer dir = wrapDataRecord(dataRecs[1]);
             FloatBuffer u = wrapDataRecord(dataRecs[2]);
             FloatBuffer v = wrapDataRecord(dataRecs[3]);
-            return GeneralGridData.createVectorData(mag, dir, u, v, dataUnit);
+            return GeneralGridData.createVectorData(gridGeometry, mag, dir, u,
+                    v, dataUnit);
         }
         return null;
     }
@@ -133,38 +128,60 @@ public class GribGridResource<T extends AbstractResourceData> extends
 
     @Override
     public ParamLevelMatchCriteria getMatchCriteria() {
-        if (gribModel == null) {
+        GridRecord record = getAnyGridRecord();
+        if (record == null) {
             return null;
         }
-        ParamLevelMatchCriteria criteria = new ParamLevelMatchCriteria();
-        criteria.setParameterName(new ArrayList<String>());
-        criteria.setLevels(new ArrayList<Level>());
-        criteria.setCreatingEntityNames(new ArrayList<String>());
-        String parameter = gribModel.getParameterAbbreviation();
-        SingleLevel level = GridLevelTranslator.constructMatching(gribModel
+        ParamLevelMatchCriteria matchCriteria = new ParamLevelMatchCriteria();
+        matchCriteria.setParameterName(new ArrayList<String>());
+        matchCriteria.setLevels(new ArrayList<Level>());
+        matchCriteria.setCreatingEntityNames(new ArrayList<String>());
+        String parameter = record.getParameter().getAbbreviation();
+        SingleLevel level = GridLevelTranslator.constructMatching(record
                 .getLevel());
-        String creatingEntity = gribModel.getModelName();
-        if (!criteria.getParameterNames().contains(parameter)) {
-            criteria.getParameterNames().add(parameter);
+        String creatingEntity = record.getDatasetId();
+        if (!matchCriteria.getParameterNames().contains(parameter)) {
+            matchCriteria.getParameterNames().add(parameter);
         }
-        if (!criteria.getLevels().contains(level)) {
-            criteria.getLevels().add(level);
+        if (!matchCriteria.getLevels().contains(level)) {
+            matchCriteria.getLevels().add(level);
         }
-        if (!criteria.getCreatingEntityNames().contains(creatingEntity)) {
-            criteria.getCreatingEntityNames().add(creatingEntity);
+        if (!matchCriteria.getCreatingEntityNames().contains(creatingEntity)) {
+            matchCriteria.getCreatingEntityNames().add(creatingEntity);
         }
-        return criteria;
+        return matchCriteria;
     }
 
     @Override
     public String getName() {
-        if (gribModel == null) {
+        GridRecord record = getCurrentGridRecord();
+        if (record == null) {
             return "Grib Data";
-        } else {
-            return gribModel.getModelTitle() + " "
-                    + gribModel.getLevel().toString() + " "
-                    + gribModel.getParameterName();
         }
+        return record.getDatasetId() + " " + record.getLevel().toString() + " "
+                + record.getParameter().getName();
+    }
+
+    protected GridRecord getCurrentGridRecord() {
+        List<PluginDataObject> pdos = getCurrentPluginDataObjects();
+        if (pdos == null || pdos.isEmpty()) {
+            return null;
+        }
+        return (GridRecord) pdos.get(0);
+    }
+
+    protected GridRecord getAnyGridRecord() {
+        GridRecord record = getCurrentGridRecord();
+        if (record == null) {
+            for (DataTime time : getDataTimes()) {
+                List<PluginDataObject> pdos = getPluginDataObjects(time);
+                if (pdos != null && !pdos.isEmpty()) {
+                    record = (GridRecord) pdos.get(0);
+                    break;
+                }
+            }
+        }
+        return record;
     }
 
 }

@@ -34,6 +34,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -104,11 +105,11 @@ public class GridProductBrowserDataDefinition extends
     };
 
     public GridProductBrowserDataDefinition() {
-        productName = "grib";
+        productName = GridInventory.PLUGIN_NAME;
         displayName = "Grid";
         order = new String[] { GridInventory.PLUGIN_NAME_QUERY,
                 GridInventory.MODEL_NAME_QUERY, GridInventory.PARAMETER_QUERY,
-                GridInventory.MASTER_LEVEL_QUERY, "modelInfo.level.id" };
+                GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -319,7 +320,8 @@ public class GridProductBrowserDataDefinition extends
 
     private GridInventory getInventory() {
         if ((Boolean) getPreference(SHOW_DERIVED_PARAMS).getValue()) {
-            return (GridInventory) DataCubeContainer.getInventory("grib");
+            return (GridInventory) DataCubeContainer
+                    .getInventory(GridConstants.GRID);
         } else {
             return null;
         }

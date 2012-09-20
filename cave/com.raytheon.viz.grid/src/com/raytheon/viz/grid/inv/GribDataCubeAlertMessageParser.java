@@ -92,8 +92,8 @@ public class GribDataCubeAlertMessageParser extends DataCubeAlertMessageParser {
             }
 
             // remove cache'd entry from grib time cache
-            GribMapKey mapKey = new GribMapKey(attribs);
-            GribTimeCache.getInstance().clearTimes(mapKey);
+            GridMapKey mapKey = new GridMapKey(attribs);
+            GridTimeCache.getInstance().clearTimes(mapKey);
 
             // Make sure there is really data before sending it to be loaded
             DataTime[] availableTimes = DataCubeContainer.performTimeQuery(
