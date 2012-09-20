@@ -2422,12 +2422,12 @@
 		<imageStyle>
 			<displayUnits>%</displayUnits>
 			<range scale="LINEAR">
-				<minValue>-1</minValue>
+				<minValue>5</minValue>
 				<maxValue>105</maxValue>
 			</range>
 			<defaultColormap>Grid/warm to cold</defaultColormap>
 			<colorbarLabeling>
-				<values>20 40 60 80 100</values>
+				<increment>20</increment>
 			</colorbarLabeling>
 		</imageStyle>
 	</styleRule>

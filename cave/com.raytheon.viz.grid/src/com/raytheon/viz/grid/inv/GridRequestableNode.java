@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -43,7 +44,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.viz.grid.data.GribRequestableDataFactory;
+import com.raytheon.viz.grid.data.GridRequestableDataFactory;
 
 /**
  * 
@@ -61,20 +62,20 @@ import com.raytheon.viz.grid.data.GribRequestableDataFactory;
  * @author bsteffen
  * @version 1.0
  */
-public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
+public class GridRequestableNode extends AbstractRequestableLevelNode {
 
     protected static final String TIME_FIELD = "dataTime";
 
     protected Map<String, RequestConstraint> rcMap;
 
-    private List<Integer> perts;
+    private List<String> ensembles;
 
     /**
      * Copy constructor
      * 
      * @param that
      */
-    public GribRequestableLevelNode(GribRequestableLevelNode that) {
+    public GridRequestableNode(GridRequestableNode that) {
         super(that);
         this.rcMap = that.rcMap;
     }
@@ -86,7 +87,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
      * @param that
      * @param rcMap
      */
-    public GribRequestableLevelNode(LevelNode that,
+    public GridRequestableNode(LevelNode that,
             Map<String, RequestConstraint> rcMap) {
         super(that);
         this.rcMap = rcMap;
@@ -121,7 +122,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
-        Set<DataTime> resultsSet = GribTimeCache.getInstance().getTimes(this);
+        Set<DataTime> resultsSet = GridTimeCache.getInstance().getTimes(this);
         if (resultsSet != null) {
             return resultsSet;
         }
@@ -131,7 +132,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
         if (results != null) {
             resultsSet = new HashSet<DataTime>(Arrays.asList(results));
             if (!latestOnly) {
-                GribTimeCache.getInstance().setTimes(this, resultsSet);
+                GridTimeCache.getInstance().setTimes(this, resultsSet);
             }
             return resultsSet;
         } else {
@@ -150,7 +151,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
             TimeQueryRequest originalRequest, boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException {
-        Set<DataTime> resultsSet = GribTimeCache.getInstance().getTimes(this);
+        Set<DataTime> resultsSet = GridTimeCache.getInstance().getTimes(this);
         if (resultsSet != null) {
             return null;
         }
@@ -162,7 +163,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
             List<DataTime> queryResponse) throws VizException {
         if (!latestOnly) {
             Set<DataTime> resultsSet = new HashSet<DataTime>(queryResponse);
-            GribTimeCache.getInstance().setTimes(this, resultsSet);
+            GridTimeCache.getInstance().setTimes(this, resultsSet);
         }
     }
 
@@ -212,7 +213,8 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
             }
             newQuery.put("dataTime", dtRC);
         }
-        newQuery.put("pluginName", new RequestConstraint("grib"));
+        newQuery.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                GridConstants.GRID));
         dbRequest.setConstraints(newQuery);
         return dbRequest;
     }
@@ -230,10 +232,10 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
         List<Map<String, Object>> rows = response.getResults();
         List<AbstractRequestableData> rval = new ArrayList<AbstractRequestableData>(
                 rows.size());
-        GribRequestableDataFactory factory = GribRequestableDataFactory
+        GridRequestableDataFactory factory = GridRequestableDataFactory
                 .getInstance();
         for (Map<String, Object> objMap : rows) {
-            rval.add(factory.getGribRequestableData((GribRecord) objMap
+            rval.add(factory.getGridRequestableData((GridRecord) objMap
                     .get(null)));
         }
         return rval;
@@ -251,8 +253,8 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    public GribRequestableLevelNode clone() {
-        return new GribRequestableLevelNode(this);
+    public GridRequestableNode clone() {
+        return new GridRequestableNode(this);
     }
 
     /*
@@ -281,7 +283,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        GribRequestableLevelNode other = (GribRequestableLevelNode) obj;
+        GridRequestableNode other = (GridRequestableNode) obj;
         if (rcMap == null) {
             if (other.rcMap != null)
                 return false;
@@ -290,18 +292,12 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
         return true;
     }
 
-    /**
-     * @return the perts
-     */
-    public List<Integer> getPerts() {
-        return perts;
+    public List<String> getEnsembles() {
+        return ensembles;
     }
 
-    /**
-     * @param perts
-     *            the perts to set
-     */
-    public void setPerts(List<Integer> perts) {
-        this.perts = perts;
+    public void setEnsembles(List<String> ensembles) {
+        this.ensembles = ensembles;
     }
+
 }
