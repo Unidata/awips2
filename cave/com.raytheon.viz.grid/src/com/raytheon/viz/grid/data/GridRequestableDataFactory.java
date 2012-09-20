@@ -23,13 +23,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
- * TODO Add Description
+ * Provides a cache of GridRequestableDataObjcts, since these objects have the a
+ * SoftReference to the raw data loading a cached object might be able to
+ * provide faster data loading.
  * 
  * <pre>
  * 
@@ -45,29 +48,29 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * @version 1.0
  */
 
-public class GribRequestableDataFactory implements IAlertObserver {
-    private static GribRequestableDataFactory instance = new GribRequestableDataFactory();
+public class GridRequestableDataFactory implements IAlertObserver {
+    private static GridRequestableDataFactory instance = new GridRequestableDataFactory();
 
-    public static GribRequestableDataFactory getInstance() {
+    public static GridRequestableDataFactory getInstance() {
         return instance;
     }
 
-    private Map<String, GribRequestableData> requestableDataMap = new ConcurrentHashMap<String, GribRequestableData>();
+    private Map<String, GridRequestableData> requestableDataMap = new ConcurrentHashMap<String, GridRequestableData>();
 
-    public GribRequestableDataFactory() {
-        ProductAlertObserver.addObserver("grib", this);
+    public GridRequestableDataFactory() {
+        ProductAlertObserver.addObserver(GridConstants.GRID, this);
     }
 
-    public GribRequestableData getGribRequestableData(GribRecord record) {
+    public GridRequestableData getGridRequestableData(GridRecord record) {
         String uri = record.getDataURI();
-        GribRequestableData rval = requestableDataMap.get(uri);
+        GridRequestableData rval = requestableDataMap.get(uri);
 
         if (rval == null) {
             synchronized (this) {
                 // double check value still null
                 rval = requestableDataMap.get(uri);
                 if (rval == null) {
-                    rval = new GribRequestableData(record);
+                    rval = new GridRequestableData(record);
                     requestableDataMap.put(uri, rval);
                 }
             }

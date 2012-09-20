@@ -37,14 +37,14 @@
 					<resourceData xsi:type="dataMappedGridResourceData"
 						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" customLegend="NCWF Current Convective Interest Grid" sampleFormat="#">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="CWDI" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="NCWF" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS" />
+								<constraint constraintValue="grid" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 					</resourceData>
