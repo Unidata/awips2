@@ -26,12 +26,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
- * TODO Add Description
+ * Resource data used for grid data that needs complex mapping to colors.
  * 
  * <pre>
  * 
@@ -63,9 +63,9 @@ public class DataMappedGridResourceData extends GridResourceData {
     @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects) {
-        records = new GribRecord[objects.length];
+        records = new GridRecord[objects.length];
         for (int i = 0; i < objects.length; i++) {
-            records[i] = (GribRecord) objects[i];
+            records[i] = (GridRecord) objects[i];
         }
         return new DataMappedGridResource(this, loadProperties);
     }

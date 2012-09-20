@@ -21,7 +21,6 @@ package com.raytheon.viz.grid.util;
 
 import java.awt.Point;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -36,14 +35,13 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribPathProvider;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -54,18 +52,19 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.viz.grid.data.GribRequestableData;
+import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.inv.GridInventory;
 import com.raytheon.viz.grid.record.RequestableDataRecord;
 
 /**
- * TODO Add Description
+ * A DataCubeAdapter that handles all access to the grid plugin.
  * 
  * <pre>
  * 
@@ -79,12 +78,12 @@ import com.raytheon.viz.grid.record.RequestableDataRecord;
  * @author brockwoo
  * @version 1.0
  */
-public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
+public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribDataCubeAdapter.class);
+            .getHandler(GridDataCubeAdapter.class);
 
-    public GribDataCubeAdapter() {
-        super(new String[] { "grib" });
+    public GridDataCubeAdapter() {
+        super(new String[] { GridConstants.GRID });
     }
 
     private GridInventory gridInventory;
@@ -119,30 +118,25 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
         }
         try {
             IDataRecord record = null;
-            if (((GribRecord) obj).getModelInfo().getParameterAbbreviation()
-                    .equals("staticTopo")) {
+            if (GridPathProvider.STATIC_PARAMETERS.contains(((GridRecord) obj)
+                    .getParameter().getAbbreviation())) {
+                GridRecord gridRec = (GridRecord) obj;
                 IDataStore ds = DataStoreFactory.getDataStore(HDF5Util
                         .findHDF5Location(obj));
                 try {
-                    record = ds.retrieve("/", "staticTopo", req);
+                    record = ds.retrieve("/" + gridRec.getLocation().getName(),
+                            gridRec.getParameter().getAbbreviation(), req);
                 } catch (Exception e) {
-                    throw new VizException("Error retrieving staticTopo data!");
+                    throw new VizException("Error retrieving staticTopo data!",
+                            e);
                 }
             } else {
-                String file = HDF5Util.findHDF5Location(obj).getAbsolutePath();
-                file = file.replace("grib", GridConstants.GRID);
-                IDataStore ds = DataStoreFactory.getDataStore(new File(file));
-                String group = GribPathProvider.getInstance().getGroup(
-                        (GribRecord) obj);
-                record = ds.retrieve(group, "Data", req);
+                record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
+                        dataset);
             }
             return new IDataRecord[] { record };
 
         } catch (VizException e) {
-            throw new VizDataCubeException("Error retrieving grid record.", e);
-        } catch (FileNotFoundException e) {
-            throw new VizDataCubeException("Error retrieving grid record.", e);
-        } catch (StorageException e) {
             throw new VizDataCubeException("Error retrieving grid record.", e);
         }
     }
@@ -276,7 +270,7 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
             String dataset) throws VizDataCubeException {
-        Set<GribRequestableData> realData = new HashSet<GribRequestableData>();
+        Set<GridRequestableData> realData = new HashSet<GridRequestableData>();
         ISpatialObject area = null;
         for (PluginDataObject obj : objs) {
             if (area == null) {
@@ -287,20 +281,19 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
             }
         }
 
-        Map<String, List<GribRequestableData>> fileMap = new HashMap<String, List<GribRequestableData>>();
-        for (GribRequestableData data : realData) {
-            if (data.getGribSource().getModelInfo().getParameterAbbreviation()
-                    .equals("staticTopo")) {
+        Map<String, List<GridRequestableData>> fileMap = new HashMap<String, List<GridRequestableData>>();
+        for (GridRequestableData data : realData) {
+            if (GridPathProvider.STATIC_PARAMETERS.contains(data
+                    .getGridSource().getParameter().getAbbreviation())) {
                 continue;
             }
-            GribRecord record = data.getGribSource();
-            area = record.getSpatialObject();
+            GridRecord record = data.getGridSource();
+            area = record.getLocation();
             String file = HDF5Util.findHDF5Location(record).getAbsolutePath();
-            file = file.replace("grib", GridConstants.GRID);
             if (file != null) {
-                List<GribRequestableData> list = fileMap.get(file);
+                List<GridRequestableData> list = fileMap.get(file);
                 if (list == null) {
-                    list = new LinkedList<GribRequestableData>();
+                    list = new LinkedList<GridRequestableData>();
                     fileMap.put(file, list);
                 }
                 list.add(data);
@@ -319,12 +312,12 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
         if (!realData.isEmpty()) {
             // The values are held weakly in cache, so we hold them strongly
             // here to prevent them from getting garbage collected to soon
-            for (Entry<String, List<GribRequestableData>> entry : fileMap
+            for (Entry<String, List<GridRequestableData>> entry : fileMap
                     .entrySet()) {
-                List<GribRequestableData> list = entry.getValue();
-                Iterator<GribRequestableData> iter = list.iterator();
+                List<GridRequestableData> list = entry.getValue();
+                Iterator<GridRequestableData> iter = list.iterator();
                 while (iter.hasNext()) {
-                    GribRequestableData data = iter.next();
+                    GridRequestableData data = iter.next();
                     if (!data.needsRequest(request)) {
                         iter.remove();
                     }
@@ -332,9 +325,8 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
 
                 if (list.size() > 0) {
                     List<String> groups = new ArrayList<String>(list.size());
-                    for (GribRequestableData data : list) {
-                        groups.add(GribPathProvider.getInstance().getGroup(
-                                data.getGribSource()));
+                    for (GridRequestableData data : list) {
+                        groups.add(data.getGridSource().getDataURI());
                     }
 
                     IDataStore ds = DataStoreFactory.getDataStore(new File(
@@ -345,7 +337,7 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
                                 groups.toArray(new String[groups.size()]),
                                 request);
                         for (int i = 0; i < list.size(); i++) {
-                            GribRequestableData data = list.get(i);
+                            GridRequestableData data = list.get(i);
                             IDataRecord[] value = new IDataRecord[] { records[i] };
                             references.add(value);
                             data.setDataValue(request, value);
@@ -418,13 +410,15 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
             List<AbstractRequestableData> requesters) throws VizException {
         List<Object> results = new ArrayList<Object>(requesters.size());
         for (AbstractRequestableData requester : requesters) {
+            List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
             if (requester.getDataTime() == null) {
                 DataTime[] entryTime = property.getSelectedEntryTime();
                 if (entryTime != null && entryTime.length > 0) {
                     List<DataTime> entryTimes = new ArrayList<DataTime>(
                             Arrays.asList(entryTime));
                     for (DataTime time : entryTimes) {
-                        GribRecord rec = new RequestableDataRecord(requester);
+                        RequestableDataRecord rec = new RequestableDataRecord(
+                                requester);
                         rec.setDataTime(time.clone());
                         try {
                             rec.setDataURI(null);
@@ -434,33 +428,35 @@ public class GribDataCubeAdapter extends AbstractDataCubeAdapter {
                         }
                         boolean n = true;
                         for (Object result : results) {
-                            if (((GribRecord) result).getDataURI().equals(
+                            if (((GridRecord) result).getDataURI().equals(
                                     rec.getDataURI())) {
                                 n = false;
+                                break;
                             }
                         }
                         if (n) {
-                            results.add(rec);
+                            records.add(rec);
                         }
                     }
                 } else {
-                    GribRecord rec = new RequestableDataRecord(requester);
+                    RequestableDataRecord rec = new RequestableDataRecord(
+                            requester);
                     rec.setDataTime(new DataTime(Calendar.getInstance()));
-                    results.add(rec);
+                    records.add(rec);
                 }
             } else {
-                GribRecord rec = new RequestableDataRecord(requester);
-                results.add(rec);
+                RequestableDataRecord rec = new RequestableDataRecord(requester);
+                records.add(rec);
             }
+            results.addAll(records);
         }
         if (property.getEntryQueryParameters(false).containsKey(
-                GridInventory.PERT_QUERY)) {
-            String pert = property.getEntryQueryParameters(false)
-                    .get(GridInventory.PERT_QUERY).getConstraintValue();
-            if (pert != null) {
+                GridInventory.ENSEMBLE_QUERY)) {
+            String ensemble = property.getEntryQueryParameters(false)
+                    .get(GridInventory.ENSEMBLE_QUERY).getConstraintValue();
+            if (ensemble != null) {
                 for (Object rec : results) {
-                    ((GribRecord) rec).getModelInfo().setPerturbationNumber(
-                            Integer.parseInt(pert));
+                    ((GridRecord) rec).setEnsembleId(ensemble);
                 }
             }
         }
