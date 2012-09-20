@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -194,10 +195,17 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
      *            the constraintValues to set
      */
     public void setConstraintValueList(String[] constraintValues) {
-        int size = (constraintValues != null && constraintValues.length > 1 ? constraintValues.length
-                * constraintValues[0].length()
-                : 16);
-        StringBuffer sb = new StringBuffer(size);
+        setConstraintValueList(Arrays.asList(constraintValues));
+    }
+
+    /**
+     * Set a list of possible value for a request constraint, used for IN
+     * ConstraintType.
+     * 
+     * @param constraintValues
+     */
+    public void setConstraintValueList(Collection<String> constraintValues) {
+        StringBuffer sb = new StringBuffer(constraintValues.size() * 16);
         boolean first = true;
         for (String v : constraintValues) {
             if (!first) {

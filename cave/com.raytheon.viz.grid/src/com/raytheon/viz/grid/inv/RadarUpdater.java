@@ -1,3 +1,22 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.grid.inv;
 
 import java.util.Collection;
@@ -9,13 +28,13 @@ import java.util.Set;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -26,6 +45,24 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.grid.util.RadarAdapter;
 import com.raytheon.viz.grid.util.RadarProductCodeMapping;
 
+/**
+ * 
+ * Listens for updates to radatr products and transforms them into grid updates
+ * so that radar data being used in grid derived parameters will update.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 20, 2012            bsteffen     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
 public class RadarUpdater implements IAlertObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarUpdater.class);
@@ -166,15 +203,14 @@ public class RadarUpdater implements IAlertObserver {
                 statusHandler.handle(Priority.PROBLEM,
                         e1.getLocalizedMessage(), e1);
             }
-            GribRecord fakeRec = new GribRecord();
-            fakeRec.setPluginName("grib");
+            GridRecord fakeRec = new GridRecord();
+            fakeRec.setPluginName(GridInventory.PLUGIN_NAME);
+
             fakeRec.setDataTime(time);
-            GribModel modelInfo = new GribModel();
-            modelInfo.setModelName(RadarAdapter.RADAR_SOURCE);
-            modelInfo.setParameterAbbreviation(paramAbbrev);
-            modelInfo.setLevel(level);
-            modelInfo.setTypeEnsemble(null);
-            fakeRec.setModelInfo(modelInfo);
+            fakeRec.setDatasetId(RadarAdapter.RADAR_SOURCE);
+            Parameter param = new Parameter(paramAbbrev);
+            fakeRec.setParameter(param);
+            fakeRec.setLevel(level);
             try {
                 fakeRec.constructDataURI();
                 datauris.add(fakeRec.getDataURI());
