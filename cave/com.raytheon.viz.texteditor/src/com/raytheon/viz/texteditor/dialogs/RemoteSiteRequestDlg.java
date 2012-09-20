@@ -124,7 +124,8 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public RemoteSiteRequestDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Send Request");
     }
 
