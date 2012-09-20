@@ -21,10 +21,12 @@ package com.raytheon.uf.common.gridcoverage.lookup;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.request.GetGridCoverageRequest;
@@ -119,6 +121,53 @@ public class GridCoverageLookup {
                             e);
         }
         return null;
+    }
+
+    /**
+     * bulk request multiple coverages by id, for any coverages not in the cache
+     * this can be significantly faster than requesting multiple coverages
+     * individually.
+     * 
+     * @param ids
+     * @return
+     */
+    public Map<Integer, GridCoverage> getCoverages(List<Integer> ids) {
+        RequestConstraint idConstraint = new RequestConstraint(null,
+                ConstraintType.IN);
+        Map<Integer, GridCoverage> result = new HashMap<Integer, GridCoverage>(
+                ids.size());
+        for (Integer id : ids) {
+            GridCoverage cov = idToCoverage.get(id);
+            if (cov == null) {
+                idConstraint.addToConstraintValueList(id.toString());
+            }
+            result.put(id, cov);
+        }
+        if (idConstraint.getConstraintValue() == null) {
+            // everything was a cache hit.
+            return result;
+        }
+        HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        constraints.put("id", idConstraint);
+        DbQueryRequest query = new DbQueryRequest();
+        query.setConstraints(constraints);
+        query.setEntityClass(GridCoverage.class.getName());
+        try {
+            DbQueryResponse resp = (DbQueryResponse) RequestRouter.route(query);
+            for (Map<String, Object> thing : resp.getResults()) {
+                GridCoverage respCov = (GridCoverage) thing.get(null);
+                coverageToId.put(respCov, respCov.getId());
+                idToCoverage.put(respCov.getId(), respCov);
+                result.put(respCov.getId(), respCov);
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Error occurred retrieving GridCoverage information from server.",
+                            e);
+            // this will still return a partial list of any cache hits.
+        }
+        return result;
     }
 
     public GridCoverage getCoverage(GridCoverage coverage, boolean create) {
