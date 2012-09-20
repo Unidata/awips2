@@ -72,9 +72,9 @@ public class GatherLevelNode extends AbstractAliasLevelNode {
         Map<DataTime, List<AbstractRequestableData>> recordMap = new HashMap<DataTime, List<AbstractRequestableData>>();
         HashMap<String, RequestConstraint> rcMap = property
                 .getEntryQueryParameters(false);
-        for (Integer pert : GridInventory.getPerts(sourceNode)) {
-            rcMap.put(GridInventory.PERT_QUERY, new RequestConstraint(pert
-                    .toString()));
+        for (String pert : GridInventory.getEnsembles(sourceNode)) {
+            rcMap.put(GridInventory.ENSEMBLE_QUERY,
+                    new RequestConstraint(pert.toString()));
             property.setEntryQueryParameters(rcMap, false);
             cache.clear();
             for (AbstractRequestableData record : sourceNode.getData(property,
@@ -88,7 +88,7 @@ public class GatherLevelNode extends AbstractAliasLevelNode {
                 records.add(record);
             }
         }
-        rcMap.remove(GridInventory.PERT_QUERY);
+        rcMap.remove(GridInventory.ENSEMBLE_QUERY);
         property.setEntryQueryParameters(rcMap, false);
         List<AbstractRequestableData> result = new ArrayList<AbstractRequestableData>(
                 recordMap.size());

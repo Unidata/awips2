@@ -31,4 +31,11 @@ CREATE INDEX "gridinfoNameParamLevel_idx"
 CREATE INDEX "gridinfoSecondryId_idx"
   ON grid_info
   USING btree
-  (secondaryid);
+  (secondaryid)
+  WHERE secondaryid IS NOT NULL;
+  
+CREATE INDEX "gridinfoEnsembleId_idx"
+  ON grid_info
+  USING btree
+  (ensembleid)
+  WHERE ensembleid IS NOT NULL;
