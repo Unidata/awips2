@@ -63,11 +63,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dialog to display information about the given grid
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Mar 25, 2008					Eric Babin Initial Creation
- * 6/20/2008    #875       bphillip    Implemented Dialog functionality
+ * Mar 25, 2008            ebabin       Initial creation
+ * Jun 20, 2008  #875      bphillip     Implemented Dialog functionality
+ * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
  * 
  * </pre>
  * 
@@ -647,7 +650,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         // pos = string.rfind(progName, '/')
         // if pos != -1:
         // progName = progName[pos+1:len(progName)]
-        String hostname = wsId.getNetworkId().getHostName();
+        String hostname = wsId.getHostName();
 
         String label = wsId.getUserName() + " (" + progName + ")" + "  on: "
                 + hostname;
