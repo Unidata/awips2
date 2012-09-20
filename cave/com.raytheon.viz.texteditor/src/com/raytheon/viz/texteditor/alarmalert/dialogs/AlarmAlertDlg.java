@@ -57,6 +57,7 @@ import com.raytheon.viz.texteditor.alarmalert.util.AAPACombined;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertLists;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 
 /**
@@ -69,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * ------------ ---------- ----------- --------------------------
  * Sep 9, 2009            mnash     Initial creation
  * Oct 31,2011  8510       rferrel     Cleaned up code made more robust
+ * Sep 20,2011  1196       rferrel     Change dialogs so they do not block.
  * 
  * </pre>
  * 
@@ -178,8 +180,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
         preOpened();
 
-        // shell.open();
-
         opened();
     }
 
@@ -270,29 +270,14 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.SAVE);
-                dialog.open();
-                String fname = dialog.getFileName();
-                fname = validateFileName(fname);
-                // AlarmAlertFunctions.validateName(fname);
+                dialog.setCloseCallback(new ICloseCallback() {
 
-                if (fname != null && !fname.isEmpty()) {
-                    setShellText(fname);
-                    setLastFile(fname);
-                    // save alert products
-                    LocalizationFile lFile = AlarmAlertFunctions.getFile(
-                            AlarmAlertFunctions.initUserLocalization(), fname);
-                    if (lFile != null) {
-                        AlarmAlertFunctions.saveAlarms(
-                                aapList.subList(siteAdminNumberAA - 1,
-                                        aapList.size()),
-                                papList.subList(siteAdminNumberPA - 1,
-                                        papList.size()), lFile);
-                    } else {
-                        statusHandler.handle(Priority.SIGNIFICANT,
-                                "Null localization file", new VizException(
-                                        "Null localization file"));
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        doSaveAs(returnValue.toString());
                     }
-                }
+                });
+                dialog.open();
             }
         });
 
@@ -303,41 +288,70 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.LOAD);
-                dialog.open();
-                // load file
-                String fname = dialog.getFileName();
-                fname = validateFileName(fname);
-                // AlarmAlertFunctions.validateName(fname);
-                if (fname != null && !fname.isEmpty()) {
+                dialog.setCloseCallback(new ICloseCallback() {
 
-                    // load alert products
-                    LocalizationFile lFile = AlarmAlertFunctions.getFile(
-                            AlarmAlertFunctions.initUserLocalization(), fname);
-                    if (lFile != null) {
-                        File file = lFile.getFile();
-                        setShellText(fname);
-                        setLastFile(fname);
-                        currentFile = file;
-                        AAPACombined combined = null;
-
-                        try {
-                            combined = AlarmAlertFunctions.loadFile(file);
-                        } catch (FileNotFoundException e) {
-                            combined = AlarmAlertFunctions
-                                    .createDefaultAAPACombined();
-                        }
-                        if (combined != null) {
-                            populateLists(combined.getAaList(),
-                                    combined.getPaList());
-                        }
-                    } else {
-                        statusHandler.handle(Priority.SIGNIFICANT,
-                                "Null localization file", new VizException(
-                                        "Null localization file"));
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        doLoad(returnValue.toString());
                     }
-                }
+                });
+                dialog.open();
             }
         });
+    }
+
+    private void doSaveAs(String fname) {
+        fname = validateFileName(fname);
+        // AlarmAlertFunctions.validateName(fname);
+
+        if (fname != null && !fname.isEmpty()) {
+            setShellText(fname);
+            setLastFile(fname);
+            // save alert products
+            LocalizationFile lFile = AlarmAlertFunctions.getFile(
+                    AlarmAlertFunctions.initUserLocalization(), fname);
+            if (lFile != null) {
+                AlarmAlertFunctions.saveAlarms(
+                        aapList.subList(siteAdminNumberAA - 1, aapList.size()),
+                        papList.subList(siteAdminNumberPA - 1, papList.size()),
+                        lFile);
+            } else {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Null localization file", new VizException(
+                                "Null localization file"));
+            }
+        }
+    }
+
+    private void doLoad(String fname) {
+        fname = validateFileName(fname);
+        // AlarmAlertFunctions.validateName(fname);
+        if (fname != null && !fname.isEmpty()) {
+
+            // load alert products
+            LocalizationFile lFile = AlarmAlertFunctions.getFile(
+                    AlarmAlertFunctions.initUserLocalization(), fname);
+            if (lFile != null) {
+                File file = lFile.getFile();
+                setShellText(fname);
+                setLastFile(fname);
+                currentFile = file;
+                AAPACombined combined = null;
+
+                try {
+                    combined = AlarmAlertFunctions.loadFile(file);
+                } catch (FileNotFoundException e) {
+                    combined = AlarmAlertFunctions.createDefaultAAPACombined();
+                }
+                if (combined != null) {
+                    populateLists(combined.getAaList(), combined.getPaList());
+                }
+            } else {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Null localization file", new VizException(
+                                "Null localization file"));
+            }
+        }
     }
 
     /**
@@ -602,11 +616,11 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         lists.getFilteredProducts().clear();
         lists.getFilteredProducts().addAll(aapList);
         lists.getFilteredProducts().addAll(papList);
-        
+
         LocalizationFile lFile = AlarmAlertFunctions.getFile(
                 AlarmAlertFunctions.initUserLocalization(),
                 currentFile.getName());
-        
+
         AlarmAlertFunctions.saveAlarms(
                 aapList.subList(siteAdminNumberAA - 1, aapList.size()),
                 papList.subList(siteAdminNumberPA - 1, papList.size()), lFile);
