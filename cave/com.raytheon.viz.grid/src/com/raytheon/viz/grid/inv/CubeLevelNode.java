@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.tree.AbstractCubeLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
-import com.raytheon.viz.grid.data.GribRequestableDataFactory;
+import com.raytheon.viz.grid.data.GridRequestableDataFactory;
 
 /**
  * 
@@ -72,11 +72,11 @@ public class CubeLevelNode extends AbstractCubeLevelNode {
             throws VizException {
         List<AbstractRequestableData> gribResults = new ArrayList<AbstractRequestableData>(
                 objs.size());
-        GribRequestableDataFactory factory = GribRequestableDataFactory
+        GridRequestableDataFactory factory = GridRequestableDataFactory
                 .getInstance();
         for (Object obj : objs) {
             AbstractRequestableData record = factory
-                    .getGribRequestableData((GribRecord) obj);
+                    .getGridRequestableData((GridRecord) obj);
             gribResults.add(record);
         }
 
