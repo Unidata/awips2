@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
@@ -34,7 +34,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 
 /**
- * TODO Add Description
+ * A requestable data object for which wraps a GridRecord.
  * 
  * <pre>
  * 
@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
  * @version 1.0
  */
 
-public class GribRequestableData extends AbstractRequestableData {
+public class GridRequestableData extends AbstractRequestableData {
 
     protected Map<Request, SoftReference<IDataRecord[]>> cache = Collections
             .synchronizedMap(new HashMap<Request, SoftReference<IDataRecord[]>>());
@@ -57,41 +57,37 @@ public class GribRequestableData extends AbstractRequestableData {
     protected Map<Request, Long> timeRequested = Collections
             .synchronizedMap(new HashMap<Request, Long>());
 
-    protected GribRecord gribSource;
+    protected GridRecord gridSource;
 
-    protected GribRequestableData() {
+    protected GridRequestableData() {
     }
 
-    protected GribRequestableData(GribRecord source) {
-        this.gribSource = source;
-        this.source = source.getModelInfo().getModelName();
+    protected GridRequestableData(GridRecord source) {
+        this.gridSource = source;
+        this.source = source.getDatasetId();
         this.dataTime = source.getDataTime();
-        this.level = source.getModelInfo().getLevel();
-        this.parameter = source.getModelInfo().getParameterAbbreviation();
-        this.unit = source.getModelInfo().getParameterUnitObject();
+        this.level = source.getLevel();
+        this.parameter = source.getParameter().getAbbreviation();
+        this.unit = source.getParameter().getUnit();
         if (DerivedParameterGenerator.getDerParLibrary().containsKey(
                 this.parameter)) {
             DerivParamDesc derivParamDesc = DerivedParameterGenerator
                     .getDerParLibrary().get(this.parameter);
             this.parameterName = derivParamDesc.getName();
         } else {
-            this.parameterName = source.getModelInfo().getParameterName();
+            this.parameterName = source.getParameter().getName();
         }
     }
 
     /**
      * @return the source
      */
-    public GribRecord getGribSource() {
-        return gribSource;
+    public GridRecord getGridSource() {
+        return gridSource;
     }
 
-    /**
-     * @param source
-     *            the source to set
-     */
-    public void setGribSource(GribRecord source) {
-        this.gribSource = source;
+    public void setGridSource(GridRecord gridSource) {
+        this.gridSource = gridSource;
     }
 
     public boolean needsRequest(Request request) {
@@ -167,7 +163,7 @@ public class GribRequestableData extends AbstractRequestableData {
                 // + (time - timeLastRequest) + " ms ago");
                 // }
 
-                result = DataCubeContainer.getDataRecord(gribSource,
+                result = DataCubeContainer.getDataRecord(gridSource,
                         (Request) arg, null);
 
                 cache.put(request, new SoftReference<IDataRecord[]>(result));
