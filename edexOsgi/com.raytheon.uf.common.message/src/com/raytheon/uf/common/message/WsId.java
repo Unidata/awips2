@@ -45,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Apr 25, 2012       545  randerso     Repurposed the lockKey field as threadId
  * Sep 19, 2012     #1190  dgilling     Cache host names so toPrettyString() doesn't
  *                                      get delayed behind DNS requests.
+ * Sep 20, 2012     #1190  dgilling     Create method getHostName().
  * 
  * </pre>
  * 
@@ -243,6 +244,10 @@ public class WsId implements Serializable, ISerializableObject {
      */
     public InetAddress getNetworkId() {
         return networkId;
+    }
+
+    public String getHostName() {
+        return retrieveFromHostCache(networkId);
     }
 
     /**
