@@ -43,9 +43,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.UIFormat;
 import com.raytheon.viz.gfe.core.UIFormat.FilterType;
@@ -55,11 +53,14 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * The break lock dialog.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Feb 20, 2008					Eric Babin Initial Creation
- * 30Jun2008                ebabin      Updates for status of break lock.
+ * Feb 20, 2008            ebabin       Initial Creation
+ * Jun 30, 2008            ebabin       Updates for status of break lock.
+ * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
  * 
  * </pre>
  * 
@@ -68,7 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class BreakLockDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(BreakLockDialog.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BreakLockDialog.class);
 
     private static final int BOX_LIMIT = 12;
 
@@ -124,10 +126,10 @@ public class BreakLockDialog extends CaveJFACEDialog {
         try {
             clients = dataManager.getClient().getClients();
         } catch (GFEServerException e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Unable to retrieve client info. All locks will appear as orphans",
-                    e);
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Unable to retrieve client info. All locks will appear as orphans",
+                            e);
             clients = new ArrayList<String>();
         }
 
@@ -224,8 +226,7 @@ public class BreakLockDialog extends CaveJFACEDialog {
                         "GMT", "z")).append("] owned by: ");
         buf.append(lock.getWsId().getUserName()).append(" (")
                 .append(lock.getWsId().getProgName()).append(")")
-                .append(" on: ")
-                .append(lock.getWsId().getNetworkId().getHostName());
+                .append(" on: ").append(lock.getWsId().getHostName());
         return buf.toString();
     }
 
