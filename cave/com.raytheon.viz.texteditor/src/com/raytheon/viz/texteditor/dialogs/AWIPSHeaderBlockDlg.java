@@ -766,7 +766,14 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
                             AfosIdSelectionDialog dlg = new AfosIdSelectionDialog(
                                     shell, this, afosIds);
-                            dlg.setBlockOnOpen(true);
+                            dlg.setCloseCallback(new ICloseCallback() {
+
+                                @Override
+                                public void dialogClosed(Object returnValue) {
+                                    lookupAllowed = true;
+                                }
+                            });
+                            dlg.setBlockOnOpen(false);
                             dlg.open();
                             return;
                         } else if (list.size() == 1) {
