@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.DerivedLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
-import com.raytheon.viz.grid.inv.GribRequestableLevelNode;
 import com.raytheon.viz.grid.inv.GridInventory;
+import com.raytheon.viz.grid.inv.GridRequestableNode;
 
 /**
  * This is a tool intended only for use by developers to help to visualize the
@@ -158,10 +158,10 @@ public class GridTreeGrapher {
         } else if (node instanceof FloatRequestableData) {
             System.out.println("node" + i + " [label=\"Constant: "
                     + ((FloatRequestableData) node).getDataValue() + "\"];");
-        } else if (node instanceof GribRequestableLevelNode) {
-            Map<String, RequestConstraint> rcMap = ((GribRequestableLevelNode) node)
+        } else if (node instanceof GridRequestableNode) {
+            Map<String, RequestConstraint> rcMap = ((GridRequestableNode) node)
                     .getRequestConstraintMap();
-            Level level = ((GribRequestableLevelNode) node).getLevel();
+            Level level = ((GridRequestableNode) node).getLevel();
             String label = rcMap.get(GridInventory.MODEL_NAME_QUERY)
                     .getConstraintValue()
                     + "\\n"
