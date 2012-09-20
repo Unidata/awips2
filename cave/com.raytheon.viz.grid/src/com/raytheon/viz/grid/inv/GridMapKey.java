@@ -24,7 +24,24 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 
-public class GribMapKey {
+/**
+ * 
+ * Unique key for grid metadata, useful in caches.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 20, 2012            bsteffen     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
+ */
+public class GridMapKey {
 
     public final String modelName;
 
@@ -36,11 +53,11 @@ public class GribMapKey {
 
     public final double leveltwo;
 
-    public GribMapKey(GribRequestableLevelNode node) {
+    public GridMapKey(GridRequestableNode node) {
         this(node.getRequestConstraintMap());
     }
 
-    public GribMapKey(Map<String, ?> map) {
+    public GridMapKey(Map<String, ?> map) {
         Object obj;
         obj = map.get(GridInventory.MODEL_NAME_QUERY);
         if (obj != null && obj instanceof RequestConstraint) {
@@ -130,7 +147,7 @@ public class GribMapKey {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        GribMapKey other = (GribMapKey) obj;
+        GridMapKey other = (GridMapKey) obj;
         if (Double.doubleToLongBits(levelone) != Double
                 .doubleToLongBits(other.levelone))
             return false;

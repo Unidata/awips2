@@ -22,10 +22,12 @@ package com.raytheon.viz.grid.util;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +44,6 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.processing.Operations;
 import org.opengis.geometry.Envelope;
 
-import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
@@ -52,7 +53,6 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -61,7 +61,7 @@ import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
- * TODO Add Description
+ * Cache for coverages as well as several utility methods for reprojecting data.
  * 
  * <pre>
  * 
@@ -89,17 +89,23 @@ public class CoverageUtils implements IAlertObserver {
     public static synchronized CoverageUtils getInstance() {
         if (instance == null) {
             instance = new CoverageUtils();
-            ConvertUtil.registerConverter(new GridCoverageConverter(),
-                    GridCoverage.class);
             ProductAlertObserver.addObserver(GridConstants.GRID, instance);
         }
 
         return instance;
     }
 
-    public Collection<GridCoverage> getCoverages(String modelName)
+    /**
+     * Return an unordered collection of all GridCoverages that are used for a
+     * given datasetId.
+     * 
+     * @param datasetId
+     * @return
+     * @throws VizException
+     */
+    public Collection<GridCoverage> getCoverages(String datasetId)
             throws VizException {
-        Collection<GridCoverage> rval = coverageCache.get(modelName);
+        Collection<GridCoverage> rval = coverageCache.get(datasetId);
 
         if (rval == null) {
             DbQueryRequest query = new DbQueryRequest();
@@ -111,26 +117,36 @@ public class CoverageUtils implements IAlertObserver {
                 // first time through just request everything.
                 // if the cache is empty request data for all models.
                 query.addConstraint(GridInfoConstants.DATASET_ID,
-                        new RequestConstraint(modelName));
+                        new RequestConstraint(datasetId));
             }
             hasPerformedBulkQuery = true;
             DbQueryResponse resp = (DbQueryResponse) ThriftClient
                     .sendRequest(query);
+            // do a bulk request to GridCoverageLookup as it enables more
+            // possible optimizations.
+            List<Integer> locationsToRequest = new ArrayList<Integer>(resp
+                    .getResults().size());
             for (Map<String, Object> map : resp.getResults()) {
                 Integer locationId = (Integer) map
                         .get(GridInfoConstants.LOCATION_ID);
-                String datasetId = (String) map
+                locationsToRequest.add(locationId);
+            }
+            Map<Integer, GridCoverage> requestedLocations = GridCoverageLookup
+                    .getInstance().getCoverages(locationsToRequest);
+            for (Map<String, Object> map : resp.getResults()) {
+                Integer locationId = (Integer) map
+                        .get(GridInfoConstants.LOCATION_ID);
+                String resultId = (String) map
                         .get(GridInfoConstants.DATASET_ID);
-                GridCoverage coverage = GridCoverageLookup.getInstance()
-                        .getCoverage(locationId);
-                Set<GridCoverage> set = coverageCache.get(datasetId);
+                GridCoverage coverage = requestedLocations.get(locationId);
+                Set<GridCoverage> set = coverageCache.get(resultId);
                 if (set == null) {
                     set = new HashSet<GridCoverage>();
-                    coverageCache.put(datasetId, set);
+                    coverageCache.put(resultId, set);
                 }
                 set.add(coverage);
             }
-            rval = coverageCache.get(modelName);
+            rval = coverageCache.get(datasetId);
         }
 
         return rval;
@@ -154,7 +170,7 @@ public class CoverageUtils implements IAlertObserver {
         }
     }
 
-    public synchronized RemappedImage remapGrid(GridCoverage sourceGrid,
+    public RemappedImage remapGrid(GridCoverage sourceGrid,
             GridCoverage destinationGrid, FloatDataRecord inputData,
             Interpolation interpolation) throws VizException {
         if (sourceGrid.getName().equals(destinationGrid.getName())) {
@@ -317,22 +333,10 @@ public class CoverageUtils implements IAlertObserver {
         }
     }
 
-    // to support grids with multiple coverages, use getCoverages for each model
-    // individually
-    public Map<String, GridCoverage> getCoverages(Collection<String> sources)
-            throws VizException {
-        Map<String, GridCoverage> rval = new HashMap<String, GridCoverage>(
-                sources.size());
-        for (String source : sources) {
-            rval.put(source, getCoverage(source));
-        }
-        return rval;
-    }
-
-    // to support grids with multiple coverages, use getCoverages instead.
+    // use getCoverages to work with moving grids.
     @Deprecated
-    public GridCoverage getCoverage(String source) throws VizException {
-        Collection<GridCoverage> coverages = getCoverages(source);
+    public GridCoverage getCoverage(String modelName) throws VizException {
+        Collection<GridCoverage> coverages = getCoverages(modelName);
         if (coverages == null || coverages.isEmpty()) {
             return null;
         }
