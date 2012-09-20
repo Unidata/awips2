@@ -35,6 +35,7 @@ import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -50,14 +51,12 @@ import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.GribNSharpResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.grid.inv.GridInventory;
-import com.raytheon.viz.grid.rsc.GribSkewTLoadProperties;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.util.CoverageUtils;
@@ -71,7 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * Implements the IDataCatalog interface for grib data.
+ * Implements the IDataCatalog interface for grid data.
  * 
  * <pre>
  * 
@@ -242,31 +241,6 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog#
-     * getLoadProperties
-     * (com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry,
-     * com.raytheon.uf.viz.core.rsc.ResourceType,
-     * com.raytheon.uf.viz.core.rsc.DisplayType)
-     */
-    @Override
-    protected LoadProperties getLoadProperties(
-            IDataCatalogEntry dataCatalogEntry, ResourceType resourceType,
-            DisplayType displayType) {
-
-        if (resourceType == ResourceType.SOUNDING) {
-            GribSkewTLoadProperties loadProperties = new GribSkewTLoadProperties();
-            loadProperties.setPoint(dataCatalogEntry.getSelectedData()
-                    .getPlanesKey().replace("Point", ""));
-            return loadProperties;
-        } else {
-            return super.getLoadProperties(dataCatalogEntry, resourceType,
-                    displayType);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.viz.volumebrowser.datacatalog.AbstractDataCatalog#getPlugins
      * ()
@@ -318,24 +292,25 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
             DisplayType displayType) {
         Map<String, RequestConstraint> metadataMap = getProductParameters(catalogEntry);
 
-        List<Integer> perts = null;
+        List<String> ensemebles = null;
         try {
-            perts = getGridInventory().getPerts(metadataMap);
+            ensemebles = getGridInventory().getEnsembles(metadataMap);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occured during perturbation query.", e);
         }
-        if (perts != null && perts.size() > 1) {
+        if (ensemebles != null && ensemebles.size() > 1) {
+            Collections.sort(ensemebles);
             Collection<ResourcePair> requests = new ArrayList<ResourcePair>();
-            for (Integer pert : perts) {
+            for (String ensemble : ensemebles) {
                 Collection<ResourcePair> origRequests = super
                         .getResourcesToLoad(catalogEntry, resourceType,
                                 displayType);
                 for (ResourcePair request : origRequests) {
                     ((AbstractRequestableResourceData) request
                             .getResourceData()).getMetadataMap().put(
-                            "modelInfo.perturbationNumber",
-                            new RequestConstraint(pert.toString()));
+                            GridConstants.ENSEMBLE_ID,
+                            new RequestConstraint(ensemble.toString()));
                     requests.add(request);
                 }
             }
@@ -432,19 +407,11 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
             return null;
         }
         List<String> sources = getSupportedSourcesInternal();
-        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
-        try {
-            coverages = CoverageUtils.getInstance().getCoverages(sources);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
         Set<String> fileredSources = new HashSet<String>();
         for (String source : sources) {
             try {
-                GridCoverage coverage = coverages.get(source);
-                if (coverage == null) {
-                    coverage = CoverageUtils.getInstance().getCoverage(source);
-                }
+                GridCoverage coverage = CoverageUtils.getInstance()
+                        .getCoverage(source);
                 if (coverage == null) {
                     fileredSources.add(source);
                     continue;
@@ -521,19 +488,11 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
         PointsDataManager pdm = PointsDataManager.getInstance();
-        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
-        try {
-            coverages = CoverageUtils.getInstance().getCoverages(sources);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
         Set<String> validPlanes = new HashSet<String>(sources.size());
         for (String source : sources) {
             try {
-                GridCoverage coverage = coverages.get(source);
-                if (coverage == null) {
-                    coverage = CoverageUtils.getInstance().getCoverage(source);
-                }
+                GridCoverage coverage = CoverageUtils.getInstance()
+                        .getCoverage(source);
                 if (coverage == null) {
                     Set<String> results = new HashSet<String>();
                     results.addAll(MenuItemManager.getInstance()

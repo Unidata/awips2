@@ -19,14 +19,10 @@
  **/
 package com.raytheon.viz.grid.units;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.UnitFormat;
-
 import com.raytheon.viz.core.units.IUnitRegistrar;
 
 /**
- * TODO Add Description
+ * registrar for nonstandard units used by grid
  * 
  * <pre>
  * 
@@ -50,20 +46,7 @@ public class GridUnits implements IUnitRegistrar {
      */
     @Override
     public void register() {
-        UnitFormat.getInstance().alias(SI.METER, "gpm");
-        UnitFormat.getUCUMInstance().alias(SI.METER, "gpm");
-        UnitFormat.getInstance().alias(SI.MILLI(NonSI.BAR), "mb");
-        UnitFormat.getUCUMInstance().alias(SI.MILLI(NonSI.BAR), "mb");
-        UnitFormat.getInstance().alias(SI.CELSIUS, "C");
-        UnitFormat.getUCUMInstance().alias(SI.CELSIUS, "C");
-        UnitFormat.getInstance().alias(NonSI.FAHRENHEIT, "F");
-        UnitFormat.getUCUMInstance().alias(NonSI.FAHRENHEIT, "F");
-        UnitFormat.getInstance().alias(NonSI.DEGREE_ANGLE, "deg");
-        UnitFormat.getUCUMInstance().alias(NonSI.DEGREE_ANGLE, "deg");
-        UnitFormat.getInstance().alias(NonSI.KNOT, "kt");
-        UnitFormat.getUCUMInstance().alias(NonSI.KNOT, "kt");
-        UnitFormat.getInstance().alias(SI.SECOND, "sec");
-        UnitFormat.getUCUMInstance().alias(SI.SECOND, "sec");
+        com.raytheon.uf.common.dataplugin.grid.units.GridUnits.register();
     }
 
 }
