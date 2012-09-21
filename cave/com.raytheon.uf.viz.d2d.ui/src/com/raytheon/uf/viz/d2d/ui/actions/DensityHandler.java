@@ -81,7 +81,7 @@ public class DensityHandler extends AbstractHandler implements IElementUpdater {
                 IDisplayPane[] panes = container.getDisplayPanes();
                 for (IDisplayPane pane : panes) {
                     IRenderableDisplay disp = pane.getRenderableDisplay();
-                    if (disp != null) {
+                    if (disp != null && disp instanceof ID2DRenderableDisplay) {
                         ((ID2DRenderableDisplay) disp).setDensity(density);
                     }
                 }
