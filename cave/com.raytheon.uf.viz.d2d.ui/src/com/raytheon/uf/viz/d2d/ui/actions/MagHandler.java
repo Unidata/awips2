@@ -73,11 +73,12 @@ public class MagHandler extends AbstractHandler implements IElementUpdater {
             double magnification = Double.parseDouble((arg0
                     .getParameter("magnification")));
             if (editor != null) {
-            	if (magnification == 0.0f) magnification=0.1;
+                if (magnification == 0.0f)
+                    magnification = 0.1;
                 IDisplayPane[] panes = editor.getDisplayPanes();
                 for (IDisplayPane pane : panes) {
                     IRenderableDisplay disp = pane.getRenderableDisplay();
-                    if (disp != null) {
+                    if (disp != null && disp instanceof ID2DRenderableDisplay) {
                         ((ID2DRenderableDisplay) disp)
                                 .setMagnification(magnification);
                     }
