@@ -21,8 +21,6 @@ package com.raytheon.uf.viz.localization.filetreeview;
 
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.IConfigurationElement;
-
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 
@@ -69,11 +67,6 @@ public class PathData {
      * The application this file belongs to.
      */
     private String application = null;
-
-    /**
-     * IConfigurationElement.
-     */
-    private IConfigurationElement element = null;
 
     /**
      * Search recursively for files.
