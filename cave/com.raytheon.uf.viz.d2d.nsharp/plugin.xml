@@ -39,7 +39,7 @@
          commandId="com.raytheon.viz.ui.actions.saveScreen">
          <activeWhen>
          	<with variable="activeEditorId">
-       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor"/>
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
     		</with>
          </activeWhen>
    </handler>
@@ -48,10 +48,27 @@
          commandId="com.raytheon.viz.ui.actions.printScreenAction">
 		 <activeWhen>
          	<with variable="activeEditorId">
-       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor"/>
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
     		</with>
          </activeWhen>
    </handler>
+   <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.tools.nav.PanTool">
+        <!-- This will always disable the PanTool -->
+         <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+    		</with>
+         </activeWhen>
+         <enabledWhen>
+         	<not>
+	         	<with variable="activeEditorId">
+	       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+	    		</with>
+    		</not>
+         </enabledWhen>
+  </handler>
 </extension>
       
 </plugin>
