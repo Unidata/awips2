@@ -373,21 +373,27 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 }
                 proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM",
                         new AlarmAlertProduct(isOperationalMode()));
-                AlarmAlertProduct prod = (AlarmAlertProduct) proximityAlarmDlg
-                        .open();
-                if (proximityAlarmDlg.haveOkEvent()) {
-                    aapList.add(prod);
-                    String string = "";
-                    if (prod.isAlarm()) {
-                        string += " (Alarm)";
+                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                        if (proximityAlarmDlg.haveOkEvent()) {
+                            aapList.add(prod);
+                            String string = "";
+                            if (prod.isAlarm()) {
+                                string += " (Alarm)";
+                            }
+                            if (!"".equals(prod.getSearchString())) {
+                                string += " containing \""
+                                        + prod.getSearchString() + "\"";
+                            }
+                            aaList.add(prod.getProductId() + string);
+                            changeSaveState(true);
+                        }
                     }
-                    if (!"".equals(prod.getSearchString())) {
-                        string += " containing \"" + prod.getSearchString()
-                                + "\"";
-                    }
-                    aaList.add(prod.getProductId() + string);
-                    changeSaveState(true);
-                }
+                });
+                proximityAlarmDlg.open();
             }
         });
 
@@ -403,16 +409,24 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
                 proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                         new AlarmAlertProduct(isOperationalMode()));
-                AlarmAlertProduct prod = (AlarmAlertProduct) proximityAlarmDlg
-                        .open();
-                if (proximityAlarmDlg.haveOkEvent()) {
-                    prod.setOperationalMode(isOperationalMode());
-                    papList.add(prod);
-                    paList.add(prod.getProductId() + " " + prod.getAlarmType()
-                            + " " + prod.getActionCmd() + " "
-                            + AlarmAlertFunctions.buildDistance(prod));
-                    changeSaveState(true);
-                }
+                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                        if (proximityAlarmDlg.haveOkEvent()) {
+                            prod.setOperationalMode(isOperationalMode());
+                            papList.add(prod);
+                            paList.add(prod.getProductId() + " "
+                                    + prod.getAlarmType() + " "
+                                    + prod.getActionCmd() + " "
+                                    + AlarmAlertFunctions.buildDistance(prod));
+                            changeSaveState(true);
+                        }
+                    }
+                });
+
+                proximityAlarmDlg.open();
             }
         });
 
@@ -429,48 +443,64 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 }
                 if (aaList.getSelectionIndex() != -1) {
                     // User might change selection while dialog is displayed.
-                    int index = aaList.getSelectionIndex();
+                    final int index = aaList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM", aapList
                             .get(index - 1));
-                    AlarmAlertProduct prod = aapList.set(index - 1,
-                            (AlarmAlertProduct) proximityAlarmDlg.open());
-                    if (proximityAlarmDlg.haveOkEvent()) {
-                        String string = "";
-                        if (prod.isAlarm()) {
-                            string += " (Alarm)";
+                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                            prod = aapList.set(index - 1, prod);
+                            if (proximityAlarmDlg.haveOkEvent()) {
+                                String string = "";
+                                if (prod.isAlarm()) {
+                                    string += " (Alarm)";
+                                }
+                                if (!"".equals(prod.getSearchString())) {
+                                    string += " \"" + prod.getSearchString()
+                                            + "\"";
+                                }
+                                aaList.setItem(index, prod.getProductId()
+                                        + string);
+                                paList.deselectAll();
+                                aaList.select(index);
+                                aaList.showSelection();
+                                changeSaveState(true);
+                            }
                         }
-                        if (!"".equals(prod.getSearchString())) {
-                            string += " \"" + prod.getSearchString() + "\"";
-                        }
-                        aaList.setItem(index, prod.getProductId() + string);
-                        paList.deselectAll();
-                        aaList.select(index);
-                        aaList.showSelection();
-                        changeSaveState(true);
-                    }
+                    });
+                    proximityAlarmDlg.open();
                 } else if (paList.getSelectionIndex() != -1) {
                     // User might change selection while dialog is displayed.
-                    int index = paList.getSelectionIndex();
+                    final int index = paList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                             papList.get(index - 1));
-                    AlarmAlertProduct prod = papList.set(index - 1,
-                            (AlarmAlertProduct) proximityAlarmDlg.open());
-                    if (proximityAlarmDlg.haveOkEvent()) {
-                        paList.setItem(
-                                paList.getSelectionIndex(),
-                                prod.getProductId()
-                                        + " "
-                                        + prod.getAlarmType()
-                                        + " "
-                                        + prod.getActionCmd()
-                                        + " "
-                                        + AlarmAlertFunctions
-                                                .buildDistance(prod));
-                        aaList.deselectAll();
-                        paList.select(index);
-                        paList.showSelection();
-                        changeSaveState(true);
-                    }
+                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                            prod = papList.set(index - 1, prod);
+                            if (proximityAlarmDlg.haveOkEvent()) {
+                                paList.setItem(
+                                        paList.getSelectionIndex(),
+                                        prod.getProductId()
+                                                + " "
+                                                + prod.getAlarmType()
+                                                + " "
+                                                + prod.getActionCmd()
+                                                + " "
+                                                + AlarmAlertFunctions
+                                                        .buildDistance(prod));
+                                aaList.deselectAll();
+                                paList.select(index);
+                                paList.showSelection();
+                                changeSaveState(true);
+                            }
+                        }
+                    });
+                    proximityAlarmDlg.open();
                 }
             }
         });
