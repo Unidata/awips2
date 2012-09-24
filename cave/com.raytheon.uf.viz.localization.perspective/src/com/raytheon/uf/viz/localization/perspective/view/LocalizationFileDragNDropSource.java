@@ -81,9 +81,11 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
         this.view = view;
     }
 
-    LocalizationFile potentialDelete = null;
+    private LocalizationFile toCopy = null;
 
-    LocalizationFile toDelete = null;
+    private LocalizationFile potentialDelete = null;
+
+    private LocalizationFile toDelete = null;
 
     // Drag methods
 
@@ -99,7 +101,7 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
             event.doit = file.getContext().getLocalizationLevel()
                     .isSystemLevel() == false;
             event.image = selected[0].getImage();
-            potentialDelete = file;
+            toCopy = potentialDelete = file;
         }
     }
 
@@ -121,7 +123,7 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
 
     @Override
     public void dragSetData(DragSourceEvent event) {
-        event.data = new String[] { potentialDelete.getFile().getAbsolutePath() };
+        event.data = new String[] { toCopy.getFile().getAbsolutePath() };
     }
 
     // Drop methods
@@ -174,6 +176,9 @@ public class LocalizationFileDragNDropSource extends ViewerDropAdapter
             FileTreeEntryData data = (FileTreeEntryData) target;
             if (data instanceof LocalizationFileEntryData == false
                     && data instanceof LocalizationFileGroupData == false) {
+                if (operation == DND.DROP_COPY) {
+                    potentialDelete = null;
+                }
                 return true;
             }
         }
