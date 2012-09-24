@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.services.IDisposable;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -57,6 +58,17 @@ public class TimeMatchingJob extends Job {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeMatchingJob.class);
 
+    static {
+        Activator.getDefault().registerDisposable(new IDisposable() {
+            @Override
+            public void dispose() {
+                shutdown();
+            }
+        });
+    }
+
+    private static boolean running = true;
+
     private static Map<IDescriptor, TimeMatchingJob> map = new ConcurrentHashMap<IDescriptor, TimeMatchingJob>();
 
     private IDescriptor request;
@@ -68,18 +80,33 @@ public class TimeMatchingJob extends Job {
         this.request = desc;
     }
 
-    public static synchronized void scheduleTimeMatch(IDescriptor desc) {
-        if (desc != null && desc.getTimeMatcher() != null) {
-            TimeMatchingJob job = map.get(desc);
-            if (job == null) {
-                job = new TimeMatchingJob(desc);
-                job.setSystem(true);
-            } else {
-                job.keepAround = true;
+    public static void scheduleTimeMatch(IDescriptor desc) {
+        synchronized (TimeMatchingJob.class) {
+            if (running == false) {
+                return;
             }
-            map.put(desc, job);
-            job.schedule();
+            if (desc != null && desc.getTimeMatcher() != null) {
+                TimeMatchingJob job = map.get(desc);
+                if (job == null) {
+                    job = new TimeMatchingJob(desc);
+                    job.setSystem(true);
+                } else {
+                    job.keepAround = true;
+                }
+                map.put(desc, job);
+                job.schedule();
+            }
         }
+    }
+
+    private static void shutdown() {
+        synchronized (TimeMatchingJob.class) {
+            running = false;
+        }
+        for (TimeMatchingJob job : map.values()) {
+            job.cancel();
+        }
+        map.clear();
     }
 
     /*
@@ -111,7 +138,6 @@ public class TimeMatchingJob extends Job {
                     }
                 });
             }
-
         } catch (Throwable e) {
             statusHandler.handle(Priority.CRITICAL,
                     "Error redoing time matching", e);
