@@ -21,13 +21,6 @@
 	<bean id="regionalSatDecoder" class="gov.noaa.nws.ost.edex.plugin.regionalsat.decoder.RegionalSatDecoder">
 		<property name="source" value="Source" />
 		<property name="filename" value="regional_satellite_netcdf3" />
-		<property name="dao" ref="regionalSatDao" />
-	</bean>
-
-	<!-- sat plugin has one but we don't want to be dep on the satellite-ingest beans... -->
-	<bean id="regionalSatDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao"
-		depends-on="satelliteRegistered">
-		<constructor-arg ref="satellitePluginName" />
 	</bean>
 
 	<bean id="regionalSatDistRegistry" factory-bean="distributionSrv"
