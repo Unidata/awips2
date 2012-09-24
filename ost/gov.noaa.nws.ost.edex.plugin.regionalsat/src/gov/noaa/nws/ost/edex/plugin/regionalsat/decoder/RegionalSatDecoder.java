@@ -10,24 +10,26 @@
 
 package gov.noaa.nws.ost.edex.plugin.regionalsat.decoder;
 
-import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatSpatialFactory;
 import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatLookups;
 import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatLookups.PhysicalElementValue;
+import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatSpatialFactory;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Decoder implementation for alaska and regional satellite plugin. This decoder
@@ -56,6 +58,8 @@ import ucar.nc2.NetcdfFile;
  * 7/15/11                      tk    	Initial Creation
  * - AWIPS2 Baseline Repository --------
  * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
+ * 09/24/2012   1210        jkorman     Modified the decode method to create the
+ *                                      IDataRecord required by the SatelliteDao
  * </pre>
  * 
  * @author tk
@@ -64,9 +68,10 @@ import ucar.nc2.NetcdfFile;
 
 public class RegionalSatDecoder extends AbstractDecoder {
 
-    private String traceId = "";
+    private static final IUFStatusHandler handler = UFStatus
+    .getHandler(AbstractDecoder.class);
 
-    private SatelliteDao dao;
+    private String traceId = "";
 
     private String source;
 
@@ -86,8 +91,8 @@ public class RegionalSatDecoder extends AbstractDecoder {
      * alaskasat-ingest.xml and the dao and source members are set when the
      * RegionalSatDecoder instance is initialized:
      * 
-     * * @param dao the data access object for satellite records * @param source
-     * the source of the satellite images (Alaska Region)
+     * @param data The file byte array data to be decoded.
+     * @return The decoded data record(s).
      */
     public PluginDataObject[] decode(byte[] data) throws Exception {
 
@@ -312,8 +317,17 @@ public class RegionalSatDecoder extends AbstractDecoder {
                         .getTime());
                 record.setPluginName("satellite");
                 record.constructDataURI();
-            } // end of if statement
 
+                // Set the data into the IDataRecord
+                IDataRecord dataRec = SatelliteRecord.getDataRecord(record);
+                if(dataRec != null) {
+                    record.setMessageData(dataRec);
+                } else {
+                    handler.error(String.format("Could not create datarecord for %s"), traceId);
+                    record = null;
+                }
+
+            } // end of if statement
         } // end of if data not empty statement
 
         if (record == null) {
@@ -349,21 +363,6 @@ public class RegionalSatDecoder extends AbstractDecoder {
     }
 
     /**
-     * @return dao the data access object for satellite records
-     */
-    public SatelliteDao getDao() {
-        return dao;
-    }
-
-    /**
-     * @param dao
-     *            the data access object for satellite records
-     */
-    public void setDao(SatelliteDao dao) {
-        this.dao = dao;
-    }
-
-    /**
      * @return the source
      */
     public String getSource() {
@@ -392,4 +391,5 @@ public class RegionalSatDecoder extends AbstractDecoder {
     public void setFilename(String file) {
         this.filename = file;
     }
+    
 }
