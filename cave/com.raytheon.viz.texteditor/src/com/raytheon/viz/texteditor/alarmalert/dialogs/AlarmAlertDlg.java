@@ -135,7 +135,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
      * @param parentShell
      */
     protected AlarmAlertDlg(Shell parentShell) {
-        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("(init) Alarm/Alert and Proximity Alarm Products");
     }
 
