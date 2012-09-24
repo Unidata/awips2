@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 10, 2009            mnash     Initial creation
  * Jun 08, 2010 5851       cjeanbap    Properly stop alarm/alert observer listener; shellComp is null.
  * Oct 31, 2011 8510       rferrel   made PRIMARY_MODEL and add check for nonblank productID.
+ * Sep 20, 2012 1196       rferrel     No longer Blocks
  * </pre>
  * 
  * @author mnash
@@ -71,8 +72,7 @@ public class NewAlarmDlg extends CaveSWTDialog {
             e.text = e.text.toUpperCase();
         }
     };
-    
-    
+
     private Combo alarmAlert;
 
     private Combo actionCmd;
@@ -108,8 +108,8 @@ public class NewAlarmDlg extends CaveSWTDialog {
      */
     protected NewAlarmDlg(Shell parentShell, String alarm_or_alert,
             AlarmAlertProduct product) {
-        super(parentShell, CAVE.PERSPECTIVE_INDEPENDENT | SWT.PRIMARY_MODAL
-                | SWT.RESIZE);
+        super(parentShell, SWT.PRIMARY_MODAL | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         if ("PROXIMITY".equals(alarm_or_alert)) {
             productType = ProductType.Proximity_Alarm;
             setText("New Proximity Alarm Product");
@@ -187,13 +187,13 @@ public class NewAlarmDlg extends CaveSWTDialog {
      */
     private Text createProductIdField(Composite prods, String initValue) {
         Text prodIdField = new Text(prods, SWT.SINGLE | SWT.BORDER);
-        if(initValue != null) {
+        if (initValue != null) {
             prodIdField.setText(initValue);
         }
         prodIdField.addVerifyListener(productIdVerifier);
         return prodIdField;
     }
-    
+
     private void createAlarmDialog() {
         Composite prods = new Composite(shellComp, SWT.NONE);
         GridLayout prodLayout = new GridLayout(3, false);
@@ -208,8 +208,8 @@ public class NewAlarmDlg extends CaveSWTDialog {
         prodLabelData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         prodId.setLayoutData(prodLabelData);
 
-        productId = createProductIdField(prods,prod.getProductId());
-        
+        productId = createProductIdField(prods, prod.getProductId());
+
         prodLabelData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         prodLabelData.grabExcessHorizontalSpace = true;
         prodLabelData.widthHint = 150;
@@ -260,8 +260,8 @@ public class NewAlarmDlg extends CaveSWTDialog {
         prodId.setText("Product ID:");
 
         prodLabelData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        
-        productId = createProductIdField(prods,prod.getProductId());
+
+        productId = createProductIdField(prods, prod.getProductId());
         productId.setLayoutData(prodLabelData);
 
         // separator
@@ -468,7 +468,7 @@ public class NewAlarmDlg extends CaveSWTDialog {
         } else {
             prod.setSearchString(searchString.getText());
             prod.setAlarm(alarmCheck.getSelection());
-            if(alarmCheck.getSelection()) {
+            if (alarmCheck.getSelection()) {
                 prod.setAlarmType("Alarm");
             } else {
                 prod.setAlarmType("Alert");
