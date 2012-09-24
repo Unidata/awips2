@@ -49,7 +49,7 @@ public class NewDerivedParameterAction extends Action {
      * 
      */
     public NewDerivedParameterAction() {
-        super("New...");
+        super("Derived Parameter...");
     }
 
     @Override
