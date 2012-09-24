@@ -158,7 +158,6 @@ import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.CommandHistory;
 import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.dialogs.WarnGenConfirmationDlg.SessionDelegate;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -4409,22 +4408,36 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         "Problem Detected by QC", qcCheck.getErrorMessage(),
                         "Do you really want to Send?\n", mode);
-                wgcd.open(new SessionDelegate() {
+                wgcd.setCloseCallback(new ICloseCallback() {
+
                     @Override
-                    public void dialogDismissed(Object dialogResult) {
-                        if (Boolean.TRUE.equals(dialogResult))
-                            finishSendProduct1(resend, title, mode,
+                    public void dialogClosed(Object returnValue) {
+                        if (Boolean.TRUE.equals(returnValue))
+                            finishSendProduct(resend, title, mode,
                                     productMessage, modeMessage);
+
                     }
                 });
+                wgcd.open();
 
                 return;
             }
         }
-        finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+        finishSendProduct(resend, title, mode, productMessage, modeMessage);
     }
 
-    private void finishSendProduct1(final boolean resend, String title,
+    /**
+     * This finishes preparing to send a product as part of normal compleation
+     * of sendProduct or as part of the call back when there is a problem with
+     * the WarnGen being sent.
+     * 
+     * @param resend
+     * @param title
+     * @param mode
+     * @param productMessage
+     * @param modeMessage
+     */
+    private void finishSendProduct(final boolean resend, String title,
             CAVEMode mode, StringBuilder productMessage,
             StringBuilder modeMessage) {
         Pattern p = Pattern.compile(".\\%[s].");
@@ -4459,16 +4472,26 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell, title,
                 productMessage.toString(), modeMessage.toString(), mode);
-        wgcd.open(new SessionDelegate() {
+        wgcd.setCloseCallback(new ICloseCallback() {
+
             @Override
-            public void dialogDismissed(Object dialogResult) {
-                if (Boolean.TRUE.equals(dialogResult))
-                    finishSendProduct2(resend, result);
+            public void dialogClosed(Object returnValue) {
+                if (Boolean.TRUE.equals(returnValue)) {
+                    warngenCloseCallback(resend, result);
+                }
             }
         });
+        wgcd.open();
     }
 
-    private void finishSendProduct2(boolean resend, boolean result) {
+    /**
+     * This is used by finishedSendProduct as the call back to the warnGen
+     * confirmaiton Dialog.
+     * 
+     * @param resend
+     * @param result
+     */
+    private void warngenCloseCallback(boolean resend, boolean result) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
