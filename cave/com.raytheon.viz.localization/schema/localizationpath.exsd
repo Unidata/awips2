@@ -54,7 +54,7 @@
          <attribute name="value" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The localization path of the directory to start at.
                </documentation>
             </annotation>
          </attribute>
@@ -68,35 +68,35 @@
          <attribute name="recursive" type="boolean">
             <annotation>
                <documentation>
-                  
+                  If not recursive, will only show files in the base directory specified by the &apos;value&apos; attribute.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="localizationType" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  LocalizationType enum, can be CAVE_STATIC or COMMON_STATIC
                </documentation>
             </annotation>
          </attribute>
          <attribute name="extensionFilter" type="string">
             <annotation>
                <documentation>
-                  comma separated list of extensions
+                  comma separated list of extensions to filter on
                </documentation>
             </annotation>
          </attribute>
          <attribute name="application" type="string" use="required">
             <annotation>
                <documentation>
-                  The application that owns these files
+                  The application that owns these files.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="localizationAdapter" type="string">
             <annotation>
                <documentation>
-                  
+                  An adapter class that can be used to customize functionality for this directory path.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn="com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter:"/>
