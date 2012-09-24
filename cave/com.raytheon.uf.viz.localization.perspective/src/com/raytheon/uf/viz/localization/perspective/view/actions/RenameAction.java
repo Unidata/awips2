@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.localization.perspective.view.actions;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -60,6 +62,46 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 
 public class RenameAction extends Action {
 
+    public static class NewFileInputValidator implements IInputValidator {
+
+        private static final String VALID_FILE_REGEX = "^[a-zA-Z0-9_]+[a-zA-Z0-9_\\-.]*$";
+
+        private static final Pattern VALID_FILE_PATTERN = Pattern
+                .compile(VALID_FILE_REGEX);
+
+        private String initialValue;
+
+        public NewFileInputValidator(String initialValue) {
+            this.initialValue = initialValue;
+        }
+
+        @Override
+        public String isValid(String newText) {
+            if (initialValue != null && initialValue.equals(newText.trim())) {
+                return "File name is not different";
+            } else if (newText.trim().isEmpty()) {
+                return "New name must not be empty";
+            } else {
+                String[] parts = newText.split("[" + IPathManager.SEPARATOR
+                        + "]");
+                if (VALID_FILE_PATTERN.matcher(parts[parts.length - 1])
+                        .matches() == false) {
+                    return "File name must only contain "
+                            + FileUtil.VALID_FILENAME_CHARS;
+                }
+                for (int i = 0; i < parts.length - 1; ++i) {
+                    if (parts[i].isEmpty() == false
+                            && VALID_FILE_PATTERN.matcher(parts[i]).matches() == false) {
+                        return "Directory path: " + parts[i]
+                                + " must only contain "
+                                + FileUtil.VALID_FILENAME_CHARS;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
     private LocalizationFile file;
 
     private ILocalizationService service;
@@ -94,21 +136,7 @@ public class RenameAction extends Action {
         boolean done = false;
         while (!canceled && !done) {
             InputDialog dialog = new InputDialog(parent, "Rename file",
-                    "File name:", name, new IInputValidator() {
-
-                        @Override
-                        public String isValid(String newText) {
-                            if (name.equals(newText.trim())) {
-                                return "File name is not different";
-                            } else if (!FileUtil.isValidFilename(newText)) {
-                                return "New name may only contain "
-                                        + FileUtil.VALID_FILENAME_CHARS;
-                            } else if ("".equals(newText.trim())) {
-                                return "New name must not be empty";
-                            }
-                            return null;
-                        }
-                    });
+                    "File name:", name, new NewFileInputValidator(name));
             if (InputDialog.OK == dialog.open()) {
                 pathParts[pathParts.length - 1] = dialog.getValue();
                 String newPath = pathParts[0];
