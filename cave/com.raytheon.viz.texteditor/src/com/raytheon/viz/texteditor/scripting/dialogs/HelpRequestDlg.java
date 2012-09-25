@@ -40,8 +40,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -53,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 30, 2009            mfegan     Initial creation
+ * Sep 20, 2012 1196       rferrel    Added DO_NOT_BLOCK to constructor
  * 
  * </pre>
  * 
@@ -61,7 +60,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class HelpRequestDlg extends CaveSWTDialog implements SelectionListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(HelpRequestDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(HelpRequestDlg.class);
+
     private static final String DLG_TITLE = "Command Help";
 
     /** the selection list */
@@ -104,7 +105,7 @@ public class HelpRequestDlg extends CaveSWTDialog implements SelectionListener {
      */
     public HelpRequestDlg(Shell parent, EnumHelpTypes type, String token) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.FILL,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText(DLG_TITLE);
 
         this.type = type;
@@ -126,6 +127,7 @@ public class HelpRequestDlg extends CaveSWTDialog implements SelectionListener {
         shell.setSize(size);
 
         createClientArea();
+        // TODO Move to preOpened and limit the height of the dialog.
         loadCommandList();
     }
 
@@ -146,8 +148,9 @@ public class HelpRequestDlg extends CaveSWTDialog implements SelectionListener {
                 selections.add(command);
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to load commands file "
-                            + this.type.getFileName(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load commands file " + this.type.getFileName(),
+                    e);
         }
     }
 
