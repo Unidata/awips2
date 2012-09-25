@@ -73,8 +73,7 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2009            chammack     Initial creation
- * 2012-04-20   DR 14699   D. Friedman  Work around race conditions
- * 2012-08-14   DR 15160   D. Friedman  Reduce chance of UI blocking
+ * 2012-04-20   DR 14699   D. Friedman Work around race conditions
  * 
  * </pre>
  * 
@@ -95,7 +94,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         @Override
         public void disposed(AbstractVizResource<?, ?> resource) {
             if ((resource == timeMatchBasis)) {
-                internalSetTimeMatchBasis(null);
+                synchronized (D2DTimeMatcher.this) {
+                    timeMatchBasis = null;
+                }
             }
         }
 
@@ -127,11 +128,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
     private boolean needRetry;
     private int nRetries;
 
-    // DR 15160 state
-    private transient boolean pendingTmbChange = false;
-    private transient boolean inTimeMatch = false;
-    private transient AbstractVizResource<?, ?> pendingTimeMatchBasis;
-
     /**
      * Default Constructor.
      */
@@ -162,15 +158,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
 
         synchronized (this) {
-            if (inTimeMatch) {
-                needRetry = true;
-                return;
-            }
-            pendingTmbChange = false;
-            inTimeMatch = true;
             needRetry = false;
-        }
-        try {
+
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null && tmDescriptor != descriptor) {
@@ -216,27 +205,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
                 }
             }
 
-        } finally {
-            boolean scheduleRetry = false;
-            synchronized (this) {
-                inTimeMatch = false;
-                if (pendingTmbChange) {
-                    pendingTmbChange = false;
-                    changeTimeMatchBasis(pendingTimeMatchBasis);
-                    pendingTimeMatchBasis = null;
-                    scheduleRetry = true;
-                }
-                
-                if (needRetry) {
-                    if (nRetries < 200) {
-                        ++nRetries;
-                        scheduleRetry = true;
-                    }
-                } else
-                    nRetries = 0;
-            }
-            if (scheduleRetry)
-                TimeMatchingJob.scheduleTimeMatch(descriptor);
+            if (needRetry) {
+            	if (nRetries < 200) {
+            	    ++nRetries;
+            	    TimeMatchingJob.scheduleTimeMatch(descriptor);
+            	}
+            } else
+            	nRetries = 0;
         }
     }
 
@@ -733,7 +708,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             IDescriptor descriptor) {
         if ((resource == timeMatchBasis)
                 && (descriptor instanceof AbstractDescriptor)) {
-            internalSetTimeMatchBasis(null);
+            synchronized (this) {
+                timeMatchBasis = null;
+            }
         }
     }
 
@@ -1027,17 +1004,4 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         configFactory.resetMultiload();
     }
 
-    // For DR 15160
-    protected void internalSetTimeMatchBasis(AbstractVizResource<?, ?> timeMatchBasis) {
-        synchronized (this) {
-            if (inTimeMatch) {
-                pendingTmbChange = true;
-                pendingTimeMatchBasis = timeMatchBasis;
-            } else {
-                pendingTmbChange = false;
-                pendingTimeMatchBasis = null;
-                changeTimeMatchBasis(timeMatchBasis);
-            }
-        }
-    }
 }
