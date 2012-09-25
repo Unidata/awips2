@@ -392,10 +392,7 @@ public class MapManager {
                 String error = "********* EDIT AREA GENERATION ERROR - MakeReferenceData  *********\n"
                         + "Error in generating edit areas, map #"
                         + i
-                        + " Name: "
-                        + m.getDisplayName()
-                        + " Basename: "
-                        + m.getTableName();
+                        + " Basename: " + m.getTableName();
                 statusHandler.error(error, e);
                 _mapErrors.add(error);
             } finally {
@@ -487,7 +484,7 @@ public class MapManager {
             return;
         }
 
-        statusHandler.debug("creating: " + mapDef.getDisplayName());
+        statusHandler.debug("creating: " + mapDef.getTableName());
         List<ReferenceData> data = createReferenceData(mapDef);
         if (data.size() == 0) {
             return;
@@ -899,13 +896,13 @@ public class MapManager {
         } catch (Exception e) {
             String error = "********* EDIT AREA GENERATION ERROR - Create Reference Data *********\n"
                     + "Error in generating edit areas from maps for map "
-                    + mapDef.getDisplayName();
+                    + mapDef.getTableName();
             statusHandler.error(error, e);
             _mapErrors.add(error);
         }
 
         statusHandler.debug("EAs: " + created);
-        editAreaMap.put(mapDef.getDisplayName(), created);
+        editAreaMap.put(mapDef.getTableName(), created);
         return data;
     }
 
