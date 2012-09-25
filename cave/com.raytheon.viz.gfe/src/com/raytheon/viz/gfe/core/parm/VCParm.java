@@ -464,9 +464,14 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // get list of dependent parms
         List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.EVENTB,
-                    "Error getting dependent WeatherElements: ",
-                    mod.getErrorString());
+            //statusHandler.handle(Priority.EVENTB,
+            //        "Error getting dependent WeatherElements: ",
+            //        mod.getErrorString());
+            Activator
+            .getDefault()
+            .getLog()
+            .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+                    "Error getting dependent WeatherElements: " + this.mod.getErrorString()));
         }
 
         // get list of currently registered parms
