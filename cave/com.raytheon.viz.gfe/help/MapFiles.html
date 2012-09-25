@@ -11,7 +11,7 @@
 <h1 CLASS="3Heading">
 <a NAME="Top"></a>Map Files - Map Background Shapefile Handling</h1>
 
-<div CLASS="3Heading">March 29, 2012</div>
+<div CLASS="3Heading">September 25, 2012</div>
 
 <h1 CLASS="3Heading">
 
@@ -24,13 +24,16 @@
 <hr WIDTH="100%">
 <h2>
 <a NAME="Overview"></a>Overview</h2>
-AWIPS2 handles shapefiles differently than AWIPS1 did. The MapFiles.py file 
-is no longer used. Instead, a postgres <i>maps</i> database in conjunction with xml 
-configuration are now in use. Maps.py has been converted to Maps.java for
-shapefile access and processing.  Consequently, there is a change to how local
-maps are added to the system.  Also, currently the functionality that generates
-edit areas from site level shapefiles has not yet been implemented.  It is slated
-to be implemented as DR9441.
+<p>
+AWIPS2 handles map backgrounds differently than AWIPS1 did. The Maps.py file 
+is no longer used for creating map backgrounds. Instead, a PostGIS <i>maps</i> database is used 
+in conjunction with xml configuration. Consequently, there is a change to how local
+maps are added to the system. These maps are available across all perspective in CAVE and are
+not specific to GFE.
+</p>
+<p>
+<a href="mapConfig.html">Maps.py</a> and <a href="localMapsConfig.html">localMaps.py</a> are now only used to generate edit areas from maps database tables.
+</p>
 <hr WIDTH="100%">
 <h2><a NAME="Updating"></a>Updating Map Shapefiles</h2>
 <p><ol>
