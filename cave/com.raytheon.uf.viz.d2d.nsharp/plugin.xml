@@ -70,5 +70,14 @@
          </enabledWhen>
   </handler>
 </extension>
+<extension
+  point="com.raytheon.uf.viz.core.classContext">
+  <classContext
+     class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow">
+      <contextId
+            id="com.raytheon.viz.ui.loopContext">
+      </contextId>
+  </classContext>
+</extension>
       
 </plugin>
