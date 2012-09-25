@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -119,7 +120,7 @@ public class GridAlterBundleContributor implements IAlterBundleContributor {
             String selectedString) {
         Map<String, RequestConstraint> reqMap = data.getMetadataMap();
         if (selectedString != null) {
-            reqMap.put("modelInfo.modelName", new RequestConstraint(
+            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint(
                     selectedString));
             DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
 
@@ -136,7 +137,6 @@ public class GridAlterBundleContributor implements IAlterBundleContributor {
                 ((CrossSectionResourceData) data).setSource(lookup.getInfo(
                         selectedString).getTitle());
             }
-
         }
     }
 
