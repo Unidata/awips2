@@ -70,7 +70,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * Implements the IDataCatalog interface for grid data.
+ * Implements the IDataCatalog interface for grib data.
  * 
  * <pre>
  * 
@@ -86,9 +86,9 @@ import com.vividsolutions.jts.geom.LineString;
  * @author lvenable
  * @version 1.0
  */
-public class GribDataCatalog extends AbstractInventoryDataCatalog {
+public class GridDataCatalog extends AbstractInventoryDataCatalog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribDataCatalog.class);
+            .getHandler(GridDataCatalog.class);
 
     /**
      * Create the product entry in the grid data catalog.
@@ -104,7 +104,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
         if (!isValidSelection(selData)) {
             return null;
         }
-        GribDataCatalogEntry catalogEntry = new GribDataCatalogEntry(selData);
+        GridDataCatalogEntry catalogEntry = new GridDataCatalogEntry(selData);
 
         catalogEntry.modelName = selData.getSourcesKey();
         catalogEntry.paramAbbreviation = selData.getFieldsKey();
@@ -125,7 +125,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
     public void addProductParameters(IDataCatalogEntry entry,
             HashMap<String, RequestConstraint> parameters) {
 
-        GribDataCatalogEntry catalogEntry = (GribDataCatalogEntry) entry;
+        GridDataCatalogEntry catalogEntry = (GridDataCatalogEntry) entry;
 
         ViewMenu viewSelection = catalogEntry.getDialogSettings()
                 .getViewSelection();
@@ -228,7 +228,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
         // if we fail to get a unit from the style rules use the parameter unit
         if (displayUnit == null) {
 
-            GribDataCatalogEntry gribDataCatalogEntry = ((GribDataCatalogEntry) catalogEntry);
+            GridDataCatalogEntry gribDataCatalogEntry = ((GridDataCatalogEntry) catalogEntry);
             return getInventory().getParameterUnit(
                     gribDataCatalogEntry.modelName,
                     gribDataCatalogEntry.paramAbbreviation);
@@ -247,7 +247,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
      */
     @Override
     protected String[] getPlugins(ViewMenu setting) {
-        return new String[] { "grib" };
+        return new String[] { GridInventory.PLUGIN_NAME };
     }
 
     @Override
@@ -406,63 +406,65 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                 && lons.isEmpty()) {
             return null;
         }
-        List<String> sources = getSupportedSourcesInternal();
         Set<String> fileredSources = new HashSet<String>();
-        for (String source : sources) {
+        for (String source : getSupportedSourcesInternal()) {
             try {
-                GridCoverage coverage = CoverageUtils.getInstance()
-                        .getCoverage(source);
-                if (coverage == null) {
+                Collection<GridCoverage> coverages = CoverageUtils
+                        .getInstance().getCoverages(source);
+                if (coverages == null) {
                     fileredSources.add(source);
                     continue;
                 }
-                GridGeometry2D gridGeom = coverage.getGridGeometry();
-                MathTransform llToCRS = MapUtil.getTransformFromLatLon(gridGeom
-                        .getCoordinateReferenceSystem());
-                Envelope2D env = gridGeom.getEnvelope2D();
-                for (String letter : pointLetters) {
+                for (GridCoverage coverage : coverages) {
+                    GridGeometry2D gridGeom = coverage.getGridGeometry();
+                    MathTransform llToCRS = MapUtil
+                            .getTransformFromLatLon(gridGeom
+                                    .getCoordinateReferenceSystem());
+                    Envelope2D env = gridGeom.getEnvelope2D();
+                    for (String letter : pointLetters) {
                     Coordinate c = PointsDataManager.getInstance().getPoint(
-                            letter);
-                    DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
-                    llToCRS.transform(dp, dp);
-                    if (env.contains(dp.x, dp.y)) {
-                        fileredSources.add(source);
-                        break;
-                    }
-                }
-                for (String letter : lineLetters) {
-                    LineString ls = ToolsDataManager.getInstance().getBaseline(
-                            letter);
-                    Envelope2D lineEnv = null;
-                    for (Coordinate c : ls.getCoordinates()) {
+                                letter);
                         DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
-                        if (lineEnv == null) {
-                            lineEnv = new Envelope2D(
-                                    gridGeom.getCoordinateReferenceSystem(),
-                                    dp.x, dp.y, 1, 1);
-                        } else {
-                            lineEnv.add(dp.x, dp.y);
+                        if (env.contains(dp.x, dp.y)) {
+                            fileredSources.add(source);
+                            break;
                         }
                     }
-                    if (lineEnv.intersects(env)) {
-                        fileredSources.add(source);
-                        break;
+                    for (String letter : lineLetters) {
+                        LineString ls = ToolsDataManager.getInstance()
+                                .getBaseline(letter);
+                        Envelope2D lineEnv = null;
+                        for (Coordinate c : ls.getCoordinates()) {
+                            DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
+                            llToCRS.transform(dp, dp);
+                            if (lineEnv == null) {
+                                lineEnv = new Envelope2D(
+                                        gridGeom.getCoordinateReferenceSystem(),
+                                        dp.x, dp.y, 1, 1);
+                            } else {
+                                lineEnv.add(dp.x, dp.y);
+                            }
+                        }
+                        if (lineEnv.intersects(env)) {
+                            fileredSources.add(source);
+                            break;
+                        }
                     }
-                }
-                ReferencedEnvelope rEnv = new ReferencedEnvelope(env,
-                        gridGeom.getCoordinateReferenceSystem());
-                rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
-                for (Double lat : lats) {
-                    if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
-                        fileredSources.add(source);
-                        break;
+                    ReferencedEnvelope rEnv = new ReferencedEnvelope(env,
+                            gridGeom.getCoordinateReferenceSystem());
+                    rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
+                    for (Double lat : lats) {
+                        if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                            fileredSources.add(source);
+                            break;
+                        }
                     }
-                }
-                for (Double lon : lons) {
-                    if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
-                        fileredSources.add(source);
-                        break;
+                    for (Double lon : lons) {
+                        if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                            fileredSources.add(source);
+                            break;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -491,64 +493,67 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
         Set<String> validPlanes = new HashSet<String>(sources.size());
         for (String source : sources) {
             try {
-                GridCoverage coverage = CoverageUtils.getInstance()
-                        .getCoverage(source);
-                if (coverage == null) {
+                Collection<GridCoverage> coverages = CoverageUtils
+                        .getInstance().getCoverages(source);
+                if (coverages == null) {
                     Set<String> results = new HashSet<String>();
                     results.addAll(MenuItemManager.getInstance()
                             .getLatLonKeys());
                     results.addAll(getPointLineKeys());
                     return results;
                 }
-                GridGeometry2D gridGeom = coverage.getGridGeometry();
-                MathTransform llToCRS = MapUtil.getTransformFromLatLon(gridGeom
-                        .getCoordinateReferenceSystem());
-                Envelope2D env = gridGeom.getEnvelope2D();
+                for (GridCoverage coverage : coverages) {
+                    GridGeometry2D gridGeom = coverage.getGridGeometry();
+                    MathTransform llToCRS = MapUtil
+                            .getTransformFromLatLon(gridGeom
+                                    .getCoordinateReferenceSystem());
+                    Envelope2D env = gridGeom.getEnvelope2D();
                 for (String letter : pdm.getPointNames()) {
                     Coordinate c = pdm.getPoint(letter);
-                    DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
-                    llToCRS.transform(dp, dp);
-                    if (env.contains(dp.x, dp.y)) {
-                        validPlanes.add("Point" + letter);
-                    }
-                }
-                for (String letter : tdm.getBaselineNames()) {
-                    LineString ls = tdm.getBaseline(letter);
-                    Envelope2D lineEnv = null;
-                    for (Coordinate c : ls.getCoordinates()) {
                         DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
-                        if (lineEnv == null) {
-                            lineEnv = new Envelope2D(
-                                    gridGeom.getCoordinateReferenceSystem(),
-                                    dp.x, dp.y, 1, 1);
+                        if (env.contains(dp.x, dp.y)) {
+                            validPlanes.add("Point" + letter);
+                        }
+                    }
+                    for (String letter : tdm.getBaselineNames()) {
+                        LineString ls = tdm.getBaseline(letter);
+                        Envelope2D lineEnv = null;
+                        for (Coordinate c : ls.getCoordinates()) {
+                            DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
+                            llToCRS.transform(dp, dp);
+                            if (lineEnv == null) {
+                                lineEnv = new Envelope2D(
+                                        gridGeom.getCoordinateReferenceSystem(),
+                                        dp.x, dp.y, 1, 1);
+                            } else {
+                                lineEnv.add(dp.x, dp.y);
+                            }
+                        }
+                        if (lineEnv.intersects(env)) {
+                            validPlanes.add("Line" + letter);
+                        }
+                    }
+                    ReferencedEnvelope rEnv = new ReferencedEnvelope(env,
+                            gridGeom.getCoordinateReferenceSystem());
+                    rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
+                    for (String llKey : MenuItemManager.getInstance()
+                            .getLatLonKeys()) {
+                        if (llKey.startsWith("Lat")) {
+                            double lat = Double.parseDouble(llKey.replace(
+                                    "Lat", ""));
+                            if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                                validPlanes.add(llKey);
+                            }
+                        } else if (llKey.startsWith("Lon")) {
+                            double lon = Double.parseDouble(llKey.replace(
+                                    "Lon", ""));
+                            if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                                validPlanes.add(llKey);
+                            }
                         } else {
-                            lineEnv.add(dp.x, dp.y);
-                        }
-                    }
-                    if (lineEnv.intersects(env)) {
-                        validPlanes.add("Line" + letter);
-                    }
-                }
-                ReferencedEnvelope rEnv = new ReferencedEnvelope(env,
-                        gridGeom.getCoordinateReferenceSystem());
-                rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
-                for (String llKey : MenuItemManager.getInstance()
-                        .getLatLonKeys()) {
-                    if (llKey.startsWith("Lat")) {
-                        double lat = Double.parseDouble(llKey
-                                .replace("Lat", ""));
-                        if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
                             validPlanes.add(llKey);
                         }
-                    } else if (llKey.startsWith("Lon")) {
-                        double lon = Double.parseDouble(llKey
-                                .replace("Lon", ""));
-                        if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
-                            validPlanes.add(llKey);
-                        }
-                    } else {
-                        validPlanes.add(llKey);
                     }
                 }
             } catch (Exception e) {
