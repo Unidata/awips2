@@ -25,23 +25,11 @@ from Maps import *
 # The following changes the configuration of the CWAzones maps.  It overrides
 # every possible item that can be overridden.
 
-# Rename by name of the CWAzones map
-CWAzones.name = "MyCWAZones" 
-
 # Change the filter to only include "OH" (Ohio) zones
-CWAzones.filter(lambda x : x['STATE'] == "OH")
+CWAzones.filter(lambda x : x['state'] == "OH")
 
-# We don't want any edit areas to be automatically generated, so we
-# turn off the edit area name.
-CWAzones.editAreaName = []
+# Change the edit area naming to be state_zone (e.g. OH_123)
+CWAzones.editAreaName = ['state', 'zone']
 
-# Expand the map by 2 degrees in the east and south, and 1.5 degrees
-# in the west
-CWAzones.expandDomain = (0, 2, 2, 1.5)
-
-# The following changes the configuration of the Cities map.  Instead
-# of filtering off of the population field, it will produce 
-# a map of the given cities.
-cityset = ['Akron', 'Denver', 'Boulder', 'Loveland', 'Longmont']
-cities.filter(lambda x : x['NAME'] in cityset)
-
+# Change the edit area group name to be OH_Zones
+CWAzones.groupName = 'OH_Zones'

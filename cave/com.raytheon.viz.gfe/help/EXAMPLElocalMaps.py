@@ -27,9 +27,8 @@ from Maps import *
 # just the Wyoming counties.  Edit areas are automatically generated"
 # and named WY_countyName.
 WYcounties = ShapeTable('County')
-WYcounties.filter(lambda x : x['STATE'] == "WY") 
-WYcounties.name = 'WYCounties' 
-WYcounties.editAreaName = ['STATE','COUNTYNAME'] 
+WYcounties.filter(lambda x : x['state'] == "WY") 
+WYcounties.editAreaName = ['state','countyname'] 
 WYcounties.groupName = 'WYCounties' 
 maps.append(WYcounties) 
 
@@ -37,12 +36,7 @@ maps.append(WYcounties)
 # The following few lines removes the maps that are not wanted.  
 maps.remove(CWAmzones) 
 maps.remove(Mzones) 
-maps.remove(hsmz)
-maps.remove(Basins)
 maps.remove(rfc)
-maps.remove(lakes)
-maps.remove(interstates)
-maps.remove(highways)
 
 # The following renames the CWAzones map to "MyCWAZones".
 CWAzones.name = "MyCWAZones" 
