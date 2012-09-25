@@ -313,11 +313,8 @@ void jpc_qmfb_split_row(jpc_fix_t *a, int numcols, int parity)
 {
 
 	int bufsize = JPC_CEILDIVPOW2(numcols, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t splitbuf[QMFB_SPLITBUFSIZE];
-#else
-	jpc_fix_t splitbuf[bufsize];
-#endif
+
 	jpc_fix_t *buf = splitbuf;
 	register jpc_fix_t *srcptr;
 	register jpc_fix_t *dstptr;
@@ -325,7 +322,6 @@ void jpc_qmfb_split_row(jpc_fix_t *a, int numcols, int parity)
 	register int m;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Get a buffer. */
 	if (bufsize > QMFB_SPLITBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, sizeof(jpc_fix_t)))) {
@@ -333,7 +329,6 @@ void jpc_qmfb_split_row(jpc_fix_t *a, int numcols, int parity)
 			abort();
 		}
 	}
-#endif
 
 	if (numcols >= 2) {
 		hstartcol = (numcols + 1 - parity) >> 1;
@@ -367,25 +362,18 @@ void jpc_qmfb_split_row(jpc_fix_t *a, int numcols, int parity)
 		}
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the split buffer was allocated on the heap, free this memory. */
 	if (buf != splitbuf) {
 		jas_free(buf);
 	}
-#endif
-
 }
 
 void jpc_qmfb_split_col(jpc_fix_t *a, int numrows, int stride,
   int parity)
 {
-
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t splitbuf[QMFB_SPLITBUFSIZE];
-#else
-	jpc_fix_t splitbuf[bufsize];
-#endif
+
 	jpc_fix_t *buf = splitbuf;
 	register jpc_fix_t *srcptr;
 	register jpc_fix_t *dstptr;
@@ -393,7 +381,6 @@ void jpc_qmfb_split_col(jpc_fix_t *a, int numrows, int stride,
 	register int m;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Get a buffer. */
 	if (bufsize > QMFB_SPLITBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, sizeof(jpc_fix_t)))) {
@@ -401,7 +388,6 @@ void jpc_qmfb_split_col(jpc_fix_t *a, int numrows, int stride,
 			abort();
 		}
 	}
-#endif
 
 	if (numrows >= 2) {
 		hstartcol = (numrows + 1 - parity) >> 1;
@@ -435,25 +421,19 @@ void jpc_qmfb_split_col(jpc_fix_t *a, int numrows, int stride,
 		}
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the split buffer was allocated on the heap, free this memory. */
 	if (buf != splitbuf) {
 		jas_free(buf);
 	}
-#endif
 
 }
 
 void jpc_qmfb_split_colgrp(jpc_fix_t *a, int numrows, int stride,
   int parity)
 {
-
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t splitbuf[QMFB_SPLITBUFSIZE * JPC_QMFB_COLGRPSIZE];
-#else
-	jpc_fix_t splitbuf[bufsize * JPC_QMFB_COLGRPSIZE];
-#endif
+
 	jpc_fix_t *buf = splitbuf;
 	jpc_fix_t *srcptr;
 	jpc_fix_t *dstptr;
@@ -464,7 +444,6 @@ void jpc_qmfb_split_colgrp(jpc_fix_t *a, int numrows, int stride,
 	int m;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Get a buffer. */
 	if (bufsize > QMFB_SPLITBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, sizeof(jpc_fix_t)))) {
@@ -472,7 +451,6 @@ void jpc_qmfb_split_colgrp(jpc_fix_t *a, int numrows, int stride,
 			abort();
 		}
 	}
-#endif
 
 	if (numrows >= 2) {
 		hstartcol = (numrows + 1 - parity) >> 1;
@@ -524,25 +502,18 @@ void jpc_qmfb_split_colgrp(jpc_fix_t *a, int numrows, int stride,
 		}
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the split buffer was allocated on the heap, free this memory. */
 	if (buf != splitbuf) {
 		jas_free(buf);
 	}
-#endif
-
 }
 
 void jpc_qmfb_split_colres(jpc_fix_t *a, int numrows, int numcols,
   int stride, int parity)
 {
-
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t splitbuf[QMFB_SPLITBUFSIZE * JPC_QMFB_COLGRPSIZE];
-#else
-	jpc_fix_t splitbuf[bufsize * numcols];
-#endif
+
 	jpc_fix_t *buf = splitbuf;
 	jpc_fix_t *srcptr;
 	jpc_fix_t *dstptr;
@@ -553,7 +524,6 @@ void jpc_qmfb_split_colres(jpc_fix_t *a, int numrows, int numcols,
 	int m;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Get a buffer. */
 	if (bufsize > QMFB_SPLITBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, sizeof(jpc_fix_t)))) {
@@ -561,7 +531,6 @@ void jpc_qmfb_split_colres(jpc_fix_t *a, int numrows, int numcols,
 			abort();
 		}
 	}
-#endif
 
 	if (numrows >= 2) {
 		hstartcol = (numrows + 1 - parity) >> 1;
@@ -613,13 +582,10 @@ void jpc_qmfb_split_colres(jpc_fix_t *a, int numrows, int numcols,
 		}
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the split buffer was allocated on the heap, free this memory. */
 	if (buf != splitbuf) {
 		jas_free(buf);
 	}
-#endif
-
 }
 
 void jpc_qmfb_join_row(jpc_fix_t *a, int numcols, int parity)
@@ -684,18 +650,14 @@ void jpc_qmfb_join_col(jpc_fix_t *a, int numrows, int stride,
 {
 
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t joinbuf[QMFB_JOINBUFSIZE];
-#else
-	jpc_fix_t joinbuf[bufsize];
-#endif
+
 	jpc_fix_t *buf = joinbuf;
 	register jpc_fix_t *srcptr;
 	register jpc_fix_t *dstptr;
 	register int n;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Allocate memory for the join buffer from the heap. */
 	if (bufsize > QMFB_JOINBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, sizeof(jpc_fix_t)))) {
@@ -703,7 +665,6 @@ void jpc_qmfb_join_col(jpc_fix_t *a, int numrows, int stride,
 			abort();
 		}
 	}
-#endif
 
 	hstartcol = (numrows + 1 - parity) >> 1;
 
@@ -735,12 +696,10 @@ void jpc_qmfb_join_col(jpc_fix_t *a, int numrows, int stride,
 		++srcptr;
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the join buffer was allocated on the heap, free this memory. */
 	if (buf != joinbuf) {
 		jas_free(buf);
 	}
-#endif
 
 }
 
@@ -749,11 +708,8 @@ void jpc_qmfb_join_colgrp(jpc_fix_t *a, int numrows, int stride,
 {
 
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t joinbuf[QMFB_JOINBUFSIZE * JPC_QMFB_COLGRPSIZE];
-#else
-	jpc_fix_t joinbuf[bufsize * JPC_QMFB_COLGRPSIZE];
-#endif
+
 	jpc_fix_t *buf = joinbuf;
 	jpc_fix_t *srcptr;
 	jpc_fix_t *dstptr;
@@ -763,7 +719,6 @@ void jpc_qmfb_join_colgrp(jpc_fix_t *a, int numrows, int stride,
 	register int i;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Allocate memory for the join buffer from the heap. */
 	if (bufsize > QMFB_JOINBUFSIZE) {
 		if (!(buf = jas_alloc2(bufsize, JPC_QMFB_COLGRPSIZE * sizeof(jpc_fix_t)))) {
@@ -771,7 +726,6 @@ void jpc_qmfb_join_colgrp(jpc_fix_t *a, int numrows, int stride,
 			abort();
 		}
 	}
-#endif
 
 	hstartcol = (numrows + 1 - parity) >> 1;
 
@@ -821,25 +775,19 @@ void jpc_qmfb_join_colgrp(jpc_fix_t *a, int numrows, int stride,
 		srcptr += JPC_QMFB_COLGRPSIZE;
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the join buffer was allocated on the heap, free this memory. */
 	if (buf != joinbuf) {
 		jas_free(buf);
 	}
-#endif
 
 }
 
 void jpc_qmfb_join_colres(jpc_fix_t *a, int numrows, int numcols,
   int stride, int parity)
 {
-
 	int bufsize = JPC_CEILDIVPOW2(numrows, 1);
-#if !defined(HAVE_VLA)
 	jpc_fix_t joinbuf[QMFB_JOINBUFSIZE * JPC_QMFB_COLGRPSIZE];
-#else
-	jpc_fix_t joinbuf[bufsize * numcols];
-#endif
+
 	jpc_fix_t *buf = joinbuf;
 	jpc_fix_t *srcptr;
 	jpc_fix_t *dstptr;
@@ -849,7 +797,6 @@ void jpc_qmfb_join_colres(jpc_fix_t *a, int numrows, int numcols,
 	register int i;
 	int hstartcol;
 
-#if !defined(HAVE_VLA)
 	/* Allocate memory for the join buffer from the heap. */
 	if (bufsize > QMFB_JOINBUFSIZE) {
 		if (!(buf = jas_alloc3(bufsize, numcols, sizeof(jpc_fix_t)))) {
@@ -857,7 +804,6 @@ void jpc_qmfb_join_colres(jpc_fix_t *a, int numrows, int numcols,
 			abort();
 		}
 	}
-#endif
 
 	hstartcol = (numrows + 1 - parity) >> 1;
 
@@ -907,13 +853,10 @@ void jpc_qmfb_join_colres(jpc_fix_t *a, int numrows, int numcols,
 		srcptr += numcols;
 	}
 
-#if !defined(HAVE_VLA)
 	/* If the join buffer was allocated on the heap, free this memory. */
 	if (buf != joinbuf) {
 		jas_free(buf);
 	}
-#endif
-
 }
 
 /******************************************************************************\
