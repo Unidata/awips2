@@ -747,9 +747,10 @@
 			
 			<!--S-R Flow & Suggests Tor Supercells Submenu-->
 		<contribute xsi:type="toolbarSubMenu" menuText="Thom 5, 5a and 6">
-		<contribute xsi:type="menuItem" menuText="Thom 5" key="Thom5"  indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Thom 5a" key="Thom5a"  indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Thom 6" key="Thom6"  indentText="false" />
+		   <contribute xsi:type="menuItem" menuText="Thom 5" key="Thom5"  indentText="false" />
+		   <contribute xsi:type="menuItem" menuText="Thom 5a" key="Thom5a"  indentText="false" />
+		   <contribute xsi:type="menuItem" menuText="Thom 6" key="Thom6"  indentText="false" />
+                </contribute>
 
                 <contribute xsi:type="menuItem" menuText="Vertical Totals" key="vTOT" indentText="false" />
                 <contribute xsi:type="menuItem" menuText="Cross Totals" key="cTOT" indentText="false" />
