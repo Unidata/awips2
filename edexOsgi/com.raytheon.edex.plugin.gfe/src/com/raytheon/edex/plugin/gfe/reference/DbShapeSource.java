@@ -93,8 +93,6 @@ public class DbShapeSource {
 
     private boolean filtered = false;
 
-    private String displayName;
-
     private boolean hasEditAreaName = false;
 
     private String groupName;
@@ -119,8 +117,6 @@ public class DbShapeSource {
 
     private DefaultQuery query;
 
-    private String typeName;
-
     private SimpleFeatureType schema;
 
     /**
@@ -131,8 +127,7 @@ public class DbShapeSource {
      * @throws IOException
      */
     public DbShapeSource(String tableName) throws IOException {
-        this.tableName = tableName;
-        this.typeName = this.tableName.toLowerCase();
+        this.tableName = tableName.toLowerCase();
         refCount++;
     }
 
@@ -179,14 +174,14 @@ public class DbShapeSource {
      */
     public void open() throws IOException {
         DataStore dataStore = getDataStore();
-        schema = dataStore.getSchema(typeName);
+        schema = dataStore.getSchema(this.tableName);
 
         shapeField = schema.getGeometryDescriptor().getLocalName();
         featureCollection = null;
         featureIterator = null;
 
         query = new DefaultQuery();
-        query.setTypeName(typeName);
+        query.setTypeName(this.tableName);
         List<String> propNames = new ArrayList<String>(getAttributeNames());
         propNames.add(shapeField);
         query.setPropertyNames(propNames);
@@ -209,7 +204,7 @@ public class DbShapeSource {
         }
 
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
-                .getFeatureSource(typeName);
+                .getFeatureSource(this.tableName);
         featureCollection = featureSource.getFeatures(query);
         featureIterator = featureCollection.iterator();
     }
@@ -324,7 +319,7 @@ public class DbShapeSource {
      */
     @Override
     public String toString() {
-        return this.getDisplayName();
+        return this.getTableName();
     }
 
     /**
@@ -360,14 +355,6 @@ public class DbShapeSource {
                     "DataStore must be open when calling getFeatureCount");
         }
         return this.featureCollection.size();
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String name) {
-        this.displayName = name;
     }
 
     public String getGroupName() {
@@ -437,7 +424,7 @@ public class DbShapeSource {
     public Date getLastUpdated() {
         Date retVal = new Date();
         String sqlQuery = "SELECT import_time FROM " + SCHEMA_NAME
-                + ".map_version WHERE table_name = '" + this.typeName + "';";
+                + ".map_version WHERE table_name = '" + this.tableName + "';";
         try {
             SqlQueryTask task = new SqlQueryTask(sqlQuery, DB_NAME);
             QueryResult result = task.execute();
