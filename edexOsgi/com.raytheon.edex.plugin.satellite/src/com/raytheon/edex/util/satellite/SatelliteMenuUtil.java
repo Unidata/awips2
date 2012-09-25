@@ -166,6 +166,8 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
             sub.key = "entity";
             sub.value = "GOES%";
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[4] = sub;
+            toXml(fileOCONUS, "menus" + File.separator + "satellite" + File.separator
+                    + "baseDerivedProductsImagery.xml");
         } else {
             // decide on east conus or west conus
             ((CommonIncludeMenuContribution) file.contributions[0]).fileName = new File(
@@ -233,9 +235,6 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
 
         toXml(file, "menus" + File.separator + "satellite" + File.separator
                 + "baseComposite.xml");
-        
-        toXml(fileOCONUS, "menus" + File.separator + "satellite" + File.separator
-                + "baseDerivedProductsImagery.xml");
         
         statusHandler.info("Finished creating satellite menus");
     }
