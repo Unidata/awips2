@@ -163,30 +163,37 @@ public class WorldWrapCorrector {
 
     private void correct(List<Geometry> geoms, Geometry flattenedGeom,
             double inverseCentralMeridian, double minOffset, double maxOffset) {
-        GeometryFactory gf = flattenedGeom.getFactory();
-        double delta = 0.00001;
-        double start = inverseCentralMeridian + minOffset - 360;
-        double end = inverseCentralMeridian + maxOffset + 360;
-        double minY = -90, maxY = 90;
+        if (minOffset == 0.0 && maxOffset == 0.0) {
+            // no offsets to apply, add and return
+            geoms.add(flattenedGeom);
+            return;
+        } else if (flattenedGeom.isValid()) {
+            // Only apply world wrap correcting to valid geometries
+            GeometryFactory gf = flattenedGeom.getFactory();
+            double delta = 0.00001;
+            double start = inverseCentralMeridian + minOffset - 360;
+            double end = inverseCentralMeridian + maxOffset + 360;
+            double minY = -90, maxY = 90;
 
-        while (start < end) {
-            double useStart = start;
-            double useEnd = start + 360;
-            double minX = useStart + delta;
-            double maxX = (useEnd) - delta;
+            while (start < end) {
+                double useStart = start;
+                double useEnd = start + 360;
+                double minX = useStart + delta;
+                double maxX = (useEnd) - delta;
 
-            Geometry section = gf.createPolygon(
-                    gf.createLinearRing(new Coordinate[] {
-                            new Coordinate(minX, maxY),
-                            new Coordinate(maxX, maxY),
-                            new Coordinate(maxX, minY),
-                            new Coordinate(minX, minY),
-                            new Coordinate(minX, maxY) }), null);
-            section = section.intersection(flattenedGeom);
-            if (section.isEmpty() == false) {
-                geoms.add(section);
+                Geometry section = gf.createPolygon(
+                        gf.createLinearRing(new Coordinate[] {
+                                new Coordinate(minX, maxY),
+                                new Coordinate(maxX, maxY),
+                                new Coordinate(maxX, minY),
+                                new Coordinate(minX, minY),
+                                new Coordinate(minX, maxY) }), null);
+                section = section.intersection(flattenedGeom);
+                if (section.isEmpty() == false) {
+                    geoms.add(section);
+                }
+                start += 360.0;
             }
-            start += 360.0;
         }
     }
 
