@@ -25,14 +25,30 @@ import java.util.Map;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 
-public class GribDataCatalogEntry extends DataCatalogEntry {
+/**
+ * 
+ * A DataCatologEntry which stores some extra grid specific fields.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 25, 2012            bsteffen     Initial javadoc
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
+public class GridDataCatalogEntry extends DataCatalogEntry {
 
-    public GribDataCatalogEntry(SelectedData selData) {
+    public GridDataCatalogEntry(SelectedData selData) {
         super(selData);
         this.nameMap = new HashMap<DisplayType, String>();
     }
 
-    public GribDataCatalogEntry(GribDataCatalogEntry entry) {
+    public GridDataCatalogEntry(GridDataCatalogEntry entry) {
         super(entry);
         this.nameMap = entry.nameMap;
         this.modelName = entry.modelName;
