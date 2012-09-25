@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.measure.unit.Unit;
@@ -35,16 +36,15 @@ import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
@@ -60,7 +60,7 @@ import com.raytheon.viz.grid.inv.GridInventory;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Adapter providing CrossSections of grid data.
  * 
  * <pre>
  * 
@@ -78,17 +78,20 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
+public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
 
     private static final long serialVersionUID = 1L;
 
     protected String yParameter = null;
 
-    protected Map<DataTime, Set<GribRecord>> yRecords = new HashMap<DataTime, Set<GribRecord>>();
+    protected Map<DataTime, Set<GridRecord>> yRecords = new HashMap<DataTime, Set<GridRecord>>();
 
     private Unit<?> unit;
 
     private CoordinateReferenceSystem crs;
+
+    private Map<GridCoverage, Map<DataTime, Rectangle>> rectangleCache = new HashMap<GridCoverage, Map<DataTime, Rectangle>>(
+            4);
 
     /*
      * (non-Javadoc)
@@ -101,10 +104,9 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
     public String getParameterName() {
         String name = null;
         if (records != null && !records.isEmpty()) {
-            GribModel modelInfo = records.get(0).getModelInfo();
-            name = modelInfo.getParameterName();
+            name = records.get(0).getParameter().getName();
             if (name == null || name.isEmpty()) {
-                name = modelInfo.getParameterAbbreviation();
+                name = records.get(0).getParameter().getAbbreviation();
             }
         }
         return name;
@@ -134,13 +136,13 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
             throws VizException {
         DataTime recordTime = currentTime.clone();
         recordTime.setLevelValue(null);
-        Set<GribRecord> yRecords = getYRecords(recordTime);
-        Map<Level, GribRecord> xMap = new HashMap<Level, GribRecord>();
+        Set<GridRecord> yRecords = getYRecords(recordTime);
+        Map<Level, GridRecord> xMap = new HashMap<Level, GridRecord>();
 
         synchronized (records) {
-            for (GribRecord rec : records) {
+            for (GridRecord rec : records) {
                 if (rec.getDataTime().equals(recordTime)) {
-                    xMap.put(rec.getModelInfo().getLevel(), rec);
+                    xMap.put(rec.getLevel(), rec);
                 }
             }
         }
@@ -149,10 +151,10 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
             return null;
         }
 
-        Map<Level, GribRecord> yMap = new HashMap<Level, GribRecord>();
-        for (GribRecord rec : yRecords) {
+        Map<Level, GridRecord> yMap = new HashMap<Level, GridRecord>();
+        for (GridRecord rec : yRecords) {
             if (rec.getDataTime().equals(recordTime)) {
-                yMap.put(rec.getModelInfo().getLevel(), rec);
+                yMap.put(rec.getLevel(), rec);
             }
         }
 
@@ -165,76 +167,66 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
 
         int nx = (int) geometry.getGridRange2D().getWidth();
         int ny = (int) geometry.getGridRange2D().getHeight();
-
-        ISpatialObject area = records.get(0).getSpatialObject();
-
-        Rectangle requestArea = null;
-        Coordinate[] coordinates = GeoUtil.splitLine(nx,
-                descriptor.getLine(currentTime).getCoordinates());
-
-        for (Coordinate c : coordinates) {
-            DirectPosition2D point = null;
-            try {
-                point = PointUtil.determineExactIndex(c, area.getCrs(),
-                        MapUtil.getGridGeometry(area));
-            } catch (Exception e) {
-                throw new VizException(e);
+        Map<GridCoverage, List<PluginDataObject>> recordsByLocation = new HashMap<GridCoverage, List<PluginDataObject>>();
+        for (GridRecord record : xMap.values()) {
+            List<PluginDataObject> list = recordsByLocation.get(record
+                    .getLocation());
+            if (list == null) {
+                list = new ArrayList<PluginDataObject>();
+                recordsByLocation.put(record.getLocation(), list);
             }
-            if (requestArea == null) {
-                requestArea = new Rectangle((int) Math.floor(point.x),
-                        (int) Math.floor(point.y), 1, 1);
-            } else {
-                requestArea.add(point);
-            }
+            list.add(record);
         }
 
-        requestArea.height += 1;
-        requestArea.width += 1;
-        requestArea = requestArea.intersection(new Rectangle(0, 0,
-                area.getNx(), area.getNy()));
-        if (requestArea.isEmpty()) {
-            throw new VizException(
-                    "Invalid line position. Check that the line is within the grib boundaries.");
-        }
-        Request request = Request.buildSlab(
-                new int[] { (int) requestArea.getMinX(),
-                        (int) requestArea.getMinY() },
-                new int[] { (int) requestArea.getMaxX(),
-                        (int) requestArea.getMaxY() });
-        List<PluginDataObject> pdos = new ArrayList<PluginDataObject>(
-                xMap.size() * 2);
-        pdos.addAll(xMap.values());
-        pdos.addAll(yMap.values());
-
-        DataCubeContainer.getDataRecords(pdos, request, null);
-
-        List<float[]> result = new ArrayList<float[]>();
-        for (int i = 0; i < nx; i++) {
-            DirectPosition2D point = null;
-            try {
-                point = PointUtil.determineExactIndex(coordinates[i],
-                        area.getCrs(), MapUtil.getGridGeometry(area));
-            } catch (Exception e) {
-                throw new VizException(e);
+        for (GridRecord record : yMap.values()) {
+            List<PluginDataObject> list = recordsByLocation.get(record
+                    .getLocation());
+            if (list == null) {
+                list = new ArrayList<PluginDataObject>();
+                recordsByLocation.put(record.getLocation(), list);
             }
-            if (!requestArea.contains(point)) {
+            list.add(record);
+        }
+        for (Entry<GridCoverage, List<PluginDataObject>> entry : recordsByLocation
+                .entrySet()) {
+            Request request = getRequest(entry.getKey(), currentTime, geometry);
+            if (request == null) {
                 continue;
             }
+            DataCubeContainer.getDataRecords(entry.getValue(), request, null);
+
+        }
+        Coordinate[] coordinates = GeoUtil.splitLine(nx,
+                descriptor.getLine(currentTime).getCoordinates());
+        List<float[]> result = new ArrayList<float[]>();
+        for (int i = 0; i < nx; i++) {
             List<List<XYData>> dataLists = new ArrayList<List<XYData>>(
                     result.size());
             for (Level level : xMap.keySet()) {
-                GribRecord yRecord = yMap.get(level);
+                GridRecord yRecord = yMap.get(level);
                 FloatDataRecord yRec = (FloatDataRecord) (((IDataRecord[]) yRecord
                         .getMessageData())[0]);
-                GribRecord xRecord = xMap.get(level);
+                GridRecord xRecord = xMap.get(level);
                 IDataRecord[] results = (IDataRecord[]) xRecord
                         .getMessageData();
-
-                float yVal = InterpUtils.getInterpolatedData(requestArea,
-                        point.x, point.y, yRec.getFloatData());
+                DirectPosition2D yPoint = null;
+                try {
+                    yPoint = PointUtil.determineExactIndex(coordinates[i],
+                            yRecord.getLocation().getCrs(),
+                            MapUtil.getGridGeometry(yRecord.getLocation()));
+                } catch (Exception e) {
+                    throw new VizException(e);
+                }
+                Rectangle yRect = getRectangle(yRecord.getLocation(),
+                        currentTime, geometry);
+                if (!yRect.contains(yPoint)) {
+                    continue;
+                }
+                float yVal = InterpUtils.getInterpolatedData(yRect, yPoint.x,
+                        yPoint.y, yRec.getFloatData());
                 yVal = (float) yRecord
-                        .getModelInfo()
-                        .getParameterUnitObject()
+                        .getParameter()
+                        .getUnit()
                         .getConverterTo(
                                 descriptor.getHeightScale().getParameterUnit())
                         .convert(yVal);
@@ -244,12 +236,23 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
                 while (dataLists.size() < results.length) {
                     dataLists.add(new ArrayList<XYData>());
                 }
-                double speed = Float.NaN;
-                double direction = Double.NaN;
+                DirectPosition2D xPoint = null;
+                try {
+                    xPoint = PointUtil.determineExactIndex(coordinates[i],
+                            xRecord.getLocation().getCrs(),
+                            MapUtil.getGridGeometry(xRecord.getLocation()));
+                } catch (Exception e) {
+                    throw new VizException(e);
+                }
+                Rectangle xRect = getRectangle(xRecord.getLocation(),
+                        currentTime, geometry);
+                if (!xRect.contains(xPoint)) {
+                    continue;
+                }
                 for (int c = 0; c < results.length; c++) {
                     FloatDataRecord xRec = (FloatDataRecord) results[c];
-                    float xVal = InterpUtils.getInterpolatedData(requestArea,
-                            point.x, point.y, xRec.getFloatData());
+                    float xVal = InterpUtils.getInterpolatedData(xRect,
+                            xPoint.x, xPoint.y, xRec.getFloatData());
                     if (xVal <= -9999) {
                         continue;
                     }
@@ -267,20 +270,72 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
                 float[] column = InterpUtils.makeColumn(dataList, ny, graph,
                         descriptor.getHeightScale().getMinVal() < descriptor
                                 .getHeightScale().getMaxVal(), -999999f);
+
                 for (int j = 0; j < column.length; j++) {
                     floatData[j * nx + i] = column[j];
                 }
             }
         }
-
         return result;
+    }
+
+    private Rectangle getRectangle(GridCoverage location, DataTime time,
+            GridGeometry2D geometry) throws VizException {
+        Map<DataTime, Rectangle> timeCache = rectangleCache.get(location);
+        if (timeCache == null) {
+            timeCache = new HashMap<DataTime, Rectangle>();
+            rectangleCache.put(location, timeCache);
+        }
+        Rectangle rectangle = timeCache.get(time);
+        if (rectangle == null) {
+            Coordinate[] coordinates = GeoUtil.splitLine(geometry
+                    .getGridRange2D().width, descriptor.getLine(time)
+                    .getCoordinates());
+
+            for (Coordinate c : coordinates) {
+                DirectPosition2D point = null;
+                try {
+                    point = PointUtil.determineExactIndex(c, location.getCrs(),
+                            MapUtil.getGridGeometry(location));
+                } catch (Exception e) {
+                    throw new VizException(e);
+                }
+                if (rectangle == null) {
+                    rectangle = new Rectangle((int) Math.floor(point.x),
+                            (int) Math.floor(point.y), 1, 1);
+                } else {
+                    rectangle.add(point);
+                }
+            }
+
+            rectangle.height += 1;
+            rectangle.width += 1;
+            rectangle = rectangle.intersection(new Rectangle(0, 0, location
+                    .getNx(), location.getNy()));
+            timeCache.put(time, rectangle);
+        }
+
+        return rectangle;
+    }
+
+    private Request getRequest(GridCoverage location, DataTime time,
+            GridGeometry2D geometry) throws VizException {
+        Rectangle rectangle = getRectangle(location, time, geometry);
+        if (rectangle.isEmpty()) {
+            return null;
+        }
+        return Request.buildSlab(
+                new int[] { (int) rectangle.getMinX(),
+                        (int) rectangle.getMinY() },
+                new int[] { (int) rectangle.getMaxX(),
+                        (int) rectangle.getMaxY() });
     }
 
     public void addRecord(PluginDataObject pdo) {
         super.addRecord(pdo);
-        if (pdo != null && pdo instanceof GribRecord) {
-            unit = ((GribRecord) pdo).getModelInfo().getParameterUnitObject();
-            crs = ((GribRecord) pdo).getSpatialObject().getCrs();
+        if (pdo != null && pdo instanceof GridRecord) {
+            unit = ((GridRecord) pdo).getParameter().getUnit();
+            crs = ((GridRecord) pdo).getSpatialObject().getCrs();
         }
         yRecords.remove(pdo.getDataTime());
     }
@@ -290,9 +345,9 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
         super.remove(time);
     }
 
-    private Set<GribRecord> getYRecords(DataTime time) throws VizException {
+    private Set<GridRecord> getYRecords(DataTime time) throws VizException {
         synchronized (yRecords) {
-            Set<GribRecord> yRecords = this.yRecords.get(time);
+            Set<GridRecord> yRecords = this.yRecords.get(time);
             if (yRecords != null) {
                 return yRecords;
             }
@@ -313,9 +368,9 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
             property.setSelectedEntryTimes(new DataTime[] { time });
 
             List<Object> recs = DataCubeContainer.getData(property, 60000);
-            yRecords = new HashSet<GribRecord>(recs.size());
+            yRecords = new HashSet<GridRecord>(recs.size());
             for (Object obj : recs) {
-                yRecords.add((GribRecord) obj);
+                yRecords.add((GridRecord) obj);
             }
             this.yRecords.put(time, yRecords);
             if (yRecords.isEmpty()) {
