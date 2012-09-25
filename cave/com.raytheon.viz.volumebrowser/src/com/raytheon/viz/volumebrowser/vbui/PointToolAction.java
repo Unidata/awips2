@@ -27,7 +27,9 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.ToolItem;
 
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
@@ -44,6 +46,8 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2012            rferrel     Initial creation
+ * Sep 25, 2012 1215       rferrel     Clicking anywhere on the Point button
+ *                                      now opens the menu.
  * 
  * </pre>
  * 
@@ -58,16 +62,34 @@ public class PointToolAction extends Action implements IMenuCreator {
 
     private IPointNode parentNode;
 
+    private PointsDataManager dataManager;
+
     public PointToolAction(String text, String pointNames) {
-        super(text, SWT.DROP_DOWN);
-        this.pointNames = pointNames;
-        this.parentNode = null;
+        this(text, pointNames, null);
     }
 
     public PointToolAction(String text, String pointNames, IPointNode parentNode) {
         super(text, SWT.DROP_DOWN);
         this.pointNames = pointNames;
         this.parentNode = parentNode;
+        this.dataManager = PointsDataManager.getInstance();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.action.Action#runWithEvent(org.eclipse.swt.widgets.
+     * Event)
+     */
+    @Override
+    public void runWithEvent(Event event) {
+        if (menu == null) {
+            ToolItem item = (ToolItem) event.widget;
+            getMenu(item.getParent());
+        }
+        menu.setVisible(true);
+        super.runWithEvent(event);
     }
 
     /*
@@ -116,13 +138,12 @@ public class PointToolAction extends Action implements IMenuCreator {
     }
 
     private void fillMenu(final Menu menu) {
-        List<IPointNode> nodes = PointsDataManager.getInstance().getChildren(
-                parentNode);
+        List<IPointNode> nodes = dataManager.getChildren(parentNode);
 
         // Create the menu items
         for (IPointNode node : nodes) {
             if (node.isGroup()) {
-                if (PointsDataManager.getInstance().getChildren(node).size() > 0) {
+                if (dataManager.getChildren(node).size() > 0) {
                     PointToolAction submenu = new PointToolAction(""
                             + node.getName(), pointNames, node);
                     submenu.menu = new Menu(menu);
