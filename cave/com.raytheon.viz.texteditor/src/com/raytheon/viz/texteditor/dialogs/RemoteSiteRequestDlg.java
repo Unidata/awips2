@@ -27,12 +27,15 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,7 +43,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
@@ -58,6 +60,7 @@ import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.msgs.IWmoIdSelectionCallback;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Remote Site Request dialog.
@@ -70,38 +73,49 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * 9/13/07      368         lvenable    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
+ * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
  * 
  * </pre>
  * 
  * @author lvenable
  */
-public class RemoteSiteRequestDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RemoteSiteRequestDlg.class);
+public class RemoteSiteRequestDlg extends CaveSWTDialog implements
+        IWmoIdSelectionCallback {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RemoteSiteRequestDlg.class);
+
+    private StyledText ttaaiiTF;
+
+    private StyledText ccccTF;
 
     /**
      * AFOS site ID text field.
      */
-    private Text wsfoIdTF;
+    private StyledText wsfoIdTF;
 
     /**
      * Product category text field.
      */
-    private Text productCatTF;
+    private StyledText productCatTF;
 
     /**
      * Product designator text field.
      */
-    private Text prodDesignatorTF;
+    private StyledText prodDesignatorTF;
 
     /**
      * Address text field. Defines the site where a text product or message is
      * sent.
      */
-    private Text addresseeTF;
-    
+    private StyledText addresseeTF;
+
     private Button enterBtn;
-    
+
     private String initialAfosID;
+
+    private WmoIdSelectionDialog wmoIdSelectionDialog;
+
+    boolean lookupAllowed = true;
 
     /**
      * Constructor.
@@ -110,7 +124,8 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public RemoteSiteRequestDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Send Request");
     }
 
@@ -128,7 +143,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         createInputFields();
         createBottomButtons();
-        validate();
+        checkEnableEnter();
     }
 
     /**
@@ -141,137 +156,84 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         gridLayout.marginTop = 1;
         gridLayout.horizontalSpacing = 20;
         topComp.setLayout(gridLayout);
+        GridData gd = null;
+        Label sepLbl = null;
 
-        ModifyListener validator = new ModifyListener() {
-            @Override
-            public void modifyText(ModifyEvent e) {
-                validate();                
-            }
-        };
-        
+        gd = new GridData(70, SWT.DEFAULT);
+        ttaaiiTF = new StyledText(topComp, SWT.BORDER | SWT.READ_ONLY);
+        ttaaiiTF.setTextLimit(6);
+        ttaaiiTF.setLayoutData(gd);
+        ttaaiiTF.setEnabled(false);
+        ttaaiiTF.setEditable(false);
+        ttaaiiTF.setBackground(shell.getBackground());
+
+        Label ttaaiiLbl = new Label(topComp, SWT.NONE);
+        ttaaiiLbl.setText("TTAAii");
+
+        gd = new GridData(45, SWT.DEFAULT);
+        ccccTF = new StyledText(topComp, SWT.BORDER | SWT.READ_ONLY);
+        ccccTF.setEnabled(false);
+        ccccTF.setEditable(false);
+        ccccTF.setLayoutData(gd);
+        ccccTF.setBackground(shell.getBackground());
+        Label ccccLbl = new Label(topComp, SWT.NONE);
+        ccccLbl.setText("CCCC");
+
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.horizontalSpan = 2;
+        sepLbl = new Label(topComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(gd);
+
         // Create the WSFO ID text field.
-        GridData gd = new GridData(45, SWT.DEFAULT);
-        wsfoIdTF = new Text(topComp, SWT.BORDER);
+        gd = new GridData(45, SWT.DEFAULT);
+        wsfoIdTF = new StyledText(topComp, SWT.BORDER);
         wsfoIdTF.setTextLimit(3);
         wsfoIdTF.setLayoutData(gd);
-        wsfoIdTF.addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent event) {
-                wsfoIdTF.setText(wsfoIdTF.getText().toUpperCase());
-            }
-        });
-
-        // When the number of characters enter reaches the max limit and
-        // the caret position is at the end then switch focus to another
-        // text field.
-        wsfoIdTF.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                if (wsfoIdTF.getCaretPosition() == wsfoIdTF.getTextLimit()) {
-                    productCatTF.setFocus();
-                }
-            }
-        });
-
-        wsfoIdTF.addModifyListener(validator);
 
         Label wsfoIdLbl = new Label(topComp, SWT.NONE);
         wsfoIdLbl.setText("WSFO Identification");
 
         // Create the product category text field.
         gd = new GridData(45, SWT.DEFAULT);
-        productCatTF = new Text(topComp, SWT.BORDER);
+        productCatTF = new StyledText(topComp, SWT.BORDER);
         productCatTF.setTextLimit(3);
         productCatTF.setLayoutData(gd);
-        productCatTF.addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent event) {
-                productCatTF.setText(productCatTF.getText().toUpperCase());
-            }
-        });
 
-        // When the number of characters enter reaches the max limit and
-        // the caret position is at the end then switch focus to another
-        // text field.
-        productCatTF.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                if (productCatTF.getCaretPosition() == productCatTF
-                        .getTextLimit()) {
-                    prodDesignatorTF.setFocus();
-                }
-            }
-        });
-
-        productCatTF.addModifyListener(validator);
-        
         Label productCatLbl = new Label(topComp, SWT.NONE);
         productCatLbl.setText("Product Category");
 
         // Create the product designator text field.
         gd = new GridData(45, SWT.DEFAULT);
-        prodDesignatorTF = new Text(topComp, SWT.BORDER);
+        prodDesignatorTF = new StyledText(topComp, SWT.BORDER);
         prodDesignatorTF.setTextLimit(3);
         prodDesignatorTF.setLayoutData(gd);
-        prodDesignatorTF.addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent event) {
-                prodDesignatorTF.setText(prodDesignatorTF.getText()
-                        .toUpperCase());
-            }
-        });
-
-        // When the number of characters enter reaches the max limit and
-        // the caret position is at the end then switch focus to another
-        // text field.
-        prodDesignatorTF.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                if (prodDesignatorTF.getCaretPosition() == prodDesignatorTF
-                        .getTextLimit()) {
-                    addresseeTF.setFocus();
-                }
-            }
-        });
-        
-        prodDesignatorTF.addModifyListener(validator);
 
         Label prodDesignatorLbl = new Label(topComp, SWT.NONE);
         prodDesignatorLbl.setText("Product Designator");
 
         gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.horizontalSpan = 2;
-        Label sepLbl = new Label(topComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl = new Label(topComp, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
 
         // Create the addressee text field.
         gd = new GridData(45, SWT.DEFAULT);
-        addresseeTF = new Text(topComp, SWT.BORDER);
+        addresseeTF = new StyledText(topComp, SWT.BORDER);
         addresseeTF.setTextLimit(4);
         addresseeTF.setText("DEF");
         addresseeTF.setLayoutData(gd);
-        addresseeTF.addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent event) {
-                addresseeTF.setText(addresseeTF.getText().toUpperCase());
-            }
-        });
-        
-        // When the number of characters enter reaches the max limit and
-        // the caret position is at the end then switch focus to another
-        // text field.
-        addresseeTF.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                if (addresseeTF.getCaretPosition() == addresseeTF
-                        .getTextLimit()) {
-                    wsfoIdTF.setFocus();
-                }
-            }
-        });
-
-        addresseeTF.addModifyListener(validator);
 
         Label addresseeLbl = new Label(topComp, SWT.NONE);
         addresseeLbl.setText("Addressee");
+
+        setupTextFieldListeners();
 
         gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.horizontalSpan = 2;
         sepLbl = new Label(topComp, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(gd);
-        
+
+        // TODO set fields should be moved to preOpen()
         String ccc = "";
         String nnn = "";
         String xxx = "";
@@ -285,6 +247,24 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         wsfoIdTF.setText(ccc);
         productCatTF.setText(nnn);
         prodDesignatorTF.setText(xxx);
+    }
+
+    private void setupTextFieldListeners() {
+        // forces all fields to uppercase and only allows numbers/digits
+        textFieldVerifyListener(wsfoIdTF);
+        textFieldVerifyListener(productCatTF);
+        textFieldVerifyListener(prodDesignatorTF);
+        textFieldVerifyListener(addresseeTF);
+
+        // forces overwrite and arrow key traversal
+        textFieldKeyListener(wsfoIdTF, addresseeTF, productCatTF);
+        textFieldKeyListener(productCatTF, wsfoIdTF, prodDesignatorTF);
+        textFieldKeyListener(prodDesignatorTF, productCatTF, addresseeTF);
+        textFieldKeyListener(addresseeTF, prodDesignatorTF, wsfoIdTF);
+
+        textFieldModifyListener(wsfoIdTF, productCatTF, true);
+        textFieldModifyListener(productCatTF, prodDesignatorTF, true);
+        textFieldModifyListener(prodDesignatorTF, addresseeTF, false);
     }
 
     /**
@@ -323,79 +303,9 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
             }
         });
     }
-    
-    private void validate() {
-        if (enterBtn != null)
-            enterBtn.setEnabled(createReturnValue(true));
-    }
 
-    // Copied from AWIPSHeaderBlockDlg.lookupWmoIDs()
-    private boolean lookupWmoId(final RemoteRetrievalRequest rrRequest) {
-        GetWmoIdRequest request = new GetWmoIdRequest();
-        request.setAfosId(rrRequest.getAfosID());
-        
-        try {
-            Object response = ThriftClient.sendRequest(request);
-            if (response != null) {
-                if (response instanceof AfosWmoIdDataContainer) {
-                    AfosWmoIdDataContainer container = (AfosWmoIdDataContainer) response;
-                    if (container.getErrorMessage() != null) {
-                        statusHandler.handle(
-                                        Priority.PROBLEM,
-                                        "Error occurred looking up WMO IDs\nMessage from server["
-                                                + container
-                                                        .getErrorMessage()
-                                                + "]");
-                    }
-
-                    List<AfosToAwips> list = container.getIdList();
-
-                    if (list.size() > 1) {
-                        ArrayList<String> ttaaiiIds = new ArrayList<String>(
-                                list.size());
-                        ArrayList<String> ccccIds = new ArrayList<String>(
-                                list.size());
-                        for (AfosToAwips id : list) {
-                            ttaaiiIds.add(id.getWmottaaii());
-                            ccccIds.add(id.getWmocccc());
-                        }
-
-                        
-                        IWmoIdSelectionCallback cb = new IWmoIdSelectionCallback() {
-                            @Override
-                            public void setWmoId(String ttaaii, String cccc) {
-                                rrRequest.setWmoHeader(ttaaii + ' ' + cccc);
-                            }
-                        };
-                        WmoIdSelectionDialog dlg = new WmoIdSelectionDialog(
-                                shell, cb, ttaaiiIds, ccccIds);
-                        dlg.setBlockOnOpen(true);
-                        dlg.open();
-                        return rrRequest.getWmoHeader() != null &&
-                            rrRequest.getWmoHeader().length() > 0;
-                    } else if (list.size() == 1) {
-                        AfosToAwips id = list.get(0);
-                        rrRequest.setWmoHeader(id.getWmottaaii() + ' ' + id.getWmocccc());
-                    } else {
-                        rrRequest.setWmoHeader("");
-                    }
-                    
-                    return true;
-                } else {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Received unhandled WMO Id lookup response from server. Received obj of type ["
-                                    + response.getClass() + "], contents["
-                                    + response + "]");
-                }
-            }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occurred looking up WMO IDs", e);
-        }
-        return false;
-    }
-    
-    private Calendar createCalRelativeTo(Calendar relative, WMOHeader wmoHeader, int monthAdjustment) {
+    private Calendar createCalRelativeTo(Calendar relative,
+            WMOHeader wmoHeader, int monthAdjustment) {
         Calendar c = new GregorianCalendar(relative.getTimeZone());
         c.setTimeInMillis(relative.getTimeInMillis());
         c.add(GregorianCalendar.MONTH, monthAdjustment);
@@ -406,11 +316,11 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         c.set(GregorianCalendar.MILLISECOND, 0);
         return c;
     }
-    
-    private Calendar getCloserCalendar(Calendar reference, Calendar a, Calendar b) {
-        return Math.abs(a.getTimeInMillis() - reference.getTimeInMillis()) <
-            Math.abs(b.getTimeInMillis() - reference.getTimeInMillis()) ?
-                    a : b;
+
+    private Calendar getCloserCalendar(Calendar reference, Calendar a,
+            Calendar b) {
+        return Math.abs(a.getTimeInMillis() - reference.getTimeInMillis()) < Math
+                .abs(b.getTimeInMillis() - reference.getTimeInMillis()) ? a : b;
     }
 
     private boolean createReturnValue(boolean validateOnly) {
@@ -418,41 +328,41 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         String nnn = productCatTF.getText();
         String xxx = prodDesignatorTF.getText();
         String addr = addresseeTF.getText();
-        if (ccc.length() != 3 || nnn.length() != 3 ||
-                xxx.length() < 1 || xxx.length() > 3 ||
-                addr.length() < 1)
+        if (ccc.length() != 3 || nnn.length() != 3 || xxx.length() < 1
+                || xxx.length() > 3 || addr.length() < 1)
             return false;
-        
+
         if (validateOnly)
             return true;
-        
+
         String afosID = ccc + nnn + xxx;
         GetWmoIdRequest request = new GetWmoIdRequest();
         request.setAfosId(afosID);
-        
+
         RemoteRetrievalRequest req = new RemoteRetrievalRequest();
         // TODO: Translate addr via awipsSites.txt or siteDistLists.txt
         req.setAddressee(addr);
         req.setAfosID(afosID);
-        
+
         List<StdTextProduct> latest = null;
         try {
-            latest = CommandFactory.getAfosCommand(req.getAfosID()).executeCommand(TextEditorUtil
-                    .getTextDbsrvTransport());
+            latest = CommandFactory.getAfosCommand(req.getAfosID())
+                    .executeCommand(TextEditorUtil.getTextDbsrvTransport());
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error retrieving metatdata", e);
             // but keep going...
         }
-        
+
         if (latest != null && latest.size() > 0) {
-            Calendar c = new GregorianCalendar(TimeZone
-                    .getTimeZone("GMT"));
+            Calendar c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
             c.setTimeInMillis(latest.get(0).getRefTime());
             req.setMostRecentTime(c.getTimeInMillis()); // default
             try {
-                WMOHeader wmo = new WMOHeader(latest.get(0).getProduct().getBytes());
-                Calendar t = getCloserCalendar(c, createCalRelativeTo(c, wmo, 0), 
+                WMOHeader wmo = new WMOHeader(latest.get(0).getProduct()
+                        .getBytes());
+                Calendar t = getCloserCalendar(c,
+                        createCalRelativeTo(c, wmo, 0),
                         createCalRelativeTo(c, wmo, 1));
                 t = getCloserCalendar(c, t, createCalRelativeTo(c, wmo, -1));
                 req.setMostRecentTime(t.getTimeInMillis());
@@ -463,18 +373,205 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog {
         } else
             req.setMostRecentTime(0);
 
-        if (! lookupWmoId(req))
-            return false;
-        
-        req.setValidTime(System.currentTimeMillis() + 600 * 1000); // Current time plus 10 minutes
-        
+        String ttaaii = ttaaiiTF.getText();
+        String cccc = ccccTF.getText();
+        if (ttaaii.length() > 0 && cccc.length() > 0) {
+            req.setWmoHeader(ttaaii + " " + cccc);
+        } else {
+            req.setWmoHeader("");
+        }
+
+        req.setValidTime(System.currentTimeMillis() + 600 * 1000); // Current
+                                                                   // time plus
+                                                                   // 10 minutes
+
         setReturnValue(req);
         return true;
+    }
+
+    private void textFieldKeyListener(final StyledText tf,
+            final StyledText previousTF, final StyledText nextTF) {
+        tf.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                char c = e.character;
+
+                if (Character.isLetterOrDigit(c) || Character.isSpaceChar(c)) {
+                    int pos = tf.getCaretOffset();
+                    String text = tf.getText();
+
+                    if (text.length() > pos) {
+                        StringBuilder b = new StringBuilder(text);
+                        b.deleteCharAt(pos);
+                        tf.setText(b.toString());
+                        tf.setSelection(pos);
+                    }
+                } else if (e.keyCode == SWT.ARROW_UP) {
+                    previousTF.setFocus();
+                    previousTF.selectAll();
+                } else if (e.keyCode == SWT.ARROW_DOWN) {
+                    nextTF.setFocus();
+                    nextTF.selectAll();
+                }
+            }
+        });
+    }
+
+    private void textFieldVerifyListener(final StyledText tf) {
+        tf.addVerifyListener(new VerifyListener() {
+            @Override
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.toUpperCase();
+                StringBuilder b = null;
+                int posMod = 0;
+                char[] chars = e.text.toCharArray();
+                for (int i = 0; i < chars.length; i++) {
+                    char c = chars[i];
+                    if (!Character.isLetterOrDigit(c)
+                            && !Character.isSpaceChar(c)) {
+                        if (b == null) {
+                            b = new StringBuilder(e.text);
+                        }
+                        b.deleteCharAt(i - posMod++);
+                    }
+                }
+
+                if (b != null) {
+                    e.text = b.toString();
+                }
+            }
+        });
+    }
+
+    private void textFieldModifyListener(final StyledText tf,
+            final StyledText nextTF, final boolean limitCheck) {
+        tf.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent event) {
+                if (!limitCheck || tf.getCharCount() == tf.getTextLimit()) {
+                    if (wmoIdSelectionDialog == null) {
+                        lookupWmoIDs();
+                    } else {
+                        wmoIdSelectionDialog.close();
+                        wmoIdSelectionDialog = null;
+                        lookupWmoIDs();
+                    }
+                } else {
+                    if (wmoIdSelectionDialog != null) {
+                        wmoIdSelectionDialog.close();
+                        wmoIdSelectionDialog = null;
+                    }
+                    setWmoId("", "");
+                    checkEnableEnter();
+                }
+
+                if (!isDisposed()) {
+                    if (tf.getCaretOffset() == tf.getTextLimit()) {
+                        nextTF.setFocus();
+                        nextTF.selectAll();
+                    }
+
+                    checkEnableEnter();
+                }
+            }
+        });
+    }
+
+    private void lookupWmoIDs() {
+        if (lookupAllowed && wsfoIdTF.getCharCount() == wsfoIdTF.getTextLimit()
+                && productCatTF.getCharCount() == productCatTF.getTextLimit()
+                && prodDesignatorTF.getText().length() > 0) {
+            GetWmoIdRequest request = new GetWmoIdRequest();
+            request.setAfosId(wsfoIdTF.getText() + productCatTF.getText()
+                    + prodDesignatorTF.getText());
+            lookupAllowed = false;
+
+            try {
+                Object response = ThriftClient.sendRequest(request);
+                if (response != null) {
+                    if (response instanceof AfosWmoIdDataContainer) {
+                        AfosWmoIdDataContainer container = (AfosWmoIdDataContainer) response;
+                        if (container.getErrorMessage() != null) {
+                            statusHandler
+                                    .handle(Priority.PROBLEM,
+                                            "Error occurred looking up WMO IDs\nMessage from server["
+                                                    + container
+                                                            .getErrorMessage()
+                                                    + "]");
+                        }
+
+                        java.util.List<AfosToAwips> list = container
+                                .getIdList();
+
+                        if (list.size() > 1) {
+                            ArrayList<String> ttaaiiIds = new ArrayList<String>(
+                                    list.size());
+                            ArrayList<String> ccccIds = new ArrayList<String>(
+                                    list.size());
+                            for (AfosToAwips id : list) {
+                                ttaaiiIds.add(id.getWmottaaii());
+                                ccccIds.add(id.getWmocccc());
+                            }
+
+                            wmoIdSelectionDialog = new WmoIdSelectionDialog(
+                                    shell, this, ttaaiiIds, ccccIds);
+                            wmoIdSelectionDialog
+                                    .setCloseCallback(new ICloseCallback() {
+
+                                        @Override
+                                        public void dialogClosed(
+                                                Object returnValue) {
+                                            lookupAllowed = true;
+                                            wmoIdSelectionDialog = null;
+                                        }
+                                    });
+                            wmoIdSelectionDialog.setBlockOnOpen(false);
+                            wmoIdSelectionDialog.open();
+                            return;
+                        } else if (list.size() == 1) {
+                            AfosToAwips id = list.get(0);
+                            setWmoId(id.getWmottaaii(), id.getWmocccc());
+                        } else {
+                            setWmoId("", "");
+                        }
+                        checkEnableEnter();
+                    } else {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Received unhandled WMO Id lookup response from server. Received obj of type ["
+                                        + response.getClass() + "], contents["
+                                        + response + "]");
+                    }
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error occurred looking up WMO IDs", e);
+            }
+
+            lookupAllowed = true;
+        }
     }
 
     public void setRequest(RemoteRetrievalRequest lastRemoteRetrievalRequest) {
         initialAfosID = null;
         if (lastRemoteRetrievalRequest != null)
             initialAfosID = lastRemoteRetrievalRequest.getAfosID();
+    }
+
+    private void checkEnableEnter() {
+        boolean enabled = false;
+        if (enterBtn != null && !isDisposed()) {
+            if (ttaaiiTF.getCharCount() > 0 && ccccTF.getCharCount() > 0
+                    && addresseeTF.getCharCount() > 0) {
+                enabled = true;
+            }
+            enterBtn.setEnabled(enabled);
+        }
+    }
+
+    @Override
+    public void setWmoId(String ttaaii, String cccc) {
+        ttaaiiTF.setText(ttaaii);
+        ccccTF.setText(cccc);
+        checkEnableEnter();
     }
 }

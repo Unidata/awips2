@@ -158,7 +158,6 @@ import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.CommandHistory;
 import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.dialogs.WarnGenConfirmationDlg.SessionDelegate;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -180,6 +179,7 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
@@ -288,6 +288,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10Sep2012   15103	    M.Gamazaychikov	DR15103 -do not clear AFOS command from the text box 
  * 						when obs are updated and refactored executeCommand
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
+ * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
  * </pre>
  * 
  * @author lvenable
@@ -1447,14 +1448,21 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             public void widgetSelected(SelectionEvent event) {
                 RemoteSiteRequestDlg requestDlg = new RemoteSiteRequestDlg(
                         shell);
-                if (lastRemoteRetrievalRequest != null)
+                if (lastRemoteRetrievalRequest != null) {
                     requestDlg.setRequest(lastRemoteRetrievalRequest);
-                RemoteRetrievalRequest req = (RemoteRetrievalRequest) requestDlg
-                        .open();
-                if (req != null) {
-                    lastRemoteRetrievalRequest = req;
-                    sendRemoteRetrievalRequest(req);
                 }
+                requestDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        RemoteRetrievalRequest req = (RemoteRetrievalRequest) returnValue;
+                        if (req != null) {
+                            lastRemoteRetrievalRequest = req;
+                            sendRemoteRetrievalRequest(req);
+                        }
+                    }
+                });
+                requestDlg.open();
             }
         });
 
@@ -4400,22 +4408,36 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         "Problem Detected by QC", qcCheck.getErrorMessage(),
                         "Do you really want to Send?\n", mode);
-                wgcd.open(new SessionDelegate() {
+                wgcd.setCloseCallback(new ICloseCallback() {
+
                     @Override
-                    public void dialogDismissed(Object dialogResult) {
-                        if (Boolean.TRUE.equals(dialogResult))
-                            finishSendProduct1(resend, title, mode,
+                    public void dialogClosed(Object returnValue) {
+                        if (Boolean.TRUE.equals(returnValue))
+                            finishSendProduct(resend, title, mode,
                                     productMessage, modeMessage);
+
                     }
                 });
+                wgcd.open();
 
                 return;
             }
         }
-        finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+        finishSendProduct(resend, title, mode, productMessage, modeMessage);
     }
 
-    private void finishSendProduct1(final boolean resend, String title,
+    /**
+     * This finishes preparing to send a product as part of normal compleation
+     * of sendProduct or as part of the call back when there is a problem with
+     * the WarnGen being sent.
+     * 
+     * @param resend
+     * @param title
+     * @param mode
+     * @param productMessage
+     * @param modeMessage
+     */
+    private void finishSendProduct(final boolean resend, String title,
             CAVEMode mode, StringBuilder productMessage,
             StringBuilder modeMessage) {
         Pattern p = Pattern.compile(".\\%[s].");
@@ -4450,16 +4472,26 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell, title,
                 productMessage.toString(), modeMessage.toString(), mode);
-        wgcd.open(new SessionDelegate() {
+        wgcd.setCloseCallback(new ICloseCallback() {
+
             @Override
-            public void dialogDismissed(Object dialogResult) {
-                if (Boolean.TRUE.equals(dialogResult))
-                    finishSendProduct2(resend, result);
+            public void dialogClosed(Object returnValue) {
+                if (Boolean.TRUE.equals(returnValue)) {
+                    warngenCloseCallback(resend, result);
+                }
             }
         });
+        wgcd.open();
     }
 
-    private void finishSendProduct2(boolean resend, boolean result) {
+    /**
+     * This is used by finishedSendProduct as the call back to the warnGen
+     * confirmaiton Dialog.
+     * 
+     * @param resend
+     * @param result
+     */
+    private void warngenCloseCallback(boolean resend, boolean result) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
@@ -5245,9 +5277,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     public String getAddressee() {
         return addressee;
     }
-    
+
     public void executeCommand(ICommand command) {
-    	executeCommand(command, false);
+        executeCommand(command, false);
     }
 
     public void executeCommand(ICommand command, boolean isObsUpdated) {
@@ -5355,11 +5387,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             w, siteNode);
                 }
                 /*
-                 * DR15103 - do not clear AFOS command from the text box
-                 * when obs are updated
+                 * DR15103 - do not clear AFOS command from the text box when
+                 * obs are updated
                  */
-                if ( !isObsUpdated ) {
-                	clearAfosCmdTF();
+                if (!isObsUpdated) {
+                    clearAfosCmdTF();
                 }
                 clearWmoTF();
                 clearAwipsIdTF();
@@ -6469,11 +6501,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         @Override
         public void run() {
-        	/*
-        	 * DR15103 - set the flag to 'true' before executing 
-        	 * AFOS command so the AFOS command box is not cleared 
-        	 * when obs are updated
-        	 */       	
+            /*
+             * DR15103 - set the flag to 'true' before executing AFOS command so
+             * the AFOS command box is not cleared when obs are updated
+             */
             executeCommand(command, true);
         }
 
