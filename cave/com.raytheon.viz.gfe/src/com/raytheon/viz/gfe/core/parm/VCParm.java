@@ -25,6 +25,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
@@ -37,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.RWLArrayList;
+import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -107,8 +111,13 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
         // Need to check that the above call to mod.getGpi() did not fail
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
-                    this.mod.getErrorString());
+            //statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
+            //        this.mod.getErrorString());
+            Activator
+            .getDefault()
+            .getLog()
+            .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+                    "Can't get GPI: " + this.mod.getErrorString()));
         }
 
         // set the parm type
