@@ -44,7 +44,6 @@ CWA = siteConfig.GFESUITE_SITEID
 #
 #MapNameVariable = ShapeTable('the name of the map table')
 #MapNameVariable.filter( -- - - - - filter string - - - - - - )
-#MapNameVariable.name = 'the display name of the map' 
 #MapNameVariable.editAreaName = 'attribute in ShapeTable to be used to name
 #    'editArea'
 #MapNameVariable.groupName = 'name of the edit area group'
@@ -201,104 +200,88 @@ def offshoreZoneFilter(atts):
 #---------------------------------------------------------------------
 
 # CWA Counties
-CWAcounties = ShapeTable('County')
+CWAcounties = ShapeTable('county')
 CWAcounties.filter(lambda x : x['cwa'][0:3] == CWA or x['cwa'][3:6] == CWA)
-CWAcounties.name = 'Counties_' + CWA
 CWAcounties.editAreaName = ['state','countyname']
 CWAcounties.groupName = 'Counties'
 
 # FIPS for my counties - only include first WFO indicated in CWA field
-FIPS = ShapeTable('County')
-FIPS.name = 'FIPS_' + CWA
+FIPS = ShapeTable('county')
 FIPS.filter(lambda x : x['cwa'][0:3] == CWA)
 FIPS.editAreaName = fips
 FIPS.groupName = 'FIPS_' + CWA
 
 # Unfiltered Counties
-Counties = ShapeTable('County')
-Counties.name = 'Counties'
+Counties = ShapeTable('county')
 Counties.editAreaName = fips
 Counties.groupName = 'FIPS'
 
 # CWA Zones
-CWAzones = ShapeTable('Zone')
+CWAzones = ShapeTable('zone')
 CWAzones.filter(publicZoneFilter)
-CWAzones.name = 'Zones_' + CWA
 CWAzones.editAreaName = cwazones
 CWAzones.groupName = 'Zones_' + CWA
 
 # Unfiltered Zones
-Zones = ShapeTable('Zone')
-Zones.name = 'Zones'
+Zones = ShapeTable('zone')
 Zones.editAreaName = cwazones
 Zones.groupName = 'Zones'
 
 # Fire Wx Zones
-FWCWAzones = ShapeTable('FireWxZones')
+FWCWAzones = ShapeTable('firewxzones')
 FWCWAzones.filter(firewxZoneFilter)
-FWCWAzones.name = 'FireWxZones_' + CWA
 FWCWAzones.editAreaName = fwxzones
 FWCWAzones.groupName = 'FireWxZones_' + CWA
 
 # Unfiltered Fire Wx Zones
-FWZones = ShapeTable('FireWxZones')
-FWZones.name = 'FireWxZones'
+FWZones = ShapeTable('firewxzones')
 FWZones.editAreaName = fwxzones
 FWZones.groupName = 'FireWxZones'
 
 # CWAs for all
-cwas = ShapeTable('CWA')
-cwas.name = 'CWA_all'
+cwas = ShapeTable('cwa')
 cwas.editAreaName = 'wfo'
 cwas.groupName = 'WFOs'
 
 # ISC areas for all
-isc = ShapeTable('ISC')
-isc.name = 'ISC_all'
+isc = ShapeTable('isc')
 isc.editAreaName = ['ISC','wfo']
 isc.groupName = 'ISC'
 
 # Fire Wx AOR for all
-fwaor = ShapeTable('FireWxAOR')
-fwaor.name = 'FireWxAOR'
+fwaor = ShapeTable('firewxaor')
 fwaor.editAreaName = ['FireWxAOR', 'cwa']
 fwaor.groupName = 'FireWxAOR'
 
 # Marine Zones for CWA
-CWAmzones = ShapeTable('MarineZones')
+CWAmzones = ShapeTable('marinezones')
 CWAmzones.filter(marineZoneFilter)
-CWAmzones.name = 'Marine_Zones_' + CWA
 CWAmzones.editAreaName = marineZ
 CWAmzones.groupName = 'MZones_' + CWA
 
 # Marine Zones (unfiltered)
-Mzones = ShapeTable('MarineZones')
-Mzones.name = "Marine_Zones"
+Mzones = ShapeTable('marinezones')
 Mzones.editAreaName = marineZ
 Mzones.groupName = 'MZones'
 
 # States (unfiltered)
-States = ShapeTable('States')
-States.name = "States"
+States = ShapeTable('states')
 States.editAreaName = 'name'
 States.groupName = 'States'
 
 # RFC maps
-rfc = ShapeTable('RFC')
-rfc.name = "RFC"
+rfc = ShapeTable('rfc')
 rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
 # Offshore Marine Zones - unfiltered
-offshore = ShapeTable('Offshore')
-offshore.name = "Offshore_Marine_Zones"
+offshore = ShapeTable('offshore')
 offshore.editAreaName = offshoreZ
 offshore.groupName = 'OffShoreMZones'
 
 # Offshore Marine Zones - filtered by CWA
-offshoreCWA = ShapeTable('Offshore')
+offshoreCWA = ShapeTable('offshore')
 offshoreCWA.filter(offshoreZoneFilter)
-offshoreCWA.name = "Offshore_Marine_Zones_" + CWA
 offshoreCWA.editAreaName = offshoreZ
 offshoreCWA.groupName = 'OffShoreMZones_' + CWA
 
