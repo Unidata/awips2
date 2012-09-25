@@ -21,10 +21,12 @@ package com.raytheon.uf.viz.d2d.xy.adapters.varheight;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.measure.unit.Unit;
@@ -32,15 +34,17 @@ import javax.measure.unit.Unit;
 import org.geotools.geometry.DirectPosition2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
@@ -54,7 +58,8 @@ import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.grid.inv.GridInventory;
 
 /**
- * TODO Add Description
+ * Adapter for Grid data that returns the value of a variable at multiple
+ * heights.
  * 
  * <pre>
  * 
@@ -69,9 +74,11 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * @version 1.0
  */
 
-public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
+public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridVarHeightAdapter.class);
 
-    protected HashMap<DataTime, Set<GribRecord>> yRecordMap = new HashMap<DataTime, Set<GribRecord>>();
+    protected HashMap<DataTime, Set<GridRecord>> yRecordMap = new HashMap<DataTime, Set<GridRecord>>();
 
     /*
      * (non-Javadoc)
@@ -83,11 +90,11 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
     @Override
     public String getParameterName() {
         synchronized (records) {
-            String name = ((GribRecord) records.iterator().next())
-                    .getModelInfo().getParameterName();
+            String name = ((GridRecord) records.iterator().next())
+                    .getParameter().getName();
             if (name == null || name.isEmpty()) {
-                name = ((GribRecord) records.iterator().next()).getModelInfo()
-                        .getParameterAbbreviation();
+                name = ((GridRecord) records.iterator().next()).getParameter()
+                        .getAbbreviation();
             }
             return name;
 
@@ -106,8 +113,8 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
             if (records == null || records.size() == 0) {
                 return null;
             }
-            return ((GribRecord) records.iterator().next()).getModelInfo()
-                    .getParameterUnitObject();
+            return ((GridRecord) records.iterator().next()).getParameter()
+                    .getUnit();
 
         }
     }
@@ -126,10 +133,10 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
 
         Set<DataTime> keys = yRecordMap.keySet();
         for (DataTime key : keys) {
-            Set<GribRecord> aRecord = yRecordMap.get(key);
+            Set<GridRecord> aRecord = yRecordMap.get(key);
             if (!aRecord.isEmpty()) {
-                return ((GribRecord) aRecord.iterator().next()).getModelInfo()
-                        .getParameterUnitObject();
+                return ((GridRecord) aRecord.iterator().next()).getParameter()
+                        .getUnit();
             }
         }
         return null;
@@ -146,33 +153,31 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
     public List<XYData> loadData(DataTime currentTime) throws VizException {
         populateYRecords();
 
-        ArrayList<GribRecord> needsRequested = new ArrayList<GribRecord>();
+        ArrayList<GridRecord> hasData = new ArrayList<GridRecord>(
+                records.size());
 
-        Map<Level, GribRecord> xMap = new HashMap<Level, GribRecord>();
-        ISpatialObject area = null;
+        Map<Level, GridRecord> xMap = new HashMap<Level, GridRecord>();
         synchronized (records) {
 
-            for (GribRecord rec : records) {
-                area = rec.getSpatialObject();
+            for (GridRecord rec : records) {
                 if (rec.getDataTime().equals(currentTime)) {
-                    xMap.put(rec.getModelInfo().getLevel(), rec);
-                    if (rec.getMessageData() == null) {
-                        needsRequested.add(rec);
+                    xMap.put(rec.getLevel(), rec);
+                    if (rec.getMessageData() != null) {
+                        hasData.add(rec);
                     }
                 }
             }
         }
-        Map<Level, GribRecord> yMap = new HashMap<Level, GribRecord>();
+        Map<Level, GridRecord> yMap = new HashMap<Level, GridRecord>();
 
         synchronized (yRecordMap) {
 
-            Set<GribRecord> yRecords = yRecordMap.get(currentTime);
-
+            Set<GridRecord> yRecords = yRecordMap.get(currentTime);
             if (yRecords != null) {
-                for (GribRecord rec : yRecords) {
-                    yMap.put(rec.getModelInfo().getLevel(), rec);
-                    if (rec.getMessageData() == null) {
-                        needsRequested.add(rec);
+                for (GridRecord rec : yRecords) {
+                    yMap.put(rec.getLevel(), rec);
+                    if (rec.getMessageData() != null) {
+                        hasData.add(rec);
                     }
                 }
             }
@@ -188,62 +193,74 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
             return dataList;
         }
 
-        DirectPosition2D point = null;
-        try {
-            point = PointUtil.determineExactIndex(resourceData.getPoint(),
-                    area.getCrs(), MapUtil.getGridGeometry(area));
-        } catch (Exception e) {
-            throw new VizException(e);
+        Map<GridCoverage, List<PluginDataObject>> recordsByLocation = new HashMap<GridCoverage, List<PluginDataObject>>(
+                4);
+        for (GridRecord record : xMap.values()) {
+            if (hasData.contains(record)) {
+                continue;
+            }
+            List<PluginDataObject> list = recordsByLocation.get(record
+                    .getLocation());
+            if (list == null) {
+                list = new ArrayList<PluginDataObject>(xMap.size() * 2);
+                recordsByLocation.put(record.getLocation(), list);
+            }
+            list.add(record);
         }
-        Rectangle requestArea = new Rectangle((int) Math.floor(point.x),
-                (int) Math.floor(point.y), 2, 2);
-        requestArea = requestArea.intersection(new Rectangle(0, 0,
-                area.getNx(), area.getNy()));
-        if (requestArea.isEmpty()) {
-            throw new VizException("Invalid point position("
-                    + resourceData.getPoint()
-                    + "). Check that the point is within the grib boundaries.");
+
+        for (GridRecord record : yMap.values()) {
+            if (hasData.contains(record)) {
+                continue;
+            }
+            List<PluginDataObject> list = recordsByLocation.get(record
+                    .getLocation());
+            if (list == null) {
+                list = new ArrayList<PluginDataObject>(yMap.size());
+                recordsByLocation.put(record.getLocation(), list);
+            }
+            list.add(record);
         }
-        Request request = Request.buildSlab(
-                new int[] { (int) requestArea.getMinX(),
-                        (int) requestArea.getMinY() },
-                new int[] { (int) requestArea.getMaxX(),
-                        (int) requestArea.getMaxY() });
 
-        List<PluginDataObject> pdos = new ArrayList<PluginDataObject>(
-                xMap.size() * 2);
-        pdos.addAll(xMap.values());
-        pdos.addAll(yMap.values());
+        for (Entry<GridCoverage, List<PluginDataObject>> entry : recordsByLocation
+                .entrySet()) {
+            Request request = getRequest(entry.getKey());
+            if (request == null) {
+                continue;
+            }
+            DataCubeContainer.getDataRecords(entry.getValue(), request, null);
 
-        // only request pdos without data
-        pdos.retainAll(needsRequested);
-
-        DataCubeContainer.getDataRecords(pdos, request, null);
+        }
 
         for (Level level : xMap.keySet()) {
-            GribRecord yRecord = yMap.get(level);
+            GridRecord yRecord = yMap.get(level);
 
             FloatDataRecord yRec = (FloatDataRecord) ((IDataRecord[]) yRecord
                     .getMessageData())[0];
-            float yVal = InterpUtils.getInterpolatedData(requestArea, point.x,
-                    point.y, yRec.getFloatData());
+            DirectPosition2D yPoint = getPoint(yRecord.getLocation());
+            Rectangle yRect = getRectangle(yRecord.getLocation());
+            float yVal = InterpUtils.getInterpolatedData(yRect, yPoint.x,
+                    yPoint.y, yRec.getFloatData());
             if (yVal <= -9999) {
                 continue;
             }
-            GribRecord xRecord = xMap.get(level);
+            GridRecord xRecord = xMap.get(level);
+            DirectPosition2D xPoint = getPoint(xRecord.getLocation());
+            Rectangle xRect = getRectangle(xRecord.getLocation());
             IDataRecord[] results = ((IDataRecord[]) xRecord.getMessageData());
-            if (results.length == 4) {
+            if (results == null) {
+                continue;
+            } else if (results.length == 4) {
                 FloatDataRecord speedRec = (FloatDataRecord) results[0];
                 FloatDataRecord dirRec = (FloatDataRecord) results[1];
-                float speed = InterpUtils.getInterpolatedData(requestArea,
-                        point.x, point.y, speedRec.getFloatData());
-                float dir = InterpUtils.getInterpolatedData(requestArea,
-                        point.x, point.y, dirRec.getFloatData());
+                float speed = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, speedRec.getFloatData());
+                float dir = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, dirRec.getFloatData());
                 dataList.add(new XYWindImageData(speed, yVal, speed, dir));
             } else {
                 FloatDataRecord xRec = (FloatDataRecord) results[0];
-                float xVal = InterpUtils.getInterpolatedData(requestArea,
-                        point.x, point.y, xRec.getFloatData());
+                float xVal = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, xRec.getFloatData());
                 if (xVal <= -9999) {
                     continue;
                 }
@@ -251,7 +268,71 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
             }
         }
 
+        if (dataList.isEmpty()) {
+            statusHandler.handle(Priority.INFO, "No data found for point "
+                    + resourceData.getPoint() + ", at time " + currentTime
+                    + ", please verify point is within bounds of the data.");
+            return Collections.emptyList();
+        }
+
         return dataList;
+    }
+
+    /**
+     * Retrive the coordinate in grid space(defined by location) where this
+     * adapter is expected to load data.
+     * 
+     * @param location
+     * @return
+     * @throws VizException
+     */
+    private DirectPosition2D getPoint(GridCoverage location)
+            throws VizException {
+        try {
+            return PointUtil.determineExactIndex(resourceData.getPoint(),
+                    location.getCrs(), location.getGridGeometry());
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
+
+    }
+
+    /**
+     * find the rectangle in grid space(defined by location) where this adapter
+     * should request data, the rectangle is formed by adding enough space
+     * around the point to perform bilinear interpolation.
+     * 
+     * @param location
+     * @return
+     * @throws VizException
+     */
+    private Rectangle getRectangle(GridCoverage location) throws VizException {
+        DirectPosition2D point = getPoint(location);
+        Rectangle rectangle = new Rectangle((int) Math.floor(point.x),
+                (int) Math.floor(point.y), 2, 2);
+        rectangle = rectangle.intersection(new Rectangle(0, 0,
+                location.getNx(), location.getNy()));
+        return rectangle;
+    }
+
+    /**
+     * Find the datastore request needed to get data for GridRecords with the
+     * provided location.
+     * 
+     * @param location
+     * @return
+     * @throws VizException
+     */
+    private Request getRequest(GridCoverage location) throws VizException {
+        Rectangle rectangle = getRectangle(location);
+        if (rectangle.isEmpty()) {
+            return null;
+        }
+        return Request.buildSlab(
+                new int[] { (int) rectangle.getMinX(),
+                        (int) rectangle.getMinY() },
+                new int[] { (int) rectangle.getMaxX(),
+                        (int) rectangle.getMaxY() });
     }
 
     public void addRecord(PluginDataObject pdo) {
@@ -309,13 +390,13 @@ public class GribVarHeightAdapter extends AbstractVarHeightAdapter<GribRecord> {
             List<Object> recs = DataCubeContainer.getData(property, 60000);
 
             for (Object obj : recs) {
-                GribRecord gRecord = (GribRecord) obj;
-                Set<GribRecord> recordSet = yRecordMap.get(gRecord
+                GridRecord gRecord = (GridRecord) obj;
+                Set<GridRecord> recordSet = yRecordMap.get(gRecord
                         .getDataTime());
                 if (recordSet != null) {
                     recordSet.add(gRecord);
                 } else {
-                    recordSet = new HashSet<GribRecord>();
+                    recordSet = new HashSet<GridRecord>();
                     recordSet.add(gRecord);
                     yRecordMap.put(gRecord.getDataTime(), recordSet);
                 }

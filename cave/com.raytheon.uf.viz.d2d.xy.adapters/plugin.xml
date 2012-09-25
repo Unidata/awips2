@@ -4,9 +4,9 @@
       <extension
          point="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter">
       <crossSectionAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.GribCSAdapter"
-            class="com.raytheon.uf.common.dataplugin.grib.GribRecord"
-            name="Grib Cross Section Adapter">
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.GridCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Cross Section Adapter">
       </crossSectionAdapter>
       <crossSectionAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
@@ -60,9 +60,9 @@
    <extension
          point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
       <timeSeriesAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.GribTimeSeriesAdapter"
-            class="com.raytheon.uf.common.dataplugin.grib.GribRecord"
-            name="Grib Time Series Adapter">
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.GridTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Time Series Adapter">
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.DmdTimeSeriesAdapter"
@@ -126,9 +126,9 @@
    <extension
          point="com.raytheon.uf.viz.xy.varheight.varheightadapter">
       <varHeightAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.GribVarHeightAdapter"
-            class="com.raytheon.uf.common.dataplugin.grib.GribRecord"
-            name="Grib Var Height Adapter">
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.GridVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Var Height Adapter">
       </varHeightAdapter>
       <varHeightAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
