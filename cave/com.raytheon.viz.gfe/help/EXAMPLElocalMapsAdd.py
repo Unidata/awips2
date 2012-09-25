@@ -27,9 +27,8 @@ from Maps import *
 # just the Wyoming counties.  Edit areas are automatically generated"
 # and named WY_countyName.
 WYcounties = ShapeTable('County')
-WYcounties.filter(lambda x : x['STATE'] == "WY") 
-WYcounties.name = 'WYCounties' 
-WYcounties.editAreaName = ['STATE','COUNTYNAME'] 
+WYcounties.filter(lambda x : x['state'] == "WY") 
+WYcounties.editAreaName = ['state','countyname'] 
 WYcounties.groupName = 'WYCounties' 
 maps.append(WYcounties) 
 
