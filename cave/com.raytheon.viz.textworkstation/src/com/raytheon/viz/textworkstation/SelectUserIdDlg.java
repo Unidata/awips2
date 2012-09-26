@@ -44,6 +44,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * 9/27/2007    368         lvenable    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
+ * 26Sep2012    1196        lvenable    Dialog refactor to not block.
  * 
  * </pre>
  * 
@@ -56,7 +57,8 @@ public class SelectUserIdDlg extends CaveSWTDialog {
     private List userIdList;
 
     public SelectUserIdDlg(Shell parent) {
-        super(parent, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Select User ID");
     }
 
