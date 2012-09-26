@@ -290,6 +290,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
  * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * </pre>
  * 
  * @author lvenable
@@ -1114,6 +1115,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /** LDAD fax sites dialog */
     private LdadFaxSitesDlg ldadFaxSitesDlg;
 
+    /** Fax all message dialog */
+    private FaxMessageDlg faxAllMsgDlg;
+
+    /** Fax message dialog */
+    private FaxMessageDlg faxMsgDlg;
+
     private enum HeaderEditSession {
         CLOSE_ON_EXIT, IN_EDITOR
     }
@@ -1123,16 +1130,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     static {
         AUTOSAVE_DATE_FORMAT.setTimeZone(TimeZone
                 .getTimeZone(TimeTools.ZULU_TIMEZONE));
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     */
-    public TextEditorDialog(Shell parent) {
-        this(parent, "Text Display", false, null, "0", false, false, 0);
     }
 
     /**
@@ -1353,24 +1350,33 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         faxAllItem = new MenuItem(fileMenu, SWT.NONE);
-        faxAllItem.setText("Fax All");
+        faxAllItem.setText("Fax All...");
         faxAllItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FaxMessageDlg faxMsgDlg = new FaxMessageDlg(shell);
-                faxMsgDlg.setInitialText(textEditor.getText());
-                faxMsgDlg.open();
+
+                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
+                    faxAllMsgDlg = new FaxMessageDlg(shell);
+                    faxAllMsgDlg.setInitialText(textEditor.getText());
+                    faxAllMsgDlg.open();
+                } else {
+                    faxAllMsgDlg.bringToTop();
+                }
             }
         });
 
         faxSelectionItem = new MenuItem(fileMenu, SWT.NONE);
-        faxSelectionItem.setText("Fax Selection");
+        faxSelectionItem.setText("Fax Selection...");
         faxSelectionItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FaxMessageDlg faxMsgDlg = new FaxMessageDlg(shell);
-                faxMsgDlg.setInitialText(textEditor.getSelectionText());
-                faxMsgDlg.open();
+                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
+                    faxMsgDlg = new FaxMessageDlg(shell);
+                    faxMsgDlg.setInitialText(textEditor.getSelectionText());
+                    faxMsgDlg.open();
+                } else {
+                    faxMsgDlg.bringToTop();
+                }
             }
         });
 
