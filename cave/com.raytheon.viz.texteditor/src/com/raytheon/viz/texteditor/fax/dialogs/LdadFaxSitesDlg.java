@@ -45,10 +45,8 @@ import com.raytheon.uf.common.dataplugin.text.request.GetAutoFaxRecordsRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -61,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 1, 2010            lvenable     Initial creation
+ * 26Sep2012    1196      lvenable     Dialog refacter to not block.
  * 
  * </pre>
  * 
@@ -69,7 +68,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class LdadFaxSitesDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(LdadFaxSitesDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LdadFaxSitesDlg.class);
+
     private Tree faxSiteTree;
 
     private Label faxNumLbl;
@@ -105,7 +106,7 @@ public class LdadFaxSitesDlg extends CaveSWTDialog {
     private boolean sortByPil = true;
 
     public LdadFaxSitesDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Fax Site Editor");
     }
 
