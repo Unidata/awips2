@@ -289,6 +289,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 						when obs are updated and refactored executeCommand
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
+ * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * </pre>
  * 
  * @author lvenable
@@ -1107,6 +1108,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private MouseListener updateObsListener = null;
 
+    /** Text character wrap dialog */
+    private TextCharWrapDlg textCharWrapDlg;
+
+    /** LDAD fax sites dialog */
+    private LdadFaxSitesDlg ldadFaxSitesDlg;
+
     private enum HeaderEditSession {
         CLOSE_ON_EXIT, IN_EDITOR
     }
@@ -1368,12 +1375,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         configAutoFaxItem = new MenuItem(fileMenu, SWT.NONE);
-        configAutoFaxItem.setText("Configure Auto Fax");
+        configAutoFaxItem.setText("Configure Auto Fax...");
         configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LdadFaxSitesDlg ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
-                ldadFaxSitesDlg.open();
+                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
+                    ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
+                    ldadFaxSitesDlg.open();
+                } else {
+                    ldadFaxSitesDlg.bringToTop();
+                }
             }
         });
 
@@ -1474,7 +1485,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 EditSessionRecoveryDialog recoveryDlg = new EditSessionRecoveryDialog(
                         TextEditorDialog.this.getParent(),
                         TextEditorDialog.this);
-                recoveryDlg.setBlockOnOpen(true);
+                recoveryDlg.setBlockOnOpen(false);
                 recoveryDlg.open();
             }
         });
@@ -1656,11 +1667,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         searchItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-
-                searchReplaceDlg = new SearchReplaceDlg(shell, textEditor,
-                        inEditMode);
-                searchReplaceDlg.open();
-                searchReplaceDlg = null;
+                if (searchReplaceDlg == null || searchReplaceDlg.isDisposed()) {
+                    searchReplaceDlg = new SearchReplaceDlg(shell, textEditor,
+                            inEditMode);
+                    searchReplaceDlg.open();
+                } else {
+                    searchReplaceDlg.bringToTop();
+                }
             }
         });
 
@@ -2621,15 +2634,24 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void createTextCharWrapDialog(final int rangeStart,
             final int rangeEnd) {
         // Create the text character wrap dialog.
-        TextCharWrapDlg textCharWrapDlg = new TextCharWrapDlg(shell, this,
-                otherCharWrapCol, rangeStart, rangeEnd);
-        Boolean rv = (Boolean) textCharWrapDlg.open();
-        // If the user cancels the text character wrap dialog then
-        // take no action.
-        // Otherwise, use character wrap count to set the wrap-around.
-        if (rv == true) {
-            recompileRegex();
-            wordWrapEnabled = true;
+        if (textCharWrapDlg == null || textCharWrapDlg.isDisposed()) {
+            textCharWrapDlg = new TextCharWrapDlg(shell, this,
+                    otherCharWrapCol, rangeStart, rangeEnd);
+
+            textCharWrapDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if ((Boolean) returnValue == true) {
+                        recompileRegex();
+                        wordWrapEnabled = true;
+                    }
+                }
+            });
+
+            textCharWrapDlg.open();
+        } else {
+            textCharWrapDlg.bringToTop();
         }
     }
 
@@ -4310,7 +4332,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Display the AFOS Browser dialog.
      */
     private void displayAfosBrowser() {
-        if (afosBrowser == null) {
+        if (afosBrowser == null || afosBrowser.isDisposed() == true) {
             afosBrowser = new AfosBrowserDlg(shell, shell.getText(), this,
                     token);
             afosBrowser.open();
