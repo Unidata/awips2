@@ -143,7 +143,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     public TextWorkstationDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
+                        | CAVE.DO_NOT_BLOCK);
         setText("Text Workstation");
 
         TextDisplayModel.getInstance().setTextAviation(
