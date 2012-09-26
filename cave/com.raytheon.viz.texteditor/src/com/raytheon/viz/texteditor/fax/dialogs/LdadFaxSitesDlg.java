@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TODO Add Description
@@ -373,22 +374,16 @@ public class LdadFaxSitesDlg extends CaveSWTDialog {
     }
 
     private void addSiteAction() {
-        if (faxSiteEditorDlg == null) {
+        if (faxSiteEditorDlg == null || faxSiteEditorDlg.isDisposed()) {
             faxSiteEditorDlg = new FaxSiteEditorDlg(shell, this);
             faxSiteEditorDlg.open();
-
-            /*
-             * TODO : if you need to, grab any information from the Fax Site
-             * Editor dialog
-             */
-
-            faxSiteEditorDlg = null;
         }
     }
 
     private void editSiteAction() {
-        faxSiteEditorDlg = new FaxSiteEditorDlg(shell, this);
+
         if (faxSiteTree.getSelection().length > 0) {
+            faxSiteEditorDlg = new FaxSiteEditorDlg(shell, this);
             for (TreeItem treeItem : faxSiteTree.getSelection()) {
                 if (null != treeItem.getParentItem()) {
                     TreeItem parent = treeItem.getParentItem();
@@ -411,8 +406,14 @@ public class LdadFaxSitesDlg extends CaveSWTDialog {
                     }
                 }
             }
+            faxSiteEditorDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    faxSiteEditorDlg = null;
+                }
+            });
             faxSiteEditorDlg.open();
-            faxSiteEditorDlg = null;
         }
     }
 
