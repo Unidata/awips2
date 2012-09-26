@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 01Feb2011    7193        cjeanbap    Add boolean condition to check initial start time.
  * 03Nov2011    11450       rferrel     Change how old products pruge so it is no longer
  *                                      on times on two machines being in synch.
+ * 26Sep2012    1196        lvenable    Dialog refactor to not block.
  * 
  * </pre>
  * 
@@ -136,6 +137,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     private CurrentAlarmQueue alarmDlg;
 
     private long initStartTime;
+
+    /** Select user ID dialog */
+    private SelectUserIdDlg userIdDlg;
 
     public TextWorkstationDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
@@ -243,8 +247,12 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         selectUserIdMenuItem.setText("Select User ID...");
         selectUserIdMenuItem.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                SelectUserIdDlg userIdDlg = new SelectUserIdDlg(shell);
-                userIdDlg.open();
+                if (userIdDlg == null || userIdDlg.isDisposed()) {
+                    userIdDlg = new SelectUserIdDlg(shell);
+                    userIdDlg.open();
+                } else {
+                    userIdDlg.bringToTop();
+                }
             }
         });
 
