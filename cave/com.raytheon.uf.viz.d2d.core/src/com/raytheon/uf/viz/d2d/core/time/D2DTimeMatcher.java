@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.FrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
@@ -61,7 +62,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
 
 /**
@@ -73,7 +73,6 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2009            chammack     Initial creation
- * 2012-04-20   DR 14699   D. Friedman Work around race conditions
  * 
  * </pre>
  * 
@@ -124,10 +123,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
 
     private AbstractTimeMatchingConfigurationFactory configFactory;
 
-    // DR 14699 work arounds
-    private boolean needRetry;
-    private int nRetries;
-
     /**
      * Default Constructor.
      */
@@ -158,8 +153,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
 
         synchronized (this) {
-            needRetry = false;
-
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null && tmDescriptor != descriptor) {
@@ -183,11 +176,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             Iterator<ResourcePair> pairIterator = descriptor.getResourceList()
                     .listIterator();
             while (pairIterator.hasNext()) {
-                ResourcePair rp = pairIterator.next();
-                AbstractVizResource<?, ?> rsc = rp
+                AbstractVizResource<?, ?> rsc = pairIterator.next()
                         .getResource();
-                if (rsc == null && rp.getResourceData() instanceof AbstractRequestableResourceData)
-                    needRetry = true;
                 recursiveOverlay(descriptor, new FramesInfo(timeSteps, -1,
                         resourceTimeMap), rsc);
             }
@@ -204,24 +194,18 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
                     timeMatchUpdate(entry.getKey(), entry.getValue());
                 }
             }
-
-            if (needRetry) {
-            	if (nRetries < 200) {
-            	    ++nRetries;
-            	    TimeMatchingJob.scheduleTimeMatch(descriptor);
-            	}
-            } else
-            	nRetries = 0;
         }
     }
 
     private int indexToUpdateTo(IDescriptor descriptor, DataTime[] oldTimes,
             int oldIndex, DataTime[] frames, int startFrame) {
         int frameToUse = startFrame;
-        IDisplayPaneContainer container = descriptor.getRenderableDisplay()
-                .getContainer();
-        if (container != null && container.getLoopProperties().isLooping()) {
-            return frameToUse;
+        IRenderableDisplay display = descriptor.getRenderableDisplay();
+        if (display != null && display.getContainer() != null) {
+            IDisplayPaneContainer container = display.getContainer();
+            if (container.getLoopProperties().isLooping()) {
+                return frameToUse;
+            }
         }
         switch (descriptor.getFrameCoordinator().getAnimationMode()) {
         case Latest: {
@@ -322,8 +306,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         if (rsc instanceof IResourceGroup) {
             for (ResourcePair rp : ((IResourceGroup) rsc).getResourceList()) {
                 AbstractVizResource<?, ?> rsc1 = rp.getResource();
-                if (rsc1 == null && rp.getResourceData() instanceof AbstractRequestableResourceData)
-                	needRetry = true;
                 recursiveOverlay(descriptor, framesInfo, rsc1);
             }
         }
@@ -332,9 +314,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             TimeMatchingConfiguration config = getConfiguration(rsc
                     .getLoadProperties());
             DataTime[] timeSteps = getFrameTimes(descriptor, framesInfo);
-            if (Arrays.equals(timeSteps, config.getLastBaseTimes()) &&
-            		config.getLastFrameTimes() != null &&
-            		config.getLastFrameTimes().length > 0) {
+            if (Arrays.equals(timeSteps, config.getLastBaseTimes())) {
                 framesInfo.getTimeMap().put(rsc, config.getLastFrameTimes());
             } else {
                 config = config.clone();
@@ -837,41 +817,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
     @Override
     public AbstractVizResource<?, ?> getTimeMatchBasis() {
         return timeMatchBasis;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractTimeMatcher#setTimeList(com.raytheon
-     * .uf.common.time.DataTime[],
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
-    @Override
-    public void setTimeList(DataTime[] dataTimes,
-            AbstractVizResource<?, ?> rsc, IDescriptor descriptor)
-            throws VizException {
-        ((AbstractDescriptor) descriptor).getTimeMatchingMap().put(rsc,
-                dataTimes);
-
-        // if the resource is the basis , set the time to the last
-        // time
-        if (dataTimes.length > 0
-                && (rsc == timeMatchBasis || timeMatchBasis == null)) {
-            boolean setFrameTimes = true;
-            // If there are any null times we do not want to set this as the
-            // frame times, that means we were matched against a time match
-            // basis that has since been removed.
-            for (DataTime time : dataTimes) {
-                setFrameTimes = setFrameTimes && time != null;
-            }
-            if (setFrameTimes) {
-                descriptor.setFramesInfo(new FramesInfo(dataTimes,
-                        dataTimes.length - 1));
-                changeTimeMatchBasis(rsc);
-            }
-        }
     }
 
     public boolean hasTimeMatchBasis() {
