@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.grid.inv;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,17 +31,21 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.viz.grid.data.GridRequestableDataFactory;
+import com.raytheon.viz.grid.util.CoverageUtils;
 
 /**
  * 
@@ -62,7 +63,7 @@ import com.raytheon.viz.grid.data.GridRequestableDataFactory;
  * @author bsteffen
  * @version 1.0
  */
-public class GridRequestableNode extends AbstractRequestableLevelNode {
+public class GridRequestableNode extends AbstractBaseDataNode {
 
     protected static final String TIME_FIELD = "dataTime";
 
@@ -101,155 +102,77 @@ public class GridRequestableNode extends AbstractRequestableLevelNode {
         this.rcMap = rcMap;
     }
 
-    @Override
-    public boolean isTimeAgnostic() {
-        return false;
-    }
-
-    @Override
     public Map<String, RequestConstraint> getRequestConstraintMap() {
         return rcMap;
     }
 
     @Override
-    public boolean hasRequestConstraints() {
-        return true;
-    }
-
-    @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<AbstractRequestableData> getData(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability, Object response)
             throws VizException {
-        Set<DataTime> resultsSet = GridTimeCache.getInstance().getTimes(this);
-        if (resultsSet != null) {
-            return resultsSet;
-        }
-
-        DataTime[] results = CatalogQuery.performTimeQuery(rcMap, latestOnly,
-                null);
-        if (results != null) {
-            resultsSet = new HashSet<DataTime>(Arrays.asList(results));
-            if (!latestOnly) {
-                GridTimeCache.getInstance().setTimes(this, resultsSet);
-            }
-            return resultsSet;
-        } else {
-            return null;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getTimeQueryInternal(boolean, java.util.Map)
-     */
-    @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        Set<DataTime> resultsSet = GridTimeCache.getInstance().getTimes(this);
-        if (resultsSet != null) {
-            return null;
-        }
-        return CatalogQuery.getTimeQuery(rcMap, latestOnly, null);
-    }
-
-    @Override
-    protected void processTimeQueryResults(boolean latestOnly,
-            List<DataTime> queryResponse) throws VizException {
-        if (!latestOnly) {
-            Set<DataTime> resultsSet = new HashSet<DataTime>(queryResponse);
-            GridTimeCache.getInstance().setTimes(this, resultsSet);
-        }
-    }
-
-    @Override
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        DbQueryRequest dbRequest = getDataQueryInternal(property, timeOut,
-                cache);
-        DbQueryResponse response = (DbQueryResponse) ThriftClient
-                .sendRequest(dbRequest);
-        return processDataQueryResults(response);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataQueryInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int)
-     */
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        Map<String, RequestConstraint> oldQuery = property
-                .getEntryQueryParameters(false);
-
-        Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>(
-                rcMap);
-        for (Entry<String, RequestConstraint> e : oldQuery.entrySet()) {
-            if (!newQuery.containsKey(e.getKey())) {
-                newQuery.put(e.getKey(), e.getValue());
-            }
-        }
-
-        DbQueryRequest dbRequest = new DbQueryRequest();
-        DataTime[] times = property.getSelectedEntryTime();
-        if (times != null && times.length > 0) {
-            RequestConstraint dtRC = new RequestConstraint();
-            dtRC.setConstraintType(ConstraintType.IN);
-            for (DataTime t : times) {
-                dtRC.addToConstraintValueList(t.toString());
-            }
-            newQuery.put("dataTime", dtRC);
-        }
-        newQuery.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
-                GridConstants.GRID));
-        dbRequest.setConstraints(newQuery);
-        return dbRequest;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * processQueryResults
-     * (com.raytheon.uf.common.dataquery.responses.DbQueryResponse)
-     */
-    @Override
-    protected List<AbstractRequestableData> processDataQueryResults(
-            DbQueryResponse response) throws VizException {
-        List<Map<String, Object>> rows = response.getResults();
-        List<AbstractRequestableData> rval = new ArrayList<AbstractRequestableData>(
-                rows.size());
-        GridRequestableDataFactory factory = GridRequestableDataFactory
+        DbQueryResponse dbresponse = (DbQueryResponse) response;
+        GridRequestableDataFactory grdf = GridRequestableDataFactory
                 .getInstance();
-        for (Map<String, Object> objMap : rows) {
-            rval.add(factory.getGridRequestableData((GridRecord) objMap
-                    .get(null)));
+        Set<AbstractRequestableData> ards = new HashSet<AbstractRequestableData>();
+        for (Map<String, Object> result : dbresponse.getResults()) {
+            GridRecord record = (GridRecord) result.get(null);
+            ards.add(grdf.getGridRequestableData(record));
         }
-        return rval;
+        return ards;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDependencies()
-     */
     @Override
-    public List<Dependency> getDependencies() {
-        return Collections.emptyList();
+    public DbQueryRequest getDataRequest(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability) {
+        boolean timeAgnostic = false;
+        boolean spaceAgnostic = false;
+        Set<DataTime> times = new HashSet<DataTime>();
+        Set<ISpatialObject> spaces = new HashSet<ISpatialObject>();
+        for (TimeAndSpace ast : availability) {
+            if (ast.isTimeAgnostic()) {
+                timeAgnostic = true;
+            } else {
+                times.add(ast.getTime());
+            }
+            if (ast.isSpaceAgnostic()) {
+                spaceAgnostic = true;
+            } else {
+                spaces.add(ast.getSpace());
+            }
+        }
+        DbQueryRequest dbRequest = new DbQueryRequest();
+        dbRequest.setEntityClass(GridRecord.class.getName());
+        dbRequest.setConstraints(new HashMap<String, RequestConstraint>(rcMap));
+        for (Entry<String, RequestConstraint> e : orignalConstraints.entrySet()) {
+            if (!rcMap.containsKey(e.getKey())) {
+                dbRequest.addConstraint(e.getKey(), e.getValue());
+            }
+        }
+        if (!timeAgnostic) {
+            RequestConstraint timeRc = new RequestConstraint();
+            timeRc.setConstraintType(ConstraintType.IN);
+            for (DataTime time : times) {
+                timeRc.addToConstraintValueList(time.toString());
+            }
+            dbRequest.addConstraint(TIME_FIELD, timeRc);
+        }
+        if (!spaceAgnostic) {
+            RequestConstraint spaceRc = new RequestConstraint();
+            spaceRc.setConstraintType(ConstraintType.IN);
+            for (ISpatialObject space : spaces) {
+                if (space instanceof GridCoverage) {
+                    spaceRc.addToConstraintValueList(Integer
+                            .toString(((GridCoverage) space).getId()));
+                } else {
+                    // TODO figure out the intersection of my spatial object
+                    // with this spatial object.
+                }
+            }
+            dbRequest.addConstraint(GridConstants.LOCATION_ID, spaceRc);
+        }
+        return dbRequest;
     }
 
     @Override
@@ -298,6 +221,66 @@ public class GridRequestableNode extends AbstractRequestableLevelNode {
 
     public void setEnsembles(List<String> ensembles) {
         this.ensembles = ensembles;
+    }
+
+    private String getSource() {
+        return rcMap.get(GridConstants.DATASET_ID).getConstraintValue();
+    }
+
+    @Override
+    public DbQueryRequest getAvailabilityRequest() {
+        if (GridTimeCache.getInstance().getTimes(this) != null) {
+            return null;
+        }
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(GridRecord.class.getName());
+        request.addRequestField(TIME_FIELD);
+        try {
+            if (CoverageUtils.getInstance().getCoverages(getSource()).size() > 1) {
+                request.addRequestField(GridConstants.LOCATION_ID);
+            }
+        } catch (VizException e) {
+            // not really a problem, just request the location from db.
+            UFStatus.getHandler().handle(Priority.VERBOSE,
+                    e.getLocalizedMessage(), e);
+            request.addRequestField(GridConstants.LOCATION_ID);
+        }
+        request.setDistinct(true);
+        request.setConstraints(rcMap);
+        return request;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(Object response)
+            throws VizException {
+        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        if (response == null) {
+            result = GridTimeCache.getInstance().getTimes(this);
+            if (result == null) {
+                // Oh No! the cache has been cleared since we made our request.
+                response = ThriftClient.sendRequest(getAvailabilityRequest());
+                return getAvailability(response);
+            }
+            GridTimeCache.getInstance().setTimes(this, result);
+        } else if (response instanceof DbQueryResponse) {
+            DbQueryResponse dbresponse = (DbQueryResponse) response;
+            for (Map<String, Object> map : dbresponse.getResults()) {
+                DataTime time = (DataTime) map.get(TIME_FIELD);
+                GridCoverage coverage = null;
+                if (map.containsKey(GridConstants.LOCATION_ID)) {
+                    Number locationId = (Number) map
+                            .get(GridConstants.LOCATION_ID);
+                    coverage = GridCoverageLookup.getInstance().getCoverage(
+                            locationId.intValue());
+                } else {
+                    coverage = CoverageUtils.getInstance()
+                            .getCoverages(getSource()).iterator().next();
+                }
+                result.add(new TimeAndSpace(time, coverage));
+            }
+            GridTimeCache.getInstance().setTimes(this, result);
+        }
+        return result;
     }
 
 }
