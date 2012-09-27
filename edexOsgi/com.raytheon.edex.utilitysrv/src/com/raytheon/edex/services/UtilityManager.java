@@ -255,20 +255,15 @@ public class UtilityManager {
                 entry.setExistsOnServer(false);
             }
 
-            boolean isProtected = false;
             LocalizationLevel protectedLevel = ProtectedFiles
                     .getProtectedLevel(localizedSite,
                             context.getLocalizationType(), path);
+            entry.setProtectedLevel(protectedLevel);
 
-            if (protectedLevel != null) {
-                isProtected = true;
-            }
-
-            entry.setProtectedFile(isProtected);
             // add to entry if not protected or we are requesting protected
-            // version
+            // version or levels below (BASE if SITE protected, etc)
             if (protectedLevel == null
-                    || protectedLevel == context.getLocalizationLevel()) {
+                    || context.getLocalizationLevel().compareTo(protectedLevel) <= 0) {
                 entries.add(entry);
             }
         }
