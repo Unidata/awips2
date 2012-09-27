@@ -291,6 +291,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
  * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * </pre>
  * 
  * @author lvenable
@@ -5702,38 +5703,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     && !scriptsShowOutputItem.isDisposed()) {
                 scriptsShowOutputItem.setSelection(true);
             }
-            // create the script output window
-            if (scriptOutput == null) {
-                scriptOutput = new ScriptOutputDlg(shell, token);
-            }
+
             // update the script editor window
             if (scriptEditor != null) {
                 scriptEditor.setScriptOutputState(true);
             }
-            // open the script output window
-            scriptOutput.open();
-            // update the menu following close
-            if (scriptsShowOutputItem != null
-                    && !scriptsShowOutputItem.isDisposed()) {
-                scriptsShowOutputItem.setSelection(false);
+
+            // create the script output window
+            if (scriptOutput == null || !scriptOutput.isDisposed()) {
+                scriptOutput = new ScriptOutputDlg(shell, token);
+                // open the script output window
+                scriptOutput.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        // update the menu following close
+                        if (scriptsShowOutputItem != null
+                                && !scriptsShowOutputItem.isDisposed()) {
+                            scriptsShowOutputItem.setSelection(false);
+                        }
+                        // update script editor window
+                        if (scriptEditor != null) {
+                            scriptEditor.setScriptOutputState(false);
+                        }
+                        scriptOutput = null;
+                    }
+                });
+                scriptOutput.open();
+            } else {
+                scriptOutput.bringToTop();
             }
-            // update script editor window
-            if (scriptEditor != null) {
-                scriptEditor.setScriptOutputState(false);
-            }
-            scriptOutput = null;
         } else {
             if (scriptOutput != null) {
                 scriptOutput.close();
+            } else {
+                if (scriptsShowOutputItem != null
+                        && !scriptsShowOutputItem.isDisposed()) {
+                    scriptsShowOutputItem.setSelection(false);
+                }
+                if (scriptEditor != null) {
+                    scriptEditor.setScriptOutputState(false);
+                }
             }
-            if (scriptsShowOutputItem != null
-                    && !scriptsShowOutputItem.isDisposed()) {
-                scriptsShowOutputItem.setSelection(false);
-            }
-            if (scriptEditor != null) {
-                scriptEditor.setScriptOutputState(false);
-            }
-            scriptOutput = null;
         }
     }
 
