@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 09/13/12     1165        lvenable     Update for the initial process
  *                                       of removing the dialog blocking capability.
  * 09/20/12     1196        rferrel      Changes to setBlockOnOpen.
+ * 09/27/12     1196        rferrel      Added bringToTop
  * 
  * </pre>
  * 
@@ -182,6 +183,18 @@ public class CaveJFACEDialog extends Dialog implements
         if (shell != null && shell.isDisposed() == false) {
             shell.setVisible(wasVisible);
             shell.setLocation(lastLocation);
+        }
+    }
+
+    /**
+     * Gives the dialog focus.
+     */
+    public final void bringToTop() {
+        Shell shell = getShell();
+        if (shell != null && shell.isDisposed() == false) {
+            shell.setVisible(true);
+            shell.forceFocus();
+            shell.forceActive();
         }
     }
 
