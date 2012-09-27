@@ -59,7 +59,7 @@ import com.raytheon.uf.viz.core.style.level.Level.LevelType;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.uf.viz.derivparam.tree.OrLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
@@ -271,7 +271,7 @@ public class RadarAdapter {
                                         desc,
                                         method,
                                         RADAR_SOURCE,
-                                        new ArrayList<AbstractRequestableLevelNode>(
+                                        new ArrayList<AbstractRequestableNode>(
                                                 productCodes.size()), false);
                                 gridParameterNode.addChildNode(gridLevelNode);
                             }
@@ -326,9 +326,11 @@ public class RadarAdapter {
         topoParam.setParameterUnit("m");
         topoParam.setValue("Topo");
 
-        StaticDataLevelNode topoNode = new StaticDataLevelNode(sfc, topo,
-                new TopoRequestableData(modelNameNode.getValue()),
+        TopoRequestableData topoData = new TopoRequestableData(
                 modelNameNode.getValue());
+        topoData.setSpace(getCoverage());
+        StaticDataLevelNode topoNode = new StaticDataLevelNode(sfc, topo,
+                topoData, modelNameNode.getValue());
         topoNode.setLevel(sfc);
         topoParam.addChildNode(topoNode);
         modelNameNode.addChildNode(topoParam);
