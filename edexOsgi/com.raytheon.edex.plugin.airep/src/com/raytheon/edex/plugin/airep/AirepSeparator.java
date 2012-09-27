@@ -54,6 +54,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
  * 11/13/2008         1684 chammack    Camel Refactor
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120911           1011 jkorman     Properly handle trailing end of report.
  * </pre>
  * 
  * @author jkorman
@@ -68,6 +71,10 @@ public class AirepSeparator extends AbstractRecordSeparator {
     private static final String AIREP_HDR = "AIREP[\\r\\n]+";
 
     private static final String AIREP_MSG_LINE = "(ARP|ARS)";
+
+    private static final String EOR_E = "=";
+
+    private static final String EOR_S = ";";
 
     private WMOHeader wmoHeader = null;
 
@@ -133,6 +140,14 @@ public class AirepSeparator extends AbstractRecordSeparator {
 
         if ((reports != null) && (reports.size() > 0)) {
             currentReport = 0;
+            for (int i = 0; i < reports.size(); i++) {
+                String s = reports.get(i);
+                if (s != null) {
+                    if (s.endsWith(EOR_E) || s.endsWith(EOR_S)) {
+                        reports.set(i, s.substring(0, s.length() - 1));
+                    }
+                }
+            }
         } else {
             logger.info("No reports found in data");
         }
