@@ -44,10 +44,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
@@ -68,6 +70,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * ------------ ---------- ----------- --------------------------
  * May 12, 2009 #2161      lvenable     Initial creation
  * Jul 21, 2012 #875       rferrel     Now uses points.
+ * Sep 26, 2012 #1216      rferrel     Point Change listener added to update
+ *                                      the Time Series Point menu.
  * 
  * </pre>
  * 
@@ -120,6 +124,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     private SpaceTimeMenu previousSpaceTimeMenu = null;
 
     private boolean initialized = false;
+
+    private IPointChangedListener pointChangeListener;
 
     /**
      * Constructor.
@@ -645,6 +651,12 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         settingsMI.setText(mi.getText());
         settingsMI.setData(mi.getData());
 
+        if (pointChangeListener != null) {
+            PointsDataManager.getInstance().removePointsChangedListener(
+                    pointChangeListener);
+            pointChangeListener = null;
+        }
+
         if (spaceTimeMI != null) {
             previousSpaceTimeMenu = (SpaceTimeMenu) spaceTimeMI.getData();
             spaceTimeMI.dispose();
@@ -685,6 +697,22 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             // Do nothing. No extra menus need to be created.
         } else if (currentSetting == ViewMenu.TIMESERIES) {
             createPointsMenu();
+            pointChangeListener = new IPointChangedListener() {
+
+                @Override
+                public void pointChanged() {
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            pointsMI.dispose();
+                            createPointsMenu();
+                        }
+                    });
+                }
+            };
+            PointsDataManager.getInstance().addPointsChangedListener(
+                    pointChangeListener);
         }
 
         dialogSettings.setViewSelection(currentSetting);
