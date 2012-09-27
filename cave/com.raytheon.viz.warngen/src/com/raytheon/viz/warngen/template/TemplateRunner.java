@@ -93,11 +93,12 @@ import com.raytheon.viz.warngen.gui.BackupData;
 import com.raytheon.viz.warngen.gui.FollowupData;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.gui.WarngenUIState;
+import com.raytheon.viz.warngen.text.WarningTextHandler;
+import com.raytheon.viz.warngen.text.WarningTextHandlerFactory;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
 import com.raytheon.viz.warngen.util.WarnGenMathTool;
-import com.raytheon.viz.warngen.util.WarningTextHandler;
 import com.raytheon.viz.warngen.util.WatchUtil;
 import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch;
 import com.raytheon.viz.warnings.DateUtil;
@@ -126,7 +127,8 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     from appearing in 2nd and 3rd bullets when not necessary.
  * Aug 13, 2012   14493    Qinglu Lin  Handled MND time, event time, and TML time specially for COR to NEW.
  * Aug 29, 2011   15351    jsanchez    Set the timezone for TML time.
- * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.  
+ * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.
+ * Sep 18, 2012   15332    jsanchez    Used a new warning text handler.
  * </pre>
  * 
  * @author njensen
@@ -760,16 +762,19 @@ public class TemplateRunner {
         System.out.println("velocity time: "
                 + (System.currentTimeMillis() - tz0));
 
-        return WarningTextHandler.handle(script.toString().toUpperCase(),
-                areas, cancelareas, selectedAction,
-                WarningAction.valueOf((String) context.get("action")),
-                config.getAutoLockText());
+        String text = script.toString();
+        WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
+                selectedAction, text, config.getAutoLockText());
+        String handledText = handler.handle(text, areas, cancelareas);
+
+        return handledText;
     }
 
     private static VelocityEngine ENGINE = new VelocityEngine();
 
     private static synchronized String createScript(String vmFile,
-            VelocityContext context, String site, String logDir) throws EdexException {
+            VelocityContext context, String site, String logDir)
+            throws EdexException {
         StringWriter sw = new StringWriter();
         try {
             Properties p = new Properties();
@@ -780,8 +785,7 @@ public class TemplateRunner {
             p.setProperty(
                     "velocimacro.permissions.allow.inline.to.replace.global",
                     "true");
-            p.setProperty("runtime.log",
-                    FileUtil.join(logDir, "velocity.log"));
+            p.setProperty("runtime.log", FileUtil.join(logDir, "velocity.log"));
             ENGINE.init(p);
             context.put("scriptLibrary", "VM_global_library.vm");
             Template template = ENGINE.getTemplate(vmFile,
