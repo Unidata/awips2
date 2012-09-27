@@ -65,7 +65,7 @@ public class FileTreeEntryData {
     public FileTreeEntryData(PathData pathData, String path) {
         this(pathData, path, false);
     }
-    
+
     public boolean isRoot() {
         return root;
     }
