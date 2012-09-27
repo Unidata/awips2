@@ -21,6 +21,7 @@ package com.raytheon.uf.common.message;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,8 +62,6 @@ public class StatusMessage implements ISerializableObject, IMessage {
     private static final int MAX_DETAILS_LENGTH = 32000;
 
     private static final int MAX_MESSAGE_LENGTH = 1024;
-
-    private static final String LOCAL = "LOCAL";
 
     /**
      * The source of the message
@@ -162,7 +161,7 @@ public class StatusMessage implements ISerializableObject, IMessage {
         this.category = category;
         this.priority = priority;
         this.plugin = plugin;
-        this.setMachine(LOCAL);
+        this.setMachineToCurrent();
         buildMessageAndDetails(message, throwable, this);
     }
 
@@ -288,6 +287,13 @@ public class StatusMessage implements ISerializableObject, IMessage {
     }
 
     /**
+     * Set to the current machine.
+     */
+    public void setMachineToCurrent() {
+        this.machine = ManagementFactory.getRuntimeMXBean().getName();
+    }
+
+    /**
      * @return the message
      */
     public String getMessage() {
@@ -405,7 +411,6 @@ public class StatusMessage implements ISerializableObject, IMessage {
 
     @Override
     public String toString() {
-        Priority p = getPriority();
         String statusMsg = getMessage();
         String detailsMsg = getDetails();
         boolean useBothMsgs = detailsMsg.length() > statusMsg.length();

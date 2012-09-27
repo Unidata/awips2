@@ -106,18 +106,6 @@ public abstract class AbstractTimeMatcher {
             throws VizException;
 
     /**
-     * Set the matched list of times to a particular resource
-     * 
-     * @param dataTimes
-     * @param rsc
-     * @param descriptor
-     * @throws VizException
-     */
-    public abstract void setTimeList(DataTime[] dataTimes,
-            AbstractVizResource<?, ?> rsc, IDescriptor descriptor)
-            throws VizException;
-
-    /**
      * Given a list of RenderableDisplays, determine the order to instantiate
      * them in to get the correct time match settings, should only be called
      * when there are no instantiated resources on any of the displays(like when

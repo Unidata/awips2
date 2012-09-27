@@ -177,7 +177,7 @@ public class GLShadedShapeBase implements IShape {
 
             for (FloatBuffer[] contours : polygons) {
                 glu.gluTessProperty(tessellator, GLU.GLU_TESS_WINDING_RULE,
-                        GLU.GLU_TESS_WINDING_NONZERO);
+                        GLU.GLU_TESS_WINDING_ODD);
                 glu.gluTessBeginPolygon(tessellator, (double[]) null);
                 int polygonStart = vertexBuffer.position() / 2;
                 for (FloatBuffer contour : contours) {

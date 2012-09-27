@@ -647,4 +647,14 @@ public class SCANMesoTableDlg extends AbstractTableDlg implements
         return false;
     }
 
+	@Override
+	public void turnOffAlarm() {
+		mgr.setRing(false);
+	}
+
+	@Override
+	public void turnOnAlarm() {
+		mgr.setRing(true);
+	}
+
 }

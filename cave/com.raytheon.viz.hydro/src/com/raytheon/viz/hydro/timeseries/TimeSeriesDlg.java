@@ -173,9 +173,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
     private static final String COLOR = "color";
 
-    private static final String[] TS_LIST = { "RG", "RP", "RZ", "FF", "FX",
-            "FZ" };
-    
+    // private static final String[] TS_LIST = { "RG", "RP", "RZ", "FF", "FX",
+    // "FZ" };
+
     private final String[] TS_ORDER = { "R", "F", "P", "M", "C" };
 
     /**
@@ -726,8 +726,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         try {
             populateStationList();
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Failed to populate station list", e);
         }
         
         if (startMode.equals("GROUP") && (displayGraph == false)) {
@@ -1143,8 +1142,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 try {
                     populateStationList();
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.error("Failed to populate station list", e);
                 }
                 shell.setCursor(arrowCursor);
             }
@@ -1188,8 +1186,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 try {
                     populateStationList();
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.error("Failed to populate station list", e);
                 }
                 shell.setCursor(arrowCursor);
             }
@@ -1629,8 +1626,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
             in.close();
         } catch (IOException e) {
-            // TODO add log statement about group_definition.cfg not found
-            e.printStackTrace();
+            statusHandler.error("Failed to read group definition configuration.", e);
         }
     }
 
@@ -1642,8 +1638,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         try {
             populateStationList();
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Failed to populate station list", e);
         }
         filteredLidList = new ArrayList<String>();
         topDataList.removeAll();
@@ -1668,8 +1663,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             try {
                 populateStationList();
             } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.error("Failed to populate station list", e);
             }
             return;
         } else {
@@ -1900,8 +1894,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     } else if (values[0].equalsIgnoreCase(FUTUREHOURS)) {
                         groupInfo.setFutureHours(Integer.parseInt(values[1]));
                     } else {
-                        // TODO log a message about invalid key/value pair
-                        System.err.println("Invalid key/value pair: " + s);
+                        statusHandler.warn("Invalid key/value pair: " + s);
                     }
                 }
             }
@@ -1950,8 +1943,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             graphData.setLatestfcstonly(false);
                         }
                     } else {
-                        // TODO log a message about invalid key/value pair
-                        System.err.println("Invalid key/value pair: " + s);
+                        statusHandler.warn("Invalid key/value pair: " + s);
                     }
                 }
             }
@@ -1986,8 +1978,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             graphData.setEndDate(endDate);
 
         } else {
-            // TODO log error here, invalid value
-            System.err.println("Error in Group Definition Config file: " + line);
+            statusHandler.warn("Error in Group Definition Config file: " + line);
         }       
         
         // select the first item in the list 
@@ -2518,8 +2509,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         try {
             populateStationList();
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Failed to populate station list", e);
         }
         setCurrentData();
         opened();
