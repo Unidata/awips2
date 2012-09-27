@@ -1,4 +1,4 @@
-<project name="allElements Delegator">
+<project name="allElements Delegator">	
 	<property name="defaultAssemblyEnabled" value="true" />
 	
  	<!-- ===================================================================== 	-->
@@ -66,6 +66,13 @@
  				</if>
  			</sequential>
  		</for>
+ 		
+ 		<if>
+ 			<equals arg1="${feature.path}" arg2="" />
+ 			<then>
+ 				<fail message="Failed to find feature: ${topLevelElementId}" />
+ 			</then>
+ 		</if>
  		
  		<mkdir dir="${builder}/tmp/features" />
  		<!-- copy the feature -->
@@ -205,13 +212,79 @@
 			<if>
 				<equals arg1="@{plugin.type}" arg2="cots" />
 				<then>
-					<copy todir="${builder}/dependencies-stash">
-						<fileset dir="${plugin.directory}"
-							includes="@{plugin.pattern}" />
-					</copy>
+					<copyFOSS
+						plugin.directory323="${plugin.directory}/${plugin.name}" 
+						destination.directory323="${builder}/dependencies-stash/@{plugin.name}" />
 				</then>
 			</if>
 			
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="copyFOSS">
+		<!-- 
+			random character suffixes added to 
+			maintain uniqueness of variable names 
+		-->
+		<attribute name="plugin.directory323" />
+		<attribute name="destination.directory323" />
+		
+		<sequential>
+			<mkdir dir="@{destination.directory323}" />
+			
+			<!-- scan build.properties -->
+			<var file="@{plugin.directory323}/build.properties" />		
+			
+			<!--
+				* iterate through bin.includes
+				* '.' is seen as the ${output..} directory, itself
+				* artifacts are only deployed if they are present
+			-->
+			<for list="${bin.includes}" param="include"
+			delimiter="," trim="true">
+				<sequential>					
+					<if>
+						<available file="@{plugin.directory323}/@{include}"
+							type="dir" />
+						<then>
+							<!-- deploy a directory -->
+							
+							<!-- is this the output directory? -->
+							<if>
+								<not>
+									<equals arg1="@{include}" arg2="." />
+								</not>
+								<then>
+					 				<copy todir="@{destination.directory323}"
+					 				overwrite="true" verbose="true">
+					 					<fileset dir="@{plugin.directory323}"
+					 						includes="@{include}/**" />	
+					 				</copy>
+								</then>
+							</if>
+						</then>
+						<else>
+							<!-- are we deploying a file? -->
+							<if>
+								<available file="@{plugin.directory323}/@{include}"
+									type="file" />
+								<then>
+				 					<copy todir="@{destination.directory323}"
+				 					overwrite="true" verbose="true">
+				 						<fileset dir="@{plugin.directory323}"
+				 							includes="@{include}" />	
+				 					</copy>
+								</then>
+								<else>
+									<!-- fail: unknown deployment artifact -->
+									<fail
+										message="Unable to deploy '@{include}' specified in @{plugin.directory323}/build.properties; unable to find the file / directory." />
+								</else>
+							</if>
+						</else>
+					</if>
+				</sequential>
+			</for>
 		</sequential>
 	</macrodef>
  

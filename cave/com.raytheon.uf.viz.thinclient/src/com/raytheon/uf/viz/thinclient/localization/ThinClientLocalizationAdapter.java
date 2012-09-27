@@ -121,7 +121,7 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
                     ListResponse response = new ListResponse();
                     response.context = context;
                     response.isDirectory = localFile.isDirectory();
-                    response.isProtected = false;
+                    response.protectedLevel = null;
                     response.existsOnServer = false;
                     response.fileName = p;
                     response.date = new Date(localFile.lastModified());
@@ -155,7 +155,7 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
                 response.context = ctx;
                 response.existsOnServer = false;
                 response.fileName = fileName;
-                response.isProtected = false;
+                response.protectedLevel = null;
                 File file = getPath(ctx, fileName);
                 if (file == null) {
                     response.isDirectory = false;

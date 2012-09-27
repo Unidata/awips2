@@ -19,26 +19,33 @@
  **/
 package com.raytheon.edex.plugin.grib.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Class holding parameter information pertaining to grib parameters.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2010            bphillip     Initial creation
- *
+ * Sep 12, 2012  #1117     dgilling     Create field to hold list of
+ *                                      valid levels for each parameter.
+ * 
  * </pre>
- *
+ * 
  * @author bphillip
  * @version 1.0
  */
@@ -47,18 +54,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ParameterInfo {
 
     @XmlElement
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     private String short_name;
 
     @XmlElement
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     private String long_name;
 
     @XmlElement
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     private String units;
 
     @XmlElement
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     private String udunits;
 
     @XmlElement
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     private String uiname;
 
     @XmlElement
@@ -71,8 +83,15 @@ public class ParameterInfo {
     private int n3D;
 
     @XmlElement
-    private String levels;
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    private String levelsDesc;
 
+    @XmlElementWrapper(name = "levels", required = false)
+    @XmlElement(name = "level")
+    @XmlJavaTypeAdapter(value = CollapsedStringAdapter.class, type = String.class)
+    private List<String> levels = new ArrayList<String>();
+
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("Short Name:").append(short_name).append("\n");
@@ -80,17 +99,16 @@ public class ParameterInfo {
         buf.append("Units:").append(units).append("\n");
         buf.append("Udunits:").append(udunits).append("\n");
         buf.append("UiName:").append(uiname).append("\n");
-        buf.append("Valid Range:").append(Arrays.toString(valid_range)).append(
-                "\n");
+        buf.append("Valid Range:").append(Arrays.toString(valid_range))
+                .append("\n");
         buf.append("Fill Value:").append(fillValue).append("\n");
         buf.append("n3D:").append(n3D).append("\n");
-        buf.append("Levels:").append(levels).append("\n");
+        buf.append("Levels Description:").append(levelsDesc).append("\n");
         return buf.toString();
     }
-    
-    
-    public ParameterInfo(){
-        
+
+    public ParameterInfo() {
+
     }
 
     public ParameterInfo(String parameterName) {
@@ -205,16 +223,16 @@ public class ParameterInfo {
     /**
      * @return the levels
      */
-    public String getLevels() {
-        return levels;
+    public String getLevelsDesc() {
+        return levelsDesc;
     }
 
     /**
      * @param levels
      *            the levels to set
      */
-    public void setLevels(String levels) {
-        this.levels = levels;
+    public void setLevelsDesc(String levels) {
+        this.levelsDesc = levels;
     }
 
     /**
@@ -232,4 +250,11 @@ public class ParameterInfo {
         this.short_name = short_name;
     }
 
+    public void setLevels(List<String> levels) {
+        this.levels = levels;
+    }
+
+    public List<String> getLevels() {
+        return levels;
+    }
 }

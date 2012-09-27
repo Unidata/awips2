@@ -21,6 +21,7 @@ package com.raytheon.viz.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -48,7 +49,9 @@ import org.eclipse.swt.widgets.Shell;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 2, 2010            mschenke     Initial creation
+ * Nov 2, 2010             mschenke    Initial creation
+ * Sep 12, 2012 #1165      lvenable    Update for the initial process
+ *                                     of removing the dialog blocking capability.
  * 
  * </pre>
  * 
@@ -113,19 +116,28 @@ public abstract class CaveSWTDialogBase extends Dialog {
         }
     }
 
+    /** Style used to determine how the dialog will function. */
     private int caveStyle = CAVE.NONE;
 
+    /** Display reference. */
     private Display display;
 
+    /** Dialog last location on the screen. */
     protected Point lastLocation;
 
+    /** Flag indicating of the dialog was visible. */
     protected boolean wasVisible = true;
 
+    /** Return value. */
     private Object returnValue;
 
+    /** Shell reference. */
     protected Shell shell;
 
     private List<ListenerPair> listenersToAdd;
+
+    /** Callback called when the dialog is disposed. */
+    private ICloseCallback closeCallback = null;
 
     /**
      * Construct default cave dialog
@@ -220,6 +232,7 @@ public abstract class CaveSWTDialogBase extends Dialog {
             @Override
             public void widgetDisposed(DisposeEvent e) {
                 disposed();
+                callCloseCallback();
             }
         });
 
@@ -280,6 +293,16 @@ public abstract class CaveSWTDialogBase extends Dialog {
      */
     protected void disposed() {
 
+    }
+
+    /**
+     * Call the callback method as this dialog has been disposed. This action is
+     * in a separate method since the disposed method can be overridden.
+     */
+    private void callCloseCallback() {
+        if (closeCallback != null) {
+            closeCallback.dialogClosed(returnValue);
+        }
     }
 
     /**
@@ -405,10 +428,25 @@ public abstract class CaveSWTDialogBase extends Dialog {
         return true;
     }
 
+    /**
+     * Check if the caveStyle contains a specified attribute.
+     * 
+     * @param attribute
+     *            Attribute to check for.
+     * @return True if caveStyle contains the attribute. False if it doesn't.
+     */
     protected boolean hasAttribute(int attribute) {
         return (caveStyle & attribute) == attribute;
     }
 
+    /**
+     * Check if the caveStyle does not contain a specified attribute.
+     * 
+     * @param attribute
+     *            Attribute to check for.
+     * @return True if caveStyle does not contain the attribute. False if it
+     *         does.
+     */
     protected boolean doesNotHaveAttribute(int attribute) {
         return (caveStyle & attribute) != attribute;
     }
@@ -442,5 +480,30 @@ public abstract class CaveSWTDialogBase extends Dialog {
                 enable(c, enable);
             }
         }
+    }
+
+    /**
+     * Add a callback to the dialog. This callback will be called when the
+     * dialog is disposed. Also, the caveStyle is updated to include
+     * DO_NOT_BLOCK.
+     * 
+     * @param callback
+     *            Callback to be called when the dialog is disposed.
+     * @throws Throws
+     *             a RejectedExecutionException with a message indicating that
+     *             this method needs to be called before the open method.
+     */
+    public void setCloseCallback(ICloseCallback callback) {
+
+        if (isOpen()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("The method addCloseCallback() needs to be called before the open().  ");
+            sb.append("This is due to addCloseCallback setting the caveStyle to DO_NOT_BLOCK");
+            throw new RejectedExecutionException(sb.toString());
+        }
+
+        // Set the DO_NOT_BLOCK on the cave style
+        this.caveStyle = caveStyle | CAVE.DO_NOT_BLOCK;
+        this.closeCallback = callback;
     }
 }
