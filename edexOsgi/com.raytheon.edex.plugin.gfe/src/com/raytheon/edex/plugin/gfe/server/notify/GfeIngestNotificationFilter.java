@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            dgilling     Initial creation
+ * Sep 19, 2012			   jdynina		DR 15442 fix
  * 
  * </pre>
  * 
@@ -178,30 +179,31 @@ public class GfeIngestNotificationFilter {
                         }
                     }
                 }
-
-                for (ParmID parmId : gridInv.keySet()) {
-                    Map<TimeRange, List<GridDataHistory>> hist = new HashMap<TimeRange, List<GridDataHistory>>();
-                    try {
-                        List<TimeRange> trs = gridInv.get(parmId);
-                        Collections.sort(trs);
-                        for (TimeRange time : trs) {
-                            List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
-                            histList.add(new GridDataHistory(
-                                    GridDataHistory.OriginType.INITIALIZED,
-                                    parmId, time, null, (WsId) null));
-                            hist.put(time, histList);
-                        }
-                        guns.add(new GridUpdateNotification(parmId,
-                                new TimeRange(trs.get(0).getStart(), trs.get(
-                                        trs.size() - 1).getEnd()), hist, null,
-                                parmId.getDbId().getSiteId()));
-                    } catch (Exception e) {
-                        handler.error("Unable to retrieve grid history for "
-                                + parmId.toString(), e);
-                    }
-                }
             }
 
+            // DR 15442 - move last for loop out of the for loop at line 110
+            for (ParmID parmId : gridInv.keySet()) {
+                Map<TimeRange, List<GridDataHistory>> hist = new HashMap<TimeRange, List<GridDataHistory>>();
+                try {
+                    List<TimeRange> trs = gridInv.get(parmId);
+                    Collections.sort(trs);
+                    for (TimeRange time : trs) {
+                        List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
+                        histList.add(new GridDataHistory(
+                                GridDataHistory.OriginType.INITIALIZED,
+                                parmId, time, null, (WsId) null));
+                        hist.put(time, histList);
+                    }
+                    guns.add(new GridUpdateNotification(parmId,
+                            new TimeRange(trs.get(0).getStart(), trs.get(
+                                    trs.size() - 1).getEnd()), hist, null,
+                            parmId.getDbId().getSiteId()));
+                } catch (Exception e) {
+                    handler.error("Unable to retrieve grid history for "
+                            + parmId.toString(), e);
+                }
+            }
+            
             try {
                 sendNotifications(guns);
             } catch (Exception e) {

@@ -250,7 +250,7 @@ public class LogMessageDAO {
     }
 
     public void save(StatusMessage sm) throws AlertvizException {
-        // Container.logInternal(sm);
+        Container.logInternal(sm);
         synchronized (this) {
             boolean errorOccurred = false;
             ResultSet rs = null;

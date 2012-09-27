@@ -230,7 +230,7 @@ public class AlertvizJob extends Job {
                                                 e);
                                 StatusMessage sm = new StatusMessage();
                                 sm.setPriority(Priority.CRITICAL);
-                                sm.setMachine("LOCAL");
+                                sm.setMachineToCurrent();
                                 sm.setCategory("GDN_ADMIN");
                                 sm.setSourceKey("GDN_ADMIN");
                                 sm.setMessage(e.getMessage());

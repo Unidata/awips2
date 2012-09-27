@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.geospatial.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -29,6 +28,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -108,111 +108,152 @@ public class WorldWrapCorrector {
             // we split it up into sections by intersecting with a 360 deg
             // inverse central meridian. We then normalize the points for each
             // section back to -180 to 180
-            boolean handle = false;
             if (checker.needsChecking()) {
-                boolean polygon = g instanceof Polygon;
-                Coordinate[] coords = g.getCoordinates();
-                if (polygon) {
-                    // remove duplicate last point for polygon
-                    coords = Arrays.copyOf(coords, coords.length - 1);
-                }
-                int length = coords.length + (polygon ? 0 : -1);
-                int truLen = coords.length;
-                double currOffset = 0.0;
-                double minOffset = 0.0, maxOffset = 0.0;
-                for (int i = 0; i < length; ++i) {
-                    int ip1 = (i + 1) % truLen;
-                    Coordinate a = coords[i];
-                    Coordinate b = coords[ip1];
-
-                    if (ip1 != 0) {
-                        b.x += currOffset;
-                    }
-
-                    Boolean low = null;
-                    if (a.x - b.x > 180.0) {
-                        low = false;
-                    } else if (b.x - a.x > 180.0) {
-                        low = true;
-                    } else if (checker.check(a.x, b.x)) {
-                        handle = true;
-                    }
-
-                    if (low != null) {
-                        handle = true;
-                        // we wrap either low end or high
-                        if (low) {
-                            currOffset -= 360;
-                            b.x -= 360.0;
-                            if (currOffset < minOffset) {
-                                minOffset = currOffset;
-                            }
-                        } else {
-                            currOffset += 360;
-                            b.x += 360;
-                            if (currOffset > maxOffset) {
-                                maxOffset = currOffset;
-                            }
-                        }
-                    }
-                }
-                if (handle) {
-                    // All coords in geometry should be denormalized now, get
-                    // adjusted envelope, divide envelope into sections, for
-                    // each section, intersect with geometry and add to
-                    // geom list
-                    List<Geometry> sections = new ArrayList<Geometry>();
-                    List<Double> rolls = new ArrayList<Double>();
+                List<Geometry> geoms = new ArrayList<Geometry>();
+                if (g instanceof Polygon) {
                     GeometryFactory gf = g.getFactory();
-                    double delta = 0.00001;
-                    double start = inverseCentralMeridian + minOffset - 360;
-                    double end = inverseCentralMeridian + maxOffset + 360;
-                    double minY = -90, maxY = 90;
-                    while (start < end) {
-                        double useStart = start;
-                        double useEnd = start + 360;
-                        double minX = useStart + delta;
-                        double maxX = (useEnd) - delta;
-
-                        Geometry section = gf.createPolygon(
-                                gf.createLinearRing(new Coordinate[] {
-                                        new Coordinate(minX, maxY),
-                                        new Coordinate(maxX, maxY),
-                                        new Coordinate(maxX, minY),
-                                        new Coordinate(minX, minY),
-                                        new Coordinate(minX, maxY) }), null);
-                        section = section.intersection(g);
-                        if (section.isEmpty() == false) {
-                            sections.add(section);
-                            rolls.add(useEnd);
+                    Polygon p = (Polygon) g;
+                    LineString extRing = p.getExteriorRing();
+                    Polygon extPolygon = gf
+                            .createPolygon(gf.createLinearRing(extRing
+                                    .getCoordinates()), null);
+                    double[] offsets = flattenGeometry(extPolygon);
+                    List<Geometry> extRings = new ArrayList<Geometry>();
+                    correct(extRings, extPolygon, inverseCentralMeridian,
+                            offsets[0], offsets[1]);
+                    List<Geometry> intRings = new ArrayList<Geometry>(
+                            p.getNumInteriorRing());
+                    for (int n = 0; n < p.getNumInteriorRing(); ++n) {
+                        Polygon intRing = gf.createPolygon(gf
+                                .createLinearRing(p.getInteriorRingN(n)
+                                        .getCoordinates()), null);
+                        offsets = flattenGeometry(intRing);
+                        correct(intRings, intRing, inverseCentralMeridian,
+                                offsets[0], offsets[1]);
+                    }
+                    for (Geometry ext : extRings) {
+                        for (int n1 = 0; n1 < ext.getNumGeometries(); ++n1) {
+                            Geometry geom = ext.getGeometryN(n1);
+                            for (Geometry intRing : intRings) {
+                                for (int n2 = 0; n2 < intRing
+                                        .getNumGeometries(); ++n2) {
+                                    geom = geom.difference(intRing
+                                            .getGeometryN(n2));
+                                }
+                            }
+                            geoms.add(geom);
                         }
-                        start += 360;
                     }
-
-                    // We need to roll the geometries back into the -180 to 180
-                    // range. That is why we kept track of the meridian used
-                    for (int i = 0; i < sections.size(); ++i) {
-                        Geometry section = sections.get(i);
-                        double rollVal = rolls.get(i);
-                        rollLongitudes(section, rollVal, inverseCentralMeridian);
-                        geomList.add(section);
-                    }
+                } else {
+                    double[] offsets = flattenGeometry(g);
+                    double minOffset = offsets[0];
+                    double maxOffset = offsets[1];
+                    correct(geoms, g, inverseCentralMeridian, minOffset,
+                            maxOffset);
                 }
-            }
-
-            if (!handle) {
+                for (Geometry geom : geoms) {
+                    rollGeometry(geom);
+                }
+                geomList.addAll(geoms);
+            } else {
                 geomList.add(g);
             }
         }
     }
 
-    private void rollLongitudes(Geometry g, double inverseCentralMeridianUsed,
-            double inverseCentralMeridian) {
-        double diff = inverseCentralMeridian - inverseCentralMeridianUsed;
-        if (diff != 0) {
-            for (Coordinate c : g.getCoordinates()) {
-                c.x += diff;
+    private void correct(List<Geometry> geoms, Geometry flattenedGeom,
+            double inverseCentralMeridian, double minOffset, double maxOffset) {
+        GeometryFactory gf = flattenedGeom.getFactory();
+        double delta = 0.00001;
+        double start = inverseCentralMeridian + minOffset - 360;
+        double end = inverseCentralMeridian + maxOffset + 360;
+        double minY = -90, maxY = 90;
+
+        while (start < end) {
+            double useStart = start;
+            double useEnd = start + 360;
+            double minX = useStart + delta;
+            double maxX = (useEnd) - delta;
+
+            Geometry section = gf.createPolygon(
+                    gf.createLinearRing(new Coordinate[] {
+                            new Coordinate(minX, maxY),
+                            new Coordinate(maxX, maxY),
+                            new Coordinate(maxX, minY),
+                            new Coordinate(minX, minY),
+                            new Coordinate(minX, maxY) }), null);
+            section = section.intersection(flattenedGeom);
+            if (section.isEmpty() == false) {
+                geoms.add(section);
+            }
+            start += 360.0;
+        }
+    }
+
+    /**
+     * Inverse of {@link #flattenGeometry(Geometry)}, converts geometry
+     * coordinates so they are between -180/180
+     * 
+     * @param geom
+     */
+    private void rollGeometry(Geometry geom) {
+        for (Coordinate c : geom.getCoordinates()) {
+            while (c.x <= -180.0) {
+                c.x += 360.0;
+            }
+            while (c.x > 180.0) {
+                c.x -= 360.0;
             }
         }
     }
+
+    /**
+     * Flattens a geometries coordinates so they are continuous if they wrap
+     * over the 180/-180 line. Returns the min/max offset used for flattening.
+     * min/max offset of 0.0 means no flattening occurred, all points were
+     * continuous between -180/180
+     * 
+     * @param geom
+     */
+    private double[] flattenGeometry(Geometry geom) {
+        double currOffset = 0.0;
+        double minOffset = 0.0, maxOffset = 0.0;
+        Coordinate[] coords = geom.getCoordinates();
+        int length = coords.length;
+        for (int i = 0; i < length; ++i) {
+            int ip1 = (i + 1) % length;
+            Coordinate a = coords[i];
+            Coordinate b = coords[ip1];
+
+            if (ip1 != 0) {
+                b.x += currOffset;
+            }
+
+            Boolean low = null;
+            if (a.x - b.x > 180.0) {
+                low = false;
+            } else if (b.x - a.x > 180.0) {
+                low = true;
+            }
+
+            if (low != null) {
+                // we wrap either low end or high
+                if (low) {
+                    currOffset -= 360;
+                    b.x -= 360.0;
+                    if (currOffset < minOffset) {
+                        minOffset = currOffset;
+                    }
+                } else {
+                    currOffset += 360;
+                    b.x += 360;
+                    if (currOffset > maxOffset) {
+                        maxOffset = currOffset;
+                    }
+                }
+            }
+        }
+        return new double[] { minOffset, maxOffset };
+    }
+
 }
