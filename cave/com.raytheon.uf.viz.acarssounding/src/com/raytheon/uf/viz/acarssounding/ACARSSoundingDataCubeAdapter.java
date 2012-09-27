@@ -49,6 +49,25 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
 
+/**
+ * 
+ * Acarssounding data does not use the point data api, to get derived parameters
+ * to work with acarssounding data this class will intercept point data
+ * requests, and request all sounding layers from the db and reconstruct the
+ * data to fit in a PointDataContainer.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 26, 2012            bsteffen     Initial javadoc
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ACARSSoundingDataCubeAdapter.class);
@@ -120,8 +139,7 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
     }
 
     @Override
-    protected PointDataContainer getBaseRecords(
-            Collection<String> baseParameters,
+    public PointDataContainer getBaseRecords(Collection<String> baseParameters,
             Map<String, RequestConstraint> queryParams) throws VizException {
         List<String> baseParams = new ArrayList<String>(baseParameters);
         String script = ScriptCreator.createScript(queryParams, 1000, "select");

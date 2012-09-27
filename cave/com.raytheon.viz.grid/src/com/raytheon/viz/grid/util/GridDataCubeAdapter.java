@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -57,14 +59,18 @@ import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.inv.GridInventory;
+import com.raytheon.viz.grid.inv.GridMetadataContainer;
 import com.raytheon.viz.grid.record.RequestableDataRecord;
 
 /**
- * A DataCubeAdapter that handles all access to the grid plugin.
+ * DataCubeAdapter for Grid, the primary role is to link the grid datatype into
+ * derived parameters.
  * 
  * <pre>
  * 
@@ -380,7 +386,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
      * evaluateRequestConstraints(java.util.Map)
      */
     @Override
-    protected List<AbstractRequestableLevelNode> evaluateRequestConstraints(
+    protected List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> constraints) {
         return gridInventory.evaluateRequestConstraints(constraints);
     }
@@ -411,7 +417,8 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
         List<Object> results = new ArrayList<Object>(requesters.size());
         for (AbstractRequestableData requester : requesters) {
             List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
-            if (requester.getDataTime() == null) {
+            if (requester.getDataTime() == null
+                    || requester.getTimeAndSpace().isTimeAgnostic()) {
                 DataTime[] entryTime = property.getSelectedEntryTime();
                 if (entryTime != null && entryTime.length > 0) {
                     List<DataTime> entryTimes = new ArrayList<DataTime>(
@@ -448,6 +455,28 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 RequestableDataRecord rec = new RequestableDataRecord(requester);
                 records.add(rec);
             }
+            if (requester.getSpace() == null
+                    || requester.getTimeAndSpace().isSpaceAgnostic()) {
+                Collection<GridCoverage> coverages = CoverageUtils
+                        .getInstance().getCoverages(requester.getSource());
+                if (coverages != null && !coverages.isEmpty()) {
+                    List<RequestableDataRecord> spaceRecords = new ArrayList<RequestableDataRecord>();
+                    for (RequestableDataRecord record : records) {
+                        for (GridCoverage coverage : coverages) {
+                            record = new RequestableDataRecord(record);
+                            record.setLocation(coverage);
+                            try {
+                                record.setDataURI(null);
+                                record.constructDataURI();
+                            } catch (PluginException e) {
+                                throw new VizException(e);
+                            }
+                            spaceRecords.add(record);
+                        }
+                    }
+                    records = spaceRecords;
+                }
+            }
             results.addAll(records);
         }
         if (property.getEntryQueryParameters(false).containsKey(
@@ -461,6 +490,21 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             }
         }
         return results;
+    }
+
+    @Override
+    protected MetadataContainer createMetadataContainer(
+            Map<String, RequestConstraint> constraints) {
+        return new GridMetadataContainer(constraints);
+    }
+
+    @Override
+    protected AvailabilityContainer createAvailabilityContainer() {
+        // using a grid specific container which is able to merge constraints
+        // will result in faster database queries, however the extra processing
+        // time it takes to route the times to the correct nodes is larger than
+        // the time saved.
+        return super.createAvailabilityContainer();
     }
 
 }
