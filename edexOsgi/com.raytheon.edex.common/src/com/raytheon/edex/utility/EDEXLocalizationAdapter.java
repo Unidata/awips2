@@ -243,8 +243,8 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         entry.fileName = fullPath.substring(fullPath.indexOf(basePath));
         entry.date = new Date(file.lastModified());
 
-        entry.isProtected = ProtectedFiles.getProtectedLevel(null,
-                ctx.getLocalizationType(), entry.fileName) != null;
+        entry.protectedLevel = ProtectedFiles.getProtectedLevel(null,
+                ctx.getLocalizationType(), entry.fileName);
 
         return entry;
     }
