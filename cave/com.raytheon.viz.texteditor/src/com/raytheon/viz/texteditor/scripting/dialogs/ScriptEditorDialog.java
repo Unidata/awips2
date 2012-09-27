@@ -87,9 +87,6 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
     /** the observer to pass to results from a running script */
     private final IScriptEditorObserver observer;
 
-    /** the script output window */
-    ScriptOutputDlg scriptOutput = null;
-
     /** the text editor ID token */
     private final String token;
 
