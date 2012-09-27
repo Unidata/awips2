@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.points.data.PointNameChangeException;
 import com.raytheon.uf.viz.points.ui.dialog.PointEditDialog;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -425,23 +426,35 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         return state;
     }
 
-    public Point editPoint(Point point) {
-        Point em = PointEditDialog.editPointViaDialog(this, point);
-        if (em != null) {
-            dataManager.updatePoint(point, em);
-        }
-        return em;
+    private void editPoint(final Point point) {
+        ICloseCallback cb = new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue instanceof Point) {
+                    Point em = (Point) returnValue;
+                    dataManager.updatePoint(point, em);
+                }
+            }
+        };
+        PointEditDialog.editPointViaDialog(this, point, cb);
     }
 
     private void createPoint() {
         Point point = new Point("", lastMouseLoc.y, lastMouseLoc.x,
                 PointFieldState.FALSE, PointFieldState.TRUE, false, new RGB(0,
                         0, 0), "");
+        ICloseCallback cb = new ICloseCallback() {
 
-        Point em = PointEditDialog.createNewPointViaDialog(this, point);
-        if (em != null) {
-            dataManager.addPoint(em);
-        }
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue instanceof Point) {
+                    Point em = (Point) returnValue;
+                    dataManager.addPoint(em);
+                }
+            }
+        };
+        PointEditDialog.createNewPointViaDialog(this, point, cb);
     }
 
     /**
