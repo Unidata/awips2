@@ -26,11 +26,14 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.viz.volumebrowser.widget.MenuContributionItem;
@@ -48,6 +51,7 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * Jul 29, 2012            rferrel     Initial creation
  * Sep 25, 2012 1215       rferrel     Clicking anywhere on the Point button
  *                                      now opens the menu.
+ * Sep 26, 2012 1216       rferrel     resetMenu method added.
  * 
  * </pre>
  * 
@@ -137,6 +141,24 @@ public class PointToolAction extends Action implements IMenuCreator {
         return menu;
     }
 
+    /**
+     * This forces the drop down menu to to be recreated the next time the menu
+     * is needed.
+     */
+    public void resetMenu() {
+        if (menu != null) {
+            final Menu oldMenu = menu;
+            menu = null;
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    oldMenu.dispose();
+                }
+            });
+        }
+    }
+
     private void fillMenu(final Menu menu) {
         List<IPointNode> nodes = dataManager.getChildren(parentNode);
 
@@ -144,9 +166,16 @@ public class PointToolAction extends Action implements IMenuCreator {
         for (IPointNode node : nodes) {
             if (node.isGroup()) {
                 if (dataManager.getChildren(node).size() > 0) {
-                    PointToolAction submenu = new PointToolAction(""
+                    final PointToolAction submenu = new PointToolAction(""
                             + node.getName(), pointNames, node);
                     submenu.menu = new Menu(menu);
+                    menu.addDisposeListener(new DisposeListener() {
+
+                        @Override
+                        public void widgetDisposed(DisposeEvent e) {
+                            submenu.menu.dispose();
+                        }
+                    });
                     submenu.fillMenu(submenu.menu);
                     ActionContributionItem item = new ActionContributionItem(
                             submenu);
