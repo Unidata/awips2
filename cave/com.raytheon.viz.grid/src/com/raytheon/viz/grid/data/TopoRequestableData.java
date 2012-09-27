@@ -37,11 +37,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
- * TODO Add Description
+ * requestable data that queries the topo datastore and transforms the data into
+ * the correct coverage.
  * 
  * <pre>
  * 
@@ -82,7 +82,7 @@ public class TopoRequestableData extends AbstractRequestableData {
      */
     @Override
     public FloatDataRecord getDataValue(Object arg) throws VizException {
-        GridCoverage coverage = CoverageUtils.getInstance().getCoverage(source);
+        GridCoverage coverage = (GridCoverage) this.getSpace();
         FloatDataRecord rval = topoCache.get(coverage);
 
         if (rval == null) {

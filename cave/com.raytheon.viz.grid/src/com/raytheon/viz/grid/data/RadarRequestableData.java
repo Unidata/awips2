@@ -88,6 +88,7 @@ public class RadarRequestableData extends GridRequestableData {
                 RadarAdapter.getGridSpacing());
         this.source = "radar";
         this.dataTime = source.getDataTime();
+        this.space = RadarAdapter.getInstance().getCoverage();
         try {
             this.level = LevelFactory.getInstance().getLevel("TILT",
                     source.getPrimaryElevationAngle());
