@@ -44,15 +44,6 @@
       </layout>
    </appender-->
    
-   <appender name="AlertVizInternalLogAppender" class="org.apache.log4j.rolling.RollingFileAppender">
-      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-         <param name="FileNamePattern" value="${user.home}/caveData/logs/alertviz-%d{yyyyMMdd}.log"/>
-      </rollingPolicy> 
-      <layout class="org.apache.log4j.PatternLayout"> 
-         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
-      </layout>
-   </appender> 
-   
    <logger name="gov.noaa.nws.ncep">
       <level value="INFO"/>
       <appender-ref ref="NcepILogAppender"/>
@@ -63,11 +54,6 @@
       <level value="INFO"/>
       <appender-ref ref="NcepILogAppender"/>
       <appender-ref ref="NcepDailyRollingFileAppender"/>
-   </logger>
-
-   <logger name="AlertVizLogger" additivity="false">
-      <level value="ALL"/>
-      <appender-ref ref="AlertVizInternalLogAppender"/>
    </logger>
 
    <logger name="com.raytheon">

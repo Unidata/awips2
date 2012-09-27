@@ -58,9 +58,9 @@ public class LoopPropertiesTool extends AbstractTool {
 
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-
-        LoopPropertiesDialog.openDialog(shell, this.editor);
-
+        if (editor != null) {
+            LoopPropertiesDialog.openDialog(shell, this.editor);
+        }
         return null;
     }
 

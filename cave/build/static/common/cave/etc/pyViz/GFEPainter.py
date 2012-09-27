@@ -46,6 +46,7 @@ from java.util import HashSet
 #    ------------    ----------    -----------    --------------------------
 #    04/01/09                      njensen        Initial Creation.
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
+#    09/13/2012           #1147    dgilling       Allow map labels to be disabled.
 #    
 # 
 #
@@ -160,8 +161,7 @@ class GFEPainter(VizPainter.VizPainter):
             rsc.getCapability(LabelableCapability).setxOffset(xOffset)
         if yOffset is not None:
             rsc.getCapability(LabelableCapability).setyOffset(yOffset)
-        if labelAttribute is not None:
-            rsc.getCapability(LabelableCapability).setLabelField(labelAttribute)
+        rsc.getCapability(LabelableCapability).setLabelField(labelAttribute)
         if fontOffset is not None:
             mag = Double(1.26 ** fontOffset)
             rsc.getCapability(MagnificationCapability).setMagnification(mag)
