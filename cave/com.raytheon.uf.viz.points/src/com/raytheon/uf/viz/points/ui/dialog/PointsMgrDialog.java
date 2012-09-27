@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.points.data.Point;
 import com.raytheon.uf.viz.points.data.PointTransfer;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Dialog to manage points and point groups.
@@ -100,6 +101,8 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             .getHandler(PointsMgrDialog.class);
 
     private static Rectangle DIALOG_BOUNDS = null;
+
+    private static final int INITIAL_HEIGHT = 450;
 
     private static final int NEW_GROUP_ID = IDialogConstants.CLIENT_ID + 4;
 
@@ -228,14 +231,14 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
         TreeColumn column = tvc.getColumn();
         column.setWidth(300);
         column.setText("Point Name");
-        tvc = new TreeViewerColumn(pointsTreeViewer, SWT.CENTER, 1);
+        tvc = new TreeViewerColumn(pointsTreeViewer, SWT.LEFT, 1);
         column = tvc.getColumn();
         column.setWidth(80);
         column.setText("Movable");
         tvc.setEditingSupport(new PointMovableEditingSupport(pointsTreeViewer,
                 toolLayer));
 
-        tvc = new TreeViewerColumn(pointsTreeViewer, SWT.CENTER | SWT.CHECK, 2);
+        tvc = new TreeViewerColumn(pointsTreeViewer, SWT.LEFT | SWT.CHECK, 2);
         column = tvc.getColumn();
         column.setWidth(80);
         column.setText("Hidden");
@@ -426,12 +429,20 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
     private void createPoint() {
         Point point = getSelectedPoint();
-        Point newPoint = PointEditDialog.createNewPointViaDialog(toolLayer,
-                point);
-        if (newPoint != null) {
-            setCursorBusy(true);
-            selectedNode = newPoint;
-            toolLayer.addPoint(newPoint);
+        if (point != null) {
+            ICloseCallback cb = new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Point) {
+                        Point newPoint = (Point) returnValue;
+                        setCursorBusy(true);
+                        selectedNode = newPoint;
+                        toolLayer.addPoint(newPoint);
+                    }
+                }
+            };
+            PointEditDialog.createNewPointViaDialog(toolLayer, point, cb);
         }
     }
 
@@ -456,16 +467,27 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     }
 
     private void editNode() {
-        Point point = getSelectedPoint();
+        final Point point = getSelectedPoint();
         if (point != null) {
             if (point.isGroup()) {
                 editGroupName();
             } else {
                 setCursorBusy(true);
-                selectedNode = toolLayer.editPoint(point);
-                if (selectedNode == null) {
-                    setCursorBusy(false);
-                }
+                ICloseCallback cb = new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof Point) {
+                            if (returnValue instanceof Point) {
+                                Point em = (Point) returnValue;
+                                dataManager.updatePoint(point, em);
+                            }
+                        } else {
+                            setCursorBusy(false);
+                        }
+                    }
+                };
+                PointEditDialog.editPointViaDialog(toolLayer, point, cb);
             }
         } else {
             MessageDialog.openInformation(getShell(), "Message",
@@ -655,7 +677,11 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     @Override
     protected org.eclipse.swt.graphics.Point getInitialSize() {
         if (DIALOG_BOUNDS == null) {
-            return super.getInitialSize();
+            org.eclipse.swt.graphics.Point pt = super.getInitialSize();
+            if (pt.y < INITIAL_HEIGHT) {
+                pt.y = INITIAL_HEIGHT;
+            }
+            return pt;
         }
         return new org.eclipse.swt.graphics.Point(DIALOG_BOUNDS.width,
                 DIALOG_BOUNDS.height);
