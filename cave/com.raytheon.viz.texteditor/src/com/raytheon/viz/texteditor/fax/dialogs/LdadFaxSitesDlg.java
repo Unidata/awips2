@@ -377,6 +377,8 @@ public class LdadFaxSitesDlg extends CaveSWTDialog {
         if (faxSiteEditorDlg == null || faxSiteEditorDlg.isDisposed()) {
             faxSiteEditorDlg = new FaxSiteEditorDlg(shell, this);
             faxSiteEditorDlg.open();
+        } else {
+            faxSiteEditorDlg.bringToTop();
         }
     }
 
