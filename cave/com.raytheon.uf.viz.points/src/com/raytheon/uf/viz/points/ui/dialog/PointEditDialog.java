@@ -49,10 +49,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.Point;
-import com.raytheon.uf.viz.points.data.PointSize;
 import com.raytheon.uf.viz.points.data.PointFieldState;
+import com.raytheon.uf.viz.points.data.PointSize;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -129,52 +130,75 @@ public class PointEditDialog extends CaveJFACEDialog {
 
     private Point currPoint;
 
-    private Button okButton;
-
-    private Button cancelButton;
-
-    // allow user to use cursor to define location
-    private Button useCursorButton;
-
     private Color currColor;
 
     private PointsToolLayer toolLayer;
 
-    static public Point createNewPointViaDialog(PointsToolLayer layer, Point m) {
+    /**
+     * Generates a non-blocking Point Edit dialog for creating a new point.
+     * Except for the point name the defaultPoint is used to populate the
+     * initial values of the dialog. When the dialog is closed by the OK button
+     * the returnValue is a point with the values from the dialog otherwise
+     * returnValue is null.
+     * 
+     * @param layer
+     * @param defaultPoint
+     * @param cb
+     *            - Closed callback called when dialog is closed
+     */
+    static public void createNewPointViaDialog(PointsToolLayer layer,
+            Point defaultPoint, final ICloseCallback cb) {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         PointEditDialog dlg = new PointEditDialog(shell, layer,
-                EditOptions.CREATE_FROM_SCRATCH, m);
-        int ret = dlg.open();
-        if (ret != Window.OK) {
-            MOST_RECENTLY_MODIFIED_POINT = null;
-        }
-        return MOST_RECENTLY_MODIFIED_POINT;
+                EditOptions.CREATE_FROM_SCRATCH, defaultPoint);
+        dlg.setBlockOnOpen(false);
+        dlg.setCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                int ret = ((Integer) returnValue).intValue();
+                if (ret != Window.OK) {
+                    MOST_RECENTLY_MODIFIED_POINT = null;
+                }
+                if (cb != null) {
+                    cb.dialogClosed(MOST_RECENTLY_MODIFIED_POINT);
+                }
+            }
+        });
+        dlg.open();
     }
 
-    static public Point createPointAtPositionViaDialog(PointsToolLayer layer,
-            Coordinate c) {
+    /**
+     * Generates a non-blocking Point Edit dialog for editing an existing point.
+     *When the dialog is closed by the OK button
+     * the returnValue is a point with the values from the dialog otherwise
+     * returnValue is null. 
+     * @param layer
+     * @param point
+     * @param cb - Closed callback called when dialog is closed
+     */
+    static public void editPointViaDialog(PointsToolLayer layer, Point point,
+            final ICloseCallback cb) {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         PointEditDialog dlg = new PointEditDialog(shell, layer,
-                EditOptions.CREATE_AT_LOCATION, c);
-        int ret = dlg.open();
-        if (ret != Window.OK) {
-            MOST_RECENTLY_MODIFIED_POINT = null;
-        }
-        return MOST_RECENTLY_MODIFIED_POINT;
-    }
+                EditOptions.EDIT, point);
+        dlg.setBlockOnOpen(false);
+        dlg.setCloseCallback(new ICloseCallback() {
 
-    static public Point editPointViaDialog(PointsToolLayer layer, Point m) {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        PointEditDialog dlg = new PointEditDialog(shell, layer,
-                EditOptions.EDIT, m);
-        int ret = dlg.open();
-        if (ret != Window.OK) {
-            MOST_RECENTLY_MODIFIED_POINT = null;
-        }
-        return MOST_RECENTLY_MODIFIED_POINT;
+            @Override
+            public void dialogClosed(Object returnValue) {
+                int ret = ((Integer) returnValue).intValue();
+                if (ret != Window.OK) {
+                    MOST_RECENTLY_MODIFIED_POINT = null;
+                }
+                if (cb != null) {
+                    cb.dialogClosed(MOST_RECENTLY_MODIFIED_POINT);
+                }
+            }
+        });
+        dlg.open();
     }
 
     private PointEditDialog(Shell parentShell, PointsToolLayer layer,
@@ -403,7 +427,7 @@ public class PointEditDialog extends CaveJFACEDialog {
     protected void createButtonsForButtonBar(Composite parent) {
         final PointEditDialog dialog = this;
 
-        okButton = createButton(parent, VALIDATE_FIRST_CURSOR_ID,
+        Button okButton = createButton(parent, VALIDATE_FIRST_CURSOR_ID,
                 IDialogConstants.OK_LABEL, true);
         okButton.addSelectionListener(new SelectionListener() {
 
@@ -421,7 +445,7 @@ public class PointEditDialog extends CaveJFACEDialog {
             }
         });
 
-        cancelButton = createButton(parent, IDialogConstants.CANCEL_ID,
+        createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }
 
@@ -489,7 +513,8 @@ public class PointEditDialog extends CaveJFACEDialog {
         pointFontSizeChooser.select(currPoint.getFontSize().ordinal());
         pointMovableButton
                 .setSelection(currPoint.getMovable() == PointFieldState.TRUE);
-        pointHiddenButton.setSelection(currPoint.getHidden() == PointFieldState.TRUE);
+        pointHiddenButton
+                .setSelection(currPoint.getHidden() == PointFieldState.TRUE);
         RGB color = currPoint.getColor();
         setCurrentColor(color);
         pointAssignColorButton.setSelection(currPoint.isColorActive());
