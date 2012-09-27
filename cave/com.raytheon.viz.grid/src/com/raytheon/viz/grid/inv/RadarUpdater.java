@@ -1,22 +1,3 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
 package com.raytheon.viz.grid.inv;
 
 import java.util.Collection;
@@ -40,6 +21,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.grid.util.RadarAdapter;
@@ -129,14 +111,14 @@ public class RadarUpdater implements IAlertObserver {
 
     private class CacheEntry {
 
-        public CacheEntry(Set<DataTime> times) {
+        public CacheEntry(Set<TimeAndSpace> times) {
             this.insertTime = System.currentTimeMillis();
             this.times = times;
         }
 
         public long insertTime;
 
-        public Set<DataTime> times;
+        public Set<TimeAndSpace> times;
 
     }
 
@@ -151,7 +133,9 @@ public class RadarUpdater implements IAlertObserver {
         }
     };
 
-    private CacheEntry globalTimes;
+    private Set<DataTime> globalTimes;
+
+    private long globalInsertTime;
 
     private RadarUpdater() {
         ProductAlertObserver.addObserver("radar", this);
@@ -237,11 +221,12 @@ public class RadarUpdater implements IAlertObserver {
         return new CacheKey(productCode, elevationAngle);
     }
 
-    public void setTimes(RadarRequestableLevelNode rNode, Set<DataTime> times) {
+    public void setTimes(RadarRequestableLevelNode rNode,
+            Set<TimeAndSpace> times) {
         cache.put(getCacheKey(rNode), new CacheEntry(times));
     }
 
-    public Set<DataTime> getTimes(RadarRequestableLevelNode rNode) {
+    public Set<TimeAndSpace> getTimes(RadarRequestableLevelNode rNode) {
         CacheKey cacheKey = getCacheKey(rNode);
         CacheEntry entry = cache.get(cacheKey);
         if (entry == null) {
@@ -255,18 +240,19 @@ public class RadarUpdater implements IAlertObserver {
     }
 
     public void setGlobalTimes(Set<DataTime> times) {
-        globalTimes = new CacheEntry(times);
+        globalTimes = times;
+        globalInsertTime = System.currentTimeMillis();
     }
 
     public Set<DataTime> getGlobalTimes() {
         if (globalTimes == null) {
             return null;
         }
-        if (globalTimes.insertTime + CACHE_TIME < System.currentTimeMillis()) {
+        if (globalInsertTime + CACHE_TIME < System.currentTimeMillis()) {
             globalTimes = null;
             return null;
         }
-        return globalTimes.times;
+        return globalTimes;
     }
 
     public void clearCache() {
