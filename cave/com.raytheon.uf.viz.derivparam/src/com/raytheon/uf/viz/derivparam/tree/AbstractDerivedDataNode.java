@@ -24,15 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -55,8 +50,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public abstract class AbstractDerivedLevelNode extends
-        AbstractRequestableLevelNode {
+public abstract class AbstractDerivedDataNode extends AbstractRequestableNode {
 
     protected DerivParamDesc desc;
 
@@ -64,15 +58,15 @@ public abstract class AbstractDerivedLevelNode extends
 
     protected String modelName;
 
-    public AbstractDerivedLevelNode() {
+    public AbstractDerivedDataNode() {
     }
 
-    public AbstractDerivedLevelNode(Level level, DerivParamDesc desc,
+    public AbstractDerivedDataNode(Level level, DerivParamDesc desc,
             String modelName) {
         this(level, desc, null, modelName);
     }
 
-    public AbstractDerivedLevelNode(Level level, DerivParamDesc desc,
+    public AbstractDerivedDataNode(Level level, DerivParamDesc desc,
             DerivParamMethod method, String modelName) {
         super(level);
         this.desc = desc;
@@ -80,7 +74,7 @@ public abstract class AbstractDerivedLevelNode extends
         this.modelName = modelName;
     }
 
-    public AbstractDerivedLevelNode(LevelNode that, DerivParamDesc desc,
+    public AbstractDerivedDataNode(LevelNode that, DerivParamDesc desc,
             DerivParamMethod method, String modelName) {
         super(that);
         this.desc = desc;
@@ -88,7 +82,7 @@ public abstract class AbstractDerivedLevelNode extends
         this.modelName = modelName;
     }
 
-    public AbstractDerivedLevelNode(AbstractDerivedLevelNode that) {
+    public AbstractDerivedDataNode(AbstractDerivedDataNode that) {
         super(that);
         this.desc = that.desc;
         this.method = that.method;
@@ -131,16 +125,6 @@ public abstract class AbstractDerivedLevelNode extends
 
     public void setMethod(DerivParamMethod method) {
         this.method = method;
-    }
-
-    @Override
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
-        return null;
-    }
-
-    @Override
-    public boolean hasRequestConstraints() {
-        return false;
     }
 
     /**
@@ -191,7 +175,7 @@ public abstract class AbstractDerivedLevelNode extends
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AbstractDerivedLevelNode other = (AbstractDerivedLevelNode) obj;
+        AbstractDerivedDataNode other = (AbstractDerivedDataNode) obj;
         if (desc == null) {
             if (other.desc != null)
                 return false;
@@ -211,43 +195,54 @@ public abstract class AbstractDerivedLevelNode extends
     }
 
     /**
-     * Should only be called on final nodes, not derived nodes.
+     * Given the availability of all dependency nodes determine when this node
+     * is available.
+     * 
+     * @param availability
+     * @return
+     * @throws VizException
      */
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        throw new UnsupportedOperationException(
-                "Derived nodes do not support retrieving data query, call on dependencies");
-    }
+    public abstract Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
+            throws VizException;
 
     /**
-     * Should only be called on final nodes, not derived nodes.
+     * If this node has dependency on other nodes then this method should return
+     * what data is needed for the dependencies to get data from this node for
+     * the provided availability.
+     * 
+     * @param availability
+     * @return
      */
-    @Override
-    public void setDataQueryResults(
-            DbQueryResponse queryResponse,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        throw new UnsupportedOperationException(
-                "Derived nodes do not support processing data query, call on dependencies");
-    }
+    public abstract Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability) throws VizException;
+
+    /**
+     * Get data from this node.
+     * 
+     * @param availability
+     *            The time and spatial area where data is needed
+     * @return
+     */
+    public abstract Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
+            throws VizException;
+
+    public abstract List<Dependency> getDependencies();
 
     @Override
-    protected List<AbstractRequestableData> processDataQueryResults(
-            DbQueryResponse queryResponse) throws VizException {
-        throw new UnsupportedOperationException(
-                "Derived nodes do not support processing data query, call on dependencies");
-    }
-
-    @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        throw new UnsupportedOperationException(
-                "Derived nodes do not support retrieving time query, call on dependencies");
+    public boolean isConstant() {
+        List<Dependency> dependencies = getDependencies();
+        if (dependencies.isEmpty()) {
+            return false;
+        }
+        for (Dependency dep : getDependencies()) {
+            if (!dep.node.isConstant()) {
+                return false;
+            }
+        }
+        // All dependencies must be constant
+        return true;
     }
 }

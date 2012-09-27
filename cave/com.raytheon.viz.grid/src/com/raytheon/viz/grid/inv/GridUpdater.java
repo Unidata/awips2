@@ -44,8 +44,8 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.OrLevelNode;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -73,9 +73,9 @@ public class GridUpdater implements IAlertObserver {
     private class UpdateValue {
         public int timeOffset;
 
-        public AbstractDerivedLevelNode node;
+        public AbstractDerivedDataNode node;
 
-        public UpdateValue(Integer timeOffset, AbstractDerivedLevelNode node) {
+        public UpdateValue(Integer timeOffset, AbstractDerivedDataNode node) {
             this.timeOffset = timeOffset == null ? 0 : timeOffset;
             this.node = node;
         }
@@ -147,7 +147,7 @@ public class GridUpdater implements IAlertObserver {
         ProductAlertObserver.removeObserver(GridInventory.PLUGIN_NAME, this);
     }
 
-    public synchronized void addNode(AbstractDerivedLevelNode node)
+    public synchronized void addNode(AbstractDerivedDataNode node)
             throws VizException {
         List<Dependency> dependencies = node.getDependencies();
         if (dependencies == null || dependencies.isEmpty()) {
@@ -189,8 +189,8 @@ public class GridUpdater implements IAlertObserver {
                     updateMap.put(updateKey, set);
                 }
                 set.add(new UpdateValue(dependency.timeOffset, node));
-            } else if (dependency.node instanceof AbstractDerivedLevelNode) {
-                AbstractDerivedLevelNode dataNode = (AbstractDerivedLevelNode) dependency.node;
+            } else if (dependency.node instanceof AbstractDerivedDataNode) {
+                AbstractDerivedDataNode dataNode = (AbstractDerivedDataNode) dependency.node;
                 for (Dependency d : dataNode.getDependencies()) {
                     d.timeOffset += dependency.timeOffset;
                     if (!dep.contains(d)) {
@@ -309,14 +309,14 @@ public class GridUpdater implements IAlertObserver {
      */
     public synchronized void refreshNodes() {
         GridTimeCache.getInstance().flush();
-        Set<AbstractDerivedLevelNode> oldNodes = new HashSet<AbstractDerivedLevelNode>();
+        Set<AbstractDerivedDataNode> oldNodes = new HashSet<AbstractDerivedDataNode>();
         for (Set<UpdateValue> values : updateMap.values()) {
             for (UpdateValue value : values) {
                 oldNodes.add(value.node);
             }
         }
         updateMap.clear();
-        for (AbstractDerivedLevelNode node : oldNodes) {
+        for (AbstractDerivedDataNode node : oldNodes) {
             // Get Node will automatically add this to the updater.
             inventory.getNode(node.getModelName(), node.getDesc()
                     .getAbbreviation(), node.getLevel());
