@@ -217,6 +217,17 @@ public class CaveJFACEDialog extends Dialog implements
     }
 
     /**
+     * Returns if the dialog is disposed, a null dialog will not mean it is
+     * disposed as it may not have been opened yet.
+     * 
+     * @return
+     */
+    public final boolean isDisposed() {
+        Shell shell = getShell();
+        return (shell != null && shell.isDisposed());
+    }
+
+    /**
      * Add a callback to the dialog. This callback will be called when the
      * dialog is disposed.
      * 
