@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
  * Cache times for GridRequestableNode's to avoid multiple trips to edex for the
@@ -67,14 +67,14 @@ public class GridTimeCache {
 
     private class CacheEntry {
 
-        public CacheEntry(Set<DataTime> times) {
+        public CacheEntry(Set<TimeAndSpace> times) {
             this.insertTime = System.currentTimeMillis();
             this.times = times;
         }
 
         public long insertTime;
 
-        public Set<DataTime> times;
+        public Set<TimeAndSpace> times;
 
     }
 
@@ -121,12 +121,12 @@ public class GridTimeCache {
     };
 
     public synchronized void setTimes(GridRequestableNode gNode,
-            Set<DataTime> times) {
+            Set<TimeAndSpace> times) {
         cache.put(new GridMapKey(gNode.getRequestConstraintMap()),
                 new CacheEntry(times));
     }
 
-    public synchronized Set<DataTime> getTimes(GridRequestableNode gNode) {
+    public synchronized Set<TimeAndSpace> getTimes(GridRequestableNode gNode) {
         GridMapKey key = new GridMapKey(gNode.getRequestConstraintMap());
         CacheEntry entry = cache.get(key);
         if (entry == null) {
