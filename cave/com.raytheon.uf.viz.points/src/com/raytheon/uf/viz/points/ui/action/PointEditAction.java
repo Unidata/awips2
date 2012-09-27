@@ -34,6 +34,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Sep 27, 2012 875        rferrel     Initial creation
  * 
  * 
  * </pre>
@@ -43,6 +44,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  */
 
 public class PointEditAction extends AbstractRightClickAction {
+
+    private PointsMgrDialog dialog;
 
     @Override
     public boolean isHidden() {
@@ -59,9 +62,13 @@ public class PointEditAction extends AbstractRightClickAction {
 
     @Override
     public void run() {
-        PointsMgrDialog dialog = new PointsMgrDialog(Display.getCurrent()
-                .getShells()[0], (PointsToolLayer) getSelectedRsc());
-        dialog.open();
+        if (dialog == null || dialog.isDisposed()) {
+            dialog = new PointsMgrDialog(Display.getCurrent().getShells()[0],
+                    (PointsToolLayer) getSelectedRsc());
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
-
 }
