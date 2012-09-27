@@ -333,14 +333,4 @@ public class CoverageUtils implements IAlertObserver {
         }
     }
 
-    // use getCoverages to work with moving grids.
-    @Deprecated
-    public GridCoverage getCoverage(String modelName) throws VizException {
-        Collection<GridCoverage> coverages = getCoverages(modelName);
-        if (coverages == null || coverages.isEmpty()) {
-            return null;
-        }
-        return coverages.iterator().next();
-    }
-
 }

@@ -35,11 +35,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.util.CoverageUtils;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
- * TODO Add Description
+ * Requestable data object that returns static data for a GridCoverage dx,dy, or
+ * coriolis.
  * 
  * <pre>
  * 
@@ -60,11 +61,14 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
     private StaticGridDataType dataType;
 
-    public StaticGridRequestableData(StaticGridDataType dataType, String source) {
+    public StaticGridRequestableData(StaticGridDataType dataType,
+            String source, GridCoverage coverage) {
         this.dataType = dataType;
         this.source = source;
         this.parameter = dataType.toString();
         this.parameterName = dataType.toString();
+        this.space = coverage;
+        this.dataTime = TimeAndSpace.TIME_AGNOSTIC;
         if (StaticGridDataType._dt.equals(dataType)) {
             this.unit = SI.SECOND;
         } else {
@@ -101,21 +105,25 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
             return new Float(dTinSeconds);
         } else {
-            GridCoverage coverage = CoverageUtils.getInstance().getCoverage(
-                    source);
-            StaticGridData data = StaticGridData.getInstance(coverage);
-
-            switch (dataType) {
-            case coriolis:
-                rval = data.getCoriolis();
-                break;
-            case dx:
-                rval = data.getDx();
-                break;
-            case dy:
-                rval = data.getDy();
-                break;
+            if (this.space instanceof GridCoverage) {
+                StaticGridData data = StaticGridData
+                        .getInstance((GridCoverage) this.space);
+                switch (dataType) {
+                case coriolis:
+                    rval = data.getCoriolis();
+                    break;
+                case dx:
+                    rval = data.getDx();
+                    break;
+                case dy:
+                    rval = data.getDy();
+                    break;
+                }
+            } else {
+                throw new IllegalStateException("Cannot get static topo for: "
+                        + this.space);
             }
+
         }
         if (arg instanceof Request) {
             return SliceUtil.slice(rval, (Request) arg);
