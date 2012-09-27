@@ -339,10 +339,12 @@ public class CoordinateInputPanel {
 
     protected void setWest(boolean f) {
         cardinalWestRadioButton.setSelection(f);
+        cardinalEastRadioButton.setSelection(!f);
     }
 
     protected void setNorth(boolean f) {
         cardinalNorthRadioButton.setSelection(f);
+        cardinalSouthRadioButton.setSelection(!f);
     }
 
     protected boolean isWest() {
