@@ -77,6 +77,8 @@ public abstract class AbstractWorkbenchPartContextActivator implements
     private void activate(IWorkbenchPartReference partRef) {
         if (isPerspectivePart(partRef)) {
             contextManager.activateContexts(this);
+        } else {
+            contextManager.deactivateContexts(this);
         }
     }
 

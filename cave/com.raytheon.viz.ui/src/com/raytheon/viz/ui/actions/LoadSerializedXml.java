@@ -242,11 +242,20 @@ public class LoadSerializedXml extends AbstractHandler {
         final boolean multiEditor = container instanceof IMultiPaneEditor;
 
         if (multiEditor) {
-            while (container.getDisplayPanes().length > b.getDisplays().length) {
-                ((IMultiPaneEditor) container)
-                        .removePane(container.getDisplayPanes()[container
-                                .getDisplayPanes().length - 1]);
+            if (container.getDisplayPanes().length > b.getDisplays().length) {
+                VizApp.runSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (container.getDisplayPanes().length > b
+                                .getDisplays().length) {
+                            ((IMultiPaneEditor) container).removePane(container
+                                    .getDisplayPanes()[container
+                                    .getDisplayPanes().length - 1]);
+                        }
+                    }
+                });
             }
+
         }
         List<AbstractRenderableDisplay> orderedDisplays = Arrays.asList(b
                 .getDisplays());

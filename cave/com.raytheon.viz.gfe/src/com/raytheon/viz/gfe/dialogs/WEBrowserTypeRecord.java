@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,8 +31,6 @@ import java.util.TimeZone;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 
 /**
@@ -48,6 +45,10 @@ import com.raytheon.viz.gfe.core.IParmManager;
  * 04/30/2009   2282       rjpeter     Refactored interfaces.
  * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
  * 02/22/2012	14351	   mli		   update with incoming databases
+ * 09/12/2012   #1117      dgilling    Revert previous changes, force 
+ *                                     source list to always rebuild to ensure
+ *                                     up to date db list.
+ * 
  * </pre>
  * 
  * @author ebabin
@@ -58,7 +59,7 @@ public class WEBrowserTypeRecord {
 
     private String type;
 
-    private java.util.List<String> sources = new ArrayList<String>();
+    private List<String> sources = new ArrayList<String>();
 
     public static final SimpleDateFormat SOURCE_FORMAT = new SimpleDateFormat(
             "dd/HHmm");
@@ -77,11 +78,13 @@ public class WEBrowserTypeRecord {
      */
     private Map<String, Map<String, List<String>>> miscMap = new HashMap<String, Map<String, List<String>>>();
 
-    private ParmID possibleParms[];
+    private ParmID[] possibleParms;
 
-    private ParmID fields[];
+    private ParmID[] fields;
 
     private final CAVEMode mode;
+
+    private final IParmManager parmMgr;
 
     static {
         SOURCE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -90,9 +93,10 @@ public class WEBrowserTypeRecord {
     /**
      * @return the type
      */
-    public WEBrowserTypeRecord(String type, CAVEMode mode) {
+    public WEBrowserTypeRecord(String type, CAVEMode mode, IParmManager parmMgr) {
         this.type = type;
         this.mode = mode;
+        this.parmMgr = parmMgr;
         // create and fill these entries on creation of this type.
         makeSources();
         // go ahead and fill the ParmID[] array.
@@ -115,14 +119,7 @@ public class WEBrowserTypeRecord {
      * @return the sources
      */
     public java.util.List<String> getSources() {
-        return sources;
-    }
-    
-    /**
-     * @return the sources
-     */
-    public java.util.List<String> getUpdatedSources() {
-    	makeSources();
+        makeSources();
         return sources;
     }
 
@@ -136,7 +133,7 @@ public class WEBrowserTypeRecord {
         return fields;
     }
 
-    private ArrayList<DatabaseID> getDbsForType(String typeLabel) {
+    private List<DatabaseID> getDbsForType(String typeLabel) {
         boolean pracFlag = false;
         boolean testFlag = false;
 
@@ -145,19 +142,9 @@ public class WEBrowserTypeRecord {
             pracFlag = mode.equals(CAVEMode.PRACTICE);
             testFlag = mode.equals(CAVEMode.TEST);
         }
-//        List<DatabaseID> dbs = DataManager.getCurrentInstance()
-//                .getParmManager().getAvailableDbs();
+        List<DatabaseID> dbs = parmMgr.getAvailableDbs();
 
-        // Always retrieve updated databases
-        List<DatabaseID> dbs = null; 
-        try {
-        	dbs = DataManager.getCurrentInstance().getClient().getAvailableDbs();
-        } catch (GFEServerException e) {
-        	// TODO Auto-generated catch block
-        	e.printStackTrace();
-        }
-        
-        ArrayList<DatabaseID> filtDB = new ArrayList<DatabaseID>();
+        List<DatabaseID> filtDB = new ArrayList<DatabaseID>();
 
         for (DatabaseID db : dbs) {
             if (db.getDbType().equalsIgnoreCase(typeLabel)) {
@@ -167,88 +154,89 @@ public class WEBrowserTypeRecord {
             } else if (db.getDbType().equalsIgnoreCase("Test") && testFlag) {
                 filtDB.add(db);
             }
-
         }
 
         return filtDB;
     }
 
     private void makeSources() {
-        ArrayList<DatabaseID> databases = getDbsForType(type);
-        IParmManager parmMgr = DataManager.getCurrentInstance()
-                .getParmManager();
+        // clear all existing data as we will end up rebuilding it here...
+        sources.clear();
+        fieldMap.clear();
+        miscMap.clear();
+        pressureMap.clear();
 
-        // move mutable to front of list.
-        DatabaseID mutableDb = parmMgr.getMutableDatabase();
-        if (databases.indexOf(mutableDb) > 0) {
-            databases.remove(mutableDb);
-            databases.add(0, mutableDb);
-        }
+        List<DatabaseID> databases = getDbsForType(type);
+        final DatabaseID mutableDb = parmMgr.getMutableDatabase();
 
         Collections.sort(databases, new Comparator<DatabaseID>() {
             @Override
             public int compare(DatabaseID left, DatabaseID right) {
-                String compare1 = null == left.getModelName() ? "" : left
-                        .getModelName();
-                String compare2 = null == right.getModelName() ? "" : right
-                        .getModelName();
-
-                int returnValue = compare1.compareTo(compare2);
-                if (0 == returnValue) {
-                    compare1 = null == left.getModelTime() ? "" : left
-                            .getModelTime();
-                    compare2 = null == right.getModelTime() ? "" : right
-                            .getModelTime();
-                    returnValue = -1 * compare1.compareTo(compare2);
+                // sorting rules for WeatherElementBrowser:
+                // mutable first
+                // singletons next in alpha order
+                // rest in order first by name, then time (newest to oldest)
+                if (left.equals(right)) {
+                    return 0;
                 }
-                return returnValue;
+
+                if (left.equals(mutableDb)) {
+                    return -1;
+                } else if (right.equals(mutableDb)) {
+                    return 1;
+                }
+
+                String leftModelTime = (left.getModelTime() != null ? left
+                        .getModelTime() : "");
+                String rightModelTime = (right.getModelTime() != null ? right
+                        .getModelTime() : "");
+                if (leftModelTime.equals(DatabaseID.NO_MODEL_TIME)
+                        && (!rightModelTime.equals(DatabaseID.NO_MODEL_TIME))) {
+                    return -1;
+                } else if (!leftModelTime.equals(DatabaseID.NO_MODEL_TIME)
+                        && (rightModelTime.equals(DatabaseID.NO_MODEL_TIME))) {
+                    return 1;
+                } else if (leftModelTime.equals(DatabaseID.NO_MODEL_TIME)
+                        && (rightModelTime.equals(DatabaseID.NO_MODEL_TIME))) {
+                    return left.getModelName().compareTo(right.getModelName());
+                }
+
+                int modelNameCompare = left.getModelName().compareTo(
+                        right.getModelName());
+                if (modelNameCompare != 0) {
+                    return modelNameCompare;
+                }
+                return -1 * leftModelTime.compareTo(rightModelTime);
             }
         });
 
-        for (DatabaseID dbase : databases) {
-            String sourceTime = dbase.getModelName();
-            if (dbase.getModelDate() != null) {
+        for (DatabaseID dbId : databases) {
+            String sourceString = dbId.getModelName();
+            if (dbId.getModelDate() != null) {
                 synchronized (SOURCE_FORMAT) {
-                    sourceTime += " "
-                            + SOURCE_FORMAT.format(dbase.getModelDate());
+                    sourceString += " "
+                            + SOURCE_FORMAT.format(dbId.getModelDate());
                 }
             }
-            boolean srcAdded = false;
-            ParmID[] availParms = parmMgr.getAvailableParms(dbase);
-            if (availParms != null) {
-                for (ParmID parm : availParms) {
-                    if (parm.getParmLevel().startsWith("MB")) {
-                        addToMap(pressureMap, sourceTime, parm.getParmName(),
-                                parm.getParmLevel());
-                    } else {
-                        addToMap(miscMap, sourceTime, parm.getParmName(),
-                                parm.getParmLevel());
-                    }
-                    DatabaseID parmDB = parm.getDbId();
-                    if (parmDB.getModelName().equalsIgnoreCase(
-                            dbase.getModelName())
-                            && parmDB.getModelTime().equalsIgnoreCase(
-                                    dbase.getModelTime())
-                            && parmDB.getDbType().equalsIgnoreCase(
-                                    dbase.getDbType())) {
-                        if (!sources.contains(sourceTime)) {
-                            sources.add(sourceTime);
-                            srcAdded = true;
-                        }
-                    }
-                }
-                if (srcAdded) {
-                    // create a list...
-                    ArrayList<ParmID> ids = new ArrayList<ParmID>();
-                    for (ParmID parm : availParms) {
-                        ids.add(parm);
-                    }
-                    java.util.Collections.sort(ids);
+            sources.add(sourceString);
 
-                    fieldMap.put(sourceTime,
-                            ids.toArray(new ParmID[ids.size()]));
+            ParmID[] availParms = parmMgr.getAvailableParms(dbId);
+            List<ParmID> sortedParms = new ArrayList<ParmID>(availParms.length);
+            for (ParmID parm : availParms) {
+                if (parm.getParmLevel().startsWith("MB")) {
+                    addToMap(pressureMap, sourceString, parm.getParmName(),
+                            parm.getParmLevel());
+                } else {
+                    addToMap(miscMap, sourceString, parm.getParmName(),
+                            parm.getParmLevel());
                 }
+
+                sortedParms.add(parm);
             }
+
+            Collections.sort(sortedParms);
+            fieldMap.put(sourceString,
+                    sortedParms.toArray(new ParmID[sortedParms.size()]));
         }
     }
 
@@ -420,11 +408,10 @@ public class WEBrowserTypeRecord {
      */
     public ParmID[] getPossibleParmIDs() {
         if (possibleParms == null) {
-            ArrayList<DatabaseID> databases = getDbsForType(type);
+            List<DatabaseID> databases = getDbsForType(type);
             ArrayList<ParmID> parmIds = new ArrayList<ParmID>();
             for (DatabaseID db : databases) {
-                ParmID ids[] = DataManager.getCurrentInstance()
-                        .getParmManager().getAvailableParms(db);
+                ParmID ids[] = parmMgr.getAvailableParms(db);
                 for (int i = 0; i < ids.length; i++) {
                     parmIds.add(ids[i]);
                 }
@@ -437,25 +424,6 @@ public class WEBrowserTypeRecord {
         return possibleParms;
     }
 
-    /**
-     * Add ParmIDs for new database
-     */
-    public void addNewParmIDs(String newSource) {
-    	ArrayList<ParmID> parmIds = new ArrayList<ParmID>();
-    	possibleParms = getPossibleParmIDs();
-    	parmIds.addAll(Arrays.asList(possibleParms));
-    	
-    	ParmID ids[] = getFields(newSource);
-    	for ( int i = 0; i < ids.length; i++) {
-    		if (!parmIds.contains(ids[i])) {
-    			parmIds.add(ids[i]);
-    		}	
-    	}
-    	
-    	possibleParms = new ParmID[parmIds.size()];
-    	parmIds.toArray(possibleParms);
-    }
-    
     public ArrayList<ParmID> getFilteredParmIDs(String sources[],
             String fields[], String planes[]) {
         ArrayList<ParmID> listToReturn = new ArrayList<ParmID>();

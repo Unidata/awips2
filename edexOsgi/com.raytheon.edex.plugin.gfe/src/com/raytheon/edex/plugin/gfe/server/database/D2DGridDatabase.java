@@ -22,9 +22,12 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -33,7 +36,6 @@ import java.util.TreeSet;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
-import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
@@ -84,6 +86,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 07/23/09     2342        ryu        Check for null gridConfig in getGridParmInfo
  * 03/02/12     DR14651     ryu        change time independency of staticTopo, staticCoriolis, staticSpacing
  * 05/04/12     #574        dgilling   Implement missing methods from GridDatabase.
+ * 09/12/12     #1117       dgilling   Fix getParmList() so it returns all parms defined
+ *                                     in the GribParamInfo file.
  * 
  * </pre>
  * 
@@ -103,6 +107,8 @@ public class D2DGridDatabase extends VGridDatabase {
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputLoc;
 
+    private List<ParmID> parms;
+
     public static final String GRID_LOCATION_CACHE_KEY = "GfeLocations";
 
     /**
@@ -115,9 +121,12 @@ public class D2DGridDatabase extends VGridDatabase {
             throws GfeException {
         super(config);
         this.dbId = dbId;
+        this.parms = new ArrayList<ParmID>();
         valid = this.dbId.isValid();
 
         if (valid) {
+            loadParms();
+
             String siteId = dbId.getSiteId();
             GridLocationCache locCache = GridLocationCache.getInstance(dbId
                     .getSiteId());
@@ -151,6 +160,54 @@ public class D2DGridDatabase extends VGridDatabase {
     @Override
     public void updateDbs() {
         // no op
+    }
+
+    /**
+     * Loads all of the parms it can.
+     */
+    private void loadParms() {
+        String gribModelName = config.d2dModelNameMapping(dbId.getModelName());
+        Collection<String> parmNames = new HashSet<String>(GribParamInfoLookup
+                .getInstance().getParmNames(gribModelName));
+
+        // first see if we can make wind...
+        if ((parmNames.contains("uw")) && (parmNames.contains("vw"))) {
+            List<String> uLevels = GribParamInfoLookup.getInstance()
+                    .getParameterInfo(gribModelName, "uw").getLevels();
+            List<String> vLevels = GribParamInfoLookup.getInstance()
+                    .getParameterInfo(gribModelName, "vw").getLevels();
+            for (String level : uLevels) {
+                if (vLevels.contains(level)) {
+                    parms.add(new ParmID("wind", dbId, level));
+                }
+            }
+            parmNames.remove("uw");
+            parmNames.remove("vw");
+        } else if ((parmNames.contains("ws")) && (parmNames.contains("wd"))) {
+            List<String> sLevels = GribParamInfoLookup.getInstance()
+                    .getParameterInfo(gribModelName, "ws").getLevels();
+            List<String> dLevels = GribParamInfoLookup.getInstance()
+                    .getParameterInfo(gribModelName, "wd").getLevels();
+            for (String level : sLevels) {
+                if (dLevels.contains(level)) {
+                    parms.add(new ParmID("wind", dbId, level));
+                }
+            }
+            parmNames.remove("ws");
+            parmNames.remove("wd");
+        }
+
+        // Now do all the scalars
+        for (String parmName : parmNames) {
+            List<String> levels = GribParamInfoLookup.getInstance()
+                    .getParameterInfo(gribModelName, parmName).getLevels();
+            if (levels.isEmpty()) {
+                levels = Arrays.asList("Dflt");
+            }
+            for (String level : levels) {
+                parms.add(new ParmID(parmName, dbId, level));
+            }
+        }
     }
 
     @Override
@@ -316,51 +373,8 @@ public class D2DGridDatabase extends VGridDatabase {
     @Override
     public ServerResponse<List<ParmID>> getParmList() {
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
-        List<ParmID> parmIds = D2DParmIdCache.getInstance().getParmIDs(dbId);
-
-        List<ParmID> uwList = new ArrayList<ParmID>();
-        Map<String, ParmID> vwMap = new HashMap<String, ParmID>();
-        List<ParmID> finalList = new ArrayList<ParmID>();
-        List<ParmID> wsList = new ArrayList<ParmID>();
-        Map<String, ParmID> wdMap = new HashMap<String, ParmID>();
-        List<ParmID> toRemove = new ArrayList<ParmID>();
-        for (ParmID id : parmIds) {
-            finalList.add(id);
-
-            if (id.getParmName().equals("uw")) {
-                uwList.add(id);
-                toRemove.add(id);
-            } else if (id.getParmName().equals("vw")) {
-                vwMap.put(id.getCompositeName(), id);
-                toRemove.add(id);
-            } else if (id.getParmName().equals("ws")) {
-                wsList.add(id);
-            } else if (id.getParmName().equals("wd")) {
-                wdMap.put(id.getCompositeName(), id);
-            }
-        }
-
-        for (ParmID uw : uwList) {
-            String name = uw.getCompositeName().replaceFirst("uw", "vw");
-            ParmID vwParm = vwMap.get(name);
-            if (vwParm != null) {
-                ParmID windParm = new ParmID("wind", uw.getDbId(),
-                        uw.getParmLevel());
-                finalList.add(windParm);
-            }
-        }
-
-        for (ParmID ws : wsList) {
-            String name = ws.getCompositeName().replaceFirst("ws", "wd");
-            ParmID wdParm = wdMap.get(name);
-            if (wdParm != null) {
-                ParmID windParm = new ParmID("wind", ws.getDbId(),
-                        ws.getParmLevel());
-                finalList.add(windParm);
-            }
-        }
-        finalList.removeAll(toRemove);
-        sr.setPayload(finalList);
+        List<ParmID> parmIds = new ArrayList<ParmID>(parms);
+        sr.setPayload(parmIds);
         return sr;
     }
 
