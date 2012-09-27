@@ -26,13 +26,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
 import com.raytheon.uf.viz.derivparam.data.DerivedRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 
@@ -64,19 +62,19 @@ public class CompositeAverageLevelNode extends UnionLevelNode {
     }
 
     public CompositeAverageLevelNode(Level level, DerivParamDesc desc,
-            String modelName, List<AbstractRequestableLevelNode> nodes) {
+            String modelName, List<AbstractRequestableNode> nodes) {
         super(level, desc, null, modelName, nodes);
     }
 
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        List<AbstractRequestableData> result = new ArrayList<AbstractRequestableData>();
+        Set<AbstractRequestableData> result = new HashSet<AbstractRequestableData>();
 
-        for (AbstractRequestableData record : super.getDataInternal(property,
-                timeOut, cache)) {
+        for (AbstractRequestableData record : super.getData(availability,
+                dependencyData)) {
             AggregateRequestableData aRec = (AggregateRequestableData) record;
             if (aRec.getSourceRecords().size() == nodes.size()) {
                 DerivedParameterRequest request = new DerivedParameterRequest();
@@ -95,33 +93,22 @@ public class CompositeAverageLevelNode extends UnionLevelNode {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.derivparam.tree.UnionLevelNode#timeQueryInternal(
-     * boolean, java.util.Map)
-     */
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        // We should only have times if all our nodes have times
-        Set<DataTime> results = TIME_AGNOSTIC;
+        Set<TimeAndSpace> results = null;
 
-        List<AbstractRequestableLevelNode> requests = new ArrayList<AbstractRequestableLevelNode>(
+        List<AbstractRequestableNode> requests = new ArrayList<AbstractRequestableNode>(
                 nodes);
-        for (AbstractRequestableLevelNode request : requests) {
+        for (AbstractRequestableNode request : requests) {
             // Do not request just latest only because if two nodes have
             // different latests than this will return no times
-            Set<DataTime> times = request.timeQuery(originalRequest, false,
-                    cache, latestOnlyCache);
-            if (times == TIME_AGNOSTIC) {
+            Set<TimeAndSpace> times = availability.get(request);
+            if (times == null) {
                 continue;
-            } else if (results == TIME_AGNOSTIC) {
-                results = new HashSet<DataTime>(times);
+            } else if (results == null) {
+                results = new HashSet<TimeAndSpace>(times);
             } else {
                 results.retainAll(times);
             }

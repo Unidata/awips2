@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.TiltRequest;
 
 /**
@@ -64,13 +63,9 @@ public class RequestableDataRecord extends GridRecord {
     public RequestableDataRecord(AbstractRequestableData requester)
             throws VizException {
         this.requester = requester;
-        GridCoverage coverage = CoverageUtils.getInstance().getCoverage(
-                requester.getSource());
-        if (coverage == null && requester instanceof GridRequestableData) {
-            coverage = ((GridRequestableData) requester).getGridSource()
-                    .getLocation();
-            CoverageUtils.getInstance().setCoverage(requester.getSource(),
-                    coverage);
+        GridCoverage coverage = null;
+        if (requester.getSpace() instanceof GridCoverage) {
+            coverage = (GridCoverage) requester.getSpace();
         }
         setDatasetId(requester.getSource());
         setLocation(coverage);
