@@ -66,6 +66,7 @@ public class GridRequestableData extends AbstractRequestableData {
         this.gridSource = source;
         this.source = source.getDatasetId();
         this.dataTime = source.getDataTime();
+        this.space = source.getLocation();
         this.level = source.getLevel();
         this.parameter = source.getParameter().getAbbreviation();
         this.unit = source.getParameter().getUnit();
