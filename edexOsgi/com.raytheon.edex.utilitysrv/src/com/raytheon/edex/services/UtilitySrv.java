@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.ListContextCommand;
@@ -76,13 +77,11 @@ public class UtilitySrv implements IRequestHandler<UtilityRequestMessage> {
             } else if (cmd instanceof ProtectedFileCommand) {
                 ProtectedFileCommand castCmd = (ProtectedFileCommand) cmd;
                 ProtectedFileResponse response = new ProtectedFileResponse();
-                boolean isProtected = false;
-                if (ProtectedFiles.getProtectedLevel(
-                        castCmd.getLocalizedSite(), castCmd.getContext()
-                                .getLocalizationType(), castCmd.getSubPath()) != null) {
-                    isProtected = true;
-                }
-                response.setProtectedFile(isProtected);
+                LocalizationLevel protectedLevel = ProtectedFiles
+                        .getProtectedLevel(castCmd.getLocalizedSite(), castCmd
+                                .getContext().getLocalizationType(), castCmd
+                                .getSubPath());
+                response.setProtectedLevel(protectedLevel);
                 response.setPathName(castCmd.getSubPath());
                 response.setContext(castCmd.getContext());
                 responses.add(response);

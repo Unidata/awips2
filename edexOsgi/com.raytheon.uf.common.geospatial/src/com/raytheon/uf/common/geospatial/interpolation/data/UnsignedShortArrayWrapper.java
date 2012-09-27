@@ -39,33 +39,22 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * @version 1.0
  */
 
-public class UnsignedShortArrayWrapper extends DataWrapper1D {
-
-    protected final short[] array;
+public class UnsignedShortArrayWrapper extends ShortArrayWrapper {
 
     public UnsignedShortArrayWrapper(short[] array, GeneralGridGeometry geometry) {
-        super(geometry);
-        this.array = array;
+        super(array, geometry);
     }
 
     public UnsignedShortArrayWrapper(short[] array, int nx, int ny) {
-        super(nx, ny);
-        this.array = array;
+        super(array, nx, ny);
     }
 
     public UnsignedShortArrayWrapper(int nx, int ny) {
-        this(new short[nx * ny], nx, ny);
+        super(nx, ny);
     }
 
     public UnsignedShortArrayWrapper(GeneralGridGeometry geometry) {
-        // assume this is going to be a destination and avoid passing
-        // geometry to super to save time on checking for wrapping.
-        this(geometry.getGridRange().getSpan(0), geometry.getGridRange()
-                .getSpan(1));
-    }
-
-    public short[] getArray() {
-        return array;
+        super(geometry);
     }
 
     @Override
@@ -73,8 +62,4 @@ public class UnsignedShortArrayWrapper extends DataWrapper1D {
         return array[index] & 0xFFFF;
     }
 
-    @Override
-    public void setDataValueInternal(double dataValue, int index) {
-        array[index] = (short) dataValue;
-    }
 }

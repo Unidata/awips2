@@ -76,6 +76,12 @@
 	 	</for>
 		<!-- run includegen -->
         <echo message="Generating deployment list for feature: ${edex.feature}" />
+		<!--
+			TODO: need to update the includegen ant task to recognize
+			plugin architecture restrictions. Plugins that should only
+			be deployed for a 64-bit system should not be deployed for
+			a 32-bit system, etc.
+		-->
         <includegen providerfilter="${includegen.filter}" 
             basedirectories="${basedirectories}" 
             featurefile="${feature}" 
