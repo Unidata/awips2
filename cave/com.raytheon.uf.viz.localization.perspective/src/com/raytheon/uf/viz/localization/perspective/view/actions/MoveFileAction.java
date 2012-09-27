@@ -70,14 +70,35 @@ public class MoveFileAction extends CopyToAction {
         setEnabled(delete.isEnabled());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.localization.perspective.view.actions.AbstractToAction
+     * #isLevelEnabled(com.raytheon.uf.common.localization.LocalizationContext.
+     * LocalizationLevel)
+     */
+    @Override
+    protected boolean isLevelEnabled(LocalizationLevel level) {
+        boolean enabled = super.isLevelEnabled(level);
+        if (enabled && file.isProtected()) {
+            // Ensure protected level is greater than copy to level
+            enabled = file.getProtectedLevel().compareTo(level) >= 0;
+        }
+        return enabled;
+    }
+
     @Override
     protected void run(LocalizationLevel level) {
-        boolean choice = MessageDialog.openQuestion(
-                page.getWorkbenchWindow().getShell(),
-                "Move Confirmation",
-                "Are you sure you want to move "
-                        + LocalizationUtil.extractName(file.getName()) + " to "
-                        + level + " replacing any existing file?");
+        boolean choice = MessageDialog
+                .openQuestion(
+                        page.getWorkbenchWindow().getShell(),
+                        "Move Confirmation",
+                        "Are you sure you want to move "
+                                + LocalizationUtil.extractName(file.getName())
+                                + " to "
+                                + level
+                                + " replacing any existing file and deleting this file?");
         if (choice) {
             IPathManager pm = PathManagerFactory.getPathManager();
             final LocalizationFile newFile = pm.getLocalizationFile(

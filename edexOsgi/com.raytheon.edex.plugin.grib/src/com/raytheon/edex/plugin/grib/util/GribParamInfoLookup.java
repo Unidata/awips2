@@ -20,11 +20,14 @@
 package com.raytheon.edex.plugin.grib.util;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
@@ -41,17 +44,19 @@ import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * Lookup class for getting metadata information about grib parameters.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2010 #6372      bphillip     Initial creation
  * Jan 25, 2012 DR 14305   ryu          Read site parameterInfo files
- *
+ * Sep 12, 2012 #1117      dgilling     Implement method to retrieve all
+ *                                      parm names for a given model.
+ * 
  * </pre>
- *
+ * 
  * @author bphillip
  * @version 1.0
  */
@@ -67,7 +72,7 @@ public class GribParamInfoLookup {
 
     /**
      * Gets the singleton instance
-     *
+     * 
      * @return The singleton instance
      */
     public synchronized static GribParamInfoLookup getInstance() {
@@ -88,7 +93,7 @@ public class GribParamInfoLookup {
     /**
      * Gets the parameter information based on the specified model and parameter
      * name
-     *
+     * 
      * @param site
      *            The site which is requesting the information
      * @param model
@@ -135,6 +140,27 @@ public class GribParamInfoLookup {
         return modelInfo.getAvailableTimes(refTime);
     }
 
+    public synchronized Collection<String> getParmNames(String mappedModel) {
+        GridModel gridModel = GribModelLookup.getInstance().getModelByName(
+                mappedModel);
+        if (gridModel == null) {
+            return Collections.emptyList();
+        }
+
+        GribParamInfo modelInfo = modelParamMap.get(gridModel.getParamInfo());
+        if (modelInfo == null) {
+            return Collections.emptyList();
+        }
+
+        List<ParameterInfo> paramInfoList = modelInfo.getGribParamInfo();
+        Set<String> parmNames = new HashSet<String>();
+        for (ParameterInfo info : paramInfoList) {
+            parmNames.add(info.getShort_name());
+        }
+
+        return parmNames;
+    }
+
     /**
      * Initializes the grib parameter information
      */
@@ -164,16 +190,19 @@ public class GribParamInfoLookup {
             for (File file : files) {
                 String name = file.getName().replace(".xml", "");
                 // Do not override BASE files.
-                if (modelParamMap.get(name) != null)
+                if (modelParamMap.get(name) != null) {
                     continue;
+                }
 
                 try {
                     GribParamInfo paramInfo = (GribParamInfo) SerializationUtil
                             .jaxbUnmarshalFromXmlFile(file);
                     modelParamMap.put(name, paramInfo);
                 } catch (SerializationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error unmarshalling grib parameter information", e);
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error unmarshalling grib parameter information",
+                                    e);
                 }
             }
         }

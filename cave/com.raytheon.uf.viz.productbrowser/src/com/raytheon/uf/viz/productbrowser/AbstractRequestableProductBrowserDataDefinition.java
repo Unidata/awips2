@@ -27,11 +27,15 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchWindow;
+
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DescriptorMap;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
@@ -39,6 +43,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -46,7 +51,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * Product browser abstract requestable implementation
@@ -134,11 +142,11 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
 
         String[] temp = queryData(param, queryList);
         if (temp != null) {
-        if ((Boolean) getPreference(FORMAT_DATA).getValue()) {
-            parameters = formatData(param, temp);
-        } else {
-            parameters = super.formatData(param, temp);
-        }
+            if ((Boolean) getPreference(FORMAT_DATA).getValue()) {
+                parameters = formatData(param, temp);
+            } else {
+                parameters = super.formatData(param, temp);
+            }
         }
 
         if (parameters != null) {
@@ -194,7 +202,10 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         IDescriptor currDesc = null;
         // retrieves the correct editor
         getEditor();
-        IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
+        IDisplayPaneContainer container = getEditor();
+        if (container == null) {
+            return;
+        }
         AbstractRenderableDisplay display = (AbstractRenderableDisplay) container
                 .getActiveDisplayPane().getRenderableDisplay();
         display = (AbstractRenderableDisplay) display.createNewDisplay();
@@ -265,8 +276,39 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         return null;
     }
 
-    public void getEditor() {
-        // do nothing, if user wants a certain editor then overwrite this method
+    protected IDisplayPaneContainer getEditor() {
+        String id = DescriptorMap.getEditorId(getDescriptorClass().getName());
+        IEditorPart editorPart = EditorUtil.getActiveEditor();
+        if (editorPart != null && id.equals(editorPart.getEditorSite().getId())) {
+            return (AbstractEditor) editorPart;
+        }
+        editorPart = EditorUtil.findEditor(id);
+        if (editorPart != null) {
+            return (AbstractEditor) editorPart;
+        }
+        return openNewEditor(id);
+    }
+
+    protected IDisplayPaneContainer openNewEditor(String editorId) {
+        IWorkbenchWindow window = VizWorkbenchManager.getInstance()
+                .getCurrentWindow();
+        AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getInstance(
+                window).getActivePerspectiveManager();
+        if (mgr != null) {
+            AbstractEditor editor = mgr.openNewEditor();
+            if (editor == null) {
+                return null;
+            } else if (editorId.equals(editor.getEditorSite().getId())) {
+                return editor;
+            } else {
+                window.getActivePage().closeEditor(editor, false);
+            }
+        }
+        return null;
+    }
+
+    protected Class<? extends IDescriptor> getDescriptorClass() {
+        return MapDescriptor.class;
     }
 
     /*
