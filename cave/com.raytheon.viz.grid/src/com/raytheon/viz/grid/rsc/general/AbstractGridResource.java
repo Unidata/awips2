@@ -913,7 +913,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     }
 
     protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
-        return new ArrayList<PluginDataObject>(pdoMap.get(time));
+        if (time == null) {
+            return null;
+        }
+        List<PluginDataObject> list = pdoMap.get(time);
+        if (list == null) {
+            return null;
+        }
+        return new ArrayList<PluginDataObject>(list);
     }
 
 }
