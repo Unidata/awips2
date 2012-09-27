@@ -378,7 +378,6 @@ public class ValidPeriodDialog extends CaveSWTDialog {
     @Override
     protected void disposed() {
         timer.cancel();
-        super.disposed();
     }
 
     private void calculateDuration() {
