@@ -31,10 +31,12 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
@@ -79,7 +81,20 @@ public class MapResourceGroup extends
                     }
 
                 });
-
+        this.resourceData.addChangeListener(new IResourceDataChanged() {
+            @Override
+            public void resourceChanged(ChangeType type, Object object) {
+                if (type == ChangeType.CAPABILITY
+                        && object instanceof AbstractCapability) {
+                    for (ResourcePair rp : resourceData.getResourceList()) {
+                        rp.getLoadProperties()
+                                .getCapabilities()
+                                .addCapability(
+                                        ((AbstractCapability) object).clone());
+                    }
+                }
+            }
+        });
     }
 
     protected void addListener(AbstractVizResource<?, MapDescriptor> rsc)
@@ -129,6 +144,10 @@ public class MapResourceGroup extends
         for (ResourcePair rp : this.resourceData.getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
             if (rsc != null) {
+                rsc.getCapabilities().addCapability(
+                        getCapability(ColorableCapability.class).clone());
+                rsc.getCapabilities().addCapability(
+                        getCapability(OutlineCapability.class).clone());
                 rsc.init(target);
             }
         }
@@ -153,13 +172,6 @@ public class MapResourceGroup extends
 
             if (properties.isDisplayable(displayWidth)) {
                 PaintProperties newProps = new PaintProperties(paintProps);
-
-                // keep these in sync
-
-                resource.getCapabilities().addCapability(
-                        getCapability(ColorableCapability.class));
-                resource.getCapabilities().addCapability(
-                        getCapability(OutlineCapability.class));
 
                 if (resource.hasCapability(ImagingCapability.class)) {
                     paintProps.setAlpha(resource.getCapability(
