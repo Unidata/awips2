@@ -19,17 +19,19 @@
  **/
 package com.raytheon.edex.plugin.airep.decoder;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.airep.AirepRecord;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightLevel;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftLatitude;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftLongitude;
@@ -37,7 +39,6 @@ import com.raytheon.uf.edex.decodertools.aircraft.AircraftRemarks;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.PlatformLocationProxy;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The AirepParser takes a String that should contain a single AIREP observation
@@ -52,11 +53,64 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080103            384 jkorman     Initial Coding.
  * 20080423           1016 jkorman     Added range checking for wind speed.
  *                                     Zero'd second/milliseconds on timeObs.
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120911           1011 jkorman     Added decode of AIREP turbulence, corrected
+ *                                     parse of run together latlon.
  * </pre>
  */
 public class AirepParser {
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
+
+    public static class Turbulence {
+        private int turbulence = 0x80;
+
+        /**
+         * Create an initialized turbulence object.
+         */
+        public Turbulence() {
+        }
+
+        /**
+         * Set the turbulence intensity.
+         * 
+         * @param The
+         *            turbulence intensity.
+         */
+        public void setIntensity(int intensity) {
+            turbulence |= intensity;
+        }
+
+        /**
+         * Set the turbulence frequency.
+         * 
+         * @param The
+         *            turbulence frequency.
+         */
+        public void setFrequency(int frequency) {
+            turbulence |= frequency;
+        }
+
+        /**
+         * Set the turbulence type.
+         * 
+         * @param The
+         *            turbulence type.
+         */
+        public void setType(int type) {
+            turbulence |= type;
+        }
+
+        /**
+         * Get the turbulence value.
+         * 
+         * @return The turbulence value.
+         */
+        public int getTurbulence() {
+            return turbulence;
+        }
+    }
 
     private static final boolean WANT_DELIMITERS = false;
 
@@ -64,6 +118,109 @@ public class AirepParser {
     private static final String DELIMITER = " ;$=\r\n";
 
     private static final int MAX_WIND_SPEED = 500;
+
+    private static final Set<String> TURB_TERM_WORDS = new HashSet<String>();
+    static {
+        TURB_TERM_WORDS.add("IC");
+        TURB_TERM_WORDS.add("RM");
+        TURB_TERM_WORDS.add("MID");
+        TURB_TERM_WORDS.add("WX");
+
+    }
+
+    private static final Map<String, String> TURB_WORDS = new HashMap<String, String>();
+    static {
+        TURB_WORDS.put("TB", "TB");
+        TURB_WORDS.put("TURB", "TB");
+        TURB_WORDS.put("TRBC", "TB");
+    }
+
+    private static final Map<String, Integer> TURB_TYPE = new HashMap<String, Integer>();
+    static {
+        TURB_TYPE.put("CAT", AirepRecord.TURB_TYPE_CAT);
+        TURB_TYPE.put("CHOP", AirepRecord.TURB_TYPE_CHOP);
+        TURB_TYPE.put("CHP", AirepRecord.TURB_TYPE_CHOP);
+        TURB_TYPE.put("LLWS", AirepRecord.TURB_TYPE_LLWS);
+    }
+
+    private static final Map<String, Integer> TURB_FREQ = new HashMap<String, Integer>();
+    static {
+        TURB_FREQ.put("OCN", AirepRecord.TURB_FREQ_OCN);
+        TURB_FREQ.put("OCNL", AirepRecord.TURB_FREQ_OCN);
+        TURB_FREQ.put("OCA", AirepRecord.TURB_FREQ_OCN);
+        TURB_FREQ.put("OCC", AirepRecord.TURB_FREQ_OCN);
+        TURB_FREQ.put("OCS", AirepRecord.TURB_FREQ_OCN);
+        TURB_FREQ.put("ISO", AirepRecord.TURB_FREQ_OCN);
+
+        TURB_FREQ.put("INT", AirepRecord.TURB_FREQ_INT);
+        TURB_FREQ.put("INTMT", AirepRecord.TURB_FREQ_INT);
+        TURB_FREQ.put("INTERMITTENT", AirepRecord.TURB_FREQ_INT);
+        TURB_FREQ.put("INTM", AirepRecord.TURB_FREQ_INT);
+
+        TURB_FREQ.put("CON", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("CONT", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("STE", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("CNT", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("CON", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("CONS", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("STD", AirepRecord.TURB_FREQ_CON);
+        TURB_FREQ.put("CNS", AirepRecord.TURB_FREQ_CON);
+    }
+
+    private static final Map<String, Integer> TURB_INT = new HashMap<String, Integer>();
+    static {
+        TURB_INT.put("ZERO", AirepRecord.TURB_NEG);
+        TURB_INT.put("0", AirepRecord.TURB_NEG);
+        TURB_INT.put("NIL", AirepRecord.TURB_NEG);
+        TURB_INT.put("NEG", AirepRecord.TURB_NEG);
+        TURB_INT.put("SMTH", AirepRecord.TURB_NEG);
+        TURB_INT.put("SMT", AirepRecord.TURB_NEG);
+        TURB_INT.put("SM H", AirepRecord.TURB_NEG);
+        TURB_INT.put("NONE", AirepRecord.TURB_NEG);
+        TURB_INT.put("SMOOTH", AirepRecord.TURB_NEG);
+        TURB_INT.put("SMTHU", AirepRecord.TURB_NEG);
+        TURB_INT.put("NEGATIVE", AirepRecord.TURB_NEG);
+
+        TURB_INT.put("SMOOTHLGT", AirepRecord.TURB_NEG_LGT);
+
+        TURB_INT.put("ONE", AirepRecord.TURB_LGT);
+        TURB_INT.put("1", AirepRecord.TURB_LGT);
+        TURB_INT.put("SLIGHT", AirepRecord.TURB_LGT);
+        TURB_INT.put("LT", AirepRecord.TURB_LGT);
+        TURB_INT.put("LGT", AirepRecord.TURB_LGT);
+        TURB_INT.put("LIT", AirepRecord.TURB_LGT);
+        TURB_INT.put("LIG", AirepRecord.TURB_LGT);
+        TURB_INT.put("LGHT", AirepRecord.TURB_LGT);
+
+        TURB_INT.put("LGTMOD", AirepRecord.TURB_LGT_MOD);
+        TURB_INT.put("LGT-MOD", AirepRecord.TURB_LGT_MOD);
+        TURB_INT.put("SLIGHT-MOD", AirepRecord.TURB_LGT_MOD);
+
+        TURB_INT.put("TWO", AirepRecord.TURB_MOD);
+        TURB_INT.put("2", AirepRecord.TURB_MOD);
+        TURB_INT.put("MOD", AirepRecord.TURB_MOD);
+        TURB_INT.put("MDT", AirepRecord.TURB_MOD);
+        TURB_INT.put("TWO", AirepRecord.TURB_MOD);
+
+        TURB_INT.put("MODSEV", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MODSVR", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MDTSEV", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MDTSVR", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MODSEV", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MOD-SEV", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MDT-SEV", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MOD-SVR", AirepRecord.TURB_MOD_SEV);
+        TURB_INT.put("MDT-SVR", AirepRecord.TURB_MOD_SEV);
+
+        TURB_INT.put("THREE", AirepRecord.TURB_SEV);
+        TURB_INT.put("3", AirepRecord.TURB_SEV);
+        TURB_INT.put("SEV", AirepRecord.TURB_SEV);
+        TURB_INT.put("SVR", AirepRecord.TURB_SEV);
+
+        TURB_INT.put("XTRM", AirepRecord.TURB_XTRM);
+        TURB_INT.put("EXTRM", AirepRecord.TURB_XTRM);
+        TURB_INT.put("EXTRE", AirepRecord.TURB_XTRM);
+    }
 
     // Once set the obs data cannot be changed!
     private final String reportData;
@@ -100,7 +257,7 @@ public class AirepParser {
     final Pattern TEMP_LONG = Pattern.compile("^(MS|PS)\\d{2}");
 
     // Parsed and/or decoded observation elements.
-    private ArrayList<Object> theElements = new ArrayList<Object>();
+    private ArrayList<Object> reportElements = new ArrayList<Object>();
 
     private String aircraftId = null;
 
@@ -116,6 +273,8 @@ public class AirepParser {
 
     private Double temperature = null;
 
+    private Turbulence turbulence = null;
+
     private AIREPWeather weatherGroup = null;
 
     private Integer windDirection = null;
@@ -125,7 +284,6 @@ public class AirepParser {
     private AircraftRemarks rptRemarks = null;
 
     private Calendar refTime;
-    
 
     /**
      * Create the parser for and decode an observation from a String.
@@ -156,15 +314,12 @@ public class AirepParser {
      */
     ArrayList<?> parseElementsTestPoint() {
         ArrayList<Object> retElements = new ArrayList<Object>();
-        retElements.addAll(theElements);
+        retElements.addAll(reportElements);
         return retElements;
     } // parseElementsTestPoint()
 
     /**
-     * Parse the AIREP observation into individual elements. Note that during
-     * parse or decode the order of the elements does not change. The only
-     * exception to this rule is that all elements identified as
-     * comments/remarks are placed at the end of the observation elements.
+     * Parse the AIREP observation into individual elements.
      */
     private void parseElements() {
         StringTokenizer st = new StringTokenizer(reportData, DELIMITER,
@@ -178,7 +333,9 @@ public class AirepParser {
                 if ((o != null) && (reportType == null)) {
                     reportType = ((AIREPObsType) o).getValue();
                 } else {
-                    theElements.add(s);
+                    if (s.length() > 0) {
+                        reportElements.add(s);
+                    }
                 }
             }
         }
@@ -191,8 +348,8 @@ public class AirepParser {
         // run back through the data to see if there is a waypoint. If we
         // get to the time information, quit, it's not there.
         if ((latitude == null) && (longitude == null)) {
-            for (int i = 0; i < theElements.size(); i++) {
-                Object o = theElements.get(i);
+            for (int i = 0; i < reportElements.size(); i++) {
+                Object o = reportElements.get(i);
                 if (o instanceof String) {
                     BasePoint wayPoint = PlatformLocationProxy.lookup(
                             (String) o, null);
@@ -220,12 +377,17 @@ public class AirepParser {
             observationTime = null;
             return;
         }
+        determineAircraftId();
+
         decodeFlightLevel();
         decodeTemperature();
+
+        decodeTurb();
+
         decodeWeatherGroup();
         decodeWinds();
+
         collectRemarks();
-        determineAircraftId();
     } // parseElements()
 
     /**
@@ -234,12 +396,12 @@ public class AirepParser {
      * data as the id.
      */
     private void determineAircraftId() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
-            if (o instanceof Double) {
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
+            // Search only up to the obs time.
+            if (observationTime.equals(o)) {
                 break;
-            }
-            if (o instanceof String) {
+            } else if (o instanceof String) {
                 aircraftId = (String) o;
                 break;
             }
@@ -263,13 +425,13 @@ public class AirepParser {
      * which is then processed normally.
      */
     private void splitLatLon() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String[] latLon = AircraftLatitude.splitLatLon((String) o);
-                if ((latLon != null)&&(latLon.length ==2)) {
-                    theElements.add(i, latLon[0]);
-                    theElements.set(i, latLon[1]);
+                if ((latLon != null) && (latLon.length == 2)) {
+                    reportElements.set(i, latLon[1]);
+                    reportElements.add(i, latLon[0]);
                     break;
                 }
             }
@@ -283,13 +445,13 @@ public class AirepParser {
      */
     private void decodeLatitude() {
         if (latitude == null) {
-            for (int i = 0; i < theElements.size(); i++) {
-                Object o = theElements.get(i);
+            for (int i = 0; i < reportElements.size(); i++) {
+                Object o = reportElements.get(i);
                 if (o instanceof String) {
                     AircraftLatitude lat = AircraftLatitude
                             .aircraftLatitudeFactory((String) o);
                     if (lat != null) {
-                        theElements.set(i, lat);
+                        reportElements.set(i, lat);
                         latitude = lat.decodeLatitude();
                         break;
                     }
@@ -305,13 +467,13 @@ public class AirepParser {
      */
     private void decodeLongitude() {
         if (longitude == null) {
-            for (int i = 0; i < theElements.size(); i++) {
-                Object o = theElements.get(i);
+            for (int i = 0; i < reportElements.size(); i++) {
+                Object o = reportElements.get(i);
                 if (o instanceof String) {
                     AircraftLongitude lon = AircraftLongitude
                             .aircraftLongitudeFactory((String) o);
                     if (lon != null) {
-                        theElements.set(i, lon);
+                        reportElements.set(i, lon);
                         longitude = lon.decodeLongitude();
                         break;
                     }
@@ -326,8 +488,8 @@ public class AirepParser {
      * observation elements collection.
      */
     private void decodeTime() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String s = (String) o;
                 if (TIME.matcher(s).matches()) {
@@ -336,7 +498,7 @@ public class AirepParser {
                     int minute = Integer.parseInt(s.substring(2));
 
                     if (refTime != null) {
-                        
+
                         observationTime = TimeTools.copy(refTime);
                         observationTime.set(Calendar.HOUR_OF_DAY, hour);
                         observationTime.set(Calendar.MINUTE, minute);
@@ -348,7 +510,7 @@ public class AirepParser {
                             observationTime.add(Calendar.DAY_OF_MONTH, -1);
                         }
 
-                        theElements.set(i, observationTime);
+                        reportElements.set(i, observationTime);
                     }
                     break;
                 }
@@ -357,21 +519,21 @@ public class AirepParser {
     }
 
     private void decodeFlightLevel() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String s = (String) o;
                 if (FL_SHORT.matcher(s).matches()) {
                     double fLevel = Integer.parseInt(s.substring(1)) * 100;
 
                     flightLevel = new AircraftFlightLevel(fLevel);
-                    theElements.set(i, flightLevel);
+                    reportElements.set(i, flightLevel);
                     break;
                 } else if (FL_LONG.matcher(s).matches()) {
                     double fLevel = Integer.parseInt(s.substring(1)) * 100;
 
                     flightLevel = new AircraftFlightLevel(fLevel);
-                    theElements.set(i, flightLevel);
+                    reportElements.set(i, flightLevel);
                     break;
                 }
             }
@@ -382,8 +544,8 @@ public class AirepParser {
      * Decode the temperature information in this observation.
      */
     private void decodeTemperature() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 double temp = Double.NaN;
                 String s = (String) o;
@@ -396,7 +558,7 @@ public class AirepParser {
                             temp *= -1;
                         }
                         temperature = new Double(temp);
-                        theElements.set(i, temperature);
+                        reportElements.set(i, temperature);
                     }
                     break;
                 } else if (TEMP_SHORT.matcher(s).matches()) {
@@ -408,7 +570,7 @@ public class AirepParser {
                             temp *= -1;
                         }
                         temperature = new Double(temp);
-                        theElements.set(i, temperature);
+                        reportElements.set(i, temperature);
                     }
                     break;
                 }
@@ -417,17 +579,255 @@ public class AirepParser {
     }
 
     /**
+     * Decode airep turbulence</br>Encoded turbulence for storage.
+     * <table>
+     * <tr>
+     * <td>T</td>
+     * <td>Int</td>
+     * <td>Type</td>
+     * <td>Freg</td>
+     * </tr>
+     * <tr>
+     * <td>1</td>
+     * <td>111</td>
+     * <td>11</td>
+     * <td>11</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td></td>
+     * <td>00</td>
+     * <td>no frequency</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td></td>
+     * <td>01</td>
+     * <td>Ocnl</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td></td>
+     * <td>10</td>
+     * <td>Isolated</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td></td>
+     * <td>11</td>
+     * <td>Continous</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td>00</td>
+     * <td></td>
+     * <td>No type reported</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td>01</td>
+     * <td></td>
+     * <td>CAT 4</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td>10</td>
+     * <td></td>
+     * <td>Chop 6</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td></td>
+     * <td>11</td>
+     * <td></td>
+     * <td>LLWS 7</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>000</td>
+     * <td></td>
+     * <td></td>
+     * <td>No Intensity</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>001</td>
+     * <td></td>
+     * <td></td>
+     * <td>Smooth-Light</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>010</td>
+     * <td></td>
+     * <td></td>
+     * <td>Light</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>011</td>
+     * <td></td>
+     * <td></td>
+     * <td>Light - Mod</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>100</td>
+     * <td></td>
+     * <td></td>
+     * <td>Mod</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>101</td>
+     * <td></td>
+     * <td></td>
+     * <td>Mod - Severe</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>110</td>
+     * <td></td>
+     * <td></td>
+     * <td>Severe</td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>111</td>
+     * <td></td>
+     * <td></td>
+     * <td>Extreme</td>
+     * </tr>
+     * </table>
+     */
+    private void decodeTurb() {
+        int intensity = -1;
+        int i = 0;
+        for (; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
+            if (TURB_WORDS.get(o) != null) {
+                // We have turbulence of some type.
+                turbulence = new Turbulence();
+                reportElements.remove(i);
+                break;
+            }
+        }
+        if (i > 0) {
+            while (i < reportElements.size()) {
+                Object o = reportElements.get(i);
+                // Check words that absolutely terminate search for turbulence.
+                if (TURB_TERM_WORDS.contains(o)) {
+                    break;
+                } else {
+                    if (i < reportElements.size()) {
+                        o = reportElements.get(i);
+                        Integer n = null;
+                        if ((n = TURB_FREQ.get(o)) != null) {
+                            turbulence.setFrequency(n);
+                            reportElements.remove(i);
+                        } else if ((n = TURB_TYPE.get(o)) != null) {
+                            turbulence.setType(n);
+                            reportElements.remove(i);
+                        } else if ((n = TURB_INT.get(o)) != null) {
+                            if (intensity < 0) {
+                                intensity = n;
+                            } else {
+                                if (n > intensity) {
+                                    intensity = n;
+                                }
+                            }
+                            reportElements.remove(i);
+                        } else if ("NOT".equals(o)) {
+                            reportElements.remove(i);
+                            if (i < reportElements.size()) {
+                                if ("REPORTED".equals(reportElements.get(i))) {
+                                    reportElements.remove(i);
+                                    intensity = TURB_INT.get("NEG");
+                                }
+                            }
+                        } else if ("CODE".equals(o)) {
+                            reportElements.remove(i);
+                        } else {
+                            // Check to see if we have a turbulence range. In these cases if
+                            // more than one turbulence is found, report the most severe.
+                            if (o instanceof String) {
+                                String s = (String) o;
+                                // Two possible turbulence ranges we may have to work with.
+                                Integer turbA = null;
+                                Integer turbB = null;
+                                if (s.length() > 3) {
+                                    if ((turbA = TURB_INT.get(s.substring(0, 3))) != null) {
+                                        int pos = 3;
+                                        // so now start at position 3 and check for possible
+                                        // matches.
+                                        while (pos < s.length()) {
+                                            if ((turbB = TURB_INT.get(s
+                                                    .substring(pos))) != null) {
+                                                break;
+                                            } else {
+                                                pos++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (turbA != null) {
+                                    if (turbB != null) {
+                                        if (turbB > turbA) {
+                                            intensity = turbB;
+                                        } else {
+                                            intensity = turbA;
+                                        }
+                                    } else {
+                                        intensity = turbA;
+                                    }
+                                } else {
+                                    if (turbB != null) {
+                                        intensity = turbB;
+                                    }
+                                }
+                                if (intensity > -1) {
+                                    reportElements.remove(i);
+                                } else {
+                                    i++;
+                                }
+                            } else {
+                                i++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (intensity > 0) {
+            // Check if we found a frequency or type without
+            // an intensity.
+            if (intensity < 0x10) {
+                // if so then set it to light
+                intensity |= AirepRecord.TURB_LGT;
+            }
+            turbulence.setIntensity(intensity);
+        }
+    }
+
+    /**
      * Attempt to locate and decode the 3 digit hazards and weather group.
      */
     private void decodeWeatherGroup() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String s = (String) o;
                 if (s.length() == 3) {
                     if (WX_GROUP.matcher(s).find()) {
                         weatherGroup = new AIREPWeather(s);
-                        theElements.set(i, weatherGroup);
+                        reportElements.set(i, weatherGroup);
                         break;
                     }
                 }
@@ -445,15 +845,15 @@ public class AirepParser {
     private void decodeWinds() {
         // By now we should have found the flight level data.
         int i = 0;
-        for (; i < theElements.size(); i++) {
-            if (theElements.get(i) instanceof AircraftFlightLevel) {
+        for (; i < reportElements.size(); i++) {
+            if (reportElements.get(i) instanceof AircraftFlightLevel) {
                 i++;
                 break;
             }
         } // for()
 
-        for (; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String s = (String) o;
                 if (s != null) {
@@ -497,8 +897,8 @@ public class AirepParser {
                             }
                             windDirection = new Double(value).intValue(); // windDirection.fromDegree(value);
 
-                            theElements.set(i, windDirection);
-                            theElements.add(i + 1, windSpeed);
+                            reportElements.set(i, windDirection);
+                            reportElements.add(i + 1, windSpeed);
                         } catch (Exception nothing) {
                             String msg = String.format(
                                     "Error decoding winds: [%s] [%s]", windSpd,
@@ -519,16 +919,16 @@ public class AirepParser {
      * token to the end of the data.
      */
     private void decodeMID() {
-        for (int i = 0; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (int i = 0; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (o instanceof String) {
                 String s = (String) o;
                 if ("MID".equals(s)) {
                     AircraftRemarks remarks = new AircraftRemarks(s);
-                    for (i++; i < theElements.size();) {
+                    for (i++; i < reportElements.size();) {
                         remarks.addRemarks(" ");
-                        remarks.addRemarks((String) theElements.get(i));
-                        theElements.remove(i);
+                        remarks.addRemarks((String) reportElements.get(i));
+                        reportElements.remove(i);
                     }
                     rptRemarks = remarks;
                 }
@@ -544,21 +944,24 @@ public class AirepParser {
     private void collectRemarks() {
         boolean timeFound = false;
         int i = 0;
-        for (; i < theElements.size(); i++) {
-            Object o = theElements.get(i);
+        for (; i < reportElements.size(); i++) {
+            Object o = reportElements.get(i);
             if (timeFound = (o instanceof Calendar)) {
+                i++;
                 break;
             }
         } // for
         if (timeFound) {
             StringBuffer remarksBuffer = new StringBuffer();
-            for (; i < theElements.size(); i++) {
-                Object o = theElements.get(i);
+            // i is pointing to the next element to examine.
+            for (; i < reportElements.size();) {
+                Object o = reportElements.get(i);
                 if (o instanceof String) {
-                    theElements.remove(i);
-                    i--;
+                    reportElements.remove(i);
                     remarksBuffer.append(o);
                     remarksBuffer.append(" ");
+                } else {
+                    i++;
                 }
             } // for
             if (remarksBuffer.length() > 0) {
@@ -651,6 +1054,15 @@ public class AirepParser {
         return temperature;
     } // getAirTemperature()
 
+    /**
+     * Get the decoded turbulence data.
+     * 
+     * @return The decoded turbulence.
+     */
+    public Turbulence getTurbulence() {
+        return turbulence;
+    }
+
     public AIREPWeather getWeatherGroup() {
         return weatherGroup;
     } // getWeatherGroup()
@@ -683,24 +1095,4 @@ public class AirepParser {
         return (rptRemarks != null) ? rptRemarks.toString() : "";
     } // getRemarks()
 
-    
-    public static void main(String [] args) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("ZULU"));
-        
-        Calendar refTime = TimeTools.getBaseCalendar(2011, 12, 14);
-        refTime.set(Calendar.HOUR_OF_DAY, 17);
-        refTime.set(Calendar.MINUTE, 15);
-        refTime.set(Calendar.SECOND, 00);
-        refTime.set(Calendar.MILLISECOND, 0);
-        
-        String data = "ARP UAL121 4400N 05700W 1640 F390 MS00 000/099KT TB MOD SK CLEAR=";
-        AirepParser p = new AirepParser(data,refTime);
-        System.out.println(sdf.format(p.getObservationTime().getTime()));
-        
-        data = "ARP UAL121 4400N 05700W 1840 F390 MS00 000/099KT TB MOD SK CLEAR=";
-        p = new AirepParser(data,refTime);
-        System.out.println(sdf.format(p.getObservationTime().getTime()));
-    }
-    
 } // AirepParser
