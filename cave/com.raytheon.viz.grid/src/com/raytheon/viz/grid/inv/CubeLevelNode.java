@@ -19,19 +19,11 @@
  **/
 package com.raytheon.viz.grid.inv;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.tree.AbstractCubeLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
-import com.raytheon.viz.grid.data.GridRequestableDataFactory;
 
 /**
  * 
@@ -63,35 +55,9 @@ public class CubeLevelNode extends AbstractCubeLevelNode {
     }
 
     public CubeLevelNode(
-            List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> levels,
+            List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> levels,
             String modelName) {
         super(levels, modelName);
     }
 
-    protected List<AbstractRequestableData> wrapRawRecord(List<Object> objs)
-            throws VizException {
-        List<AbstractRequestableData> gribResults = new ArrayList<AbstractRequestableData>(
-                objs.size());
-        GridRequestableDataFactory factory = GridRequestableDataFactory
-                .getInstance();
-        for (Object obj : objs) {
-            AbstractRequestableData record = factory
-                    .getGridRequestableData((GridRecord) obj);
-            gribResults.add(record);
-        }
-
-        return gribResults;
-    }
-
-    @Override
-    protected void filter(
-            Map<String, RequestConstraint> baseRequestConstraints,
-            Map<String, RequestConstraint> requestContraintsToFilter) {
-        for (Entry<String, RequestConstraint> e : baseRequestConstraints
-                .entrySet()) {
-            if (!requestContraintsToFilter.containsKey(e.getKey())) {
-                requestContraintsToFilter.put(e.getKey(), e.getValue());
-            }
-        }
-    }
 }

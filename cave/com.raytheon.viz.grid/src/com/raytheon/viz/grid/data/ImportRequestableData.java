@@ -115,8 +115,8 @@ public class ImportRequestableData extends AliasRequestableData {
         }
 
         CoverageUtils covUtil = CoverageUtils.getInstance();
-        GridCoverage sourceGrid = covUtil.getCoverage(sourceRecord.getSource());
-        GridCoverage destGrid = covUtil.getCoverage(this.getSource());
+        GridCoverage sourceGrid = (GridCoverage) sourceRecord.getSpace();
+        GridCoverage destGrid = (GridCoverage) getSpace();
         Interpolation interpolation = Interpolation
                 .getInstance(Interpolation.INTERP_BICUBIC);
         if (rval instanceof FloatDataRecord) {
