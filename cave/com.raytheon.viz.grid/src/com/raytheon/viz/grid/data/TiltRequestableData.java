@@ -27,13 +27,12 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 import com.raytheon.viz.grid.util.TiltUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Requestable Data that generated tilt elevation.
  * 
  * <pre>
  * 
@@ -59,18 +58,20 @@ public class TiltRequestableData extends AbstractRequestableData {
 
     }
 
-    public TiltRequestableData(String modelName, Level tiltAngle) {
+    public TiltRequestableData(String modelName, Level tiltAngle,
+            GridCoverage coverage) {
         this.source = modelName;
         this.unit = SI.METER;
         this.parameter = "TILT";
         this.parameterName = "TILT";
         this.level = tiltAngle;
+        this.space = coverage;
     }
 
     @Override
     public FloatDataRecord getDataValue(Object arg) throws VizException {
 
-        GridCoverage coverage = CoverageUtils.getInstance().getCoverage(source);
+        GridCoverage coverage = (GridCoverage) getSpace();
         FloatDataRecord fdr = null;
         if (arg instanceof TiltCenterPoint) {
             Coordinate tiltLoc = ((TiltCenterPoint) arg).latLon;
