@@ -269,10 +269,22 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return point.getCoordinate();
     }
 
+    /**
+     * Obtain the point for the given name.
+     * 
+     * @param name
+     * @return point
+     */
     public Point getPoint(String name) {
         return getPointsMap().get(name);
     }
 
+    /**
+     * Change the coordinate for the point associated with the name.
+     * 
+     * @param name
+     * @param coordinate
+     */
     public void setCoordinate(String name, Coordinate coordinate) {
         Point point = getPointsMap().get(name);
         Assert.isNotNull(point, "Point not found for " + name);
@@ -294,6 +306,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return new Coordinate(wfoCenter);
     }
 
+    /**
+     * Obtain the home point's coordinate.
+     * 
+     * @return coordinate.
+     */
     public Coordinate getHome() {
         if (home == null) {
             loadHome();
@@ -301,6 +318,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return new Coordinate(home);
     }
 
+    /**
+     * Update and save the home point's new coordinate.
+     * 
+     * @param home
+     */
     public void setHome(Coordinate home) {
         if (home == null) {
             return;
@@ -309,6 +331,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         storeHome();
     }
 
+    /**
+     * Obtain a list of all points that are visible.
+     * 
+     * @return visiblePoints
+     */
     public Collection<String> getVisiblePointNames() {
         Collection<String> visiblePoints = new ArrayList<String>();
         for (String name : getPointsMap().keySet()) {
@@ -320,6 +347,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return visiblePoints;
     }
 
+    /**
+     * Get a list of all point names (no groups).
+     * 
+     * @return pointNames
+     */
     public Collection<String> getPointNames() {
         Collection<String> pointNames = new ArrayList<String>();
         for (String key : getPointsMap().keySet()) {
@@ -382,6 +414,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return fileName;
     }
 
+    /**
+     * Get all points including groups.
+     * 
+     * @return
+     */
     public Collection<Point> getPoints() {
         return getPointsMap().values();
     }
@@ -440,6 +477,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return points;
     }
 
+    /**
+     * This creates D2D Point group and the default A-J points for the group.
+     */
     private void createDefaultPoints() {
         Coordinate center = getHome();
         int baseRingSize = 120;
@@ -462,6 +502,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Set wfoCenter to the sites center point.
+     */
     private void loadWfoCenter() {
         try {
             // Request WFO center point from server
@@ -476,6 +519,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Loads home point from the localize file and returns its coordinate.
+     * 
+     * @return home
+     */
     private Coordinate loadHome() {
         LocalizationFile lFile = pathMgr.getLocalizationFile(
                 pointsDir.getContext(), pointsDir.getName().trim()
@@ -630,6 +678,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return point;
     }
 
+    /**
+     * Get the point's group localized file.
+     * 
+     * @param point
+     * @return lFile
+     */
     private LocalizationFile getGroupDir(Point point) {
         String path = (pointsDir.getName() + point.getGroup().replace(' ',
                 PointUtilities.DELIM_CHAR));
@@ -659,6 +713,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * @return children
      */
     public List<IPointNode> getChildren(IPointNode node, boolean allGroups) {
+        // Make sure point maps are are loaded.
+        getPointsMap();
+
         String parentKey = null;
         if (node == null) {
             parentKey = ROOT_NODE_KEY;
@@ -688,6 +745,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return children;
     }
 
+    /**
+     * Sort the collection of nodes placing group before points.
+     * 
+     * @param nodes
+     */
     private void sort(List<IPointNode> nodes) {
         Collections.sort(nodes, new Comparator<IPointNode>() {
 
@@ -866,6 +928,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return node;
     }
 
+    /**
+     * Moves a node to the new location.
+     * 
+     * @param node
+     * @param destNode
+     */
     public void moveNode(final IPointNode node, final IPointNode destNode) {
         String oldParentKey = getParentKey((Point) node);
         String destKey = getPointKey((Point) destNode);
@@ -878,6 +946,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Recursive method to handle moving a group node.
+     * 
+     * @param node
+     * @param destNode
+     */
     private void doMoveNode(IPointNode node, IPointNode destNode) {
         String key = getPointKey((Point) node);
         Point point = points.get(key);
@@ -906,6 +980,14 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Renames a group node and handles moving its childern to the new
+     * localtion.
+     * 
+     * @param srcNode
+     * @param destName
+     * @return
+     */
     public boolean renameGroup(final IPointNode srcNode, final String destName) {
         if (srcNode.getName().equals(destName)) {
             return false;
@@ -979,6 +1061,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return new GroupNode(gPoint);
     }
 
+    /**
+     * Determine if a point exits for the given name.
+     * 
+     * @param name
+     * @return true when point exits otherwise false
+     */
     public boolean exists(String name) {
         return getPointNames().contains(name);
     }
@@ -1002,6 +1090,17 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return groups;
     }
 
+    /**
+     * Determine the coordinate of point on a circle.
+     * 
+     * @param coor
+     *            - center of the circle
+     * @param radius
+     *            - Distance to the point
+     * @param angle
+     *            - Angle from the center
+     * @return coordinate
+     */
     public Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
             int angle) {
 
@@ -1052,6 +1151,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Determine if the message needs to be acted upon by this instance of CAVE.
+     * 
+     * @param message
+     * @param fileName
+     * @return
+     */
     private boolean checkPoint(FileUpdatedMessage message, String fileName) {
         boolean stateChange = false;
 
@@ -1183,6 +1289,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return value;
     }
 
+    /**
+     * Determine if this group message needs to be acted upoin by this instance
+     * of CAVE.
+     * 
+     * @param message
+     * @return
+     */
     private boolean checkGroup(FileUpdatedMessage message) {
         boolean stateChange = false;
         StringBuilder sb = new StringBuilder(message.getFileName());
@@ -1262,6 +1375,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Let everyone know about the update to the home point.
+     * 
+     * @param fileName
+     */
     private void homeLocationFileUpdated(String fileName) {
         if (home != null) {
             loadHome();
@@ -1327,6 +1445,9 @@ public class PointsDataManager implements ILocalizationFileObserver {
         homeListeners.remove(listener);
     }
 
+    /**
+     * Let listners no about changes to point or groups.
+     */
     private void firePointChangeListeners() {
         for (final Object listener : pointsListeners.getListeners()) {
             // fire listeners in separate threads to avoid waiting to draw
@@ -1345,6 +1466,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Add the point (never a group) and create/update its file.
+     * 
+     * @param point
+     */
     public void addPoint(final Point point) {
         Assert.isTrue(!point.isGroup());
 
@@ -1365,6 +1491,11 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Create the quest to add a point and adds it to the queue.
+     * 
+     * @param point
+     */
     private void doAddPoint(Point point) {
         PointRequest request = new PointRequest(RequestType.ADD, point);
         queueRequest(request);
@@ -1402,6 +1533,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Queues request to delete a point and if it is a group recursive deletes
+     * its children.
+     * 
+     * @param point
+     */
     private void doDeletePoint(Point point) {
         String key = getPointKey(point);
 
@@ -1462,6 +1599,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * Updates a point by remove/add if name is changed else by a update
+     * request.
+     * 
+     * @param oldPoint
+     * @param newPoint
+     */
     public void updatePoint(final Point oldPoint, final Point newPoint) {
         PointRequest request = null;
 
@@ -1490,6 +1634,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Update a non-group point.
+     * 
+     * @param point
+     * @throws PointNameChangeException
+     */
     public void updatePoint(Point point) throws PointNameChangeException {
         Assert.isTrue(point != null && !point.isGroup());
         Point oldPoint = getPoint(point.getName());
@@ -1499,6 +1649,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         addPoint(point);
     }
 
+    /**
+     * change node's and all it chilren's hidden to the desired state.
+     * 
+     * @param node
+     * @param state
+     */
     public void updateChildrenHidden(IPointNode node, PointFieldState state) {
         if (!node.isGroup()) {
             return;
@@ -1508,6 +1664,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Does the recursive work for updateChildrenHidden.
+     * 
+     * @param node
+     * @param state
+     */
     private void doChildrenHidden(IPointNode node, PointFieldState state) {
         String key = getPointKey((Point) node);
         Point point = points.get(key);
@@ -1528,6 +1690,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         }
     }
 
+    /**
+     * change node's and all it chilren's movable to the desired state.
+     * 
+     * @param node
+     * @param state
+     */
     public void updateChildrenMovable(IPointNode node, PointFieldState state) {
         if (!node.isGroup()) {
             return;
@@ -1536,6 +1704,12 @@ public class PointsDataManager implements ILocalizationFileObserver {
         processRequests();
     }
 
+    /**
+     * Does the recursive work for updateChildrenMovable.
+     * 
+     * @param node
+     * @param state
+     */
     private void doChildrenMovable(IPointNode node, PointFieldState state) {
         String key = getPointKey((Point) node);
         Point point = points.get(key);
@@ -1588,10 +1762,24 @@ public class PointsDataManager implements ILocalizationFileObserver {
         return point;
     }
 
+    /**
+     * All put to points should use this in case additional work needs to be
+     * done.
+     * 
+     * @param key
+     * @param point
+     */
     private void put(String key, Point point) {
         points.put(key, point);
     }
 
+    /**
+     * All remove to points should use this in case addtional work needs to be
+     * done.
+     * 
+     * @param key
+     * @return
+     */
     private Point remove(String key) {
         return points.remove(key);
     }
