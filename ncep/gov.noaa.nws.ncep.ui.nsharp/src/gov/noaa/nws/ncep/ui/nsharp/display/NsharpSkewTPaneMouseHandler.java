@@ -22,7 +22,6 @@ import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
