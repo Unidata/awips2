@@ -44,6 +44,7 @@ import com.raytheon.viz.core.graphing.WGraphics;
 import com.sun.jna.ptr.FloatByReference;
 
 public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
+	private boolean inSidePane = false;
 	private float xMagFactor=1.0f;
 	private float yMagFactor=1.0f;
 	private int omegaXOrig = NsharpConstants.OMEGA_X_ORIG;
@@ -97,7 +98,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		//double Y = 80;
 		super.paintInternal(target, paintProps);
 		//System.out.println("wito paintInternal zoomL="+currentZoomLevel);
-		if(rscHandler== null || rscHandler.getMyNsharpEditor() == null )
+		if(rscHandler== null ||  inSidePane )
 			return;
 		if(soundingLys!= null){
 			this.font10.setSmoothing(false);
@@ -443,7 +444,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	 *  
 	 */
 	public void createAllWireFrameShapes(){
-		if(target== null || rscHandler== null || rscHandler.getMyNsharpEditor() == null )
+		if(target== null || rscHandler== null || inSidePane )
 			return;
 		//System.out.println("whitoPane="+this.toString()+" createAllWireFrameShapes called");
 		rscHandler.repopulateSndgData();
@@ -572,6 +573,16 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		}
 		font10 = target.initializeFont("Monospace", font10Size, null);
 		*/
+	}
+
+	public boolean isInSidePane() {
+		//System.out.println("isInSidePane returned="+inSidePane + this.toString());
+		return inSidePane;
+	}
+
+	public void setInSidePane(boolean inSidePane) {
+		//System.out.println("setInSidePane to="+inSidePane+ this.toString());
+		this.inSidePane = inSidePane;
 	}
 	
 }

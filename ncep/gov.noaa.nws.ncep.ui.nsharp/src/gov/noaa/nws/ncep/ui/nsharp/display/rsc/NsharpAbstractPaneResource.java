@@ -116,7 +116,7 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 			font12=null;
 		} 
 		this.target.dispose();
-		this.target = null;
+		target = null;
 	}
 
 
