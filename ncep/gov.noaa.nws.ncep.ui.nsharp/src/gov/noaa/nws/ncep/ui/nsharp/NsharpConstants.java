@@ -397,7 +397,7 @@ public class NsharpConstants {
     //Sizes defined here have no significant meaning between two different panes. 
     public static final int DISPLAY_WIDTH= 1600;
     public static final int DISPLAY_HEIGHT= 820;
-    public static final int SKEWT_PANE_REC_WIDTH = DISPLAY_WIDTH/2;// * 11 /16; //800 *11/16=550
+    public static final int SKEWT_PANE_REC_WIDTH = DISPLAY_WIDTH/2 * 11 /16; //800 *11/16=550
     public static final int SKEWT_PANE_REC_HEIGHT = DISPLAY_HEIGHT * 8 /10; // 820*0.8 =656;
     public static final int WITO_PANE_REC_WIDTH = DISPLAY_WIDTH/2 - SKEWT_PANE_REC_WIDTH; //800-550=250
     public static final int WITO_PANE_REC_HEIGHT = DISPLAY_HEIGHT * 8 /10; // 820*0.8 =656;

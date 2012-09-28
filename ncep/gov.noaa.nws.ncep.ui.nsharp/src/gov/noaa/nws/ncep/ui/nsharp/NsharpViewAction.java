@@ -32,10 +32,10 @@ public class NsharpViewAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException { 
-		NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
-		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
-		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
-		String paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		//NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+		//NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
+		//NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
+		//String paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
 		//System.out.println("paneConfigurationName ="+paneConfigurationName);
 		/*
 		 *  The viewID string is in the XML file for NSHARP extension point. 
