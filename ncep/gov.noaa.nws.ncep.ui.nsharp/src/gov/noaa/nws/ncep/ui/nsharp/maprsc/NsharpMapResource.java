@@ -148,6 +148,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
    			waitCursor= null;
    		}
    	}
+   	/*
 	private static void createMapEditor(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 
@@ -177,7 +178,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
 			ve.printStackTrace();
 		}
-	}
+	}*/
 	private static void createMapEditorTest(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 
