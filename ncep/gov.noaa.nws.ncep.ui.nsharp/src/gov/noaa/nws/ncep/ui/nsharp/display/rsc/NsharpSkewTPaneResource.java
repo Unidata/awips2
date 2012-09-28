@@ -36,6 +36,7 @@ import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._lplvalues
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._parcel;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpLoadDialog;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 
 import java.awt.geom.Rectangle2D;
@@ -48,13 +49,8 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.common.status.UFStatus;
@@ -359,7 +355,8 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 				NsharpConstants.color_cyan_md, HorizontalAlignment.LEFT,
 				VerticalAlignment.MIDDLE, null);
     }
-    public void createLCLEtcLinesShape(){
+    @SuppressWarnings("deprecation")
+	public void createLCLEtcLinesShape(){
     	if(lclShape != null){
     		lclShape.dispose();
     		lclShape = null;
@@ -1189,10 +1186,15 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			}else if(justBackToMainPane ){
 				reentryLock.lock();
 				rscHandler.repopulateSndgData();//CHIN swapping
-				createRscWireFrameShapes(target);
+				createRscWireFrameShapes();
 				justBackToMainPane = false;
 				reentryLock.unlock();
-				
+				NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+            	if(paletteWin!=null){
+            		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
+            				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
+            				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn()); 
+            	}
 			}
 		}
 		/* Chin : turn it off for now
@@ -1408,7 +1410,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		turbBackground.initInternal(target);
 		titleBoxShape = target.createWireframeShape(false,descriptor );
 		titleBoxShape.allocate(8);
-		createRscWireFrameShapes(target);
+		createRscWireFrameShapes();
 		
 	}
 	
@@ -1552,6 +1554,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		//Downdraft Convective Available Potential Energy - DCAPE
 		//see trace_dcape() in xwvid1.c for original source
 		/* ----- Find highest observation in layer ----- */
+		@SuppressWarnings("unused")
 		float mine, minep,  tp1, tp2, te1, te2, pe1, pe2, h1, h2;
 		FloatByReference value1= new FloatByReference(-999);
 		FloatByReference value2= new FloatByReference(-999);
@@ -1661,6 +1664,8 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 	@SuppressWarnings("deprecation")
 	private void drawHeightMark(IGraphicsTarget target){
 		//plot meter  scales...
+		if(soundingLys.size() <=0)
+			return;
 		IExtent ext = descriptor.getRenderableDisplay().getExtent();
         double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
         double xDefault = world.mapX(NsharpConstants.left);
@@ -2322,7 +2327,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 	 *  
 	 */
 	
-	public void createRscWireFrameShapes(IGraphicsTarget target){
+	public void createRscWireFrameShapes(){
 		//System.out.println("createRscWireFrameShapes called");
 		if(target!=null){
 			disposeRscWireFrameShapes();
@@ -2598,6 +2603,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 
 	@Override
 	public void handleResize() {
+		//System.out.println("NsharpSkewTPaneResource handleResize called! "+ this.toString());
 		super.handleResize();
 		if(getDescriptor().getRenderableDisplay() == null)
 			return;
@@ -2627,7 +2633,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		omegaWidth = skewtWidth*0.05f;
 		omegaHeight = skewtHeight;
 		omegaYEnd = omegaYOrig + omegaHeight;
-		createRscWireFrameShapes(target);
+		createRscWireFrameShapes();
 		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT)
 			skewTBackground.handleResize(ext);
 		else if(currentGraphMode == NsharpConstants.GRAPH_ICING)
