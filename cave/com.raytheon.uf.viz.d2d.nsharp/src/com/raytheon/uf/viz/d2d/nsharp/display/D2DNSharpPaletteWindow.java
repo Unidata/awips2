@@ -25,6 +25,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IViewSite;
+
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
+import com.raytheon.viz.ui.tools.ModalToolManager;
 
 /**
  * 
@@ -46,6 +52,42 @@ import org.eclipse.swt.widgets.Listener;
  * @version 1.0
  */
 public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
+
+    private static final String EDIT_TOOL_CATEGY = "com.raytheon.viz.ui.modalTool.nav";
+
+    private AbstractModalTool lastTool = null;
+
+    @Override
+    public void init(IViewSite site) {
+        super.init(site);
+        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
+                .getCurrentPerspectiveManager();
+        if (perspMgr == null) {
+            return;
+        }
+        ModalToolManager mgr = perspMgr.getToolManager();
+        lastTool = mgr.getSelectedModalTool(EDIT_TOOL_CATEGY);
+        if (lastTool != null) {
+            mgr.deselectModalTool(lastTool);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
+                .getCurrentPerspectiveManager();
+        if (perspMgr == null) {
+            return;
+        }
+        ModalToolManager mgr = perspMgr.getToolManager();
+        if (lastTool != null
+                && mgr.getSelectedModalTool(EDIT_TOOL_CATEGY) == null) {
+            mgr.selectModalTool(lastTool);
+            lastTool.activate();
+            lastTool = null;
+        }
+    }
 
     @Override
     public void createDataControlGp(Composite parent) {
