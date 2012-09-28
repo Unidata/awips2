@@ -87,7 +87,7 @@ public class D2DLegendClickHandler extends AbstractD2DLegendInputHandler {
             cancel = true;
         }
         // eat the movement if we initially clicked on a resource
-        return (mouseDownRsc != null);
+        return cancel;
     }
 
     @Override
@@ -104,6 +104,7 @@ public class D2DLegendClickHandler extends AbstractD2DLegendInputHandler {
                 // Verify we are on our own pane
                 mouseDownRsc = resource.checkLabelSpace(
                         display.getDescriptor(), activePane.getTarget(), x, y);
+                return mouseDownRsc != null;
             }
         }
         return false;
