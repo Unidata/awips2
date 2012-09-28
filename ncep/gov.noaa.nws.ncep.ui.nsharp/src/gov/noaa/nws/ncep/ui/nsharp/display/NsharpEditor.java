@@ -22,13 +22,10 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  * @version 1.0
  */
 
-import java.util.List;
-
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
-import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpDataPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResource;
@@ -45,10 +42,8 @@ import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -60,14 +55,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -83,7 +75,6 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.input.InputManager;
@@ -895,15 +886,22 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	    rscHandler = new NsharpResourceHandler(displayArray,this);
     	}else{
     	    rscHandler.updateDisplay(displayArray, paneConfigurationName);
+    	    
     	}
-
+    	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+    	if(paletteWin!=null){
+    		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
+    				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
+    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn()); 
+    	}
     	createPaneResource();
-    	rscHandler.resetRsc();
-    	// bsteffen listen for changes to renderable displays
+    	
+    	rscHandler.resetData();
+    	//  listen for changes to renderable displays
     	addRenderableDisplayChangedListener(this);
     	//add a new part listener if not added yet
 		NsharpPartListener.addPartListener();
-    	
+		
     }
 
 
@@ -1380,7 +1378,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 	public static NsharpEditor createOrOpenEditor(  ) {	
 		NsharpEditor editor = getActiveNsharpEditor();
 		if (editor != null) {
-			System.out.println("createOrOpenSkewTEditor return existing editor "+ editor.toString());
+			//System.out.println("createOrOpenSkewTEditor return existing editor "+ editor.toString());
 			return editor;
 		} else {
 			try {
@@ -1402,7 +1400,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("createOrOpenSkewTEditor return new editor "+ editor.toString());
+			//System.out.println("createOrOpenSkewTEditor return new editor "+ editor.toString());
 			return editor;
 		}
 	}
@@ -1478,6 +1476,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         public void handleEvent(Event event) {
 			baseHeight = baseComposite.getSize().y;
 	        baseWidth = baseComposite.getSize().x;
+	        //System.out.println("ResizeListener resizing...nsharp base w= " + baseWidth + " h= "+ baseHeight);
 	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
 	        	skewTHeightHint = (int) (baseHeight * skewTHeightHintRatio);
 	        	skewTWidthHint = (int) (baseWidth*leftGroupWidthRatio *skewTWidthHintRatio);
@@ -1531,7 +1530,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 	        	hodoHeightHint = (int) (baseHeight *botGroupHeightRatio* hodoHeightHintRatio);
 	        	hodoWidthHint = (int) (baseWidth*hodoWidthHintRatio);
 	        }
-	        //System.out.println("resizing...nsjarp base w= " + baseWidth + " h= "+ baseHeight);
+	       
 	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR) || paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
 	        	leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
 	        			true);
@@ -1752,9 +1751,11 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
                      * Therefore, rscHandler (at this moment) is about to be moved out. Before it is moved out,
                      *  we raise "justMoveToSidePane" flag to be used by skewTPaneRsc at side pane. 
                      */
-                	rscHandler.getSkewtPaneRsc().setJustMoveToSidePane(true);
-                	rscHandler.setMyNsharpEditor(null);
-                    swapping= true;
+                	if(rscHandler.getSkewtPaneRsc()!=null)
+                		rscHandler.getSkewtPaneRsc().setJustMoveToSidePane(true);
+                	if(rscHandler.getWitoPaneRsc() !=null)
+                		rscHandler.getWitoPaneRsc().setInSidePane(true);
+                	swapping= true;
                 }
                 
             }
@@ -1775,18 +1776,18 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
                 		 * We will have to restart editor to construct all graphs and displays for this nsharp instance.
                 		 * We also have to re-store nsharp to its previous status (when it was in main pane). 
                 		 */
-                		rscHandler.setMyNsharpEditor(this);
                 		restartEditor( paneConfigurationName);
-                    	rscHandler.resetRsc();
+                    	/*rscHandler.resetRsc();
                     	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
                     	if(paletteWin!=null){
                     		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
                     				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
                     				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn());
-                    	}
+                    	}*/
                     	if(rscHandler.getSkewtPaneRsc()!=null)
                     		rscHandler.getSkewtPaneRsc().setJustBackToMainPane(true);
-                    	
+                    	if(rscHandler.getWitoPaneRsc() !=null)
+                    		rscHandler.getWitoPaneRsc().setInSidePane(false);
                     	
                     }
                     else{

@@ -21,35 +21,30 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingModel;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
-import gov.noaa.nws.ncep.ui.nsharp.ElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGridInventory;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.SurfaceStationPointData;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -64,9 +59,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.vividsolutions.jts.geom.Coordinate;
 
 public class ModelSoundingDialogContents {
 	private  Composite parent;
@@ -127,7 +121,7 @@ public class ModelSoundingDialogContents {
 		}*/
 	}
 	
-	/*private void createMDLAvailableFileList() {
+	private void createMDLAvailableFileList() {
 		if(sndTimeList!=null)
 			sndTimeList.removeAll();
 		if(availableFileList!=null)
@@ -142,7 +136,7 @@ public class ModelSoundingDialogContents {
     	 * Chin Note: with this query, the returned string has this format, "ncgrib/ruc13/2012-01-17_16:00:00.0"
     	 * We will have to strip off "ncgrib/ruc13/" and ":00:00.0", also replace "_" with space, to get 
     	 * grid file name like this "2012-01-17 16".
-    	 *//*
+    	 */
     	char fileSep =  File.pathSeparatorChar;
     	String header = "grid"+fileSep+  selectedModel +fileSep;
     	if( queryRsltsList1 != null && !queryRsltsList1.isEmpty() ) {
@@ -160,8 +154,9 @@ public class ModelSoundingDialogContents {
 		}
     	ldDia.stopWaitCursor();
 		
-	}*/
-	private void createMDLAvailableFileList() {
+	}
+	/*
+	private void createMDLAvailableFileListOld() {
 		if(sndTimeList!=null)
 			sndTimeList.removeAll();
 		if(availableFileList!=null)
@@ -188,7 +183,7 @@ public class ModelSoundingDialogContents {
 		}
 		else
 			System.out.println("SQL: query return null");	
-	}
+	}*/
     private void createMDLSndTimeList(List<String> selectedFlLst) {
     	if(selectedFlLst.size() <=0 )
     		return;
@@ -320,7 +315,8 @@ public class ModelSoundingDialogContents {
 		skewRsc.setSoundingType(selectedModel);
 		NsharpEditor.bringEditorToTop();
     }
-    private void createModelTypeList(){
+    /*
+    private void createModelTypeListOld(){
     	if(modelTypeList!=null)
     		modelTypeList.removeAll();
     	if(sndTimeList!=null)
@@ -336,9 +332,9 @@ public class ModelSoundingDialogContents {
 				modelTypeList.add(MdlStr);
 			}
 		ldDia.stopWaitCursor();
-    }
+    }*/
     
-    /*private void createModelTypeList(){
+    private void createModelTypeList(){
     	if(modelTypeList!=null)
     		modelTypeList.removeAll();
     	if(sndTimeList!=null)
@@ -361,7 +357,7 @@ public class ModelSoundingDialogContents {
     	/*
     	 * Chin Note: with this query, the returned string has this format, "ncgrib/gfsP5"
     	 * We will have to strip off "ncgrib/" to get model name like this "gfsP5".
-    	 *//*
+    	 */
 
     	if( queryRsltsList != null && !queryRsltsList.isEmpty() ) {
     		Collections.sort(queryRsltsList, String.CASE_INSENSITIVE_ORDER);
@@ -378,7 +374,7 @@ public class ModelSoundingDialogContents {
 		}
 		ldDia.stopWaitCursor();
 		
-    }*/
+    }
      
 	public void createMdlDialogContents(){
 		selectedFileList.clear();
