@@ -33,7 +33,6 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative;
@@ -58,14 +57,10 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -75,16 +70,12 @@ import com.raytheon.uf.viz.sounding.SoundingParams;
 import com.raytheon.viz.core.graphing.LineStroke;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.raytheon.viz.core.graphing.WindBarbFactory;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.sun.jna.ptr.FloatByReference;
 import com.vividsolutions.jts.geom.Coordinate;
 @SuppressWarnings("deprecation")
 public class NsharpResourceHandler {
-	private boolean inMainPane;
-	private NsharpEditor myNsharpEditor;
 	private IRenderableDisplay[] displayArray=null;
-	//private NsharpPerspectiveListener pspLsner;
-	//private NsharpPartListener partLsner;
+	private NsharpPartListener.PartEvent editorPartStatus =NsharpPartListener.PartEvent.partClosed;
 	private NsharpSkewTPaneResource skewtPaneRsc;
 	private NsharpWitoPaneResource witoPaneRsc;
 	private NsharpHodoPaneResource hodoPaneRsc;
@@ -93,6 +84,7 @@ public class NsharpResourceHandler {
 	private NsharpDataPaneResource dataPaneRsc;
 	private NsharpSpcGraphsPaneResource spcGraphsPaneRsc;
 	private NsharpAbstractPaneResource futurePaneRsc;
+	//private Coordinate hodoStmCenter; //hodo storm motion center
 	NsharpNative nsharpNative=null;
 	private static final int  DATAPAGEMAX = NsharpConstants.PAGE_MAX_NUMBER/ 2;
 	private static final int  INSETPAGEMAX =2;
@@ -233,28 +225,6 @@ public class NsharpResourceHandler {
 
 	private HashMap<NsharpConstants.State, RGB> elementColorMap = new HashMap<NsharpConstants.State, RGB>();
 	
-	
-	//TBD private NsharpDrawPanels drawPanel; 
-
-	/*public class ParcelData{
-		short parcelType;
-		float parcelLayerPressure;
-
-		public short getParcelType() {
-			return parcelType;
-		}
-		public void setParcelType(short parcelType) {
-			this.parcelType = parcelType;
-		}
-		public float getParcelLayerPressure() {
-			return parcelLayerPressure;
-		}
-		public void setParcelLayerPressure(float parcelLayerPressure) {
-			this.parcelLayerPressure = parcelLayerPressure;
-		}
-
-
-	};*/
 	//private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
 	private short currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
 	private float currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER; 
@@ -550,10 +520,12 @@ public class NsharpResourceHandler {
 	public void setSoundingLysList(List<List<NcSoundingLayer>> soundingLysList) {
 		this.soundingLysList = soundingLysList;
 	}
-	public void setHodoHouseC(Coordinate hodoHouseC) {
+	
+
+	public void setHodoStmCenter(Coordinate hodoHouseC) {
 		if(hodoPaneRsc==null)
 			return;
-		hodoPaneRsc.setHodoHouseC(hodoHouseC);
+		//hodoPaneRsc.setHodoHouseC(hodoHouseC);
 		Coordinate c = hodoPaneRsc.getHodoBackground().getWorld().unMap(hodoHouseC.x, hodoHouseC.y);
 		c = WxMath.speedDir((float) c.x, (float) c.y);
 		smWindDir = (float) c.y;
@@ -640,6 +612,21 @@ public class NsharpResourceHandler {
 			dest.put(key, lys);
 		}
 	}
+	public void handleNsharpEditorPartEvent(NsharpPartListener.PartEvent pStatus){
+		switch(pStatus){
+		case partActivated:
+			if(editorPartStatus != NsharpPartListener.PartEvent.partDeactivated){
+				//repopulateSndgData();
+				//resetRsc();
+				resetData();
+			}
+			
+			break;
+		default:
+			break;
+		}
+		editorPartStatus = pStatus;
+	}
 	public void resetRsc() {
 		//System.out.println("resetRsc called");
 		this.dataTimelineSndLysListMap.clear();
@@ -660,7 +647,7 @@ public class NsharpResourceHandler {
 		resetData();
 
 	}
-	private synchronized void resetData(){
+	public synchronized void resetData(){
 		//System.out.println("resetData called, rscHdr="+this.toString() + " pickedStnInfoStr="+pickedStnInfoStr+ " nsharpNative="+nsharpNative.toString());
 		
 		//update active sounding layer and picked stn info						
@@ -694,11 +681,6 @@ public class NsharpResourceHandler {
 			FloatByReference bwspd= new FloatByReference(-999);
 			nsharpNative.nsharpLib.bunkers_storm_motion(dummy1, dummy2, bwdir, bwspd);
 			//System.out.println("resetData windspd="+  bwspd.getValue()+ " dir="+bwdir.getValue());
-			Coordinate c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
-			if(hodoPaneRsc!=null && hodoPaneRsc.getHodoBackground()!=null){
-				Coordinate hodoHouseC= hodoPaneRsc.getHodoBackground().getWorld().map(c);			
-				hodoPaneRsc.setHodoHouseC(hodoHouseC);
-			}
 			smWindSpd = bwspd.getValue();
 			smWindDir = bwdir.getValue();
 			nsharpNative.nsharpLib.set_storm(smWindSpd, smWindDir);
@@ -718,9 +700,10 @@ public class NsharpResourceHandler {
 		}
 		//Chin: TBD remove handle resize here to fix sizing issue when swapped nsharp from side pane back to main pane 
 		// but, may cause other problem?
+		//if(skewtPaneRsc!=null)
+			//skewtPaneRsc.handleResize();
 		if(skewtPaneRsc!=null)
-			skewtPaneRsc.handleResize();
-			//skewtPaneRsc.createRscWireFrameShapes();
+			skewtPaneRsc.createRscWireFrameShapes();
 		if(hodoPaneRsc!=null)
 			hodoPaneRsc.createRscHodoWindShapeAll();
 		if(insetPaneRsc!=null)
@@ -2271,20 +2254,11 @@ public class NsharpResourceHandler {
 		if(spcGraphsPaneRsc!=null)
 			spcGraphsPaneRsc.resetData(soundingLys, previousSoundingLys);
 	}
-	
-	public NsharpEditor getMyNsharpEditor() {
-		return myNsharpEditor;
-	}
-
-
-	public void setMyNsharpEditor(NsharpEditor myNsharpEditor) {
-		this.myNsharpEditor = myNsharpEditor;
-	}
 
 
 	public NsharpResourceHandler(IRenderableDisplay[] displayArray, NsharpEditor editor) {
     	//System.out.println("NsharpResourceHandler constructed");
-		myNsharpEditor = editor;
+		//myNsharpEditor = editor;
         this.soundingMap = new HashMap<Date, SoundingParams>();
         elementColorMap.put(NsharpConstants.State.CURRENT,NsharpConstants.color_green); //green
         elementColorMap.put(NsharpConstants.State.ACTIVE,NsharpConstants.color_yellow);//cyan

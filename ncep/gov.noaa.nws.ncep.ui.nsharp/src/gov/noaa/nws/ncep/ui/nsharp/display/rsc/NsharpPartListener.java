@@ -8,7 +8,6 @@ import org.eclipse.ui.PlatformUI;
 
 public class NsharpPartListener implements IPartListener2 {
 	private static NsharpPartListener instance=null;
-	//private NsharpResourceHandler rscHandler;
 	//Only add one listener for all Nsharp instance to share
 	public static void addPartListener(){
 		if(instance == null){
@@ -17,73 +16,59 @@ public class NsharpPartListener implements IPartListener2 {
 		}
 
 	}
-	@Override
-	public void partActivated(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
+	public enum PartEvent {
+		partActivated, partBroughtToTop,partClosed,partDeactivated,partOpened,partHidden, partInputChanged, partVisible
+	};
+	
+	private void handleEvent(IWorkbenchPartReference partRef,PartEvent event){
 		if(partRef.getPart(false) instanceof NsharpEditor){
 			NsharpEditor ed = (NsharpEditor)partRef.getPart(false);
-			System.out.println("NsharpPartActivated "+ed.toString()+ " editor's RscHdr="+ed.getRscHandler());//+" saved rscHandler="+rscHandler.toString());
 			if(ed!=null && ed.getRscHandler()!=null){
-				ed.getRscHandler().repopulateSndgData();
-				ed.getRscHandler().resetRsc();
-				ed.refresh();
+				//System.out.println(event+" rscHandler="+ed.getRscHandler().toString());//+" saved rscHandler="+rscHandler.toString());
+				ed.getRscHandler().handleNsharpEditorPartEvent(event);
 			}
 		}
 	}
+	@Override
+	public void partActivated(IWorkbenchPartReference partRef) {
+		handleEvent(partRef,PartEvent.partActivated);
+	}
 
-	
+
 
 	@Override
 	public void partBroughtToTop(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartBroughtToTop rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partBroughtToTop);
 	}
 
 	@Override
 	public void partClosed(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartCosed rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partClosed);
 	}
 
 	@Override
 	public void partDeactivated(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartDeactivated rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partDeactivated);
 	}
 
 	@Override
 	public void partOpened(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartOpened rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partOpened);
 	}
 
 	@Override
 	public void partHidden(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartHidden rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partHidden);
 	}
 
 	@Override
 	public void partVisible(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartVisible rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partVisible);
 	}
 
 	@Override
 	public void partInputChanged(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-		//System.out.println("NsharppartInputChanged rscHandler="+rscHandler.toString());
-
+		handleEvent(partRef,PartEvent.partInputChanged);
 	}
-
-	//public void setRscHandler(NsharpResourceHandler rscHandler) {
-	//	this.rscHandler = rscHandler;
-	//}
 
 }
