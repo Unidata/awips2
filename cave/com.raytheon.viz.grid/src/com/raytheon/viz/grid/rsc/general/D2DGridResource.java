@@ -58,6 +58,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.GridResourceData;
+import com.raytheon.viz.grid.util.ConformalityUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -131,9 +132,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         GeneralGridData data = getData(dataRecs, location.getGridGeometry(),
                 dataUnit);
         if (location != null && location.getSpacingUnit().equals("degree")) {
-            double dx = location.getDx();
-            Integer nx = location.getNx();
-            if (dx * nx >= 360) {
+            if (!ConformalityUtil.testConformality(location.getGridGeometry(),
+                    descriptor.getGridGeometry())) {
                 data = reprojectData(data);
             }
         }
