@@ -17,12 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-CREATE INDEX "gridCoverageType_idx"
+CREATE INDEX "gridCoverageTypeNxNy_idx"
   ON gridcoverage
   USING btree
-  (dtype);
-
-CREATE INDEX "gridCoverageNxNy_idx"
-  ON gridcoverage
-  USING btree
-  (nx, ny);
+  (dtype, nx, ny);
