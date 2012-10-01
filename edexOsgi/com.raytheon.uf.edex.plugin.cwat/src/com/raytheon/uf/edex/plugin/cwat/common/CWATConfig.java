@@ -29,7 +29,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.GraphicBlockValues;
@@ -123,13 +123,13 @@ public class CWATConfig {
     public static final int dimensions = 2;
 
     /** wind speed u 700 mb **/
-    public GribRecord u700 = null;
+    public GridRecord u700 = null;
 
     /** wind speed v 700 mb **/
-    public GribRecord v700 = null;
+    public GridRecord v700 = null;
 
     /** U wind at 500 mb **/
-    public GribRecord u500 = null;
+    public GridRecord u500 = null;
 
     public VerticalSounding vs = null;
 
@@ -462,23 +462,23 @@ public class CWATConfig {
         }
     }
 
-    public GribRecord getU700() {
+    public GridRecord getU700() {
         return u700;
     }
 
-    public GribRecord getV700() {
+    public GridRecord getV700() {
         return v700;
     }
 
-    public void setU700(GribRecord u700) {
+    public void setU700(GridRecord u700) {
         this.u700 = u700;
     }
 
-    public void setV700(GribRecord v700) {
+    public void setV700(GridRecord v700) {
         this.v700 = v700;
     }
 
-    public GribRecord getU500() {
+    public GridRecord getU500() {
         return u500;
     }
 
@@ -563,15 +563,15 @@ public class CWATConfig {
                 // check back for a couple hours
                 int interval = 1440;
 
-                u700 = DATUtils.getMostRecentGribRecord(interval,
+                u700 = DATUtils.getMostRecentGridRecord(interval,
                         U700Product.getSQL(interval, U700Product.U700),
                         param700U);
 
-                v700 = DATUtils.getMostRecentGribRecord(interval,
+                v700 = DATUtils.getMostRecentGridRecord(interval,
                         V700Product.getSQL(interval, V700Product.V700),
                         param700V);
 
-                u500 = DATUtils.getMostRecentGribRecord(interval,
+                u500 = DATUtils.getMostRecentGridRecord(interval,
                         U500Product.getSQL(interval, U500Product.U500),
                         param500U);
 
