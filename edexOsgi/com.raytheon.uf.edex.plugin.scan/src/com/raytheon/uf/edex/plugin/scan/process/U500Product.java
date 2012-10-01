@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.plugin.scan.process;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -47,7 +47,7 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * @version 1.0
  */
 
-public class U500Product extends ScanProduct {
+public class U500Product extends GridProduct {
 
     private static final long serialVersionUID = 1L;
 
@@ -72,12 +72,12 @@ public class U500Product extends ScanProduct {
     @Override
     public PersistablePluginDataObject getRecord() throws PluginException,
             Exception {
-        GribRecord grib = null;
+        GridRecord grib = null;
         try {
-            filter.setGribRecord(U500, uri);
+            filter.setGridRecord(U500, uri);
             // statusHandler.handle(Priority.INFO, "MATCHED " + U500
             // + " MODEL URI: " + uri);
-            grib = filter.getGribRecord(U500);
+            grib = filter.getGridRecord(U500);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,20 +87,20 @@ public class U500Product extends ScanProduct {
     @Override
     public void process() throws Exception {
 
-        GribRecord rec = null;
+        GridRecord rec = null;
         try {
-            rec = (GribRecord) getRecord();
+            rec = (GridRecord) getRecord();
         } catch (Exception pe) {
             pe.printStackTrace();
         }
         if (rec != null) {
-            filter.setGribRecord(U500, rec);
+            filter.setGridRecord(U500, rec);
         }
     }
 
     @Override
     public void setDataType() {
-        this.dataType = GRIB;
+        this.dataType = GRID;
 
     }
 
@@ -129,11 +129,8 @@ public class U500Product extends ScanProduct {
      * @return
      */
     public static Pattern getPattern(String model) {
-        return Pattern.compile("^" + uriSeparator + GRIB + uriSeparator
-                + wildCard + uriSeparator + model + uriSeparator + "uW"
-                + uriSeparator + "MB" + uriSeparator + "500.0" + uriSeparator
-                + Level.getInvalidLevelValueAsString() + uriSeparator + "null"
-                + uriSeparator + "null" + uriSeparator + "0");
+        return getGridPattern(model, "uW", "MB", "500.0",
+                Level.getInvalidLevelValueAsString());
     }
 
     /**
@@ -143,17 +140,8 @@ public class U500Product extends ScanProduct {
      * @return
      */
     public static String getSQL(int interval, String model) {
-        return "select datauri from grib where modelinfo_id = (select id from grib_models where parameterabbreviation = \'"
-                + "uW"
-                + "\' and modelname = \'"
-                + model
-                + "\' and level_id = (select id from level where masterlevel_name = 'MB' and levelonevalue = '500.0' and leveltwovalue = "
-                + "\'"
-                + Level.getInvalidLevelValueAsString()
-                + "\'"
-                + ")) and reftime > (now()- interval \'"
-                + interval
-                + " minutes\') order by forecasttime desc" + " limit 1";
+        return getGridSQL(interval, model, "uW", "MB", "500.0",
+                Level.getInvalidLevelValueAsString());
     }
 
 }
