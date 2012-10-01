@@ -592,16 +592,6 @@ public class GribSpatialCache {
         return defaultCenterPoint;
     }
 
-    // does not support models with multiple grids, use getGridsForModel instead
-    @Deprecated
-    public GridCoverage getGrid(String modelName) {
-        List<GridCoverage> grids = getGridsForModel(modelName);
-        if (grids == null || grids.isEmpty()) {
-            return null;
-        }
-        return grids.get(0);
-    }
-
     public static Corner determineFirstGridPointCorner(int scanMode) {
         if ((scanMode & 128) > 0) {
             // -i
