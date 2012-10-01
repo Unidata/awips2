@@ -43,10 +43,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
@@ -128,7 +128,7 @@ public class FFGGridResource extends
 
     private boolean isInterpolated;
 
-    private GribRecord gr;
+    private GridRecord gr;
 
     private Rectangle rfcExtent;
 
@@ -147,7 +147,7 @@ public class FFGGridResource extends
     }
 
     private void loadData() {
-        gr = resourceData.getGribRecord();
+        gr = resourceData.getGridRecord();
 
         if (gr == null) {
             return;
@@ -201,7 +201,7 @@ public class FFGGridResource extends
         parameters.setDataMin(0);
         cvt = parameters.getDataToImageConverter();
 
-        gridGeometry = gr.getModelInfo().getLocation().getGridGeometry();
+        gridGeometry = gr.getLocation().getGridGeometry();
 
         try {
             data = new float[((float[]) gr.getMessageData()).length];
@@ -222,10 +222,10 @@ public class FFGGridResource extends
             HRAP hrap;
             Coordinate org = MapUtil.gridCoordinateToLatLon(
                     new Coordinate(0, 0), PixelOrientation.LOWER_LEFT,
-                    gr.getSpatialObject());
+                    gr.getLocation());
 
-            int nx = gr.getSpatialObject().getNx();
-            int ny = gr.getSpatialObject().getNy();
+            int nx = gr.getLocation().getNx();
+            int ny = gr.getLocation().getNy();
 
             hrap = HRAP.getInstance();
 
@@ -348,8 +348,8 @@ public class FFGGridResource extends
         Map<String, Object> values = new HashMap<String, Object>();
 
         try {
-            int nx = gr.getSpatialObject().getNx();
-            int ny = gr.getSpatialObject().getNy();
+            int nx = gr.getLocation().getNx();
+            int ny = gr.getLocation().getNy();
 
             Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
                     .getGridGeometry(), PixelInCell.CELL_CORNER);
