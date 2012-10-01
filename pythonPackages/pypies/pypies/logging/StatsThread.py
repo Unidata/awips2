@@ -35,6 +35,20 @@
 import threading, time, logging
 STORE_DIR = '/awips2/edex/data/hdf5/'  # TODO this should be a config file
 STORE_DIR_LEN = len(STORE_DIR)
+SECTION_KEYS=['total',
+              '  deserialize',
+              '  getLock',
+              '    approxLockSleepTime',
+              '    orphanCheck',
+              '  openFile',
+              '  getGroup',
+              '  repack',
+              '  read',
+              '  store',
+              '  createRecord',
+              '  closeFile',
+              '  releaseLock',
+              '  serialize']
 
 class StatsThread(threading.Thread):
     
@@ -77,7 +91,7 @@ class StatsThread(threading.Thread):
                 self.hourStats['lastOutput'] = time.time()
                 
         
-    def addRecord(self, rec):     
+    def addRecord(self, rec):
         with self.lock:        
             self.minuteStats = self.__addNewStat(self.minuteStats, rec)
             self.hourStats = self.__addNewStat(self.hourStats, rec)
@@ -90,23 +104,37 @@ class StatsThread(threading.Thread):
             plugin = pluginName[0:slashIndex]
         else:
             plugin = pluginName
-        req = rec['request']
-        recTime = rec['time']
-        
+
         if statDict.has_key(plugin):
-            pluginEntry = statDict[plugin]
+            pluginDict = statDict[plugin]
         else:
-            pluginEntry = {}
-        if not pluginEntry.has_key(req):
-            pluginEntry[req] = {'count':0, 'time':0.0, 'slowest':0.0, 'fastest':9999.0}
-        requestEntry = pluginEntry[req]
-        requestEntry['count'] = requestEntry['count'] + 1
-        requestEntry['time'] = requestEntry['time'] + recTime
-        if recTime > requestEntry['slowest']:
-            requestEntry['slowest'] = recTime
-        if recTime < requestEntry['fastest']:
-            requestEntry['fastest'] = recTime
-        statDict[plugin] = pluginEntry
+            pluginDict = {}
+            statDict[plugin]=pluginDict
+
+        req = rec['request']
+
+        if pluginDict.has_key(req):
+            reqDict=pluginDict[req]
+        else:
+            reqDict={}
+            pluginDict[req] = reqDict
+
+        recTimes = rec['time']
+
+        for timeKey in recTimes.keys():
+            recTime=recTimes[timeKey]
+
+            if not reqDict.has_key(timeKey):
+                reqDict[timeKey] = {'count':0, 'time':0.0, 'slowest':0.0, 'fastest':9999.0}
+
+            requestEntry = reqDict[timeKey]
+            requestEntry['count'] += 1
+            requestEntry['time'] += recTime
+            if recTime > requestEntry['slowest']:
+                requestEntry['slowest'] = recTime
+            if recTime < requestEntry['fastest']:
+                requestEntry['fastest'] = recTime
+
         return statDict
     
     
@@ -120,34 +148,34 @@ class StatsThread(threading.Thread):
         if len(statDict):
             stmt += COL + 'plugin'.ljust(20)
             stmt += 'request'.ljust(20) + COL
+            stmt += 'section'.ljust(25) + COL
             stmt += 'count'.rjust(7) + COL
             stmt += 'average'.rjust(8) + COL
             stmt += 'min'.rjust(5) + COL
             stmt += 'max'.rjust(5)
             stmt += '\n'
-            stmt += ('-' * 85) + '\n'
+            stmt += ('-' * 114) + '\n'
             pluginNames = statDict.keys()
             pluginNames.sort()
             for plugin in pluginNames: 
-                pluginEntry = statDict[plugin]
-                reqNames = pluginEntry.keys()
+                pluginDict = statDict[plugin]
+                reqNames = pluginDict.keys()
                 reqNames.sort()
                 for req in reqNames:
-                    stmt += COL + plugin.ljust(20)
-                    entry = pluginEntry[req]
-                    avg = '%.3f' % (entry['time'] / entry['count'])
-                    fast = '%.3f' % (entry['fastest'])
-                    slow = '%.3f' % (entry['slowest'])
-                    stmt += req.ljust(20) + COL
-                    stmt += str(entry['count']).rjust(7) + COL + avg.rjust(8) + COL
-                    stmt += fast + COL + slow + '\n'
+                    reqDict = pluginDict[req]
+                    for section in SECTION_KEYS:
+                        timeKey = section.strip()
+                        if reqDict.has_key(timeKey):
+                            stmt += COL + plugin.ljust(20)
+                            entry = reqDict[timeKey]
+                            avg = '%.3f' % (entry['time'] / entry['count'])
+                            fast = '%.3f' % (entry['fastest'])
+                            slow = '%.3f' % (entry['slowest'])
+                            stmt += req.ljust(20) + COL
+                            stmt += section.ljust(25) + COL
+                            stmt += str(entry['count']).rjust(7) + COL + avg.rjust(8) + COL
+                            stmt += fast + COL + slow + '\n'
                 stmt += '\n'
         else:
-            stmt += COL + 'No transactions reported'            
+            stmt += COL + 'No transactions reported'
         return stmt
-            
-            
-                
-    
-    
-            
