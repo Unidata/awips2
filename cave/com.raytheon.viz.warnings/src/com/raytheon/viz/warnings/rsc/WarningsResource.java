@@ -22,26 +22,27 @@ package com.raytheon.viz.warnings.rsc;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Map;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -55,31 +56,268 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2010            jsanchez     Initial creation
- * Aug 22, 2011  10631   njensen  Major refactor
+ * Aug 22, 2011  10631    njensen  Major refactor
  * May 3, 2012  DR 14741  porricel     Stop setting end time of orig.
  *                                     warning to start time of update.
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
  *                                  NEW warning when CAN warning is issued
- * 
+ * Sep 27, 2012  1149     jsanchez     Refactored methods from AbstractWarningsResource into this class.
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
 
-public class WarningsResource extends AbstractWarningResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(WarningsResource.class);
+public class WarningsResource extends AbstractWWAResource {
+
+    protected static class RepaintHeartbeat extends TimerTask {
+
+        private final HashSet<AbstractVizResource<?, ?>> resourceSet = new HashSet<AbstractVizResource<?, ?>>();
+
+        private boolean cancelled = false;
+
+        public RepaintHeartbeat() {
+
+        }
+
+        /**
+         * copy resources from old task, just in case some were added after it
+         * should have been replaced (threads are fun)
+         **/
+        public void copyResourceSet(RepaintHeartbeat oldTask) {
+            // copy resources, in case one was added after a cancel
+            Set<AbstractVizResource<?, ?>> oldResourceSet = oldTask
+                    .getResourceSet();
+            synchronized (oldResourceSet) {
+                for (AbstractVizResource<?, ?> rsc : oldResourceSet) {
+                    this.addResource(rsc);
+                }
+            }
+        }
+
+        public Set<AbstractVizResource<?, ?>> getResourceSet() {
+            return resourceSet;
+        }
+
+        @Override
+        public void run() {
+            // get the unique displays from all the added resources
+            ArrayList<IRenderableDisplay> displaysToRefresh = new ArrayList<IRenderableDisplay>(
+                    1);
+            synchronized (resourceSet) {
+                for (AbstractVizResource<?, ?> rsc : resourceSet) {
+                    try {
+                        IRenderableDisplay disp = rsc.getDescriptor()
+                                .getRenderableDisplay();
+                        if (!displaysToRefresh.contains(disp)) {
+                            displaysToRefresh.add(disp);
+                        }
+                    } catch (Exception e) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "Encountered error during Warnings Heartbeat, continuing with other Warnings ",
+                                        e);
+                    }
+                }
+            }
+
+            // create an array with final modifier
+            final IRenderableDisplay[] refreshList = displaysToRefresh
+                    .toArray(new IRenderableDisplay[displaysToRefresh.size()]);
+
+            // execute refersh in UI thread
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    for (IRenderableDisplay disp : refreshList) {
+                        disp.refresh();
+                    }
+                }
+
+            });
+
+            // cancel the task if there are no more resources
+            boolean cancel = false;
+            synchronized (resourceSet) {
+                if (resourceSet.size() < 1) {
+                    cancel = true;
+                }
+            }
+
+            if (cancel) {
+                doCancel();
+            }
+        }
+
+        public void addResource(AbstractVizResource<?, ?> rsc) {
+            // if task has no resources then it needs to be started when the
+            // first is added
+            boolean start = false;
+            synchronized (resourceSet) {
+                // if this is the first resource added to an empty set start the
+                // timer
+                if (resourceSet.size() < 1) {
+                    start = true;
+                }
+                resourceSet.add(rsc);
+            }
+            if (start) {
+                WarningsResource.scheduleHeartBeat();
+            }
+        }
+
+        public void removeResource(AbstractVizResource<?, ?> rsc) {
+            synchronized (resourceSet) {
+                resourceSet.remove(rsc);
+                // cancel the task if there are no more resources
+                if (resourceSet.size() < 1) {
+                    doCancel();
+                }
+            }
+        }
+
+        private void doCancel() {
+            synchronized (heartBeatChangeLock) {
+                if (cancelled == false) {
+                    cancelled = true;
+                    heartBeatTimer.cancel();
+                    heartBeatTask = new RepaintHeartbeat();
+                    heartBeatTimer = new Timer();
+                    heartBeatTask.copyResourceSet(this);
+                }
+            }
+        }
+    }
+
+    /** lock when changing heartBeatTask **/
+    protected static final Object heartBeatChangeLock = new Object();
+
+    protected static RepaintHeartbeat heartBeatTask = null;
+
+    protected static Timer heartBeatTimer = null;
 
     /**
      * Constructor
      */
     public WarningsResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
+        resourceName = "Warnings";
     }
 
     @Override
-    protected synchronized void updateDisplay(IGraphicsTarget target) {
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        DataTime earliest = this.descriptor.getFramesInfo().getFrameTimes()[0];
+        requestData(earliest);
+        synchronized (heartBeatChangeLock) {
+            if (heartBeatTask == null) {
+                heartBeatTask = new RepaintHeartbeat();
+            }
+            heartBeatTask.addResource(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
+     */
+    @Override
+    protected void disposeInternal() {
+        synchronized (heartBeatChangeLock) {
+            heartBeatTask.removeResource(this);
+        }
+        for (WarningEntry entry : entryMap.values()) {
+            if (entry.shadedShape != null) {
+                entry.shadedShape.dispose();
+            }
+            if (entry.wireframeShape != null) {
+                entry.wireframeShape.dispose();
+            }
+        }
+
+        entryMap.clear();
+        if (warningsFont != null) {
+            warningsFont.dispose();
+        }
+    }
+
+    @Override
+    public void resourceChanged(ChangeType type, Object object) {
+        if (type == ChangeType.DATA_UPDATE) {
+            PluginDataObject[] pdo = (PluginDataObject[]) object;
+            synchronized (WarningsResource.this) {
+                {
+                    try {
+                        addRecord(pdo);
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.SIGNIFICANT,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+            }
+        } else if (type == ChangeType.CAPABILITY) {
+            if (color != null
+                    && color.equals(getCapability((ColorableCapability.class))
+                            .getColor()) == false) {
+                color = getCapability((ColorableCapability.class)).getColor();
+
+                // TODO this needs to be fixed to work with watches which are
+                // shaded
+                // for (String dataUri : entryMap.keySet()) {
+                // WarningEntry entry = entryMap.get(dataUri);
+                // TODO init a shape somewhere else
+                // if (entry.shadedShape != null) {
+                // entry.shadedShape.dispose();
+                // try {
+                // initShape(entry.record);
+                // } catch (VizException e) {
+                // statusHandler.handle(Priority.PROBLEM,
+                // e.getLocalizedMessage(), e);
+                // }
+                // }
+                // }
+            }
+        }
+        issueRefresh();
+    }
+
+    @Override
+    protected void initShape(IGraphicsTarget target,
+            AbstractWarningRecord record) throws VizException {
+        Geometry geo;
+
+        if (record.getGeometry() != null) {
+            try {
+                WarningEntry entry = entryMap.get(record.getDataURI());
+                if (entry == null) {
+                    entry = new WarningEntry();
+                    entry.record = record;
+                    entryMap.put(record.getDataURI(), entry);
+                }
+                IWireframeShape wfs = entry.wireframeShape;
+
+                if (wfs != null) {
+                    wfs.dispose();
+                }
+
+                wfs = target.createWireframeShape(false, descriptor);
+                geo = (Geometry) record.getGeometry().clone();
+
+                JTSCompiler jtsCompiler = new JTSCompiler(null, wfs, descriptor);
+                jtsCompiler.handle(geo);
+                wfs.compile();
+                entry.wireframeShape = wfs;
+            } catch (Exception e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Error creating wireframe", e);
+            }
+        }
+    }
+
+    @Override
+    protected synchronized void updateDisplay(IGraphicsTarget target)
+            throws VizException {
         if (!this.recordsToLoad.isEmpty()) {
             FramesInfo info = getDescriptor().getFramesInfo();
             DataTime[] frames = info.getFrameTimes();
@@ -121,7 +359,7 @@ public class WarningsResource extends AbstractWarningResource {
                                     entry.record.setEndTime((Calendar) warnrec
                                             .getStartTime().clone());
                                 }
-                                
+
                                 if (!rec.getCountyheader().equals(
                                         warnrec.getCountyheader())
                                         && act == WarningAction.CAN) {
@@ -166,103 +404,50 @@ public class WarningsResource extends AbstractWarningResource {
 
     }
 
-    @Override
-    protected void initShape(IGraphicsTarget target,
-            AbstractWarningRecord record) {
-        Geometry geo;
-
-        if (record.getGeometry() != null) {
-            try {
-                WarningEntry entry = entryMap.get(record.getDataURI());
-                if (entry == null) {
-                    entry = new WarningEntry();
-                    entry.record = record;
-                    entryMap.put(record.getDataURI(), entry);
-                }
-                IWireframeShape wfs = entry.wireframeShape;
-
-                if (wfs != null) {
-                    wfs.dispose();
-                }
-
-                wfs = target.createWireframeShape(false, descriptor);
-                geo = (Geometry) record.getGeometry().clone();
-
-                JTSCompiler jtsCompiler = new JTSCompiler(null, wfs, descriptor);
-                jtsCompiler.handle(geo);
-                wfs.compile();
-                entry.wireframeShape = wfs;
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error creating wireframe", e);
-            }
-        }
-    }
-
-    @Override
-    protected void initInternal(IGraphicsTarget target) throws VizException {
-        DataTime earliest = this.descriptor.getFramesInfo().getFrameTimes()[0];
-        requestData(earliest);
+    /**
+     * schedule the heart beat for the next minute
+     */
+    protected static void scheduleHeartBeat() {
+        // get simulated time
+        Date currentTime = SimulatedTime.getSystemTime().getTime();
+        // get a calendar
+        Calendar now = Calendar.getInstance();
+        // set calendar time to simulated time
+        now.setTime(currentTime);
+        // add one to the minutes field
+        now.add(Calendar.MINUTE, 1);
+        // reset second and milisecond to 0
+        now.set(Calendar.SECOND, 0);
+        now.set(Calendar.MILLISECOND, 0);
+        // schedule task to fire every minute
         synchronized (heartBeatChangeLock) {
-            if (heartBeatTask == null) {
-                heartBeatTask = new RepaintHeartbeat();
+            try {
+                if (heartBeatTimer == null) {
+                    heartBeatTimer = new Timer();
+                }
+                // schedule on the minute every minute
+                heartBeatTimer.schedule(heartBeatTask, now.getTime(),
+                        1 * 60 * 1000);
+            } catch (Exception e) {
+                try {
+                    heartBeatTimer.cancel();
+                } catch (Exception e2) {
+                    // ignore, we just want to make sure the timer is cancelled
+                } finally {
+                    // create a new task if there was an error when scheduling
+                    heartBeatTask = new RepaintHeartbeat();
+                    heartBeatTimer = new Timer();
+                }
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Error scheduling warnings heart beat ", e);
             }
-            heartBeatTask.addResource(this);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected void requestData(DataTime earliest) throws VizException {
-        System.out.println("requesting data");
-        Map<String, RequestConstraint> map = (Map<String, RequestConstraint>) resourceData
-                .getMetadataMap().clone();
-        if (earliestRequested != null) {
-            // don't request data we've already requested
-            String[] times = new String[] { earliest.toString(),
-                    earliestRequested.toString() };
-            RequestConstraint constraint = new RequestConstraint();
-            constraint.setConstraintType(ConstraintType.BETWEEN);
-            constraint.setBetweenValueList(times);
-            map.put("endTime", constraint);
-        } else {
-            RequestConstraint endConstraint = new RequestConstraint(
-                    earliest.toString(), ConstraintType.GREATER_THAN_EQUALS);
-            map.put("endTime", endConstraint);
-        }
-
-        earliestRequested = earliest;
-
-        LayerProperty property = new LayerProperty();
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        property.setEntryQueryParameters(map, false);
-        property.setNumberOfImages(9999);
-
-        Object[] resp = null;
-        resp = DataCubeContainer.getData(property, 60000).toArray(
-                new Object[] {});
-        PluginDataObject[] arr = new PluginDataObject[resp.length];
-        int i = 0;
-        for (Object o : resp) {
-            arr[i] = (PluginDataObject) o;
-            i++;
-        }
-        addRecord(sort(arr));
-    }
-
-    private PluginDataObject[] sort(PluginDataObject[] pdos) {
-        ArrayList<AbstractWarningRecord> sortedWarnings = new ArrayList<AbstractWarningRecord>();
-        for (Object o : pdos) {
-            if (((PluginDataObject) o) instanceof AbstractWarningRecord) {
-                AbstractWarningRecord record = (AbstractWarningRecord) o;
-                sortedWarnings.add(record);
-            }
-        }
-
-        /* Sorts by phensig, etn, starttime (descending), act */
-        Collections.sort(sortedWarnings, comparator);
-        return sortedWarnings.toArray(new AbstractWarningRecord[sortedWarnings
-                .size()]);
+    protected String getEventKey(WarningEntry entry) {
+        AbstractWarningRecord r = entry.record;
+        return r.getOfficeid() + '.' + r.getPhensig() + '.' + r.getEtn();
     }
 
 }
