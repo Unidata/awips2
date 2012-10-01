@@ -18,7 +18,7 @@
 	</bean>
 
 	<bean factory-bean="pluginRegistry" factory-method="register"
-		depends-on="radarRegistered,bufruaRegistered,gribRegistered">
+		depends-on="radarRegistered,bufruaRegistered,gridRegistered">
 		<constructor-arg value="scan" />
 		<constructor-arg ref="scanProperties" />
 	</bean>
