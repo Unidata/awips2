@@ -340,10 +340,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             group = request.getGroup()            
             req = request.getRequest()
             if req:
-                t0=time.time()
                 grp = self.__getGroup(f, group)
-                t1=time.time()
-                timeMap['getGroup']=t1-t0
                 result = [self.__retrieveInternal(grp, request.getDataset(), req)]
             else:
                 result = self.__retrieve(f, group, request.getIncludeInterpolated())
@@ -711,7 +708,10 @@ class H5pyDataStore(IDataStore.IDataStore):
                 # directory, so just copy the original data without the repack
                 shutil.copy(filepath, repackedFullPath)
         t1=time.time()
-        timeMap['repack']
+        if timeMap.has_key('repack'):
+            timeMap['repack']+=t1-t0
+        else:
+            timeMap['repack']=t1-t0
         return success
                 
     def __doFileAction(self, filepath, basePath, outputDir, fileAction, response, compression='NONE', timestampCheck=None):
