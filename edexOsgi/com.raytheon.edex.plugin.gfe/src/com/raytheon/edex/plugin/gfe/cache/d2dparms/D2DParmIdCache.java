@@ -41,8 +41,6 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
-import com.raytheon.edex.plugin.grib.util.GribModelLookup;
-import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -328,19 +326,17 @@ public class D2DParmIdCache {
             IFPServerConfig config = IFPServerConfigManager
                     .getServerConfig(siteID);
             GFEDao dao = new GFEDao();
-            GribModelLookup modelLookup = GribModelLookup.getInstance();
             Set<ParmID> parmIds = new HashSet<ParmID>();
             long start = System.currentTimeMillis();
             List<String> d2dModels = config.getD2dModels();
             for (String d2dModelName : d2dModels) {
-                GridModel model = modelLookup.getModelByName(d2dModelName);
                 String gfeModel = config.gfeModelNameMapping(d2dModelName);
 
-                if ((model != null) && (gfeModel != null)) {
+                if ((d2dModelName != null) && (gfeModel != null)) {
                     List<DatabaseID> dbIds = null;
                     try {
-                        dbIds = dao.getD2DDatabaseIdsFromDb(model, gfeModel,
-                                siteID);
+                        dbIds = dao.getD2DDatabaseIdsFromDb(d2dModelName,
+                                gfeModel, siteID);
                     } catch (DataAccessLayerException e) {
                         throw new PluginException(
                                 "Unable to get D2D Database Ids from database!",
@@ -354,8 +350,8 @@ public class D2DParmIdCache {
 
                         for (int i = 0; i < versions; i++) {
                             try {
-                                parmIds.addAll(dao.getD2DParmIdsFromDb(model,
-                                        dbIds.get(i)));
+                                parmIds.addAll(dao.getD2DParmIdsFromDb(
+                                        d2dModelName, dbIds.get(i)));
                             } catch (DataAccessLayerException e) {
                                 throw new PluginException(
                                         "Error adding parmIds to D2DParmIdCache!!",
