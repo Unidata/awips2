@@ -386,12 +386,6 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
             if (record.getRequest().getBaseParams().size() == method
                     .getFields().size()) {
                 modifyRequest(record);
-                if (record.getLevel().getMasterLevel().getName().equals("BL")
-                        && record.getLevel().getLevelOneValueAsString()
-                                .equals("0.0")
-                        && !record.getLevel().getLevelTwoValueAsString()
-                                .equals("30.0"))
-                    continue;
                 finalResponses.add(record);
             }
 
