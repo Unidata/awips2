@@ -101,8 +101,8 @@
        <SourceName>FFG0124hr</SourceName>
        <DisplayName>RFCFFG</DisplayName>
        <DurationHour>1</DurationHour>
-       <dataPath>/grib/%/%/FFG0124hr/SFC/0.0/-999999.0/null/null/</dataPath>
-       <plugin>grib</plugin>
+       <dataPath>/grid/%/%/.*/.*/null/FFG0124hr/SFC/0.0/-999999.0/</dataPath>
+       <plugin>grid</plugin>
        <dataType>GRID</dataType>
        <sourceType>GUIDANCE</sourceType>
        <rateOrAccum>accum</rateOrAccum>
@@ -118,8 +118,8 @@
        <SourceName>FFG0324hr</SourceName>
        <DisplayName>RFCFFG</DisplayName>
        <DurationHour>3</DurationHour>
-       <dataPath>/grib/%/%/FFG0324hr/SFC/0.0/-999999.0/null/null/</dataPath>
-       <plugin>grib</plugin>
+       <dataPath>/grid/%/%/.*/.*/null/FFG0324hr/SFC/0.0/-999999.0/</dataPath>
+       <plugin>grid</plugin>
        <dataType>GRID</dataType>
        <sourceType>GUIDANCE</sourceType>
        <rateOrAccum>accum</rateOrAccum>
@@ -135,8 +135,8 @@
        <SourceName>FFG0624hr</SourceName>
        <DisplayName>RFCFFG</DisplayName>
        <DurationHour>6</DurationHour>
-       <dataPath>/grib/%/%/FFG0624hr/SFC/0.0/-999999.0/null/null/</dataPath>
-       <plugin>grib</plugin>
+       <dataPath>/grid/%/%/.*/.*/null/FFG0624hr/SFC/0.0/-999999.0/</dataPath>
+       <plugin>grid</plugin>
        <dataType>GRID</dataType>
        <sourceType>GUIDANCE</sourceType>
        <rateOrAccum>accum</rateOrAccum>
