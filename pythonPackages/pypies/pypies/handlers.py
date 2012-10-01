@@ -42,6 +42,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.request import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.response import *
 
 logger = pypies.logger
+timeMap = pypies.timeMap
 
 from pypies.impl import H5pyDataStore
 datastore = H5pyDataStore.H5pyDataStore()
@@ -61,8 +62,9 @@ datastoreMap = {
 
 @Request.application
 def pypies_response(request):
+    timeMap.clear()
     try: 
-        t0 = time.time()              
+        startTime = time.time()
         try:
             obj = dynamicserialize.deserialize(request.data)
         except:
@@ -71,6 +73,7 @@ def pypies_response(request):
             resp = ErrorResponse()            
             resp.setError(msg)            
             return __prepareResponse(resp)
+        timeMap['deserialize']=time.time()-startTime
             
         clz = obj.__class__
         if logger.isEnabledFor(logging.DEBUG):
@@ -90,11 +93,14 @@ def pypies_response(request):
             logger.error(msg)
             resp = ErrorResponse()            
             resp.setError(msg)            
-                
+
+        startSerialize = time.time()
         httpResp = __prepareResponse(resp)        
         if success:
-            t1 = time.time()            
-            logger.info({'request':datastoreMap[clz][1], 'time':t1-t0, 'file':obj.getFilename()})
+            endTime = time.time()
+            timeMap['serialize'] = endTime - startSerialize
+            timeMap['total'] = endTime - startTime
+            logger.info({'request':datastoreMap[clz][1], 'time':timeMap, 'file':obj.getFilename()})
             #logger.info("pid=" + str(os.getpid()) + " " + datastoreMap[clz][1] + " on " + obj.getFilename() + " processed in " + ('%.3f' % (t1-t0)) + " seconds")
         return httpResp
     except:
