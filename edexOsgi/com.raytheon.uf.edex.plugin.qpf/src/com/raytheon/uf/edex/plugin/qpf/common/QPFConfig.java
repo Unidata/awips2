@@ -29,7 +29,7 @@ import java.util.TimeZone;
 
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.qpf.QPFUtils;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
@@ -541,10 +541,10 @@ public class QPFConfig {
 
             int interval = 1440;
 
-            GribRecord modelURec = DATUtils.getMostRecentGribRecord(interval,
+            GridRecord modelURec = DATUtils.getMostRecentGridRecord(interval,
                     U700Product.getSQL(interval, U700Product.U700), paramXMLU);
 
-            GribRecord modelVRec = DATUtils.getMostRecentGribRecord(interval,
+            GridRecord modelVRec = DATUtils.getMostRecentGridRecord(interval,
                     V700Product.getSQL(interval, V700Product.V700), paramXMLV);
 
             if (modelURec != null && modelVRec != null) {
