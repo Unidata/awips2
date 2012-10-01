@@ -32,10 +32,11 @@
 # 
 #
 
-import numpy, pypies, logging
+import numpy, pypies, logging, time
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage.records import *
 logger = pypies.logger
+timeMap = pypies.timeMap
 
 typeToClassMap = {
                   numpy.int8: ByteDataRecord,
@@ -48,6 +49,8 @@ typeToClassMap = {
 }
 
 def createStorageRecord(rawData, ds):
+    t0=time.time()
+
     t = typeToClassMap[rawData.dtype.type]
     inst = t()
     name = ds.name
@@ -97,5 +100,11 @@ def createStorageRecord(rawData, ds):
     props.setCompression(compression)
     # TODO downscaled?
     inst.setProps(props)
+    
+    t1=time.time()
+    if timeMap.has_key('createRecord'):
+        timeMap['createRecord']+=t1-t0
+    else:
+        timeMap['createRecord']=t1-t0
     
     return inst
