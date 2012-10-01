@@ -82,6 +82,9 @@ public class GridCoverageLookup {
                 idToCoverage.put(coverage.getId(), coverage);
             }
         } catch (Exception e) {
+            // do not rethrow, the lookup is not broken at this point so if the
+            // problems persist then more exceptions will come from the actual
+            // lookup methods themselves.
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving coverages from server.", e);
         }
@@ -94,7 +97,7 @@ public class GridCoverageLookup {
                 .synchronizedMap(new GridCoverageSpatialMap());
     }
 
-    public GridCoverage getCoverage(int id) {
+    public GridCoverage getCoverage(int id) throws GridCoverageLookupException {
         GridCoverage result = idToCoverage.get(id);
         if (result != null) {
             return result;
@@ -115,10 +118,9 @@ public class GridCoverageLookup {
                 return result;
             }
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error occurred retrieving GridCoverage information from server.",
-                            e);
+            throw new GridCoverageLookupException(
+                    "Error occurred retrieving GridCoverage information from server.",
+                    e);
         }
         return null;
     }
@@ -131,7 +133,8 @@ public class GridCoverageLookup {
      * @param ids
      * @return
      */
-    public Map<Integer, GridCoverage> getCoverages(List<Integer> ids) {
+    public Map<Integer, GridCoverage> getCoverages(List<Integer> ids)
+            throws GridCoverageLookupException {
         RequestConstraint idConstraint = new RequestConstraint(null,
                 ConstraintType.IN);
         Map<Integer, GridCoverage> result = new HashMap<Integer, GridCoverage>(
@@ -161,16 +164,15 @@ public class GridCoverageLookup {
                 result.put(respCov.getId(), respCov);
             }
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error occurred retrieving GridCoverage information from server.",
-                            e);
-            // this will still return a partial list of any cache hits.
+            throw new GridCoverageLookupException(
+                    "Error occurred retrieving GridCoverage information from server.",
+                    e);
         }
         return result;
     }
 
-    public GridCoverage getCoverage(GridCoverage coverage, boolean create) {
+    public GridCoverage getCoverage(GridCoverage coverage, boolean create)
+            throws GridCoverageLookupException {
         Integer id = coverageToId.get(coverage);
         if (id != null) {
             return getCoverage(id);
@@ -184,10 +186,10 @@ public class GridCoverageLookup {
             }
             return result;
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occured checking GridCoverage.", e);
+            throw new GridCoverageLookupException(
+                    "Error occurred retrieving GridCoverage information from server.",
+                    e);
         }
-        return null;
     }
 
 }
