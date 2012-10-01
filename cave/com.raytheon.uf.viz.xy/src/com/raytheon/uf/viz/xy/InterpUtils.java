@@ -219,7 +219,7 @@ public class InterpUtils {
                     val += (1 - Math.abs(x1 - x)) * (1 - Math.abs(y1 - y))
                             * val11;
                 } else {
-                    missing -= Math.abs((x1 - x) * (y1 - y));
+                    missing -= (1 - Math.abs(x1 - x)) * (1 - Math.abs(y1 - y));
                 }
             }
         }
