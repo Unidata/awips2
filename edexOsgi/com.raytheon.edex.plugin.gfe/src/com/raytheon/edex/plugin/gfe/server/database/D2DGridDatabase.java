@@ -34,12 +34,10 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
 import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
-import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
 import com.raytheon.edex.plugin.grib.util.ParameterInfo;
@@ -60,7 +58,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -71,6 +69,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * Singleton that assists with grid data
@@ -95,10 +94,7 @@ public class D2DGridDatabase extends VGridDatabase {
             .getHandler(D2DGridDatabase.class);
 
     /** The remap object used for resampling grids */
-    private RemapGrid remap;
-
-    /** The source GridLocation (The D2D grid coverage) */
-    private GridLocation inputLoc;
+    private Map<String, RemapGrid> remap = new HashMap<String, RemapGrid>();
 
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputLoc;
@@ -118,34 +114,26 @@ public class D2DGridDatabase extends VGridDatabase {
         valid = this.dbId.isValid();
 
         if (valid) {
-            String siteId = dbId.getSiteId();
-            GridLocationCache locCache = GridLocationCache.getInstance(dbId
-                    .getSiteId());
             String gfeModelName = dbId.getModelName();
-            inputLoc = locCache.getGridLocation(gfeModelName);
-
-            if (inputLoc == null) {
-                String d2dModelName = this.config
-                        .d2dModelNameMapping(gfeModelName);
-                GridCoverage awipsGrid = GribSpatialCache.getInstance()
-                        .getGrid(d2dModelName);
-
-                if (awipsGrid == null) {
-                    throw new GfeException(
-                            "Unable to lookup coverage for GFE Model ["
-                                    + gfeModelName + "] for site [" + siteId
-                                    + "].  GribSpatialCache for d2dModel ["
-                                    + d2dModelName + "] returned null");
-                }
-
-                inputLoc = GfeUtil.transformGridCoverage(awipsGrid);
-                locCache.addGridLocation(gfeModelName, inputLoc);
-            }
 
             outputLoc = this.config.dbDomain();
 
-            remap = new RemapGrid(inputLoc, outputLoc);
+            String d2dModelName = this.config.d2dModelNameMapping(gfeModelName);
+            for (GridCoverage awipsGrid : GribSpatialCache.getInstance()
+                    .getGridsForModel(d2dModelName)) {
+                getOrCreateRemap(awipsGrid);
+            }
         }
+    }
+
+    private RemapGrid getOrCreateRemap(GridCoverage awipsGrid) {
+        RemapGrid remap = this.remap.get(awipsGrid.getName());
+        if (remap == null) {
+            GridLocation inputLoc = GfeUtil.transformGridCoverage(awipsGrid);
+            remap = new RemapGrid(inputLoc, outputLoc);
+            this.remap.put(awipsGrid.getName(), remap);
+        }
+        return remap;
     }
 
     @Override
@@ -471,7 +459,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public Grid2DFloat getGrid(ParmID parmId, TimeRange time, GridParmInfo gpi,
             boolean convertUnit) throws GfeException {
         Grid2DFloat bdata = null;
-        GribRecord d2dRecord = null;
+        GridRecord d2dRecord = null;
 
         GFEDao dao = null;
         try {
@@ -508,7 +496,8 @@ public class D2DGridDatabase extends VGridDatabase {
         // Resample the data to fit desired region
         Grid2DFloat retVal;
         try {
-            retVal = this.remap.remap(bdata, fillV, gpi.getMaxValue(),
+            RemapGrid remap = getOrCreateRemap(d2dRecord.getLocation());
+            retVal = remap.remap(bdata, fillV, gpi.getMaxValue(),
                     gpi.getMinValue(), gpi.getMinValue());
             if (convertUnit && d2dRecord != null) {
                 long t5 = System.currentTimeMillis();
@@ -539,10 +528,10 @@ public class D2DGridDatabase extends VGridDatabase {
      * @throws GfeException
      *             If the source and target units are incompatible
      */
-    private void convertUnits(GribRecord d2dRecord, Grid2DFloat data,
+    private void convertUnits(GridRecord d2dRecord, Grid2DFloat data,
             Unit<?> targetUnit) throws GfeException {
 
-        Unit<?> sourceUnit = d2dRecord.getModelInfo().getParameterUnitObject();
+        Unit<?> sourceUnit = d2dRecord.getParameter().getUnit();
         if (sourceUnit.equals(targetUnit)) {
             return;
         }
@@ -585,10 +574,10 @@ public class D2DGridDatabase extends VGridDatabase {
         } catch (PluginException e1) {
             throw new GfeException("Unable to get GFE dao!!", e1);
         }
-        GribRecord uRecord = null;
-        GribRecord vRecord = null;
-        GribRecord sRecord = null;
-        GribRecord dRecord = null;
+        GridRecord uRecord = null;
+        GridRecord vRecord = null;
+        GridRecord sRecord = null;
+        GridRecord dRecord = null;
         try {
 
             // Get the metadata from the grib metadata database
@@ -619,7 +608,8 @@ public class D2DGridDatabase extends VGridDatabase {
             }
 
             try {
-                this.remap.remapUV(uData, vData, fillV, gpi.getMaxValue(),
+                RemapGrid remap = getOrCreateRemap(uRecord.getLocation());
+                remap.remapUV(uData, vData, fillV, gpi.getMaxValue(),
                         gpi.getMinValue(), gpi.getMinValue(), true, true, mag,
                         dir);
             } catch (Exception e) {
@@ -655,7 +645,8 @@ public class D2DGridDatabase extends VGridDatabase {
                 }
 
                 try {
-                    this.remap.remap(sData, dData, fillV, gpi.getMaxValue(),
+                    RemapGrid remap = getOrCreateRemap(sRecord.getLocation());
+                    remap.remap(sData, dData, fillV, gpi.getMaxValue(),
                             gpi.getMinValue(), gpi.getMinValue(), mag, dir);
                 } catch (Exception e) {
                     throw new GfeException("Unable to remap wind grids", e);
@@ -689,10 +680,10 @@ public class D2DGridDatabase extends VGridDatabase {
      *            The grib metadata
      * @return The raw data
      */
-    private Grid2DFloat getRawGridData(GribRecord d2dRecord) {
+    private Grid2DFloat getRawGridData(GridRecord d2dRecord) {
         FloatDataRecord hdf5Record;
         try {
-            GribDao dao = new GribDao();
+            GridDao dao = new GridDao();
             IDataRecord[] hdf5Data = dao.getHDF5Data(d2dRecord, -1);
             hdf5Record = (FloatDataRecord) hdf5Data[0];
         } catch (PluginException e) {
