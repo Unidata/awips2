@@ -27,6 +27,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 
+
 public class CWASPSResource extends WarningsResource {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -230,14 +231,14 @@ public class CWASPSResource extends WarningsResource {
 
         textToPrint[2] = record.getPil();
 
-        SimpleDateFormat startFormat = AbstractWarningResource.DEFAULT_FORMAT;
-        SimpleDateFormat endFormat = AbstractWarningResource.DEFAULT_FORMAT;
+        SimpleDateFormat startFormat = AbstractWWAResource.DEFAULT_FORMAT;
+        SimpleDateFormat endFormat = AbstractWWAResource.DEFAULT_FORMAT;
         if (mapWidth == 0) {
-            startFormat = AbstractWarningResource.LONG_FORMAT;
-            endFormat = AbstractWarningResource.DAY_FORMAT;
+            startFormat = AbstractWWAResource.LONG_FORMAT;
+            endFormat = AbstractWWAResource.DAY_FORMAT;
         } else if (mapWidth <= 200) {
-            startFormat = AbstractWarningResource.DAY_FORMAT;
-            endFormat = AbstractWarningResource.DAY_FORMAT;
+            startFormat = AbstractWWAResource.DAY_FORMAT;
+            endFormat = AbstractWWAResource.DAY_FORMAT;
         }
 
         synchronized (startFormat) {
