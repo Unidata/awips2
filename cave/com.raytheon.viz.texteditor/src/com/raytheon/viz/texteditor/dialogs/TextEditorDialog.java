@@ -178,6 +178,7 @@ import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
@@ -292,6 +293,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
+ * 01OCT2012   1229         rferrel     Change WmoBrowserDlg to non-blocking
  * </pre>
  * 
  * @author lvenable
@@ -336,6 +338,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private Pattern standardWrapRegex = null;
 
     private boolean wordWrapEnabled = true;
+
+    private CaveJFACEDialog browser = null;
 
     /**
      * When auto wrapping the last line that needs to be wrapped.
@@ -928,11 +932,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private Combo editorInsertCmb;
 
     /**
-     * Redraw flag indicating if the window should redraw on a resize.
-     */
-    private boolean canRedraw = true;
-
-    /**
      * Flag indicating if the editor is in edit mode.
      */
     private boolean inEditMode = false;
@@ -1245,6 +1244,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     // disposing.
                     if (disposeOnExit == true) {
                         return;
+                    }
+
+                    if (browser != null) {
+                        browser.getShell().setVisible(false);
                     }
 
                     // Block the disposal of this dialog.
@@ -4365,6 +4368,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (afosBrowser != null && afosBrowser.isAfosBrowserActive()) {
             afosBrowser.showDialog();
         }
+
+        if (browser != null) {
+            browser.getShell().setVisible(true);
+        }
     }
 
     public void hideDialog() {
@@ -5311,9 +5318,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         executeCommand(command, false);
     }
 
-    public void executeCommand(ICommand command, boolean isObsUpdated) {
+    public void executeCommand(ICommand command, final boolean isObsUpdated) {
         if (isDisposed()) {
             return;
+        }
+
+        if (browser != null) {
+            browser.close();
+            browser = null;
         }
 
         boolean enterEditor = false;
@@ -5329,21 +5341,36 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             if (queryTransport == null) {
                 queryTransport = TextEditorUtil.getTextDbsrvTransport();
             }
-            List<StdTextProduct> prodList = command
+            final List<StdTextProduct> prodList = command
                     .executeCommand(queryTransport);
 
             if (prodList != null && prodList.size() > 0) {
                 if (prodList.size() > 1) {
                     if (CommandType.WMO.equals(command.getType())) {
-                        WmoBrowserDlg browser = new WmoBrowserDlg(Display
-                                .getCurrent().getActiveShell(), this, prodList);
-                        browser.setBlockOnOpen(true);
+                        final boolean hasAtt = hasAttachment;
+                        final boolean enterEd = enterEditor;
+                        final boolean validExecuteCmd = validExecuteCommand;
+                        final String attachedFN = attachedFilename;
+                        browser = new WmoBrowserDlg(getShell(), this, prodList);
+                        browser.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                postProductCheck(isObsUpdated, prodList);
+                                postExecute(hasAtt, enterEd, validExecuteCmd,
+                                        attachedFN);
+                                browser = null;
+                            }
+                        });
+                        browser.setBlockOnOpen(false);
                         browser.open();
+                        return;
                     } else if (CommandType.AWIPS.equals(command.getType())) {
-                        AwipsBrowserDlg browser = new AwipsBrowserDlg(Display
-                                .getCurrent().getActiveShell(), this, prodList);
+                        browser = new AwipsBrowserDlg(Display.getCurrent()
+                                .getActiveShell(), this, prodList);
                         browser.setBlockOnOpen(true);
                         browser.open();
+                        browser = null;
                     }
                 } else {
                     StdTextProduct prod = prodList.get(0);
@@ -5387,43 +5414,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     enterEditor = true;
                 }
 
-                // Once we've got products and done all our processing, we need
-                // to tell the system that we've got a new set of standard
-                // text product parameters to work with here.
-                String warning = prodList.get(0).getProduct();
-                String[] nnnxxx = TextDisplayModel.getNnnXxx(warning);
-                if (nnnxxx[0].equals("WRK")) {
-                    String siteNode = SiteAbbreviationUtil
-                            .getSiteNode(nnnxxx[1]);
-                    if (siteNode.isEmpty()) {
-                        // look up failed use current siteNode.
-                        siteNode = prodList.get(0).getCccid();
-                    }
-                    String ttaaii = SiteAbbreviationUtil.getTtaaii(siteNode
-                            + nnnxxx[0] + nnnxxx[1]);
-                    final String w = warning.replace(
-                            TextWarningConstants.TTAAII, ttaaii);
-                    TextDisplayModel.getInstance().createStdTextProduct(token,
-                            w, siteNode);
-                } else if (!nnnxxx[1].equals("xxx")) {
-                    String siteNode = SiteAbbreviationUtil
-                            .getSiteNode(nnnxxx[1]);
-                    String ttaaii = SiteAbbreviationUtil.getTtaaii(siteNode
-                            + nnnxxx[0] + nnnxxx[1]);
-                    final String w = warning.replace(
-                            TextWarningConstants.TTAAII, ttaaii);
-                    TextDisplayModel.getInstance().createStdTextProduct(token,
-                            w, siteNode);
-                }
-                /*
-                 * DR15103 - do not clear AFOS command from the text box when
-                 * obs are updated
-                 */
-                if (!isObsUpdated) {
-                    clearAfosCmdTF();
-                }
-                clearWmoTF();
-                clearAwipsIdTF();
+                postProductCheck(isObsUpdated, prodList);
+
             } else {
                 userInformation("No product in the database matches your request.");
 
@@ -5438,6 +5430,69 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             validExecuteCommand = false;
         }
 
+        postExecute(hasAttachment, enterEditor, validExecuteCommand,
+                attachedFilename);
+    }
+
+    /**
+     * This is work to perform after selecting products from the prodList. This
+     * allows the dialogs to select entries to be non-blocking.
+     * 
+     * @param isObsUpdated
+     * @param prodList
+     */
+    private void postProductCheck(boolean isObsUpdated,
+            List<StdTextProduct> prodList) {
+        // Once we've got products and done all our processing, we need
+        // to tell the system that we've got a new set of standard
+        // text product parameters to work with here.
+        String warning = prodList.get(0).getProduct();
+        String[] nnnxxx = TextDisplayModel.getNnnXxx(warning);
+        if (nnnxxx[0].equals("WRK")) {
+            String siteNode = SiteAbbreviationUtil.getSiteNode(nnnxxx[1]);
+            if (siteNode.isEmpty()) {
+                // look up failed use current siteNode.
+                siteNode = prodList.get(0).getCccid();
+            }
+            String ttaaii = SiteAbbreviationUtil.getTtaaii(siteNode + nnnxxx[0]
+                    + nnnxxx[1]);
+            final String w = warning.replace(TextWarningConstants.TTAAII,
+                    ttaaii);
+            TextDisplayModel.getInstance().createStdTextProduct(token, w,
+                    siteNode);
+        } else if (!nnnxxx[1].equals("xxx")) {
+            String siteNode = SiteAbbreviationUtil.getSiteNode(nnnxxx[1]);
+            String ttaaii = SiteAbbreviationUtil.getTtaaii(siteNode + nnnxxx[0]
+                    + nnnxxx[1]);
+            final String w = warning.replace(TextWarningConstants.TTAAII,
+                    ttaaii);
+            TextDisplayModel.getInstance().createStdTextProduct(token, w,
+                    siteNode);
+        }
+        /*
+         * DR15103 - do not clear AFOS command from the text box when obs are
+         * updated
+         */
+        if (!isObsUpdated) {
+            clearAfosCmdTF();
+        }
+        clearWmoTF();
+        clearAwipsIdTF();
+
+    }
+
+    /**
+     * The final part of the executeCommand after the command is executed and
+     * products seleted. This allows product selection dialogs to be
+     * non-blocking.
+     * 
+     * @param hasAttachment
+     * @param enterEditor
+     * @param validExecuteCommand
+     * @param attachedFilename
+     */
+    private void postExecute(boolean hasAttachment, boolean enterEditor,
+            boolean validExecuteCommand, String attachedFilename) {
         if (!this.isDisposed()) {
             if (hasAttachment) {
                 statusBarLabel.setText("Attachment: " + attachedFilename);
@@ -6707,6 +6762,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         if (clipboard != null) {
             clipboard.dispose();
+        }
+
+        if (browser != null) {
+            browser.close();
+            browser = null;
         }
 
         inEditMode = false;
