@@ -34,6 +34,7 @@
 
 import fcntl, time, os, logging
 from pypies import logger
+from pypies import timeMap
 
 MAX_TIME_TO_WAIT = 120 # seconds
 
@@ -52,6 +53,8 @@ def dirCheck(filename):
         os.close(fd)
 
 def getLock(filename, mode):
+    t0 = time.time()
+
     dirCheck(filename)    
     gotLock = False
     startTime = time.time()
@@ -82,12 +85,25 @@ def getLock(filename, mode):
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(str(os.getpid()) + " failed to get lock")
         os.close(fd)
+
+    t1=time.time()
+    if timeMap.has_key('getLock'):
+        timeMap['getLock']+=t1-t0
+    else:
+        timeMap['getLock']=t1-t0
+
     return gotLock, fd
 
 def releaseLock(fd):
+    t0=time.time()
     fcntl.lockf(fd, fcntl.LOCK_UN)
     os.close(fd)
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug('Released lock on ' + str(fd))
+    t1=time.time()
+    if timeMap.has_key('releaseLock'):
+        timeMap['releaseLock']+=t1-t0
+    else:
+        timeMap['releaseLock']=t1-t0
     
     
