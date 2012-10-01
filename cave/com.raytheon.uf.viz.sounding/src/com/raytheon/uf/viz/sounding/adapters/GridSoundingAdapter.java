@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -49,7 +49,7 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
- * Sounding adapter for grib data, used for both skewt and cloud height sampling
+ * Sounding adapter for grid data, used for cloud height sampling
  * 
  * <pre>
  * 
@@ -64,9 +64,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @version 1.0
  */
 
-public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
+public class GridSoundingAdapter extends AbstractVerticalSoundingAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribSoundingAdapter.class);
+            .getHandler(GridSoundingAdapter.class);
 
     /** Interface for getting point information */
     private IPointSounding pointSounding;
@@ -84,7 +84,7 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
      *            Object which will provide information on point location and
      *            name
      */
-    public GribSoundingAdapter(IPointSounding pointSounding) {
+    public GridSoundingAdapter(IPointSounding pointSounding) {
         this.pointSounding = pointSounding;
         soundingMap = new HashMap<DataTime, Map<Double, SoundingLayer>>();
     }
@@ -101,7 +101,7 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
         long t0 = System.currentTimeMillis();
         List<VerticalSounding> soundings = new ArrayList<VerticalSounding>();
         try {
-            GribRecord sampleRecord = (GribRecord) objects[0];
+            GridRecord sampleRecord = (GridRecord) objects[0];
             ISpatialObject spatial = sampleRecord.getSpatialObject();
             Point point = PointUtil.determineIndex(
                     pointSounding.getCoordinate(), spatial.getCrs(),
@@ -113,10 +113,9 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
                                 "Point is outside bounds of grid"));
                 return new VerticalSounding[0];
             }
-            String name = String.format("%s pt%s %s", sampleRecord
-                    .getModelInfo().getModelTitle(), pointSounding
-                    .getPointName(), GeoUtil.formatCoordinate(pointSounding
-                    .getCoordinate()));
+            String name = String.format("%s pt%s %s",
+                    sampleRecord.getDatasetId(), pointSounding.getPointName(),
+                    GeoUtil.formatCoordinate(pointSounding.getCoordinate()));
             location = new SurfaceObsLocation(name);
             location.setGeometry(new GeometryFactory()
                     .createPoint(pointSounding.getCoordinate()));
@@ -134,18 +133,9 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
                 if (rec != null && rec.length > 0) {
                     float[] data = (float[]) rec[0].getDataObject();
                     float val = data[0];
-                    addToSoundingMap((GribRecord) pdo, val);
+                    addToSoundingMap((GridRecord) pdo, val);
                 }
             }
-            double rotation = 0;
-            if ((sampleRecord.getResCompFlags() == null)
-                    || (sampleRecord.getResCompFlags() & 8) != 0) {
-                rotation = 180 - MapUtil.rotation(
-                        pointSounding.getCoordinate(),
-                        sampleRecord.getSpatialObject());
-            }
-            float sinRot = (float) Math.sin(Math.toRadians(rotation));
-            float cosRot = (float) Math.cos(Math.toRadians(rotation));
             for (DataTime time : soundingMap.keySet()) {
                 VerticalSounding sounding = new VerticalSounding();
                 sounding.setDataTime(time);
@@ -156,12 +146,6 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
                 sounding.setStationId(location.getStationId());
                 Map<Double, SoundingLayer> layerMap = soundingMap.get(time);
                 for (SoundingLayer layer : layerMap.values()) {
-                    float u = layer.getWindU();
-                    float v = layer.getWindV();
-                    float vTemp = (u * sinRot) + (v * cosRot);
-                    u = (u * cosRot) - (v * sinRot);
-                    layer.setWindU(u);
-                    layer.setWindV(vTemp);
                     sounding.addLayer(layer);
                 }
 
@@ -213,7 +197,7 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
      * @param dataVal
      * @throws VizException
      */
-    private void addToSoundingMap(GribRecord record, float dataVal)
+    private void addToSoundingMap(GridRecord record, float dataVal)
             throws VizException {
         DataTime dt = record.getDataTime();
         Map<Double, SoundingLayer> layerMap = soundingMap.get(dt);
@@ -222,14 +206,14 @@ public class GribSoundingAdapter extends AbstractVerticalSoundingAdapter {
             soundingMap.put(dt, layerMap);
         }
 
-        Double l1val = record.getModelInfo().getLevelOneValue();
+        Double l1val = record.getLevel().getLevelonevalue();
         SoundingLayer layer = layerMap.get(l1val);
         if (layer == null) {
             layer = new SoundingLayer();
             layer.setPressure(l1val.floatValue());
             layerMap.put(l1val, layer);
         }
-        String param = record.getModelInfo().getParameterAbbreviation();
+        String param = record.getParameter().getAbbreviation();
 
         if ("T".equals(param)) {
             layer.setTemperature(dataVal);
