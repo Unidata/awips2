@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -35,9 +36,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -50,9 +51,12 @@ import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.ohd.MainMethod;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -585,24 +589,26 @@ public class ArealQpeGenSrv {
      * @param today
      *            Today's date in database string format
      * @return The database uri, or null if no data
+     * @throws DataAccessLayerException
      */
-    private String getDataURI(String rfc, String duration, String today) {
+    private String getDataURI(String rfc, String duration, String today)
+            throws DataAccessLayerException {
         String uri = null;
 
         // Query for uri
-        String sql = "select datauri from grib where modelinfo_id = (select id from grib_models where modelname = "
-                + "'QPE-"
-                + rfc
-                + "' and "
-                + "parameterabbreviation like 'QPE"
-                + duration + "%') " + "and rangeend = '" + today + "'";
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+        query.addReturnedField("dataURI");
+        query.addQueryParam(GridConstants.DATASET_ID, "QPE-" + rfc);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "QPE"
+                + duration + "%", "like");
+        query.addQueryParam("dataTime.validPeriod.end", today);
+
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase("metadata"));
-
-        Object[] rs = dao.executeSQLQuery(sql);
-        if ((rs != null) && (rs.length > 0)) {
-            if ((rs[0] != null) && (rs[0] instanceof String)) {
-                uri = (String) rs[0];
+        List<?> rs = dao.queryByCriteria(query);
+        if ((rs != null) && (!rs.isEmpty())) {
+            if ((rs.get(0) != null) && (rs.get(0) instanceof String)) {
+                uri = (String) rs.get(0);
             }
         } else {
             uri = null;
@@ -648,12 +654,11 @@ public class ArealQpeGenSrv {
                 return false;
             }
 
-            GribRecord gr = new GribRecord(uri);
-            GribDao gd = null;
+            GridRecord gr = new GridRecord(uri);
+            PluginDao gd = null;
 
-            gd = (GribDao) PluginFactory.getInstance().getPluginDao(
-                    gr.getPluginName());
-            gr = (GribRecord) gd.getMetadata(uri);
+            gd = PluginFactory.getInstance().getPluginDao(gr.getPluginName());
+            gr = (GridRecord) gd.getMetadata(uri);
             grReftime = gr.getDataTime().getRefTime();
 
             dataStore = gd.getDataStore(gr);
