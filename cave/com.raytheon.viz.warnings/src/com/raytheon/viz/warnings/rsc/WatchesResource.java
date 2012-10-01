@@ -1,12 +1,17 @@
 package com.raytheon.viz.warnings.rsc;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
@@ -17,250 +22,172 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
-import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-public class WatchesResource extends AbstractWatchesResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(WatchesResource.class);
+/**
+ * 
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 27, 2012  1149       jsanchez     Refactored methods from AbstractWarningsResource into this class.
+ * 
+ * </pre>
+ * 
+ * @author jsanchez
+ * @version 1.0
+ */
+public class WatchesResource extends AbstractWWAResource {
 
-    private Map<String, WeakReference<Geometry>> geometryMap = new HashMap<String, WeakReference<Geometry>>();
+    /**
+     * 
+     * this task calls redoTimeMatching on the resource, it should be scheduled
+     * to run for when a warning is set to expire
+     * 
+     * @author ekladstrup
+     * @version 1.0
+     */
+    protected class WarningExpirationTask extends TimerTask {
+
+        private WatchesResource rsc = null;
+
+        public WarningExpirationTask(WatchesResource rsc) {
+            this.rsc = rsc;
+        }
+
+        @Override
+        public void run() {
+            // System.err.println("warning expired");
+            // some warning has expired
+            rsc.redoTimeMatching(this.scheduledExecutionTime());
+            rsc.issueRefresh();
+        }
+
+    }
+
+    private final Map<String, WeakReference<Geometry>> geometryMap = new HashMap<String, WeakReference<Geometry>>();
+
+    private final Timer timer;
+
+    private final Set<Long> expTaskSet;
+
+    protected IGraphicsTarget target;
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 
     public WatchesResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
+        timer = new Timer();
+        expTaskSet = new HashSet<Long>();
+        resourceName = "Watches";
     }
 
     @Override
-    public String getName() {
-        DataTime time = displayedDate;
-        if (time == null) {
-            time = descriptor.getTimeForResource(this);
-        }
-        String name = resourceData.name != null ? resourceData.name : "Watches";
-        if (time != null) {
-            name += " " + time.getLegendString();
-        }
-        return name;
-    }
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        if (this.target == null) {
+            this.target = target;
 
-    @Override
-    protected synchronized void initNewFrame(DataTime thisFrameTime)
-            throws VizException {
-        long t0 = System.currentTimeMillis();
-        HashMap<String, RequestConstraint> map = (HashMap<String, RequestConstraint>) resourceData
-                .getMetadataMap().clone();
-
-        LayerProperty property = new LayerProperty();
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        property.setNumberOfImages(9999);
-
-        /*
-         * Retrieve all the watches that have a have a range containing the
-         * frame time
-         */
-        map.put("startTime", new RequestConstraint(thisFrameTime.toString(),
-                ConstraintType.LESS_THAN_EQUALS));
-        map.put("endTime", new RequestConstraint(thisFrameTime.toString(),
-                ConstraintType.GREATER_THAN_EQUALS));
-        property.setEntryQueryParameters(map, false);
-
-        Object[] resp = DataCubeContainer.getData(property, 60000).toArray(
-                new Object[] {});
-
-        ArrayList<AbstractWarningRecord> sortedWatches = new ArrayList<AbstractWarningRecord>();
-        for (Object o : resp) {
-            if (((PluginDataObject) o) instanceof AbstractWarningRecord) {
-                sortedWatches.add((AbstractWarningRecord) o);
-            }
-        }
-
-        /* Sorts by phensig, etn, starttime (descending), act */
-        Collections.sort(sortedWatches, comparator);
-        ArrayList<AbstractWarningRecord> remove = new ArrayList<AbstractWarningRecord>();
-
-        AbstractWarningRecord conRecord = null;
-        AbstractWarningRecord expRecord = null;
-        for (AbstractWarningRecord w : sortedWatches) {
-            WarningAction act = WarningAction.valueOf(w.getAct());
-            // Do not plot watches that have been Cancelled or Expired
-            if ((act == WarningAction.CAN || act == WarningAction.EXP)
-                    && w.getStartTime().after(thisFrameTime.getValidTime()) == false
-                    && w.getUgcsString() != null
-                    && w.getUgcsString()[0] != null
-                    && w.getUgcsString()[0].endsWith("000")) {
-                expRecord = w;
-            } else if (expRecord != null
-                    && expRecord.getEtn().equals(w.getEtn())
-                    && expRecord.getPhensig().equals(w.getPhensig())
-                    && expRecord.getStartTime().after(w.getStartTime())) {
-
-                remove.add(w);
-            }
-
-            // Do not plot watches that out dated CONs
-            if (act == WarningAction.CON
-                    && (conRecord == null || conRecord.getEtn().equals(
-                            w.getEtn()) == false)) {
-                conRecord = w;
-            } else if (conRecord != null
-                    && (act == WarningAction.CON || act == WarningAction.NEW)
-                    && conRecord.getEtn().equals(w.getEtn())
-                    && conRecord.getPhensig().equals(w.getPhensig())
-                    && conRecord.getStartTime().after(w.getStartTime())) {
-                remove.add(w);
-            }
-        }
-
-        for (AbstractWarningRecord w : remove) {
-            sortedWatches.remove(w);
-        }
-
-        Map<String, AbstractWarningRecord> watches = new HashMap<String, AbstractWarningRecord>();
-        for (AbstractWarningRecord watchRec : sortedWatches) {
-            TimeRange tr = new TimeRange(watchRec.getStartTime(),
-                    watchRec.getEndTime());
-            if (tr.contains(thisFrameTime.getValidTime().getTime())) {
-                addWatch(watches, watchRec);
-            }
-        }
-
-        ArrayList<AbstractWarningRecord> watchList = new ArrayList<AbstractWarningRecord>();
-        if (watches.isEmpty() == false) {
-            for (String key : watches.keySet()) {
-                AbstractWarningRecord watch = watches.get(key);
-                watch.setPil(SiteAbbreviationUtil.getSiteNode(watch.getXxxid())
-                        + watch.getPil() + watch.getXxxid());
-                watchList.add(watch);
-                scheduleTimer(watch);
-                initShape(watch);
-
-                WarningEntry entry = entryMap.get(watch.getDataURI());
-                if (entry == null) {
-                    entry = new WarningEntry();
-                    entry.record = watch;
-                    entryMap.put(watch.getDataURI(), entry);
+            synchronized (this) {
+                try {
+                    addRecord(getWarningRecordArray());
+                } catch (VizException e) {
+                    e.printStackTrace();
                 }
-                List<DataTime> list = entry.times;
-                if (list == null) {
-                    list = new ArrayList<DataTime>();
-                }
-                list.add(thisFrameTime);
-                entry.times = list;
+            }
+        }
+        // force creation of a frame for any currently active warnings, this
+        // frame might get displayed in place of the last frame.
+        requestData(new DataTime(SimulatedTime.getSystemTime().getTime()));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
+     */
+    @Override
+    protected void disposeInternal() {
+        timer.cancel();
+
+        for (WarningEntry entry : entryMap.values()) {
+            if (entry.shadedShape != null) {
+                entry.shadedShape.dispose();
+            }
+            if (entry.wireframeShape != null) {
+                entry.wireframeShape.dispose();
             }
         }
 
-        this.frames.put(thisFrameTime, watchList);
-        System.out.println("Init Frame: " + (System.currentTimeMillis() - t0)
-                + " ms");
+        entryMap.clear();
+        if (warningsFont != null) {
+            warningsFont.dispose();
+        }
     }
 
     @Override
-    protected synchronized void updateFrames() throws VizException {
-        if (!this.recordsToLoad.isEmpty()) {
-            for (AbstractWarningRecord watchRec : recordsToLoad) {
-                WarningAction watchAct = WarningAction.valueOf(watchRec
-                        .getAct());
-                TimeRange tr = new TimeRange(watchRec.getStartTime(),
-                        watchRec.getEndTime());
-                synchronized (frames) {
-                    for (DataTime dt : frames.keySet()) {
-                        if (tr.contains(dt.getValidTime().getTime())) {
-                            boolean add = true;
-                            ArrayList<AbstractWarningRecord> remove = new ArrayList<AbstractWarningRecord>();
-                            List<AbstractWarningRecord> watchList = frames
-                                    .get(dt);
-                            for (AbstractWarningRecord watch : watchList) {
-                                // Do not plot watches that have been Cancelled
-                                // or
-                                // Expired
-                                if ((watchAct == WarningAction.CAN || watchAct == WarningAction.EXP)
-                                        && watchRec.getStartTime().after(dt) == false
-                                        && watchRec.getEtn().equals(
-                                                watch.getEtn())
-                                        && watchRec.getPhensig().equals(
-                                                watch.getPhensig())
-                                        && watchRec.getUgcsString() != null
-                                        && watchRec.getUgcsString()[0] != null
-                                        && watchRec.getUgcsString()[0]
-                                                .endsWith("000")) {
-                                    remove.add(watch);
-                                }
-                                if (watchAct == WarningAction.CON
-                                        && (WarningAction.valueOf(watch
-                                                .getAct()) == WarningAction.CON || WarningAction
-                                                .valueOf(watch.getAct()) == WarningAction.NEW)
-                                        && watchRec.getEtn().equals(
-                                                watch.getEtn())
-                                        && watchRec.getPhensig().equals(
-                                                watch.getPhensig())) {
-                                    if (watchRec.getStartTime().after(
-                                            watch.getStartTime())) {
-                                        remove.add(watch);
-                                    } else {
-                                        add = false;
-                                    }
-                                }
-                            }
+    public void resourceChanged(ChangeType type, Object object) {
+        if (type == ChangeType.DATA_UPDATE) {
+            PluginDataObject[] pdo = (PluginDataObject[]) object;
+            synchronized (WatchesResource.this) {
+                {
+                    try {
+                        addRecord(pdo);
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.SIGNIFICANT,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+            }
+        } else if (type == ChangeType.CAPABILITY) {
+            if (color != null
+                    && color.equals(getCapability((ColorableCapability.class))
+                            .getColor()) == false) {
+                color = getCapability((ColorableCapability.class)).getColor();
 
-                            for (AbstractWarningRecord w : remove) {
-                                watchList.remove(w);
-                            }
-
-                            if (add) {
-                                watchList.add(watchRec);
-                                scheduleTimer(watchRec);
-                                initShape(watchRec);
-
-                                WarningEntry entry = entryMap.get(watchRec
-                                        .getDataURI());
-                                if (entry == null) {
-                                    entry = new WarningEntry();
-                                    entry.record = watchRec;
-                                    entryMap.put(watchRec.getDataURI(), entry);
-                                }
-                                List<DataTime> list = entry.times;
-                                if (list == null) {
-                                    list = new ArrayList<DataTime>();
-                                }
-                                list.add(dt);
-                                entry.times = list;
-                            }
+                for (String dataUri : entryMap.keySet()) {
+                    WarningEntry entry = entryMap.get(dataUri);
+                    if (entry.shadedShape != null) {
+                        entry.shadedShape.dispose();
+                        try {
+                            initShape(target, entry.record);
+                        } catch (VizException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
                         }
                     }
                 }
-                if (frames.containsKey(new DataTime(watchRec.getStartTime())) == false) {
-                    initNewFrame(new DataTime(watchRec.getStartTime()));
-                }
             }
-            recordsToLoad.clear();
         }
+        issueRefresh();
     }
 
     @Override
-    protected void initShape(AbstractWarningRecord record) throws VizException {
+    protected void initShape(IGraphicsTarget target,
+            AbstractWarningRecord record) throws VizException {
         Geometry geo;
 
         if (record.getUgczones().size() > 0) {
             setGeometry(record);
             if (record.getGeometry() != null) {
-                IShadedShape ss = target.createShadedShape(false, descriptor,
-                        false);
+                IShadedShape ss = target.createShadedShape(false,
+                        descriptor.getGridGeometry(), false);
                 geo = (Geometry) record.getGeometry().clone();
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                         this.descriptor, PointStyle.CROSS);
@@ -276,6 +203,66 @@ public class WatchesResource extends AbstractWatchesResource {
                 }
                 entry.shadedShape = ss;
             }
+        }
+    }
+
+    @Override
+    protected synchronized void updateDisplay(IGraphicsTarget target)
+            throws VizException {
+
+        if (!recordsToLoad.isEmpty()) {
+            // Merges all the zones for the same vtec and time
+            List<AbstractWarningRecord> mergedWatches = mergeWatches(recordsToLoad);
+            for (AbstractWarningRecord watchrec : mergedWatches) {
+
+                WarningAction watchact = WarningAction.valueOf(watchrec
+                        .getAct());
+                int watchSize = watchrec.getUgczones().size();
+
+                if (watchact != WarningAction.NEW) {
+                    AbstractWarningRecord createShape = null;
+                    for (String entryKey : entryMap.keySet()) {
+                        WarningEntry entry = entryMap.get(entryKey);
+                        AbstractWarningRecord rec = entry.record;
+
+                        if (rec.getPhensig().equals(watchrec.getPhensig())
+                                && rec.getOfficeid().equals(
+                                        watchrec.getOfficeid())
+                                && rec.getEtn().equals(watchrec.getEtn())) {
+                            int recSize = rec.getUgczones().size();
+                            if (!entry.partialCancel) {
+                                if (watchact == WarningAction.EXP
+                                        || watchact == WarningAction.CAN) {
+                                    entry.partialCancel = true;
+                                    entry.record.setEndTime((Calendar) watchrec
+                                            .getStartTime().clone());
+                                } else if (watchact == WarningAction.CON
+                                        && recSize > watchSize
+                                        && watchrec.getStartTime().after(
+                                                rec.getStartTime())) {
+                                    entry.partialCancel = true;
+                                    entry.record.setEndTime((Calendar) watchrec
+                                            .getStartTime().clone());
+                                    createShape = watchrec;
+                                }
+                            }
+                        }
+                    }
+
+                    if (createShape != null) {
+                        WarningEntry entry = entryMap.get(createShape
+                                .getDataURI());
+                        if (entry != null) {
+                            entry.shadedShape.dispose();
+                        }
+                        initShape(target, createShape);
+                    }
+                } else {
+                    initShape(target, watchrec);
+                }
+            }
+
+            recordsToLoad.clear();
         }
     }
 
@@ -365,35 +352,90 @@ public class WatchesResource extends AbstractWatchesResource {
         record.setGeometry(geometry);
     }
 
-    /*
-     * Combining watches with the same ETN (Watch No.) into a single record.
-     * This will also help performance to make a single DB query.
+    /**
+     * Groups all the ugc zones with the same 'product.act.phensig.etn'
      */
-    private void addWatch(Map<String, AbstractWarningRecord> watches,
-            AbstractWarningRecord watchrec) {
-        String key = watchrec.getProductClass() + "." + watchrec.getPhensig()
-                + "." + watchrec.getEtn();
-
-        AbstractWarningRecord watch = null;
-        WarningAction act = WarningAction.valueOf(watchrec.getAct());
-
-        if (watches.containsKey(key)) {
-            watch = watches.get(key);
-            Set<UGCZone> ugcZones = watch.getUgczones();
-            for (UGCZone zone : watchrec.getUgczones()) {
-                if (act == WarningAction.CAN || act == WarningAction.EXP) {
-                    ugcZones.remove(zone);
-                } else {
-                    ugcZones.add(zone);
-                }
+    private List<AbstractWarningRecord> mergeWatches(
+            List<AbstractWarningRecord> watchrecs) {
+        Map<String, AbstractWarningRecord> watches = new HashMap<String, AbstractWarningRecord>();
+        for (AbstractWarningRecord watchrec : watchrecs) {
+            String key = watchrec.getAct() + '.' + watchrec.getPhensig() + '.'
+                    + watchrec.getEtn() + '.'
+                    + sdf.format(watchrec.getStartTime().getTime());
+            AbstractWarningRecord watch = watches.get(key);
+            if (watch == null) {
+                watch = watchrec;
+            } else if (watchrec.getUgczones() != null) {
+                Set<UGCZone> ugcZones = watch.getUgczones();
+                ugcZones.addAll(watchrec.getUgczones());
+                watch.setUgczones(ugcZones);
             }
-            watch.setUgczones(ugcZones);
-        } else if (act != WarningAction.CAN && act != WarningAction.EXP) {
-            watch = watchrec;
-        }
-
-        if (watch != null) {
             watches.put(key, watch);
         }
+
+        ArrayList<AbstractWarningRecord> mergedWatches = new ArrayList<AbstractWarningRecord>(
+                watches.values());
+        Collections.sort(mergedWatches, comparator);
+
+        return mergedWatches;
     }
+
+    /**
+     * Schedules a WarningExpirationTask for the end time of the passing in
+     * record
+     * 
+     * @param rec
+     *            a WarningRecord
+     */
+    protected void scheduleTimer(AbstractWarningRecord rec) {
+        // only schedule if record has not expired already
+        long now = SimulatedTime.getSystemTime().getTime().getTime();
+        long endTime = rec.getEndTime().getTimeInMillis();
+        synchronized (expTaskSet) {
+            if (endTime > now && !expTaskSet.contains(new Long(endTime))) {
+                WarningExpirationTask task = new WarningExpirationTask(this);
+                timer.schedule(task, rec.getEndTime().getTime());
+                expTaskSet.add(new Long(endTime));
+            }
+        }
+    }
+
+    /**
+     * Redo time matching and remove the passed in time from the map of
+     * scheduled times
+     * 
+     * @param triggerTime
+     */
+    public void redoTimeMatching(long triggerTime) {
+        redoTimeMatching();
+        Long time = new Long(triggerTime);
+        // remove the instance of the trigger time from the map
+        synchronized (expTaskSet) {
+            if (expTaskSet != null && expTaskSet.contains(time)) {
+                expTaskSet.remove(time);
+            }
+        }
+    }
+
+    /**
+     * Redo the time matching
+     */
+    public void redoTimeMatching() {
+        try {
+            this.getDescriptor().getTimeMatcher().redoTimeMatching(this);
+            this.getDescriptor().getTimeMatcher()
+                    .redoTimeMatching(this.getDescriptor());
+        } catch (VizException e) {
+            // TODO Auto-generated catch block. Please revise as appropriate.
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Override
+    protected String getEventKey(WarningEntry entry) {
+        AbstractWarningRecord r = entry.record;
+        return r.getAct() + '.' + r.getPhensig() + '.' + r.getEtn() + '.'
+                + sdf.format(entry.record.getStartTime().getTime());
+    }
+
 }
