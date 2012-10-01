@@ -123,7 +123,7 @@ public class MercatorGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         double meridian = 0;
-        if (la2 == null || lo2 == null) {
+        if (true || la2 == null || lo2 == null) {
             initializeSecondCorner();
         }
 
@@ -177,28 +177,28 @@ public class MercatorGridCoverage extends GridCoverage {
             fromLatLon.transform(new DirectPosition2D(lo1, la1), firstPosition);
 
             // move firstPosition from cell center to cell corner
-            firstPosition.x -= 0.5 * dx;
-            firstPosition.y -= 0.5 * dy;
+            firstPosition.x -= 0.5 * dx * 1000;
+            firstPosition.y -= 0.5 * dy * 1000;
 
             // Determine the other corner point using the given dx,dy,nx, and
             // ny in meters
             DirectPosition2D position = null;
             switch (firstGridPointCorner) {
             case LowerLeft:
-                position = new DirectPosition2D(firstPosition.x + dx * nx,
-                        firstPosition.y + dy * ny);
+                position = new DirectPosition2D(firstPosition.x + dx * 1000
+                        * nx, firstPosition.y + dy * 1000 * ny);
                 break;
             case UpperLeft:
-                position = new DirectPosition2D(firstPosition.x + dx * nx,
-                        firstPosition.y - dy * ny);
+                position = new DirectPosition2D(firstPosition.x + dx * 1000
+                        * nx, firstPosition.y - dy * 1000 * ny);
                 break;
             case LowerRight:
-                position = new DirectPosition2D(firstPosition.x - dx * nx,
-                        firstPosition.y - dy * ny);
+                position = new DirectPosition2D(firstPosition.x - dx * 1000
+                        * nx, firstPosition.y - dy * 1000 * ny);
                 break;
             case UpperRight:
-                position = new DirectPosition2D(firstPosition.x - dx * nx,
-                        firstPosition.y - dy * ny);
+                position = new DirectPosition2D(firstPosition.x - dx * 1000
+                        * nx, firstPosition.y - dy * 1000 * ny);
                 break;
             default:
                 throw new GridCoverageException(
@@ -208,6 +208,11 @@ public class MercatorGridCoverage extends GridCoverage {
             // Convert the corner points from meters to lat/lon
             DirectPosition2D cornerPosition = new DirectPosition2D();
             toLatLon.transform(position, cornerPosition);
+            System.err.println("dx = " + (lo2 - cornerPosition.x));
+            System.err.println("dy = " + (la2 - cornerPosition.y));
+            if (Math.abs(lo2 - cornerPosition.x) > 4) {
+                System.err.println();
+            }
             lo2 = cornerPosition.x;
             la2 = cornerPosition.y;
         } catch (Exception e) {
