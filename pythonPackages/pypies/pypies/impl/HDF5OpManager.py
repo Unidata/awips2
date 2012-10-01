@@ -32,12 +32,14 @@
 # 
 #
 
-import numpy, pypies, logging
+import numpy, pypies, logging, time
 import h5py.selections
 from pypies import StorageException, NotImplementedException
 logger = pypies.logger
+timeMap = pypies.timeMap
 
 def read(ds, request):
+    t0=time.time()
     rt = request.getType()
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug('requestType=' + rt)
@@ -100,7 +102,13 @@ def read(ds, request):
     else:
         raise NotImplementedException('Only read requests supported are ' +
                                       'ALL, POINT, XLINE, YLINE, and SLAB')
-    
+    t1=time.time()
+
+    if timeMap.has_key('read'):
+        timeMap['read']+=t1-t0
+    else:
+        timeMap['read']=t1-t0
+
     return result
 
 
