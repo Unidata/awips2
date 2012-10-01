@@ -45,7 +45,6 @@ Import-Package: com.raytheon.edex.exception,
  org.apache.camel
 Export-Package: com.raytheon.edex.objects.hibernate.grib,
  com.raytheon.edex.plugin.grib,
- com.raytheon.edex.plugin.grib.dao,
  com.raytheon.edex.plugin.grib.notify,
  com.raytheon.edex.plugin.grib.spatial,
  com.raytheon.edex.plugin.grib.topo,
