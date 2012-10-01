@@ -33,11 +33,12 @@
 
 import time, os, logging
 from pypies import logger
+from pypies import timeMap
 
 MAX_TIME_TO_WAIT = 120 # seconds
 ORPHAN_TIMEOUT = 150 # seconds
-MAX_SLEEP_TIME = 0.05
-MIN_SLEEP_TIME = 0.01
+MAX_SLEEP_TIME = 0.025
+MIN_SLEEP_TIME = 0.005
 
 readLockAppend = "_read"
 writeLockAppend = "_write"
@@ -52,6 +53,8 @@ def dirCheck(filename):
                 raise e
                 
 def getLock(filename, mode):
+    t0 = time.time()
+
     dirCheck(filename)    
     gotLock, fpath = _getLockInternal(filename, mode)            
     if gotLock:
@@ -60,6 +63,13 @@ def getLock(filename, mode):
     else:
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(str(os.getpid()) + " failed to get lock")
+
+    t1=time.time()
+    if timeMap.has_key('getLock'):
+        timeMap['getLock']+=t1-t0
+    else:
+        timeMap['getLock']=t1-t0
+
     return gotLock, fpath
 
 
@@ -159,10 +169,18 @@ def _getSleepTime(timeWaiting):
             sleepTime = MIN_SLEEP_TIME
         elif sleepTime > MAX_SLEEP_TIME:
             sleepTime = MAX_SLEEP_TIME
+
+    if timeMap.has_key('approxLockSleepTime'):
+        timeMap['approxLockSleepTime']+=sleepTime
+    else:
+        timeMap['approxLockSleepTime']=sleepTime
+
     return sleepTime
 
 
 def releaseLock(lockPath):
+    t0=time.time()
+
     if lockPath.endswith('.pid'):
         # it was a read
         os.remove(lockPath)
@@ -184,6 +202,12 @@ def releaseLock(lockPath):
             
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug('Released lock on ' + str(lockPath))
+
+    t1=time.time()
+    if timeMap.has_key('releaseLock'):
+        timeMap['releaseLock']+=t1-t0
+    else:
+        timeMap['releaseLock']=t1-t0
 
 def _checkForOrphans(filename):
     if logger.isEnabledFor(logging.DEBUG):
@@ -233,6 +257,11 @@ def _checkForOrphans(filename):
             # 2 indicates no such directory, assuming another process removed it
             if e.errno != 2:
                 logger.error('Unable to remove orphaned lock: ' + str(e))
-    
+
+    if timeMap.has_key('orphanCheck'):
+        timeMap['orphanCheck']+=(time.time() - nowTime)
+    else:
+        timeMap['orphanCheck']=(time.time() - nowTime)
+
     return orphanRemoved
     
