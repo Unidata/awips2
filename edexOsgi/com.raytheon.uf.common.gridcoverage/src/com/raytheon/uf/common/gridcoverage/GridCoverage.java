@@ -580,7 +580,6 @@ public abstract class GridCoverage extends PersistableDataObject implements
     protected void generateGeometry() throws GridCoverageException {
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
-            // special case in data delivery
             double minLat = getLowerLeftLat() - dy / 2;
             double maxLat = minLat + dy * ny;
             double minLon = getLowerLeftLon() - dx / 2;
