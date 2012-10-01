@@ -21,7 +21,6 @@ package com.raytheon.viz.hydro.flashfloodguidance;
 
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,17 +28,19 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.hydro.Activator;
 import com.raytheon.viz.hydrocommon.HydroConstants;
-import com.raytheon.viz.hydrocommon.constants.StatusConstants;
 
 /**
  * Class for managing database query calls. FlashFloodGuidanceDataManager.java
@@ -62,11 +63,8 @@ public class FlashFloodGuidanceDataManager {
     /** Instance of this class */
     private static FlashFloodGuidanceDataManager instance = null;
 
-    /** Query to find available gridded data */
-    private static final String AVAILABLE_DATA_QUERY = "select grib_models.modelname, grib_models.parameterabbreviation, grib.reftime, grib.datauri, grib.id from grib, grib_models where grib_models.modelname like 'FFG%' and grib_models.id = grib.modelinfo_id and grib.gridversion = 0 order by grib_models.modelname, grib_models.parameterabbreviation, grib.reftime asc";
-
     private static final String LINESEGS_QUERY = "select hrap_row, hrap_beg_col, "
-        + "hrap_end_col, area from linesegs";
+            + "hrap_end_col, area from linesegs";
 
     /** RFC Site name to RFC lookup map */
     public static Map<String, String> RFCMAP = new HashMap<String, String>();
@@ -130,15 +128,28 @@ public class FlashFloodGuidanceDataManager {
      * 
      * @return ArrayList<Object[]> of data
      */
-    public ArrayList<Object[]> getGriddedDataList() {
-        ArrayList<Object[]> rs = null;
+    public List<Object[]> getGriddedDataList() {
+        List<Object[]> rs = null;
 
+        /** Query to find available gridded data */
+        DbQuery query = new DbQuery(GridRecord.class, "metadata");
+        query.addColumn(GridConstants.DATASET_ID);
+        query.addColumn(GridConstants.PARAMETER_ABBREVIATION);
+        query.addColumn("dataTime.refTime");
+        query.addColumn("dataURI");
+        query.addColumn("id");
+        query.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                "FFG%", ConstraintType.LIKE));
+        query.addConstraint(GridConstants.SECONDARY_ID, "Version0");
+        query.addOrderBy(GridConstants.DATASET_ID);
+        query.addOrderBy(GridConstants.PARAMETER_ABBREVIATION);
+        query.addOrderBy("dataTime.refTime");
         try {
-            rs = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
-                    AVAILABLE_DATA_QUERY, "metadata", QueryLanguage.SQL);
+            rs = query.performQuery();
         } catch (VizException e) {
+            e.printStackTrace();
             statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                            + " Error querying Metadata for FFG data.");
+                    + " Error querying Metadata for FFG data.");
         }
 
         return rs;
@@ -163,20 +174,20 @@ public class FlashFloodGuidanceDataManager {
         return null;
     }
 
-    public GribRecord getGribRecord(String uri) throws PluginException,
+    public GridRecord getGridRecord(String uri) throws PluginException,
             FileNotFoundException, StorageException {
         StringBuilder query = new StringBuilder();
         query.append("from "
-                + com.raytheon.uf.common.dataplugin.grib.GribRecord.class
+                + com.raytheon.uf.common.dataplugin.grid.GridRecord.class
                         .getName());
-        GribRecord gr = null;
+        GridRecord gr = null;
         try {
-            List<Object[]> results = DirectDbQuery.executeQuery(query
-                    .toString(), "metadata", QueryLanguage.HQL);
-            gr = (GribRecord) results.get(0)[0];
+            List<Object[]> results = DirectDbQuery.executeQuery(
+                    query.toString(), "metadata", QueryLanguage.HQL);
+            gr = (GridRecord) results.get(0)[0];
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "FFG Query"
-                            + " Error querying for areal FFG");
+                    + " Error querying for areal FFG");
         }
 
         return gr;
@@ -190,19 +201,19 @@ public class FlashFloodGuidanceDataManager {
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "FFG Query"
-                            + " Error querying GeoArea table");
+                    + " Error querying GeoArea table");
         }
 
         return rs;
     }
-    
+
     public List<Object[]> getContingencyValue(String areaId, int duration, Date refTime) {
         List<Object[]> rs = null;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
+
         String date = sdf.format(refTime);
-        duration = duration / (1000*60*60);
+        duration = duration / (1000 * 60 * 60);
         int dur = 1001;
         if (duration == 1) {
             dur = 1001;
@@ -226,20 +237,19 @@ public class FlashFloodGuidanceDataManager {
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "FFG Query"
-                            + " Error querying ContingencyValue table");
+                    + " Error querying ContingencyValue table");
             e.printStackTrace();
         }
 
-        return rs;        
+        return rs;
     }
-    
+
     public List<Object[]> getContingencyValue(String boundaryType) {
         List<Object[]> rs = null;
         
         String where = " where pe='PP' and ts='CF' and lid in (select area_id from " +
         "GeoArea where boundary_type = '" + boundaryType.toUpperCase() +
         "') order by validtime desc, dur asc";
-        
         String sql = "select distinct(validtime), dur from contingencyvalue";
         
         try {
@@ -247,7 +257,7 @@ public class FlashFloodGuidanceDataManager {
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "FFG Query"
-                            + " Error querying ContingencyValue table");
+                    + " Error querying ContingencyValue table");
             e.printStackTrace();
         }
 
