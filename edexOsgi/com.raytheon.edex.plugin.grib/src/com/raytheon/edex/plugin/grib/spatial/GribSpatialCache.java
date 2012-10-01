@@ -106,13 +106,12 @@ public class GribSpatialCache {
     private Map<Integer, Set<String>> gridNameMap;
 
     /**
-     * Map containing the subGrid coverage based on a model name.
+     * Map containing the subGrid coverage based on a subGridKey
      */
     private Map<String, GridCoverage> subGridCoverageMap;
 
     /**
-     * Map containing the subGrid based on a model name and the base coverage
-     * name
+     * Map containing the subGrid based on a the subGridKey
      */
     private Map<String, SubGrid> definedSubGridMap;
 
@@ -172,6 +171,16 @@ public class GribSpatialCache {
         return rval;
     }
 
+    /**
+     * For a grib model name return all GridCoverages that are defined in the
+     * gribModels file for that model. For models which use subgrids this will
+     * return the subgridded coverages. For models that are not defined or
+     * models that do not specify a specific grid this will return an empty
+     * list.
+     * 
+     * @param modelName
+     * @return
+     */
     public List<GridCoverage> getGridsForModel(String modelName) {
         List<GridCoverage> rval = new ArrayList<GridCoverage>();
         if (modelName != null) {
@@ -216,6 +225,18 @@ public class GribSpatialCache {
         return coverage;
     }
 
+    /**
+     * This method provides a way to get the names from the definiton files for
+     * looking up a grib model. It will return all the names of any coverages
+     * defined in the grid definition files that are spatially equivalent to the
+     * passed in coverage. This is useful when there are multiple grid
+     * definition files with the same spatial attributes but different names or
+     * for cases where the name in the definition file does not match what is
+     * currently in the db.
+     * 
+     * @param coverage
+     * @return
+     */
     public Set<String> getGribCoverageNames(GridCoverage coverage) {
         Set<String> rval = gridNameMap.get(coverage.getId());
         if (rval == null) {
@@ -228,6 +249,15 @@ public class GribSpatialCache {
         return rval;
     }
 
+    /**
+     * For a given modelName and coverage this will return the SubGrid used for
+     * slicing data if there is a subGrid file for this model. If this model
+     * does not require subgridding this method will return null.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return
+     */
     public SubGrid getSubGrid(String modelName, GridCoverage coverage) {
         SubGrid subGrid = definedSubGridMap
                 .get(subGridKey(modelName, coverage));
@@ -240,6 +270,15 @@ public class GribSpatialCache {
         return subGrid;
     }
 
+    /**
+     * For a given modelName and coverage this will return the sub-GridCoverage
+     * which should be used for this data. If this model does not require
+     * subgridding this method will return null.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return
+     */
     public GridCoverage getSubGridCoverage(String modelName,
             GridCoverage coverage) {
         GridCoverage subGrid = subGridCoverageMap.get(subGridKey(modelName,
@@ -253,6 +292,14 @@ public class GribSpatialCache {
         return subGrid;
     }
 
+    /**
+     * If a sub grid area is defined for this model than this will process that
+     * defintion and piopulate the subGridCoverageMap and definedSubGridMap.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return true if this model is subgridded, false otherwise
+     */
     private boolean loadSubGrid(String modelName, GridCoverage coverage) {
         SubGridDef subGridDef = subGridDefMap.get(modelName);
         if (subGridDef != null) {
