@@ -28,6 +28,7 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -88,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 03Nov2011    11450       rferrel     Change how old products pruge so it is no longer
  *                                      on times on two machines being in synch.
  * 26Sep2012    1196        lvenable    Dialog refactor to not block.
+ * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
  * 
  * </pre>
  * 
@@ -141,10 +143,27 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     /** Select user ID dialog */
     private SelectUserIdDlg userIdDlg;
 
+    /**
+     * Create a non-blocking dialog
+     * 
+     * @param parent
+     */
     public TextWorkstationDlg(Shell parent) {
+        this(parent, CAVE.DO_NOT_BLOCK);
+    }
+
+    /**
+     * Create dialog specifying NONE for blocking and DO_NOT_BLOCK for
+     * non-blocking dialog.
+     * 
+     * @param parent
+     * @param block
+     *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
+     */
+    public TextWorkstationDlg(Shell parent, int block) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
-                        | CAVE.DO_NOT_BLOCK);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL | block);
+        Assert.isTrue(block == CAVE.DO_NOT_BLOCK || block == CAVE.NONE);
         setText("Text Workstation");
 
         TextDisplayModel.getInstance().setTextAviation(
