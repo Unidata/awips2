@@ -130,7 +130,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 IDataStore ds = DataStoreFactory.getDataStore(HDF5Util
                         .findHDF5Location(obj));
                 try {
-                    record = ds.retrieve("/" + gridRec.getLocation().getName(),
+                    record = ds.retrieve("/" + gridRec.getLocation().getId(),
                             gridRec.getParameter().getAbbreviation(), req);
                 } catch (Exception e) {
                     throw new VizException("Error retrieving staticTopo data!",
