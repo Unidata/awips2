@@ -88,6 +88,7 @@ import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TafMonitorDlg (Terminal Aerodome Forecast Monitor Dialog) class.
@@ -128,7 +129,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/27/2010   7383        rferrel     Save changed blink state in configMgr.
  * 3/14/2011    8588        rferrel     Allow monitoring multiple products.
  * 11/29/2011   11612       rferrel     Added observers to update viewer tabs.
- * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer 
+ * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer
+ * 10/02/2012   1229        rferrel     Changes to work with non-blocking WeatherPlotDialog.
  * 
  * </pre>
  * 
@@ -632,11 +634,20 @@ public class TafMonitorDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
 
-                if (avnPlotDlg == null) {
+                if (avnPlotDlg == null || avnPlotDlg.getShell() == null
+                        || avnPlotDlg.isDisposed()) {
                     avnPlotDlg = new WeatherPlotDialog(shell,
                             StatusMessageType.WeatherPlot, stationList);
+                    avnPlotDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            avnPlotDlg = null;
+                        }
+                    });
                     avnPlotDlg.open();
-                    avnPlotDlg = null;
+                } else {
+                    avnPlotDlg.bringToTop();
                 }
             }
         });
@@ -918,10 +929,10 @@ public class TafMonitorDlg extends CaveSWTDialog {
     public final List<ViewerTab> getViewerTabList() {
         return tveDlg.getViewerTabList();
     }
-    
-    //------------------------- DR 14570:
-    
-    public static Map<String,String> getCurrentAlertTimeMap(String siteID){
+
+    // ------------------------- DR 14570:
+
+    public static Map<String, String> getCurrentAlertTimeMap(String siteID) {
         Map<String, String> alertTimeMap = null;
         if (currentDlg != null) {
             if (currentDlg.getDisplay().isDisposed()) {
@@ -936,8 +947,9 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
         return alertTimeMap;
     }
-    //20120711
-    public static Map<String,String[]> getCurrentTempoMap(String siteID){
+
+    // 20120711
+    public static Map<String, String[]> getCurrentTempoMap(String siteID) {
         Map<String, String[]> tempoMap = null;
         if (currentDlg != null) {
             if (currentDlg.getDisplay().isDisposed()) {
@@ -945,7 +957,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
             } else {
                 for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
                     if (siteRow.getStationName().equals(siteID)) {
-                        tempoMap= siteRow.getTempoMap();
+                        tempoMap = siteRow.getTempoMap();
                     }
                 }
             }
