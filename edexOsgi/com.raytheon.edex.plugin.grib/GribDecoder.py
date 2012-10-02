@@ -423,7 +423,7 @@ class GribDecoder():
         record.addExtraAttribute("pdsTemplate", Integer(pdsSectionValues['pdsTemplateNumber']))
         record.addExtraAttribute("gridid", origCoverage.getName())
         if "numForecasts" in pdsSectionValues:
-            record.addExtraAttribute("numForecasts", Integer(pdsSectionValues['numForecasts']))
+            record.addExtraAttribute("numForecasts", pdsSectionValues['numForecasts'])
         record.setEnsembleId(pdsSectionValues['ensembleId'])
         param = Parameter(pdsSectionValues['parameterAbbreviation'], pdsSectionValues['parameterName'], pdsSectionValues['parameterUnit'])
         GribParamTranslator.getInstance().getParameterNameAlias(modelName, param)
@@ -1027,8 +1027,7 @@ class GribDecoder():
 
         # If not found, create a new GribCoverage and store in the cache
         if grid is None:
-            GridCoverageLookup.getInstance().putCoverage(temp)
-            grid = GridCoverageLookup.getInstance().getCoverage(temp)
+            grid = GridCoverageLookup.getInstance().getCoverage(temp, True)
 
 
         return grid
@@ -1260,7 +1259,7 @@ class GribDecoder():
     def _createModelName(self, pdsSectionValues, grid):
         gridModel = self._getGridModel(pdsSectionValues, grid)
         if gridModel is None:
-            name = "UnknownModel:" + str(pdsSectionValues['centerid']) + ":" + str(pdsSectionValues['subcenterid']) + ":" + str(pdsSectionValues['genprocess']) + ":" + grid.getName()
+            name = "UnknownModel:" + str(pdsSectionValues['centerid']) + ":" + str(pdsSectionValues['subcenterid']) + ":" + str(pdsSectionValues['genprocess']) + ":" + str(grid.getId())
         else:
             name = gridModel.getName()
         return name
