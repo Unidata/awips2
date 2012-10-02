@@ -23,5 +23,9 @@
   	  <constructor-arg ref="getCoveragesHandler"/>
    </bean>
   
-  
+   <bean id="deleteAllModelDataHandler" class="com.raytheon.edex.plugin.grib.handler.DeleteAllModelDataHandler" />
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.DeleteAllModelDataRequest"/>
+  	  <constructor-arg ref="deleteAllModelDataHandler"/>
+   </bean>
  </beans>
