@@ -62,7 +62,7 @@ public class PointEditAction extends AbstractRightClickAction {
 
     @Override
     public void run() {
-        if (dialog == null || dialog.isDisposed()) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new PointsMgrDialog(Display.getCurrent().getShells()[0],
                     (PointsToolLayer) getSelectedRsc());
             dialog.setBlockOnOpen(false);
