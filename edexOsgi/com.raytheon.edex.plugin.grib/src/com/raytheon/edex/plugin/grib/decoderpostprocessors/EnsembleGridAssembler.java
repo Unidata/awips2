@@ -154,7 +154,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                 ClusterLockUtils.unlock(ct, clearTime);
             }
 
-            return new GridRecord[] { rec, newRec };
+            return new GridRecord[] { rec };
         }
         return new GridRecord[] { rec };
     }
@@ -203,10 +203,12 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
                 GridConstants.GRID);
         String modelName = record.getDatasetId();
-        String grid = record.getLocation().getName();
+        String oldGrid = record.getLocation().getId().toString();
+        String newGrid = GribSpatialCache.getInstance()
+                .getGridByName(thinned.getGrid()).getId().toString();
         String dataURI = record.getDataURI();
         String assembledDataURI = dataURI.replace(modelName,
-                thinned.getModelName()).replace(grid, thinned.getGrid());
+                thinned.getModelName()).replace(oldGrid, newGrid);
 
         List<?> result = dao.queryBySingleCriteria("dataURI", assembledDataURI);
         GridRecord assembledRecord = null;
