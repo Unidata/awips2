@@ -44,6 +44,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
@@ -72,6 +75,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Jul 21, 2012 #875       rferrel     Now uses points.
  * Sep 26, 2012 #1216      rferrel     Point Change listener added to update
  *                                      the Time Series Point menu.
+ * Oct  2, 2012 #1234      rferrel     Time series Point menu accounts for 
+ *                                      having no points.
  * 
  * </pre>
  * 
@@ -80,6 +85,9 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  */
 public class VolumeBrowserDlg extends CaveSWTDialog implements
         IGlobalChangedListener {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VolumeBrowserDlg.class);
 
     private VolumeBrowserDialogSettings dialogSettings;
 
@@ -839,10 +847,15 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         Menu pntsMenu = new Menu(menuBar);
         pointsMI.setMenu(pntsMenu);
         IPointNode firstPoint = populatePointsMenu(pntsMenu, null);
-        pointsMI.setText("Point " + firstPoint.getName());
-        pointsMI.setData(firstPoint);
+        if (firstPoint == null) {
+            statusHandler.handle(Priority.WARN, "No Points available.");
+            pointsMI.setText("NO POINTS");
+        } else {
+            pointsMI.setText("Point " + firstPoint.getName());
+            pointsMI.setData(firstPoint);
 
-        dialogSettings.setPointsSelection((Point) pointsMI.getData());
+            dialogSettings.setPointsSelection((Point) pointsMI.getData());
+        }
     }
 
     /**
