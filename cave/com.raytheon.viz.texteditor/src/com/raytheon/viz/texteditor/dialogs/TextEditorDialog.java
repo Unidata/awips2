@@ -294,6 +294,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * 01OCT2012   1229         rferrel     Change WmoBrowserDlg to non-blocking
+ * 10OCT2012   1229         rferrel     Changed AwipsBrowserDlg to non-blocking.
  * </pre>
  * 
  * @author lvenable
@@ -3121,14 +3122,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     TextDisplayModel.getInstance().setProductDesignator(token,
                             awipsIdTF.getText(3, charCount - 1));
                 }
+                // Highlight the text contained in the Awips ID Field.
+                awipsIdTF.selectAll();
 
                 // Perform the query of the product identified by the Awips ID.
                 // TODO Generate and AWIPSCommand
                 ICommand command = CommandFactory.getAwipsCommand(awipsIdTF
                         .getText());
                 executeCommand(command);
-                // Highlight the text contained in the Awips ID Field.
-                awipsIdTF.selectAll();
             }
 
         });
@@ -5366,11 +5367,25 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         browser.open();
                         return;
                     } else if (CommandType.AWIPS.equals(command.getType())) {
-                        browser = new AwipsBrowserDlg(Display.getCurrent()
-                                .getActiveShell(), this, prodList);
-                        browser.setBlockOnOpen(true);
+                        final boolean hasAtt = hasAttachment;
+                        final boolean enterEd = enterEditor;
+                        final boolean validExecuteCmd = validExecuteCommand;
+                        final String attachedFN = attachedFilename;
+                        browser = new AwipsBrowserDlg(getShell(), this,
+                                prodList);
+                        browser.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                postProductCheck(isObsUpdated, prodList);
+                                postExecute(hasAtt, enterEd, validExecuteCmd,
+                                        attachedFN);
+                                browser = null;
+                            }
+                        });
+                        browser.setBlockOnOpen(false);
                         browser.open();
-                        browser = null;
+                        return;
                     }
                 } else {
                     StdTextProduct prod = prodList.get(0);
