@@ -57,3 +57,6 @@ class ServerResponse(object):
                 compMessage += serverMsg.getMessage() + "\n"
             
             return compMessage
+        
+    def __str__(self):
+        return self.message()
