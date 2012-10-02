@@ -63,7 +63,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2010            njensen     Initial creation
- * 
+ * Oct 01, 2010            rjpeter     Added logging of requests over 300ms
  * </pre>
  * 
  * @author njensen
@@ -71,6 +71,8 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public class PyPiesDataStore implements IDataStore {
+
+    private static final long SIMPLE_LOG_TIME = 300;
 
     protected static String address = null;
 
@@ -80,7 +82,8 @@ public class PyPiesDataStore implements IDataStore {
 
     protected PypiesProperties props;
 
-    public PyPiesDataStore(File file, boolean useLocking, PypiesProperties props) {
+    public PyPiesDataStore(final File file, final boolean useLocking,
+            final PypiesProperties props) {
         this.filename = FileUtil.edexPath(file.getPath()); // Win32
         this.props = props;
     }
@@ -94,8 +97,8 @@ public class PyPiesDataStore implements IDataStore {
      * com.raytheon.uf.common.datastorage.StorageProperties)
      */
     @Override
-    public void addDataRecord(IDataRecord dataset, StorageProperties properties)
-            throws StorageException {
+    public void addDataRecord(final IDataRecord dataset,
+            final StorageProperties properties) throws StorageException {
         if (dataset.validateDataSet()) {
             dataset.setProperties(properties);
             records.add(dataset);
@@ -114,7 +117,8 @@ public class PyPiesDataStore implements IDataStore {
      * .uf.common.datastorage.records.IDataRecord)
      */
     @Override
-    public void addDataRecord(IDataRecord dataset) throws StorageException {
+    public void addDataRecord(final IDataRecord dataset)
+            throws StorageException {
         addDataRecord(dataset, dataset.getProperties());
     }
 
@@ -125,7 +129,7 @@ public class PyPiesDataStore implements IDataStore {
      * com.raytheon.uf.common.datastorage.IDataStore#createLinks(java.util.Map)
      */
     @Override
-    public void createLinks(Map<String, LinkLocation> links)
+    public void createLinks(final Map<String, LinkLocation> links)
             throws StorageException, FileNotFoundException {
         throw new UnsupportedOperationException(
                 "pypies does not support this yet!");
@@ -138,7 +142,7 @@ public class PyPiesDataStore implements IDataStore {
      * com.raytheon.uf.common.datastorage.IDataStore#delete(java.lang.String[])
      */
     @Override
-    public void delete(String... location) throws StorageException,
+    public void delete(final String... location) throws StorageException,
             FileNotFoundException {
         DeleteRequest delete = new DeleteRequest();
         delete.setLocations(location);
@@ -153,7 +157,7 @@ public class PyPiesDataStore implements IDataStore {
      * )
      */
     @Override
-    public String[] getDatasets(String group) throws StorageException,
+    public String[] getDatasets(final String group) throws StorageException,
             FileNotFoundException {
         DatasetNamesRequest req = new DatasetNamesRequest();
         req.setGroup(group);
@@ -168,7 +172,7 @@ public class PyPiesDataStore implements IDataStore {
      * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String)
      */
     @Override
-    public IDataRecord[] retrieve(String group) throws StorageException,
+    public IDataRecord[] retrieve(final String group) throws StorageException,
             FileNotFoundException {
         return retrieve(group, false);
     }
@@ -181,8 +185,9 @@ public class PyPiesDataStore implements IDataStore {
      * boolean)
      */
     @Override
-    public IDataRecord[] retrieve(String group, boolean includeInterpolated)
-            throws StorageException, FileNotFoundException {
+    public IDataRecord[] retrieve(final String group,
+            final boolean includeInterpolated) throws StorageException,
+            FileNotFoundException {
         RetrieveRequest req = new RetrieveRequest();
         req.setGroup(group);
         req.setIncludeInterpolated(includeInterpolated);
@@ -198,8 +203,9 @@ public class PyPiesDataStore implements IDataStore {
      * java.lang.String, com.raytheon.uf.common.datastorage.Request)
      */
     @Override
-    public IDataRecord retrieve(String group, String dataset, Request request)
-            throws StorageException, FileNotFoundException {
+    public IDataRecord retrieve(final String group, final String dataset,
+            final Request request) throws StorageException,
+            FileNotFoundException {
         RetrieveRequest req = new RetrieveRequest();
         req.setGroup(group);
         req.setDataset(dataset);
@@ -216,8 +222,9 @@ public class PyPiesDataStore implements IDataStore {
      * .String[], com.raytheon.uf.common.datastorage.Request)
      */
     @Override
-    public IDataRecord[] retrieveDatasets(String[] datasetGroupPath,
-            Request request) throws StorageException, FileNotFoundException {
+    public IDataRecord[] retrieveDatasets(final String[] datasetGroupPath,
+            final Request request) throws StorageException,
+            FileNotFoundException {
         DatasetDataRequest req = new DatasetDataRequest();
         req.setDatasetGroupPath(datasetGroupPath);
         req.setRequest(request);
@@ -233,8 +240,9 @@ public class PyPiesDataStore implements IDataStore {
      * .String[], com.raytheon.uf.common.datastorage.Request)
      */
     @Override
-    public IDataRecord[] retrieveGroups(String[] groups, Request request)
-            throws StorageException, FileNotFoundException {
+    public IDataRecord[] retrieveGroups(final String[] groups,
+            final Request request) throws StorageException,
+            FileNotFoundException {
         GroupsRequest req = new GroupsRequest();
         req.setGroups(groups);
         req.setRequest(request);
@@ -261,7 +269,7 @@ public class PyPiesDataStore implements IDataStore {
      * .datastorage.IDataStore.StoreOp)
      */
     @Override
-    public StorageStatus store(StoreOp storeOp) throws StorageException {
+    public StorageStatus store(final StoreOp storeOp) throws StorageException {
         StoreRequest req = new StoreRequest();
         req.setOp(storeOp);
         req.setRecords(records);
@@ -293,18 +301,27 @@ public class PyPiesDataStore implements IDataStore {
         return ss;
     }
 
-    protected Object sendRequest(AbstractRequest obj) throws StorageException {
+    protected Object sendRequest(final AbstractRequest obj)
+            throws StorageException {
         obj.setFilename(filename);
         byte[] bytes = serializeRequest(obj);
 
         initializeProperties();
 
         byte[] result = null;
+        long t0 = System.currentTimeMillis();
         try {
             result = HttpClient.getInstance().postBinary(address, bytes);
         } catch (Exception e) {
             throw new StorageException(
                     "Error communicating with pypies server", null, e);
+        }
+        long time = System.currentTimeMillis() - t0;
+
+        if (time >= SIMPLE_LOG_TIME) {
+            System.out.println("Took " + time + " ms to receive response for "
+                    + obj.getClass().getSimpleName() + " on file "
+                    + obj.getFilename());
         }
 
         Object ret = deserializeResponse(result);
@@ -325,11 +342,12 @@ public class PyPiesDataStore implements IDataStore {
      * @return
      * @throws StorageException
      */
-    protected Object cachedRequest(AbstractRequest obj) throws StorageException {
+    protected Object cachedRequest(final AbstractRequest obj)
+            throws StorageException {
         return this.sendRequest(obj);
     }
 
-    protected byte[] serializeRequest(AbstractRequest request)
+    protected byte[] serializeRequest(final AbstractRequest request)
             throws StorageException {
         try {
             return SerializationUtil.transformToThrift(request);
@@ -338,7 +356,7 @@ public class PyPiesDataStore implements IDataStore {
         }
     }
 
-    protected Object deserializeResponse(byte[] response)
+    protected Object deserializeResponse(final byte[] response)
             throws StorageException {
         try {
             return SerializationUtil.transformFromThrift(response);
@@ -359,15 +377,15 @@ public class PyPiesDataStore implements IDataStore {
     }
 
     @Override
-    public void deleteFiles(String[] datesToDelete) throws StorageException,
-            FileNotFoundException {
+    public void deleteFiles(final String[] datesToDelete)
+            throws StorageException, FileNotFoundException {
         DeleteFilesRequest req = new DeleteFilesRequest();
         req.setDatesToDelete(datesToDelete);
         sendRequest(req);
     }
 
     @Override
-    public void createDataset(IDataRecord rec) throws StorageException,
+    public void createDataset(final IDataRecord rec) throws StorageException,
             FileNotFoundException {
         CreateDatasetRequest req = new CreateDatasetRequest();
         req.setRecord(rec);
@@ -375,7 +393,7 @@ public class PyPiesDataStore implements IDataStore {
     }
 
     @Override
-    public void repack(Compression compression) throws StorageException {
+    public void repack(final Compression compression) throws StorageException {
         RepackRequest req = new RepackRequest();
         req.setFilename(this.filename);
         req.setCompression(compression);
@@ -383,8 +401,8 @@ public class PyPiesDataStore implements IDataStore {
         // TODO do we really want to make this an exception?
         // reasoning is if the repack fails for some reason, the original file
         // is left as is, just isn't as efficiently packed
-        if (resp != null && resp.getFailedFiles() != null
-                && resp.getFailedFiles().length > 0) {
+        if ((resp != null) && (resp.getFailedFiles() != null)
+                && (resp.getFailedFiles().length > 0)) {
             StringBuilder sb = new StringBuilder();
             sb.append("Error repacking the following files: ");
             String[] failed = resp.getFailedFiles();
@@ -399,9 +417,9 @@ public class PyPiesDataStore implements IDataStore {
     }
 
     @Override
-    public void copy(String outputDir, Compression compression,
-            String timestampCheck, int minMillisSinceLastChange,
-            int maxMillisSinceLastChange) throws StorageException {
+    public void copy(final String outputDir, final Compression compression,
+            final String timestampCheck, final int minMillisSinceLastChange,
+            final int maxMillisSinceLastChange) throws StorageException {
         CopyRequest req = new CopyRequest();
         req.setFilename(this.filename);
         if (compression != null) {
@@ -415,8 +433,8 @@ public class PyPiesDataStore implements IDataStore {
         req.setMinMillisSinceLastChange(minMillisSinceLastChange);
         FileActionResponse resp = (FileActionResponse) sendRequest(req);
 
-        if (resp != null && resp.getFailedFiles() != null
-                && resp.getFailedFiles().length > 0) {
+        if ((resp != null) && (resp.getFailedFiles() != null)
+                && (resp.getFailedFiles().length > 0)) {
             StringBuilder sb = new StringBuilder();
             sb.append("Error copying the following files: ");
             String[] failed = resp.getFailedFiles();
