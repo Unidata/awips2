@@ -267,7 +267,7 @@ public class StaticDataGenerator implements Processor {
 
                 float[] rawData = (float[]) record.getMessageData();
                 FloatDataRecord staticTopoData = new FloatDataRecord(
-                        STATIC_TOPO, "/" + record.getLocation().getName(),
+                        STATIC_TOPO, "/" + record.getLocation().getId(),
                         rawData, 2, new long[] { record.getLocation().getNx(),
                                 record.getLocation().getNy() });
                 staticTopoGridRecord = createTopoRecord(record);
@@ -321,7 +321,7 @@ public class StaticDataGenerator implements Processor {
                 try {
                     // check if its already been stored
                     dataSets = dataStore.getDatasets("/"
-                            + record.getLocation().getName());
+                            + record.getLocation().getId());
                 } catch (Exception e) {
                     // Ignore
                 }
@@ -333,7 +333,7 @@ public class StaticDataGenerator implements Processor {
                                 .getInstance().getStopoData(
                                         record.getLocation());
                         staticTopoRecord.setGroup("/"
-                                + record.getLocation().getName());
+                                + record.getLocation().getId());
                         staticTopoRecord.setName(STATIC_TOPO);
                         dataStore.addDataRecord(staticTopoRecord);
                     }
@@ -440,7 +440,7 @@ public class StaticDataGenerator implements Processor {
             } else {
                 dxRecord.setName("staticXspacing");
             }
-            dxRecord.setGroup("/" + staticXRecord.getLocation().getName());
+            dxRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(dxRecord);
         }
 
@@ -448,7 +448,7 @@ public class StaticDataGenerator implements Processor {
             FloatDataRecord dyRecord = StaticGridData.getInstance(
                     staticYRecord.getLocation()).getDy();
             dyRecord.setName("staticYspacing");
-            dyRecord.setGroup("/" + staticXRecord.getLocation().getName());
+            dyRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(dyRecord);
         }
 
@@ -456,8 +456,7 @@ public class StaticDataGenerator implements Processor {
             FloatDataRecord coriolisRecord = StaticGridData.getInstance(
                     staticCoriolisRecord.getLocation()).getCoriolis();
             coriolisRecord.setName("staticCoriolis");
-            coriolisRecord
-                    .setGroup("/" + staticXRecord.getLocation().getName());
+            coriolisRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(coriolisRecord);
         }
     }
