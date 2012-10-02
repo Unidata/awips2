@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      for both stand alone and from Cave.
  * 8/31/2011    10837       rferrel     Added checks to see if the avnImage
  *                                      file exists.
+ * 10/02/2012   1229        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -178,7 +179,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     public AviationDialog(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.INDEPENDENT_SHELL);
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Menu");
 
         ForecastModel.getInstance().setBackupRestartUtility(this);
@@ -629,7 +630,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             }
             for (String product : productDisplayList) {
                 statusHandler.handle(Priority.PROBLEM,
-						"Error no stations configured for " + product);
+                        "Error no stations configured for " + product);
             }
         } else {
             tafMonitorDlg = new TafMonitorDlg(shell, stationList,
