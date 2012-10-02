@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 11/18/2010   6701       rferrel     Now uses the same wxPlotCfg
  *                                     as WeatherPlotDataManager.
  * 04/28/2011   8065       rferrel     Use cache data.
+ * 10/02/2012   1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -174,16 +175,6 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     private Label siteTimeLbl;
 
     /**
-     * Scrolled composite width.
-     */
-    private final int SCROLLED_COMP_WIDTH = 1120;
-
-    /**
-     * Scrolled composite height.
-     */
-    private final int SCROLLED_COMP_HEIGHT = 610;
-
-    /**
      * Scrolled composite containing plot data.
      */
     private ScrolledComposite scrolledComp;
@@ -234,7 +225,8 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     public WeatherPlotDialog(Shell parent, StatusMessageType msgType,
             List<String> stationList) {
         super(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Weather Plot");
 
         this.msgType = msgType;
