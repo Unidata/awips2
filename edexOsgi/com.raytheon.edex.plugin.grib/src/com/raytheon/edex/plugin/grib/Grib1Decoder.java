@@ -914,7 +914,8 @@ public class Grib1Decoder extends AbstractDecoder {
         if (gridModel == null || gridModel.getName() == null) {
             return "UnknownModel:" + String.valueOf(centerId) + ":"
                     + String.valueOf(subcenterId) + ":"
-                    + String.valueOf(process) + ":" + grid.getName();
+                    + String.valueOf(process) + ":"
+                    + String.valueOf(grid.getId());
         } else {
             return gridModel.getName();
         }
