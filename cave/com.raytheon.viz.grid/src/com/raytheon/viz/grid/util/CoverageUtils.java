@@ -173,7 +173,7 @@ public class CoverageUtils implements IAlertObserver {
     public RemappedImage remapGrid(GridCoverage sourceGrid,
             GridCoverage destinationGrid, FloatDataRecord inputData,
             Interpolation interpolation) throws VizException {
-        if (sourceGrid.getName().equals(destinationGrid.getName())) {
+        if (sourceGrid.getId().equals(destinationGrid.getId())) {
             // we don't need to remap anything. the grids are the same
             return new RemappedImage(inputData);
         }

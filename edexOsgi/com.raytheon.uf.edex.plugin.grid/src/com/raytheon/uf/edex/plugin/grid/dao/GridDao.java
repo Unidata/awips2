@@ -100,7 +100,7 @@ public class GridDao extends PluginDao {
             String abbrev = gridRec.getParameter().getAbbreviation();
             String group = gridRec.getDataURI();
             if (GridPathProvider.STATIC_PARAMETERS.contains(abbrev)) {
-                group = "/" + location.getName();
+                group = "/" + location.getId();
             }
             AbstractStorageRecord storageRecord = new FloatDataRecord("Data",
                     group, (float[]) messageData, 2, sizes);
@@ -187,7 +187,7 @@ public class GridDao extends PluginDao {
                     if (GridPathProvider.STATIC_PARAMETERS.contains(abbrev)) {
                         IDataRecord[] record = new IDataRecord[4];
                         record[0] = dataStore.retrieve("/"
-                                + obj.getLocation().getName(), abbrev,
+                                + obj.getLocation().getId(), abbrev,
                                 Request.ALL);
                         retVal.add(record);
                     } else {
