@@ -29,6 +29,7 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -90,9 +91,14 @@ public class D2DNSharpPartListener implements IPartListener2 {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                VizWorkbenchManager.getInstance().getCurrentWindow()
-                        .getActivePage()
-                        .removePartListener(D2DNSharpPartListener.this);
+                IWorkbenchWindow window = VizWorkbenchManager.getInstance()
+                        .getCurrentWindow();
+                if (window == null) {
+                    // window will be null when CAVE is shutting down
+                    return;
+                }
+                IWorkbenchPage page = window.getActivePage();
+                page.removePartListener(D2DNSharpPartListener.this);
             }
         });
     }
