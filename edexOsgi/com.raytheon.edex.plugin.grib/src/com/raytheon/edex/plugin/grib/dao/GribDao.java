@@ -57,11 +57,15 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * Data access object for accessing Grib records from the database
@@ -73,6 +77,8 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 5/31/12      #674        dgilling    Re-factor so all purge methods
+ *                                      call updateCaches().
  * 
  * </pre>
  * 
@@ -80,6 +86,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * @version 1
  */
 public class GribDao extends PluginDao {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribDao.class);
 
     private static final String LOCAL_SECTION = "localSection";
 
@@ -90,8 +99,6 @@ public class GribDao extends PluginDao {
     private static final String REBUILD_CACHE_TOPIC = "jms-generic:topic:rebuildD2DCache";
 
     private static final String PURGE_MODEL_CACHE_TOPIC = "jms-generic:topic:purgeGribModelCache";
-
-    private static final String ORPHAN_MODEL_QUERY = "select id from awips.grib_models where id not in(select distinct(modelinfo_id) from awips.grib)";
 
     /**
      * Creates a new GribPyDao object
@@ -109,62 +116,64 @@ public class GribDao extends PluginDao {
         this("grib");
     }
 
+    @Override
     public void purgeExpiredData() throws PluginException {
         super.purgeExpiredData();
-        try {
-            List<Integer> orphanedIds = purgeGribModelOrphans();
-            EDEXUtil.getMessageProducer().sendAsyncUri(PURGE_MODEL_CACHE_TOPIC,
-                    orphanedIds);
-        } catch (DataAccessLayerException e1) {
-            statusHandler
-                    .error("Error purging orphaned grib model entries", e1);
-        } catch (EdexException e) {
-            statusHandler.error(
-                    "Error sending message to purge grib model topic", e);
-        }
-        try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(REBUILD_CACHE_TOPIC,
-                    null);
-        } catch (EdexException e) {
-            statusHandler.error(
-                    "Error sending message to rebuild D2D Cache topic", e);
-        }
+        updateCaches();
     }
 
     private List<Integer> purgeGribModelOrphans()
             throws DataAccessLayerException {
-        QueryResult result = (QueryResult) this
-                .executeNativeSql(ORPHAN_MODEL_QUERY);
+        QueryResult result = (QueryResult) executeNativeSql("select id from awips.grib_models where id not in(select distinct(modelinfo_id) from awips.grib)");
         List<Integer> orphanedIds = new ArrayList<Integer>();
         for (int i = 0; i < result.getResultCount(); i++) {
-            orphanedIds.add((Integer) result.getRowColumnValue(0, 0));
+            orphanedIds.add((Integer) result.getRowColumnValue(i, 0));
         }
+
         if (!orphanedIds.isEmpty()) {
-            this.executeNativeSql(ORPHAN_MODEL_QUERY.replace("select id",
-                    "delete"));
+            DatabaseQuery deleteQuery = new DatabaseQuery(GribModel.class);
+            deleteQuery.addQueryParam("id", orphanedIds, "in");
+            deleteByCriteria(deleteQuery);
         }
         return orphanedIds;
     }
 
+    @Override
     public void purgeAllData() throws PluginException {
         super.purgeAllData();
+        updateCaches();
+    }
+
+    /**
+     * @throws PluginException
+     */
+    private void updateCaches() throws PluginException {
+        Exception rethrow = null;
+
         try {
             List<Integer> orphanedIds = purgeGribModelOrphans();
             EDEXUtil.getMessageProducer().sendAsyncUri(PURGE_MODEL_CACHE_TOPIC,
                     orphanedIds);
-        } catch (DataAccessLayerException e1) {
-            statusHandler
-                    .error("Error purging orphaned grib model entries", e1);
-        } catch (EdexException e) {
+        } catch (DataAccessLayerException e) {
+            statusHandler.error("Error purging orphaned grib model entries", e);
+            rethrow = e;
+        } catch (EdexException e1) {
             statusHandler.error(
-                    "Error sending message to purge grib model topic", e);
+                    "Error sending message to purge grib model topic", e1);
+            rethrow = e1;
         }
         try {
             EDEXUtil.getMessageProducer().sendAsyncUri(REBUILD_CACHE_TOPIC,
                     null);
         } catch (EdexException e) {
-            throw new PluginException(
+            statusHandler.error(
                     "Error sending message to rebuild D2D Cache topic", e);
+            rethrow = e;
+        }
+
+        if (rethrow != null) {
+            throw new PluginException(
+                    "Error updating GribModelCache or D2DParmIDCache", rethrow);
         }
     }
 
@@ -192,12 +201,13 @@ public class GribDao extends PluginDao {
                     storageRecord = new FloatDataRecord("Data",
                             gribRec.getDataURI(),
                             (float[]) gribRec.getMessageData(), 2, sizes);
-                } else
+                } else {
                     throw new Exception(
                             "Cannot create data record, spatialData = "
                                     + gribRec.getSpatialObject()
                                     + " and messageData = "
                                     + gribRec.getMessageData());
+                }
             } else if (gribRec.getMessageData() instanceof byte[]) {
                 storageRecord = new ByteDataRecord("Data",
                         gribRec.getDataURI(), (byte[]) gribRec.getMessageData());
@@ -411,16 +421,13 @@ public class GribDao extends PluginDao {
     public List<StorageException> replaceRecord(GribRecord pdo)
             throws PluginException {
         List<StorageException> exceptions = new ArrayList<StorageException>();
-        IPersistable persistable = (IPersistable) pdo;
+        IPersistable persistable = pdo;
         persistable.setHdfFileId(EDEXUtil.getServerId());
 
         // get the directory
-        String directory = HDF5_DIR
+        String directory = HDF5_DIR + File.separator + pdo.getPluginName()
                 + File.separator
-                + pdo.getPluginName()
-                + File.separator
-                + pathProvider.getHDFPath(pdo.getPluginName(),
-                        (IPersistable) pdo);
+                + pathProvider.getHDFPath(pdo.getPluginName(), pdo);
         File dataStoreFile = new File(directory + File.separator
                 + pathProvider.getHDFFileName(pdo.getPluginName(), persistable));
 
@@ -445,26 +452,38 @@ public class GribDao extends PluginDao {
     }
 
     public int purgeModelData(final String modelName) {
-        return (Integer) txTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                int rval = 0;
-                HibernateTemplate ht = getHibernateTemplate();
-                Session sess = ht.getSessionFactory().getCurrentSession();
-                Query modelIdQuery = sess
-                        .createQuery("SELECT distinct id from GribModel where modelName = :modelName");
-                modelIdQuery.setString("modelName", modelName);
-                List<Integer> mIds = (List<Integer>) modelIdQuery.list();
-                for (Integer mId : mIds) {
-                    Query query = sess
-                            .createQuery("DELETE from GribRecord where modelInfo.id = :mId");
-                    query.setInteger("mId", mId);
-                    rval += query.executeUpdate();
-                }
+        Integer recordsDeleted = (Integer) txTemplate
+                .execute(new TransactionCallback() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public Object doInTransaction(TransactionStatus status) {
+                        int rval = 0;
+                        HibernateTemplate ht = getHibernateTemplate();
+                        Session sess = ht.getSessionFactory()
+                                .getCurrentSession();
+                        Query modelIdQuery = sess
+                                .createQuery("SELECT distinct id from GribModel where modelName = :modelName");
+                        modelIdQuery.setString("modelName", modelName);
+                        List<Integer> mIds = modelIdQuery.list();
+                        for (Integer mId : mIds) {
+                            Query query = sess
+                                    .createQuery("DELETE from GribRecord where modelInfo.id = :mId");
+                            query.setInteger("mId", mId);
+                            rval += query.executeUpdate();
+                        }
 
-                return rval;
-            }
-        });
+                        return rval;
+                    }
+                });
+
+        try {
+            updateCaches();
+        } catch (PluginException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Could not update grib cache.", e);
+        }
+
+        return recordsDeleted;
     }
 
     public void purgeHdf5ModelData(final String modelName)
