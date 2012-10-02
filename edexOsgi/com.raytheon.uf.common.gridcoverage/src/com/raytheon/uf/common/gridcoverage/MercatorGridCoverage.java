@@ -123,7 +123,7 @@ public class MercatorGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         double meridian = 0;
-        if (true || la2 == null || lo2 == null) {
+        if (la2 == null || lo2 == null) {
             initializeSecondCorner();
         }
 
@@ -208,11 +208,6 @@ public class MercatorGridCoverage extends GridCoverage {
             // Convert the corner points from meters to lat/lon
             DirectPosition2D cornerPosition = new DirectPosition2D();
             toLatLon.transform(position, cornerPosition);
-            System.err.println("dx = " + (lo2 - cornerPosition.x));
-            System.err.println("dy = " + (la2 - cornerPosition.y));
-            if (Math.abs(lo2 - cornerPosition.x) > 4) {
-                System.err.println();
-            }
             lo2 = cornerPosition.x;
             la2 = cornerPosition.y;
         } catch (Exception e) {
