@@ -89,6 +89,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * October-2010              epolster    Initial Creation. 
  * Jul 31, 2012 #875       rferrel     Integrated into CAVE.
+ * Oct  2, 2012 #1234      rferrel     Clicking on new group/point when no
+ *                                      node selected will now add the new
+ *                                      to the root node.
  * 
  * </pre>
  * 
@@ -277,7 +280,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
                 createPoint();
             }
         };
-        createPointAction.setText("New Point");
+        createPointAction.setText("New Point...");
 
         editNodeAction = new Action() {
             @Override
@@ -285,7 +288,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
                 editNode();
             }
         };
-        editNodeAction.setText("Edit");
+        editNodeAction.setText("Edit...");
 
         deleteNodeAction = new Action() {
             @Override
@@ -371,7 +374,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             }
         });
 
-        newButton = createButton(parent, NEW_POINT_ID, "New Point", false);
+        newButton = createButton(parent, NEW_POINT_ID, "New Point...", false);
         newButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -379,7 +382,7 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
             }
         });
 
-        editButton = createButton(parent, EDIT_POINT_ID, "Edit", false);
+        editButton = createButton(parent, EDIT_POINT_ID, "Edit...", false);
         editButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -407,12 +410,14 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
     }
 
     private void createGroup() {
+        IPointNode parentNode = null;
+
         selectedNode = getSelectedPoint();
         if (selectedNode == null) {
-            return;
+            parentNode = dataManager.getPoint("");
+        } else {
+            parentNode = dataManager.getParent(selectedNode);
         }
-
-        IPointNode parentNode = dataManager.getParent(selectedNode);
 
         try {
             setCursorBusy(true);
@@ -429,6 +434,9 @@ public class PointsMgrDialog extends CaveJFACEDialog implements
 
     private void createPoint() {
         Point point = getSelectedPoint();
+        if (point == null) {
+            point = dataManager.getPoint("");
+        }
         if (point != null) {
             ICloseCallback cb = new ICloseCallback() {
 
