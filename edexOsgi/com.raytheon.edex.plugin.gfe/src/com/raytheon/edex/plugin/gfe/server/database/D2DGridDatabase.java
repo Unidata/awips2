@@ -38,7 +38,6 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
 import com.raytheon.edex.plugin.grib.util.ParameterInfo;
 import com.raytheon.edex.util.Util;
@@ -94,7 +93,7 @@ public class D2DGridDatabase extends VGridDatabase {
             .getHandler(D2DGridDatabase.class);
 
     /** The remap object used for resampling grids */
-    private Map<String, RemapGrid> remap = new HashMap<String, RemapGrid>();
+    private Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
 
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputLoc;
@@ -114,24 +113,16 @@ public class D2DGridDatabase extends VGridDatabase {
         valid = this.dbId.isValid();
 
         if (valid) {
-            String gfeModelName = dbId.getModelName();
-
             outputLoc = this.config.dbDomain();
-
-            String d2dModelName = this.config.d2dModelNameMapping(gfeModelName);
-            for (GridCoverage awipsGrid : GribSpatialCache.getInstance()
-                    .getGridsForModel(d2dModelName)) {
-                getOrCreateRemap(awipsGrid);
-            }
         }
     }
 
     private RemapGrid getOrCreateRemap(GridCoverage awipsGrid) {
-        RemapGrid remap = this.remap.get(awipsGrid.getName());
+        RemapGrid remap = this.remap.get(awipsGrid.getId());
         if (remap == null) {
             GridLocation inputLoc = GfeUtil.transformGridCoverage(awipsGrid);
             remap = new RemapGrid(inputLoc, outputLoc);
-            this.remap.put(awipsGrid.getName(), remap);
+            this.remap.put(awipsGrid.getId(), remap);
         }
         return remap;
     }
