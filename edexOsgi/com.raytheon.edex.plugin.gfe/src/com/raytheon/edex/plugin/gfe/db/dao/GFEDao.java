@@ -658,7 +658,6 @@ public class GFEDao extends DefaultPluginDao {
                                 + id.getDbId().getSiteId(), e);
             }
         }
-        // }
 
         return null;
     }
@@ -851,8 +850,8 @@ public class GFEDao extends DefaultPluginDao {
             List<DataTime> results = executeD2DParmQuery(id);
             for (DataTime o : results) {
                 if (isMos(id)) {
-                    timeList.add(new TimeRange(o.getValidPeriod().getEnd(),
-                            o.getValidPeriod().getDuration()));
+                    timeList.add(new TimeRange(o.getValidPeriod().getEnd(), o
+                            .getValidPeriod().getDuration()));
                 } else {
                     timeList.add(o.getValidPeriod());
                 }
