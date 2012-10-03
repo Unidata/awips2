@@ -292,8 +292,9 @@ public class DbMapResource extends
                     }
                     QueryResult mappedResult = DbMapQueryFactory.getMapQuery(
                             resourceData.getTable(),
-                            resourceData.getGeomField()).queryWithinEnvelope(
-                            req.envelope, fields, constraints);
+                            getGeomField(levels[levels.length - 1]))
+                            .queryWithinEnvelope(req.envelope, fields,
+                                    constraints);
                     Map<Integer, Geometry> gidMap = new HashMap<Integer, Geometry>(
                             mappedResult.getResultCount() * 2);
                     List<Integer> toRequest = new ArrayList<Integer>(
