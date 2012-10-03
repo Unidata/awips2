@@ -33,6 +33,24 @@ import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 
+/**
+ * This class handles putting an instance of MenuContribution into a parent menu
+ * and the displaying of the availability status.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Oct 03, 2012 #1235      rferrel     Checks for disposed widget.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class MenuContributionItem extends ContributionItem {
 
     protected MenuItem widget;
@@ -41,10 +59,20 @@ public class MenuContributionItem extends ContributionItem {
 
     protected Image image;
 
+    /**
+     * @param contribution
+     */
     public MenuContributionItem(MenuContribution contribution) {
         this.menuContribution = contribution;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.action.ContributionItem#fill(org.eclipse.swt.widgets
+     * .Menu, int)
+     */
     @Override
     public void fill(Menu parent, int index) {
         if (this.menuContribution == null) {
@@ -106,24 +134,35 @@ public class MenuContributionItem extends ContributionItem {
     }
 
     public void enableMenu(boolean flag) {
-        widget.setEnabled(flag);
+        if (!widget.isDisposed()) {
+            widget.setEnabled(flag);
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        return widget.getEnabled();
+        if (!widget.isDisposed()) {
+            return widget.getEnabled();
+        }
+        return false;
     }
 
     /**
      * 
-     * @return true is data is available, false otherwise
+     * @return true if data is available, false otherwise
      */
     public boolean isAvailable() {
-        return (widget.getImage() != null);
+        if (!widget.isDisposed()) {
+            return (widget.getImage() != null);
+        }
+        return false;
     }
 
     public String getMenuItemText() {
-        return widget.getText().trim();
+        if (!widget.isDisposed()) {
+            return widget.getText().trim();
+        }
+        return "";
     }
 
     @Override
@@ -140,26 +179,30 @@ public class MenuContributionItem extends ContributionItem {
     }
 
     public void markDataAvailable(boolean available) {
-        if (available == true) {
-            if (image == null) {
-                createMenuImage();
+        if (!widget.isDisposed()) {
+            if (available == true) {
+                if (image == null) {
+                    createMenuImage();
+                }
+                widget.setImage(image);
+            } else {
+                widget.setImage(null);
             }
-            widget.setImage(image);
-        } else {
-            widget.setImage(null);
         }
     }
 
     private void createMenuImage() {
-        int imgWidth = 10;
-        int imgHeight = 10;
+        if (!widget.isDisposed()) {
+            int imgWidth = 10;
+            int imgHeight = 10;
 
-        image = new Image(widget.getDisplay(), imgWidth, imgHeight);
+            image = new Image(widget.getDisplay(), imgWidth, imgHeight);
 
-        GC gc = new GC(image);
-        drawImage(gc, imgWidth, imgHeight);
+            GC gc = new GC(image);
+            drawImage(gc, imgWidth, imgHeight);
 
-        gc.dispose();
+            gc.dispose();
+        }
     }
 
     private void drawImage(GC gc, int imgWidth, int imgHeight) {
