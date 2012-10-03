@@ -121,74 +121,85 @@ public class WorldWrapCorrector {
                         gf.createLinearRing(extRing.getCoordinates()), null);
                 // World wrap correct exterior ring and extract polygons
                 double[] offsets = flattenGeometry(extPolygon);
-                List<Geometry> extRings = new ArrayList<Geometry>();
-                correct(extRings, extPolygon, offsets);
-                List<Polygon> polygons = new ArrayList<Polygon>();
-                for (Geometry geom : extRings) {
-                    extractPolygons(polygons, geom);
-                }
+                if (offsets != null) {
+                    // This polygon needs to be corrected, process
+                    List<Geometry> extRings = new ArrayList<Geometry>();
+                    correct(extRings, extPolygon, offsets);
+                    List<Polygon> polygons = new ArrayList<Polygon>();
+                    for (Geometry geom : extRings) {
+                        extractPolygons(polygons, geom);
+                    }
 
-                // World wrap correct each interior ring
-                List<Geometry> intRings = new ArrayList<Geometry>(
-                        p.getNumInteriorRing());
-                for (int n = 0; n < p.getNumInteriorRing(); ++n) {
-                    Polygon intRing = gf.createPolygon(gf.createLinearRing(p
-                            .getInteriorRingN(n).getCoordinates()), null);
-                    offsets = flattenGeometry(intRing);
-                    correct(intRings, intRing, offsets);
-                }
+                    // World wrap correct each interior ring
+                    List<Geometry> intRings = new ArrayList<Geometry>(
+                            p.getNumInteriorRing());
+                    for (int n = 0; n < p.getNumInteriorRing(); ++n) {
+                        Polygon intRing = gf.createPolygon(gf
+                                .createLinearRing(p.getInteriorRingN(n)
+                                        .getCoordinates()), null);
+                        offsets = flattenGeometry(intRing);
+                        correct(intRings, intRing, offsets);
+                    }
 
-                // Extract polygons and "preprare" them for intersections
-                List<Polygon> interiorPolygons = new LinkedList<Polygon>();
-                for (Geometry geom : intRings) {
-                    extractPolygons(interiorPolygons, geom);
-                }
-                List<PreparedGeometry> preparedInteriorPolygons = new LinkedList<PreparedGeometry>();
-                for (Polygon intPoly : interiorPolygons) {
-                    preparedInteriorPolygons.add(PreparedGeometryFactory
-                            .prepare(intPoly));
-                }
+                    // Extract polygons and "preprare" them for intersections
+                    List<Polygon> interiorPolygons = new LinkedList<Polygon>();
+                    for (Geometry geom : intRings) {
+                        extractPolygons(interiorPolygons, geom);
+                    }
+                    List<PreparedGeometry> preparedInteriorPolygons = new LinkedList<PreparedGeometry>();
+                    for (Polygon intPoly : interiorPolygons) {
+                        preparedInteriorPolygons.add(PreparedGeometryFactory
+                                .prepare(intPoly));
+                    }
 
-                // Final polygon list (may create multipolygon out of)
-                List<Polygon> finalPolys = new ArrayList<Polygon>(
-                        polygons.size());
-                for (Polygon polygon : polygons) {
-                    // For each polygon, check if it intersects any interior
-                    // polygons. If so, add them to interior ring list so we
-                    // can reconstruct with them in place
-                    List<LinearRing> interiorRings = new ArrayList<LinearRing>();
-                    Iterator<PreparedGeometry> preparedIntPolys = preparedInteriorPolygons
-                            .iterator();
-                    while (preparedIntPolys.hasNext()) {
-                        PreparedGeometry prepIntPoly = preparedIntPolys.next();
-                        boolean intersects = prepIntPoly.intersects(polygon);
-                        if (intersects) {
-                            preparedIntPolys.remove();
-                            interiorRings.add(gf
-                                    .createLinearRing(((Polygon) prepIntPoly
-                                            .getGeometry()).getExteriorRing()
-                                            .getCoordinates()));
+                    // Final polygon list (may create multipolygon out of)
+                    List<Polygon> finalPolys = new ArrayList<Polygon>(
+                            polygons.size());
+                    for (Polygon polygon : polygons) {
+                        // For each polygon, check if it intersects any interior
+                        // polygons. If so, add them to interior ring list so we
+                        // can reconstruct with them in place
+                        List<LinearRing> interiorRings = new ArrayList<LinearRing>();
+                        Iterator<PreparedGeometry> preparedIntPolys = preparedInteriorPolygons
+                                .iterator();
+                        while (preparedIntPolys.hasNext()) {
+                            PreparedGeometry prepIntPoly = preparedIntPolys
+                                    .next();
+                            boolean intersects = prepIntPoly
+                                    .intersects(polygon);
+                            if (intersects) {
+                                preparedIntPolys.remove();
+                                interiorRings
+                                        .add(gf.createLinearRing(((Polygon) prepIntPoly
+                                                .getGeometry())
+                                                .getExteriorRing()
+                                                .getCoordinates()));
+                            }
+                        }
+
+                        if (interiorRings.size() > 0) {
+                            // add holes to polygon
+                            polygon = gf.createPolygon(gf
+                                    .createLinearRing(polygon.getExteriorRing()
+                                            .getCoordinates()), interiorRings
+                                    .toArray(new LinearRing[0]));
+                        }
+                        finalPolys.add(polygon);
+                    }
+
+                    if (finalPolys.size() > 1) {
+                        // More than one polygon resulting, create MultiPolygon
+                        geoms.add(gf.createMultiPolygon(finalPolys
+                                .toArray(new Polygon[0])));
+                    } else {
+                        // 1 or 0 polygons, just add to list
+                        for (Polygon polygon : finalPolys) {
+                            geoms.add(polygon);
                         }
                     }
-
-                    if (interiorRings.size() > 0) {
-                        // add holes to polygon
-                        polygon = gf.createPolygon(gf.createLinearRing(polygon
-                                .getExteriorRing().getCoordinates()),
-                                interiorRings.toArray(new LinearRing[0]));
-                    }
-                    finalPolys.add(polygon);
-                }
-
-                if (finalPolys.size() > 1) {
-                    // More than one polygon resulting, create MultiPolygon
-                    geoms.add(gf.createMultiPolygon(finalPolys
-                            .toArray(new Polygon[0])));
                 } else {
-                    // 1 or 0 polygons, just add to list
-                    for (Polygon polygon : finalPolys) {
-                        geoms.add(polygon);
-                    }
+                    // offsets were null, polygon can be added as is
+                    geoms.add(g);
                 }
             } else {
                 double[] offsets = flattenGeometry(g);
