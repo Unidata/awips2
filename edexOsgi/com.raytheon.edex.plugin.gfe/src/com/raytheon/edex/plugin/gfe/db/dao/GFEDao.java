@@ -811,14 +811,13 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
-            if ((!uTimeList.isEmpty()) && (!vTimeList.isEmpty())
-                    & (uTimeList.size() == vTimeList.size())) {
-                for (TimeRange tr : uTimeList) {
-                    if (vTimeList.contains(tr)) {
-                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                    }
+            for (TimeRange tr : uTimeList) {
+                if (vTimeList.contains(tr)) {
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
+            }
 
+            if (!timeList.isEmpty()) {
                 return timeList;
             }
 
@@ -838,22 +837,21 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
-            if ((!sTimeList.isEmpty()) && (!dTimeList.isEmpty())
-                    & (sTimeList.size() == dTimeList.size())) {
-                for (TimeRange tr : sTimeList) {
-                    if (dTimeList.contains(tr)) {
-                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                    }
+            for (TimeRange tr : sTimeList) {
+                if (dTimeList.contains(tr)) {
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
 
-                return timeList;
+                if (!timeList.isEmpty()) {
+                    return timeList;
+                }
             }
         } else {
             List<DataTime> results = executeD2DParmQuery(id);
             for (DataTime o : results) {
                 if (isMos(id)) {
-                    timeList.add(new TimeRange(o.getValidPeriod().getEnd(),
-                            o.getValidPeriod().getDuration()));
+                    timeList.add(new TimeRange(o.getValidPeriod().getEnd(), o
+                            .getValidPeriod().getDuration()));
                 } else {
                     timeList.add(o.getValidPeriod());
                 }
