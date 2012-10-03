@@ -510,7 +510,11 @@ public class RadarDecoder extends AbstractDecoder {
         record.setPluginName("radar");
         record.constructDataURI();
         record.setInsertTime(TimeTools.getSystemCalendar());
-        record.setOverwriteAllowed(true);
+        if (record.getProductCode() == 2) {
+            record.setOverwriteAllowed(true);
+        } else {
+            record.setOverwriteAllowed(false);
+        }
     }
 
     /**
