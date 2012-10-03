@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
  * 
  * This memory-based tileset pulls a small raster from an hdf5 file and
  * interpolates it to a larger size. The raster is then split once it is already
- * loaded in memory.
+ * loaded in memory.git pull
  * 
  * <pre>
  * 
@@ -116,23 +116,28 @@ public class MemoryBasedTileSet extends AbstractTileSet {
      */
     @Override
     protected void preloadDataObject(int level) throws StorageException {
-        IDataRecord rec = getDataRecord();
+        synchronized (isLoaded) {
+            if (isLoaded[level]) {
+                return;
+            }
+            IDataRecord rec = getDataRecord();
 
-        if (loadedData == null) {
-            loadedData = new Object[levels];
-            dims = new int[levels][];
+            if (loadedData == null) {
+                loadedData = new Object[levels];
+                dims = new int[levels][];
+            }
+
+            if (rec != null) {
+
+                loadedData[level] = rec.getDataObject();
+
+                long[] d = rec.getSizes();
+                dims[level] = new int[] { (int) d[0], (int) d[1] };
+
+            }
+
+            isLoaded[level] = true;
         }
-
-        if (rec != null) {
-
-            loadedData[level] = rec.getDataObject();
-
-            long[] d = rec.getSizes();
-            dims[level] = new int[] { (int) d[0], (int) d[1] };
-
-        }
-
-        isLoaded[level] = true;
     }
 
     protected IDataRecord getDataRecord() throws StorageException {
