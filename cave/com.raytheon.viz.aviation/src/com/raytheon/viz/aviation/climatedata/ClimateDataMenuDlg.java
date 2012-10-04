@@ -91,6 +91,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 18, 2011 #8681      rferrel      Corrected checkSite to prevent exception.
  * May 24, 2011 #9075      rferrel      Changed getObsHistoryFromInv() to scan
  *                                      ish-inventory.txt only one time.
+ * Oct 04, 2012 #1229      rferrel      Made non-blocking.
  * 
  * </pre>
  * 
@@ -229,7 +230,8 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public ClimateDataMenuDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Climate Data Menu");
     }
 
@@ -881,11 +883,11 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
                 identList.add(siteList.get(i));
             }
         } catch (IOException e) {
-			statusHandler.handle(Priority.PROBLEM, e.getMessage());
+            statusHandler.handle(Priority.PROBLEM, e.getMessage());
         } catch (ConfigurationException e) {
-			statusHandler.handle(Priority.PROBLEM, e.toString());
+            statusHandler.handle(Priority.PROBLEM, e.toString());
         } catch (LocalizationOpFailedException e) {
-			statusHandler.handle(Priority.PROBLEM, e.getMessage());
+            statusHandler.handle(Priority.PROBLEM, e.getMessage());
         }
     }
 
