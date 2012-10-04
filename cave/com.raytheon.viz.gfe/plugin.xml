@@ -34,9 +34,14 @@
 						</equals>
 					</iterate>
 				</with>
-          	  	<with variable="activeEditor">
-       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
-    	      	</with>
+				<or>
+				    <with variable="activePart">
+				       <instanceof value="com.raytheon.viz.gfe.GridManagerView"/>
+				    </with>
+	          	  	<with variable="activeEditor">
+	       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+	    	      	</with>
+    	      	</or>
     		</and>
 		</definition>
 	</extension>
