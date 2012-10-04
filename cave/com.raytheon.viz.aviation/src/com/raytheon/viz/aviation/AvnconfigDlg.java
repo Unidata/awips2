@@ -54,6 +54,7 @@ import com.raytheon.viz.avnconfig.TextEditorSetupDlg;
  * ------------ ---------- ----------- --------------------------
  * 22 MAY 2008  1119       lvenable    Initial creation
  * 01 OCT 2010  4345       rferrel     Bring existing dialog to the front.
+ * 04 OCT 2012  1229       rferrel     Work with non-blocking ClimateDataMenuDlg.
  * 
  * </pre>
  * 
@@ -366,10 +367,12 @@ public class AvnconfigDlg extends Dialog {
         climateBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (climateDataDlg == null) {
+                if (climateDataDlg == null || climateDataDlg.getShell() == null
+                        || climateDataDlg.isDisposed()) {
                     climateDataDlg = new ClimateDataMenuDlg(shell);
                     climateDataDlg.open();
-                    climateDataDlg = null;
+                } else {
+                    climateDataDlg.bringToTop();
                 }
             }
         });
