@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      in initializeComponents
  * 10/12/2010   6009        rferrel     Code clean up from making TafSiteConfig
  *                                      a singleton
+ * 10/04/2012   1129        rferrel     Made non-blocking.
  * 
  * </pre>
  * 
@@ -114,7 +115,8 @@ public class ClimateMenuDlg extends CaveSWTDialog {
      */
     public ClimateMenuDlg(Shell parent, StatusMessageType[] statusMsgTypes,
             RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Climate Menu");
 
         this.statusMsgTypes = statusMsgTypes;
