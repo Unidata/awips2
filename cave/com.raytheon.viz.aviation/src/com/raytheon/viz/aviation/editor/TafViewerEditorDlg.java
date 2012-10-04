@@ -214,6 +214,7 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 11/29/2011   11612       rferrel     Added getViewerTabList.
  * 20JUL2012    14570       gzhang/zhao Highlight correct time groups in TAF Viewer
  * 08AGU2012    15613       zhao        Modified highlightTAF()
+ * 04OCT2012    1229        rferrel     Changes for non-blocking LoaderDialog.
  * 
  * </pre>
  * 
@@ -515,6 +516,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
     private PythonScript parsePythonScript;
 
+    private LoaderDialog loadDlg;
+
     /**
      * Constructor.
      * 
@@ -586,7 +589,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 // }
 
                 // Block the disposal of this dialog.
-                shell.setVisible(false);
+                setVisible(false);
                 event.doit = false;
             }
         });
@@ -881,7 +884,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     @Override
     public void showDialog() {
         if (shell.isVisible() == false) {
-            shell.setVisible(true);
+            setVisible(true);
         }
 
         shell.setActive();
@@ -893,12 +896,16 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     @Override
     public void hideDialog() {
 
-        // if (disposeOnExit == true) {
-        // return;
-        // }
-
         if (shell.isVisible() == true) {
-            shell.setVisible(false);
+            setVisible(false);
+        }
+    }
+
+    private void setVisible(boolean state) {
+        shell.setVisible(state);
+        if (loadDlg != null && loadDlg.getShell() != null
+                && !loadDlg.isDisposed()) {
+            loadDlg.getShell().setVisible(state);
         }
     }
 
@@ -916,6 +923,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             fltCatFontColor.dispose();
             fltCatFontColor = null;
         }
+
         shell.dispose();
         clipboard.dispose();
     }
@@ -1654,9 +1662,13 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LoaderDialog loadDlg = new LoaderDialog(shell,
-                        TafViewerEditorDlg.this);
-                loadDlg.open();
+                if (loadDlg == null || loadDlg.getShell() == null
+                        || loadDlg.isDisposed()) {
+                    loadDlg = new LoaderDialog(shell, TafViewerEditorDlg.this);
+                    loadDlg.open();
+                } else {
+                    loadDlg.bringToTop();
+                }
             }
         });
 
@@ -3646,7 +3658,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 sb.append(TafUtil.safeFormatTaf(t, showHeaders));
                 sb.append("\n");
             }
-        }//System.out.println("TEMPO "+sb.toString().indexOf("TEMPO")+"/"+sb.toString().indexOf("\n",72));
+        }// System.out.println("TEMPO "+sb.toString().indexOf("TEMPO")+"/"+sb.toString().indexOf("\n",72));
 
         tafViewerStTxt.setText(sb.toString());
         hightlightTAF();
@@ -3675,10 +3687,10 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         }
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-        String taf = tafViewerStTxt.getText();	
+        String taf = tafViewerStTxt.getText();
         int offset = taf.indexOf("TAF");
-        if ( showHeadersChk.getSelection() ) { 
-        	offset = taf.indexOf("TAF", offset + 3);
+        if (showHeadersChk.getSelection()) {
+            offset = taf.indexOf("TAF", offset + 3);
         }
         try {
             int end = taf.indexOf("TAF", offset + 3);
@@ -3686,90 +3698,109 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 taf = taf.substring(offset, end);
             } else {
                 taf = taf.substring(offset);
-            }			
+            }
         } catch (IndexOutOfBoundsException ex) {
             // Assume no TAF in the viewer
             return;
         }
-        
-        Map<String,String> alertTimeMap=TafMonitorDlg.getCurrentAlertTimeMap(stationName);// DR 14570
+
+        Map<String, String> alertTimeMap = TafMonitorDlg
+                .getCurrentAlertTimeMap(stationName);// DR 14570
 
         // 20120712 for TEMPO
         String TEMPO_TXT = "TEMPO";
 
-        if(taf.contains(TEMPO_TXT)){
+        if (taf.contains(TEMPO_TXT)) {
 
-        	Map<String,String[]> tempoMap = TafMonitorDlg.getCurrentTempoMap(stationName);//20120711	
-        	if(tempoMap != null){
-        		int tempoStart = taf.indexOf(TEMPO_TXT);
-        		int tempoEnd =  taf.indexOf(TafUtil.LINE_BREAK, tempoStart);//end of the TEMPO line
+            Map<String, String[]> tempoMap = TafMonitorDlg
+                    .getCurrentTempoMap(stationName);// 20120711
+            if (tempoMap != null) {
+                int tempoStart = taf.indexOf(TEMPO_TXT);
+                int tempoEnd = taf.indexOf(TafUtil.LINE_BREAK, tempoStart);// end
+                                                                           // of
+                                                                           // the
+                                                                           // TEMPO
+                                                                           // line
 
-        		StringBuilder str = new StringBuilder(" ");
+                StringBuilder str = new StringBuilder(" ");
 
-        		for (String alertKey : tempoMap.keySet()) {
-        			//System.out.println("2___alertKey: "+ alertKey);      	
-        			for (String value : tempoMap.get(alertKey)) {
-        				//System.out.println("3___value: "+ value);             	
-        				str.setLength(1);
-        				str.append(value);
-        				int len = str.length();
-        				str.append(" ");	
+                for (String alertKey : tempoMap.keySet()) {
+                    // System.out.println("2___alertKey: "+ alertKey);
+                    for (String value : tempoMap.get(alertKey)) {
+                        // System.out.println("3___value: "+ value);
+                        str.setLength(1);
+                        str.append(value);
+                        int len = str.length();
+                        str.append(" ");
 
-        				int startIndex = taf.indexOf(str.toString(),tempoStart);// for tempo only
+                        int startIndex = taf
+                                .indexOf(str.toString(), tempoStart);// for
+                                                                     // tempo
+                                                                     // only
 
-        				if (startIndex < 0) {
-        					str.setLength(len);
-        					str.append("\n");
-        					startIndex = taf.indexOf(str.toString());
-        				}
-        				if (startIndex >= 0 /*within tempo line*/&& startIndex<tempoEnd) {
-        					StyleRange sr = new StyleRange(offset + startIndex + 1,
-        							len - 1, null, configMgr.getViwerAlertColor());
+                        if (startIndex < 0) {
+                            str.setLength(len);
+                            str.append("\n");
+                            startIndex = taf.indexOf(str.toString());
+                        }
+                        if (startIndex >= 0 /* within tempo line */
+                                && startIndex < tempoEnd) {
+                            StyleRange sr = new StyleRange(offset + startIndex
+                                    + 1, len - 1, null,
+                                    configMgr.getViwerAlertColor());
 
-        					tafViewerStTxt.setStyleRange(sr);
-        				}
-        			}
-        		}
-        	}
+                            tafViewerStTxt.setStyleRange(sr);
+                        }
+                    }
+                }
+            }
         }// END 20120712 for TEMPO
-
 
         StringBuilder str = new StringBuilder(" ");
         for (String alertKey : alertMap.keySet()) {
-        	for (String value : alertMap.get(alertKey)) {
-        		str.setLength(1);
-        		str.append(value);
-        		int len = str.length();
-        		str.append(" ");		
-        		String time = alertTimeMap.get(alertKey);// DR 14570
-        		int idx=taf.indexOf(time);// DR 14570
-        		int startIndex = taf.indexOf(str.toString(),idx);// DR 14570: highlight after the correct time group
-        		int endIndex = taf.indexOf(TafUtil.LINE_BREAK, idx);// DR 14570: a line ends with a line_break
-        		if (startIndex < 0) {
-        			str.setLength(len);
-        			str.append("\n");
-        			startIndex = taf.indexOf(str.toString());
-            		if (startIndex < 0) {
-            			str.setLength(len);
-            			str.append("=");
-            			startIndex = taf.indexOf(str.toString());
-            		}
-        		}
+            for (String value : alertMap.get(alertKey)) {
+                str.setLength(1);
+                str.append(value);
+                int len = str.length();
+                str.append(" ");
+                String time = alertTimeMap.get(alertKey);// DR 14570
+                int idx = taf.indexOf(time);// DR 14570
+                int startIndex = taf.indexOf(str.toString(), idx);// DR 14570:
+                                                                  // highlight
+                                                                  // after the
+                                                                  // correct
+                                                                  // time group
+                int endIndex = taf.indexOf(TafUtil.LINE_BREAK, idx);// DR 14570:
+                                                                    // a line
+                                                                    // ends with
+                                                                    // a
+                                                                    // line_break
+                if (startIndex < 0) {
+                    str.setLength(len);
+                    str.append("\n");
+                    startIndex = taf.indexOf(str.toString());
+                    if (startIndex < 0) {
+                        str.setLength(len);
+                        str.append("=");
+                        startIndex = taf.indexOf(str.toString());
+                    }
+                }
 
-        		if (startIndex >= 0 /*within the same line*/&& startIndex < endIndex) {
-        			StyleRange sr = new StyleRange(offset + startIndex + 1,
-        					len - 1, null, configMgr.getViwerAlertColor());
+                if (startIndex >= 0 /* within the same line */
+                        && startIndex < endIndex) {
+                    StyleRange sr = new StyleRange(offset + startIndex + 1,
+                            len - 1, null, configMgr.getViwerAlertColor());
 
-        			tafViewerStTxt.setStyleRange(sr);
-        		} else {
-        			// Should not get here. The first TAF in the viewer and the
-        			// values in the alertMap should both be from the latest
-        			// TAF. This indicates a program bug.
-        			System.out.println("highlightTAF unable to find: \""
-        					+ str.toString() + "\" in the first TAF");
-        		}
+                    tafViewerStTxt.setStyleRange(sr);
+                } else {
+                    // Should not get here. The first TAF in the viewer and the
+                    // values in the alertMap should both be from the latest
+                    // TAF. This indicates a program bug.
+                    System.out.println("highlightTAF unable to find: \""
+                            + str.toString() + "\" in the first TAF");
+                }
 
-        	}
+            }
         }
     }
 
