@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
@@ -81,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
  * 23JUL2012    15169      zhao        Use Combo for 'Month' and 'Number of Months'
  *                                     & disabled site controls while drawing
+ * 04OCT2012    1229       rferrel     Changes for non-blocking WindRoseConfigDlg.
  * 
  * </pre>
  * 
@@ -182,6 +184,8 @@ public class WindRosePlotDlg extends CaveSWTDialog {
      * Message status comp background color.
      */
     private RGB statusCompRGB;
+
+    private WindRoseConfigDlg configDlg;
 
     /**
      * Constructor.
@@ -321,9 +325,13 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         configureMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                WindRoseConfigDlg configDlg = new WindRoseConfigDlg(shell,
-                        windRoseConfigData);
-                configDlg.open();
+                if (configDlg == null || configDlg.getShell() == null
+                        || configDlg.isDisposed()) {
+                    configDlg = new WindRoseConfigDlg(shell, windRoseConfigData);
+                    configDlg.open();
+                } else {
+                    configDlg.bringToTop();
+                }
             }
         });
 
@@ -431,16 +439,15 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         gd = new GridData(66, SWT.DEFAULT);
         monthCbo = new Combo(monthHourComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         monthCbo.setLayoutData(gd);
-        for ( int i = 1; i <= 12; i++ ) {
-        	monthCbo.add(""+i, i-1);
+        for (int i = 1; i <= 12; i++) {
+            monthCbo.add("" + i, i - 1);
         }
         monthCbo.select(cal.get(Calendar.MONTH));
         monthCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	//System.out.println(" ***************  monthsCbo.getText() = " + monthCbo.getText() );
                 if (autoRedrawChk.getSelection()) {
-            		redrawWindRose();
+                    redrawWindRose();
                 }
             }
         });
@@ -451,16 +458,15 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         gd = new GridData(66, SWT.DEFAULT);
         numMonthsCbo = new Combo(monthHourComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         numMonthsCbo.setLayoutData(gd);
-        for ( int i = 1; i <= 12; i++ ) {
-        	numMonthsCbo.add(""+i, i-1);
+        for (int i = 1; i <= 12; i++) {
+            numMonthsCbo.add("" + i, i - 1);
         }
         numMonthsCbo.select(0);
         numMonthsCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	//System.out.println(" ***************  numMonthsCbo.getText() = " + numMonthsCbo.getText() );
                 if (autoRedrawChk.getSelection()) {
-            		redrawWindRose();
+                    redrawWindRose();
                 }
             }
         });
@@ -585,11 +591,9 @@ public class WindRosePlotDlg extends CaveSWTDialog {
             generateWindRoseHeader();
 
             windRoseCanvasComp.updateAndRedraw(windRoseConfigData.cloneData(),
-                    windRoseHeader, 
-                    monthCbo.getText(),
-                    numMonthsCbo.getText(),
-                    hourSpnr.getText(),
-                    numHoursSpnr.getText(), flightCatCbo.getSelectionIndex(),
+                    windRoseHeader, monthCbo.getText(), numMonthsCbo.getText(),
+                    hourSpnr.getText(), numHoursSpnr.getText(),
+                    flightCatCbo.getSelectionIndex(),
                     siteList.getItem(siteList.getSelectionIndex()), this);
         }
     }
@@ -647,18 +651,21 @@ public class WindRosePlotDlg extends CaveSWTDialog {
 
         header.append(MONTHS[monthCbo.getSelectionIndex()]);
 
-        if ( numMonthsCbo.getSelectionIndex() == 0 ) {
+        if (numMonthsCbo.getSelectionIndex() == 0) {
             header.append(" ");
         } else {
             header.append("-");
 
             int endMonth = 0;
 
-            if ( ( numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex() ) > 11 ) {
-                endMonth = numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex() - 12;
+            if ((numMonthsCbo.getSelectionIndex() + monthCbo
+                    .getSelectionIndex()) > 11) {
+                endMonth = numMonthsCbo.getSelectionIndex()
+                        + monthCbo.getSelectionIndex() - 12;
                 header.append(MONTHS[endMonth]);
             } else {
-                endMonth = numMonthsCbo.getSelectionIndex() + monthCbo.getSelectionIndex();
+                endMonth = numMonthsCbo.getSelectionIndex()
+                        + monthCbo.getSelectionIndex();
                 header.append(MONTHS[endMonth]);
             }
             header.append(" ");
