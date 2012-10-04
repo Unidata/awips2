@@ -22,9 +22,9 @@ package com.raytheon.viz.gfe.gridmanager.action;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
+import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeOperation;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.gfe.gridmanager.IGridManager;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**
@@ -56,36 +56,28 @@ public class GFEFrameTool extends AbstractTool {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        this.editor = EditorUtil.getActiveVizContainer();
-        if (this.editor == null) {
-            return null;
-        }
-
-        this.editor.getLoopProperties().setLooping(false);
-
         String operationStr = arg0.getParameter("operation");
         FrameChangeOperation operation = FrameChangeOperation
                 .valueOf(operationStr);
 
-        DataManager dm = DataManager.getCurrentInstance();
+        IGridManager gm = DataManager.getCurrentInstance().getGridManager();
 
         switch (operation) {
         case PREVIOUS:
-            dm.getGridManager().previousSelectedGrid();
+            gm.previousSelectedGrid();
             break;
         case NEXT:
-            dm.getGridManager().nextSelectedGrid();
+            gm.nextSelectedGrid();
             break;
         case FIRST:
-            dm.getGridManager().firstSelectedGrid();
+            gm.firstSelectedGrid();
             break;
         case LAST:
-            dm.getGridManager().lastSelectedGrid();
+            gm.lastSelectedGrid();
             break;
         }
 
-        editor.refresh();
-        dm.getGridManager().redraw();
+        gm.redraw();
 
         return null;
 
