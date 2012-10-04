@@ -131,6 +131,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11/29/2011   11612       rferrel     Added observers to update viewer tabs.
  * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer
  * 10/02/2012   1229        rferrel     Changes to work with non-blocking WeatherPlotDialog.
+ * 10/04/2012   1229        rferrel     Changes for non-blocking ClimateMenuDlg.
  * 
  * </pre>
  * 
@@ -236,6 +237,8 @@ public class TafMonitorDlg extends CaveSWTDialog {
     private CheckNowJob job;
 
     private List<String> productDisplayList;
+
+    private ClimateMenuDlg climateMenuDlg;
 
     /**
      * Constructor.
@@ -619,9 +622,14 @@ public class TafMonitorDlg extends CaveSWTDialog {
                 msgTypes[2] = StatusMessageType.TafMonCigVis;
                 msgTypes[3] = StatusMessageType.TafMonCigVisTrend;
 
-                ClimateMenuDlg climateMenuDlg = new ClimateMenuDlg(shell,
-                        msgTypes, configMgr.getDefaultBackgroundRGB());
-                climateMenuDlg.open();
+                if (climateMenuDlg == null || climateMenuDlg.getShell() == null
+                        || climateMenuDlg.isDisposed()) {
+                    climateMenuDlg = new ClimateMenuDlg(shell, msgTypes,
+                            configMgr.getDefaultBackgroundRGB());
+                    climateMenuDlg.open();
+                } else {
+                    climateMenuDlg.bringToTop();
+                }
             }
         });
 
