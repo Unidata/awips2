@@ -69,13 +69,13 @@ public abstract class AbstractWorkbenchPartContextActivator implements
     protected abstract boolean isPerspectivePart(IWorkbenchPartReference partRef);
 
     private void deactivate(IWorkbenchPartReference partRef) {
-        if (isPerspectivePart(partRef)) {
+        if ((partRef != null) && isPerspectivePart(partRef)) {
             contextManager.deactivateContexts(this);
         }
     }
 
     private void activate(IWorkbenchPartReference partRef) {
-        if (isPerspectivePart(partRef)) {
+        if ((partRef != null) && isPerspectivePart(partRef)) {
             contextManager.activateContexts(this);
         } else {
             contextManager.deactivateContexts(this);
