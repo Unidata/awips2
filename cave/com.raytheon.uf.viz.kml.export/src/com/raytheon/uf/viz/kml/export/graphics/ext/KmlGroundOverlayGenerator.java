@@ -40,6 +40,8 @@ import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
 import com.raytheon.uf.viz.core.data.prep.Colormapper;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -74,7 +76,21 @@ public abstract class KmlGroundOverlayGenerator extends KmlFeatureGenerator {
 
     protected final double alpha;
 
-    public KmlGroundOverlayGenerator(double alpha) {
+    protected final DrawableImage[] images;
+
+    public KmlGroundOverlayGenerator(double alpha, DrawableImage[] images) {
+        this.images = new DrawableImage[images.length];
+        for (int i = 0; i < images.length; i += 1) {
+            // Clone the DrawableImage so that if whatever is drawing modifies
+            // or disposes of it then when the generator runs it will still draw
+            // what was rendered.
+            PixelCoverage oldCov = images[i].getCoverage();
+            PixelCoverage newCov = new PixelCoverage(oldCov.getUl(),
+                    oldCov.getUr(), oldCov.getLr(), oldCov.getLl());
+            newCov.setMesh(oldCov.getMesh());
+            this.images[i] = new DrawableImage(images[i].getImage(), newCov,
+                    images[i].getMode());
+        }
         this.alpha = alpha;
     }
 
