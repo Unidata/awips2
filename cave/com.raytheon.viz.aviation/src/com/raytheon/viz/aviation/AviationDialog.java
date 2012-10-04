@@ -63,6 +63,7 @@ import com.raytheon.viz.avnconfig.AvnConfigFileUtil;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Aviation Dialog class that displays the start up menu for AvnFPS.
@@ -356,8 +357,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.setVisible(false);
-                if (climateMenuDlg == null
-                        || climateMenuDlg.getShell().isDisposed()) {
+                if (climateMenuDlg == null || climateMenuDlg.getShell() == null
+                        || climateMenuDlg.isDisposed()) {
                     // Create an array of message types
                     StatusMessageType[] msgTypes = new StatusMessageType[4];
                     msgTypes[0] = StatusMessageType.Metar;
@@ -368,13 +369,19 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                     // Create the climate menu dialog.
                     dlgCount.incrementAndGet();
                     climateMenuDlg = new ClimateMenuDlg(shell, msgTypes, null);
+                    climateMenuDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            climateMenuDlg = null;
+                            if (dlgCount.decrementAndGet() == 0) {
+                                shell.dispose();
+                            }
+                        }
+                    });
                     climateMenuDlg.open();
-                    climateMenuDlg = null;
-                    if (dlgCount.decrementAndGet() == 0) {
-                        shell.dispose();
-                    }
                 } else {
-                    climateMenuDlg.showDialog();
+                    climateMenuDlg.bringToTop();
                 }
             }
         });
