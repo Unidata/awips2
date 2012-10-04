@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2009 #3438      lvenable     Initial creation
+ * Oct 06, 2012 #1229      rferrel     Made non-blocking.
  * 
  * </pre>
  * 
@@ -87,7 +88,8 @@ public class ClimateHistoryDlg extends CaveSWTDialog {
      */
     public ClimateHistoryDlg(Shell parentShell,
             ClimateHistoryData climateHistData) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Climate History");
 
         this.climateHistData = climateHistData;
