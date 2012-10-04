@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 24, 2011 #9075      rferrel      Changed getObsHistoryFromInv() to scan
  *                                      ish-inventory.txt only one time.
  * Oct 04, 2012 #1229      rferrel      Made non-blocking.
+ * Oct 04, 2012 #1229      rfrreel      Changes of non-blocking ClimateHistoryDlg.
  * 
  * </pre>
  * 
@@ -844,10 +845,12 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
             return;
         }
 
-        if (climateHistoryDlg == null) {
+        if (climateHistoryDlg == null || climateHistoryDlg.getShell() == null
+                || climateHistoryDlg.isDisposed()) {
             climateHistoryDlg = new ClimateHistoryDlg(shell, data);
             climateHistoryDlg.open();
-            climateHistoryDlg = null;
+        } else {
+            climateHistoryDlg.bringToTop();
         }
     }
 
