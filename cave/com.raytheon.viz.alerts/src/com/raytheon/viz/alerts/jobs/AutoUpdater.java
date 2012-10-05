@@ -19,28 +19,21 @@
  **/
 package com.raytheon.viz.alerts.jobs;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.RecordFactory;
-import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -76,39 +69,13 @@ public class AutoUpdater implements IAlertObserver {
 
     private static final int MAX_ERRORS = 10;
 
-    private static class AlertMessageToPDOParser extends
-            AbstractAlertMessageParser {
-
-        @Override
-        public Object parseAlertMessage(AlertMessage message,
-                AbstractRequestableResourceData reqResourceData)
-                throws VizException {
-            Object objectToSend = null;
-            Map<String, Object> attribs = new HashMap<String, Object>(
-                    message.decodedAlert);
-            String dataURI = message.dataURI;
-            if (reqResourceData.isUpdatingOnMetadataOnly()) {
-                PluginDataObject record = RecordFactory.getInstance()
-                        .loadRecordFromUri(dataURI);
-                objectToSend = record;
-
-            } else {
-                attribs.put("dataURI", message.dataURI);
-                objectToSend = Loader.loadData(attribs);
-            }
-            return objectToSend;
-        }
-    };
-
-    private static AlertMessageToPDOParser defaultParser = new AlertMessageToPDOParser();
-
     public AutoUpdater() {
     }
 
     @Override
     public void alertArrived(Collection<AlertMessage> alertMessages) {
         Set<IDescriptor> displayList = new HashSet<IDescriptor>();
-        Map<AbstractRequestableResourceData, List<Object>> pdoSendMap = new IdentityHashMap<AbstractRequestableResourceData, List<Object>>();
+        Map<AbstractRequestableResourceData, List<AlertMessage>> pdoSendMap = new IdentityHashMap<AbstractRequestableResourceData, List<AlertMessage>>();
         int errors = 0;
 
         for (AlertMessage message : alertMessages) {
@@ -130,34 +97,25 @@ public class AutoUpdater implements IAlertObserver {
                             continue;
 
                         AbstractRequestableResourceData reqResourceData = (AbstractRequestableResourceData) resourceData;
-                        AbstractAlertMessageParser parserToUse = null;
-                        if ((parserToUse = reqResourceData.getAlertParser()) == null) {
-                            parserToUse = defaultParser;
+
+                        if (md.getTimeMatcher() != null) {
+                            md.getTimeMatcher().redoTimeMatching(r1);
                         }
-                        Object objectToSend = parserToUse.parseAlertMessage(
-                                message, reqResourceData);
+                        displayList.add(md);
 
-                        if (objectToSend != null) {
-                            if (md.getTimeMatcher() != null) {
-                                md.getTimeMatcher().redoTimeMatching(r1);
-                            }
-                            displayList.add(md);
+                        List<AlertMessage> list = pdoSendMap
+                                .get(reqResourceData);
+                        if (list == null) {
+                            list = new ArrayList<AlertMessage>();
+                            pdoSendMap.put(reqResourceData, list);
+                        }
+                        list.add(message);
 
-                            List<Object> list = pdoSendMap.get(reqResourceData);
-                            if (list == null) {
-                                list = new ArrayList<Object>();
-                                pdoSendMap.put(reqResourceData, list);
-                            }
-                            list.add(objectToSend);
-
-                            if (list.size() > 100) {
-                                // update with objects
-                                Class<?> componentType = list.get(0).getClass();
-                                reqResourceData.update(list
-                                        .toArray((Object[]) Array.newInstance(
-                                                componentType, list.size())));
-                                list.clear();
-                            }
+                        if (list.size() > 100) {
+                            // update with objects
+                            reqResourceData.update(list
+                                    .toArray(new AlertMessage[list.size()]));
+                            list.clear();
                         }
 
                     }
@@ -174,13 +132,11 @@ public class AutoUpdater implements IAlertObserver {
         }
 
         for (AbstractRequestableResourceData arrd : pdoSendMap.keySet()) {
-            List<Object> pdos = pdoSendMap.get(arrd);
+            List<AlertMessage> pdos = pdoSendMap.get(arrd);
             if (pdos == null || pdos.size() < 1) {
                 continue;
             }
-            Class<?> componentType = pdos.get(0).getClass();
-            arrd.update(pdos.toArray((Object[]) Array.newInstance(
-                    componentType, pdos.size())));
+            arrd.update(pdos.toArray(new AlertMessage[pdos.size()]));
         }
 
         List<IDescriptor> refreshedDescriptors = new ArrayList<IDescriptor>();
