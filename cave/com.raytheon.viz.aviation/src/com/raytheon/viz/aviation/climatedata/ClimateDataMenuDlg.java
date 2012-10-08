@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 04, 2012 #1229      rferrel      Made non-blocking.
  * Oct 04, 2012 #1229      rferrel      Changes for non-blocking ClimateHistoryDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking NCDCInvHistDlg.
  * 
  * </pre>
  * 
@@ -860,10 +861,12 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      * Display the NCDC inventory/history dialog.
      */
     private void displayNCDCInventoryHistoryDialog() {
-        if (invHistoryDlg == null) {
+        if (invHistoryDlg == null || invHistoryDlg.getShell() == null
+                || invHistoryDlg.isDisposed()) {
             invHistoryDlg = new NCDCInvHistDlg(shell);
             invHistoryDlg.open();
-            invHistoryDlg = null;
+        } else {
+            invHistoryDlg.bringToTop();
         }
     }
 
