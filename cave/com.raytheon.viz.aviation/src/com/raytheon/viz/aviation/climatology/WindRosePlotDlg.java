@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 23JUL2012    15169      zhao        Use Combo for 'Month' and 'Number of Months'
  *                                     & disabled site controls while drawing
  * 04OCT2012    1229       rferrel     Changes for non-blocking WindRoseConfigDlg.
+ * 08OCT2012    1229       rferrel     Made non-blocking.
  * 
  * </pre>
  * 
@@ -201,7 +202,8 @@ public class WindRosePlotDlg extends CaveSWTDialog {
      */
     public WindRosePlotDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Wind Rose Plot");
 
         this.icaos = icaos;
