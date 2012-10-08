@@ -298,11 +298,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         distBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisDist == null) {
+                if (cigVisDist == null || cigVisDist.getShell() == null
+                        || cigVisDist.isDisposed()) {
                     cigVisDist = new CigVisDistributionDlg(shell, stationList,
                             statusMsgTypes[2], statusCompRGB);
                     cigVisDist.open();
-                    cigVisDist = null;
+                } else {
+                    cigVisDist.bringToTop();
                 }
             }
         });
