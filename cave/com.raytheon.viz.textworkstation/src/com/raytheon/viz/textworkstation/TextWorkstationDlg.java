@@ -163,6 +163,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     public TextWorkstationDlg(Shell parent, int block) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL | block);
+
+        // Do not allow other CAVE styles to be passed to this constructor.
         Assert.isTrue(block == CAVE.DO_NOT_BLOCK || block == CAVE.NONE);
         setText("Text Workstation");
 
