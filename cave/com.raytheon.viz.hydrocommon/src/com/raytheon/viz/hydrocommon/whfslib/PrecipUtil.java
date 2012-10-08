@@ -50,6 +50,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * Nov 4, 2008  1662      grichard     Initial creation.
  * 11/19/2008   1662      grichard     Updated loadPeRaw.
  * 11/24/2008   1662      grichard     Added utility methods for raw precip.
+ * 09/26/2012   15385     lbousaidi    fixed duplicate entries in gage table.
  * </pre>
  * 
  * @author grichard
@@ -188,8 +189,8 @@ public final class PrecipUtil {
      */
     public static final String SUM_PC_REPORTS = "sum_pc_reports";
 
-    static {
-        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static {       
+    	sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
@@ -1553,10 +1554,18 @@ public final class PrecipUtil {
         Calendar pTm = null;
         pTm = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         pTm.setTime(query_begin_time);
-
         if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
-            pTm.add(Calendar.HOUR_OF_DAY, -1);
+            pTm.add(Calendar.DAY_OF_MONTH, -1);
         }
+        /* Need to convert the query begin and end times into dates. */
+        String beginstr = sdf.format(pTm.getTime());  
+        
+        pTm.setTime(query_end_time);        
+        if (pTm.get(Calendar.HOUR_OF_DAY) == 0) {
+            pTm.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        
+        String endstr = sdf.format(pTm.getTime());
 
         /* consider according to whether type-source specified. */
         /* load data which is not missing value (-9999.0) */
@@ -1572,15 +1581,12 @@ public final class PrecipUtil {
             where.append(" AND ");
         }
 
-        /* Need to convert the query begin and end times into dates. */
-        String beginstr = sdf.format(pTm.getTime());
-        String endstr = sdf.format(query_end_time);
-
+        
         where.append("id.obsdate between '");
         where.append(beginstr);
         where.append("' AND '");
         where.append(endstr);
-        where.append("' ORDER BY id.lid ASC, id.ts ASC, id.obsdate ASC");
+        where.append("' ORDER BY id.lid ASC, id.ts ASC, id.obsdate ASC");       
         return where.toString();
     }
 
