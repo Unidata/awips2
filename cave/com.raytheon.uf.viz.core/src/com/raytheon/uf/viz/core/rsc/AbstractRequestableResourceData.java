@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.core.rsc;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +46,9 @@ import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
@@ -96,6 +99,32 @@ public abstract class AbstractRequestableResourceData extends
      * to break requests into more manageble chunks for Hibernate.
      */
     private static int ENTRYTIMES_SLICE_SIZE = 500;
+
+    private static class AlertMessageToPDOParser extends
+            AbstractAlertMessageParser {
+
+        @Override
+        public Object parseAlertMessage(AlertMessage message,
+                AbstractRequestableResourceData reqResourceData)
+                throws VizException {
+            Object objectToSend = null;
+            Map<String, Object> attribs = new HashMap<String, Object>(
+                    message.decodedAlert);
+            String dataURI = message.dataURI;
+            if (reqResourceData.isUpdatingOnMetadataOnly()) {
+                PluginDataObject record = RecordFactory.getInstance()
+                        .loadRecordFromUri(dataURI);
+                objectToSend = record;
+
+            } else {
+                attribs.put("dataURI", message.dataURI);
+                objectToSend = Loader.loadData(attribs);
+            }
+            return objectToSend;
+        }
+    };
+
+    private static AlertMessageToPDOParser defaultParser = new AlertMessageToPDOParser();
 
     /** the metadata criteria to retrieve the resource */
     @XmlJavaTypeAdapter(value = RequestableMetadataMarshaller.class)
@@ -246,21 +275,52 @@ public abstract class AbstractRequestableResourceData extends
         Validate.isTrue(updateData instanceof Object[],
                 "Update expected Object[]");
 
-        if (updateData instanceof PluginDataObject[]) {
-            for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
-                DataTime time = pdo.getDataTime();
-                if (binOffset != null) {
-                    time = binOffset.getNormalizedTime(time);
+        this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
+    }
+
+    public void update(AlertMessage... messages) {
+        List<Object> objectsToSend = new ArrayList<Object>(messages.length);
+        boolean consistentCache = true;
+        for (AlertMessage message : messages) {
+            try {
+                AbstractAlertMessageParser parser = getAlertParser();
+                if (parser == null) {
+                    parser = defaultParser;
                 }
-                synchronized (cachedAvailableTimes) {
-                    if (!cachedAvailableTimes.contains(time)) {
-                        cachedAvailableTimes.add(time);
+                Object timeObj = null;
+                // do not try to maintain the time cache if the alert does not
+                // parse.
+                Object objectToSend = parser.parseAlertMessage(message, this);
+                if (objectToSend != null) {
+                    objectsToSend.add(objectToSend);
+                    timeObj = message.decodedAlert.get("dataTime");
+                }
+                if (timeObj instanceof DataTime) {
+                    DataTime time = (DataTime) timeObj;
+                    if (binOffset != null) {
+                        time = binOffset.getNormalizedTime(time);
                     }
+                    synchronized (cachedAvailableTimes) {
+                        if (!cachedAvailableTimes.contains(time)) {
+                            cachedAvailableTimes.add(time);
+                        }
+                    }
+                } else {
+                    consistentCache = false;
                 }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error performing update: " + message.dataURI, e);
             }
         }
-
-        this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
+        if (!consistentCache) {
+            invalidateAvailableTimesCache();
+        }
+        if (!objectsToSend.isEmpty()) {
+            Class<?> componentType = objectsToSend.get(0).getClass();
+            update(objectsToSend.toArray((Object[]) Array.newInstance(
+                    componentType, objectsToSend.size())));
+        }
     }
 
     /**
