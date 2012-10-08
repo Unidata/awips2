@@ -1090,7 +1090,7 @@ class ReportWriter {
      */
     private void flushDataLimitsObj(Datalimits limits) {     
         try {
-            Class cls = Class.forName("com.raytheon.edex.plugin.shef.objects.Datalimits");
+            Class cls = Class.forName("com.raytheon.uf.common.dataplugin.shef.tables.Datalimits");
             Method methodlist[]= cls.getDeclaredMethods();
             for(Method method : methodlist) {
                 if((method.getName().startsWith("set") && !method.getName().contains("Id"))
