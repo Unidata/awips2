@@ -73,6 +73,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the main Climate Data dialog.
@@ -92,7 +93,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 24, 2011 #9075      rferrel      Changed getObsHistoryFromInv() to scan
  *                                      ish-inventory.txt only one time.
  * Oct 04, 2012 #1229      rferrel      Made non-blocking.
- * Oct 04, 2012 #1229      rfrreel      Changes of non-blocking ClimateHistoryDlg.
+ * Oct 04, 2012 #1229      rferrel      Changes for non-blocking ClimateHistoryDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
  * 
  * </pre>
  * 
@@ -869,12 +871,20 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      * Display the generate scripts dialog.
      */
     private void displayGenerateScriptDialog() {
-        if (generateScriptsDlg == null) {
+        if (generateScriptsDlg == null || generateScriptsDlg.getShell() == null
+                || generateScriptsDlg.isDisposed()) {
             ClimateDataManager.getInstance().assessStationsMap(this);
-            generateScriptsDlg = new GenScriptsDlg(shell);
-            Boolean bool = (Boolean) generateScriptsDlg.open("data");
-            generateScriptsDlg = null;
-            genScriptsBtn.setEnabled(bool);
+            generateScriptsDlg = new GenScriptsDlg(shell, "data");
+            generateScriptsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    genScriptsBtn.setEnabled((Boolean) returnValue);
+                }
+            });
+            generateScriptsDlg.open();
+        } else {
+            generateScriptsDlg.bringToTop();
         }
     }
 

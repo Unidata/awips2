@@ -43,6 +43,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the NCDC Inventory/History dialog.
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2009 #3438      lvenable     Initial creation
+ * Oct 08, 2012 #1229      rferrel     Changes for non-blocking GenScriptsDlg.
  * 
  * </pre>
  * 
@@ -225,10 +227,22 @@ public class NCDCInvHistDlg extends CaveSWTDialog {
         invScriptBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (generateScriptsDlg == null) {
-                    generateScriptsDlg = new GenScriptsDlg(shell);
-                    generateScriptsDlg.open("inv");
-                    generateScriptsDlg = null;
+                if (generateScriptsDlg == null
+                        || generateScriptsDlg.getShell() == null
+                        || generateScriptsDlg.isDisposed()) {
+                    histScriptBtn.setEnabled(false);
+
+                    generateScriptsDlg = new GenScriptsDlg(shell, "inv");
+                    generateScriptsDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            histScriptBtn.setEnabled(true);
+                        }
+                    });
+                    generateScriptsDlg.open();
+                } else {
+                    generateScriptsDlg.bringToTop();
                 }
             }
         });
@@ -300,10 +314,21 @@ public class NCDCInvHistDlg extends CaveSWTDialog {
         histScriptBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (generateScriptsDlg == null) {
-                    generateScriptsDlg = new GenScriptsDlg(shell);
-                    generateScriptsDlg.open("his");
-                    generateScriptsDlg = null;
+                if (generateScriptsDlg == null
+                        || generateScriptsDlg.getShell() == null
+                        || generateScriptsDlg.isDisposed()) {
+                    invScriptBtn.setEnabled(false);
+                    generateScriptsDlg = new GenScriptsDlg(shell, "his");
+                    generateScriptsDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            invScriptBtn.setEnabled(true);
+                        }
+                    });
+                    generateScriptsDlg.open();
+                } else {
+                    generateScriptsDlg.bringToTop();
                 }
             }
         });
