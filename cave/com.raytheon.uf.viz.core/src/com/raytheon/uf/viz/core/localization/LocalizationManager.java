@@ -129,6 +129,8 @@ public class LocalizationManager implements IPropertyChangeListener {
 
     /** The current localization site */
     private String currentSite;
+    
+    private boolean nationalCenter;
 
     private boolean overrideSite;
 
@@ -391,6 +393,12 @@ public class LocalizationManager implements IPropertyChangeListener {
             this.currentSite = ProgramArguments.getInstance()
                     .getString("-site").toUpperCase();
             this.overrideSite = true;
+        }
+        
+        this.nationalCenter = false;
+        
+        if (ProgramArguments.getInstance().getString("-nc") != null) {
+        	this.nationalCenter = true;
         }
     }
 
@@ -945,5 +953,9 @@ public class LocalizationManager implements IPropertyChangeListener {
 
     public boolean isOverrideSite() {
         return overrideSite;
+    }
+    
+    public boolean isNationalCenter() {
+    	return nationalCenter;
     }
 }

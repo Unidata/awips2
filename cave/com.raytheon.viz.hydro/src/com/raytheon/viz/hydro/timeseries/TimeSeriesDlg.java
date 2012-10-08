@@ -115,7 +115,9 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 23 Jul 2012 15195       mpduff      Fix Group graphing to use the date widgets.  
  * 08 Aug 2012   570       mpduff      Fix a Ctrl-F in Station list causing IndexOutOfBounds error.  
  * 08 Aug 2012   657       mpduff      Fix error when selecting a TS while no selection has been made 
- *                                     in the Station List.               
+ *                                     in the Station List.
+ * 27 Sep 2012 15302       wkwock      TimeSeries start mode should depends on token timeseries_mode
+ *                                     despite start up in CAVE or standalone.               
  * </pre>
  * 
  * @author lvenable
@@ -675,10 +677,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             openTimeSeriesDisplays = false;
         }
 
-        if (this.standaloneMode) {
-            this.updateInterfaceForStandalone();
-        }
-        
         AbstractVizResource<?,?> rsc = HydroDisplayManager.getInstance().getDisplayedResource();
         if (rsc instanceof MultiPointResource) {
             ((MultiPointResource) rsc).setTs(this);
@@ -2279,20 +2277,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             
             graphButton.setEnabled(true);
         }
-    }
-
-    /**
-     * Change the selected mode to group selection mode and display the groups
-     * in the user-defined group configuration file.
-     */
-    private void updateInterfaceForStandalone() {
-        this.modeCbo.select(0);
-        this.prevModeIdx = 0;
-        stackLayout.topControl = groupGroup;
-        stackComp.layout();
-        stnLayoutDisplayed = false;
-
-        this.populateGroupListForStandalone();
     }
 
     /**
