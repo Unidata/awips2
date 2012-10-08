@@ -47,6 +47,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2010            mnash     Initial creation
+ * Oct 08, 2012 #1229      rferrel     Changes for non-clocking CigVisDistributionDlg.
  * 
  * </pre>
  * 
@@ -88,15 +89,13 @@ public class CigVisDistAction extends AbstractHandler {
 
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        if (cigVisDistDialog == null
-                || cigVisDistDialog.getShell().isDisposed()) {
+        if (cigVisDistDialog == null || cigVisDistDialog.getShell() == null
+                || cigVisDistDialog.isDisposed()) {
             cigVisDistDialog = new CigVisDistributionDlg(shell, siteList,
                     StatusMessageType.Metar, null);
             cigVisDistDialog.open();
-            cigVisDistDialog = null;
         } else {
-            cigVisDistDialog.getShell().setVisible(true);
-            cigVisDistDialog.getShell().setFocus();
+            cigVisDistDialog.bringToTop();
         }
 
         return null;
