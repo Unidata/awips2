@@ -24,6 +24,7 @@ XML_TEMPLATE = ""
 
 import sys
 import os.path
+import shutil
 
 class MainData:
         def __init__(self, file=None, prefix=None, descriptiveName=None, server='localhost:9581/services'):
@@ -89,6 +90,15 @@ if name is None:
 print 'Parsing file,', file
 fileName = os.path.split(file)[1]
 
+if fileName == "spotters.dat":
+    workFile = "/tmp/spotters.dat"
+    shutil.copy(file, workFile)
+    os.system("sed -i -e 's/spotterName/spottersName/g' /tmp/spotters.dat")
+    os.system("sed -i -e 's/spotterAddr/spottersAddr/g' /tmp/spotters.dat")
+    os.system("sed -i -e 's/spotterCity/spottersCity/g' /tmp/spotters.dat")
+    os.system("sed -i -e 's/spotterPhone/spottersPhone/g' /tmp/spotters.dat")
+    file = workFile
+
 if exportFileName is None:
     exportFileName = fileName
     idx = exportFileName.rfind('.')
@@ -107,5 +117,8 @@ request.setDescription(name)
 request.setFileContents(open(file,"r").read())
 
 client.sendRequest(request)
+
+if fileName == "spotters.dat":
+    os.system("rm /tmp/spotters.dat")
 
 print 'plots uploaded to server'

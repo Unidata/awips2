@@ -1198,7 +1198,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                     + UserController.getUserObject().uniqueId());
         }
 
-        if (!runningAsPrimary) {
+        if ((!runningAsPrimary) && (!LocalizationManager.getInstance().isNationalCenter())) {
             doExCon.setEnabled(false);
         }
     }
