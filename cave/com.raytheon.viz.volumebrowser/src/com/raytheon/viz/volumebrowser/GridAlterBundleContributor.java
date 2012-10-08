@@ -34,8 +34,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -49,7 +49,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSource;
 import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
- * TODO Add Description
+ * Class to handle alter bundles for grids.
  * 
  * <pre>
  * 
@@ -57,6 +57,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 4, 2010            mschenke     Initial creation
+ * Oct 3, 2012  #1248      rferrel     Change to use adapter.
  * 
  * </pre>
  * 
@@ -64,7 +65,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * @version 1.0
  */
 
-public class GridAlterBundleContributor implements IAlterBundleContributor {
+public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridAlterBundleContributor.class);
 
