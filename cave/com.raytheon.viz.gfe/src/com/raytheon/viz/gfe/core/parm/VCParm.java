@@ -116,7 +116,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
             Activator
             .getDefault()
             .getLog()
-            .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+            .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
                     "Can't get GPI: " + this.mod.getErrorString()));
         }
 
@@ -470,7 +470,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
             Activator
             .getDefault()
             .getLog()
-            .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+            .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
                     "Error getting dependent WeatherElements: " + this.mod.getErrorString()));
         }
 

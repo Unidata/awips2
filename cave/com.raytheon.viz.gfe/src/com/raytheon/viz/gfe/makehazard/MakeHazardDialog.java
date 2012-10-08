@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -225,6 +226,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     private String hazLocalEffect;
 
     private boolean running;
+
+    private org.eclipse.swt.widgets.List hazardGroupList;
 
     public MakeHazardDialog(Shell parent, DataManager dataManager,
             String colorName, int defaultMapWidth, int timeScaleEndTime,
@@ -1014,9 +1017,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         };
 
-        org.eclipse.swt.widgets.List hazardGroupList = new org.eclipse.swt.widgets.List(
-                hazardTypeGroup, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-                        | SWT.SINGLE);
+        hazardGroupList = new org.eclipse.swt.widgets.List(hazardTypeGroup,
+                SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.heightHint = hazardGroupList.getItemHeight() * 12
                 + hazardGroupList.getBorderWidth();
@@ -1334,6 +1336,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      *            the hazard type to select.
      */
     public void setHazardType(String hazardType) {
+        hazardGroupList.setSelection(hazardGroupList.indexOf(hazardType));
         updateSelectedHazardList(hazardType);
 
         if (this.localEffectAreas.containsKey(hazardType)) {
@@ -1362,7 +1365,14 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             leGroup.setVisible(false);
             ((GridData) leGroup.getLayoutData()).exclude = true;
             this.hazLocalEffect = "None";
-            this.etnSegNumberField.setText("");
+            String s = etnSegNumberField.getText();
+            for (Entry<String, List<Object>> entry : localAreaData.entrySet()) {
+                if (s.equals(entry.getValue().get(0))) {
+                    this.etnSegNumberField.setText("");
+                    this.etnSegNumberField.setSelection(0);
+                    break;
+                }
+            }
         }
     }
 
@@ -1391,9 +1401,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         }
     }
 
-    private void hazardLocalEffectSelected(String s) {
-        this.hazLocalEffect = s;
-        List<Object> laData = this.localAreaData.get(s);
+    private void hazardLocalEffectSelected(String le) {
+        this.hazLocalEffect = le;
+        List<Object> laData = this.localAreaData.get(le);
         if (laData != null) {
             // get the segment number
             Integer segment = (Integer) laData.get(0);
@@ -1403,8 +1413,15 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 this.etnSegNumberField.setSelection(segText.length());
 
             } else {
-                this.etnSegNumberField.setText("");
-                this.etnSegNumberField.setSelection(0);
+                String s = etnSegNumberField.getText();
+                for (Entry<String, List<Object>> entry : localAreaData
+                        .entrySet()) {
+                    if (s.equals(entry.getValue().get(0))) {
+                        this.etnSegNumberField.setText("");
+                        this.etnSegNumberField.setSelection(0);
+                        break;
+                    }
+                }
             }
 
             @SuppressWarnings("unchecked")
