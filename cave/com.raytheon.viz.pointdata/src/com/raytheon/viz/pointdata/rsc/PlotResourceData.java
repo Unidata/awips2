@@ -38,16 +38,13 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.pointdata.LocalizationParsedURLHandler;
-import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.rsc.retrieve.AbstractPlotInfoRetriever;
 import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 
@@ -334,51 +331,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
             available = filterTimes(available, frozenTime);
         }
         return available;
-    }
-
-    @Override
-    public void update(Object updateData) {
-        // Validate.isTrue(updateData instanceof PlotInfo[],
-        // "Update expected PlotInfo[]");
-        if (updateData instanceof PlotInfo[]) {
-            PlotInfo[] plots = (PlotInfo[]) updateData;
-            for (PlotInfo info : plots) {
-                DataTime time = info.dataTime;
-                if (binOffset != null) {
-                    time = binOffset.getNormalizedTime(time);
-                }
-                synchronized (cachedAvailableTimes) {
-                    if (!cachedAvailableTimes.contains(time)) {
-                        cachedAvailableTimes.add(time);
-                    }
-                }
-            }
-        } else if (updateData instanceof PluginDataObject[]) {
-            PluginDataObject[] plots = (PluginDataObject[]) updateData;
-            for (PluginDataObject info : plots) {
-                DataTime time = info.getDataTime();
-                if (binOffset != null) {
-                    time = binOffset.getNormalizedTime(time);
-                }
-                synchronized (cachedAvailableTimes) {
-                    if (!cachedAvailableTimes.contains(time)) {
-                        cachedAvailableTimes.add(time);
-                    }
-                }
-            }
-        } else {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "expected PlotInfo[] or PluginDataObject[] but got "
-                                    + updateData.getClass().toString(),
-                            new Exception());
-        }
-
-        if (updateData instanceof Object[]) {
-            // fire change listeners only if update data is an array ( see
-            // AbtractRequestableResouceData.update(Object) )
-            this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
-        }
     }
 
     @Override
