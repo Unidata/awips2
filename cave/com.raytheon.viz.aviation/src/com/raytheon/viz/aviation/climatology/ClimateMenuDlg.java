@@ -67,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/12/2010   6009        rferrel     Code clean up from making TafSiteConfig
  *                                      a singleton
  * 10/04/2012   1129        rferrel     Made non-blocking.
+ * 10/08/2012   1229        rferrel     Changes for non-blocking WindRosePlotDlg.
  * 
  * </pre>
  * 
@@ -279,11 +280,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         windRoseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (windRose == null || windRose.isDisposed()) {
+                if (windRose == null || windRose.getShell() == null
+                        || windRose.isDisposed()) {
                     windRose = new WindRosePlotDlg(shell, stationList,
                             statusMsgTypes[1], statusCompRGB);
                     windRose.open();
-                    windRose = null;
+                } else {
+                    windRose.bringToTop();
                 }
             }
         });
