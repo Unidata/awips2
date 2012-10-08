@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2009 #3438      lvenable     Initial creation
  * Oct 08, 2012 #1229      rferrel     Changes for non-blocking GenScriptsDlg.
+ * Oct 08, 2012 #1229      rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -135,7 +136,8 @@ public class NCDCInvHistDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public NCDCInvHistDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("NCDC Inventory/History");
     }
 
