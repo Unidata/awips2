@@ -96,6 +96,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 04, 2012 #1229      rferrel      Changes for non-blocking ClimateHistoryDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking NCDCInvHistDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-clocking CigVisDistributionDlg.
  * 
  * </pre>
  * 
@@ -253,6 +254,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         darkBlueBgColor.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the data, controls, and layouts
@@ -417,11 +425,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         cigVisDistMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisDist == null) {
+                if (cigVisDist == null || cigVisDist.getShell() == null
+                        || cigVisDist.isDisposed()) {
                     cigVisDist = new CigVisDistributionDlg(shell, siteList,
                             StatusMessageType.CigVis, null);
                     cigVisDist.open();
-                    cigVisDist = null;
+                } else {
+                    cigVisDist.bringToTop();
                 }
             }
         });
