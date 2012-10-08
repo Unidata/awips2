@@ -20,11 +20,11 @@
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetOfficialDbNameRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetLockTablesRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import GetActiveSitesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import LockChangeRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.server.request import LockTableRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.server.request import LockRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
+from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
 from dynamicserialize import DynamicSerializationManager
@@ -106,21 +106,23 @@ def logError(msg):
     logging.getLogger("ifpBreakAllLocks.py").error(msg)
     
 def validateSiteId(siteId, thriftClient):
-    sitesResp = thriftClient.sendRequest(GetActiveSitesRequest())
-    if not sitesResp.isOkay():
-        logError("Unable to validate siteId")
+    try:
+    	sites = thriftClient.sendRequest(GetActiveSitesRequest())
+    except Exception, e:
+        logError("Unable to validate siteId: \n %s" % str(e))
         sys.exit(1)
-    sites = sitesResp.getPayload()
+
     if not siteId in sites:
         logError('Invalid or not installed siteID: "%s"' % siteId)
         sys.exit(1)
 
 def findSiteID(thriftClient):
-    sitesResp = thriftClient.sendRequest(GetActiveSitesRequest())
-    if not sitesResp.isOkay():
-        logError("Unable to obtain siteId")
+    try:
+    	sites = thriftClient.sendRequest(GetActiveSitesRequest())
+    except Exception, e:
+        logError("Unable to obtain siteId: \n %s" % str(e))
         sys.exit(1)
-    sites = sitesResp.getPayload()
+
     if len(sites) > 1 :
         s = []
         while len(sites) > 0 : s.append(sites.pop())
