@@ -26,8 +26,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -42,6 +40,7 @@ import com.raytheon.viz.avnconfig.MonitoringCriteriaDlg;
 import com.raytheon.viz.avnconfig.TafProductConfigDlg;
 import com.raytheon.viz.avnconfig.TafSiteInfoEditorDlg;
 import com.raytheon.viz.avnconfig.TextEditorSetupDlg;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * This class is the main AvnFPS configuration dialog. It contains the controls
@@ -55,6 +54,8 @@ import com.raytheon.viz.avnconfig.TextEditorSetupDlg;
  * 22 MAY 2008  1119       lvenable    Initial creation
  * 01 OCT 2010  4345       rferrel     Bring existing dialog to the front.
  * 04 OCT 2012  1229       rferrel     Work with non-blocking ClimateDataMenuDlg.
+ * 08 Oct 2012  1229       rferrel     Make sub-class of CaveSWTDialog and 
+ *                                      make non-blocking.
  * 
  * </pre>
  * 
@@ -62,17 +63,7 @@ import com.raytheon.viz.avnconfig.TextEditorSetupDlg;
  * @version 1.0
  * 
  */
-public class AvnconfigDlg extends Dialog {
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
+public class AvnconfigDlg extends CaveSWTDialog {
 
     /**
      * Composite containing message status controls.
@@ -112,20 +103,13 @@ public class AvnconfigDlg extends Dialog {
      *            Parent shell.
      */
     public AvnconfigDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS Setup");
     }
 
-    /**
-     * Open method used set up components and display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("AvnFPS Setup");
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 3;
@@ -133,25 +117,6 @@ public class AvnconfigDlg extends Dialog {
         mainLayout.verticalSpacing = 5;
         shell.setLayout(mainLayout);
 
-        // Initialize all of the controls and layouts
-        initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Initialize the components on the display.
-     */
-    private void initializeComponents() {
         // ---------------------------------------------
         // Create the menus at the top of the dialog.
         // ---------------------------------------------
@@ -383,13 +348,5 @@ public class AvnconfigDlg extends Dialog {
      */
     private void createBottomMessageControls() {
         msgStatusComp = new MessageStatusComp(shell, null, null);
-    }
-
-    public void setFocus() {
-        shell.setFocus();
-    }
-
-    public boolean isDisposed() {
-        return shell.isDisposed();
     }
 }
