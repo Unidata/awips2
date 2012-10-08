@@ -1529,7 +1529,7 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
         we = db.getItem(p)
         
         #determine inventory that we want to keep
-        weInv = determineSamplingValues(samplingDef, p, we.getKeys(), start)
+        weInv = determineSamplingValues(samplingDef, p, we.getKeys(), time.time())
         
         gridType = str(we.getGpi().getGridType())
         if gridType == "SCALAR":
