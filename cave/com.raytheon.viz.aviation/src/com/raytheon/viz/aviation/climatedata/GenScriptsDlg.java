@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      to the correct directory.
  * May 10, 2011 #8844      rferrel      Display error message when unable
  *                                      to save a script.
+ * Oct 08, 2012 #1229      rferrel      Made non-blocking.
  * 
  * </pre>
  * 
@@ -132,23 +133,16 @@ public class GenScriptsDlg extends CaveSWTDialog {
     /**
      * Constructor.
      * 
+     * @param style
      * @param parentShell
      *            Parent shell.
      */
-    public GenScriptsDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+    public GenScriptsDlg(Shell parentShell, String style) {
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Generate Scripts");
-        initFtpArgs();
-    }
-
-    /**
-     * Open the dialog.
-     * 
-     * @return null.
-     */
-    public Object open(String style) {
         this.style = style;
-        return open();
+        initFtpArgs();
     }
 
     public void preOpened() {
