@@ -44,6 +44,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  * Jul  9, 2010 5078        rferrel     Check for existence of
  *                                      config files in execute.
  * Oct 19, 2010 7347        rferrel     Replace reference to TAF_SITE_CONFIG
+ * Oct 08, 2012 1229        rferrel     Changes to work with non-blocking AvnConfigDlg.
  * 
  * </pre>
  * 
@@ -73,12 +74,12 @@ public class AvnconfigAction extends AbstractHandler {
 
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        if (avnfspSetupDlg == null || avnfspSetupDlg.isDisposed()) {
+        if (avnfspSetupDlg == null || avnfspSetupDlg.getShell() == null
+                || avnfspSetupDlg.isDisposed()) {
             avnfspSetupDlg = new AvnconfigDlg(shell);
             avnfspSetupDlg.open();
-            avnfspSetupDlg = null;
         } else {
-            avnfspSetupDlg.setFocus();
+            avnfspSetupDlg.bringToTop();
         }
 
         return null;
