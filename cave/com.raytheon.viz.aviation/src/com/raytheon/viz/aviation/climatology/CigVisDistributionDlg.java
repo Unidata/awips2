@@ -86,6 +86,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 3/31/2011    8774       rferrel     killProcess when doing a disposed
  * 4/4/2011     8896       rferrel     Made timeout configurable
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
+ * 04/08/2012   1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -220,7 +221,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
     public CigVisDistributionDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - Ceiling/Visibility Distribution");
 
         this.icaos = icaos;
