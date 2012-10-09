@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/4/2011     8896       rferrel     Made timeout configurable
  * 4/8/2011     8838       rferrel     Properly set up "Show Display"
  * 4/12/2011    8861       rferrel     Added file permission check in savedata
+ * 10/09/2012   1229       rferrel     Change to non-blocking dialog.
  * 
  * </pre>
  * 
@@ -179,7 +180,8 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
      */
     public MetarDisplayDialog(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - METAR Display");
 
         this.icaos = icaos;
