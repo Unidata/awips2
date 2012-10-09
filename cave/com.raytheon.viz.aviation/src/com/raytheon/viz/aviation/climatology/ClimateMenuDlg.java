@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      a singleton
  * 10/04/2012   1129        rferrel     Made non-blocking.
  * 10/08/2012   1229        rferrel     Changes for non-blocking WindRosePlotDlg.
+ * 10/09/2012   1229        rferrel     Changes for non-blocking MetarDisplayDialog.
  * 
  * </pre>
  * 
@@ -261,11 +262,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         metarsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (metarDlg == null) {
+                if (metarDlg == null || metarDlg.getShell() == null
+                        || metarDlg.isDisposed()) {
                     metarDlg = new MetarDisplayDialog(shell, stationList,
                             statusMsgTypes[0], statusCompRGB);
                     metarDlg.open();
-                    metarDlg = null;
+                } else {
+                    metarDlg.bringToTop();
                 }
             }
         });
