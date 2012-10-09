@@ -443,7 +443,10 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
 		super.handleResize();
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
-		
+		this.rectangle = new Rectangle((int)ext.getMinX(), (int) ext.getMinY(),
+				(int) ext.getWidth(), (int) ext.getHeight());
+		pe = new PixelExtent(this.rectangle);
+		getDescriptor().setNewPe(pe);
 	    defineCharHeight(font10);
 	    //rscHandler.setCharHeight(charHeight);
 		float prevHeight = paneHeight;
