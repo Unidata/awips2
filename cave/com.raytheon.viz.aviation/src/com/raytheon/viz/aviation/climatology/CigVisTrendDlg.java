@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 9/12/2008    1444       grichard    Accommodate separate message logs.
  * 3/31/2011    8774       rferrel     killProcess when doing a disposed
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
+ * 10/09/2912   1229       rferrel     Made non-blocking
  * 
  * </pre>
  * 
@@ -218,7 +219,8 @@ public class CigVisTrendDlg extends CaveSWTDialog {
      */
     public CigVisTrendDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - Ceiling/Visibility Trend");
 
         this.icaos = icaos;
