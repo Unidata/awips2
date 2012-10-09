@@ -134,6 +134,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the TAF Viewer and Editor dialog.
@@ -215,6 +216,7 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 20JUL2012    14570       gzhang/zhao Highlight correct time groups in TAF Viewer
  * 08AGU2012    15613       zhao        Modified highlightTAF()
  * 04OCT2012    1229        rferrel     Changes for non-blocking LoaderDialog.
+ * 09OCT2012    1229        rferrel     Changes for non-blocking QcDialog.
  * 
  * </pre>
  * 
@@ -518,6 +520,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
     private LoaderDialog loadDlg;
 
+    private QcDialog qcDlg;
+
     /**
      * Constructor.
      * 
@@ -589,7 +593,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 // }
 
                 // Block the disposal of this dialog.
-                setVisible(false);
+                hideDialog();
                 event.doit = false;
             }
         });
@@ -887,6 +891,11 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             setVisible(true);
         }
 
+        if (qcDlg != null && qcDlg.getShell() != null
+                && qcDlg.isDisposed() == false) {
+            qcDlg.bringToTop();
+        }
+
         shell.setActive();
     }
 
@@ -898,6 +907,9 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
         if (shell.isVisible() == true) {
             setVisible(false);
+        }
+        if (qcDlg != null) {
+            qcDlg.hide();
         }
     }
 
@@ -3277,33 +3289,40 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             }
         }
 
-        String tafText = editorTafTabComp.getTextEditorControl().getText();
-        List<String> sitesInTaf = getSitesInTaf(tafText);
-        HashMap<String, HashMap<String, String>> qcMap = null;
-
         if (doQcDialog) {
-            QcDialog qcDlg = new QcDialog(shell, savedQcItems);
-            Object o = qcDlg.open();
-            if (o == null) {
-                return;
-            }
-            HashMap<String, String> qcItems = (HashMap<String, String>) o;
-            qcMap = new HashMap<String, HashMap<String, String>>();
-            for (String site : sitesInTaf) {
-                qcMap.put(site, qcItems);
+            if (qcDlg == null || qcDlg.getShell() == null || qcDlg.isDisposed()) {
+                qcDlg = new QcDialog(shell, savedQcItems);
+                qcDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        String tafText = editorTafTabComp
+                                .getTextEditorControl().getText();
+                        List<String> sitesInTaf = getSitesInTaf(tafText);
+                        if (returnValue instanceof HashMap<?, ?>) {
+                            HashMap<String, String> qcItems = (HashMap<String, String>) returnValue;
+                            HashMap<String, HashMap<String, String>> qcMap = new HashMap<String, HashMap<String, String>>();
+                            for (String site : sitesInTaf) {
+                                qcMap.put(site, qcItems);
+                            }
+                            qcCheck(qcMap);
+                        }
+                    }
+                });
+                qcDlg.open();
+            } else {
+                qcDlg.bringToTop();
             }
         } else {
+            String tafText = editorTafTabComp.getTextEditorControl().getText();
+            List<String> sitesInTaf = getSitesInTaf(tafText);
+            HashMap<String, HashMap<String, String>> qcMap = null;
             qcMap = new HashMap<String, HashMap<String, String>>();
 
             for (String site : sitesInTaf) {
                 qcMap.put(site, null);
             }
-        }
-        try {
-            setWaitCursor(true);
             qcCheck(qcMap);
-        } finally {
-            setWaitCursor(false);
         }
     }
 
@@ -3313,6 +3332,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     @SuppressWarnings("unchecked")
     private void qcCheck(HashMap<String, HashMap<String, String>> qcMap) {
         try {
+            setWaitCursor(true);
             ITafSiteConfig config = TafSiteConfigFactory.getInstance();
             ArrayList<Object> tafs = new ArrayList<Object>();
             HashMap<String, Object> siteInfo = new HashMap<String, Object>();
@@ -3550,6 +3570,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             setMessageStatusError("An Error occured while performing the QC check.");
         } catch (IOException e) {
             setMessageStatusError("An Error occured while performing the QC check.");
+        } finally {
+            setWaitCursor(false);
         }
     }
 
