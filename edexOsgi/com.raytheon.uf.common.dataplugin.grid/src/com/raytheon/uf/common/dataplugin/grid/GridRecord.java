@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -70,7 +69,7 @@ public class GridRecord extends PersistablePluginDataObject implements
 
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(cascade = { CascadeType.REFRESH })
+    @ManyToOne
     @PrimaryKeyJoinColumn
     @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
