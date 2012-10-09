@@ -46,8 +46,14 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
  */
 public class GridPathProvider extends DefaultPathProvider {
 
-    private static final DecimalFormat forecastHourFormat = new DecimalFormat(
-            "000");
+    private static final ThreadLocal<DecimalFormat> forecastHourFormat = new ThreadLocal<DecimalFormat>() {
+
+        @Override
+        protected DecimalFormat initialValue() {
+            return new DecimalFormat("000");
+        }
+
+    };
 
     private static final int SECONDS_PER_HOUR = 3600;
 
@@ -107,10 +113,7 @@ public class GridPathProvider extends DefaultPathProvider {
             sb.append("000");
         } else {
             long number = pdo.getDataTime().getFcstTime() / SECONDS_PER_HOUR;
-            String numberString = null;
-            synchronized (forecastHourFormat) {
-                numberString = forecastHourFormat.format(number);
-            }
+            String numberString = forecastHourFormat.get().format(number);
             sb.append(numberString);
         }
         sb.append(".h5");
