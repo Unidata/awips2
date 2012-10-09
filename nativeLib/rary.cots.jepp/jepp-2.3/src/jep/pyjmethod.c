@@ -494,12 +494,14 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
         param = PyTuple_GetItem(args, pos);                   /* borrowed */
         if(PyErr_Occurred()) {                                /* borrowed */
             PyMem_Free(jargs);
+            PyMem_Free(jrelease);
             return NULL;
         }
         
         pclazz = (*env)->GetObjectClass(env, paramType);
         if(process_java_exception(env) || !pclazz) {
             PyMem_Free(jargs);
+            PyMem_Free(jrelease);
             return NULL;
         }
         
@@ -963,6 +965,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     }
 
     PyMem_Free(jargs);
+    PyMem_Free(jrelease);
     
     if(PyErr_Occurred())
         return NULL;
