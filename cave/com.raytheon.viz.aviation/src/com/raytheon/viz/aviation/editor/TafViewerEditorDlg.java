@@ -217,6 +217,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08AGU2012    15613       zhao        Modified highlightTAF()
  * 04OCT2012    1229        rferrel     Changes for non-blocking LoaderDialog.
  * 09OCT2012    1229        rferrel     Changes for non-blocking QcDialog.
+ * 09OCT2012    1229        rferrel     Changes for non-blocking SendDialog.
  * 
  * </pre>
  * 
@@ -521,6 +522,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     private LoaderDialog loadDlg;
 
     private QcDialog qcDlg;
+
+    private SendDialog sendDlg;
 
     /**
      * Constructor.
@@ -896,6 +899,10 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             qcDlg.bringToTop();
         }
 
+        if (sendDlg != null && sendDlg.getShell() != null
+                && sendDlg.isDisposed() == false) {
+            sendDlg.bringToTop();
+        }
         shell.setActive();
     }
 
@@ -910,6 +917,9 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         }
         if (qcDlg != null) {
             qcDlg.hide();
+        }
+        if (sendDlg != null) {
+            sendDlg.hide();
         }
     }
 
@@ -1776,14 +1786,27 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                         printForecast(editorTafTabComp.getTextEditorControl()
                                 .getText());
                     }
-                    SendDialog sendDlg = new SendDialog(shell,
-                            editorTafTabComp, msgStatComp, sendCollectMI
-                                    .getSelection());
-                    sendDlg.open();
-                    // sendDlg sets the "taf sent" field only
-                    if (editorTafTabComp.isTafSent()) {
-                        editorTafTabComp.updateTafSent(true);
+
+                    if (sendDlg == null || sendDlg.getShell() == null
+                            || sendDlg.isDisposed()) {
+                        sendDlg = new SendDialog(shell, editorTafTabComp,
+                                msgStatComp, sendCollectMI.getSelection());
+                        sendDlg.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // sendDlg sets the "taf sent" field only
+                                if (editorTafTabComp.isTafSent()) {
+                                    editorTafTabComp.updateTafSent(true);
+                                }
+                                sendDlg = null;
+                            }
+                        });
+                        sendDlg.open();
+                    } else {
+                        sendDlg.bringToTop();
                     }
+
                 } else {
                     putMessageToForecaster("Cannot send forecast: Press Syntax before transmission");
                 }
