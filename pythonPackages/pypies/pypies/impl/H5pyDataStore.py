@@ -28,7 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/16/10                      njensen       Initial Creation.
-#    05/03/11      9134        njensen       Optimized for pointdata
+#    05/03/11        9134          njensen       Optimized for pointdata
+#    10/09/12                      rjpeter       Optimized __getGroup for retrievals 
 #    
 # 
 #
@@ -528,6 +529,7 @@ class H5pyDataStore(IDataStore.IDataStore):
         if chunks:
             plc.set_chunk(chunks)
         if compression == 'LZF':
+            plc.set_shuffle()
             plc.set_filter(h5py.h5z.FILTER_LZF, h5py.h5z.FLAG_OPTIONAL)
         
         szDims = tuple(szDims)
@@ -612,28 +614,28 @@ class H5pyDataStore(IDataStore.IDataStore):
     
     def __getGroup(self, f, name, create=False):
         t0=time.time()
-        parts = name.split('/')
-        grp = None      
-        for s in parts:
-            if not grp:
-                if not s:
-                    s = '/'
-                if s == '/' or s in f.keys():
-                    grp = f[s]
-                else:
-                    if create:
+        if create:
+            parts = name.split('/')
+            grp = None      
+            for s in parts:
+                if not grp:
+                    if not s:
+                        s = '/'
+                    if s == '/' or s in f.keys():
+                        grp = f[s]
+                    else:
                         grp = f.create_group(s)
-                    else:
-                        raise StorageException("No group " + name + " found")                
-            else:
-                if s:
-                    if s in grp.keys():
-                        grp = grp[s]
-                    else:
-                        if create:
-                            grp = grp.create_group(s)
+                else:
+                    if s:
+                        if s in grp.keys():
+                            grp = grp[s]
                         else:
-                            raise StorageException("No group " + name + " found")
+                            grp = grp.create_group(s)
+        else:
+            try:
+                grp = f[name]
+            except KeyError:
+                raise StorageException("No group " + name + " found")
 
         t1=time.time()
         if timeMap.has_key('getGroup'):
