@@ -168,6 +168,7 @@ public class PointsToolLayer extends AbstractMovableToolLayer<Point> implements
         for (IFont font : fonts.values()) {
             font.dispose();
         }
+        fonts.clear();
         this.resourceData.removeChangeListener(this);
     }
 
