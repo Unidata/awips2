@@ -96,8 +96,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 04, 2012 #1229      rferrel      Changes for non-blocking ClimateHistoryDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking NCDCInvHistDlg.
- * Oct 08, 2012 #1229      rferrel      Changes for non-clocking CigVisDistributionDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking CigVisDistributionDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking WindRosePlotDlg.
+ * Oct 09, 2012 #1229      rferrel      Changes for non-blocking MetarDisplayDialog.
  * 
  * </pre>
  * 
@@ -396,11 +397,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         metarsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (metarDlg == null) {
+                if (metarDlg == null || metarDlg.getShell() == null
+                        || metarDlg.isDisposed()) {
                     metarDlg = new MetarDisplayDialog(shell, siteList,
                             StatusMessageType.Metar, null);
                     metarDlg.open();
-                    metarDlg = null;
+                } else {
+                    metarDlg.bringToTop();
                 }
             }
         });
