@@ -97,6 +97,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking NCDCInvHistDlg.
  * Oct 08, 2012 #1229      rferrel      Changes for non-clocking CigVisDistributionDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking WindRosePlotDlg.
  * 
  * </pre>
  * 
@@ -410,11 +411,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         windRoseMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (windRose == null || windRose.isDisposed()) {
+                if (windRose == null || windRose.getShell() == null
+                        || windRose.isDisposed()) {
                     windRose = new WindRosePlotDlg(shell, siteList,
                             StatusMessageType.WindRose, null);
                     windRose.open();
-                    windRose = null;
+                } else {
+                    windRose.bringToTop();
                 }
             }
         });
