@@ -132,6 +132,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer
  * 10/02/2012   1229        rferrel     Changes to work with non-blocking WeatherPlotDialog.
  * 10/04/2012   1229        rferrel     Changes for non-blocking ClimateMenuDlg.
+ * 10/09/2012   1229        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -252,7 +253,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
             List<String> productDispalyList) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
-                        | CAVE.INDEPENDENT_SHELL);
+                        | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Monitor");
 
         this.stationList = stationList;
