@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 8/31/2011    10837       rferrel     Added checks to see if the avnImage
  *                                      file exists.
  * 10/02/2012   1229        rferrel     Made dialog non-blocking.
+ * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
  * 
  * </pre>
  * 
@@ -356,7 +357,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                     loadTafSiteConfig();
                     displayTafMonitorDialog();
                 } else {
-                    tafMonitorDlg.showDialog();
+                    tafMonitorDlg.bringToTop();
                 }
             }
         });
@@ -585,7 +586,12 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     @Override
     public void restartTafMonitor() {
+        // This prevents tafMonitorDlg from closing this shell when closing the
+        // TaMonitorDlg prior to the restart.
+        dlgCount.incrementAndGet();
         if (tafMonitorDlg.closeDisplay() == false) {
+            // adjust the count.
+            dlgCount.decrementAndGet();
             return;
         }
 
@@ -618,7 +624,12 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         }
 
         if (!emptyStationList) {
+            // This prevents tafMonitorDlg from closing this shell when closing
+            // the TaMonitorDlg prior to the restart.
+            dlgCount.incrementAndGet();
             if (tafMonitorDlg.closeDisplay() == false) {
+                // adjust the count.
+                dlgCount.decrementAndGet();
                 return;
             }
 
@@ -655,22 +666,25 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                         "Error no stations configured for " + product);
             }
         } else {
-            tafMonitorDlg = new TafMonitorDlg(shell, stationList,
-                    productDisplayList);
-            tafMonitorDlg.open();
-            tafMonitorDlg = null;
+            if (tafMonitorDlg == null || tafMonitorDlg.getShell() == null
+                    || tafMonitorDlg.isDisposed()) {
+                tafMonitorDlg = new TafMonitorDlg(shell, stationList,
+                        productDisplayList);
+                tafMonitorDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        tafMonitorDlg = null;
+                        if (dlgCount.decrementAndGet() == 0
+                                && !productDisplayList.isEmpty()) {
+                            shell.dispose();
+                        }
+                    }
+                });
+                tafMonitorDlg.open();
+            } else {
+                tafMonitorDlg.bringToTop();
+            }
         }
-
-        if (dlgCount.decrementAndGet() == 0 && !productDisplayList.isEmpty()) {
-            shell.dispose();
-        }
-    }
-
-    public void setFocus() {
-        shell.setFocus();
-    }
-
-    public void setVisible(boolean visible) {
-        shell.setVisible(visible);
     }
 }
