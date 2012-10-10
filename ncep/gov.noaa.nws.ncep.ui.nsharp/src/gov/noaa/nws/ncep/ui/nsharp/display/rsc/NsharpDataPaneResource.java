@@ -869,8 +869,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//font10.dispose();
     }
 	@SuppressWarnings("deprecation")
-	private void drawPanel2(IGraphicsTarget target,  Rectangle rect) 
-    throws VizException {
+	private void drawPanel2(IGraphicsTarget target,  Rectangle rect) throws VizException 
+     {
 		 /*
 		 * Chin's NOTE::::
 		 * This pages based on BigNsharp 
@@ -1070,7 +1070,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		           nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
 		        }
 		        // set parcel back to user selection 
-		        if (oldlplchoice == 1)
+		        /*if (oldlplchoice == 1)
 		          pres = 0;
 		        else if (oldlplchoice == 2)
 		          pres = 0;
@@ -1081,11 +1081,30 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		        else if (oldlplchoice == 5)
 		          pres = NsharpNativeConstants.USER_LAYER;
 		        else if (oldlplchoice == 6)
-		          pres = NsharpNativeConstants.MU_LAYER;
+		          pres = NsharpNativeConstants.MU_LAYER;*/
 		        //System.out.println("drawPanel2-2 called define_parcel pType="+oldlplchoice+" pre="+ pres);
-
-		        nsharpNative.nsharpLib.define_parcel(oldlplchoice, pres);
-			}
+		        try{
+		        	if(oldlplchoice == NsharpNativeConstants.PARCELTYPE_USER_DEFINED){
+		        		if(NsharpParcelDialog.getAccess() != null){
+		        			pres = NsharpParcelDialog.getAccess().getUserDefdParcelMb();
+		        		}
+		        		else
+		        			pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
+		        	}
+		        	else
+		        		pres = NsharpNativeConstants.parcelToLayerMap.get(oldlplchoice);
+		        	
+		        	//reset and define oldchoice parcel
+			   		nsharpNative.nsharpLib.define_parcel(oldlplchoice,pres);			
+		        }
+		        catch (NullPointerException e) {
+		        	// when in changing pane configuration situation, an odd scenario may happened that 
+		        	// "oldlplchoice" may be a null, and parcelToLayerMap.get(oldlplchoice); throws a
+		        	// NullPointerException. In that case, we do not re-define_parcel and continue on
+		        	e.printStackTrace();
+		        }
+		   	    
+		   	}
 			else {
 				h1 = NsharpNativeConstants.STORM_MOTION_HEIGHT2[i][0];
 				h2 = NsharpNativeConstants.STORM_MOTION_HEIGHT2[i][1];
@@ -3267,6 +3286,10 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		//Chin Note; ext size is its view size Not canvas size
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
+		this.rectangle = new Rectangle((int)ext.getMinX(), (int) ext.getMinY(),
+				(int) ext.getWidth(), (int) ext.getHeight());
+		pe = new PixelExtent(this.rectangle);
+		getDescriptor().setNewPe(pe);
 		defineCharHeight(font10);
 		float prevHeight = dataPaneHeight;
 		float prevWidth = dataPaneWidth;
