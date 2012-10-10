@@ -387,6 +387,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
                 tafInfo = "Viewing multiple forecasts";
             }
 
+            // Allow multiple instances of this dialog.
             TransmissionViewerDlg tvd = new TransmissionViewerDlg(shell,
                     tafText, tafInfo);
             tvd.open();
