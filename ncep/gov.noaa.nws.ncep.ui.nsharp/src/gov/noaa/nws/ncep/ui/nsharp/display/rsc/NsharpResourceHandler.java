@@ -1535,7 +1535,8 @@ public class NsharpResourceHandler {
 		if(soundMap.size() <=0 || (skewtPaneRsc==null)){
 			return;
 		}
-		if(timeLineStateList.isEmpty() || stnStateList.isEmpty()){
+		if(timeLineStateList.isEmpty() || stnStateList.isEmpty() || 
+				currentTimeLineStateListIndex < 0 || currentStnStateListIndex < 0){
 			//if no data was loaded since, then display this data any way
 			displayNewData = true;
 		}
