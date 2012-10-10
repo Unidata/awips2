@@ -31,8 +31,8 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -41,7 +41,7 @@ import com.raytheon.viz.core.rsc.BestResResourceData;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
 
 /**
- * TODO Add Description
+ * Class to handle alter bundles for radar.
  * 
  * <pre>
  * 
@@ -49,6 +49,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 4, 2010            mschenke     Initial creation
+ * Oct 3, 2012  #1248      rferrel     Change to use adapter.
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * @version 1.0
  */
 
-public class RadarAlterBundleContributor implements IAlterBundleContributor {
+public class RadarAlterBundleContributor extends AlterBundleContributorAdapter {
 
     private static final String RADAR_KEY = "Radar";
 
