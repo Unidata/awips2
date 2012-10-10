@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.core.procedures;
 import java.util.Map;
 
 /**
- * TODO Add Description
+ * Interface for methods needed for handling alter bundles.
  * 
  * <pre>
  * 
@@ -31,6 +31,7 @@ import java.util.Map;
  * ------------ ---------- ----------- --------------------------
  * Jan 4, 2010            mschenke     Initial creation
  * Aug 8, 2012  875        rferrel     Add separators for menu support.
+ * Oct 3, 2012  1248       rferrel     Added bundle change listeners.
  * 
  * </pre>
  * 
@@ -85,4 +86,34 @@ public interface IAlterBundleContributor {
      */
     public void alterBundle(Bundle bundleToAlter, String alterKey,
             String alterValue);
+
+    /**
+     * Git the keys associated with the bundle.
+     * 
+     * @param key
+     * @return
+     */
+    public String[] getAlterables(String key);
+
+    /**
+     * @param listener
+     */
+    public void addAlterBundleChangeListener(IAlterBundleChangeListener listener);
+
+    /**
+     * @param listener
+     */
+    public void removeAlterBundeChangeListener(
+            IAlterBundleChangeListener listener);
+
+    /**
+     * Allows setup for handling of IAlterBundleChangeListener.
+     */
+    public void listenerSetup();
+
+    /**
+     * Allows clean up of listener setup when bundle no longer needs to handler
+     * IAlterBundleChangeListeners.
+     */
+    public void listenerShutdown();
 }
