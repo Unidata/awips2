@@ -134,6 +134,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/04/2012   1229        rferrel     Changes for non-blocking ClimateMenuDlg.
  * 10/09/2012   1229        rferrel     Made dialog non-blocking.
  * 10/10/2012   1229        rferrel     Changes for non-blocking ResourceEditorDlg.
+ * 10/10/2012   1229        rferrel     Changes for non-blocking TransmissionQueueDlg.
  * 
  * </pre>
  * 
@@ -241,6 +242,8 @@ public class TafMonitorDlg extends CaveSWTDialog {
     private List<String> productDisplayList;
 
     private ClimateMenuDlg climateMenuDlg;
+
+    private TransmissionQueueDlg tqDlg;
 
     /**
      * Constructor.
@@ -684,8 +687,13 @@ public class TafMonitorDlg extends CaveSWTDialog {
         queueBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TransmissionQueueDlg tqd = new TransmissionQueueDlg(shell);
-                tqd.open();
+                if (tqDlg == null || tqDlg.getShell() == null
+                        || tqDlg.isDisposed()) {
+                    tqDlg = new TransmissionQueueDlg(shell);
+                    tqDlg.open();
+                } else {
+                    tqDlg.bringToTop();
+                }
             }
         });
     }
