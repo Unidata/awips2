@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
  * 14 MAY 2012  14715      rferrel     Use EDEX to perform requests.
+ * 10 OCT 2012  1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -157,7 +158,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      */
     public TransmissionQueueDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Transmission Queue");
     }
 
