@@ -632,10 +632,14 @@ class H5pyDataStore(IDataStore.IDataStore):
                         else:
                             grp = grp.create_group(s)
         else:
-            try:
-                grp = f[name]
-            except KeyError:
-                raise StorageException("No group " + name + " found")
+            if name is None or len(name.strip()) == 0:
+                # if no group is specific default to base group
+                grp = f['/']
+            else:
+                try:
+                    grp = f[name]
+                except KeyError:
+                    raise StorageException("No group " + name + " found")
 
         t1=time.time()
         if timeMap.has_key('getGroup'):
