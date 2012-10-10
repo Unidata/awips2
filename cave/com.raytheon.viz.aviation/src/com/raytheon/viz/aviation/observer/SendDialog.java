@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/15/2009    1982       grichard    Provide feedback when saving a working TAF.
  * 12/08/2011   11745      rferrel     Updated header time to transmission time.
  * 08AUG2012    15613      zhao        Determine proper BBB for transmission
+ * 09OCT2012    1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -146,7 +147,7 @@ public class SendDialog extends CaveSWTDialog {
     public SendDialog(Shell parent, EditorTafTabComp tabComp,
             IStatusSettable msgStatComp, boolean sendCollective) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Send");
 
         this.tabComp = tabComp;
@@ -365,7 +366,7 @@ public class SendDialog extends CaveSWTDialog {
         String siteWmoId = tabComp.getWmoId();
         // WMO Site
         String siteNode = null;
-        //java.util.List<String> stationIds = new ArrayList<String>();
+        // java.util.List<String> stationIds = new ArrayList<String>();
 
         ArrayList<String> tafs = new ArrayList<String>();
         ArrayList<String> updatedTafs = new ArrayList<String>();
@@ -407,11 +408,10 @@ public class SendDialog extends CaveSWTDialog {
              * If "AAX" or "CCX" or "RRX", determine BBB for transmission
              */
             String xmitBbb = bbb;
-            if ( bbb.equals("AAX") || bbb.equals("CCX") || bbb.equals("RRX") ) {
-            	String type = bbb.substring(0, 2);
-            	xmitBbb = getXmitBbb( type, siteId); 
+            if (bbb.equals("AAX") || bbb.equals("CCX") || bbb.equals("RRX")) {
+                String type = bbb.substring(0, 2);
+                xmitBbb = getXmitBbb(type, siteId);
             }
-            
 
             // Update Header Time to transmission time.
             tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
@@ -467,40 +467,41 @@ public class SendDialog extends CaveSWTDialog {
         shell.dispose();
     }
 
-	@SuppressWarnings("unchecked")
-	private String getXmitBbb(String type, String siteId) {
-		
-		try {
-			TafQueueRequest request = new TafQueueRequest(); 
-			request.setType(Type.GET_LIST);
-			request.setState(TafQueueRecord.TafQueueState.SENT);
-			ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient.sendRequest(request);
-			java.util.List<String> payload = response.getPayload();
-			String [] records = (String []) payload.toArray(new String[0]);
-			int numRecords = records.length;
-			for ( int i = numRecords-1; i >=0; i-- ) {
-				if ( records[i].contains(siteId) ) {
-					String [] texts = records[i].split("-");
-					String bbb = texts[texts.length-2];
-					if ( bbb.equals("   ") ) {
-						return type+"A";
-					}
-					if ( bbb.subSequence(0, 2).equals(type) ) {
-						char[] newX = new char[] { bbb.charAt(2) };
-						if ( newX[0] == 'X' ) {
-							newX[0] = 'A';
-						} else {
-							newX[0]++;
-						}
-						return type + new String( newX );
-					}
-				}
-			}
-		} catch (VizException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return type + "A";
-	}
+    @SuppressWarnings("unchecked")
+    private String getXmitBbb(String type, String siteId) {
+
+        try {
+            TafQueueRequest request = new TafQueueRequest();
+            request.setType(Type.GET_LIST);
+            request.setState(TafQueueRecord.TafQueueState.SENT);
+            ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
+                    .sendRequest(request);
+            java.util.List<String> payload = response.getPayload();
+            String[] records = (String[]) payload.toArray(new String[0]);
+            int numRecords = records.length;
+            for (int i = numRecords - 1; i >= 0; i--) {
+                if (records[i].contains(siteId)) {
+                    String[] texts = records[i].split("-");
+                    String bbb = texts[texts.length - 2];
+                    if (bbb.equals("   ")) {
+                        return type + "A";
+                    }
+                    if (bbb.subSequence(0, 2).equals(type)) {
+                        char[] newX = new char[] { bbb.charAt(2) };
+                        if (newX[0] == 'X') {
+                            newX[0] = 'A';
+                        } else {
+                            newX[0]++;
+                        }
+                        return type + new String(newX);
+                    }
+                }
+            }
+        } catch (VizException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return type + "A";
+    }
 }
