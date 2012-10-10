@@ -133,6 +133,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/02/2012   1229        rferrel     Changes to work with non-blocking WeatherPlotDialog.
  * 10/04/2012   1229        rferrel     Changes for non-blocking ClimateMenuDlg.
  * 10/09/2012   1229        rferrel     Made dialog non-blocking.
+ * 10/10/2012   1229        rferrel     Changes for non-blocking ResourceEditorDlg.
  * 
  * </pre>
  * 
@@ -486,13 +487,12 @@ public class TafMonitorDlg extends CaveSWTDialog {
         setupMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (resDlg == null) {
+                if (resDlg == null || resDlg.getShell() == null
+                        || resDlg.isDisposed()) {
                     resDlg = new ResourceEditorDlg(shell);
                     resDlg.open();
-
-                    resDlg = null;
                 } else {
-                    resDlg.showDialog();
+                    resDlg.bringToTop();
                 }
             }
         });
