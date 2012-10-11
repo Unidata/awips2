@@ -83,11 +83,16 @@
 	</bean>
 	-->
 	
-	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
-		<property name="address" value="${pypies.server}" />
-		<property name="maxConnections" value="${pypies.maxConnections}" />
+	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
+		<property name="maxConnectionsPerHost" value="${pypies.maxConnections}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
-		<property name="socketTimeout" value="180000" />
+	   <property name="socketTimeout" value="180000"/>	   	   
+	   <property name="compressRequests" value="false"/>
+	   <property name="gzipResponseHandling" value="false"/>	   
+	</bean>
+	
+	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
+		<property name="address" value="${pypies.server}" />		
 	</bean>
 	<bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory">
 		<constructor-arg ref="pypiesStoreProps" />
