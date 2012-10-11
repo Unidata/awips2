@@ -79,7 +79,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -134,6 +133,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
@@ -218,6 +218,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04OCT2012    1229        rferrel     Changes for non-blocking LoaderDialog.
  * 09OCT2012    1229        rferrel     Changes for non-blocking QcDialog.
  * 09OCT2012    1229        rferrel     Changes for non-blocking SendDialog.
+ * 11OCT2012    1229        rferrel     Converted to a subclass of CaveSWTDialog and
+ *                                       made non-blocking.
  * 
  * </pre>
  * 
@@ -225,7 +227,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * @version 1.0
  * 
  */
-public class TafViewerEditorDlg extends Dialog implements ITafSettable,
+public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         IEditActions {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafViewerEditorDlg.class);
@@ -252,11 +254,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     private String getCommonPythonDir() {
         return PATH_MANAGER.getFile(baseCommonCtx, "python").getPath();
     }
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
 
     /**
      * The display control.
@@ -530,16 +527,15 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      * 
      * @param parent
      *            Parent Shell.
-     * @param disposeOnExit
-     *            Flag to indicate whether to dispose dialog on exit.
      */
-    public TafViewerEditorDlg(Shell parent, boolean disposeOnExit,
-            List<String> stationList) {
-        super(parent, 0);
+    public TafViewerEditorDlg(Shell parent, List<String> stationList,
+            int caveStyle) {
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS, caveStyle
+                | CAVE.DO_NOT_BLOCK);
 
         this.stationList = stationList;
 
-        init();
+        setText("AvnFPS TAF Editor");
     }
 
     /**
@@ -551,34 +547,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         clipboard = new Clipboard(display);
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-
-        boolean transientDialog = configMgr
-                .getDataAsBoolean(ResourceTag.TransientDialogs);
-
-        /*
-         * Check the transient dialog setting. If the transient dialog is true
-         * then the parent dialog cannot be display on top of this dialog. If
-         * the transient is false the parent dialog can be displayed on top of
-         * this dialog.
-         */
-        if (transientDialog == true) {
-            // Parent dialog cannot be displayed on top of this dialog.
-            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE
-                    | SWT.MODELESS);
-        } else {
-            // Parent dialog can be displayed on top of this dialog.
-            shell = new Shell(parent.getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE
-                    | SWT.MODELESS);
-
-            parent.addDisposeListener(new DisposeListener() {
-                @Override
-                public void widgetDisposed(DisposeEvent e) {
-                    disposeDialog();
-                }
-            });
-        }
-
-        shell.setText("AvnFPS TAF Editor");
 
         shell.addShellListener(new ShellAdapter() {
             @Override
@@ -640,8 +608,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         // Initialize all of the controls and layouts
         initializeComponents();
 
-        shell.pack();
-
         /*
          * NOTE:
          * 
@@ -672,6 +638,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void updateSettings(TafSettings setting, String stationName) {
+        checkDlg();
+
         String previousStationName = this.stationName;
         this.stationName = stationName;
 
@@ -790,6 +758,9 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
     @Override
     public void clearAll() {
+        if (shell == null) {
+            return;
+        }
         // Clear all tab items within all editor tabs on the tab folder.
         tabFolder.setSelection(editorTab);
 
@@ -890,6 +861,9 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void showDialog() {
+
+        checkDlg();
+
         if (shell.isVisible() == false) {
             setVisible(true);
         }
@@ -946,8 +920,16 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             fltCatFontColor = null;
         }
 
-        shell.dispose();
-        clipboard.dispose();
+        close();
+
+        if (clipboard != null) {
+            clipboard.dispose();
+        }
+    }
+
+    @Override
+    protected void initializeComponents(Shell shell) {
+        init();
     }
 
     /**
@@ -1137,7 +1119,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         closeMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // shell.dispose();
                 hideDialog();
             }
         });
@@ -2538,6 +2519,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void populateViewerStation(String theStation) {
+        checkDlg();
         siteIdCbo.select(siteIdCbo.indexOf(theStation));
     }
 
@@ -4240,6 +4222,18 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     private void clearSyntaxErrorLevel() {
         syntaxErrorLevel = 0;
+    }
+
+    /**
+     * This dialog is created but not immediately displayed thus components have
+     * not been created. Some of the ITafSettable methods attempt to access
+     * components prior to showing the dialog. This check must be done to force
+     * the compoents creation.
+     */
+    private final void checkDlg() {
+        if (shell == null) {
+            open();
+        }
     }
 
     /**
