@@ -31,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.opengis.metadata.spatial.PixelOrientation;
-
 import ucar.ma2.ArrayFloat;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -45,7 +43,6 @@ import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionTyp
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -57,7 +54,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 14, 2012            randerso     Initial creation
+ * May 14, 2012            randerso    Initial creation
+ * Oct 10  2012     #1260  randerso    Cleaned up getSubGridDims to better match A1
+ *                                     Changed subGridGl to use new GridLocation constructor
  * 
  * </pre>
  * 
@@ -331,41 +330,25 @@ public class NetCDFUtils {
         List<Integer> xindex = new ArrayList<Integer>();
         List<Integer> yindex = new ArrayList<Integer>();
         for (int x = 0; x < ogloc.gridSize().x; x++) {
-            Coordinate ll = MapUtil.gridCoordinateToLatLon(
-                    new Coordinate(x, 0), PixelOrientation.CENTER, ogloc);
+            Coordinate ll = ogloc.latLonCenter(new Coordinate(x, 0));
 
-            Coordinate c = MapUtil.latLonToGridCoordinate(ll,
-                    PixelOrientation.CENTER, igloc);
-            Point igc = new Point((int) (c.x > -0.5 ? c.x + 0.5 : c.x - 0.5),
-                    (int) (c.y > -0.5 ? c.y + 0.5 : c.y - 0.5));
+            Point igc = igloc.gridCell((float) ll.y, (float) ll.x);
             xindex.add(igc.x);
             yindex.add(igc.y);
 
-            ll = MapUtil.gridCoordinateToLatLon(
-                    new Coordinate(x, ogloc.gridSize().y - 1),
-                    PixelOrientation.CENTER, ogloc);
-            c = MapUtil.latLonToGridCoordinate(ll, PixelOrientation.CENTER,
-                    igloc);
-            igc = new Point((int) (c.x > -0.5 ? c.x + 0.5 : c.x - 0.5),
-                    (int) (c.y > -0.5 ? c.y + 0.5 : c.y - 0.5));
+            ll = ogloc.latLonCenter(new Coordinate(x, ogloc.gridSize().y - 1));
+            igc = igloc.gridCell((float) ll.y, (float) ll.x);
             xindex.add(igc.x);
             yindex.add(igc.y);
         }
         for (int y = 0; y < ogloc.gridSize().y; y++) {
-            Coordinate ll = MapUtil.gridCoordinateToLatLon(
-                    new Coordinate(0, y), PixelOrientation.CENTER, ogloc);
-            Coordinate c = MapUtil.latLonToGridCoordinate(ll,
-                    PixelOrientation.CENTER, igloc);
-            Point igc = new Point((int) c.x, (int) c.y);
+            Coordinate ll = ogloc.latLonCenter(new Coordinate(0, y));
+            Point igc = igloc.gridCell((float) ll.y, (float) ll.x);
             xindex.add(igc.x);
             yindex.add(igc.y);
 
-            ll = MapUtil.gridCoordinateToLatLon(new Coordinate(
-                    ogloc.gridSize().x - 1, y), PixelOrientation.CENTER, ogloc);
-            c = MapUtil.latLonToGridCoordinate(ll, PixelOrientation.CENTER,
-                    igloc);
-            igc = new Point((int) (c.x > -0.5 ? c.x + 0.5 : c.x - 0.5),
-                    (int) (c.y > -0.5 ? c.y + 0.5 : c.y - 0.5));
+            ll = ogloc.latLonCenter(new Coordinate(ogloc.gridSize().x - 1, y));
+            igc = igloc.gridCell((float) ll.y, (float) ll.x);
             xindex.add(igc.x);
             yindex.add(igc.y);
         }
@@ -388,16 +371,14 @@ public class NetCDFUtils {
         return rval;
     }
 
-    public static GridLocation subGridGL(GridLocation igloc, Rectangle subd) {
+    public static GridLocation subGridGL(String id, GridLocation igloc,
+            Rectangle subd) {
         // Coordinate nwo = igloc.worldCoordinate(subd.origin());
         // Coordinate nwe = igloc.worldCoordinate(subd.upperRight());
         // CartDomain2D<float> swd (nwo, nwe - nwo);
         // return GridLocation(igloc.projection()->pdata(),
         // subd.extent() + Point (1, 1), swd);
 
-        return new GridLocation(igloc.getProjection().getProjectionID(),
-                igloc.getProjection(), new Point(subd.width, subd.height),
-                new Coordinate(subd.x, subd.y), new Coordinate(subd.width,
-                        subd.height), "GMT");
+        return new GridLocation(id, igloc, subd);
     }
 }
