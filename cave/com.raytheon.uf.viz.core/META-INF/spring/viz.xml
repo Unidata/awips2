@@ -9,6 +9,8 @@
 	   <property name="socketTimeout" value="330000"/>
 	   <property name="connectionTimeout" value="10000"/>
 	   <property name="maxConnectionsPerHost" value="10"/>
+	   <property name="compressRequests" value="false"/>
+	   <property name="gzipResponseHandling" value="false"/>	   
 	</bean>	
 
 	<bean id="baosPool" class="com.raytheon.uf.common.util.ByteArrayOutputStreamPool" factory-method="getInstance">
