@@ -137,6 +137,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/10/2012   1229        rferrel     Changes for non-blocking TransmissionQueueDlg.
  * 10/10/2012   1229        jkorman     Changes for AlertDialog to support non-blocking.
  * 10/11/2012   1229        jkorman     Changes for BackupDialog to support non-blocking.     
+ * 10/11/2012   1229        rferrel     Changes for non-blocking TafViewerEditorDlg.
  * </pre>
  * 
  * @author grichard
@@ -203,7 +204,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
      * Alert configuration dialog.
      */
     private AlertDialog alertDialog;
-    
+
     /**
      * Resource configuration manager.
      */
@@ -394,7 +395,23 @@ public class TafMonitorDlg extends CaveSWTDialog {
 
         configMgr = ResourceConfigMgr.getInstance();
 
-        tveDlg = new TafViewerEditorDlg(shell, false, stationList);
+        boolean transientDialog = configMgr
+                .getDataAsBoolean(ResourceTag.TransientDialogs);
+
+        /*
+         * Check the transient dialog setting. If the transient dialog is true
+         * then the parent dialog cannot be display on top of this dialog. If
+         * the transient is false the parent dialog can be displayed on top of
+         * this dialog.
+         */
+        if (transientDialog == true) {
+            // Parent dialog cannot be displayed on top of this dialog
+            tveDlg = new TafViewerEditorDlg(shell, stationList, CAVE.NONE);
+        } else {
+            // Parent dialog can be displayed on top of this dialog.
+            tveDlg = new TafViewerEditorDlg(shell, stationList,
+                    CAVE.INDEPENDENT_SHELL);
+        }
 
         createMenus();
         createButtonsComposite();
@@ -874,7 +891,8 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
 
         tveDlg.disposeDialog();
-        shell.dispose();
+        // shell.dispose();
+        close();
         return true;
     }
 
