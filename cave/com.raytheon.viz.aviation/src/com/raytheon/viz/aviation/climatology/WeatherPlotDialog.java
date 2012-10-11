@@ -69,6 +69,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * WeatherPlotDialog class displays the Weather Plot dialog for AvnFPS.
@@ -85,6 +86,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     as WeatherPlotDataManager.
  * 04/28/2011   8065       rferrel     Use cache data.
  * 10/02/2012   1229       rferrel     Made dialog non-blocking.
+ * 10/10/2012   1229       rferrel     Changes for non-blocking TimeSelectorDlg.
  * 
  * </pre>
  * 
@@ -213,6 +215,8 @@ public class WeatherPlotDialog extends CaveSWTDialog {
      * The ICAOs to use to populate the station list.
      */
     private List<String> icaos;
+
+    private TimeSelectorDialog timeDlg;
 
     /**
      * Constructor.
@@ -411,10 +415,25 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         timesBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TimeSelectorDialog timeDlg = new TimeSelectorDialog(shell,
-                        wxPlotCfg);
-                if ((Boolean) timeDlg.open()) {
-                    displayData();
+                if (timeDlg == null || timeDlg.getShell() == null
+                        || timeDlg.isDisposed()) {
+                    timeDlg = new TimeSelectorDialog(shell, wxPlotCfg);
+                    timeDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof Boolean) {
+                                boolean value = (Boolean) returnValue;
+                                if (value) {
+                                    displayData();
+                                }
+                            }
+
+                        }
+                    });
+                    timeDlg.open();
+                } else {
+                    timeDlg.bringToTop();
                 }
             }
         });
