@@ -135,7 +135,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/09/2012   1229        rferrel     Made dialog non-blocking.
  * 10/10/2012   1229        rferrel     Changes for non-blocking ResourceEditorDlg.
  * 10/10/2012   1229        rferrel     Changes for non-blocking TransmissionQueueDlg.
- * 
+ * 10/10/2012   1229        jkorman     Changes for AlertDialog to support non-blocking.     
  * </pre>
  * 
  * @author grichard
@@ -193,6 +193,11 @@ public class TafMonitorDlg extends CaveSWTDialog {
      */
     private ResourceEditorDlg resDlg;
 
+    /**
+     * Alert configuration dialog.
+     */
+    private AlertDialog alertDialog;
+    
     /**
      * Resource configuration manager.
      */
@@ -508,8 +513,15 @@ public class TafMonitorDlg extends CaveSWTDialog {
         alertMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                AlertDialog alertDialog = new AlertDialog(shell);
-                alertDialog.open();
+                // Do we need to create a new dialog?
+                if ((alertDialog == null) || (alertDialog.getShell() == null)
+                        || (alertDialog.isDisposed())) {
+                    alertDialog = new AlertDialog(shell);
+                    alertDialog.open();
+                } else {
+                    // No, so use the existing dialog.
+                    alertDialog.bringToTop();
+                }
             }
         });
 
