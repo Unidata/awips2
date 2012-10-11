@@ -42,7 +42,6 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
-import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.pypies.PyPiesDataStoreFactory;
 import com.raytheon.uf.common.pypies.PypiesProperties;
@@ -350,14 +349,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
      * Initializes the DataStoreFactory for the component.
      */
     protected void initializeDataStoreFactory() {
-        // TODO: Test changing maxConnections per host
         PypiesProperties pypiesProps = new PypiesProperties();
         pypiesProps.setAddress(VizApp.getPypiesServer());
-        int connections = HttpClient.getInstance().getMaxConnectionsPerHost();
-        if (connections <= 0) {
-            connections = 3;
-        }
-        pypiesProps.setMaxConnections(connections);
         DataStoreFactory.getInstance().setUnderlyingFactory(
                 new PyPiesDataStoreFactory(pypiesProps));
     }
