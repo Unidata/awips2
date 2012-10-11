@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/24/2008    817         grichard    Initial creation.
+ * 20121010           1229  jkorman     Added DO_NOT_BLOCK so dialog does not block on open.     
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class AlertDialog extends CaveSWTDialog {
      *            Parent Shell.
      */
     public AlertDialog(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Alert Dialog");
     }
 
