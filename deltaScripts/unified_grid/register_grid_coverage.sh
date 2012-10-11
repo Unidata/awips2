@@ -47,19 +47,19 @@ exit 1
 fi
 
 ${PSQL} -U awips -d metadata -c "ALTER TABLE grib_models DROP CONSTRAINT ${FK}, ADD CONSTRAINT ${FK} FOREIGN KEY (location_id) REFERENCES gridcoverage (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE NO ACTION;"
-if [ -z "$FK" ]; then
+if [ $? -ne 0 ]; then
 echo "FATAL: unable to modify foreign key constraint on grib_models"
 exit 1
 fi
 
 ${PSQL} -U awips -d metadata -c "${SQL_COMMAND_UPDATE_ID}"
-if [ -z "$FK" ]; then
+if [ $? -ne 0 ]; then
 echo "FATAL: unable to update gridcoverage ids"
 exit 1
 fi
 
 ${PSQL} -U awips -d metadata -c "${SQL_COMMAND_ALTER_NAME_DESC}"
-if [ -z "$FK" ]; then
+if [ $? -ne 0 ]; then
 echo "WARN: unable to remove description column from gridcoverage table"
 fi
 
