@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
  * 3/27/2008    1033       grichard    Added ETA-MOS label.
+ * 10/10/2012   1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -95,7 +96,8 @@ public class TimeSelectorDialog extends CaveSWTDialog {
      */
     public TimeSelectorDialog(Shell parent, WxPlotCfg wxPlotCfg) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Time Selector");
         this.wxPlotCfg = wxPlotCfg;
     }
