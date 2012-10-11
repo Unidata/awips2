@@ -103,6 +103,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
     protected String name;
 
     /** A description of the grid coverage */
+    @Transient
     @XmlElement
     @DynamicSerializeElement
     protected String description;
