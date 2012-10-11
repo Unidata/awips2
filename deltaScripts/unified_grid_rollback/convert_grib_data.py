@@ -42,7 +42,6 @@ blacklistGrids = {"quadrant grids which have already been converted in an assemb
 
 parameters = {}
 models = []
-gridinfo_seq = []
 models_lock = allocate_lock()
 
 
@@ -54,36 +53,27 @@ def queryPostgres(sql):
     return retVal
 
 def convertModel(modelName):
-    sqlTime = 0
     hdfTime = 0
     totTime = 0
     totTime -= time()
     print modelName, "Loading existing grid_info"
-    infoMap = loadGridInfo(modelName)
-    infoSql = None
     print modelName, "Querying grib database"
-    rows = queryPostgres("select grib.forecasttime, grib.reftime, grib.utilityflags, grib.rangeend,grib.rangestart, grib.inserttime, grib.datauri, gridcoverage.id, grib_models.level_id, grib_models.location_id from grib, grib_models, gridcoverage where grib.modelinfo_id = grib_models.id and grib_models.location_id = gridcoverage.id and grib_models.modelName = '%s' order by grib.forecasttime, grib.reftime" % modelName)
+    rows = queryPostgres("select grib.forecasttime, grib.reftime,  grib.datauri, gridcoverage.id from grib, grib_models, gridcoverage where grib.modelinfo_id = grib_models.id and grib_models.location_id = gridcoverage.id and grib_models.modelName = '%s' order by grib.forecasttime, grib.reftime" % modelName)
     print modelName, "Converting %d records" % len(rows)
     gridSql = None
     lastFile = None
     gribFiles = hdf5loc + "grib/" + modelName
     gridFiles = hdf5loc + "grid/" + modelName
-    if not(isdir(hdf5loc + "grid/")):
-        mkdir(hdf5loc + "grid/")
-    if not(isdir(gridFiles)):
-        mkdir(gridFiles)
+    if not(isdir(hdf5loc + "grib/")):
+        mkdir(hdf5loc + "grib/")
+    if not(isdir(gribFiles)):
+        mkdir(gribFiles)
     count = 0;
     for row in rows:
         gribforecasttime = row[0]
         gribreftime = row[1]
-        gributilityflags = row[2]
-        gribrangeend = row[3]
-        gribrangestart = row[4]
-        gribinserttime = row[5]
-        gribdatauri = row[6]
-        gridcoverageid = row[7]
-        gribmodelslevelid = row[8]
-        gribmodelslocationid = row[9]
+        gribdatauri = row[2]
+        gridcoverageid = row[3]
         datauriparts = gribdatauri.split("/")
         datatime = datauriparts[2]
         paramabbrev = datauriparts[4]
@@ -111,7 +101,7 @@ def convertModel(modelName):
                 newgrp = "/" + gridcoveragename
                 dataset=paramabbrev
             filebase = "/%s-%s-FH-%.3d.h5" % (modelName, gribreftime.split(":")[0].replace(" ", "-"), forecast)
-            hdf5file = gridFiles + filebase
+            hdf5file = gribFiles + filebase
             if lastFile != None and lastFile.filename != hdf5file:
                 #print "Closing", lastFile.filename
                 lastFile.close()
@@ -119,86 +109,23 @@ def convertModel(modelName):
             if lastFile == None:
                 if not(exists(hdf5file)):
                     t0 = time()
-                    move(gribFiles+filebase, gridFiles)
+                    move(gridFiles+filebase, gribFiles)
                     hdfTime -= (time() - t0)
                 #print "Opening", hdf5file
                 lastFile = h5py.File(hdf5file)
-            copyH5(lastFile, prevgrp, newgrp, dataset)
+            copyH5(lastFile, newgrp, prevgrp, dataset)
         except:
             print modelName, "Error", gribdatauri
             print sys.exc_info()[1]
             hdfTime += time()
             continue
         hdfTime += time()
-        infokey = modelName + ":::" + secondaryId + ":::" + ensembleId + ":::" +  gribmodelslevelid + ":::" + gribmodelslocationid + ":::" +  paramabbrev
-        infoid = infoMap.get(infokey)
-        if infoid == None:
-            infoid = nextGridInfoSeq()
-            infoMap[infokey] = infoid
-            if secondaryId == "null":
-                secondaryId = "NULL"
-            else:
-                secondaryId = "\'" + secondaryId + "\'"
-            if ensembleId == "null":
-                ensembleId = "NULL"
-            else:
-                ensembleId = "\'" + ensembleId + "\'"
-            if infoSql == None:
-                infoSql = "insert into grid_info (id, datasetid, secondaryid, ensembleid, level_id, location_id, parameter_abbreviation) values "
-            else:
-                infoSql = infoSql + ", "
-            infoSql = infoSql + ("(%d, '%s', %s, %s, %s, %s, '%s')" % (infoid, modelName, secondaryId, ensembleId, gribmodelslevelid, gribmodelslocationid, paramabbrev))
-        if gridSql == None:
-            gridSql = "insert into grid (id, forecasttime, reftime, utilityflags, rangeend, rangestart, datauri, inserttime, info_id) values "
-        else:
-            gridSql = gridSql + ", "
-        gridSql = gridSql + ("(nextval(\'hibernate_sequence\'), %s, '%s', '%s', '%s', '%s', '%s', '%s', %d)" % (gribforecasttime, gribreftime, gributilityflags, gribrangeend, gribrangestart, newdatauri, gribinserttime, infoid))
         count += 1
         if count % maxRecords == 0:
-            print modelName, "Commiting %d grid records %d%%" % (maxRecords,100*count/len(rows))
-            sqlTime -= time()
-            if infoSql != None:
-                #print infoSql
-                queryPostgres(infoSql)
-                infoSql = None
-            if gridSql != None:
-                #print gridSql
-                queryPostgres(gridSql)
-                gridSql = None
-            sqlTime += time()
-    print modelName, "Commiting remaining grid records"
-    sqlTime -= time()
-    if infoSql != None:
-        #print infoSql
-        queryPostgres(infoSql)
-    if gridSql != None:
-        #print gridSql
-        queryPostgres(gridSql)
-    if lastFile != None:
-        lastFile.close()
-    sqlTime += time()
+            print modelName, "Processed %d grid records %d%%" % (maxRecords,100*count/len(rows)) 
     totTime += time()
-    print modelName, "Time in sql commits = %ds" % (sqlTime)
     print modelName, "Time in hdf5 links  = %ds" % (hdfTime)
     print modelName, "Total process Time  = %ds" % (totTime)
-
-def loadGridInfo(modelName):
-    infoMap = {}
-    for row in queryPostgres("select distinct id, datasetid, secondaryid, ensembleid, level_id, location_id, parameter_abbreviation, id from grid_info where datasetid = '%s'" % (modelName)):
-        infokey = row[1] + ":::" + row[2] + ":::" + row[3] + ":::" +  row[4] + ":::" + row[5] + ":::" +  row[6]
-        infoMap[infokey] = int(row[0])
-    return infoMap
-
-def nextGridInfoSeq():
-    if len(gridinfo_seq) == 0:
-        # The number of ids we need per model varies wildly from 1 to 263, 
-        # but on average 50 per model will grab enough ids that we don't
-        # ever need to go back to the db, although if we do it's not really
-        # a big deal, this is just trying to avoid excessive trips back
-        n = max(len(models),1)*50
-        for row in queryPostgres("select nextval('gridinfo_seq') from generate_series(1,%d);" % (n)):
-            gridinfo_seq.append(int(row[0]))
-    return gridinfo_seq.pop()
 
 def convertPert(pert):
     if pert == "1":
@@ -241,29 +168,6 @@ def copyH5(h5, gribdatauri, griddatauri, dataset="Data"):
         plists['lcpl'].set_create_intermediate_group(False)
         h5py.h5o.link(gribgrp[dataset].id, gridgrp.id, dataset, **plists)
 
-
-def processAllParameters():
-    print "Populating parameter table from grib_models"
-    sql = None
-    c = 0
-    for row in queryPostgres("select distinct abbreviation, name, unit from parameter"):
-        p = {"abbreviation":row[0], "name":row[1], "unit":row[2]}
-        parameters[row[0]] = p
-    for row in queryPostgres("select distinct parameterabbreviation, parametername, parameterunit from grib_models"):
-        if row[0] in parameters:
-            continue
-        p = {"abbreviation":row[0], "name":row[1], "unit":row[2]}
-        parameters[row[0]] = p
-        if sql == None:
-            sql = "insert into parameter (abbreviation, name, unit) values "
-        else:
-            sql = sql + ", "
-        c += 1
-        sql = sql + ("('%s', '%s', '%s')" % (row[0], row[1], row[2]))
-    if sql != None:
-        queryPostgres(sql)
-    print "Done populating parameter table, %d new rows added" % (c)
-
 def processModels():
     while(True):
         models_lock.acquire()
@@ -282,7 +186,7 @@ def processModels():
             
 def loadAll():
     global models
-    print "This script will convert grib data in edex to use the new grid format"
+    print "This script will convert grid data in edex to use the old grib format"
     print "You provided no arguments so this will convert almost all data."
     print "To convert only specific models you can cancel and list models as arguments"
     print ""
@@ -333,15 +237,12 @@ def check_table(tablename):
     
 if __name__ == '__main__':
     t = time()
-    check_table("grid")
-    check_table("grid_info")
-    check_table("parameter")
+    check_table("grib")
     if len(sys.argv) == 1:
         loadAll()
     else:
         for i in range(1,len(sys.argv)):
             models.append(sys.argv[i])
-    processAllParameters()
     print "Starting %d threads to process models" % (numThreads)
     for i in range(numThreads-1):
         start_new_thread(processModels, ())
