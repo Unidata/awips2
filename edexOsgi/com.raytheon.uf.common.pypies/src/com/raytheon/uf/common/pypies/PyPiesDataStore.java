@@ -395,10 +395,6 @@ public class PyPiesDataStore implements IDataStore {
     protected void initializeProperties() {
         if (address == null) {
             address = props.getAddress();
-            int maxConnections = props.getMaxConnections();
-            HttpClient.getInstance().setMaxConnectionsPerHost(maxConnections);
-            int socketTimeout = props.getSocketTimeout();
-            HttpClient.getInstance().setSocketTimeout(socketTimeout);
         }
     }
 
