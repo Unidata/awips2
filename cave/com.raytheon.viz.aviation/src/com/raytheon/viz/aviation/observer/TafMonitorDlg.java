@@ -135,7 +135,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/09/2012   1229        rferrel     Made dialog non-blocking.
  * 10/10/2012   1229        rferrel     Changes for non-blocking ResourceEditorDlg.
  * 10/10/2012   1229        rferrel     Changes for non-blocking TransmissionQueueDlg.
- * 10/10/2012   1229        jkorman     Changes for AlertDialog to support non-blocking.     
+ * 10/10/2012   1229        jkorman     Changes for AlertDialog to support non-blocking.
+ * 10/11/2012   1229        jkorman     Changes for BackupDialog to support non-blocking.     
  * </pre>
  * 
  * @author grichard
@@ -193,6 +194,11 @@ public class TafMonitorDlg extends CaveSWTDialog {
      */
     private ResourceEditorDlg resDlg;
 
+    /**
+     * 
+     */
+    private BackupDialog backupDialog;
+    
     /**
      * Alert configuration dialog.
      */
@@ -684,9 +690,14 @@ public class TafMonitorDlg extends CaveSWTDialog {
         backupBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                BackupDialog backup = new BackupDialog(shell,
-                        productDisplayList);
-                backup.open();
+                if(mustCreate(backupDialog)) {
+                    backupDialog = new BackupDialog(shell,
+                            productDisplayList);
+                    backupDialog.open();
+                } else {
+                    // No, so use the existing dialog.
+                    backupDialog.bringToTop();
+                }
             }
         });
 
