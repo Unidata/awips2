@@ -162,13 +162,11 @@ public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (helpDlg == null) {
+                if (mustCreate(helpDlg)) {
                     helpDlg = new ResourceEditorHelpDlg(shell);
                     helpDlg.open();
-
-                    helpDlg = null;
                 } else {
-                    helpDlg.showDialog();
+                    helpDlg.bringToTop();
                 }
             }
         });
