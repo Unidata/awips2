@@ -125,8 +125,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jul 16, 2012   15091    Qinglu Lin  Compute intersection area, which is used for prevent 2nd timezone
  *                                     from appearing in 2nd and 3rd bullets when not necessary.
  * Aug 13, 2012   14493    Qinglu Lin  Handled MND time, event time, and TML time specially for COR to NEW.
+ * Aug 29, 2011   15351    jsanchez    Set the timezone for TML time.
  * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.  
- * 
  * </pre>
  * 
  * @author njensen
@@ -242,7 +242,7 @@ public class TemplateRunner {
         AffectedAreas[] cancelareas = null;
         Map<String, Object> intersectAreas = null;
         Wx wx = null;
-		long wwaMNDTime = 0l;
+        long wwaMNDTime = 0l;
         try {
             t0 = System.currentTimeMillis();
             areas = Area.findAffectedAreas(config, warnPolygon, warningArea,
@@ -375,7 +375,7 @@ public class TemplateRunner {
                         startTime.getTime(), DateUtil.roundDateTo15(endTime)
                                 .getTime(), warnPolygon);
                 if (selectedAction == WarningAction.COR) {
-                	wwaMNDTime = wx.getStartTime().getTime();
+                    wwaMNDTime = wx.getStartTime().getTime();
                 } else {
                     context.put("now", simulatedTime);
                     context.put("start", wx.getStartTime());
@@ -391,7 +391,7 @@ public class TemplateRunner {
                 context.put("duration", duration);
 
                 context.put("event", eventTime);
-				context.put("TMLtime", eventTime);
+                context.put("TMLtime", eventTime);
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
                 context.put("areaPoly", GisUtil.convertCoords(warngenLayer
@@ -550,67 +550,78 @@ public class TemplateRunner {
                 context.put("etn", etn);
                 context.put("start", oldWarn.getIssueTime().getTime());
                 if (oldWarn.getAct().equals("NEW")) {
-                	context.put("now", new Date(wwaMNDTime));
+                    context.put("now", new Date(wwaMNDTime));
                 } else
                     context.put("now", simulatedTime);
                 context.put("event", oldWarn.getIssueTime().getTime());
-                
-				String message = oldWarn.getRawmessage();
-				if (!stormTrackState.originalTrack) {
-					context.put("TMLtime", oldWarn.getStartTime().getTime());
-				} else {
-					int hour = 0;
-					int minute = 0;
-					int tmlIndex = message.indexOf("TIME...MOT...LOC");
-					int zIndex = -1;
-					if (tmlIndex > 0) {
-						zIndex = message.indexOf("Z", tmlIndex);
-						if (zIndex > 0) {
-							int startIndex = tmlIndex+16+1;
-							String tmlTime = null;
-							tmlTime = message.substring(startIndex,startIndex+4);
-							if (tmlTime.length() == 4) {
-								hour = Integer.parseInt(tmlTime.substring(0,2));
-								minute = Integer.parseInt(tmlTime.substring(2,4));
-							} else if (tmlTime.length() == 3) {
-								hour = Integer.parseInt(tmlTime.substring(0,1));
-								minute = Integer.parseInt(tmlTime.substring(1,3));
-							} else {
-								throw new VizException("The length of hour and minute for TML time is neither 3 nor 4.");
-							}
-							Calendar c = Calendar.getInstance();
-							c.set(Calendar.HOUR_OF_DAY,hour);
-							c.set(Calendar.MINUTE, minute);
-							context.put("TMLtime", c.getTime());
-						} else { 
-							throw new VizException("Z, therefore hour and minute, cannot be found in TIME...MOT...LOC line.");
-						}
-					} else {
-                        // To prevent errors resulting from undefined context("TMLtime")
-						context.put("TMLtime", oldWarn.getIssueTime().getTime());
-					}
-				}
-				
-				// corEventtime for "COR to NEW", not for "COR to CON, CAN, or CANCON"
-				if (oldWarn.getAct().equals("NEW")) {
-					int untilIndex = message.indexOf("UNTIL");
-					int atIndex = -1;
-					int elipsisIndex = -1;
-					if (untilIndex > 0) {
-						atIndex = message.indexOf("AT", untilIndex);
-						if (atIndex > 0) {
-							int hhmmIndex = atIndex+3;
-							elipsisIndex = message.indexOf("...", hhmmIndex);
-							if (elipsisIndex > 0) {
-								context.put("corToNewMarker","cortonewmarker");
-								context.put("corEventtime",message.substring(hhmmIndex,elipsisIndex));
-							}
-						}
-					}
-					if (untilIndex < 0 || atIndex < 0 || elipsisIndex < 0)
-						throw new VizException("Cannot find * AT line.");
-				}
-				
+
+                String message = oldWarn.getRawmessage();
+                if (!stormTrackState.originalTrack) {
+                    context.put("TMLtime", oldWarn.getStartTime().getTime());
+                } else {
+                    int hour = 0;
+                    int minute = 0;
+                    int tmlIndex = message.indexOf("TIME...MOT...LOC");
+                    int zIndex = -1;
+                    if (tmlIndex > 0) {
+                        zIndex = message.indexOf("Z", tmlIndex);
+                        if (zIndex > 0) {
+                            int startIndex = tmlIndex + 16 + 1;
+                            String tmlTime = null;
+                            tmlTime = message.substring(startIndex,
+                                    startIndex + 4);
+                            if (tmlTime.length() == 4) {
+                                hour = Integer
+                                        .parseInt(tmlTime.substring(0, 2));
+                                minute = Integer.parseInt(tmlTime.substring(2,
+                                        4));
+                            } else if (tmlTime.length() == 3) {
+                                hour = Integer
+                                        .parseInt(tmlTime.substring(0, 1));
+                                minute = Integer.parseInt(tmlTime.substring(1,
+                                        3));
+                            } else {
+                                throw new VizException(
+                                        "The length of hour and minute for TML time is neither 3 nor 4.");
+                            }
+                            Calendar c = Calendar.getInstance(TimeZone
+                                    .getTimeZone("GMT"));
+                            c.set(Calendar.HOUR_OF_DAY, hour);
+                            c.set(Calendar.MINUTE, minute);
+                            context.put("TMLtime", c.getTime());
+                        } else {
+                            throw new VizException(
+                                    "Z, therefore hour and minute, cannot be found in TIME...MOT...LOC line.");
+                        }
+                    } else {
+                        // To prevent errors resulting from undefined
+                        // context("TMLtime")
+                        context.put("TMLtime", oldWarn.getIssueTime().getTime());
+                    }
+                }
+
+                // corEventtime for "COR to NEW", not for
+                // "COR to CON, CAN, or CANCON"
+                if (oldWarn.getAct().equals("NEW")) {
+                    int untilIndex = message.indexOf("UNTIL");
+                    int atIndex = -1;
+                    int elipsisIndex = -1;
+                    if (untilIndex > 0) {
+                        atIndex = message.indexOf("AT", untilIndex);
+                        if (atIndex > 0) {
+                            int hhmmIndex = atIndex + 3;
+                            elipsisIndex = message.indexOf("...", hhmmIndex);
+                            if (elipsisIndex > 0) {
+                                context.put("corToNewMarker", "cortonewmarker");
+                                context.put("corEventtime", message.substring(
+                                        hhmmIndex, elipsisIndex));
+                            }
+                        }
+                    }
+                    if (untilIndex < 0 || atIndex < 0 || elipsisIndex < 0)
+                        throw new VizException("Cannot find * AT line.");
+                }
+
                 Calendar cal = oldWarn.getEndTime();
                 cal.add(Calendar.MILLISECOND, 1);
                 context.put("expire", cal.getTime());
