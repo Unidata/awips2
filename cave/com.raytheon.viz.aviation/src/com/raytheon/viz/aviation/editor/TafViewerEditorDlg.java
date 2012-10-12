@@ -871,14 +871,16 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             setVisible(true);
         }
 
-        if (qcDlg != null && qcDlg.getShell() != null
-                && qcDlg.isDisposed() == false) {
+        if (mustCreate(qcDlg) == false) {
             qcDlg.bringToTop();
         }
 
-        if (sendDlg != null && sendDlg.getShell() != null
-                && sendDlg.isDisposed() == false) {
+        if (mustCreate(sendDlg) == false) {
             sendDlg.bringToTop();
+        }
+
+        if (mustCreate(findDlg) == false) {
+            findDlg.bringToTop();
         }
         shell.setActive();
     }
@@ -892,11 +894,15 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (shell.isVisible() == true) {
             setVisible(false);
         }
-        if (qcDlg != null) {
+        if (mustCreate(qcDlg) == false) {
             qcDlg.hide();
         }
-        if (sendDlg != null) {
+        if (mustCreate(sendDlg) == false) {
             sendDlg.hide();
+        }
+
+        if (mustCreate(findDlg) == false) {
+            findDlg.hide();
         }
     }
 
@@ -1775,8 +1781,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                 .getText());
                     }
 
-                    if (sendDlg == null || sendDlg.getShell() == null
-                            || sendDlg.isDisposed()) {
+                    if (mustCreate(sendDlg)) {
                         sendDlg = new SendDialog(shell, editorTafTabComp,
                                 msgStatComp, sendCollectMI.getSelection());
                         sendDlg.setCloseCallback(new ICloseCallback() {
@@ -3302,7 +3307,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         }
 
         if (doQcDialog) {
-            if (qcDlg == null || qcDlg.getShell() == null || qcDlg.isDisposed()) {
+            if (mustCreate(qcDlg)) {
                 qcDlg = new QcDialog(shell, savedQcItems);
                 qcDlg.setCloseCallback(new ICloseCallback() {
 
