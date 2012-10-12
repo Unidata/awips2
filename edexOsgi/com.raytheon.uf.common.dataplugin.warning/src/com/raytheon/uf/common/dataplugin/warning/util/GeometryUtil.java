@@ -1,19 +1,23 @@
 package com.raytheon.uf.common.dataplugin.warning.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
+import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
 public class GeometryUtil {
 
@@ -217,19 +221,50 @@ public class GeometryUtil {
                     Geometry section = null;
                     try {
                         section = g1.intersection(g2);
-                    } catch (TopologyException e) {          
-                        // This exception is due to g2 having interior intersections
-                        section = g1.intersection(g2.buffer(0));
+                    } catch (TopologyException e) {
+                        // This exception is due to g2 having interior
+                        // intersections
+                        section = clean(g1).intersection(g2.buffer(0));
                     }
-                    
+
                     if (section != null) {
                         setUserData(section, (CountyUserData) g2.getUserData());
                         section.setUserData(g2.getUserData());
                         intersections.add(section);
-                    }                    
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Returns a geometry from the noded line strings of g.
+     * 
+     * @param g
+     *            geometry to be cleaned up
+     * @return
+     */
+    private static Geometry clean(Geometry g) {
+        Coordinate[] coords = g.getCoordinates();
+
+        // create a line string
+        GeometryFactory gf = new GeometryFactory();
+        LineString ls = gf.createLineString(coords);
+
+        // node the line string (insert vertices where lines cross)
+        com.vividsolutions.jts.geom.Point pt = gf.createPoint(ls
+                .getCoordinate());
+        Geometry nodedLines = ls.union(pt);
+
+        // create the polygon(s) from the noded line
+        Polygonizer polygonizer = new Polygonizer();
+        polygonizer.add(nodedLines);
+        Collection<Polygon> polygons = polygonizer.getPolygons();
+
+        g = gf.createMultiPolygon(
+                polygons.toArray(new Polygon[polygons.size()])).buffer(0);
+
+        return g;
     }
 
     /**

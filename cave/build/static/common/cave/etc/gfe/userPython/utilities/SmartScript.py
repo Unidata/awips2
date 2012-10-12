@@ -796,7 +796,7 @@ class SmartScript(BaseTool.BaseTool):
         if "A" == status:
             importance = Priority.PROBLEM
         elif "R" == status:
-            importance = Priority.EVENTB
+            importance = Priority.EVENTA
         elif "U" == status:
             importance = Priority.CRITICAL
         else:
