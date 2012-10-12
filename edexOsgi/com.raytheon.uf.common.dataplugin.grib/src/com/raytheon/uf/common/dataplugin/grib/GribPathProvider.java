@@ -54,10 +54,10 @@ public class GribPathProvider extends DefaultPathProvider {
     public static final String FORECAST_HR_TOKEN = "-FH-";
 
     private static GribPathProvider instance = new GribPathProvider();
-    
+
     public static final List<String> STATIC_PARAMETERS;
-    
-    static{
+
+    static {
         STATIC_PARAMETERS = new ArrayList<String>();
         STATIC_PARAMETERS.add("staticTopo");
         STATIC_PARAMETERS.add("staticXspacing");
@@ -97,13 +97,10 @@ public class GribPathProvider extends DefaultPathProvider {
         StringBuffer sb = new StringBuffer(64);
         sb.append(pdo.getModelInfo().getModelName());
         Date refTime = pdo.getDataTime().getRefTime();
-        String refTimeString = null;
-        synchronized (fileNameFormat) {
-            refTimeString = fileNameFormat.format(refTime);
-        }
-        sb.append(refTimeString);
+        sb.append(fileNameFormat.get().format(refTime));
         sb.append(FORECAST_HR_TOKEN);
-        if (STATIC_PARAMETERS.contains(pdo.getModelInfo().getParameterAbbreviation())) {
+        if (STATIC_PARAMETERS.contains(pdo.getModelInfo()
+                .getParameterAbbreviation())) {
             sb.append("000");
         } else {
             long number = pdo.getDataTime().getFcstTime() / SECONDS_PER_HOUR;
@@ -119,10 +116,6 @@ public class GribPathProvider extends DefaultPathProvider {
     }
 
     public String formatTime(Date date) {
-        String retVal = null;
-        synchronized (fileNameFormat) {
-            retVal = fileNameFormat.format(date);
-        }
-        return retVal;
+        return fileNameFormat.get().format(date);
     }
 }
