@@ -19,6 +19,19 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.viz.core.rsc.VizGroupResourceData;
 
 
@@ -31,7 +44,8 @@ import com.raytheon.viz.core.rsc.VizGroupResourceData;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 28, 2011            mpduff     Initial creation
+ * Jan 28, 2011            mpduff      Initial creation.
+ * Sep 11, 2012   1162     mpduff      Override getAvailableTimes method.
  *
  * </pre>
  *
@@ -43,5 +57,32 @@ public class FfgVizGroupResourceData extends VizGroupResourceData {
     public FfgVizGroupResourceData() {
         // Make name generator here
         nameGenerator = new FfgGridNameGenerator();
+    }
+
+    @Override
+    public DataTime[] getAvailableTimes() throws VizException {
+        Set<DataTime> baseTimes = new HashSet<DataTime>();
+        Iterator<ResourcePair> rpIter = resourceList.iterator();
+        super.mergeMetadataMap();
+
+        List<DataTime> availableTimes = new ArrayList<DataTime>();
+
+        while (rpIter.hasNext()) {
+            ResourcePair rp = rpIter.next();
+
+            if (rp.getResourceData() instanceof AbstractRequestableResourceData) {
+                AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) rp
+                        .getResourceData();
+                Collection<DataTime> times = Arrays.asList(arrd
+                        .getAvailableTimes());
+
+                baseTimes.addAll(times);
+            }
+        }
+
+        availableTimes.addAll(baseTimes);
+        Collections.sort(availableTimes);
+
+        return availableTimes.toArray(new DataTime[availableTimes.size()]);
     }
 }

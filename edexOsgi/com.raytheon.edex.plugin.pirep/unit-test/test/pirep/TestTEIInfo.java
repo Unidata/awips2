@@ -24,6 +24,8 @@ import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import com.raytheon.edex.plugin.pirep.PirepSeparator;
+import com.raytheon.edex.plugin.pirep.decoder.PirepTools;
 import com.raytheon.edex.plugin.pirep.decoder.TEI;
 import com.raytheon.edex.plugin.pirep.decoder.TEIInfo;
 
@@ -115,4 +117,26 @@ public class TestTEIInfo {
         assertEquals(TEI.WV, parts.get(6).getTei());
     }
 
+    /**
+     * Test that "/SKC" does not get confused with the "/SK" TEI.
+     */
+    @Test
+    public void testNoTurbDecode() {
+        final String data = "UBUS01 KMSC 061800\nCAO UA /OV DHT310017 /TM 1850 /FL125 /TP BE35 /WX FV30SM /TA 12\n/WV 24021KT /TB NEG=";
+
+        PirepSeparator sep = PirepSeparator.separate(data.getBytes(), null);
+        while(sep.hasNext()) {
+            List<TEIInfo> parts = TEIInfo.findTEIs(sep.next().getReport());
+            PirepTools tools = null;
+            for(TEIInfo info : parts) {
+                System.out.println(info.getTeiText());
+                if(TEI.TB.equals(info.getTei())) {
+                    tools = new PirepTools(info.getTeiText());
+                    System.out.println(tools.decodeTurbulenceData());
+                }
+            }
+        }
+    }
+    
+    
 }

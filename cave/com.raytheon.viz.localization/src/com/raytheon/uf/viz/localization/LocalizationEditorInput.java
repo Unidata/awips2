@@ -142,7 +142,12 @@ public class LocalizationEditorInput implements IFileEditorInput,
      */
     @Override
     public String getToolTipText() {
-        return localizationFile.getName();
+        String tip = localizationFile.getName();
+        if (localizationFile.isProtected()) {
+            tip += " (Protected @ " + localizationFile.getProtectedLevel()
+                    + ")";
+        }
+        return tip;
     }
 
     /*
