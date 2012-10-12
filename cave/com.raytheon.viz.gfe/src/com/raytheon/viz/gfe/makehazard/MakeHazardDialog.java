@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -226,6 +227,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private boolean running;
 
+    private org.eclipse.swt.widgets.List hazardGroupList;
+
     public MakeHazardDialog(Shell parent, DataManager dataManager,
             String colorName, int defaultMapWidth, int timeScaleEndTime,
             float areaThreshold, String defaultHazardType,
@@ -235,7 +238,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             Map<String, List<String>> localEffectAreas,
             Map<String, List<Object>> localAreaData) {
 
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.NO_PACK);
         this.dataManager = dataManager;
         this.defaultMapWidth = defaultMapWidth;
         this.timeScaleEndTime = timeScaleEndTime;
@@ -279,6 +283,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
         initializeComponents();
+        shell.pack();
 
         this.comboDict = new HashMap<String, Integer>();
         setHazardType(this.defaultHazardType);
@@ -1012,9 +1017,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         };
 
-        org.eclipse.swt.widgets.List hazardGroupList = new org.eclipse.swt.widgets.List(
-                hazardTypeGroup, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-                        | SWT.SINGLE);
+        hazardGroupList = new org.eclipse.swt.widgets.List(hazardTypeGroup,
+                SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.heightHint = hazardGroupList.getItemHeight() * 12
                 + hazardGroupList.getBorderWidth();
@@ -1100,6 +1104,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // create the start time slider
         startTimeSlider = new Scale(startGroup, SWT.HORIZONTAL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = 200;
         startTimeSlider.setLayoutData(gd);
         startTimeSlider.addSelectionListener(new SelectionListener() {
 
@@ -1130,7 +1135,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         startTimeSlider.setMaximum(this.timeScaleEndTime);
         startTimeSlider.setIncrement(1);
         startTimeSlider.setPageIncrement(1);
-        startTimeSlider.setLayoutData(new GridData(200, SWT.DEFAULT));
 
         // Force start time to an hourly boundary
         Calendar cal = Calendar.getInstance();
@@ -1158,6 +1162,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // Create the end time slider
         endTimeSlider = new Scale(endGroup, SWT.HORIZONTAL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.minimumWidth = 200;
         endTimeSlider.setLayoutData(gd);
 
         endTimeSlider.setMinimum(1);
@@ -1165,7 +1170,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         endTimeSlider.setIncrement(1);
         endTimeSlider.setPageIncrement(1);
         endTimeSlider.setSelection(1);
-        endTimeSlider.setLayoutData(new GridData(200, SWT.DEFAULT));
         endTimeSlider.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -1215,6 +1219,21 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         leCombo.setLayoutData(gd);
         leCombo.addSelectionListener(selAdapt);
+
+        GC gc = new GC(this.getDisplay());
+        String longest = "";
+        int widest = 0;
+        for (List<String> list : localEffectAreas.values()) {
+            for (String s : list) {
+                int width = gc.stringExtent(s).x;
+                if (width > widest) {
+                    widest = width;
+                    longest = s;
+                }
+            }
+        }
+        gc.dispose();
+        leCombo.add(longest);
     }
 
     private Map<String, List<String>> getHazardsDictionary() {
@@ -1317,6 +1336,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      *            the hazard type to select.
      */
     public void setHazardType(String hazardType) {
+        hazardGroupList.setSelection(hazardGroupList.indexOf(hazardType));
         updateSelectedHazardList(hazardType);
 
         if (this.localEffectAreas.containsKey(hazardType)) {
@@ -1345,9 +1365,15 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             leGroup.setVisible(false);
             ((GridData) leGroup.getLayoutData()).exclude = true;
             this.hazLocalEffect = "None";
-            this.etnSegNumberField.setText("");
+            String s = etnSegNumberField.getText();
+            for (Entry<String, List<Object>> entry : localAreaData.entrySet()) {
+                if (s.equals(entry.getValue().get(0))) {
+                    this.etnSegNumberField.setText("");
+                    this.etnSegNumberField.setSelection(0);
+                    break;
+                }
+            }
         }
-        leGroup.getParent().pack();
     }
 
     /**
@@ -1375,9 +1401,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         }
     }
 
-    private void hazardLocalEffectSelected(String s) {
-        this.hazLocalEffect = s;
-        List<Object> laData = this.localAreaData.get(s);
+    private void hazardLocalEffectSelected(String le) {
+        this.hazLocalEffect = le;
+        List<Object> laData = this.localAreaData.get(le);
         if (laData != null) {
             // get the segment number
             Integer segment = (Integer) laData.get(0);
@@ -1387,8 +1413,15 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 this.etnSegNumberField.setSelection(segText.length());
 
             } else {
-                this.etnSegNumberField.setText("");
-                this.etnSegNumberField.setSelection(0);
+                String s = etnSegNumberField.getText();
+                for (Entry<String, List<Object>> entry : localAreaData
+                        .entrySet()) {
+                    if (s.equals(entry.getValue().get(0))) {
+                        this.etnSegNumberField.setText("");
+                        this.etnSegNumberField.setSelection(0);
+                        break;
+                    }
+                }
             }
 
             @SuppressWarnings("unchecked")
