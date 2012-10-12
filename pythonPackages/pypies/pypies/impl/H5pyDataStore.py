@@ -317,22 +317,47 @@ class H5pyDataStore(IDataStore.IDataStore):
         fn = request.getFilename()
         f, lock = self.__openFile(fn, 'w')
         resp = DeleteResponse()
-        resp.setSuccess(True)        
+        resp.setSuccess(True)
+        deleteFile = False
+                
         try:
             locs = request.getLocations()
             for dataset in locs:
                 ds = self.__getGroup(f, dataset)
                 grp = ds.parent
                 grp.id.unlink(ds.name)
+
+            # check if file has any remaining data sets
+            # if no data sets, flag file for deletion
+            f.flush()
+            deleteFile = not self.__hasDataSet(f)
         finally:
             t0=time.time()
             f.close()
             t1=time.time()
             timeMap['closeFile']=t1-t0
+
+            
+            if deleteFile:
+                try:
+                    os.remove(fn)
+                except Exception, e:
+                    logger.error('Error occurred deleting file [' + str(fn) + ']: ' + IDataStore._exc())
+                
+
             LockManager.releaseLock(lock)
         return resp
-            
-        
+
+    # recursively looks for data sets
+    def __hasDataSet(self, group):
+        for key in group.keys():
+            child=group[key]
+            if type(child) == h5py.highlevel.Dataset:
+                return True
+            elif type(child) == h5py.highlevel.Group:
+                if self.__hasDataSet(child):
+                    return True
+        return False
     
     def retrieve(self, request):
         fn = request.getFilename()                                      
@@ -638,7 +663,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             else:
                 try:
                     grp = f[name]
-                except KeyError:
+                except:
                     raise StorageException("No group " + name + " found")
 
         t1=time.time()
