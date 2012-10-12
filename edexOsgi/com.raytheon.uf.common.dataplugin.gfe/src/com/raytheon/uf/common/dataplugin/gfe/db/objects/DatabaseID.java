@@ -74,7 +74,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
     public static final String MODEL_TIME_FORMAT = "yyyyMMdd_HHmm";
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
+    public static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -321,7 +321,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         modelName = strings[3];
 
         // date-time group
-        if (strings[4].length() != 8 || strings[5].length() != 4) {
+        if ((strings[4].length() != 8) || (strings[5].length() != 4)) {
             return false;
         }
 
@@ -336,8 +336,8 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
     }
 
     private boolean decodeDtg(String dtgString) {
-        if (dtgString == null
-                || dtgString.length() != MODEL_TIME_FORMAT.length()) {
+        if ((dtgString == null)
+                || (dtgString.length() != MODEL_TIME_FORMAT.length())) {
             return false;
         }
         try {
@@ -361,7 +361,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         }
 
         shortModelId = modelName;
-        if (dbType != null && !dbType.isEmpty()) {
+        if ((dbType != null) && !dbType.isEmpty()) {
             shortModelId += "_" + dbType;
         }
 
@@ -477,7 +477,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
     public Date getModelDate() {
         Date date = null;
-        if (modelTime != null && !NO_MODEL_TIME.equalsIgnoreCase(modelTime)) {
+        if ((modelTime != null) && !NO_MODEL_TIME.equalsIgnoreCase(modelTime)) {
             try {
                 date = dateFormat.get().parse(this.modelTime);
             } catch (ParseException e) {
