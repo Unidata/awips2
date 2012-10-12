@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.localization.perspective.view.actions;
 
-import java.util.Arrays;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -127,14 +125,33 @@ public abstract class AbstractToAction extends Action implements IMenuCreator {
     protected void fillMenu(Menu menu) {
         LocalizationLevel[] levels = PathManagerFactory.getPathManager()
                 .getAvailableLevels();
-        Arrays.sort(levels, LocalizationLevel.REVERSE_COMPARATOR);
-        for (int i = levels.length - 1; i >= 0; --i) {
+        for (int i = 0; i < levels.length; ++i) {
             LocalizationLevel level = levels[i];
             if (level.isSystemLevel() == false) {
                 new ActionContributionItem(new AbstractToInternalAction(level))
                         .fill(menu, -1);
             }
         }
+    }
+
+    /**
+     * Determines if the action for this level is enabled. By default, checks if
+     * the level is the same as the file level
+     * 
+     * @param level
+     * @return
+     */
+    protected boolean isLevelEnabled(LocalizationLevel level) {
+        if (level == file.getContext().getLocalizationLevel()) {
+            String fileCtxName = file.getContext().getContextName();
+            String levelCtxName = LocalizationManager.getContextName(level);
+            if ((fileCtxName == null && levelCtxName == null)
+                    || (fileCtxName != null && fileCtxName.equals(levelCtxName))) {
+                // same context name
+                return false;
+            }
+        }
+        return true;
     }
 
     protected abstract void run(LocalizationLevel level);
@@ -145,16 +162,7 @@ public abstract class AbstractToAction extends Action implements IMenuCreator {
 
         public AbstractToInternalAction(LocalizationLevel level) {
             this.level = level;
-            if (level == file.getContext().getLocalizationLevel()) {
-                String fileCtxName = file.getContext().getContextName();
-                String levelCtxName = LocalizationManager.getContextName(level);
-                if ((fileCtxName == null && levelCtxName == null)
-                        || (fileCtxName != null && fileCtxName
-                                .equals(levelCtxName))) {
-                    // same context name
-                    this.setEnabled(false);
-                }
-            }
+            this.setEnabled(isLevelEnabled(level));
         }
 
         @Override

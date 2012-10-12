@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.alertviz;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -50,6 +51,9 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 public class SystemStatusHandler extends AbstractStatusHandler {
 
+    private transient static final org.apache.log4j.Logger logger = Logger
+            .getLogger("CaveLogger");
+
     private static final String WORKSTATION = "WORKSTATION";
 
     /*
@@ -66,14 +70,13 @@ public class SystemStatusHandler extends AbstractStatusHandler {
 
         if (status instanceof VizStatusInternal) {
             VizStatusInternal vs = (VizStatusInternal) status;
-            sm = new StatusMessage(vs.getSource(), vs.getCategory(),
-                    vs.getPriority(), vs.getPluginName(), vs.getMessage(),
-                    vs.getException());
+            sm = vs.toStatusMessage();
         } else {
             sm = from(status);
         }
 
         try {
+            logStatus(sm);
             AlertVizClient.sendMessage(sm);
         } catch (final AlertvizException e) {
             // not a good situation, since we can't communicate with the log
@@ -111,7 +114,7 @@ public class SystemStatusHandler extends AbstractStatusHandler {
         StatusMessage sm = new StatusMessage();
         sm.setCategory(WORKSTATION);
 
-        sm.setMachine("LOCAL");
+        sm.setMachineToCurrent();
         switch (status.getSeverity()) {
         case Status.ERROR:
             sm.setPriority(Priority.SIGNIFICANT);
@@ -184,4 +187,26 @@ public class SystemStatusHandler extends AbstractStatusHandler {
             int count) throws AlertvizException {
         return LogMessageDAO.getInstance().load(count, category);
     }
+
+    private void logStatus(StatusMessage status) {
+        switch (status.getPriority()) {
+        case CRITICAL:
+            logger.fatal(status);
+            break;
+        case SIGNIFICANT:
+            logger.error(status);
+            break;
+        case PROBLEM:
+            logger.warn(status);
+            break;
+        case EVENTA: // fall through
+        case EVENTB:
+            logger.info(status);
+            break;
+        case VERBOSE:
+            logger.debug(status);
+            break;
+        }
+    }
+
 }

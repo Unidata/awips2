@@ -3339,13 +3339,15 @@ public class FFMPResource extends
             ArrayList<Double> qpeTimes = new ArrayList<Double>();
 
             if (qpeBasin != null) {
+            	
                 for (Date date : qpeBasin.getValues().keySet()) {
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
-                    fgd.setQpe(dtime, (double) qpeBasin.getAccumValue(date,
+                    double currVal = qpeBasin.getAccumValue(date,
                             mostRecentRefTime, getQpeSourceExpiration(),
-                            isRate()));
+                            isRate());
+                    fgd.setQpe(dtime, currVal);
                     qpeTimes.add(dtime);
                 }
             }

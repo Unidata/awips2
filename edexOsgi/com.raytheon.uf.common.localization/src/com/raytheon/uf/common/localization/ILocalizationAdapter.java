@@ -214,10 +214,10 @@ public interface ILocalizationAdapter {
         public boolean isDirectory;
 
         /**
-         * defines if the file is protected, i.e. the file can not be overridden
-         * at user or site level
+         * defines the level the file is protected at, i.e. the file can not be
+         * overridden at user or site level. null if not protected
          */
-        public boolean isProtected;
+        public LocalizationLevel protectedLevel;
 
         /** defines if the file exists on the server */
         public boolean existsOnServer;

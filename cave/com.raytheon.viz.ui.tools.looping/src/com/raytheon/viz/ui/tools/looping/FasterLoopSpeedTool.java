@@ -50,7 +50,9 @@ public class FasterLoopSpeedTool extends AbstractTool {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         super.execute(arg0);
-        PageUpDownKey.handlePageUp(editor);
+        if (editor != null) {
+            PageUpDownKey.handlePageUp(editor);
+        }
         return null;
     }
 }
