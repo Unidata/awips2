@@ -69,6 +69,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  *    8/11/2008    1314        grichard    Used PathManager for pathnames.
  *    10/04/2012   1229        rferrel     Added dispose check needed for 
  *                                          non-blocking dialogs.
+ *    10/12/2012   1229        rferrel     Changes for non-blocking MessageViewerDlg.
  * 
  * </pre>
  * 
@@ -423,12 +424,12 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      * Create the message viewer dialog.
      */
     private void createMessageViewerDialog() {
-        if (msgViewerDlg == null || msgViewerDlg.getShell().isDisposed()) {
+        if (msgViewerDlg == null || msgViewerDlg.getShell() == null
+                || msgViewerDlg.isDisposed()) {
             msgViewerDlg = new MessageViewerDlg(this, msgType);
             msgViewerDlg.open();
-            msgViewerDlg = null;
         } else {
-            msgViewerDlg.showDialog();
+            msgViewerDlg.bringToTop();
         }
     }
 
