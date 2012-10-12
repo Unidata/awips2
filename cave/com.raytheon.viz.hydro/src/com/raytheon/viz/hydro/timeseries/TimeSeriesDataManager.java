@@ -79,7 +79,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	private static final String TIME_SERIES_DATA_QUERY = "select lid,obstime,lid,product_id from latestobsvalue";
 
-	private String INGEST_FILTER_QUERY = "select lid,pe,ts,extremum,dur from ingestfilter where lid=':lid' and ingest = 'T' order by pe asc,dur asc,ts asc,extremum asc";
+	private String INGEST_FILTER_QUERY = "select lid,pe,ts,extremum,dur from ingestfilter where lid=':lid' and ingest = 'T' order by pe asc,ts_rank asc,dur asc,ts asc,extremum asc";
 
 	private String SHEF_PE_QUERY = "select name||' '|| eng_unit from shefpe where pe=':pe'";
 

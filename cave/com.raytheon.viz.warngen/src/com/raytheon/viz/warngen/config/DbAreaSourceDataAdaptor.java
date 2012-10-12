@@ -15,6 +15,7 @@ import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.raytheon.viz.warngen.gis.GisUtil;
+import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -94,9 +95,33 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
             partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(geom,
                     intersection, gc, ""));
 
-            String suppressedDirections = String.valueOf(attributes
-                    .get(suppressedDirectionsField));
-            partOfArea.remove(suppressedDirections);
+            if (attributes.get(suppressedDirectionsField) != null) {
+                String suppressedDirections = String.valueOf(
+                        attributes.get(suppressedDirectionsField))
+                        .toLowerCase();
+                // supdirs can be 'nse', for example
+                // TODO create an enum constructor for Directions
+                for (int i = 0; i < suppressedDirections.length(); i++) {
+                    switch (suppressedDirections.charAt(i)) {
+                    case 'n':
+                        partOfArea.remove(Direction.NORTH.toString());
+                        break;
+                    case 's':
+                        partOfArea.remove(Direction.SOUTH.toString());
+                        break;
+                    case 'e':
+                        partOfArea.remove(Direction.EAST.toString());
+                        break;
+                    case 'w':
+                        partOfArea.remove(Direction.WEST.toString());
+                        break;
+                    case 'c':
+                        partOfArea.remove(Direction.CENTRAL.toString());
+                        break;
+                    }
+                }
+
+            }
         }
 
         return partOfArea;

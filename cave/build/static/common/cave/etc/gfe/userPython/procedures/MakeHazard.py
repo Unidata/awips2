@@ -224,8 +224,14 @@ class Procedure (SmartScript.SmartScript):
             hazardKey = selectedHazard
             
         defaultHazKey = ""
-        if len(defaultSegment) > 0 and defaultHazard is not None:
-            defaultHazKey = defaultHazard + ":" + defaultSegment
+        if defaultHazard is not None:
+            index = string.find(defaultHazard, " ")
+            if index != -1:
+                defaultHazard = defaultHazard[0:index]
+            defaultHazKey = defaultHazard
+            
+            if len(defaultSegment) > 0:
+                defaultHazKey += ":" + defaultSegment
 
         weName = self._hazUtils._makeTempWEName(hazardKey)        
 
