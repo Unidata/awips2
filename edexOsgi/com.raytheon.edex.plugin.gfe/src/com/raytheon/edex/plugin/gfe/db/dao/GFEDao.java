@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
@@ -102,9 +103,11 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/17/09     #2380      randerso    Removed purging of grid history.
  *                                     Should cascade when record deleted.
- * 08/07/09     #2763     njensen   Refactored queryByD2DParmId
- * 09/10/12     DR15137   ryu       Changed for MOSGuide D2D mxt/mnt grids for consistency
- *                                  with A1.
+ * 08/07/09     #2763      njensen     Refactored queryByD2DParmId
+ * 09/10/12     DR15137    ryu         Changed for MOSGuide D2D mxt/mnt grids for consistency
+ *                                     with A1.
+ * 10/10/12     #1260       randerso   Added check to ensure db can be created before 
+ *                                     adding it to the inventory
  * </pre>
  * 
  * @author bphillip
@@ -923,10 +926,15 @@ public class GFEDao extends DefaultPluginDao {
             DatabaseID dbId = null;
             dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
                     (Date) result.getRowColumnValue(i, 0));
-            if (!dbInventory.contains(dbId)) {
-                dbInventory.add(dbId);
+            try {
+                GridDatabase db = GridParmManager.getDb(dbId);
+                if (db != null && !dbInventory.contains(dbId)) {
+                    dbInventory.add(dbId);
+                }
+            } catch (GfeException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-
         }
         return dbInventory;
     }
