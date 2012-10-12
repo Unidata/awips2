@@ -56,6 +56,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04 OCT 2012  1229       rferrel     Work with non-blocking ClimateDataMenuDlg.
  * 08 Oct 2012  1229       rferrel     Make sub-class of CaveSWTDialog and 
  *                                      make non-blocking.
+ * 11 Oct 2012  1229       rferrel     Changes for non-blocking MonitoringCriteriaDlg.
+ * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafProductConfigDlg.
+ * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafSiteInfoEditorDlg.
  * 
  * </pre>
  * 
@@ -277,14 +280,11 @@ public class AvnconfigDlg extends CaveSWTDialog {
         monitorRulesBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (monCriteriaDlg == null
-                        || monCriteriaDlg.getParent().isDisposed()) {
+                if (mustCreate(monCriteriaDlg)) {
                     monCriteriaDlg = new MonitoringCriteriaDlg(shell);
                     monCriteriaDlg.open();
-                    monCriteriaDlg = null;
                 } else {
-                    monCriteriaDlg.getParent().forceActive();
-                    monCriteriaDlg.getParent().forceFocus();
+                    monCriteriaDlg.bringToTop();
                 }
             }
         });
@@ -296,13 +296,11 @@ public class AvnconfigDlg extends CaveSWTDialog {
         tafSiteInfoBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (siteInfoDlg == null || siteInfoDlg.getParent().isDisposed()) {
+                if (mustCreate(siteInfoDlg)) {
                     siteInfoDlg = new TafSiteInfoEditorDlg(shell);
                     siteInfoDlg.open();
-                    siteInfoDlg = null;
                 } else {
-                    siteInfoDlg.getParent().forceActive();
-                    siteInfoDlg.getParent().forceFocus();
+                    siteInfoDlg.bringToTop();
                 }
             }
         });
@@ -314,13 +312,11 @@ public class AvnconfigDlg extends CaveSWTDialog {
         tafProductsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (productsDlg == null || productsDlg.getParent().isDisposed()) {
+                if (mustCreate(productsDlg)) {
                     productsDlg = new TafProductConfigDlg(shell);
                     productsDlg.open();
-                    productsDlg = null;
                 } else {
-                    productsDlg.getParent().forceActive();
-                    productsDlg.getParent().forceFocus();
+                    productsDlg.bringToTop();
                 }
             }
         });
