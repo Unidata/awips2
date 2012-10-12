@@ -77,7 +77,7 @@ public class DefaultPluginArchiveFileNameFormatter implements
                 endTime);
 
         Set<String> newFileEntries = new HashSet<String>();
-        if (pdos != null && !pdos.isEmpty()) {
+        if ((pdos != null) && !pdos.isEmpty()) {
             if (pdos.get(0) instanceof IPersistable) {
                 IHDFFilePathProvider pathProvider = dao.pathProvider;
 
@@ -104,19 +104,13 @@ public class DefaultPluginArchiveFileNameFormatter implements
                         PluginDataObject pluginDataObj = (PluginDataObject) pdo;
                         Date time = pluginDataObj.getDataTime()
                                 .getRefTimeAsCalendar().getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
+                        timeString = DefaultPathProvider.fileNameFormat.get()
+                                .format(time);
                     } else {
                         // no refTime to use bounded insert query bounds
                         Date time = startTime.getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
+                        timeString = DefaultPathProvider.fileNameFormat.get()
+                                .format(time);
                     }
 
                     String path = pluginName + timeString;
