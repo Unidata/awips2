@@ -83,6 +83,7 @@ WYCounties):
 </p>
 <PRE>
 WYcounties = ShapeTable('County')
+WYcounties.name = 'WYCounties'
 WYcounties.filter(lambda x : x['state'] == "WY") 
 WYcounties.editAreaName = ['state','countyname'] 
 WYcounties.groupName = 'WYCounties' 
@@ -128,6 +129,7 @@ existing edit areas</h3>
 You can modify the following characteristics of the map definition:
 <ul>
   <li>name of the database table (ShapeTable parameter)</li>
+  <li>name of the map background (.name line)</li>
   <li>filtering (.filter line)</li>
   <li>generation of edit areas (.editAreaName line)</li>
   <li>group name of generated edit areas (.groupName)</li>
@@ -137,6 +139,15 @@ Database Table Name</h4>
 <p>If you want to change the name of the database table used for edit area generation, you will
 need to remove the existing definition and <a href="#Adding">create a completely new map definition</a>.<br>
 </p>
+<h4>Name of the Map Background</h4>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply repeat the line you want to change and then put the new map name.
+For example, if you want to change the CWAzones map name to MyCWAZones,
+you would add the following line to localMaps.py:
+<pre>
+CWAzones.name = "MyCWAZones"
+</pre>
+Note: this name is only used in text formatter definitions in the mapNameForCombinations setting.
 <h4>Filter Changes</h4>
 The format of the line is identical to that found in Maps.py.&nbsp;
 Simply repeat the line you want to change and then put in the new filter string.&nbsp;
