@@ -32,8 +32,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
@@ -42,6 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * This class generates a list of localized files that can be opened in the
@@ -53,38 +52,15 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation.
+ * Oct 12, 2012 1229       rferrel     Made subclass of CaveSWTDialog
+ *                                      and non-blocking.
  * 
  * </pre>
  * 
  * @version 1.0
  */
-public class OpenSaveDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Used to indicate if the dialog is being used for open or save as dialog.
-     * Only the OPEN is used.
-     */
-    // TODO remove the SAVE_AS code that is not used change the constructor to
-    // not use.
-    @Deprecated
-    public static enum DialogType {
-        OPEN, SAVE_AS
-    };
-
-    /**
-     * Dialog type. This is always OPEN.
-     */
-    @Deprecated
-    private DialogType dialogType;
+public class OpenDlg extends CaveSWTDialog {
 
     /**
      * Font used to display file list.
@@ -95,11 +71,6 @@ public class OpenSaveDlg extends Dialog {
      * List of localized files that can be edited.
      */
     private List cfgFileList;
-
-    /**
-     * The localize file selected by the user.
-     */
-    private LocalizationFile selectedFile;
 
     /**
      * List of localized files used to generate the file list.
@@ -118,24 +89,13 @@ public class OpenSaveDlg extends Dialog {
      *            shell
      * @param type
      */
-    public OpenSaveDlg(Shell parent, DialogType type) {
-        super(parent, 0);
-
-        dialogType = type;
+    public OpenDlg(Shell parent) {
+        super(parent, SWT.TITLE, CAVE.DO_NOT_BLOCK);
+        setText("Open Configuration File");
     }
 
-    /**
-     * Display dialog and sets the selected file when user clicks on the Open
-     * button. Any other close leaves the the selected file null.
-     * 
-     * @return null
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.TITLE);
-        shell.setText("Open Configuration File");
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 2;
@@ -145,19 +105,13 @@ public class OpenSaveDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-        shell.open();
-
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
+    @Override
+    protected void disposed() {
+        if (controlFont != null) {
+            controlFont.dispose();
         }
-
-        controlFont.dispose();
-
-        return null;
     }
 
     /**
@@ -203,8 +157,6 @@ public class OpenSaveDlg extends Dialog {
      * bottom of the dialog.
      */
     private void createBottomButtons() {
-        // TODO Only the DialogType.OPEN is ever used. Code needs to be
-        // modified to no longer use DialogType.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
         mainButtonComp.setLayout(new GridLayout(1, false));
@@ -215,33 +167,20 @@ public class OpenSaveDlg extends Dialog {
         buttonComp.setLayout(new GridLayout(2, false));
         buttonComp.setLayoutData(gd);
 
-        if (dialogType == DialogType.OPEN) {
-            gd = new GridData(100, SWT.DEFAULT);
-            Button openBtn = new Button(buttonComp, SWT.PUSH);
-            openBtn.setText("Open");
-            openBtn.setLayoutData(gd);
-            openBtn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    int selectedIndex = cfgFileList.getSelectionIndex();
-                    String str = cfgFileList.getItem(selectedIndex);
-                    selectedFile = locFileMap.get(str);
-                    shell.dispose();
-                }
-            });
-        } else if (dialogType == DialogType.SAVE_AS) {
-            gd = new GridData(100, SWT.DEFAULT);
-            Button saveBtn = new Button(buttonComp, SWT.PUSH);
-            saveBtn.setText("Save");
-            saveBtn.setLayoutData(gd);
-            saveBtn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    selectedFile = null;
-                    shell.dispose();
-                }
-            });
-        }
+        gd = new GridData(100, SWT.DEFAULT);
+        Button openBtn = new Button(buttonComp, SWT.PUSH);
+        openBtn.setText("Open");
+        openBtn.setLayoutData(gd);
+        openBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                int selectedIndex = cfgFileList.getSelectionIndex();
+                String str = cfgFileList.getItem(selectedIndex);
+                LocalizationFile selectedFile = locFileMap.get(str);
+                setReturnValue(selectedFile);
+                close();
+            }
+        });
 
         gd = new GridData(100, SWT.DEFAULT);
         Button cancelBtn = new Button(buttonComp, SWT.PUSH);
@@ -299,15 +238,5 @@ public class OpenSaveDlg extends Dialog {
         if (cfgFileList.getSelectionCount() > 0) {
             cfgFileList.setSelection(0);
         }
-    }
-
-    /**
-     * Obtain the localized file selected by the user or null if no file
-     * selected.
-     * 
-     * @return lfile
-     */
-    public LocalizationFile getSelectedFile() {
-        return selectedFile;
     }
 }
