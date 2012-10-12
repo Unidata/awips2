@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -47,14 +48,21 @@ public class ProtectedFileResponse extends AbstractUtilityResponse {
 
     @XmlAttribute
     @DynamicSerializeElement
-    private boolean protectedFile;
+    private LocalizationLevel protectedLevel;
 
-    public boolean isProtectedFile() {
-        return protectedFile;
+    /**
+     * @return the protectedLevel
+     */
+    public LocalizationLevel getProtectedLevel() {
+        return protectedLevel;
     }
 
-    public void setProtectedFile(boolean protectedFile) {
-        this.protectedFile = protectedFile;
+    /**
+     * @param protectedLevel
+     *            the protectedLevel to set
+     */
+    public void setProtectedLevel(LocalizationLevel protectedLevel) {
+        this.protectedLevel = protectedLevel;
     }
 
     /*

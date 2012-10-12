@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -76,7 +77,7 @@ public class ListResponseEntry implements ISerializableObject {
 
     @XmlAttribute
     @DynamicSerializeElement
-    protected boolean protectedFile;
+    protected LocalizationLevel protectedLevel;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -91,14 +92,18 @@ public class ListResponseEntry implements ISerializableObject {
     }
 
     /**
-     * @return true if the file is protected
+     * @return the protectedLevel
      */
-    public boolean isProtectedFile() {
-        return protectedFile;
+    public LocalizationLevel getProtectedLevel() {
+        return protectedLevel;
     }
 
-    public void setProtectedFile(boolean protectedFile) {
-        this.protectedFile = protectedFile;
+    /**
+     * @param protectedLevel
+     *            the protectedLevel to set
+     */
+    public void setProtectedLevel(LocalizationLevel protectedLevel) {
+        this.protectedLevel = protectedLevel;
     }
 
     /**
