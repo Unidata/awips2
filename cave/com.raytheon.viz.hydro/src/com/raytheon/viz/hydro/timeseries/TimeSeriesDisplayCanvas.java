@@ -1165,7 +1165,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         /* loop through each trace and set the min and max values */
         for (int i = 0; i < gd.getTraces().size(); i++) {
             td = gd.getTraceData(i);
-            if (td != null) {
+            if (td != null && td.isTraceOn()) {
                 TimeSeriesPoint[] points = null;
                 if (zoomed) {
                 	points = td.getZoomedTsData();
@@ -2572,9 +2572,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 traceData.setName(name);
                                 traceData.setBasistime(basisTime);
                                 traceData.setProductTime(productTime);
-                                if (this.latestFcstFlag) {
-                                	traceData.setTraceOn(false);
-                                }
+                                traceData.setTraceOn(!this.latestFcstFlag);
                             } else {
                                 /* reached max fcst traces, break out of loop */
                                 break;
@@ -2802,4 +2800,5 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 	public void setZoomed(boolean zoomed) {
 		this.zoomed = zoomed;
 	}
+
 }

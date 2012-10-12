@@ -29,7 +29,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.TextWarningConstants;
 
 /**
- * TODO Add Description
+ * A grouping of static methods to obtain site id and to query for site
+ * information in various, seldom changed, tables.
  * 
  * <pre>
  * 
@@ -37,6 +38,7 @@ import com.raytheon.viz.texteditor.TextWarningConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2009            bwoodle     Initial creation
+ * Sep 09, 2012 14668      rferrel     Change default WMO ID to 'blank'.
  * 
  * </pre>
  * 
@@ -103,8 +105,7 @@ public class SiteAbbreviationUtil {
     public static String getTtaaii(String afosId) {
         String query = "SELECT wmottaaii FROM afos_to_awips WHERE afosid = '"
                 + afosId + "';";
-        // Keep the same default we previously had.
-        String rval = "SAUS43";
+        String rval = "-";
 
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(query,

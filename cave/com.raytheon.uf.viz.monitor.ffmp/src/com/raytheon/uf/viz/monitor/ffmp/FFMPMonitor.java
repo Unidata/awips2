@@ -647,6 +647,13 @@ public class FFMPMonitor extends ResourceMonitor {
         Date previousQueryTime = ffmpAvailableUriQueryDates.get(siteKey).get(
                 sourceName);
         SourceXML source = getSourceConfig().getSource(sourceName);
+        
+        if (source.getSourceType().equals(
+                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+        	// Always look back for guidance types because of long expiration times,
+        	// prevents mosaic brittleness from occurring.
+        	retrieveNew = true;
+        }
 
         if (retrieveNew
                 || ((time != null) && ((previousQueryTime == null) || (time
@@ -2322,14 +2329,11 @@ public class FFMPMonitor extends ResourceMonitor {
 
         final String fsiteKey;
 
-        final boolean fisProductLoad;
-
         public FFMPLoadRecord(boolean isProductLoad, String siteKey,
                 FFMPRecord ffmpRec, String source, String huc) throws Exception {
             this.fffmpRec = ffmpRec;
             this.fsource = source;
             this.fsiteKey = siteKey;
-            this.fisProductLoad = isProductLoad;
             this.fhuc = huc;
         }
 
