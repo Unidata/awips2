@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *  7 DEC 2010  7621       rferrel     Modified constructor to take a
  *                                     LocalizedFile and added preOpen() to
  *                                     open the LocalizedFile.
+ * 11 OCT 2012  1229       rferrel     Changes for non-blocking FindReplaceDlg.
  * 
  * </pre>
  * 
@@ -140,6 +141,8 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
     public boolean modifyFlag = true;
 
     private String template;
+
+    private FindReplaceDlg findDlg;
 
     /**
      * Constructor.
@@ -323,8 +326,12 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 // Use the AvnFPS Find/Replace dialog
-                FindReplaceDlg findDlg = new FindReplaceDlg(shell, editorStTxt);
-                findDlg.open();
+                if (mustCreate(findDlg)) {
+                    findDlg = new FindReplaceDlg(shell, editorStTxt);
+                    findDlg.open();
+                } else {
+                    findDlg.bringToTop();
+                }
             }
         });
 
