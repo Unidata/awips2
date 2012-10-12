@@ -56,6 +56,20 @@
       </layout> 
    </appender> 
    
+   <!-- GFEPerformance log --> 
+   <appender name="GFEPerformanceLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-ingest-GFEPerformance-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <appender name="GFEPerformanceLogAsync" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="GFEPerformanceLog" />
+   </appender> 
+
    <!-- Purge log --> 
    <appender name="PurgeLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
@@ -262,6 +276,11 @@
    <logger name="FailedTriggerLog" additivity="false">
       <level value="ERROR"/>
       <appender-ref ref="FailedTriggerLog"/>
+   </logger>
+
+   <logger name="GFEPerformanceLogger" additivity="false">
+      <level value="Debug"/>
+      <appender-ref ref="GFEPerformanceLogAsync" />
    </logger>
 
    <!-- default logging --> 
