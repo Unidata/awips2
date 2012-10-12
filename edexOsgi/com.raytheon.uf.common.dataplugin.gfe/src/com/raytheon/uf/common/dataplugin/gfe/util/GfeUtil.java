@@ -39,7 +39,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -61,6 +60,8 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
+ * 10/10/12     #1260      randerso    Removed transformGridCoverage in
+ *                                     favor of new GridLocation constructor
  * 
  * </pre>
  * 
@@ -222,22 +223,6 @@ public class GfeUtil {
         cal.setTime(time);
         cal.add(Calendar.MILLISECOND, zoneOffset * -1);
         return cal.getTime();
-    }
-
-    /**
-     * Transforms a D2D grid coverage object into a GFE grid location object
-     * 
-     * @param coverage
-     *            The D2D grid coverage object
-     * @return The GFE grid location object
-     */
-    public static GridLocation transformGridCoverage(GridCoverage coverage) {
-        GridLocation location = new GridLocation();
-        location.setCrsObject(coverage.getCrs());
-        location.setGeometry(coverage.getGeometry());
-        location.setNx(coverage.getNx());
-        location.setNy(coverage.getNy());
-        return location;
     }
 
     /**
