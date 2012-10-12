@@ -114,7 +114,7 @@ public class TileSetRenderable implements IRenderable {
             .getHandler(TileSetRenderable.class);
 
     /** Screen pixel to image pixel threshold at which we change levels */
-    protected static final double LEVEL_CHANGE_THRESHOLD = 2.0;
+    protected static final double LEVEL_CHANGE_THRESHOLD = 1.75;
 
     /** Job pool for tile creation */
     protected static final JobPool tileCreationPool = new JobPool(

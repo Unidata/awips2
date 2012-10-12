@@ -32,11 +32,13 @@ Jul 08, 2008    1222           jelkins     Modified for use within Java
 Jul 09, 2008    1222           jelkins     Split command line loader from class
 Jul 24, 2012    #944           dgilling    Refactored to support separate
                                            generation of products and utilities.
+Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.                                   
 
 @author: jelkins
 """
 __version__ = "1.0"
 
+import errno
 import os
 from os.path import basename
 from os.path import join
@@ -129,14 +131,13 @@ class Generator():
         @type value: string
         
         @raise IOError: when the directory does not exist or is not writable
-        """
-        
-        from os import makedirs
+        """        
         
         try:
-            makedirs(value,0755)
+            os.makedirs(value, 0755)
         except OSError, e:
-            LOG.warn("%s: '%s'" % (e.strerror,e.filename))
+            if e.errno != errno.EEXIST:
+                LOG.warn("%s: '%s'" % (e.strerror,e.filename))
             
         self.__destination = value
 
@@ -496,6 +497,13 @@ class Generator():
         @rtype: number
         """
         LOG.debug("Processing Formatter Templates.......")
+        
+        try:
+            os.makedirs(join(self.getDestination(), destDir))
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                LOG.error("%s: '%s'" % (e.strerror,e.filename))
+                return 0
         
         siteid = self.__siteId
         productsWritten = 0
