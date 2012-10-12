@@ -39,7 +39,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -63,6 +62,7 @@ import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -78,6 +78,8 @@ import com.vividsolutions.jts.geom.Point;
  *                                     Make and Edit buttons to work.
  * 10 Dec 2010  7662       rferrel     Create and use getObStation.
  *  9 May 2011  8856       rferrel     Code cleanup
+ * 12 Oct 2012  1229       rferrel     Now a subclass of CaveSWTDialog
+ *                                      and made non-blocking.
  * 
  * </pre>
  * 
@@ -85,7 +87,7 @@ import com.vividsolutions.jts.geom.Point;
  * @version 1.0
  * 
  */
-public class TafSiteInfoEditorDlg extends Dialog {
+public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafSiteInfoEditorDlg.class);
 
@@ -93,16 +95,6 @@ public class TafSiteInfoEditorDlg extends Dialog {
      * A site's template hours.
      */
     private final static String[] START_HOURS = { "00", "06", "12", "18" };
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
 
     /**
      * Composite containing message status controls.
@@ -248,19 +240,12 @@ public class TafSiteInfoEditorDlg extends Dialog {
      *            Parent shell.
      */
     public TafSiteInfoEditorDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS TAF Site Info Editor");
     }
 
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("AvnFPS TAF Site Info Editor");
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -271,25 +256,25 @@ public class TafSiteInfoEditorDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
+    @Override
+    protected void disposed() {
+        if (incorrectColor != null) {
+            incorrectColor.dispose();
         }
 
-        incorrectColor.dispose();
-
-        return null;
+        if (correctColor != null) {
+            correctColor.dispose();
+        }
     }
 
     /**
      * Initialize the components on the display.
      */
     private void initializeComponents() {
+        Display display = getParent().getDisplay();
+
         incorrectColor = new Color(display, new RGB(255, 215, 220));
 
         createTopControls();
@@ -1109,6 +1094,7 @@ public class TafSiteInfoEditorDlg extends Dialog {
      * @return boolean - True if all the data is valid.
      */
     private boolean validateData() {
+        Display display = getParent().getDisplay();
         boolean isValid = true;
         correctColor = new Color(display, new RGB(255, 255, 255));
 
