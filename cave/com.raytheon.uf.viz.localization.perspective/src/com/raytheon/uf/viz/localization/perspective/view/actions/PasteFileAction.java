@@ -25,6 +25,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileGroupData;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
@@ -47,15 +48,35 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
 
 public class PasteFileAction extends CopyToAction {
 
-    LocalizationFileGroupData dataToCopyTo;
+    private LocalizationFileGroupData dataToCopyTo;
+
+    private LocalizationLevel pasteToProtectedLevel;
 
     public PasteFileAction(ILocalizationService service, LocalizationFile file,
             LocalizationFileGroupData data) {
         super(file, service);
-        setText(file.isProtected() ? "Paste To (Protected)" : "Paste To");
+        setText("Paste To");
         this.dataToCopyTo = data;
+        // Grab the level this file is protected at (if any)
+        for (LocalizationFileEntryData entry : dataToCopyTo.getChildrenData()) {
+            pasteToProtectedLevel = entry.getFile().getProtectedLevel();
+            break;
+        }
+    }
 
-        setEnabled(file.isProtected() == false);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.localization.perspective.view.actions.CopyToAction
+     * #isLevelEnabled
+     * (com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
+     * )
+     */
+    @Override
+    protected boolean isLevelEnabled(LocalizationLevel level) {
+        return pasteToProtectedLevel == null
+                || level.compareTo(pasteToProtectedLevel) <= 0;
     }
 
     /*
