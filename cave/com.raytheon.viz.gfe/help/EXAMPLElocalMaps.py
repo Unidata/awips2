@@ -28,6 +28,7 @@ from Maps import *
 # and named WY_countyName.
 WYcounties = ShapeTable('County')
 WYcounties.filter(lambda x : x['state'] == "WY") 
+WYcounties.name = 'WYCounties' 
 WYcounties.editAreaName = ['state','countyname'] 
 WYcounties.groupName = 'WYCounties' 
 maps.append(WYcounties) 
