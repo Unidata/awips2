@@ -21,10 +21,13 @@ package com.raytheon.uf.viz.monitor.scan.tables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -36,6 +39,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
+import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
 
 /**
  * Manager class to hold between scan dialog and alarming capabilities
@@ -74,11 +78,11 @@ public class SCANAlarmAlertManager {
 
     private static SCANAlarmAlertManager instance = null;
 
-    private HashMap<String, HashMap<ScanTables, List<ScheduledAlarms>>> scheduledAlarmsMap;
+    private Map<String, Map<ScanTables, List<ScheduledAlarms>>> scheduledAlarmsMap;
 
-    private HashMap<String, HashMap<ScanTables, Set<AlertedAlarms>>> alertedAlarmsMap;
+    private Map<String, Map<ScanTables, Set<AlertedAlarms>>> alertedAlarmsMap;
 
-    private HashMap<String, HashMap<ScanTables, List<String>>> idents;
+    private Map<String, Map<ScanTables, List<String>>> idents;
 
     private boolean ring = false;
 
@@ -98,7 +102,7 @@ public class SCANAlarmAlertManager {
     public void addSite(String site) {
 
         if (!scheduledAlarmsMap.containsKey(site)) {
-            HashMap<ScanTables, List<ScheduledAlarms>> siteScheduledAlarmsMap = new HashMap<ScanTables, List<ScheduledAlarms>>();
+            Map<ScanTables, List<ScheduledAlarms>> siteScheduledAlarmsMap = Collections.synchronizedMap(new HashMap<ScanTables, List<ScheduledAlarms>>());
             siteScheduledAlarmsMap.put(ScanTables.DMD,
                     new CopyOnWriteArrayList<ScheduledAlarms>());
             siteScheduledAlarmsMap.put(ScanTables.CELL,
@@ -107,7 +111,7 @@ public class SCANAlarmAlertManager {
         }
 
         if (!alertedAlarmsMap.containsKey(site)) {
-            HashMap<ScanTables, Set<AlertedAlarms>> siteAlertedAlarmsSet = new HashMap<ScanTables, Set<AlertedAlarms>>();
+            Map<ScanTables, Set<AlertedAlarms>> siteAlertedAlarmsSet = Collections.synchronizedMap(new HashMap<ScanTables, Set<AlertedAlarms>>());
             siteAlertedAlarmsSet.put(ScanTables.DMD,
                     new HashSet<AlertedAlarms>());
             siteAlertedAlarmsSet.put(ScanTables.CELL,
@@ -116,7 +120,7 @@ public class SCANAlarmAlertManager {
         }
 
         if (!idents.containsKey(site)) {
-            HashMap<ScanTables, List<String>> siteIdents = new HashMap<ScanTables, List<String>>();
+            Map<ScanTables, List<String>> siteIdents = new HashMap<ScanTables, List<String>>();
             siteIdents.put(ScanTables.CELL, new ArrayList<String>());
             siteIdents.put(ScanTables.DMD, new ArrayList<String>());
             idents.put(site, siteIdents);
@@ -126,15 +130,15 @@ public class SCANAlarmAlertManager {
     private SCANAlarmAlertManager() {
 
         if (scheduledAlarmsMap == null) {
-            scheduledAlarmsMap = new HashMap<String, HashMap<ScanTables, List<ScheduledAlarms>>>();
+            scheduledAlarmsMap = Collections.synchronizedMap(new HashMap<String, Map<ScanTables, List<ScheduledAlarms>>>());
         }
 
         if (alertedAlarmsMap == null) {
-            alertedAlarmsMap = new HashMap<String, HashMap<ScanTables, Set<AlertedAlarms>>>();
+            alertedAlarmsMap = Collections.synchronizedMap(new HashMap<String, Map<ScanTables, Set<AlertedAlarms>>>());
         }
 
         if (idents == null) {
-            idents = new HashMap<String, HashMap<ScanTables, List<String>>>();
+            idents = new HashMap<String, Map<ScanTables, List<String>>>();
         }
 
     }
@@ -438,7 +442,7 @@ public class SCANAlarmAlertManager {
         
         return count;
     }
-
+    
     public boolean containsAlarm(String site, ScanTables tableType,
             AlarmType type, String colName, String ident) {
         for (AlertedAlarms alarm : alertedAlarmsMap.get(site).get(tableType)) {
@@ -493,9 +497,10 @@ public class SCANAlarmAlertManager {
             alarm.cleared = true;
         }
     }
-
+    
     public void removeAlertedAlarms(String site, ScanTables tableType) {
         alertedAlarmsMap.get(site).get(tableType).clear();
+        setRing(false);
     }
     
     /**
@@ -603,4 +608,5 @@ public class SCANAlarmAlertManager {
                     + this.row + "\nCol #:" + this.col + "\nCleared: " + cleared + "\n";
         }
     }
+
 }

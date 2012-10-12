@@ -42,7 +42,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ----------  ----------- --------------------------
  * 03/31/11     5489     D. Hladky   Initial release
  * 07/31/12     578      D.Hladky    finished it
- * 
+ * 09/27/12		DR 15471  G.Zhang	 Fixed ConcurrentModificationException
  * </pre>
  * 
  * @author dhladky
@@ -54,8 +54,10 @@ public class FFMPDataContainer {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataContainer.class);
 
-    private HashMap<String, FFMPBasinData> basinDataMap = new HashMap<String, FFMPBasinData>();
-
+    private java.util.concurrent.ConcurrentHashMap<String, FFMPBasinData> basinDataMap 
+    			= new java.util.concurrent.ConcurrentHashMap<String, FFMPBasinData>();//DR 15471
+    //private HashMap<String, FFMPBasinData> basinDataMap = new HashMap<String, FFMPBasinData>();
+    
     private String sourceName = null;
 
     private String filePath = null;

@@ -91,12 +91,16 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
     protected IContributionItem[] getContributionItems() {
         MenuManager menuMgr = new MenuManager("SaveAs", "FileSaveAs");
         final boolean enabled;
+        final LocalizationLevel protectedLevel;
         final IEditorPart active = EditorUtil.getActiveEditor();
         if (active != null
                 && active.getEditorInput() instanceof LocalizationEditorInput) {
             enabled = active.isDirty();
+            protectedLevel = ((LocalizationEditorInput) active.getEditorInput())
+                    .getLocalizationFile().getProtectedLevel();
         } else {
             enabled = false;
+            protectedLevel = null;
         }
 
         LocalizationLevel[] levels = PathManagerFactory.getPathManager()
@@ -119,7 +123,9 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
 
                     @Override
                     public boolean isEnabled() {
-                        return enabled;
+                        return enabled
+                                && (protectedLevel == null || level
+                                        .compareTo(protectedLevel) <= 0);
                     }
 
                 });
