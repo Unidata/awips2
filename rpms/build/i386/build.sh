@@ -205,6 +205,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
 
+   buildRPM "awips2"
    buildRPM "awips2-adapt-native"
    buildRPM "awips2-aviation-shared"
    buildRPM "awips2-cli"
@@ -221,7 +222,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-notification"
    buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
-   buildRPM "awips2"
    buildRPM "awips2-rcm"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then

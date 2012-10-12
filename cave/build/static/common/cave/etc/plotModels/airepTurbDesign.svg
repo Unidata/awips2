@@ -43,8 +43,9 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 ]]>
 </style>
 <symbol overflow="visible" id="plotData" class="info">
-  <text id="turbInensity" plotMode="table" class="weather" plotLookupTable="airep_turb_intens_trans.txt" plotParam="FLT_HZD" x="0" y="0">0</text>
-  <text id="fltLvlText" plotMode="text" plotParam="FLT_LVL" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
+  <text id="airepturbIntensity" plotMode="table" class="weather" plotLookupTable="turb_intens_trans.txt" plotParam="TBI" x="0" y="0">0</text>
+  <text id="airepturbFreq" plotMode="table" class="weather" plotLookupTable="turb_freq_trans.txt" plotParam="TBF" style="text-anchor: end" x="0" y="-10">0</text>
+  <text id="airepfltLvlText" plotMode="text" plotParam="FLT_LVL" plotFormat="%3.0f" plotUnit="hft" style="text-anchor: end;" x="-15px" y="0px">75</text>
 </symbol>
 
 </defs>

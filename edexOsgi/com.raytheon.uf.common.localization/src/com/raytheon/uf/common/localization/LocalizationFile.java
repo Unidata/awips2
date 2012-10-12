@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.localization.ILocalizationAdapter.ListResponse;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -113,7 +114,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
     private final String path;
 
     /** Protection flag of file, if file cannot be overridden, it is protected */
-    private boolean isProtected;
+    private LocalizationLevel protectedLevel;
 
     /** File changed observers */
     private Set<ILocalizationFileObserver> observers = new HashSet<ILocalizationFileObserver>();
@@ -142,7 +143,8 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
 
     LocalizationFile(ILocalizationAdapter adapter, LocalizationContext context,
             File file, Date date, String path, String checkSum,
-            boolean isDirectory, boolean existsOnServer, boolean isProtected) {
+            boolean isDirectory, boolean existsOnServer,
+            LocalizationLevel protectedLevel) {
         this.adapter = adapter;
         this.context = context;
         this.file = file;
@@ -151,7 +153,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
         this.isAvailableOnServer = existsOnServer;
         this.isDirectory = isDirectory;
         this.path = LocalizationUtil.getSplitUnique(path);
-        this.isProtected = isProtected;
+        this.protectedLevel = protectedLevel;
         LocalizationNotificationObserver.getInstance().addObservedFile(this);
     }
 
@@ -167,7 +169,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
             this.fileTimestamp = metadata.date;
             this.fileCheckSum = metadata.checkSum;
             this.isDirectory = metadata.isDirectory;
-            this.isProtected = metadata.isProtected;
+            this.protectedLevel = metadata.protectedLevel;
         }
     }
 
@@ -406,7 +408,16 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return true if file is protected and cannot be overridden
      */
     public boolean isProtected() {
-        return isProtected;
+        return protectedLevel != null;
+    }
+
+    /**
+     * Gets the level the file is protected at, null otherwise
+     * 
+     * @return
+     */
+    public LocalizationLevel getProtectedLevel() {
+        return protectedLevel;
     }
 
     /**
@@ -415,11 +426,6 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @throws LocalizationOpFailedException
      */
     public boolean save() throws LocalizationOpFailedException {
-        if (isProtected) {
-            throw new UnsupportedOperationException(
-                    "Saving of protected files is unsupported");
-        }
-
         String checksum = "";
         try {
             checksum = Checksum.getMD5Checksum(file);

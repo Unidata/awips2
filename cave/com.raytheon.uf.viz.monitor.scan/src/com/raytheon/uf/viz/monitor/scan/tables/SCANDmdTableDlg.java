@@ -514,8 +514,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 alarmsDlg.open();
                 if (!alarmBtn.isDisposed()
                         && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-                    alarmBtn.setVisible(false);
-                    mgr.setRing(false);
+                	turnOffAlarm();
                 }
             }
         });
@@ -1299,4 +1298,19 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         dmdTableComp.alarmSelection(ident);
 
     }
+    
+    public void turnOffAlarm() {
+    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
+    		alarmBtn.setVisible(false);
+    	}
+        mgr.setRing(false);
+	}
+
+    public void turnOnAlarm() {
+    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
+    		alarmBtn.setVisible(true);
+    	}
+        mgr.setRing(true);
+	}
+
 }

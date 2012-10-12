@@ -659,25 +659,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         }
     }
 
-    // Don't do anything. D2D calls this method (for their TimeMatcher) in
-    // AbstractRequestableResource
-    //
-    @Override
-    public void setTimeList(DataTime[] dataTimes,
-            AbstractVizResource<?, ?> rsc, IDescriptor descriptor) {
-
-        // can leave this out here and have it done with all other rscs in their
-        // init()
-        // ((AbstractDescriptor) descriptor).getTimeMatchingMap().put(rsc,
-        // dataTimes);
-
-        // set the frame times and the frame index on the descriptor.
-        descriptor.setDataTimes(dataTimes);
-        descriptor.setFrame(dataTimes.length - 1);
-
-        // frameTimes = new ArrayList<DataTime>( Arrays.asList( dataTimes ) );
-    }
-
     // This is called by raytheon's NcAutoUpdater
 
     // Assume that the frameTimes have been changed. We will need to update the
