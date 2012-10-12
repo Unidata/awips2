@@ -53,7 +53,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 28, 2011            mpduff     Initial creation
+ * Jan 28, 2011            mpduff      Initial creation.
+ * Sep 11, 2012  1162      mpduff      Made mergeMetaDataMap method public.
  * 
  * </pre>
  * 
@@ -117,7 +118,7 @@ public class VizGroupResourceData extends AbstractRequestableResourceData
         return resource;
     }
 
-    private void mergeMetadataMap() {
+    public void mergeMetadataMap() {
         if ((this.metadataMap == null) || this.metadataMap.isEmpty()) {
             this.metadataMap = new HashMap<String, RequestConstraint>();
 
