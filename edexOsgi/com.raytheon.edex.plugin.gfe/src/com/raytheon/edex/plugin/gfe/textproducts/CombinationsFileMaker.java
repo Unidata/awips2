@@ -108,7 +108,7 @@ public class CombinationsFileMaker {
 
         String definitionDir = pathMgr
                 .getLocalizationFile(caveStaticConfig,
-                        GfePyIncludeUtil.TEXT_PRODUCTS).getFile().getPath();
+                        GfePyIncludeUtil.REGULAR).getFile().getPath();
         File outputDirFile = pathMgr.getLocalizationFile(caveStaticConfig,
                 FileUtil.join("gfe", "combinations")).getFile();
         outputDirFile.mkdir();
