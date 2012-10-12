@@ -219,6 +219,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 09OCT2012    1229        rferrel     Changes for non-blocking QcDialog.
  * 09OCT2012    1229        rferrel     Changes for non-blocking SendDialog.
  * 11OCT2012    1229        rferrel     Converted to a subclass of CaveSWTDialog and
+ * 12OCT2012    1229        rferrel     Changes for non-blocking FindReplaceDlg.
  *                                       made non-blocking.
  * 
  * </pre>
@@ -449,6 +450,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
      * Set to true is Python Syntax checker modified the TAF otherwise false.
      */
     private boolean pythonModifiedTAF = false;
+
+    private FindReplaceDlg findDlg;
 
     /**
      * TAF editor enumeration
@@ -1261,9 +1264,13 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         findMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FindReplaceDlg findDlg = new FindReplaceDlg(shell,
-                        editorTafTabComp.getTextEditorControl());
-                findDlg.open();
+                if (mustCreate(findDlg)) {
+                    findDlg = new FindReplaceDlg(shell, editorTafTabComp
+                            .getTextEditorControl());
+                    findDlg.open();
+                } else {
+                    findDlg.bringToTop();
+                }
             }
         });
 
