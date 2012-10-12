@@ -242,20 +242,20 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     q.setString("dataURI", rec.getDataURI());
                     List<?> list = q.list();
-                    if (list == null || list.size() == 0) {
+                    if ((list == null) || (list.size() == 0)) {
                         sess.save(rec);
                     } else {
                         rec.setId(((Number) list.get(0)).intValue());
                         sess.update(rec);
                     }
-                    if (index % batchSize == 0 || persistIndividually
+                    if ((index % batchSize == 0) || persistIndividually
                             || !notDone) {
                         sess.flush();
                         sess.clear();
                         tx.commit();
                         tx = null;
                         commitPoint = index;
-                        if (persistIndividually && index % batchSize == 0) {
+                        if (persistIndividually && (index % batchSize == 0)) {
                             // batch persisted individually switch back to batch
                             persistIndividually = false;
                         }
@@ -424,26 +424,28 @@ public class GFEDao extends DefaultPluginDao {
             }
         });
 
-        File hdf5File = GfeUtil.getHDF5File(GridDatabase.gfeBaseDataDir,
-                parmId.getDbId());
-        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
-        String[] groupsToDelete = new String[times.size()];
-        for (int i = 0; i < times.size(); i++) {
-            groupsToDelete[i] = GfeUtil.getHDF5Group(parmId, times.get(i));
-        }
-        try {
-            for (String grp : groupsToDelete) {
-                dataStore.delete(grp);
+        // we gain nothing by removing from hdf5
+        Map<File, String[]> fileMap = GfeUtil.getHdf5FilesAndGroups(
+                GridDatabase.gfeBaseDataDir, parmId, times);
+        for (Map.Entry<File, String[]> entry : fileMap.entrySet()) {
+            File hdf5File = entry.getKey();
+            IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+
+            try {
+                String[] groupsToDelete = entry.getValue();
+                for (String grp : groupsToDelete) {
+                    dataStore.delete(grp);
+                }
+
+                statusHandler.handle(Priority.DEBUG,
+                        "Deleted: " + Arrays.toString(groupsToDelete)
+                                + " from " + hdf5File.getName());
+
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error deleting hdf5 records", e);
             }
-            statusHandler.handle(Priority.DEBUG,
-                    "Deleted: " + Arrays.toString(groupsToDelete) + " from "
-                            + hdf5File.getName());
-
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error deleting hdf5 records", e);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -759,13 +761,13 @@ public class GFEDao extends DefaultPluginDao {
                 int lowestHr = -1;
                 for (GribModel m : (List<GribModel>) results) {
                     String param = m.getParameterAbbreviation().toLowerCase();
-                    if (param.equals(abbreviation) && lowestHr < 0) {
+                    if (param.equals(abbreviation) && (lowestHr < 0)) {
                         model = m;
                     } else {
                         Matcher matcher = p.matcher(param);
                         if (matcher.matches()) {
                             int hr = Integer.parseInt(matcher.group(1));
-                            if (lowestHr < 0 || hr < lowestHr) {
+                            if ((lowestHr < 0) || (hr < lowestHr)) {
                                 model = m;
                                 lowestHr = hr;
                             }
@@ -1004,17 +1006,17 @@ public class GFEDao extends DefaultPluginDao {
      *            The parm and level to delete
      * @param dbId
      *            The database to delete from
-     * @param ds
-     *            The data store file
      * @throws DataAccessLayerException
      *             If errors occur
      */
-    public void removeOldParm(String parmAndLevel, DatabaseID dbId,
-            IDataStore ds) throws DataAccessLayerException {
+    public void removeOldParm(String parmAndLevel, DatabaseID dbId)
+            throws DataAccessLayerException {
 
         ParmID pid = new ParmID(parmAndLevel + ":" + dbId.toString());
 
         try {
+            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
+                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
             ds.delete("/GridParmInfo/" + parmAndLevel);
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",
