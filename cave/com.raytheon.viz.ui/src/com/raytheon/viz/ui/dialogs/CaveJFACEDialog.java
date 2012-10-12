@@ -20,6 +20,8 @@
 
 package com.raytheon.viz.ui.dialogs;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -47,6 +49,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ----------	----------	-----------	--------------------------
  * 12/20/07     561         Dan Fitch    Initial Creation.
  * 04/22/08     1088        chammack     Added dialog event propagation fix
+ * 09/13/12     1165        lvenable     Update for the initial process
+ *                                       of removing the dialog blocking capability.
+ * 
  * </pre>
  * 
  * @author Dan Fitch
@@ -55,9 +60,17 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 public class CaveJFACEDialog extends Dialog implements
         IPerspectiveSpecificDialog {
 
+    /** Dialog last location on the screen. */
     protected Point lastLocation;
 
+    /** Flag indicating of the dialog was visible. */
     private boolean wasVisible = true;
+
+    /** Callback called when the dialog is disposed. */
+    private ICloseCallback closeCallback = null;
+
+    /** Flag indicating if the dialog was blocked when opened. */
+    private boolean blockedOnOpen = false;
 
     /**
      * 
@@ -111,6 +124,8 @@ public class CaveJFACEDialog extends Dialog implements
                 if (mgr != null) {
                     mgr.removePespectiveDialog(CaveJFACEDialog.this);
                 }
+
+                callCloseCallback();
             }
 
         });
@@ -164,5 +179,72 @@ public class CaveJFACEDialog extends Dialog implements
             shell.setVisible(wasVisible);
             shell.setLocation(lastLocation);
         }
+    }
+
+    /**
+     * Call the callback method as this dialog has been disposed.
+     */
+    private void callCloseCallback() {
+        if (closeCallback != null) {
+            closeCallback.dialogClosed(new Integer(getReturnCode()));
+        }
+    }
+
+    /**
+     * Returns whether the dialog has been opened yet or not
+     * 
+     * @return True if the dialog was opened, false otherwise.
+     */
+    public final boolean isOpen() {
+        return (getShell() != null && !getShell().isDisposed());
+    }
+
+    /**
+     * Add a callback to the dialog. This callback will be called when the
+     * dialog is disposed.
+     * 
+     * @param callback
+     *            Callback to be called when the dialog is disposed.
+     */
+    public void setCloseCallback(ICloseCallback callback) {
+
+        /*
+         * Since JFACE allows you to call setBlockOnOpen() after the
+         * constructor, if the open() method is called before setBlockOnOpen
+         * then the block is ignored. Here we are checking if the block was set
+         * and if the dialog is already open because that makes the callback
+         * pointless.
+         */
+        if (blockedOnOpen && isOpen()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("The method setBlockOnOpen() was called and set to true.  The callback method ");
+            sb.append("will not run correctly as the dialog has been opened and blocked before this ");
+            sb.append("method was called.");
+            throw new RejectedExecutionException(sb.toString());
+        }
+
+        this.closeCallback = callback;
+    }
+
+    /**
+     * This method overrides the existing setBlockOnOpen() method. This will
+     * eventually be a catch method that will prevent blocking the dialog on
+     * open. At this time it serves as a placeholder for upcoming work.
+     * 
+     * @param blockOnOpen
+     *            Flag indicating if the dialog should block when opened.
+     */
+    public void setBlockOnOpen(boolean blockOnOpen) {
+        /*
+         * If the dialog is already opened then just return because setting the
+         * block won't work. In JFACE the setBlockOnOpen needs to be set before
+         * the open() call, otherwise it is ignored.
+         */
+        if (isOpen()) {
+            return;
+        }
+
+        super.setBlockOnOpen(blockOnOpen);
+        blockedOnOpen = blockOnOpen;
     }
 }
