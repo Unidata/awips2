@@ -61,7 +61,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 14, 2012            randerso     Initial creation
+ * May 14, 2012            randerso    Initial creation
+ * Oct 10  2012     #1260  randerso    Added check for domain not overlapping the dataset
  * 
  * </pre>
  * 
@@ -165,7 +166,8 @@ public class NetCDFGridDatabase extends VGridDatabase {
 
     private RemapGrid remap;
 
-    public NetCDFGridDatabase(IFPServerConfig config, NetCDFFile file) {
+    public NetCDFGridDatabase(IFPServerConfig config, NetCDFFile file)
+            throws GfeException {
         super(config);
         this.valid = true;
         this.file = file;
@@ -197,8 +199,16 @@ public class NetCDFGridDatabase extends VGridDatabase {
         if (this.valid) {
             this.subdomain = NetCDFUtils.getSubGridDims(this.inputGloc,
                     this.outputGloc);
-            this.remap = new RemapGrid(NetCDFUtils.subGridGL(this.inputGloc,
-                    this.subdomain), this.outputGloc);
+
+            if (this.subdomain.isEmpty()) {
+                valid = false;
+                throw new GfeException("Unable to create " + this.dbId
+                        + ". GFE domain does not overlap dataset domain.");
+            }
+
+            this.remap = new RemapGrid(NetCDFUtils.subGridGL(
+                    this.dbId.toString(), this.inputGloc, this.subdomain),
+                    this.outputGloc);
             loadParms();
         }
     }
