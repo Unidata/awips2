@@ -38,6 +38,7 @@ from com.raytheon.edex.plugin.gfe.reference import DbShapeSource
 class ShapeTable(JUtil.JavaWrapperClass):
     def __init__(self, identifier):
         self.identifier = identifier
+        self.name = None
         self.editAreaName = None
         self.groupName = None
         self.javaObj = DbShapeSource(identifier)
@@ -63,6 +64,7 @@ class ShapeTable(JUtil.JavaWrapperClass):
         return ""
 
     def toJavaObj(self):
+        self.javaObj.setDisplayName(self.name)
         self.javaObj.setGroupName(self.groupName)
         if self.editAreaName is not None:
             self.javaObj.setHasEditAreaName(True);
