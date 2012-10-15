@@ -37,6 +37,7 @@ import org.apache.commons.lang.ArrayUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 3, 2011            jsanchez     Initial creation
+ * Sep 25, 2012 15425     Qinglu Lin   Implemented sorting on 'gid' in ascending order.
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class ClosestPointComparator implements Comparator<ClosestPoint> {
 
     private enum Sort {
-        NAME, POPULATION, DISTANCE, LEVEL, LAT, LON, AREA, PARENT_AREA
+        NAME, POPULATION, DISTANCE, LEVEL, LAT, LON, AREA, PARENT_AREA, GID
     }
 
     private ArrayList<Sort> list;
@@ -79,7 +80,9 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
             } else if (field.equalsIgnoreCase("area")) {
                 list.add(Sort.AREA);
             } else if (field.equalsIgnoreCase("parentArea")) {
-                list.add(Sort.PARENT_AREA);
+            	list.add(Sort.PARENT_AREA);
+            }	else if (field.equalsIgnoreCase("gid")) {
+            	list.add(Sort.GID);
             }
         }
     }
@@ -146,6 +149,10 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         case DISTANCE:
             value = new Integer(cp1.roundedDistance)
                     .compareTo(cp2.roundedDistance);
+            break;
+        case GID:
+            value = new Integer(cp1.gid)
+                    .compareTo(cp2.gid);
             break;
         }
 
