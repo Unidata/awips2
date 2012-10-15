@@ -86,6 +86,8 @@ import com.raytheon.uf.edex.wmo.message.AFOSProductId;
  * 28Jul2010    2187        cjeanbap    Fixed class exception in cccnnnxxxReadVersion.
  * 05Oct2010                cjeanbap    Fixed a bug introduced on #2187; return distinct rows.
  * 23May2012    14952       rferrel     Added cccnnnxxxByRefTime.
+ * 03Oct2012	15244		mgamazaychikov	Added the fix to query the appropriate table
+ * 											(operational or practice)
  * </pre>
  * 
  * @author garmendariz
@@ -133,7 +135,7 @@ public class StdTextProductDao extends CoreDao {
 
     private static final String TM_QUERY_FMT = "select refTime from table_name where cccid='%s' and nnnid='%s' and xxxid='%s';";
 
-    private static final String AFOS_QUERY_STMT = "from StdTextProduct prod where "
+    private static final String AFOS_QUERY_STMT = "from StdTextProduct where "
             + ProdCCC_ID
             + " = :"
             + CCC_ID
@@ -309,7 +311,15 @@ public class StdTextProductDao extends CoreDao {
             }
 
             tx = session.beginTransaction();
-            Query query = session.createQuery(AFOS_QUERY_STMT);
+            /*
+             * DR15244 - Make sure that the query is performed on the appropriate
+             * table based on what StdTextProduct is requested (ultimately on CAVE mode)
+             */
+            Matcher m = Pattern.compile("StdTextProduct").matcher(AFOS_QUERY_STMT);
+            String tableName = stdTextProduct.getClass().getSimpleName();
+            String tableQuery = m.replaceAll(tableName);
+            Query query = session.createQuery(tableQuery);
+            
 
             if (version >= 0) {
                 query.setMaxResults(version + 1);

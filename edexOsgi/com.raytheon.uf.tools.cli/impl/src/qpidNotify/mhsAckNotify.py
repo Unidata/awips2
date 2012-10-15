@@ -6,12 +6,15 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/06/2012      10388         D. Friedman    Initial version
+#    10/09/12        DR 13901      D. Friedman    Limit execution time
 ##############################################################################
 
 import getopt
 import os
 import os.path
 import sys
+
+from lib.Util import doWithinTime
 
 import qpid
 from qpid.util import connect
@@ -31,6 +34,26 @@ def remove_file(*parts):
     path = os.path.join(*parts)
     if os.path.exists(path):
         os.remove(path)
+
+def get_qpid_connection(broker_addr):
+    try:
+        socket = connect(broker_addr, 5672)
+        connection = Connection (sock=socket)
+        connection.start()
+        return connection
+    except:
+        sys.stderr.write("mhsAckNotify: connect to %s: %s\n" % (broker_addr, sys.exc_info()[1],))
+        return None
+
+def send_message(connection, notif):
+    session = connection.session(str(uuid4()))
+    
+    props = session.delivery_properties(routing_key=TOPIC_NAME)
+    head = session.message_properties(application_headers={'sender':notif.sender,
+                                                                'response':notif.response})
+    session.message_transfer(destination=DESTINATION, message=Message(props, head, notif.messageId))
+    session.close(timeout=10)
+    connection.close()
 
 def run():
     mhs_data_dir = os.getenv('MHS_DATA', '/data/fxa/mhs')
@@ -60,32 +83,19 @@ def run():
             except:
                 sys.stderr.write("mhsAckNotify: error removing MHS file: %s\n" % (sys.exc_info()[1],))
 
-        try:
-            # TODO: Should have BROKER_ADDR in CLI setup.env.
-            broker_addr = os.getenv('BROKER_ADDR')
-            if broker_addr is None:
-                broker_addr = os.getenv('DEFAULT_HOST') 
-                if broker_addr == 'ec':
-                    broker_addr = 'cp1f'
-            if broker_addr is None:
-                broker_addr = 'localhost'
+        # TODO: Should have BROKER_ADDR in CLI setup.env.
+        broker_addr = os.getenv('BROKER_ADDR')
+        if broker_addr is None:
+            broker_addr = os.getenv('DEFAULT_HOST') 
+            if broker_addr == 'ec':
+                broker_addr = 'cp1f'
+        if broker_addr is None:
+            broker_addr = 'localhost'
 
-            socket = connect(broker_addr, 5672)
-        except:
-            sys.stderr.write("mhsAckNotify: connect to %s: %s\n" % (broker_addr, sys.exc_info()[1],))
-            return 1
-        
         try:
-            connection = Connection (sock=socket)
-            connection.start()
-            session = connection.session(str(uuid4()))
-            
-            props = session.delivery_properties(routing_key=TOPIC_NAME)
-            head = session.message_properties(application_headers={'sender':notif.sender,
-                                                                        'response':notif.response})
-            session.message_transfer(destination=DESTINATION, message=Message(props, head, notif.messageId))
-            session.close(timeout=10)
-            connection.close()
+            connection = doWithinTime(get_qpid_connection, args=(broker_addr,))
+            if connection:
+                doWithinTime(send_message, max_tries=1, args=(connection, notif))
         except:
             sys.stderr.write("mhsAckNotify: error sending message: %s\n" % (sys.exc_info()[1],))
             return 1
