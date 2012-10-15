@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Point;
  * 12 Oct 2012  1229       rferrel     Now a subclass of CaveSWTDialog
  *                                      and made non-blocking.
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -91,13 +92,13 @@ import com.vividsolutions.jts.geom.Point;
  * 
  */
 public class TafSiteInfoEditorDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafSiteInfoEditorDlg.class);
 
     /**
      * A site's template hours.
      */
-    private final static String[] START_HOURS = { "00", "06", "12", "18" };
+    private final String[] START_HOURS = { "00", "06", "12", "18" };
 
     /**
      * Composite containing message status controls.
@@ -239,7 +240,9 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     /**
      * Possible to have a different dialog for each issue time.
      */
-    Map<String, TextEditorSetupDlg> editorDlgMap;
+    private Map<String, TextEditorSetupDlg> editorDlgMap;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -480,11 +483,16 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Site Info Editor Help";
-                String helpText = "This dialog is used to define TAF site information.\n\nTo add a new site, enter site id and press \"Update\". Edit\ndisplayed entries and press \"Save\". Create default template\nfiles.\n\nTo change an existing TAF site attribute, enter site id and\npress the \"Load\" button.\n\nTo create template files, press \"Make\" in the \"Templates\"\narea.\n\nTo edit template file, select issue hour, then press \"Edit\"\nin the \"Templates\" area.\n\nYou can use \"Update\" button to extract information from\nAWIPS configuration files. Only non-empty fields will be\noverwritten.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Site Info Editor Help";
+
+                    String helpText = "This dialog is used to define TAF site information.\n\nTo add a new site, enter site id and press \"Update\". Edit\ndisplayed entries and press \"Save\". Create default template\nfiles.\n\nTo change an existing TAF site attribute, enter site id and\npress the \"Load\" button.\n\nTo create template files, press \"Make\" in the \"Templates\"\narea.\n\nTo edit template file, select issue hour, then press \"Edit\"\nin the \"Templates\" area.\n\nYou can use \"Update\" button to extract information from\nAWIPS configuration files. Only non-empty fields will be\noverwritten.";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
