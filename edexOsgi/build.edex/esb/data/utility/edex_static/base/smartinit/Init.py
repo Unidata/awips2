@@ -24,7 +24,7 @@
 #    02/16/12        14439         jdynina        modified haines thresholds
 #    02/16/12        13917         jdynina        merged in changes from TRAC ticket 11391
 #    07/25/12        #957          dgilling       implement edit areas as args to calc methods.
-#    
+#    10/5/12         15158         ryu            add Forecaster.getDb()
 # 
 ##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
@@ -582,11 +582,16 @@ class Forecaster(GridUtilities):
         self._client.sendUserMessage(msg, "SMARTINIT")
 
     #--------------------------------------------------------------------------
+    # Returns the IFPDB object for the given db
+    #--------------------------------------------------------------------------
+    def getDb(self, dbString):
+        from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
+        return IFPDB(dbString)
+
+    #--------------------------------------------------------------------------
     # Returns the source and destination databases, given the srcName.
     #--------------------------------------------------------------------------
     def _getLatest(self, client, srcNames, fcstName=None):
-        from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
-
         # ryu: Added/modified code to allow multiple sources. The srcdb is
         # now an MDB. This is needed for (AK)NAM40 init, which sources
         # from both NAM40 and NAM20.
@@ -600,7 +605,7 @@ class Forecaster(GridUtilities):
         for src in srcNames:
             # source model at same model time
             fullDBName = self.__dbName.replace(modelName, src)
-            db = IFPDB(fullDBName)
+            db = self.getDb(fullDBName)
             if db.getKeys().size() == 0:
                 LogStream.logEvent("Source database " + fullDBName + \
                                    " is empty.")
@@ -633,7 +638,7 @@ class Forecaster(GridUtilities):
         else:
             client.createDB(newdb)
 
-        newdb = IFPDB(newdb)    
+        newdb = self.getDb(newdb)    
 
         return srcdb, newdb
 

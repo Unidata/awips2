@@ -97,6 +97,8 @@ import com.vividsolutions.jts.geom.Point;
  *                                        that loops over availablePoints.
  *    May 21, 2012 DR14480    Qinglu Lin  Added code to prevent duplicate cities
  *                                        in pathcast.
+ *    Oct 05, 2012 DR15429    Qinglu Lin  Updated code to keep duplicate names of cities
+ *                                        which are at different locations in pathcast.
  * 
  * </pre>
  * 
@@ -530,7 +532,7 @@ public class Wx {
             // with first pathcast and goes through each point within maxCount,
             // check for same point in other pathcast objects. If same point
             // exists, remove from which ever pathcast is furthest away
-            Set<String> closestPtNames = new HashSet<String>(30);
+            Set<Coordinate> closestPtCoords = new HashSet<Coordinate>(30);
             List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(maxCount);
             Queue<PathCast> tmp = new ArrayDeque<PathCast>(pathcasts);
             while (tmp.isEmpty() == false) {
@@ -562,12 +564,12 @@ public class Wx {
                 tmpPoints.clear();
                 for (int i = 0; i < points.size() && i < maxCount; ++i) {
                     ClosestPoint point = points.get(i);
-                    String name = point.getName();
-                    if (!closestPtNames.contains(name)) {
+                    Coordinate coord = point.getPoint();
+                    if (!closestPtCoords.contains(coord)) {
                         // To prevent duplicate cities in pathcast,
                         // only unused point is added to tmpPoints
                         tmpPoints.add(point);
-                        closestPtNames.add(name);
+                        closestPtCoords.add(coord);
                     }
                 }
                 if (tmpPoints.size() > 0) {
