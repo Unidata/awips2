@@ -48,7 +48,7 @@ import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
  * 
  * SOFTWARE HISTORY Date Ticket# Engineer Description ------------ ----------
  * ----------- -------------------------- Jun 10, 2010 mschenke Initial creation
- * 
+ * OCT 09, 2012 15018      kshresth    
  * </pre>
  * 
  * @author mschenke
@@ -408,6 +408,12 @@ public class RadarRadialMesh extends AbstractGLMesh {
         if (jStart == null) {
             jStart = 0;
         }
+        
+      //check if numBins and numRadials equals to zero, then angleData does not exist
+		if (numBins == 0 && numRadials == 0 ) {		
+			return null;
+		}
+		
         float[] angleData = radarData.getAngleData();
         CacheKey key = new CacheKey(latitude, longitude, numBins, numRadials,
                 gateResolution, trueElevationAngle, jStart, angleData,
