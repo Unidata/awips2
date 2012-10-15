@@ -24,6 +24,16 @@ import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.vividsolutions.jts.geom.Geometry;
 
+/**
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * pre-history
+ * Sep 25, 2012 #15425     Qinglu Lin  Added getGid().
+ * 
+ */
 abstract public class AbstractDbSourceDataAdaptor {
 
     protected Set<String> sortFields = new HashSet<String>(
@@ -158,6 +168,22 @@ abstract public class AbstractDbSourceDataAdaptor {
         }
 
         return warngenlev;
+    }
+
+    protected int getGid(Set<String> ptFields,
+            Map<String, Object> attributes) {
+        int gid = 0;
+
+        if (ptFields.contains("gid")) {
+            try {
+                gid = Integer.valueOf(String.valueOf(attributes
+                        .get("gid")));
+            } catch (Exception e) {
+                // Ignore 
+            }
+        }
+
+        return gid;
     }
 
 }
