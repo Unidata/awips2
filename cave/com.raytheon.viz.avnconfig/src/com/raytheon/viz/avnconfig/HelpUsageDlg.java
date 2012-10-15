@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
+ * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class HelpUsageDlg extends CaveSWTDialog {
      */
     public HelpUsageDlg(Shell parent, String helpDesc, String helpText) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Help");
 
         this.helpDesc = helpDesc;
