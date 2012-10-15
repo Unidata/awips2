@@ -22,6 +22,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -206,13 +207,15 @@ public class PointIn {// extends ScriptTask {
         // arbitrary list of IPersistable could be in any number of data stores
         Map<IDataStore, List<IPersistable>> dataStoreMap = dao
                 .getDataStoreMap(objList);
-        int rvalIndex = 0;
+
         int totalRec = 0;
 
         try {
-            // list for data records retrieved
-            List<IDataRecord> dataRecords = new ArrayList<IDataRecord>(
-                    objects.length);
+            // map of IPersistable to its IDataRecord. Since objects not
+            // guaranteed to be in file order have to recreate order after
+            // retrievals done
+            Map<IPersistable, IDataRecord> dataRecords = new HashMap<IPersistable, IDataRecord>(
+                    (int) (objects.length * 1.25) + 1);
 
             for (Map.Entry<IDataStore, List<IPersistable>> entry : dataStoreMap
                     .entrySet()) {
@@ -229,8 +232,13 @@ public class PointIn {// extends ScriptTask {
                 // retrieve data from this data store
                 IDataRecord[] records = dataStore.retrieveGroups(groups,
                         pointRequest);
-                for (IDataRecord rec : records) {
-                    dataRecords.add(rec);
+                int index = 0;
+                for (IPersistable persist : persistList) {
+                    if (index < records.length) {
+                        dataRecords.put(persist, records[index++]);
+                    } else {
+                        break;
+                    }
                 }
             }
 
@@ -240,16 +248,19 @@ public class PointIn {// extends ScriptTask {
                 }
 
                 int recordIndex = 0;
-                for (IDataRecord record : dataRecords) {
-                    float[] data = (float[]) record.getDataObject();
-                    // note; data.length should be the same as points.size()
-                    // if(k==0)
-                    // System.out.println("data[] szie="+data.length+
-                    // " parameter group size="+dr.length);
-                    totalRec += data.length;
-                    for (int pointIndex = 0; pointIndex < data.length; pointIndex++) {
-                        float[] pData = rval.get(pointIndex);
-                        pData[recordIndex] = data[pointIndex];
+                for (IPersistable persist : objList) {
+                    IDataRecord record = dataRecords.get(persist);
+                    if (record != null) {
+                        float[] data = (float[]) record.getDataObject();
+                        // note; data.length should be the same as points.size()
+                        // if(k==0)
+                        // System.out.println("data[] szie="+data.length+
+                        // " parameter group size="+dr.length);
+                        totalRec += data.length;
+                        for (int pointIndex = 0; pointIndex < data.length; pointIndex++) {
+                            float[] pData = rval.get(pointIndex);
+                            pData[recordIndex++] = data[pointIndex];
+                        }
                     }
                 }
                 System.out.println("total points = " + points.size()
