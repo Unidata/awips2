@@ -43,7 +43,10 @@ import com.raytheon.viz.hydrocommon.data.LocationData;
  * Sep 09, 2009 2769       mpduff      Added copyTableData method and the calls
  *                                     to it for copying data from one table to another.
  * Oct 20, 2011 11266	   lbousaidi   added getHSAsForFilter() method to query from 
- * 									   location table instead of hsa table. 
+ * 									   location table instead of hsa table.
+ * Oct 05, 2011 15333      lbousaidi   changed the queries that retrieves the HSAs from 
+ * 									   the database.
+ *
  * </pre>
  * 
  * @author askripsky
@@ -170,15 +173,14 @@ public class AddModifyLocationDataManager extends HydroDataManager {
     public ArrayList<String> getHSAs() throws VizException {
         ArrayList<String> rval = new ArrayList<String>();
 
-        String query = "Select hsa from hsa order by hsa";
-
+       String query= "SELECT DISTINCT upper(hsa) from hsa order by upper (hsa)";
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);
 
         if (data != null) {
             for (QueryResultRow currNet : data.getRows()) {
                 rval.add((String) currNet.getColumn(data.getColumnNames().get(
-                        "hsa")));
+                        "upper")));
             }
         }
 
@@ -217,16 +219,16 @@ public class AddModifyLocationDataManager extends HydroDataManager {
      */
     public ArrayList<String> getWFOs() throws VizException {
         ArrayList<String> rval = new ArrayList<String>();
-
-        String query = "Select wfo from wfo order by wfo";
-
+        
+        String query= "SELECT DISTINCT upper(wfo) from wfo order by upper (wfo)";
+        
         QueryResult data = HydroDBDataManager.getInstance().runMappedQuery(
                 query);
 
         if (data != null) {
             for (QueryResultRow currNet : data.getRows()) {
                 rval.add((String) currNet.getColumn(data.getColumnNames().get(
-                        "wfo")));
+                        "upper")));
             }
         }
 
