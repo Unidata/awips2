@@ -5,7 +5,9 @@
      Modified by Phil Kurimski 09-23-2011 for burn scars and mud slides
      Modified by Mike Dangelo 01-25-2012 at CRH TIM 
      Modified by Mike Dangelo 02-23-2012
-                 Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
+                 Qinglu Lin   04-04-2012 DR 14691. Added <feAreaField> tag.
+                 Qinglu Lin   10-03-2012 DR 15426. Added <lockedGroupsOnFollowup> tag,
+                              inserted bulletGroup="ic" after bulletText="Also snow melt".                          
 -->
 
 <warngenConfig>
@@ -63,6 +65,7 @@
   <duration>480</duration>
  </durations>
  
+<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup> 
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>
@@ -115,7 +118,7 @@
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -163,7 +166,7 @@
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
