@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     & disabled site controls while drawing
  * 04OCT2012    1229       rferrel     Changes for non-blocking WindRoseConfigDlg.
  * 08OCT2012    1229       rferrel     Made non-blocking.
+ * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -187,6 +188,8 @@ public class WindRosePlotDlg extends CaveSWTDialog {
     private RGB statusCompRGB;
 
     private WindRoseConfigDlg configDlg;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -377,11 +380,15 @@ public class WindRosePlotDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Wind Rose Display Help";
-                String helpText = "This application displays wind rose for selected month and hour,\nor range of hours. \n\nTime selection\n    Month - selects month.\n    Num Months - select number of months of data to display\n    Hour - selects hour. \n    Num Hours - selects number of hours of data to display\n\nFlight Cat\n    This option menu restricts the search to flight category\n    conditions at or below the selected value. \"All\" means no\n    restrictions.\n\nIf Auto Redraw is selected, changing month, hour, or number of hours\nfields will cause the wind rose to be redrawn for any valid value in\nthese fields.\n\nUse the\"Draw\" button to display wind rose after selecting new site,\nor flight category.\n\nThe displayed image can be printed or stored in a graphic file.\nUse the options under the \"File\" menu for that purpose.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Wind Rose Display Help";
+
+                    String helpText = "This application displays wind rose for selected month and hour,\nor range of hours. \n\nTime selection\n    Month - selects month.\n    Num Months - select number of months of data to display\n    Hour - selects hour. \n    Num Hours - selects number of hours of data to display\n\nFlight Cat\n    This option menu restricts the search to flight category\n    conditions at or below the selected value. \"All\" means no\n    restrictions.\n\nIf Auto Redraw is selected, changing month, hour, or number of hours\nfields will cause the wind rose to be redrawn for any valid value in\nthese fields.\n\nUse the\"Draw\" button to display wind rose after selecting new site,\nor flight category.\n\nThe displayed image can be printed or stored in a graphic file.\nUse the options under the \"File\" menu for that purpose.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
