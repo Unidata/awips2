@@ -924,7 +924,7 @@ public class GridParmManager {
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
         try {
             sr = getDb(id).getParmList();
-        } catch (GfeException e) {
+        } catch (Exception e) {
             sr.addMessage("Error getting db: " + id);
             logger.error("Error getting db: " + id, e);
         }
