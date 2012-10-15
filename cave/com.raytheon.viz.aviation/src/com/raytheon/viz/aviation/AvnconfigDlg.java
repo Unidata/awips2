@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafProductConfigDlg.
  * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafSiteInfoEditorDlg.
  * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
+ * 15 Oct 2012  1229       rferrel     Changed for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -99,6 +100,8 @@ public class AvnconfigDlg extends CaveSWTDialog {
      * Climate Data dialog.
      */
     private ClimateDataMenuDlg climateDataDlg;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -214,11 +217,16 @@ public class AvnconfigDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS Setup Help";
-                String helpText = "This application is used to configure AvnFPS.\n\nButton description:\n\nText Editor:    use to modify forecaster list and default resource\nfile.\n\nMonitoring rules: use to edit watch rules for TAF monitoring.\n\nTAF Site Info:  use to create TAF definition files\n\nTAF Products:   use to create lists of TAFs to load into forecast\neditor\n\nTriggers:       use to create and install Postgres trigger file.\n\nClimate Data:   use to create and update HDF5 climate files.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS Setup Help";
+
+                    String helpText = "This application is used to configure AvnFPS.\n\nButton description:\n\nText Editor:    use to modify forecaster list and default resource\nfile.\n\nMonitoring rules: use to edit watch rules for TAF monitoring.\n\nTAF Site Info:  use to create TAF definition files\n\nTAF Products:   use to create lists of TAFs to load into forecast\neditor\n\nTriggers:       use to create and install Postgres trigger file.\n\nClimate Data:   use to create and update HDF5 climate files.";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -327,8 +335,7 @@ public class AvnconfigDlg extends CaveSWTDialog {
         climateBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (climateDataDlg == null || climateDataDlg.getShell() == null
-                        || climateDataDlg.isDisposed()) {
+                if (mustCreate(climateDataDlg)) {
                     climateDataDlg = new ClimateDataMenuDlg(shell);
                     climateDataDlg.open();
                 } else {
