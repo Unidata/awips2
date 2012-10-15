@@ -76,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     LocalizedFile and added preOpen() to
  *                                     open the LocalizedFile.
  * 11 OCT 2012  1229       rferrel     Changes for non-blocking FindReplaceDlg.
+ * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -165,7 +166,8 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
      *            When not null a localized file to load into the editor.
      */
     public TextEditorSetupDlg(Shell parent, LocalizationFile lFile) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Text Editor");
 
         this.template = null;
