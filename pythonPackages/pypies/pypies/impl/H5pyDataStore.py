@@ -662,7 +662,10 @@ class H5pyDataStore(IDataStore.IDataStore):
                 grp = f['/']
             else:
                 try:
-                    grp = f[name]
+                    group=name
+                    if not group.startswith('/'):
+                        group = '/' + group
+                    grp = f[group]
                 except:
                     raise StorageException("No group " + name + " found")
 
