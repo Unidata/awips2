@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.swt.SWT;
@@ -63,6 +64,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -80,6 +82,7 @@ import com.vividsolutions.jts.geom.Point;
  *  9 May 2011  8856       rferrel     Code cleanup
  * 12 Oct 2012  1229       rferrel     Now a subclass of CaveSWTDialog
  *                                      and made non-blocking.
+ * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 
  * </pre>
  * 
@@ -234,6 +237,11 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     private Color correctColor;
 
     /**
+     * Possible to have a different dialog for each issue time.
+     */
+    Map<String, TextEditorSetupDlg> editorDlgMap;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -242,6 +250,7 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
     public TafSiteInfoEditorDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("AvnFPS TAF Site Info Editor");
+        editorDlgMap = new HashMap<String, TextEditorSetupDlg>();
     }
 
     @Override
@@ -862,15 +871,30 @@ public class TafSiteInfoEditorDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (isSiteIdValid()) {
                     try {
-                        String issueTime = issueCbo.getText().substring(0, 2);
-                        ITafSiteConfig config = TafSiteConfigFactory
-                                .getInstance();
-                        String siteId = siteIdTF.getText();
-                        LocalizationFile lFile = config.getTemplateFile(siteId,
-                                issueTime);
-                        TextEditorSetupDlg editorDlg = new TextEditorSetupDlg(
-                                shell, lFile);
-                        editorDlg.open();
+                        final String issueTime = issueCbo.getText().substring(
+                                0, 2);
+                        TextEditorSetupDlg editorDlg = editorDlgMap
+                                .get(issueTime);
+                        if (mustCreate(editorDlg)) {
+                            ITafSiteConfig config = TafSiteConfigFactory
+                                    .getInstance();
+                            String siteId = siteIdTF.getText();
+                            LocalizationFile lFile = config.getTemplateFile(
+                                    siteId, issueTime);
+                            editorDlg = new TextEditorSetupDlg(shell, lFile);
+                            editorDlgMap.put(issueTime, editorDlg);
+                            editorDlg.setCloseCallback(new ICloseCallback() {
+
+                                @Override
+                                public void dialogClosed(Object returnValue) {
+                                    editorDlgMap.remove(issueTime);
+                                }
+                            });
+
+                            editorDlg.open();
+                        } else {
+                            editorDlg.bringToTop();
+                        }
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
