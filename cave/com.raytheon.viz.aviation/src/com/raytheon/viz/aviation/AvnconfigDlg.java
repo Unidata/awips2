@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 11 Oct 2012  1229       rferrel     Changes for non-blocking MonitoringCriteriaDlg.
  * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafProductConfigDlg.
  * 12 Oct 2012  1229       rferrel     Changes for non-blocking TafSiteInfoEditorDlg.
+ * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
  * 
  * </pre>
  * 
@@ -262,13 +263,11 @@ public class AvnconfigDlg extends CaveSWTDialog {
         textEditorBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (editorDlg == null || editorDlg.getParent().isDisposed()) {
+                if (mustCreate(editorDlg)) {
                     editorDlg = new TextEditorSetupDlg(shell);
                     editorDlg.open();
-                    editorDlg = null;
                 } else {
-                    editorDlg.getParent().forceActive();
-                    editorDlg.getParent().forceFocus();
+                    editorDlg.bringToTop();
                 }
             }
         });
