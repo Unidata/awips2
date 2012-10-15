@@ -173,13 +173,14 @@ public class D2DGridDatabase extends VGridDatabase {
                     - subdomain.height;
 
             if (subdomain.isEmpty()) {
-                valid = false;
-                throw new GfeException("Unable to create " + this.dbId
-                        + ". GFE domain does not overlap dataset domain.");
+                statusHandler.warn(this.dbId
+                        + ": GFE domain does not overlap dataset domain.");
+                this.remap = null;
+            } else {
+                this.remap = new RemapGrid(NetCDFUtils.subGridGL(
+                        dbId.toString(), this.inputLoc, subdomain),
+                        this.outputLoc);
             }
-
-            this.remap = new RemapGrid(NetCDFUtils.subGridGL(dbId.toString(),
-                    this.inputLoc, subdomain), this.outputLoc);
 
         }
     }
@@ -475,7 +476,14 @@ public class D2DGridDatabase extends VGridDatabase {
 
         switch (gpi.getGridType()) {
         case SCALAR:
-            Grid2DFloat data = getGrid(parmId, time, gpi, convertUnit);
+            Grid2DFloat data = null;
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                data = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
+                        .getGridLoc().getNy(), gpi.getMinValue());
+            } else {
+                data = getGrid(parmId, time, gpi, convertUnit);
+            }
             gs = new ScalarGridSlice(time, gpi, gdh, data);
             break;
         case VECTOR:
@@ -483,7 +491,14 @@ public class D2DGridDatabase extends VGridDatabase {
                     .getGridLoc().getNy());
             Grid2DFloat dir = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
                     .getGridLoc().getNy());
-            getWindGrid(parmId, time, gpi, mag, dir);
+
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                mag.setAllValues(gpi.getMinValue());
+                dir.setAllValues(0.0f);
+            } else {
+                getWindGrid(parmId, time, gpi, mag, dir);
+            }
             gs = new VectorGridSlice(time, gpi, gdh, mag, dir);
             break;
         default:
@@ -511,6 +526,7 @@ public class D2DGridDatabase extends VGridDatabase {
      */
     private Grid2DFloat getGrid(ParmID parmId, TimeRange time,
             GridParmInfo gpi, boolean convertUnit) throws GfeException {
+
         Grid2DFloat bdata = null;
         GribRecord d2dRecord = null;
 
@@ -628,6 +644,7 @@ public class D2DGridDatabase extends VGridDatabase {
      */
     private void getWindGrid(ParmID parmId, TimeRange time, GridParmInfo gpi,
             Grid2DFloat mag, Grid2DFloat dir) throws GfeException {
+
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
