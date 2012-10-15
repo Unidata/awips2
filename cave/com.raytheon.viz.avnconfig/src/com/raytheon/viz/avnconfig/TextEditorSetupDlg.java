@@ -77,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     open the LocalizedFile.
  * 11 OCT 2012  1229       rferrel     Changes for non-blocking FindReplaceDlg.
  * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -146,6 +147,8 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
     private FindReplaceDlg findDlg;
 
     private OpenDlg openDlg;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -394,33 +397,36 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "Text Editor Help";
-                String helpText = "This is a generic text editor. Edit any text file via the file\n";
-                helpText += "selection dialog that is invoked by pressing the 'Open' button.\n";
-                helpText += "\n";
-                helpText += "Menu items:\n";
-                helpText += "   File:\n";
-                helpText += "        Print invokes print dialog\n";
-                helpText += "   Edit:\n";
-                helpText += "        provides the usual editing functions (i.e. Cut, Copy, Paste,\n";
-                helpText += "        and Find/Replace). The menu can be also invoked by pressing\n";
-                helpText += "        right mouse button within the text window area.\n";
-                helpText += "\n";
-                helpText += "Buttons:\n";
-                helpText += "   Clear: clears text window.\n";
-                helpText += "   Open:  invokes file selection dialog\n";
-                helpText += "   Save:  saves content of the text window\n";
-                helpText += "   Save as:  invokes file selection dialog\n";
-                helpText += "\n";
-                helpText += "Toggles:\n";
-                helpText += "   Insert: toggles insert/overwrite mode\n";
-                helpText += "   Wrap:   toggles word wrap\n";
-                helpText += "\n";
-                helpText += "The currently loaded (if any) file name is displayed in a label above the\n";
-                helpText += "text window.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Text Editor Help";
+                    String helpText = "This is a generic text editor. Edit any text file via the file\n"
+                            + "selection dialog that is invoked by pressing the 'Open' button.\n"
+                            + "\n"
+                            + "Menu items:\n"
+                            + "   File:\n"
+                            + "        Print invokes print dialog\n"
+                            + "   Edit:\n"
+                            + "        provides the usual editing functions (i.e. Cut, Copy, Paste,\n"
+                            + "        and Find/Replace). The menu can be also invoked by pressing\n"
+                            + "        right mouse button within the text window area.\n"
+                            + "\n"
+                            + "Buttons:\n"
+                            + "   Clear: clears text window.\n"
+                            + "   Open:  invokes file selection dialog\n"
+                            + "   Save:  saves content of the text window\n"
+                            + "   Save as:  invokes file selection dialog\n"
+                            + "\n"
+                            + "Toggles:\n"
+                            + "   Insert: toggles insert/overwrite mode\n"
+                            + "   Wrap:   toggles word wrap\n"
+                            + "\n"
+                            + "The currently loaded (if any) file name is displayed in a label above the\n"
+                            + "text window.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -520,7 +526,6 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         Button saveAsBtn = new Button(buttonComp, SWT.PUSH);
         saveAsBtn.setText("Save As");
         saveAsBtn.setToolTipText("Save file with new name");
-        // saveAsBtn.setEnabled(false);
         saveAsBtn.setLayoutData(gd);
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -810,8 +815,6 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         path = path.substring(1, path.lastIndexOf('/'));
 
         dlg.setFilterPath(path);
-        // dlg.setFilterNames(FILTER_NAMES);
-        // dlg.setFilterExtensions(FILTER_EXTS);
         String fn = dlg.open();
         if (fn != null) {
             try {

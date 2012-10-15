@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *  1 Oct 2010  4345       rferrel     Cleanup to work like AWIPS I.
  * 12 Oct 2012  1229       rferrel     Convert to CaveSWTDialog subclass
  *                                      and make non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class TafProductConfigDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafProductConfigDlg.class);
 
     /**
@@ -123,6 +124,8 @@ public class TafProductConfigDlg extends CaveSWTDialog {
      * List of TAF products
      */
     private Map<String, java.util.List<String>> productsMap;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -539,11 +542,16 @@ public class TafProductConfigDlg extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "TAF Product Configuration Help";
-                String helpText = "This dialog is used to define TAF/TWEB product (list of\nforecasts).\n\nThee products should be defined AFTER relevant site/route\nconfiguration files have been created.\n\nTo add a new product, enter product label in the \"Products\"\nentry field and press <Enter>. Then enter all TAF ids or\nTWEB routes in the \"Idents\" entry field, press <Enter>\nafter typing one item. Press \"Save\" button to save\nconfiguration file.\n\nTo remove a product, press \"Delede\" below \"Products\" list.\n\nTo remove an ident from the product definition, use\n\"Delete\" button in the \"Idents\" column. You must then save\nthe product. This will NOT delete TAF/TWEB configuration\nfiles, this can only be done from the command line.\n\nThe \"Verify\" button can be used to check for existence and\nproper syntax of all relevant files.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "TAF Product Configuration Help";
+
+                    String helpText = "This dialog is used to define TAF/TWEB product (list of\nforecasts).\n\nThee products should be defined AFTER relevant site/route\nconfiguration files have been created.\n\nTo add a new product, enter product label in the \"Products\"\nentry field and press <Enter>. Then enter all TAF ids or\nTWEB routes in the \"Idents\" entry field, press <Enter>\nafter typing one item. Press \"Save\" button to save\nconfiguration file.\n\nTo remove a product, press \"Delede\" below \"Products\" list.\n\nTo remove an ident from the product definition, use\n\"Delete\" button in the \"Idents\" column. You must then save\nthe product. This will NOT delete TAF/TWEB configuration\nfiles, this can only be done from the command line.\n\nThe \"Verify\" button can be used to check for existence and\nproper syntax of all relevant files.";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
 
