@@ -60,8 +60,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.avnconfig.OpenSaveDlg.DialogType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * A simple text Editor dialog allowing the user to modify a localized file.
@@ -143,6 +143,8 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
     private String template;
 
     private FindReplaceDlg findDlg;
+
+    private OpenDlg openDlg;
 
     /**
      * Constructor.
@@ -846,9 +848,23 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
      * Show the 'Open' file dialog.
      */
     private void openFile() {
-        OpenSaveDlg dlg = new OpenSaveDlg(shell, DialogType.OPEN);
-        dlg.open();
-        openFile(dlg.getSelectedFile());
+        if (mustCreate(openDlg)) {
+            openDlg = new OpenDlg(shell);
+            openDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    LocalizationFile selectedFile = null;
+                    if (returnValue instanceof LocalizationFile) {
+                        selectedFile = (LocalizationFile) returnValue;
+                    }
+                    openFile(selectedFile);
+                }
+            });
+            openDlg.open();
+        } else {
+            openDlg.bringToTop();
+        }
     }
 
     /**
@@ -887,41 +903,4 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
             }
         }
     }
-
-    // private void openFile() {
-    // FileDialog dlg = new FileDialog(shell, SWT.OPEN);
-    // IPathManager pm = PathManagerFactory.getPathManager();
-    // String path = pm.getFile(
-    // pm.getContext(LocalizationType.CAVE_STATIC,
-    // LocalizationLevel.BASE), "aviation").getAbsolutePath();
-    // dlg.setFilterPath(path);
-    // String fn = dlg.open();
-    // StringBuilder contents = new StringBuilder();
-    //
-    // if (fn != null) {
-    // try {
-    // BufferedReader input = new BufferedReader(new FileReader(
-    // new File(fn)));
-    // String line = null;
-    //
-    // while ((line = input.readLine()) != null) {
-    // contents.append(line);
-    // contents.append(System.getProperty("line.separator"));
-    // }
-    //
-    // editorStTxt.setText(contents.toString());
-    //
-    // input.close();
-    // msgStatusComp.setMessageText("File " + fn
-    // + " opened successfully.", new RGB(0, 255, 0));
-    // } catch (FileNotFoundException e) {
-    // msgStatusComp.setMessageText("File " + fn + " not found.",
-    // new RGB(255, 0, 0));
-    // } catch (IOException e) {
-    // msgStatusComp.setMessageText(
-    // "An error occured while opening file " + fn, new RGB(
-    // 255, 0, 0));
-    // }
-    // }
-    // }
 }
