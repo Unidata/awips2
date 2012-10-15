@@ -221,6 +221,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11OCT2012    1229        rferrel     Converted to a subclass of CaveSWTDialog and
  * 12OCT2012    1229        rferrel     Changes for non-blocking FindReplaceDlg.
  *                                       made non-blocking.
+ * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -230,10 +231,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  */
 public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         IEditActions {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafViewerEditorDlg.class);
 
-    private static final String SPLIT_REGEX = "=+[\\s\n]*|\n{2,}|\n$";
+    private final String SPLIT_REGEX = "=+[\\s\n]*|\n{2,}|\n$";
 
     /**
      * The number of editor tabs
@@ -524,6 +525,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private QcDialog qcDlg;
 
     private SendDialog sendDlg;
+
+    private HelpUsageDlg usageDlg;
+
+    private HelpUsageDlg keyBindingUsageDlg;
 
     /**
      * Constructor.
@@ -882,6 +887,15 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         if (mustCreate(findDlg) == false) {
             findDlg.bringToTop();
         }
+
+        if (mustCreate(keyBindingUsageDlg) == false) {
+            keyBindingUsageDlg.bringToTop();
+        }
+
+        if (mustCreate(usageDlg) == false) {
+            usageDlg.bringToTop();
+        }
+
         shell.setActive();
     }
 
@@ -903,6 +917,14 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         if (mustCreate(findDlg) == false) {
             findDlg.hide();
+        }
+
+        if (mustCreate(keyBindingUsageDlg) == false) {
+            keyBindingUsageDlg.hide();
+        }
+
+        if (mustCreate(usageDlg) == false) {
+            usageDlg.hide();
         }
     }
 
@@ -1328,53 +1350,57 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         keyBindingMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "Ctrl-u               Undo changes.\n"
-                        + "Ctrl-r               Redo changes.\n"
-                        + "Insert               Toggles insert/overwrite mode.\n"
-                        + "Any-Key              Insert normal printing characters.\n"
-                        + "Button1              Sets the insert point, clear the selection, set focus.\n"
-                        + "Ctrl-Button1         Set the insert point without affecting the selection.\n"
-                        + "Button1-Motion       Sweep out a selection from the insert point.\n"
-                        + "Double-Button1       Select the word under the mouse.\n"
-                        + "Triple-Button1       Select the line under the mouse.\n"
-                        + "Shift-Button1        Adjust the end of selection closest to the mouse.\n"
-                        + "Shift-Button1-Motion Continue to adjust the selection.\n"
-                        + "Button2              Paste the selection, or set the scrolling anchor.\n"
-                        + "Button2-Motion       Scroll the window.\n"
-                        + "Left or Ctrl-b       Move the cursor left one character. Clear selection.\n"
-                        + "Shift-Left           Move the cursor and extend the selection.\n"
-                        + "Ctrl-Left            Move the cursor by words. Clear the selection.\n"
-                        + "Ctrl-Shift-Left      Move the cursor by words. Extend the selection.\n"
-                        + "Right or Ctrl-f      Right bindings are analogous to Left bindings.\n"
-                        + "Alt-b or Alt         Same as Ctrl-Left, Ctrl-Right.\n"
-                        + "Up or Ctrl-p         Move the cursor up one line. Clear the selection.\n"
-                        + "Ctrl-Up              Move the cursor by paragraph which are group of lines separated by a blank line.\n"
-                        + "Ctrl-Shift-Up        Move the cursor by paragraph. Extend selection.\n"
-                        + "Down or Ctrl-n       All Down bindings are analogous to Up bindings.\n"
-                        + "PgUp, PgDn           Move the cursor by one screen. Clear the selection.\n"
-                        + "Shift-PgUp,          Move the cursor by one screen. Extend the selection.\n"
-                        + "Shift-PgDn\n"
-                        + "Home or Ctrl-a       Move the cursor to line start. Clear the selection.\n"
-                        + "Shift-Home           Move the cursor to line start. Extend the selection.\n"
-                        + "End or Ctrl-e        Move the cursor to line end. Clear the selection.\n"
-                        + "Shift-End            Move the cursor to line end. Extend the selection.\n"
-                        + "Ctrl-Home            Move the cursor to the beginning of text. Clear the selection.\n"
-                        + "Ctrl-End             Move the cursor to the beginning of text. Extend the selection.\n"
-                        + "Ctrl-/               Select everything in the text widget.\n"
-                        + "Ctrl-\\               Clear the selection.\n"
-                        + "Delete               Delete the selection, if any. Otherwise delete the character to the right of the cursor.\n"
-                        + "Backspace or Ctrl-h Delete the selection, if any. Otherwise delete the character to the left of the cursor.\n"
-                        + "Ctrl-d              Delete character to the right of the cursor.\n"
-                        + "Alt-d               Delete word to the right of the cursor.\n"
-                        + "Ctrl-k              Delete from cursor to the end of the line. If you are at the end of the line, delete the newline\n"
-                        + "                    character.\n"
-                        + "Ctrl-o              Insert a newline but do not advance the cursor.\n"
-                        + "Alt-Delete          Delete the word to the left of the cursor.\n"
-                        + "Ctrl-t              Transpose the characters on either side of the cursor.";
-                String description = "Key Bindings";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(keyBindingUsageDlg)) {
+                    String description = "Key Bindings";
+                    String helpText = "Ctrl-u               Undo changes.\n"
+                            + "Ctrl-r               Redo changes.\n"
+                            + "Insert               Toggles insert/overwrite mode.\n"
+                            + "Any-Key              Insert normal printing characters.\n"
+                            + "Button1              Sets the insert point, clear the selection, set focus.\n"
+                            + "Ctrl-Button1         Set the insert point without affecting the selection.\n"
+                            + "Button1-Motion       Sweep out a selection from the insert point.\n"
+                            + "Double-Button1       Select the word under the mouse.\n"
+                            + "Triple-Button1       Select the line under the mouse.\n"
+                            + "Shift-Button1        Adjust the end of selection closest to the mouse.\n"
+                            + "Shift-Button1-Motion Continue to adjust the selection.\n"
+                            + "Button2              Paste the selection, or set the scrolling anchor.\n"
+                            + "Button2-Motion       Scroll the window.\n"
+                            + "Left or Ctrl-b       Move the cursor left one character. Clear selection.\n"
+                            + "Shift-Left           Move the cursor and extend the selection.\n"
+                            + "Ctrl-Left            Move the cursor by words. Clear the selection.\n"
+                            + "Ctrl-Shift-Left      Move the cursor by words. Extend the selection.\n"
+                            + "Right or Ctrl-f      Right bindings are analogous to Left bindings.\n"
+                            + "Alt-b or Alt         Same as Ctrl-Left, Ctrl-Right.\n"
+                            + "Up or Ctrl-p         Move the cursor up one line. Clear the selection.\n"
+                            + "Ctrl-Up              Move the cursor by paragraph which are group of lines separated by a blank line.\n"
+                            + "Ctrl-Shift-Up        Move the cursor by paragraph. Extend selection.\n"
+                            + "Down or Ctrl-n       All Down bindings are analogous to Up bindings.\n"
+                            + "PgUp, PgDn           Move the cursor by one screen. Clear the selection.\n"
+                            + "Shift-PgUp,          Move the cursor by one screen. Extend the selection.\n"
+                            + "Shift-PgDn\n"
+                            + "Home or Ctrl-a       Move the cursor to line start. Clear the selection.\n"
+                            + "Shift-Home           Move the cursor to line start. Extend the selection.\n"
+                            + "End or Ctrl-e        Move the cursor to line end. Clear the selection.\n"
+                            + "Shift-End            Move the cursor to line end. Extend the selection.\n"
+                            + "Ctrl-Home            Move the cursor to the beginning of text. Clear the selection.\n"
+                            + "Ctrl-End             Move the cursor to the beginning of text. Extend the selection.\n"
+                            + "Ctrl-/               Select everything in the text widget.\n"
+                            + "Ctrl-\\               Clear the selection.\n"
+                            + "Delete               Delete the selection, if any. Otherwise delete the character to the right of the cursor.\n"
+                            + "Backspace or Ctrl-h Delete the selection, if any. Otherwise delete the character to the left of the cursor.\n"
+                            + "Ctrl-d              Delete character to the right of the cursor.\n"
+                            + "Alt-d               Delete word to the right of the cursor.\n"
+                            + "Ctrl-k              Delete from cursor to the end of the line. If you are at the end of the line, delete the newline\n"
+                            + "                    character.\n"
+                            + "Ctrl-o              Insert a newline but do not advance the cursor.\n"
+                            + "Alt-Delete          Delete the word to the left of the cursor.\n"
+                            + "Ctrl-t              Transpose the characters on either side of the cursor.";
+                    keyBindingUsageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    keyBindingUsageDlg.open();
+                } else {
+                    keyBindingUsageDlg.bringToTop();
+                }
             }
         });
 
@@ -1384,101 +1410,104 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "This is a text editor specialized for composing and checking TAFs.\n"
-                        + "\n"
-                        + "The dialog consists of two areas. The top part is for viewing and\n"
-                        + "editing TAFs, the bottom part displays guidance data.\n"
-                        + "\n"
-                        + "The text editor consists of 4 independent pages. Each one displays WMO\n"
-                        + "header. The 'Rtn', ..., 'Cor' toggles change forecast type. Use\n"
-                        + "'Clear' button to clear the text window.  The 'Tools' combo box\n"
-                        + "displays list of site-specific utilities to modify the forecast.\n"
-                        + "\n"
-                        + "Menus:\n"
-                        + "    Most of the items are relevant when the 'Editor' tab is selected. \n"
-                        + "    File:\n"
-                        + "    Print         - call print dialog\n"
-                        + "    Clear Errors  - clears error tags set by the formatting \n"
-                        + "                    (quality check) action. Can be used to force \n"
-                        + "                    transmission of forecasts that did not pass\n"
-                        + "                    the Syntax check.  It also reverses colors in\n"
-                        + "                    the editor window to normal after forecast is\n"
-                        + "                    sent\n"
-                        + "    Update Times  - updates issue and valid times\n"
-                        + "    Save As       - allows to save edited forecast to a file. \n"
-                        + "    Restore From  - use to restore forecast from a backup file\n"
-                        + "    Store in DB   - use to store forecast in AWIPS text database\n"
-                        + "    Close         - closes the editor window\n"
-                        + "\n"
-                        + "    Options: \n"
-                        + "    Auto Save     - toggles auto-save feature\n"
-                        + "    Auto Print    - toggles automatic printout of sent forecasts\n"
-                        + "    Update Times on Format - if selected, the issue and valid times in \n"
-                        + "                    the forecast are updated before quality control\n"
-                        + "                    checks\n"
-                        + "    Send in Collective - Toggles collective versus split bulletin\n"
-                        + "                    transmission. Intended for OCONUS sites only.\n"
-                        + "\n"
-                        + "    Edit:\n"
-                        + "    Provides the usual editing functions (i.e. Cut, Copy, Paste, \n"
-                        + "    and Find/Replace)\n"
-                        + "\n"
-                        + "TAF editor area:\n"
-                        + "\n"
-                        + "Buttons:\n"
-                        + "    Load: invokes forecast selection dialog. Bulletin (or product) \n"
-                        + "        is selected from 'Bulletins' menu. To load bulletin from \n"
-                        + "        previously saved file, set the 'From file' toggle.\n"
-                        + "        Otherwise the forecasts will be loaded depending on \n"
-                        + "        the 'Load Order' selecton:\n"
-                        + "        Latest: first an attempt is made to access the most \n"
-                        + "            recent previous forecast. If one cannot be found,\n"
-                        + "            a template file is loaded.\n"
-                        + "        Merge:  loads previous forecast, then appends template.\n"
-                        + "            The intent is to allow phrases such as\n"
-                        + "            AMD NOT SKED AFT D1HHZ.\n"
-                        + "        Template: loads forecasts from template file.\n"
-                        + "        'Forecast Type' selection is used to initialize WMO\n"
-                        + "        header (DDHHMM and BBB) fields. These fields will be \n"
-                        + "        updated when forecast is sent. \n"
-                        + "\n"
-                        + "    Syntax: Performs syntax check and assures proper indentation \n"
-                        + "        and maximum line length. If Syntax Check fails the forecast, \n"
-                        + "        the problem areas will be highlighted. The color \n"
-                        + "        corresponds to the severity of the problem. Red means \n"
-                        + "        the forecast could not be parsed sucessfully. Orange \n"
-                        + "        means error according to NWSI 10-813. Green is a warning.\n"
-                        + "\n"
-                        + "    QC: Performs selected quality control checks\n"
-                        + "\n"
-                        + "    Send:   Splits the bulletin into separate files, one per site, \n"
-                        + "        which are written to directory 'xmit/pending'. \n"
-                        + "        The transmission program running on the data server is \n"
-                        + "        responsible for actual transmission.\n"
-                        + "        The program will check whether a regular forecast is \n"
-                        + "        sent within the transmission time window. If not, an \n"
-                        + "        error dialog is displayed.\n"
-                        + "\n"
-                        + "    Save:   Stores bulletin as a work TAF in a file\n"
-                        + "\n"
-                        + "    Restore: Restores bulletin from the work file\n"
-                        + "\n"
-                        + "Toggles:\n"
-                        + "    Insert        - toggles insert/overwrite mode\n"
-                        + "    Wrap          - if selected, the line is folded when its length\n"
-                        + "                    exceedes window width. Has no effect on \n"
-                        + "                    the final format.\n"
-                        + "\n"
-                        + "Viewer area:\n"
-                        + "    Use 'Site ID' combo box to view site data from the list of \n"
-                        + "    currently monitored sites. \n"
-                        + "    Select page in the notebook for a specific data source. The list \n"
-                        + "    of data sources is configurable. A set of display options is \n"
-                        + "    available, depending on the data source.";
-                String description = "Usage";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Usage";
+                    String helpText = "This is a text editor specialized for composing and checking TAFs.\n"
+                            + "\n"
+                            + "The dialog consists of two areas. The top part is for viewing and\n"
+                            + "editing TAFs, the bottom part displays guidance data.\n"
+                            + "\n"
+                            + "The text editor consists of 4 independent pages. Each one displays WMO\n"
+                            + "header. The 'Rtn', ..., 'Cor' toggles change forecast type. Use\n"
+                            + "'Clear' button to clear the text window.  The 'Tools' combo box\n"
+                            + "displays list of site-specific utilities to modify the forecast.\n"
+                            + "\n"
+                            + "Menus:\n"
+                            + "    Most of the items are relevant when the 'Editor' tab is selected. \n"
+                            + "    File:\n"
+                            + "    Print         - call print dialog\n"
+                            + "    Clear Errors  - clears error tags set by the formatting \n"
+                            + "                    (quality check) action. Can be used to force \n"
+                            + "                    transmission of forecasts that did not pass\n"
+                            + "                    the Syntax check.  It also reverses colors in\n"
+                            + "                    the editor window to normal after forecast is\n"
+                            + "                    sent\n"
+                            + "    Update Times  - updates issue and valid times\n"
+                            + "    Save As       - allows to save edited forecast to a file. \n"
+                            + "    Restore From  - use to restore forecast from a backup file\n"
+                            + "    Store in DB   - use to store forecast in AWIPS text database\n"
+                            + "    Close         - closes the editor window\n"
+                            + "\n"
+                            + "    Options: \n"
+                            + "    Auto Save     - toggles auto-save feature\n"
+                            + "    Auto Print    - toggles automatic printout of sent forecasts\n"
+                            + "    Update Times on Format - if selected, the issue and valid times in \n"
+                            + "                    the forecast are updated before quality control\n"
+                            + "                    checks\n"
+                            + "    Send in Collective - Toggles collective versus split bulletin\n"
+                            + "                    transmission. Intended for OCONUS sites only.\n"
+                            + "\n"
+                            + "    Edit:\n"
+                            + "    Provides the usual editing functions (i.e. Cut, Copy, Paste, \n"
+                            + "    and Find/Replace)\n"
+                            + "\n"
+                            + "TAF editor area:\n"
+                            + "\n"
+                            + "Buttons:\n"
+                            + "    Load: invokes forecast selection dialog. Bulletin (or product) \n"
+                            + "        is selected from 'Bulletins' menu. To load bulletin from \n"
+                            + "        previously saved file, set the 'From file' toggle.\n"
+                            + "        Otherwise the forecasts will be loaded depending on \n"
+                            + "        the 'Load Order' selecton:\n"
+                            + "        Latest: first an attempt is made to access the most \n"
+                            + "            recent previous forecast. If one cannot be found,\n"
+                            + "            a template file is loaded.\n"
+                            + "        Merge:  loads previous forecast, then appends template.\n"
+                            + "            The intent is to allow phrases such as\n"
+                            + "            AMD NOT SKED AFT D1HHZ.\n"
+                            + "        Template: loads forecasts from template file.\n"
+                            + "        'Forecast Type' selection is used to initialize WMO\n"
+                            + "        header (DDHHMM and BBB) fields. These fields will be \n"
+                            + "        updated when forecast is sent. \n"
+                            + "\n"
+                            + "    Syntax: Performs syntax check and assures proper indentation \n"
+                            + "        and maximum line length. If Syntax Check fails the forecast, \n"
+                            + "        the problem areas will be highlighted. The color \n"
+                            + "        corresponds to the severity of the problem. Red means \n"
+                            + "        the forecast could not be parsed sucessfully. Orange \n"
+                            + "        means error according to NWSI 10-813. Green is a warning.\n"
+                            + "\n"
+                            + "    QC: Performs selected quality control checks\n"
+                            + "\n"
+                            + "    Send:   Splits the bulletin into separate files, one per site, \n"
+                            + "        which are written to directory 'xmit/pending'. \n"
+                            + "        The transmission program running on the data server is \n"
+                            + "        responsible for actual transmission.\n"
+                            + "        The program will check whether a regular forecast is \n"
+                            + "        sent within the transmission time window. If not, an \n"
+                            + "        error dialog is displayed.\n"
+                            + "\n"
+                            + "    Save:   Stores bulletin as a work TAF in a file\n"
+                            + "\n"
+                            + "    Restore: Restores bulletin from the work file\n"
+                            + "\n"
+                            + "Toggles:\n"
+                            + "    Insert        - toggles insert/overwrite mode\n"
+                            + "    Wrap          - if selected, the line is folded when its length\n"
+                            + "                    exceedes window width. Has no effect on \n"
+                            + "                    the final format.\n"
+                            + "\n"
+                            + "Viewer area:\n"
+                            + "    Use 'Site ID' combo box to view site data from the list of \n"
+                            + "    currently monitored sites. \n"
+                            + "    Select page in the notebook for a specific data source. The list \n"
+                            + "    of data sources is configurable. A set of display options is \n"
+                            + "    available, depending on the data source.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -1678,8 +1707,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (loadDlg == null || loadDlg.getShell() == null
-                        || loadDlg.isDisposed()) {
+                if (mustCreate(loadDlg)) {
                     loadDlg = new LoaderDialog(shell, TafViewerEditorDlg.this);
                     loadDlg.open();
                 } else {

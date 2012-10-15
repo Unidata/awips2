@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     ConfigurationException.
  * 12 Oct 2012  1229       rferrel     Convert to subclass of CaveSWTDialog
  *                                      and made non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -99,6 +100,8 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
      * default available method data.
      */
     private DefaultRuleData defaultRuleData;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -302,11 +305,15 @@ public class MonitoringCriteriaDlg extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Monitoring Criteria Help";
-                String helpText = "This dialog is used to define and configure TAF monitoring\nrules.\n\nTo load current configuration, enter site id and press\n<Enter> or use the \"Load\" button. Site id XXXX loads\ndefault rules.\n\nSelect a tab for the monitoring module you wish to modify\nthe rules. The top list displays current rules: severity\nlevels (colors) and associated messages. The list is sorted\nwith respect to the severity level.\n\nTo view detailed rule description, select an item on this\nlist. All rule parameters will be displayed in the \"Rule\nEditor\" window. You may modify editable parameters. Press \n\"Replace\" when finished. To remove a rule from the list,\npress \"Remove\". To add a new rule, first select one of\nthe available methods, then modify rule parameters as\ndesired. You must enter a message. Press \"Add\" to add the\nrule to the list.\n\nNOTE: \n1. argument types and values are not verified by the\n   editor.\n2. if an argument is a list, the separators are commas.\n   \nPress 'Save' when finished.\n\nTo restore default rules for a TAF Site and a currently\nselected monitoring module, use the \"Delete\" button.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Monitoring Criteria Help";
+
+                    String helpText = "This dialog is used to define and configure TAF monitoring\nrules.\n\nTo load current configuration, enter site id and press\n<Enter> or use the \"Load\" button. Site id XXXX loads\ndefault rules.\n\nSelect a tab for the monitoring module you wish to modify\nthe rules. The top list displays current rules: severity\nlevels (colors) and associated messages. The list is sorted\nwith respect to the severity level.\n\nTo view detailed rule description, select an item on this\nlist. All rule parameters will be displayed in the \"Rule\nEditor\" window. You may modify editable parameters. Press \n\"Replace\" when finished. To remove a rule from the list,\npress \"Remove\". To add a new rule, first select one of\nthe available methods, then modify rule parameters as\ndesired. You must enter a message. Press \"Add\" to add the\nrule to the list.\n\nNOTE: \n1. argument types and values are not verified by the\n   editor.\n2. if an argument is a list, the separators are commas.\n   \nPress 'Save' when finished.\n\nTo restore default rules for a TAF Site and a currently\nselected monitoring module, use the \"Delete\" button.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
