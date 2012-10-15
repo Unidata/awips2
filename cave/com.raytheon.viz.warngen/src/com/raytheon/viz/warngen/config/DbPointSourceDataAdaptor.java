@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2011            bgonzale     Initial creation
+ * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
  * 
  * </pre>
  * 
@@ -85,8 +86,9 @@ public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         Coordinate point = ptRslt.geometry.getCoordinate();
         int population = getPopulation(ptFields, attributes);
         int warngenlev = getWangenlev(ptFields, attributes);
+        int gid = getGid(ptFields, attributes);
 
-        return new ClosestPoint(name, point, population, warngenlev, null);
+        return new ClosestPoint(name, point, population, warngenlev, null, gid);
     }
 
     @Override

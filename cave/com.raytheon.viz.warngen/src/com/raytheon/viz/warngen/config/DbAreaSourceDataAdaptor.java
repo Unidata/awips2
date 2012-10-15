@@ -21,7 +21,12 @@ import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
  * @author jsanchez
+ * Sep 25, 2012 #15425     Qinglu Lin  Updated createClosestPoint().
  * 
  */
 public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
@@ -73,8 +78,9 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         int warngenlev = getWangenlev(ptFields, attributes);
         List<String> partOfArea = getPartOfArea(ptFields, attributes,
                 ptRslt.geometry);
+        int gid = getGid(ptFields, attributes);
 
-        return new ClosestPoint(name, point, population, warngenlev, partOfArea);
+        return new ClosestPoint(name, point, population, warngenlev, partOfArea, gid);
     }
 
     /**

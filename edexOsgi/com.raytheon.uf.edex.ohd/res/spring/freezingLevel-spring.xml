@@ -5,27 +5,27 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
-	<bean id="dqcPreprocService" class="com.raytheon.uf.edex.ohd.pproc.DqcPreProcSrv" />
+	<bean id="mpeRucFreezingLevel" class="com.raytheon.uf.edex.ohd.pproc.MpeRUCFreezingLevel" />
 
-	<camelContext id="dqcPreproc-context"
+	<camelContext id="frzLvlProc-context"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 
-		<endpoint id="dqcPreprocCron" uri="clusteredquartz://pproc/dqcPreprocScheduled/?cron=${dqcpreprocessor.cron}"/>
+		<endpoint id="frzLvlProcCron" uri="clusteredquartz://pproc/frzLvlProcScheduled/?cron=${freezingLevel.cron}"/>
 
-		<!-- Run dqcPreproc on Scheduled timer -->
-		<route id="dqcPreprocScheduled">
-			<from uri="dqcPreprocCron" />
-			<to uri="jms-generic:queue:dqcPreprocScheduledWork" />
+		<!-- Run frzLvlProc on Scheduled timer -->
+		<route id="frzLvlProcScheduled">
+			<from uri="frzLvlProcCron" />
+			<to uri="jms-generic:queue:frzLvlProcScheduledWork" />
 		</route>
 		
-		<route id="dqcPreprocScheduledWork">
-			<from uri="jms-generic:queue:dqcPreprocScheduledWork" />
-            <doTry>
-    			<bean ref="dqcPreprocService" method="runDQCPreproc" />
+		<route id="frzLvlProcScheduledWork">
+			<from uri="jms-generic:queue:frzLvlProcScheduledWork" />
+		    <doTry>
+    			<bean ref="mpeRucFreezingLevel" method="processMpeRuc" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:dqcPreprocessor?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:frzLvlProcessor?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
                 </doCatch>
             </doTry>
 		</route>		
