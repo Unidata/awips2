@@ -24,6 +24,7 @@ XML_TEMPLATE = ""
 
 import sys
 import os.path
+from os import path, access, R_OK
 import shutil
 
 class MainData:
@@ -92,6 +93,12 @@ fileName = os.path.split(file)[1]
 
 if fileName == "spotters.dat":
     workFile = "/tmp/spotters.dat"
+    if path.exists(workFile) and path.isfile(workFile) and access(workFile, R_OK):
+        print "Attempting to cleanup work directory"
+        os.system("rm /tmp/spotters.dat")
+    else:
+        print "No preliminary cleanup needed - continuing"
+
     shutil.copy(file, workFile)
     os.system("sed -i -e 's/spotterName/spottersName/g' /tmp/spotters.dat")
     os.system("sed -i -e 's/spotterAddr/spottersAddr/g' /tmp/spotters.dat")
