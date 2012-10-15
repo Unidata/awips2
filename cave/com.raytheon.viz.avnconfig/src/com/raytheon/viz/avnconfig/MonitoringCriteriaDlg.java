@@ -35,8 +35,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
@@ -46,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Dialog displaying the monitoring criteria controls. The dialog has a tab
@@ -59,6 +58,8 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
  * 16 Mar 2011  8599       rferrel     Create msgStatusComp then load tabs.
  * 27 Sep 2011  10958      rferrel     Display more details when handling
  *                                     ConfigurationException.
+ * 12 Oct 2012  1229       rferrel     Convert to subclass of CaveSWTDialog
+ *                                      and made non-blocking.
  * 
  * </pre>
  * 
@@ -66,16 +67,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
  * @version 1.0
  * 
  */
-public class MonitoringCriteriaDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
+public class MonitoringCriteriaDlg extends CaveSWTDialog {
 
     /**
      * Composite containing message status controls.
@@ -115,20 +107,12 @@ public class MonitoringCriteriaDlg extends Dialog {
      *            Parent shell.
      */
     public MonitoringCriteriaDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS Monitoring Criteria");
     }
 
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("AvnFPS Monitoring Criteria");
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 3;
@@ -138,17 +122,6 @@ public class MonitoringCriteriaDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return null;
     }
 
     /**
