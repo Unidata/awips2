@@ -121,6 +121,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 26, 2012 #15227      Qinglu Lin  Added removeDuplicateVertices(), removeOverlaidSegments(),
  *                                       adjustLatLon(), etc.
  *  Sep 05, 2012 DR 15261    D. Friedman Prevent additional counties from being selected for EXPs
+ *  Oct 03, 2012 DR 15426    Qinglu Lin  Unlock WarnGen GUI for COR, implemented in corSelected();
+ *  									 but lock immediate cause, implemented in individual template.
  * 
  * </pre>
  * 
@@ -1852,7 +1854,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 allowsNewProduct = true;
             }
         }
-        bulletList.setEnabled(false);
         // Special case - allows for Correction of Followups
         if (!allowsNewProduct) {
             newWarn = conSelected(data);

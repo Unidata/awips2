@@ -10,6 +10,18 @@ import java.util.List;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.viz.core.graphing.xy.XYData;
 
+/**
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??					   ??		     Initial creation
+ * Oct 2, 2012  DR 15259   M.Porricelli  Interpolate below 850MB                                     
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
 public class InterpUtils {
 
     /**
@@ -55,6 +67,10 @@ public class InterpUtils {
         double maxYAxisVal = ((Number) dataList.get(0).getY()).doubleValue();
         double minYAxisVal = ((Number) dataList.get(dataList.size() - 1).getY())
                 .doubleValue();
+        // Allow interpolation below 850 when this is lowest level
+        if (maxYAxisVal == 850.0){
+        	maxYAxisVal = 1000.0;
+        }
 
         if (maxYAxisVal < minYAxisVal) {
             double tmp = maxYAxisVal;
