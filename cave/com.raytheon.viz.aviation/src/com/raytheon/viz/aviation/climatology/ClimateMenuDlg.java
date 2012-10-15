@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/08/2012   1229        rferrel     Changes for non-blocking WindRosePlotDlg.
  * 10/09/2012   1229        rferrel     Changes for non-blocking MetarDisplayDialog.
  * 10/09/2012   1229        rferrel     Changes for non-blocking CigVisTrendDlg.
+ * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -105,6 +106,8 @@ public class ClimateMenuDlg extends CaveSWTDialog {
     private CigVisDistributionDlg cigVisDist;
 
     private CigVisTrendDlg cigVisTrend;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -234,11 +237,15 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         usageMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS Climate Menu - Usage";
-                String helpText = "This master menu GUI is used to launch applications that display NCDC\nclimatological data for observation sites in a variety of formats.\n\nButton description:\n\nMETARs:       use to display reconstructed METARs for a user-defined\n              span of days\nWind Rose:    displays Wind Rose for selected dates, times and flight\n              category conditions\nCigVis Dist:  displays ceiling, visibility and flight category\n              distributions by month, hour and wind direction\nCigVis Trend: displays 3-12 hour ceiling, visibility and flight\n              category forecast based on initial conditions";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS Climate Menu - Usage";
+
+                    String helpText = "This master menu GUI is used to launch applications that display NCDC\nclimatological data for observation sites in a variety of formats.\n\nButton description:\n\nMETARs:       use to display reconstructed METARs for a user-defined\n              span of days\nWind Rose:    displays Wind Rose for selected dates, times and flight\n              category conditions\nCigVis Dist:  displays ceiling, visibility and flight category\n              distributions by month, hour and wind direction\nCigVis Trend: displays 3-12 hour ceiling, visibility and flight\n              category forecast based on initial conditions";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
