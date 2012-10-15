@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.PrintDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2011            bkowal     Initial creation
+ * Oct 15, 2012 1229       rferrel     Changes to work with non-blocking PrintDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.PrintDialog;
  */
 
 public class ShowPrintDialog extends AbstractHandler {
+    PrintDialog printDialog;
 
     /*
      * (non-Javadoc)
@@ -54,9 +56,13 @@ public class ShowPrintDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        PrintDialog printDialog = new PrintDialog(
-                HandlerUtil.getActiveShell(event));
-        printDialog.open();
+        if (printDialog == null || printDialog.getShell() == null
+                || printDialog.isDisposed()) {
+            printDialog = new PrintDialog(HandlerUtil.getActiveShell(event));
+            printDialog.open();
+        } else {
+            printDialog.bringToTop();
+        }
 
         return null;
     }
