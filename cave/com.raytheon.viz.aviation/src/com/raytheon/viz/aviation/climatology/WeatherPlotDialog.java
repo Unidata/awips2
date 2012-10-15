@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04/28/2011   8065       rferrel     Use cache data.
  * 10/02/2012   1229       rferrel     Made dialog non-blocking.
  * 10/10/2012   1229       rferrel     Changes for non-blocking TimeSelectorDlg.
+ * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -217,6 +218,8 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     private List<String> icaos;
 
     private TimeSelectorDialog timeDlg;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -467,11 +470,14 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "This dialog is used to display TAFs, METARs and guidance forecasts.\n\nMenus:\n    Site ID     - pulldown menu displaying list of all TAF sites.\n                  Selection of a site from the list redraws the window.\n    zoom        - zoom factor (time scale). \n\nButtons:\n    Display     - Redraws the window.\n    Times       - Displays forecast time selection window\n    Print       - Dumps an image of the window to a command specified in\n                  the configration file etc/wxplot.cfg.\n    Close       - Closes this dialog.\n    Help        - Displays this help.\n\nData Sources    - selection of available data sources. ";
-                String description = "Help";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Help";
+                    String helpText = "This dialog is used to display TAFs, METARs and guidance forecasts.\n\nMenus:\n    Site ID     - pulldown menu displaying list of all TAF sites.\n                  Selection of a site from the list redraws the window.\n    zoom        - zoom factor (time scale). \n\nButtons:\n    Display     - Redraws the window.\n    Times       - Displays forecast time selection window\n    Print       - Dumps an image of the window to a command specified in\n                  the configration file etc/wxplot.cfg.\n    Close       - Closes this dialog.\n    Help        - Displays this help.\n\nData Sources    - selection of available data sources. ";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
