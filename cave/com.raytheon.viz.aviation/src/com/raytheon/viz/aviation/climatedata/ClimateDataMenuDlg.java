@@ -100,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 08, 2012 #1229      rferrel      Changes for non-blocking WindRosePlotDlg.
  * Oct 09, 2012 #1229      rferrel      Changes for non-blocking MetarDisplayDialog.
  * Oct 09, 2012 #1229      rferrel      Changes for non-blocking CigVisTrendDlg.
+ * Oct 15, 2012 #1229      rferrel      Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -107,10 +108,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * @version 1.0
  */
 public class ClimateDataMenuDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ClimateDataMenuDlg.class);
 
-    private static final Pattern SP_PAT = Pattern.compile("\\s+");
+    private final Pattern SP_PAT = Pattern.compile("\\s+");
 
     /**
      * Text font.
@@ -230,6 +232,8 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
     private java.util.List<String> siteList;
 
     private int waitCnt = 0;
+
+    private HelpUsageDlg usageDlg;
 
     /**
      * Constructor.
@@ -500,11 +504,15 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "CLimate Data Update Dialog Help";
-                String helpText = "This dialog is used to create and append climatology data files.\n\nMenu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow observations history:  Opens a graphical display showing the current\n\t\t\t\t\tinventory of climate data available.\n\tUpdate NCDC \"ish\" files:    Opens a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\tCreate: Generate new climate data files, regardless of whether a file for\n\t\t\tthat site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info list:\n\tList of IDs and years of data available for each selected site\n\nMonitor area:\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:\n\tAfter sites are selected, click this to start the creation\n\t\tor append process\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\tProcess Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate Data:\n\tTemporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created files to its permanent location. \n\tClicking this will also generate new station climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the Monitor area to a file";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "CLimate Data Update Dialog Help";
+
+                    String helpText = "This dialog is used to create and append climatology data files.\n\nMenu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow observations history:  Opens a graphical display showing the current\n\t\t\t\t\tinventory of climate data available.\n\tUpdate NCDC \"ish\" files:    Opens a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\tCreate: Generate new climate data files, regardless of whether a file for\n\t\t\tthat site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info list:\n\tList of IDs and years of data available for each selected site\n\nMonitor area:\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:\n\tAfter sites are selected, click this to start the creation\n\t\tor append process\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\tProcess Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate Data:\n\tTemporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created files to its permanent location. \n\tClicking this will also generate new station climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the Monitor area to a file";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
