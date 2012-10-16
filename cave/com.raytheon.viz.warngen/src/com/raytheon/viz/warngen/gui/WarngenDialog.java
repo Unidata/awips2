@@ -124,7 +124,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Sep 05, 2012 DR 15261    D. Friedman Prevent additional counties from being selected for EXPs
  *  Sep 27, 2012 #1196       rferrel     Refactored to use non-blocking dialogs
  *  Oct 03, 2012 DR 15426    Qinglu Lin  Unlock WarnGen GUI for COR, implemented in corSelected();
- *  									 but lock immediate cause, implemented in individual template.
+ *                                       but lock immediate cause, implemented in individual template.
  * 
  * </pre>
  * 
