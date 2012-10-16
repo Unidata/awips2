@@ -32,6 +32,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 	//private NsharpSkewTPaneDescriptor desc;
+	private List<Integer> pressureMainList;
+	private List<Float> mixRatioMainList;
 	private IWireframeShape mixRatioShape;
 	private IWireframeShape dryAdiabatsShape;
 	private IWireframeShape moistAdiabatsShape;
@@ -65,8 +68,10 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 	private double currentZoomLevel=1;
 	private int skewtWidth=NsharpConstants.SKEWT_WIDTH;
 	private float xRatio=1;
+	private Float[]mainMixingRatios = 
+            { .5f, 1f, 2f, 5f, 10f, 20f};
 	private float[]mixingRatios = 
-            { .5f, 1, 2, 5, 10, 20/*, 50 */};
+		{ .5f, 1,1.5f, 2,3,4, 5,6, 7,9,10,12.5f, 15, 20,25,30};
 
 	private static List<List<UAPoint>> saturatedPoints = Equations
     .getSaturatedAdiabats(1000, 100, 20, -60, 60, 5);
@@ -93,6 +98,8 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         this.desc = desc;
         NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
 		graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
+		pressureMainList = Arrays.asList(NsharpConstants.PRESSURE_MAIN_LEVELS);
+		mixRatioMainList = Arrays.asList(mainMixingRatios);
     }
 
     
@@ -306,16 +313,15 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     // Chin: to handle dynamically moving pressure lines and its number within viewable zone when zooming, I could not use wireframeShape successfully
 	// It will chop off lower part. Therefore use this draw function.
     @SuppressWarnings("deprecation")
-	private void drawPressureLineNumber(){
+	private void drawPressureLineNumber(IGraphicsTarget target){
     	//pressureLineNumberShape
     	if(target==null)
  			return;
         String s = "";
-        presslinesNumbersShape = target.createWireframeShape(false,desc );
-        presslinesNumbersShape.allocate(150);
+        
        // System.out.println("NsharpConstants.left="+NsharpConstants.left+"NsharpConstants.right"+NsharpConstants.right+" top="+NsharpConstants.top + " bot="+ NsharpConstants.bottom);
        // System.out.println("MAIN*******************");
-        for (int i = 0; i < NsharpConstants.PRESSURE_MAIN_LEVELS.length; i++) {
+        /*for (int i = 0; i < NsharpConstants.PRESSURE_MAIN_LEVELS.length; i++) {
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
         	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MAIN_LEVELS[i],0);
         	try {
@@ -326,13 +332,41 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }
+        }*/
         //System.out.println("MARK*******************");
+        double xend ;
+        IExtent ext = desc.getRenderableDisplay().getExtent();
+        double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
+        double xDefault = world.mapX(NsharpConstants.left);
+        if(xmin <xDefault)
+        	xmin = xDefault;
+        double dispX = xmin + 25 * currentZoomLevel*xRatio;
+        //System.out.println("zoom="+currentZoomLevel);
+        // draw pressure line, pressure mark and pressure number label all at once
+        // Progressively change pressure line density when zoom in/out
         for (int i = 0; i < NsharpConstants.PRESSURE_MARK_LEVELS.length; i++) {
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
         	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MARK_LEVELS[i],0);
-        	try {
-				target.drawLine(world.mapX(NsharpConstants.left), world.mapY(coor.y), 0.0, world.mapX(NsharpConstants.left)+15* currentZoomLevel*xRatio,
+        	try {       		
+        		int mod = NsharpConstants.PRESSURE_MARK_LEVELS[i] % 100;
+        		if(pressureMainList.contains( NsharpConstants.PRESSURE_MARK_LEVELS[i]) || 
+        				(currentZoomLevel <=0.7 && mod == 0 ) || (currentZoomLevel <=0.4)){
+        			// case 1: pressure main level line defined in NsharpConstants.PRESSURE_MAIN_LEVELS
+        			// case 2: zoom factor <= 0.7, and pressure level at 100th
+        			// case 3: zoom factor < 0.4, all pressure lines
+        			//draw pressure line all the way from left to right on skewt pane
+        			xend = ext.getMaxX();  //world.mapX(NsharpConstants.right);
+        			// also draw pressure number label
+        			s = NsharpConstants.pressFormat.format(NsharpConstants.PRESSURE_MARK_LEVELS[i]);
+                	target.drawString(smallFont,s, dispX,world.mapY(coor.y), 0.0, TextStyle.NORMAL,
+    						NsharpConstants.pressureColor, HorizontalAlignment.LEFT,
+    						VerticalAlignment.MIDDLE, null);
+        		}
+        		else{
+        			// only mark pressure line to a small length
+        			xend = xmin+15* currentZoomLevel*xRatio;
+        		}
+				target.drawLine(xmin, world.mapY(coor.y), 0.0, xend,
 						world.mapY(coor.y), 0.0,
 						NsharpConstants.pressureColor, 1);
 			} catch (VizException e) {
@@ -340,13 +374,9 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 				e.printStackTrace();
 			}
         }
-        IExtent ext = desc.getRenderableDisplay().getExtent();
-        double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
-        double xDefault = world.mapX(NsharpConstants.left);
-        if(xmin <xDefault)
-        	xmin = xDefault;
-        double dispX = xmin + 25 * currentZoomLevel*xRatio;
-       // System.out.println("NUMBER*******************");      
+        
+       // System.out.println("NUMBER*******************");
+        /*
         for (int i = 0; i < NsharpConstants.PRESSURE_NUMBERING_LEVELS.length; i++) {
         	s = NsharpConstants.pressFormat.format(NsharpConstants.PRESSURE_NUMBERING_LEVELS[i]);
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
@@ -359,7 +389,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }
+        } */
     }
     private void createDryAdiabatsShape()
     {
@@ -421,8 +451,24 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     	// get the location of the 850 pressure line...
     	mixRatioShape = target.createWireframeShape(false,desc );
     	mixRatioShape.allocate(12);
-    	Coordinate coorStart = NsharpWxMath.getSkewTXY(850, -50);
-        Coordinate coorEnd = NsharpWxMath.getSkewTXY(850, 50);
+    	
+    	IExtent ext = desc.getRenderableDisplay().getExtent();
+        double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
+        double ymax = ext.getMaxY();
+        double dispY = ymax - 30 * currentZoomLevel;
+        //We are getting Y (pressure) level for plotting mix ratio number, therefore dispX here is not important for the
+        // reverseSkewTXY() input.
+        Coordinate c = NsharpWxMath.reverseSkewTXY(world.unMap(xmin,dispY));
+        double dispPressure = c.y-10* currentZoomLevel;
+       if((NsharpConstants.MAX_PRESSURE-dispPressure) < 30) 
+        	dispPressure = NsharpConstants.MAX_PRESSURE-30* currentZoomLevel;
+       if(dispPressure < 405)
+    	   dispPressure = 405;
+       if(dispPressure > 1000)
+    	   dispPressure = 1000;
+      // System.out.println("dispP="+dispPressure);
+    	Coordinate coorStart = NsharpWxMath.getSkewTXY(dispPressure,-50);//(850, -50);
+        Coordinate coorEnd = NsharpWxMath.getSkewTXY(dispPressure,50);//((850, 50);
 
         double startX = world.mapX(coorStart.x);
         double startY = world.mapY(coorStart.y);
@@ -430,7 +476,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         double endX = world.mapX(coorEnd.x);
         double endY = world.mapY(coorEnd.y);
 
-        Line2D.Double line = new Line2D.Double(startX, startY, endX, endY);
+        Line2D.Double ratioLabelLine = new Line2D.Double(startX, startY, endX, endY);
         Line2D.Double line2 = new Line2D.Double();
         UAPoint p1 = new UAPoint();
         p1.pressure = 1000;
@@ -438,26 +484,29 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         p2.pressure = 400;
         String num="";
         for (float ratio : mixingRatios) {
-            p1.temperature = Equations
-                    .invMixingRatio(p1.pressure, ratio / 1000);
-            p2.temperature = Equations
-                    .invMixingRatio(p2.pressure, ratio / 1000);
-            Coordinate coor1 = NsharpWxMath.getSkewTXY(p1.pressure,
-                    p1.temperature - 273.15);
-            Coordinate coor2 = NsharpWxMath.getSkewTXY(p2.pressure,
-                    p2.temperature - 273.15);
-            double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
-            mixRatioShape.addLineSegment(lines);
-            
-            line2.setLine(world.mapX(coor1.x), world.mapY(coor1.y),
-            		world.mapX(coor2.x), world.mapY(coor2.y));
-            num = num + ratio;
-            Point2D.Double point = null;
-            if ((point = getLineIntersection(line, line2)) != null) {
-                double [] lblXy = {point.x, point.y};
-                mixRatioShape.addLabel(num, lblXy);
-            }
-            num = "";
+        	if(mixRatioMainList.contains( ratio) || 
+        			(currentZoomLevel <=0.4)){       	
+        		p1.temperature = Equations
+        		.invMixingRatio(p1.pressure, ratio / 1000);
+        		p2.temperature = Equations
+        		.invMixingRatio(p2.pressure, ratio / 1000);
+        		Coordinate coor1 = NsharpWxMath.getSkewTXY(p1.pressure,
+        				p1.temperature - 273.15);
+        		Coordinate coor2 = NsharpWxMath.getSkewTXY(p2.pressure,
+        				p2.temperature - 273.15);
+        		double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
+        		mixRatioShape.addLineSegment(lines);
+
+        		line2.setLine(world.mapX(coor1.x), world.mapY(coor1.y),
+        				world.mapX(coor2.x), world.mapY(coor2.y));
+        		num = num + ratio;
+        		Point2D.Double point = null;
+        		if ((point = getLineIntersection(ratioLabelLine, line2)) != null) {
+        			double [] lblXy = {point.x, point.y};
+        			mixRatioShape.addLabel(num, lblXy);
+        		}
+        		num = "";
+        	}
         }
         mixRatioShape.compile();
         
@@ -501,10 +550,21 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         	dispPressure = NsharpConstants.MAX_PRESSURE-30* currentZoomLevel;
         // bottom temp number 
         int tempGap =10;
-        if(currentZoomLevel <=0.2)
+        if(currentZoomLevel <=0.1)
+        	tempGap= 1;
+        else if(currentZoomLevel <=0.2)
         	tempGap= 2;
+        else if(currentZoomLevel <=0.3)
+        	tempGap= 3;
+        else if(currentZoomLevel <=0.4)
+        	tempGap= 4;
         else if(currentZoomLevel <=0.5)
         	tempGap= 5;
+        else if(currentZoomLevel <=0.75)
+        	tempGap= 8;
+        /*tempGap = (int) ((currentZoomLevel * 10) /1);
+        if((currentZoomLevel * 10) %1 != 0)
+        	tempGap++;*/
          for (int i = /*70*/(int)lowTempMax+tempOffset; i >= /*-70+*/(int)lowTempMin+tempOffset; i -= tempGap) {
             Coordinate coorS = NsharpWxMath.getSkewTXY(dispPressure, i);
             double startX1 = world.mapX(coorS.x);
@@ -513,7 +573,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
             tempNumbersShape.addLabel(Integer.toString(i), lblXy);
             
         }
-		dispY = ymin + 30 * currentZoomLevel;
+		dispY = ymin + 10 * currentZoomLevel;
 		c = NsharpWxMath.reverseSkewTXY(world.unMap(xmin,dispY));
         dispPressure = c.y + 5 * currentZoomLevel;
         double topTempMin = c.x;
@@ -573,6 +633,8 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
     	float zoomLevel = paintProps.getZoomLevel();
+    	if(zoomLevel > 1.0f)
+			zoomLevel = 1.0f;
     	if(zoomLevel != currentZoomLevel ){
 			currentZoomLevel = zoomLevel;
 			handleZooming();
@@ -597,15 +659,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         target.drawRect(pe, NsharpConstants.backgroundColor, 1.0f, 1.0f);
        // target.drawWireframeShape(presslinesNumbersShape, NsharpConstants.pressureColor, 1, LineStyle.SOLID,smallFont);
         target.drawWireframeShape(tempNumbersShape, NsharpConstants.color_white, 1, LineStyle.DEFAULT, smallFont);
-        drawPressureLineNumber();
-        /*for (int i = 0; i < NsharpConstants.PRESSURE_MAIN_LEVELS.length; i++) {
-        	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MAIN_LEVELS[i],0);
-        	target.drawLine( world.mapX(NsharpConstants.left), world.mapY(coor.y), 0.0, world.mapX(NsharpConstants.right),
-            		world.mapY(coor.y), 0.0,
-    				NsharpConstants.pressureColor, 1);
-        	//System.out.println("draw x1="+world.mapX(NsharpConstants.left)+"y1=" +world.mapY(coor.y)+"x2="+world.mapX(NsharpConstants.right)+"y2="+
-            //		world.mapY(coor.y));
-        }*/
+        drawPressureLineNumber(target);
         target.clearClippingPlane();
     }
     //this function is used for printing
@@ -736,7 +790,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     	this.rectangle = new Rectangle((int)ext.getMinX(), (int) ext.getMinY(),
     			(int) ext.getWidth(), (int) ext.getHeight());
     	pe = new PixelExtent(this.rectangle);
-    	desc.setNewPe(pe);
+    	//desc.setNewPe(pe);
     	world = new WGraphics(this.rectangle);
 
     	world.setWorldCoordinates(NsharpConstants.left, NsharpConstants.top,
@@ -755,9 +809,12 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     public void handleZooming(){
     	if(presslinesNumbersShape!=null)
     		presslinesNumbersShape.dispose();
+    	if(mixRatioShape!=null)
+    		mixRatioShape.dispose();
     	if(tempNumbersShape!=null)
     		tempNumbersShape.dispose();
     	createTempNumberAndLineShape();
+    	createMixingRatioShape();
     	//createPressureLineNumberShape();
     }
     

@@ -53,12 +53,12 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	private int labelGap = 20;
 	private int btnGapX = 5;
 	private int btnGapY = 5;
-	private Button tempBtn, dewpBtn, parcelBtn, vTempBtn, wetBulbBtn, mixingRatioBtn, 
+	private Button tempBtn, dewpBtn, parcelBtn,parcelAscentBtn, dcapeBtn,vTempBtn, wetBulbBtn, mixingRatioBtn, 
 		dryAdiabatBtn,moisAdiabatBtn,omegaBtn, meanWindVectorBtn, stormMVector3075Btn, stormMVector1585Btn,
 		stormMVectorBunkersRightBtn,stormMVectorBunkersLeftBtn, corfidiVectorBtn, hodoBtn, efflayerBtn, cloudBtn, windBarbBtn;	
 	private Text windBarbText, tempOffsetText;
 	//default value for button initial setup
-	private  boolean temp=true, dewp=true, parcel=true, vTemp=true, wetBulb=true, hodo=true,
+	private  boolean temp=true, dewp=true, parcel=true,parcelAscent=true,dcape=true, vTemp=true, wetBulb=true, hodo=true,
 		mixratio=false, dryAdiabat=true, moistAdiabat=false, omega=true, meanWind=true, 
 		smv3075=false, smv1585=false, smvBunkersR=true, smvBunkersL=true,corfidiV=false, effLayer=true, cloud=false, windBarb=true;
 	private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
@@ -68,6 +68,8 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			graphProperty.setTemp(temp);
 			graphProperty.setDewp(dewp);
 			graphProperty.setParcel(parcel);
+			graphProperty.setParcelAscent(parcelAscent);
+			graphProperty.setDcape(dcape);
 			graphProperty.setVTemp(vTemp);
 			graphProperty.setWetBulb(wetBulb);
 			graphProperty.setHodo(hodo);
@@ -88,6 +90,11 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			graphProperty.setTempOffset(tempOffset);
 		}
 	}
+	
+	public boolean isDcape() {
+		return dcape;
+	}
+
 	public boolean isCloud() {
 		return cloud;
 	}
@@ -162,6 +169,10 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		return parcel;
 	}
 
+	public boolean isParcelAscent() {
+		return parcelAscent;
+	}
+	
 	public  boolean isVTemp() {
 		return vTemp;
 	}
@@ -216,6 +227,8 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			temp=graphProperty.isTemp();
 			dewp=graphProperty.isDewp();
 			parcel=graphProperty.isParcel();
+			parcelAscent=graphProperty.isParcelAscent();
+			dcape = graphProperty.isDcape();
 			vTemp=graphProperty.isVTemp();
 			wetBulb=graphProperty.isWetBulb();
 			hodo=graphProperty.isHodo();
@@ -292,10 +305,45 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 				applyChange();
 			}          		            	 	
 		} );  
+		parcelAscentBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		parcelAscentBtn.setText(NsharpNativeConstants.PARCEL_TRACE_ASCENT);
+		parcelAscentBtn.setEnabled( true );
+		parcelAscentBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelBtn.getBounds().y + parcelBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(parcelAscent == true)
+			parcelAscentBtn.setSelection(true);
+		else
+			parcelAscentBtn.setSelection(false);
+		parcelAscentBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				if(parcelAscent == true)
+					parcelAscent=false;
+				else
+					parcelAscent=true;
+				applyChange();
+			}          		            	 	
+		} ); 
+		dcapeBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		dcapeBtn.setText(NsharpNativeConstants.DCAPE_TRACE);
+		dcapeBtn.setEnabled( true );
+		dcapeBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelAscentBtn.getBounds().y + parcelAscentBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(dcape == true)
+			dcapeBtn.setSelection(true);
+		else
+			dcapeBtn.setSelection(false);
+		dcapeBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(dcape == true)
+					dcape=false;
+				else
+					dcape=true;
+				applyChange();
+			}          		            	 	
+		} );  
+		
 		vTempBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		vTempBtn.setText(NsharpNativeConstants.VTEMP_TRACE);
 		vTempBtn.setEnabled( true );
-		vTempBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelBtn.getBounds().y + parcelBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		vTempBtn.setBounds(btnGp.getBounds().x+ btnGapX, dcapeBtn.getBounds().y + dcapeBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		if(vTemp == true)
 			vTempBtn.setSelection(true);
 		else
@@ -740,7 +788,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
     }
 	@Override
 	public boolean close() {
-		tempBtn= dewpBtn= parcelBtn= vTempBtn= wetBulbBtn= mixingRatioBtn= 
+		tempBtn= dewpBtn= parcelBtn= parcelAscentBtn=dcapeBtn=vTempBtn= wetBulbBtn= mixingRatioBtn= 
 		dryAdiabatBtn=moisAdiabatBtn=efflayerBtn=omegaBtn= meanWindVectorBtn= stormMVector3075Btn= stormMVector1585Btn=
 		stormMVectorBunkersRightBtn=stormMVectorBunkersLeftBtn= corfidiVectorBtn= hodoBtn=windBarbBtn=null;
 		//thisDialog= null;

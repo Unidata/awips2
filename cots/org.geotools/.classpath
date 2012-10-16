@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="gt-postgis-2.6.4.jar" sourcepath="gt-postgis-2.6.4-sources.zip"/>
 	<classpathentry exported="true" kind="lib" path="common-2.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="commons-beanutils-1.7.0.jar"/>
@@ -21,10 +22,11 @@
 	<classpathentry exported="true" kind="lib" path="gt-graph-2.6.4.jar" sourcepath="gt-graph-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-gtopo30-2.6.4.jar" sourcepath="gt-gtopo30-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-image-2.6.4.jar" sourcepath="gt-image-2.6.4-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="gt-main-2.6.4.jar" sourcepath="geotools-2.6.4-sources.zip"/>
+	<classpathentry exported="true" kind="lib" path="gt-main-2.6.4.jar" sourcepath="gt-main-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-metadata-2.6.4.jar" sourcepath="gt-metadata-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4.jar" sourcepath="gt-referencing-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4.jar" sourcepath="gt-referencing3D-2.6.4-sources-.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-shapefile-2.6.4.jar" sourcepath="gt-shapefile-2.6.4-sources.zip"/>
 	<classpathentry kind="output" path="bin"/>
+	<referencedentry exported="true" kind="lib" path="gt-jdbc-2.6.4.jar" sourcepath="gt-jdbc-2.6.4-sources.zip"/>
 </classpath>

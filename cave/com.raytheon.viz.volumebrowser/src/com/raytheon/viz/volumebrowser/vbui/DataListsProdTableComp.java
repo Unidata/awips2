@@ -21,7 +21,6 @@ package com.raytheon.viz.volumebrowser.vbui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -82,6 +81,9 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2009 #2161      lvenable     Initial creation
+ * Jul 31, 2012 #875       rferrel     Now uses markers.
+ * Sep 26, 2012 #1216      rferrel     Change listener added to update
+ *                                      points menu.
  * 
  * </pre>
  * 
@@ -92,6 +94,8 @@ public class DataListsProdTableComp extends Composite implements
         IDataMenuAction {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataListsProdTableComp.class);
+
+    private IPointChangedListener pointChangeListener;
 
     /**
      * Perform a regular expression find instead of simply completing the input
@@ -774,7 +778,7 @@ public class DataListsProdTableComp extends Composite implements
     }
 
     /**
-     * Create the Planes tollbar menus.
+     * Create the Planes toolbar menus.
      * 
      * @param setting
      *            The selected "setting".
@@ -791,6 +795,11 @@ public class DataListsProdTableComp extends Composite implements
         currentDataSelection = DataSelection.PLANES;
 
         planeControl.toolbar.disposeToolbars();
+        if (pointChangeListener != null) {
+            PointsDataManager.getInstance().removePointsChangedListener(
+                    pointChangeListener);
+            pointChangeListener = null;
+        }
 
         String pointDisplayString = null;
         switch (setting) {
@@ -827,18 +836,21 @@ public class DataListsProdTableComp extends Composite implements
             ToolBarContribution tbContrib = new ToolBarContribution();
             tbContrib.xml.toolItemText = "Points";
             tbContrib.xml.id = "SoundingPointsButton";
-            List<IContributionItem> items = new ArrayList<IContributionItem>();
-            List<String> points = new ArrayList<String>(PointsDataManager
-                    .getInstance().getPointNames());
-            Collections.sort(points);
-            for (String point : points) {
-                MenuContribution mContrib = new MenuContribution();
-                mContrib.xml.key = "Point" + point;
-                mContrib.xml.menuText = pointDisplayString + " " + point;
-                items.add(new MenuContributionItem(mContrib));
-            }
-            planeControl.toolbar.add(new ToolBarContributionItem(tbContrib,
-                    items.toArray(new IContributionItem[0])));
+
+            final PointToolAction pta = new PointToolAction("Points",
+                    pointDisplayString);
+            planeControl.toolbar.add(pta);
+
+            pointChangeListener = new IPointChangedListener() {
+
+                @Override
+                public void pointChanged() {
+                    MenuItemManager.getInstance().clearPlanesMap();
+                    pta.resetMenu();
+                }
+            };
+            PointsDataManager.getInstance().addPointsChangedListener(
+                    pointChangeListener);
         }
 
         try {
