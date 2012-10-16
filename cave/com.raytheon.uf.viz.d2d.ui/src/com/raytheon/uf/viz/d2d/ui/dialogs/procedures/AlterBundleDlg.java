@@ -66,7 +66,8 @@ import com.raytheon.viz.ui.widgets.MenuButton;
  *                                      trying to perform a load.
  * Jul 31, 2012 #875       rferrel     Use MenuButton to organize entries
  *                                      in  menus.
- * Oct 03, 2012 #1248      rferrel     Bundle change listners added.
+ * Oct 03, 2012 #1248      rferrel     Bundle change listeners added.
+ * Oct 16, 2012 #1229      rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -74,16 +75,16 @@ import com.raytheon.viz.ui.widgets.MenuButton;
  * @version 1.0
  */
 public class AlterBundleDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlterBundleDlg.class);
 
-    private static final String Top_MENU_KEY = "<top>";
+    private final String Top_MENU_KEY = "<top>";
 
-    private static final String MENU_SEP = IAlterBundleContributor.MENU_SEPARATOR;
+    private final String MENU_SEP = IAlterBundleContributor.MENU_SEPARATOR;
 
-    private static final String MI_SEP = IAlterBundleContributor.MI_SEPARATOR;
+    private final String MI_SEP = IAlterBundleContributor.MI_SEPARATOR;
 
-    private static final int MENU_SEP_LEN = MENU_SEP.length();
+    private final int MENU_SEP_LEN = MENU_SEP.length();
 
     private static class AlterBundleEntry {
 
@@ -110,7 +111,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
     private Map<String, MenuButton> menuButtonMap;
 
     protected AlterBundleDlg(Bundle bundle, Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Alter Bundle on Loading");
 
         this.bundle = bundle;

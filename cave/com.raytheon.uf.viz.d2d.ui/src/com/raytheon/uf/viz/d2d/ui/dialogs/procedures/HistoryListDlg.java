@@ -50,10 +50,29 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.LoadSerializedXml;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
+/**
+ * Dialog to get user options on history to display.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
+ * Oct 16, 2012 1229       rferrel     Make dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class HistoryListDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HistoryListDlg.class);
 
     private List dataList;
@@ -72,8 +91,10 @@ public class HistoryListDlg extends CaveSWTDialog {
 
     private Button closeBtn;
 
+    private AlterBundleDlg alterDlg;
+
     public HistoryListDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("History List");
 
         try {
@@ -273,7 +294,7 @@ public class HistoryListDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -284,14 +305,24 @@ public class HistoryListDlg extends CaveSWTDialog {
         }
 
         try {
-            Bundle b = HistoryList.getInstance().getBundle(
-                    dataList.getSelectionIndex(), false);
-            AlterBundleDlg dlg = new AlterBundleDlg(b, getParent());
-            b = (Bundle) dlg.open();
+            if (mustCreate(alterDlg)) {
+                Bundle b = HistoryList.getInstance().getBundle(
+                        dataList.getSelectionIndex(), false);
+                alterDlg = new AlterBundleDlg(b, getShell());
+                alterDlg.setCloseCallback(new ICloseCallback() {
 
-            if (b != null) {
-                // Load was issued in alterBundleDlg
-                loadAlterBundle(b);
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof Bundle) {
+                            // Load was issued in alterBundleDlg
+                            Bundle b = (Bundle) returnValue;
+                            loadAlterBundle(b);
+                        }
+                    }
+                });
+                alterDlg.open();
+            } else {
+                alterDlg.bringToTop();
             }
         } catch (VizException e) {
             final String err = "Error altering bundle";
