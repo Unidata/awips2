@@ -57,6 +57,7 @@ import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2011            njensen     Initial creation
+ * OCT 04, 2012 15132      kshresth    Restored "MSAS/LDAD QC plots" display data                                     
  * 
  * </pre>
  * 
@@ -179,7 +180,7 @@ public class PlotModelDataRequestJob extends Job {
 
     private void requestData(List<PlotInfo[]> stationQuery,
             List<PlotModelElement> pme) {
-        Map<String, PlotInfo> plotMap = new HashMap<String, PlotInfo>();
+        Map<Integer, PlotInfo> plotMap = new HashMap<Integer, PlotInfo>();
         List<String> params = new ArrayList<String>();
 
         for (PlotModelElement p : pme) {
@@ -204,8 +205,8 @@ public class PlotModelDataRequestJob extends Job {
         List<String> str = new ArrayList<String>(stationQuery.size());
         for (PlotInfo[] infos : stationQuery) {
             for (PlotInfo info : infos) {
-                str.add(info.dataURI);
-                plotMap.put(info.dataURI, info);
+                str.add(Integer.toString(info.id));
+                plotMap.put(info.id, info);
             }
         }
 
@@ -219,7 +220,7 @@ public class PlotModelDataRequestJob extends Job {
                 index++;
                 j++;
             }
-            map.put("dataURI", rc);
+            map.put("id", rc);
             try {
                 // Try and get data from datacube
                 long t0 = System.currentTimeMillis();
@@ -243,8 +244,8 @@ public class PlotModelDataRequestJob extends Job {
                     for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
                         PointDataView pdv = pdc.readRandom(uriCounter);
                         if (pdv != null) {
-                            String dataURI = pdv.getString("dataURI");
-                            PlotInfo info = plotMap.get(dataURI);
+                            int id = pdv.getInt("id");
+                            PlotInfo info = plotMap.get(id);
                             // If the id doesn't match, try to match by
                             // location
                             if (info == null) {
@@ -257,6 +258,8 @@ public class PlotModelDataRequestJob extends Job {
                                             - pdv.getFloat("longitude"));
                                     if (diffLat < 0.01 && diffLon < 0.01) {
                                         info = pi;
+                                        pdv.setInt("id", pi.id);
+                                        id = pi.id;
                                     }
                                 }
                             }
