@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.menus.xml.CommonBundleMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonCommandContribution;
+import com.raytheon.uf.common.menus.xml.CommonDynamicMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonPlaceholderMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonSeparatorMenuContribution;
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.menus.xml.CommonToolbarSubmenuContribution;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 28, 2010            mnash     Initial creation
+ * Jul 31, 2012 875        rferrel     Added DynamicMenuContribution.
  * 
  * </pre>
  * 
@@ -66,6 +68,8 @@ public class MenuXMLMap {
         xmlMapping.put(CommonTitleContribution.class, new TitleContribution());
         xmlMapping.put(CommonToolbarSubmenuContribution.class,
                 new ToolbarSubmenuContribution());
+        xmlMapping.put(CommonDynamicMenuContribution.class,
+                new DynamicMenuContribution());
     }
 
     public static void registerMapping(Class<?> clazz,

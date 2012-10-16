@@ -151,7 +151,7 @@ public class TestHazardUtils extends TestCase {
      *             if eval() throws a JepException.
      */
     public void assertEval(String pythonExpr) throws JepException, Exception {
-        assertTrue(pythonExpr, testScript.eval(pythonExpr));
+        assertTrue(pythonExpr, testScript.evaluate(pythonExpr));
     }
 
     /**
@@ -184,8 +184,8 @@ public class TestHazardUtils extends TestCase {
                 sb.append(msg).append(": ");
 
             }
-            fail(String.format("%sExpected match for '%s', result was '%s'", sb
-                    .toString(), pattern, result));
+            fail(String.format("%sExpected match for '%s', result was '%s'",
+                    sb.toString(), pattern, result));
         }
     }
 
@@ -229,7 +229,7 @@ public class TestHazardUtils extends TestCase {
             // the data manager and parm manager is in the constructor.
             boolean evalResult;
             evalResult = testScript
-                    .eval("hazardUtils = MockHazardUtils.MockHazardUtils(dataManager, None)");
+                    .evaluate("hazardUtils = MockHazardUtils.MockHazardUtils(dataManager, None)");
 
             // If eval somehow failed without throwing a JepException, fail.
             assertTrue(evalResult);
@@ -479,8 +479,8 @@ public class TestHazardUtils extends TestCase {
                     argmap);
             if (obj instanceof String) {
                 String str = (String) obj;
-                str = str.substring(0, Math.min(str.length(), PYTHON_TR_STR
-                        .length()));
+                str = str.substring(0,
+                        Math.min(str.length(), PYTHON_TR_STR.length()));
                 assertEquals("Return should be Python TimeRanges",
                         PYTHON_TR_STR, str);
             } else {
@@ -498,8 +498,8 @@ public class TestHazardUtils extends TestCase {
                     argmap);
             if (obj instanceof String) {
                 String str = (String) obj;
-                str = str.substring(0, Math.min(str.length(), JAVA_TR_STR
-                        .length()));
+                str = str.substring(0,
+                        Math.min(str.length(), JAVA_TR_STR.length()));
                 assertEquals("Return should be Java TimeRanges", JAVA_TR_STR,
                         str);
             } else {
@@ -610,13 +610,12 @@ public class TestHazardUtils extends TestCase {
 
             assertNull("_removeOldGrids should return null", str);
 
-            // 
+            //
             argmap.clear();
             str = (String) testScript.execute("getvalue", "log", argmap);
             assertTrue(
                     "output log:" + str,
-                    str
-                            .matches("parm\\(hazXYZ\\):deleteTR\\(<PyJobject object at 0x[0-9a-fA-F]+>\\)\\s"));
+                    str.matches("parm\\(hazXYZ\\):deleteTR\\(<PyJobject object at 0x[0-9a-fA-F]+>\\)\\s"));
 
         } catch (JepException e) {
             throw new Exception(e);
@@ -708,8 +707,8 @@ public class TestHazardUtils extends TestCase {
                 // Since JepException is a catch-all, make sure it contains the
                 // right value in its message.
                 if (!je.getMessage().contains("Cannot split grid for")) {
-                    fail(String.format("Bad exception message: %s", je
-                            .getMessage()));
+                    fail(String.format("Bad exception message: %s",
+                            je.getMessage()));
                 }
             }
         } catch (JepException e) {

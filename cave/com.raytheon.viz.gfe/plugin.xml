@@ -1849,7 +1849,7 @@
 
 	<extension id="com.raytheon.viz.ui.bindings" point="org.eclipse.ui.bindings">
 		<key commandId="com.raytheon.viz.gfe.toggleLegend" 
-		     schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+		     schemeId="com.raytheon.viz.ui.awips.scheme"
 			 sequence="NUMPAD_ENTER"
 			 contextId="com.raytheon.viz.gfe.GFEShortCutContext">
 		</key>

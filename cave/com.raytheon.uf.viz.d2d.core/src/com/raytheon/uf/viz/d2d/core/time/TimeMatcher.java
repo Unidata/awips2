@@ -553,7 +553,7 @@ public class TimeMatcher {
         int f, f0;
         int p, pp, m, n, q;
         int best;
-        long dtf, dt, fd;
+        long dtf, dt, dtd, fd;
         double fo;
         long vf, v1, v2, vd;
 
@@ -648,6 +648,7 @@ public class TimeMatcher {
         IntrinsicReturnVal rv = intrinsicPeriod(depictTimes, majorIndex,
                 dataFcsts);
         dt = rv.intrinsicPeriod;
+        dtd = (rv.intrinsicPeriod * 3) / 2;
         dataFcsts = rv.haveForecasts;
 
         if (fspatial) {
@@ -682,6 +683,15 @@ public class TimeMatcher {
             dt++;
         }
 
+        if (dt > dtd || frameTimes[ef].getMatchValid() - latest.getTime() > dtd) {
+            // The first check makes sure that dtd is always bigger than dt
+            // since dtd is supposed to add extra padding to the time. The
+            // second check makes it so that if the latest frameTime is past the
+            // latest depictTime by more than dtd than we ignore dtd by setting
+            // it to dt which makes it a no op.
+            dtd = dt;
+        }
+
         // Try to find match for each frame. Dependent on valid times increasing
         // monotonically in depictTimes.
         for (f = f0; f <= ef; f++) {
@@ -692,7 +702,17 @@ public class TimeMatcher {
             vf = (frameTimes)[f].getMatchValid() + deltaTime;
             v1 = vf - dt; // first usable valid time
             v2 = vf + dt; // last usable valid time
-
+            if (!dataFcsts && !frameFcsts && vf > latest.getTime()) {
+                // if we are dealing with live data(without forecast times) then
+                // we want to allow extra time on the latest frame. For example
+                // LAPS data arrives hourly, and radar arrives every 6 minutes,
+                // in this scenario dt is around 36 minutes so 36 minutes after
+                // the hour when radar updates LAPS disappears. This code
+                // changes that so for the latest frame LAPS will be visible for
+                // 90 minutes which is enough time for the next LAPS frame to
+                // come in, this means that the latest frame always has data.
+                v1 = vf - dtd;
+            }
             fo = frameTimes[f].getLevelValue();
             spatial = fo >= 0.0 && dspatial;
             best = -1; // have no best match yet
