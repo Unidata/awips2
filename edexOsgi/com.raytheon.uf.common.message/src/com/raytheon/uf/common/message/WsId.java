@@ -23,6 +23,10 @@ import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.raytheon.uf.common.message.adapter.WsIdAdapter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -39,6 +43,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2009            randerso     Initial creation
  * Apr 25, 2012       545  randerso     Repurposed the lockKey field as threadId
+ * Sep 19, 2012     #1190  dgilling     Cache host names so toPrettyString() doesn't
+ *                                      get delayed behind DNS requests.
+ * Sep 20, 2012     #1190  dgilling     Create method getHostName().
  * 
  * </pre>
  * 
@@ -49,7 +56,32 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = WsIdAdapter.class)
 public class WsId implements Serializable, ISerializableObject {
+
+    private static class BoundedMap<K, V> extends LinkedHashMap<K, V> {
+        private static final long serialVersionUID = 1L;
+
+        private final int maxSize;
+
+        public BoundedMap(int maxSize) {
+            super(16, 0.75f, true);
+            this.maxSize = maxSize;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
+         */
+        @Override
+        protected boolean removeEldestEntry(Entry<K, V> eldest) {
+            return size() > maxSize;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
+
+    private static final Map<InetAddress, String> hostNameCache = Collections
+            .synchronizedMap(new BoundedMap<InetAddress, String>(100));
 
     private final InetAddress networkId;
 
@@ -61,7 +93,7 @@ public class WsId implements Serializable, ISerializableObject {
 
     // replaced A1 lockKey with threadId for A2.
     // lockKey was not used in A2. This allows A2 to retain
-    // compatibility with A1 for ISC purposes by not chaning
+    // compatibility with A1 for ISC purposes by not changing
     // the format of the WsId
     private final long threadId;
 
@@ -157,7 +189,6 @@ public class WsId implements Serializable, ISerializableObject {
             }
             this.networkId = addr;
         }
-
     }
 
     /*
@@ -188,12 +219,24 @@ public class WsId implements Serializable, ISerializableObject {
      * @return WsId as pretty string
      */
     public String toPrettyString() {
+        String hostname = retrieveFromHostCache(networkId);
+
         StringBuilder o = new StringBuilder();
-        o.append(userName).append('@').append(networkId.getHostName())
-                .append(':').append(progName).append(':').append(pid)
-                .append(':').append(threadId);
+        o.append(userName).append('@').append(hostname).append(':')
+                .append(progName).append(':').append(pid).append(':')
+                .append(threadId);
 
         return o.toString();
+    }
+
+    private String retrieveFromHostCache(InetAddress address) {
+        String hostName = hostNameCache.get(address);
+        if (hostName == null) {
+            hostName = address.getHostName();
+            hostNameCache.put(address, hostName);
+        }
+
+        return hostName;
     }
 
     /**
@@ -201,6 +244,10 @@ public class WsId implements Serializable, ISerializableObject {
      */
     public InetAddress getNetworkId() {
         return networkId;
+    }
+
+    public String getHostName() {
+        return retrieveFromHostCache(networkId);
     }
 
     /**

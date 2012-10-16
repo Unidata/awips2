@@ -57,6 +57,7 @@ import com.raytheon.viz.texteditor.alarmalert.util.AAPACombined;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertLists;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 
 /**
@@ -69,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * ------------ ---------- ----------- --------------------------
  * Sep 9, 2009            mnash     Initial creation
  * Oct 31,2011  8510       rferrel     Cleaned up code made more robust
+ * Sep 20,2011  1196       rferrel     Change dialogs so they do not block.
  * 
  * </pre>
  * 
@@ -133,7 +135,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
      * @param parentShell
      */
     protected AlarmAlertDlg(Shell parentShell) {
-        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("(init) Alarm/Alert and Proximity Alarm Products");
     }
 
@@ -177,8 +180,6 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         });
 
         preOpened();
-
-        // shell.open();
 
         opened();
     }
@@ -270,29 +271,14 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.SAVE);
-                dialog.open();
-                String fname = dialog.getFileName();
-                fname = validateFileName(fname);
-                // AlarmAlertFunctions.validateName(fname);
+                dialog.setCloseCallback(new ICloseCallback() {
 
-                if (fname != null && !fname.isEmpty()) {
-                    setShellText(fname);
-                    setLastFile(fname);
-                    // save alert products
-                    LocalizationFile lFile = AlarmAlertFunctions.getFile(
-                            AlarmAlertFunctions.initUserLocalization(), fname);
-                    if (lFile != null) {
-                        AlarmAlertFunctions.saveAlarms(
-                                aapList.subList(siteAdminNumberAA - 1,
-                                        aapList.size()),
-                                papList.subList(siteAdminNumberPA - 1,
-                                        papList.size()), lFile);
-                    } else {
-                        statusHandler.handle(Priority.SIGNIFICANT,
-                                "Null localization file", new VizException(
-                                        "Null localization file"));
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        doSaveAs(returnValue.toString());
                     }
-                }
+                });
+                dialog.open();
             }
         });
 
@@ -303,41 +289,70 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.LOAD);
-                dialog.open();
-                // load file
-                String fname = dialog.getFileName();
-                fname = validateFileName(fname);
-                // AlarmAlertFunctions.validateName(fname);
-                if (fname != null && !fname.isEmpty()) {
+                dialog.setCloseCallback(new ICloseCallback() {
 
-                    // load alert products
-                    LocalizationFile lFile = AlarmAlertFunctions.getFile(
-                            AlarmAlertFunctions.initUserLocalization(), fname);
-                    if (lFile != null) {
-                        File file = lFile.getFile();
-                        setShellText(fname);
-                        setLastFile(fname);
-                        currentFile = file;
-                        AAPACombined combined = null;
-
-                        try {
-                            combined = AlarmAlertFunctions.loadFile(file);
-                        } catch (FileNotFoundException e) {
-                            combined = AlarmAlertFunctions
-                                    .createDefaultAAPACombined();
-                        }
-                        if (combined != null) {
-                            populateLists(combined.getAaList(),
-                                    combined.getPaList());
-                        }
-                    } else {
-                        statusHandler.handle(Priority.SIGNIFICANT,
-                                "Null localization file", new VizException(
-                                        "Null localization file"));
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        doLoad(returnValue.toString());
                     }
-                }
+                });
+                dialog.open();
             }
         });
+    }
+
+    private void doSaveAs(String fname) {
+        fname = validateFileName(fname);
+        // AlarmAlertFunctions.validateName(fname);
+
+        if (fname != null && !fname.isEmpty()) {
+            setShellText(fname);
+            setLastFile(fname);
+            // save alert products
+            LocalizationFile lFile = AlarmAlertFunctions.getFile(
+                    AlarmAlertFunctions.initUserLocalization(), fname);
+            if (lFile != null) {
+                AlarmAlertFunctions.saveAlarms(
+                        aapList.subList(siteAdminNumberAA - 1, aapList.size()),
+                        papList.subList(siteAdminNumberPA - 1, papList.size()),
+                        lFile);
+            } else {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Null localization file", new VizException(
+                                "Null localization file"));
+            }
+        }
+    }
+
+    private void doLoad(String fname) {
+        fname = validateFileName(fname);
+        // AlarmAlertFunctions.validateName(fname);
+        if (fname != null && !fname.isEmpty()) {
+
+            // load alert products
+            LocalizationFile lFile = AlarmAlertFunctions.getFile(
+                    AlarmAlertFunctions.initUserLocalization(), fname);
+            if (lFile != null) {
+                File file = lFile.getFile();
+                setShellText(fname);
+                setLastFile(fname);
+                currentFile = file;
+                AAPACombined combined = null;
+
+                try {
+                    combined = AlarmAlertFunctions.loadFile(file);
+                } catch (FileNotFoundException e) {
+                    combined = AlarmAlertFunctions.createDefaultAAPACombined();
+                }
+                if (combined != null) {
+                    populateLists(combined.getAaList(), combined.getPaList());
+                }
+            } else {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Null localization file", new VizException(
+                                "Null localization file"));
+            }
+        }
     }
 
     /**
@@ -359,21 +374,27 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 }
                 proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM",
                         new AlarmAlertProduct(isOperationalMode()));
-                AlarmAlertProduct prod = (AlarmAlertProduct) proximityAlarmDlg
-                        .open();
-                if (proximityAlarmDlg.haveOkEvent()) {
-                    aapList.add(prod);
-                    String string = "";
-                    if (prod.isAlarm()) {
-                        string += " (Alarm)";
+                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                        if (proximityAlarmDlg.haveOkEvent()) {
+                            aapList.add(prod);
+                            String string = "";
+                            if (prod.isAlarm()) {
+                                string += " (Alarm)";
+                            }
+                            if (!"".equals(prod.getSearchString())) {
+                                string += " containing \""
+                                        + prod.getSearchString() + "\"";
+                            }
+                            aaList.add(prod.getProductId() + string);
+                            changeSaveState(true);
+                        }
                     }
-                    if (!"".equals(prod.getSearchString())) {
-                        string += " containing \"" + prod.getSearchString()
-                                + "\"";
-                    }
-                    aaList.add(prod.getProductId() + string);
-                    changeSaveState(true);
-                }
+                });
+                proximityAlarmDlg.open();
             }
         });
 
@@ -389,16 +410,24 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
                 proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                         new AlarmAlertProduct(isOperationalMode()));
-                AlarmAlertProduct prod = (AlarmAlertProduct) proximityAlarmDlg
-                        .open();
-                if (proximityAlarmDlg.haveOkEvent()) {
-                    prod.setOperationalMode(isOperationalMode());
-                    papList.add(prod);
-                    paList.add(prod.getProductId() + " " + prod.getAlarmType()
-                            + " " + prod.getActionCmd() + " "
-                            + AlarmAlertFunctions.buildDistance(prod));
-                    changeSaveState(true);
-                }
+                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                        if (proximityAlarmDlg.haveOkEvent()) {
+                            prod.setOperationalMode(isOperationalMode());
+                            papList.add(prod);
+                            paList.add(prod.getProductId() + " "
+                                    + prod.getAlarmType() + " "
+                                    + prod.getActionCmd() + " "
+                                    + AlarmAlertFunctions.buildDistance(prod));
+                            changeSaveState(true);
+                        }
+                    }
+                });
+
+                proximityAlarmDlg.open();
             }
         });
 
@@ -415,48 +444,64 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 }
                 if (aaList.getSelectionIndex() != -1) {
                     // User might change selection while dialog is displayed.
-                    int index = aaList.getSelectionIndex();
+                    final int index = aaList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM", aapList
                             .get(index - 1));
-                    AlarmAlertProduct prod = aapList.set(index - 1,
-                            (AlarmAlertProduct) proximityAlarmDlg.open());
-                    if (proximityAlarmDlg.haveOkEvent()) {
-                        String string = "";
-                        if (prod.isAlarm()) {
-                            string += " (Alarm)";
+                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                            prod = aapList.set(index - 1, prod);
+                            if (proximityAlarmDlg.haveOkEvent()) {
+                                String string = "";
+                                if (prod.isAlarm()) {
+                                    string += " (Alarm)";
+                                }
+                                if (!"".equals(prod.getSearchString())) {
+                                    string += " \"" + prod.getSearchString()
+                                            + "\"";
+                                }
+                                aaList.setItem(index, prod.getProductId()
+                                        + string);
+                                paList.deselectAll();
+                                aaList.select(index);
+                                aaList.showSelection();
+                                changeSaveState(true);
+                            }
                         }
-                        if (!"".equals(prod.getSearchString())) {
-                            string += " \"" + prod.getSearchString() + "\"";
-                        }
-                        aaList.setItem(index, prod.getProductId() + string);
-                        paList.deselectAll();
-                        aaList.select(index);
-                        aaList.showSelection();
-                        changeSaveState(true);
-                    }
+                    });
+                    proximityAlarmDlg.open();
                 } else if (paList.getSelectionIndex() != -1) {
                     // User might change selection while dialog is displayed.
-                    int index = paList.getSelectionIndex();
+                    final int index = paList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                             papList.get(index - 1));
-                    AlarmAlertProduct prod = papList.set(index - 1,
-                            (AlarmAlertProduct) proximityAlarmDlg.open());
-                    if (proximityAlarmDlg.haveOkEvent()) {
-                        paList.setItem(
-                                paList.getSelectionIndex(),
-                                prod.getProductId()
-                                        + " "
-                                        + prod.getAlarmType()
-                                        + " "
-                                        + prod.getActionCmd()
-                                        + " "
-                                        + AlarmAlertFunctions
-                                                .buildDistance(prod));
-                        aaList.deselectAll();
-                        paList.select(index);
-                        paList.showSelection();
-                        changeSaveState(true);
-                    }
+                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            AlarmAlertProduct prod = (AlarmAlertProduct) returnValue;
+                            prod = papList.set(index - 1, prod);
+                            if (proximityAlarmDlg.haveOkEvent()) {
+                                paList.setItem(
+                                        paList.getSelectionIndex(),
+                                        prod.getProductId()
+                                                + " "
+                                                + prod.getAlarmType()
+                                                + " "
+                                                + prod.getActionCmd()
+                                                + " "
+                                                + AlarmAlertFunctions
+                                                        .buildDistance(prod));
+                                aaList.deselectAll();
+                                paList.select(index);
+                                paList.showSelection();
+                                changeSaveState(true);
+                            }
+                        }
+                    });
+                    proximityAlarmDlg.open();
                 }
             }
         });
@@ -602,11 +647,11 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         lists.getFilteredProducts().clear();
         lists.getFilteredProducts().addAll(aapList);
         lists.getFilteredProducts().addAll(papList);
-        
+
         LocalizationFile lFile = AlarmAlertFunctions.getFile(
                 AlarmAlertFunctions.initUserLocalization(),
                 currentFile.getName());
-        
+
         AlarmAlertFunctions.saveAlarms(
                 aapList.subList(siteAdminNumberAA - 1, aapList.size()),
                 papList.subList(siteAdminNumberPA - 1, papList.size()), lFile);
