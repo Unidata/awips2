@@ -71,7 +71,6 @@ import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.WarngenException;
-import com.raytheon.viz.warngen.config.AbstractDbSourceDataAdaptor;
 import com.raytheon.viz.warngen.config.DataAdaptorFactory;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.raytheon.viz.warnings.DateUtil;
@@ -98,7 +97,8 @@ import com.vividsolutions.jts.geom.Point;
  *                                        that loops over availablePoints.
  *    May 21, 2012 DR14480    Qinglu Lin  Added code to prevent duplicate cities
  *                                        in pathcast.
- *    Sep 18, 2012 DR15428    jsanchez    Moved the path cast data collecting to a seperate class.
+ *    Oct 05, 2012 DR15429    Qinglu Lin  Updated code to keep duplicate names of cities
+ *                                        which are at different locations in pathcast.
  * 
  * </pre>
  * 
@@ -108,6 +108,8 @@ import com.vividsolutions.jts.geom.Point;
 public class Wx {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Wx.class);
+
+    private static final String transformedKey = "com.raytheon.transformed";
 
     private long wwaStopTime;
 
@@ -182,6 +184,7 @@ public class Wx {
                 .getPathcastConfig();
         UnitConverter distanceToMeters = config.getUnitDistance()
                 .getConverterTo(SI.METER);
+        UnitConverter metersToDistance = distanceToMeters.inverse();
 
         int maxCount = pathcastConfiguration.getMaxResults();
         int maxGroup = pathcastConfiguration.getMaxGroup();
@@ -193,6 +196,7 @@ public class Wx {
         String areaNotationField = pathcastConfiguration.getAreaNotationField();
         String areaNotationAbbrevField = pathcastConfiguration
                 .getAreaNotationTranslationFile();
+        String timezoneTable = geospatialConfig.getTimezoneSource();
         String timezoneField = geospatialConfig.getTimezoneField();
         String pointSource = pathcastConfiguration.getPointSource();
         String pointField = pathcastConfiguration.getPointField().toLowerCase();
@@ -340,12 +344,18 @@ public class Wx {
                 }
             }
 
-            AbstractDbSourceDataAdaptor pathcastDataAdaptor = null;
+            SpatialQueryResult[] ptFeatures = null;
             if (pointSource != null) {
-                pathcastDataAdaptor = DataAdaptorFactory
-                        .createPathcastDataAdaptor(pathcastConfiguration,
-                                distanceToMeters, bufferedPathCastArea,
-                                localizedSite);
+                ptFeatures = SpatialQueryFactory.create().query(pointSource,
+                        ptFields.toArray(new String[ptFields.size()]),
+                        bufferedPathCastArea, pointFilter,
+                        SearchMode.INTERSECTS);
+                if (latLonToLocal != null) {
+                    for (SpatialQueryResult rslt : ptFeatures) {
+                        rslt.attributes.put(transformedKey,
+                                JTS.transform(rslt.geometry, latLonToLocal));
+                    }
+                }
             }
 
             SpatialQueryResult[] areaFeatures = null;
@@ -422,14 +432,99 @@ public class Wx {
                             .get(timezoneField));
                 }
 
-                List<ClosestPoint> points = null;
-                if (pathcastDataAdaptor != null) {
-                    points = pathcastDataAdaptor.getPathcastData(
-                            pathcastConfiguration, distanceToMeters,
-                            latLonToLocal, pcGeom, centroid, areaFeatures,
-                            pc.area, pc.parentArea);
-                } else {
-                    points = new ArrayList<ClosestPoint>(0);
+                Geometry localPCGeom = null;
+                if (pcGeom != null) {
+                    localPCGeom = JTS.transform(pcGeom, latLonToLocal);
+                }
+
+                // Find closest points
+                GeodeticCalculator gc = new GeodeticCalculator();
+                List<ClosestPoint> points = new ArrayList<ClosestPoint>(
+                        ptFeatures.length);
+                for (SpatialQueryResult pointRslt : ptFeatures) {
+                    Geometry localPt = (Geometry) pointRslt.attributes
+                            .get(transformedKey);
+                    double minDist = Double.MAX_VALUE;
+                    Coordinate closestCoord = null;
+                    if (localPCGeom != null) {
+                        Coordinate[] localPts = localPCGeom.getCoordinates();
+                        Coordinate[] latLonPts = pcGeom.getCoordinates();
+                        for (int i = 0; i < localPts.length; ++i) {
+                            Coordinate loc = localPts[i];
+                            double distance = loc.distance(localPt
+                                    .getCoordinate());
+                            if (distance <= thresholdInMeters
+                                    && distance < minDist) {
+                                minDist = distance;
+                                closestCoord = latLonPts[i];
+                            }
+                        }
+                    } else {
+                        closestCoord = centroid.getCoordinate();
+                        minDist = 0;
+                    }
+
+                    if (closestCoord != null) {
+                        ClosestPoint cp = new ClosestPoint();
+                        cp.point = pointRslt.geometry.getCoordinate();
+                        cp.name = String.valueOf(pointRslt.attributes
+                                .get(pointField));
+                        cp.distance = minDist;
+                        cp.roundedDistance = (int) metersToDistance
+                                .convert(minDist);
+                        gc.setStartingGeographicPoint(cp.point.x, cp.point.y);
+                        gc.setDestinationGeographicPoint(closestCoord.x,
+                                closestCoord.y);
+                        cp.azimuth = gc.getAzimuth();
+                        cp.oppositeAzimuth = ClosestPoint
+                                .adjustAngle(cp.azimuth + 180);
+                        cp.roundedAzimuth = GeoUtil.roundAzimuth(cp.azimuth);
+                        cp.oppositeRoundedAzimuth = ClosestPoint
+                                .adjustAngle(cp.roundedAzimuth + 180);
+
+                        boolean found = false;
+                        for (SpatialQueryResult areaRslt : areaFeatures) {
+                            if (areaRslt.geometry.contains(pointRslt.geometry)) {
+                                cp.area = String.valueOf(areaRslt.attributes
+                                        .get(areaField));
+                                cp.parentArea = String
+                                        .valueOf(areaRslt.attributes
+                                                .get(parentAreaField));
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            cp.area = pc.area;
+                            cp.parentArea = pc.parentArea;
+                        }
+
+                        if (ptFields.contains("population")) {
+                            try {
+                                cp.population = Integer.valueOf(String
+                                        .valueOf(pointRslt.attributes
+                                                .get("population")));
+                            } catch (Exception e) {
+                                cp.population = 0;
+                            }
+                        }
+                        if (ptFields.contains("warngenlev")) {
+                            try {
+                                cp.warngenlev = Integer.valueOf(String
+                                        .valueOf(pointRslt.attributes
+                                                .get("warngenlev")));
+                            } catch (Exception e) {
+                                cp.warngenlev = 3;
+                            }
+                        }
+                        points.add(cp);
+                    }
+                }
+
+                if (fields.isEmpty() == false) {
+                    // Sort the points based on sortBy fields
+                    Collections
+                            .sort(points, new ClosestPointComparator(fields));
                 }
                 pcPoints.put(pc, points);
             }
@@ -437,7 +532,7 @@ public class Wx {
             // with first pathcast and goes through each point within maxCount,
             // check for same point in other pathcast objects. If same point
             // exists, remove from which ever pathcast is furthest away
-            Set<String> closestPtNames = new HashSet<String>(30);
+            Set<Coordinate> closestPtCoords = new HashSet<Coordinate>(30);
             List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(maxCount);
             Queue<PathCast> tmp = new ArrayDeque<PathCast>(pathcasts);
             while (tmp.isEmpty() == false) {
@@ -469,12 +564,12 @@ public class Wx {
                 tmpPoints.clear();
                 for (int i = 0; i < points.size() && i < maxCount; ++i) {
                     ClosestPoint point = points.get(i);
-                    String name = point.getName();
-                    if (!closestPtNames.contains(name)) {
+                    Coordinate coord = point.getPoint();
+                    if (!closestPtCoords.contains(coord)) {
                         // To prevent duplicate cities in pathcast,
                         // only unused point is added to tmpPoints
                         tmpPoints.add(point);
-                        closestPtNames.add(name);
+                        closestPtCoords.add(coord);
                     }
                 }
                 if (tmpPoints.size() > 0) {
@@ -678,13 +773,9 @@ public class Wx {
         List<ClosestPoint> availablePoints = new ArrayList<ClosestPoint>();
         for (PointSourceConfiguration pointConfig : pointConfigs) {
             long t0 = System.currentTimeMillis();
-            AbstractDbSourceDataAdaptor adaptor = DataAdaptorFactory
-                    .createDataAdaptor(pointConfig, bufferedSearchArea,
-                            localizedSite);
-            if (adaptor != null) {
-                availablePoints.addAll(adaptor.getData(config, pointConfig,
-                        localizedSite));
-            }
+            availablePoints.addAll(DataAdaptorFactory.createPointSource(
+                    pointConfig).getData(config, pointConfig,
+                    bufferedSearchArea, localizedSite));
             long t1 = System.currentTimeMillis();
             System.out.println("getClosestPoint.dbQuery took " + (t1 - t0)
                     + " for point source " + pointConfig.getPointSource());
