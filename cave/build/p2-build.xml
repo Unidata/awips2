@@ -276,6 +276,14 @@
         	<param name="feature"
         		value="com.raytheon.uf.viz.kml.export.feature" />
         </antcall>		
+                <antcall target="p2.build.repo">
+                    <param name="feature"
+                          value="com.raytheon.uf.viz.npp.feature" />
+                </antcall>
+                <antcall target="p2.build.repo">
+                     <param name="feature"
+                          value="com.raytheon.uf.viz.collaboration.feature" />
+                </antcall>
 
 		<antcall target="cleanup.features" />
 	</target>
@@ -407,6 +415,20 @@
 				</delete>
 			</then>
 		</if>
+
+                <!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
+                <if>
+                        <available
+                                file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                                type="dir" />
+                        <then>
+                                <delete includeemptydirs="true">
+                                        <fileset
+                                                dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                                        />
+                                </delete>
+                        </then>
+                </if>
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 
