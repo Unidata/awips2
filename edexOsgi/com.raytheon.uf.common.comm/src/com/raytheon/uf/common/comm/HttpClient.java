@@ -109,20 +109,22 @@ public class HttpClient {
 
     private ThreadSafeClientConnManager connManager = null;
 
-    private NetworkStatistics stats = new NetworkStatistics();
+    private final NetworkStatistics stats = new NetworkStatistics();
 
     private boolean gzipRequests = false;
 
     private boolean handlingGzipResponses = false;
 
     /** number of requests currently in process by the application per host */
-    private Map<String, AtomicInteger> currentRequestsCount = new ConcurrentHashMap<String, AtomicInteger>();
+    private final Map<String, AtomicInteger> currentRequestsCount = new ConcurrentHashMap<String, AtomicInteger>();
 
     private HttpClient() {
         connManager = new ThreadSafeClientConnManager();
         DefaultHttpClient client = new DefaultHttpClient(connManager);
+
         client.addRequestInterceptor(new HttpRequestInterceptor() {
 
+            @Override
             public void process(final HttpRequest request,
                     final HttpContext context) throws HttpException,
                     IOException {
@@ -138,6 +140,7 @@ public class HttpClient {
         });
 
         client.addResponseInterceptor(new HttpResponseInterceptor() {
+            @Override
             public void process(final HttpResponse response,
                     final HttpContext context) throws HttpException,
                     IOException {
@@ -148,6 +151,8 @@ public class HttpClient {
                 }
             }
         });
+        HttpConnectionParams.setTcpNoDelay(client.getParams(), true);
+
         this.client = client;
         previousConnectionFailed = false;
     }
@@ -304,7 +309,7 @@ public class HttpClient {
                     exc = e;
                 }
 
-                if (errorMsg != null && exc != null) {
+                if ((errorMsg != null) && (exc != null)) {
                     if (tries > retryCount) {
                         previousConnectionFailed = true;
                         // close/abort connection
@@ -350,7 +355,7 @@ public class HttpClient {
     private void processResponse(HttpResponse resp,
             IStreamHandler handlerCallback) throws CommunicationException {
         InputStream is = null;
-        if (resp != null && resp.getEntity() != null) {
+        if ((resp != null) && (resp.getEntity() != null)) {
             try {
                 is = resp.getEntity().getContent();
                 handlerCallback.handleStream(is);
@@ -668,8 +673,8 @@ public class HttpClient {
             Header ceheader = entity.getContentEncoding();
             if (ceheader != null) {
                 HeaderElement[] codecs = ceheader.getElements();
-                for (int i = 0; i < codecs.length; i++) {
-                    if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+                for (HeaderElement codec : codecs) {
+                    if (codec.getName().equalsIgnoreCase("gzip")) {
                         response.setEntity(new GzipDecompressingEntity(response
                                 .getEntity()));
                         return;
