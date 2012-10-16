@@ -5,6 +5,7 @@
                  Evan Bookbinder 2-24-2012
                  Phil Kurimski   2-28-2012   
                  Qinglu Lin      04-04-2012 DR 14691. Added <feAreaField> tag.              
+                 Qinglu Lin      10-03-2012 DR 15426. Changed ic to pc in <lockedGroupsOnFollowup> tag.              
 -->
                  
 <warngenConfig>
@@ -58,7 +59,7 @@
   <duration>720</duration>
  </durations>
  
-<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>pc</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FA" sig="W">
  <bullets>
