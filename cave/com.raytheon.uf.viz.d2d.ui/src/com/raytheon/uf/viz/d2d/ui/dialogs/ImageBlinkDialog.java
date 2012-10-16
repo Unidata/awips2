@@ -52,7 +52,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorData;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorBarAction;
 
 /**
- * TODO Add Description
+ * This is a dialog to determine what range of a rendered display should blink.
  * 
  * <pre>
  * 
@@ -60,6 +60,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorBarAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 13, 2010            mschenke     Initial creation
+ * Oct 16, 2012 1229       rferrel     Updated to use bringToTop to
+ *                                      activate existing dialog.
  * 
  * </pre>
  * 
@@ -92,18 +94,36 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
 
     private static Map<AbstractVizResource<?, ?>, ImageBlinkDialog> dialogMap = new HashMap<AbstractVizResource<?, ?>, ImageBlinkDialog>();
 
+    /**
+     * If needed creates an instance of this dialog and associates it with the
+     * resource and opens the dialog or activates the dialog if one already
+     * exists for the resource.
+     * 
+     * @param rates
+     * @param currRate
+     * @param resource
+     * @param rscProps
+     * @param displays
+     */
     public static synchronized void openDialog(float[] rates, float currRate,
             AbstractVizResource<?, ?> resource, ResourceProperties rscProps,
             D2DMapRenderableDisplay[] displays) {
         ImageBlinkDialog dlg = dialogMap.get(resource);
-        if (dlg == null) {
+        if (dlg == null || dlg.getShell() == null || dlg.isDisposed()) {
             dlg = new ImageBlinkDialog(new Shell(Display.getCurrent()), rates,
                     currRate, resource, rscProps, displays);
             dialogMap.put(resource, dlg);
+            dlg.open();
+        } else {
+            dlg.bringToTop();
         }
-        dlg.open();
     }
 
+    /**
+     * Removes the dialog associated with the resource.
+     * 
+     * @param resource
+     */
     public static synchronized void removeDialog(
             AbstractVizResource<?, ?> resource) {
         dialogMap.remove(resource);
@@ -146,10 +166,8 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
             @Override
             public void widgetDisposed(DisposeEvent e) {
                 removeDialog(resource);
-                resource
-                        .unregisterListener((IDisposeListener) ImageBlinkDialog.this);
-                resource
-                        .unregisterListener((IPaintListener) ImageBlinkDialog.this);
+                resource.unregisterListener((IDisposeListener) ImageBlinkDialog.this);
+                resource.unregisterListener((IPaintListener) ImageBlinkDialog.this);
             }
         });
         Composite mainComp = new Composite(shell, SWT.NONE);
@@ -186,9 +204,8 @@ public class ImageBlinkDialog extends CaveSWTDialog implements
 
         cbo.add(BlinkToggleAction.NO_BLINK);
 
-        cbo
-                .setText(rate == BlinkToggleAction.NO_BLINK_VALUE ? BlinkToggleAction.NO_BLINK
-                        : "" + rate);
+        cbo.setText(rate == BlinkToggleAction.NO_BLINK_VALUE ? BlinkToggleAction.NO_BLINK
+                : "" + rate);
 
         cbo.addSelectionListener(new SelectionAdapter() {
             @Override
