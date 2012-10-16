@@ -20,8 +20,8 @@
     -->
 <bundle>
 	<displayList>
-        <displays xsi:type="d2DNSharpDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <descriptor xsi:type="d2DNSharpDescriptor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="nsharpSkewTPaneDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="nsharpSkewTPaneDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="true">
                     </loadProperties>

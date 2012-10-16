@@ -47,8 +47,6 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.texteditor.dialogs.SearchReplaceDlg;
 import com.raytheon.viz.texteditor.scripting.dialogs.HelpRequestDlg.EnumHelpTypes;
 import com.raytheon.viz.texteditor.scripting.dialogs.util.FileUtilities;
@@ -64,6 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            mfegan     Initial creation
+ * 25SEP2012     1196      lvenable   Refactor dialogs to prevent blocking.
+ * 26Sep2012    1196        lvenable    Dialog refactor to not block.
  * 
  * </pre>
  * 
@@ -72,7 +72,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ScriptEditorDialog.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ScriptEditorDialog.class);
+
     /* strings for dialog title creation */
     private static final String FILE_DEFAULT = "untitled";
 
@@ -84,9 +86,6 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
 
     /** the observer to pass to results from a running script */
     private final IScriptEditorObserver observer;
-
-    /** the script output window */
-    ScriptOutputDlg scriptOutput = null;
 
     /** the text editor ID token */
     private final String token;
@@ -215,7 +214,7 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
     public ScriptEditorDialog(Shell parent, IScriptEditorObserver observer,
             String token, boolean outputState) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.NO_PACK);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.NO_PACK | CAVE.DO_NOT_BLOCK);
         this.observer = observer;
         this.token = token;
         this.outputState = outputState;
@@ -260,8 +259,8 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
                 String contents = FileUtilities.loadFileToString(path);
                 scriptEditor.setText(contents);
             } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, "Unable to save load file \""
-                                + fileName + "\"", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save load file \"" + fileName + "\"", e);
                 return false;
             }
             return true;
@@ -300,12 +299,12 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
         Point size = new Point(500, 500);
         shell.setSize(size);
         shell.layout();
-        smlFont = new Font(shell.getDisplay(), "Monospace", EnumFontSize.SMALL
-                .getSize(), SWT.NORMAL);
-        medFont = new Font(shell.getDisplay(), "Monospace", EnumFontSize.MEDIUM
-                .getSize(), SWT.NORMAL);
-        lrgFont = new Font(shell.getDisplay(), "Monospace", EnumFontSize.LARGE
-                .getSize(), SWT.NORMAL);
+        smlFont = new Font(shell.getDisplay(), "Monospace",
+                EnumFontSize.SMALL.getSize(), SWT.NORMAL);
+        medFont = new Font(shell.getDisplay(), "Monospace",
+                EnumFontSize.MEDIUM.getSize(), SWT.NORMAL);
+        lrgFont = new Font(shell.getDisplay(), "Monospace",
+                EnumFontSize.LARGE.getSize(), SWT.NORMAL);
 
         createMenuBar();
         createClientArea();
@@ -363,10 +362,9 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
                         && scriptEditor.getCaretOffset() < scriptEditor
                                 .getCharCount()) {
                     scriptEditor.replaceTextRange(
-                            scriptEditor.getCaretOffset(), 1, String
-                                    .valueOf(event.character));
-                    scriptEditor
-                            .setCaretOffset(scriptEditor.getCaretOffset() + 1);
+                            scriptEditor.getCaretOffset(), 1,
+                            String.valueOf(event.character));
+                    scriptEditor.setCaretOffset(scriptEditor.getCaretOffset() + 1);
                     event.doit = false;
                 }
 
@@ -759,11 +757,11 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
         try {
             if (!file.delete()) {
                 statusHandler.handle(Priority.PROBLEM, "Unable to delete \""
-                                + result + "\"");
+                        + result + "\"");
             }
         } catch (SecurityException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to delete \"" + result
-                            + "\"", e);
+            statusHandler.handle(Priority.PROBLEM, "Unable to delete \""
+                    + result + "\"", e);
 
         }
     }
@@ -802,13 +800,14 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
             File file = new File(fileToRename);
             File dest = new File(newFileName);
             if (!file.renameTo(dest)) {
-                statusHandler.handle(Priority.PROBLEM,
+                statusHandler
+                        .handle(Priority.PROBLEM,
                                 "Unable to rename script file \""
                                         + fileToRename + "\"");
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to rename script file \""
-                            + fileToRename + "\"", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to rename script file \"" + fileToRename + "\"", e);
         }
     }
 
@@ -841,8 +840,8 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
         try {
             saveFile(filePath, fileName, scriptEditor.getText());
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to save script file \""
-                            + fileName + "\"", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save script file \"" + fileName + "\"", e);
             return;
         }
         setTitle();
@@ -927,7 +926,8 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
         // short circuit -- quit early if no script
         String script = scriptEditor.getText();
         if ("".equals(script)) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler
+                    .handle(Priority.PROBLEM,
                             "No script to execute (SCRP)\nEnter/load a script and try again");
             miRunScript.setEnabled(true);
             return;
@@ -1195,9 +1195,13 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
             handleLineEdit(false);
             break;
         case SEARCH:
-            searchReplaceDlg = new SearchReplaceDlg(shell, scriptEditor, true);
-            searchReplaceDlg.open();
-            searchReplaceDlg = null;
+            if (searchReplaceDlg == null || searchReplaceDlg.isDisposed()) {
+                searchReplaceDlg = new SearchReplaceDlg(shell, scriptEditor,
+                        true);
+                searchReplaceDlg.open();
+            } else {
+                searchReplaceDlg.bringToTop();
+            }
             break;
         default:
             System.out.println("Option " + selection + " not yet implemented");

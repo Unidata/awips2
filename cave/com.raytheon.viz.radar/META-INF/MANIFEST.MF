@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.radar;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.radar.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
-Eclipse-BuddyPolicy: ext, global
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.viz.ui.menus
 Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -15,8 +14,6 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  org.geotools,
  com.raytheon.viz.ui,
  javax.measure,
- org.apache.commons.lang,
- com.raytheon.edex.common,
  com.raytheon.viz.pointdata;bundle-version="1.10.13",
  com.raytheon.uf.viz.d2d.ui;bundle-version="1.0.0",
  com.raytheon.viz.core.graphing;bundle-version="1.11.1",
@@ -26,6 +23,8 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
  com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1130",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.menus;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
  com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.edex.meteoLib,
@@ -40,7 +39,6 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.viz.derivparam.inv,
  com.raytheon.uf.viz.derivparam.library,
  com.raytheon.uf.viz.derivparam.tree,
- com.raytheon.viz.alerts,
  com.raytheon.viz.core.contours.util
 Export-Package: com.raytheon.viz.radar;
   uses:="com.raytheon.viz.core.rsc,

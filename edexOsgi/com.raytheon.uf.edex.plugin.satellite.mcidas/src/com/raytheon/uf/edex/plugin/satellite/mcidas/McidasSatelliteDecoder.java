@@ -28,11 +28,11 @@ import java.util.TimeZone;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * <li>Calibration block</li>
  * <li>Non-byte data types</li>
  * </ul>
+ * 
  * <pre>
  * 
  * OFTWARE HISTORY
@@ -65,7 +66,9 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * -----------  ----------  ----------- --------------------------
  * No previous history
  * - AWIPS2 Baseline Repository --------
- * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
+ * 07/12/2012    798        jkorman     Changed projection "magic" numbers
+ * 09/24/2012   1210        jkorman     Modified the decode method to create the
+ *                                      IDataRecord required by the SatelliteDao
  * </pre>
  * 
  * @author
@@ -88,14 +91,18 @@ public class McidasSatelliteDecoder {
 
     private static final double DTR = Math.PI / 180.;
 
-    private SatelliteDao dao;
-
     private String traceId;
 
     public McidasSatelliteDecoder() {
-
     }
 
+    /**
+     * 
+     * @param data The file byte array data to be decoded.
+     * @return The decoded data record(s).
+     * @return
+     * @throws Exception
+     */
     public PluginDataObject[] decode(byte[] data, Headers headers)
             throws Exception {
         traceId = (String) headers.get("traceId");
@@ -125,13 +132,15 @@ public class McidasSatelliteDecoder {
         buf.order(ByteOrder.LITTLE_ENDIAN);
 
         // Decode the directory block
-        if (buf.getInt() != 0)
+        if (buf.getInt() != 0) {
             formatError(UNEXPECTED_HEADER_VALUE);
+        }
         if (buf.getInt() != EXPECTED_IMAGE_TYPE_LE) {
-            if (buf.getInt(4) == EXPECTED_IMAGE_TYPE_BE)
+            if (buf.getInt(4) == EXPECTED_IMAGE_TYPE_BE) {
                 buf.order(ByteOrder.BIG_ENDIAN);
-            else
+            } else {
                 formatError(UNEXPECTED_HEADER_VALUE);
+            }
         }
         int sensorSourceNumber = buf.getInt();
         int yyyddd = buf.getInt();
@@ -177,8 +186,9 @@ public class McidasSatelliteDecoder {
         buf.getInt(); // comment cards
 
         long bandBits = ((long) bandMap33to64 << 32) | bandMap1to32;
-        if (nBands != Long.bitCount(bandBits))
+        if (nBands != Long.bitCount(bandBits)) {
             formatError("Specified number of bands does not match number of bits in band map");
+        }
 
         // Decode the navigation block
         buf.position(navBlockOffset);
@@ -190,11 +200,13 @@ public class McidasSatelliteDecoder {
         PluginDataObject[] result = new PluginDataObject[nBands];
         int bitIndex = 0;
         RECORD: for (int ri = 0; ri < nBands; ++ri) {
-            while ((bandBits & (1L << bitIndex)) == 0)
-                if (++bitIndex >= 64)
+            while ((bandBits & (1L << bitIndex)) == 0) {
+                if (++bitIndex >= 64) {
                     break RECORD; // shouldn't happen
-
+                }
+            }
             SatelliteRecord rec = new SatelliteRecord();
+
             rec.setDataTime(new DataTime(unpackTime(yyyddd, hhmmss)));
             rec.setSource("McIDAS");
             rec.setCreatingEntity(getCreatingEntity(sensorSourceNumber));
@@ -210,7 +222,9 @@ public class McidasSatelliteDecoder {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
                 buf.position(dataBlockOffset);
                 buf.get(imageBytes);
+
                 rec.setMessageData(imageBytes);
+
             } else if (nBytesPerElement == 1) {
                 byte[] imageBytes = new byte[nLines * nElementsPerLine];
                 int si = dataBlockOffset + ri * nBytesPerElement;
@@ -223,15 +237,31 @@ public class McidasSatelliteDecoder {
                         si += eincr;
                     }
                 }
-            } else
+            } else {
                 unimplemented("non-byte elements");
+            }
 
             rec.setTraceId(traceId);
             rec.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
             rec.setPluginName("satellite");
             rec.constructDataURI();
 
-            result[ri] = rec;
+            // Set the data into the IDataRecord
+            // Set the data into the IDataRecord
+            IDataRecord dataRec = SatelliteRecord.getDataRecord(rec);
+            if (dataRec != null) {
+                rec.setMessageData(dataRec);
+            } else {
+                theHandler.error(
+                        String.format("Could not create datarecord for %s"),
+                        traceId);
+                rec = null;
+            }
+            if (rec != null) {
+                result[ri] = rec;
+            } else {
+                result = new PluginDataObject[0];
+            }
         }
 
         return result;
@@ -272,32 +302,31 @@ public class McidasSatelliteDecoder {
             double dx = spacingAtStdLatInMeters * xImgRes;
             double dy = spacingAtStdLatInMeters * yImgRes;
 
-            {
-                double phi0r = clat * DTR;
-                double rxp = ((double) (elementOfEquator - ulX) / xImgRes + 1.);
-                double ryp = (ny - (double) (lineOfEquator - ulY) / yImgRes);
+            double phi0r = clat * DTR;
+            double rxp = ((double) (elementOfEquator - ulX) / xImgRes + 1.);
+            double ryp = (ny - (double) (lineOfEquator - ulY) / yImgRes);
 
-                double dxp = 1. - rxp;
-                double dyp = 1. - ryp;
-                double rm = dx * dyp;
-                double rcos = radiusInMeters * Math.cos(phi0r);
-                double arg = Math.exp(rm / rcos);
-                la1 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-                lo1 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
-                dxp = nx - rxp;
-                dyp = ny - ryp;
-                rm = dx * dyp;
-                arg = Math.exp(rm / rcos);
-                la2 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
-                lo2 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
-                lo2 = (float) prnlon(lo2);
-            }
+            double dxp = 1. - rxp;
+            double dyp = 1. - ryp;
+            double rm = dx * dyp;
+            double rcos = radiusInMeters * Math.cos(phi0r);
+            double arg = Math.exp(rm / rcos);
+            la1 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
+            lo1 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
+            dxp = nx - rxp;
+            dyp = ny - ryp;
+            rm = dx * dyp;
+            arg = Math.exp(rm / rcos);
+            la2 = (float) ((2. * Math.atan(arg) - HALFPI) * RTD);
+            lo2 = (float) prnlon((clon + ((dx * dxp) / rcos) * RTD));
+            lo2 = (float) prnlon(lo2);
 
             result = SatSpatialFactory.getInstance().getMapCoverage(
                     SatMapCoverage.PROJ_MERCATOR, nx, ny, (float) dx,
                     (float) dy, (float) clon, (float) clat, la1, lo1, la2, lo2);
-        } else
+        } else {
             unimplemented(String.format("navigation type \"%s\"", navType));
+        }
 
         return result;
     }
@@ -373,18 +402,4 @@ public class McidasSatelliteDecoder {
                 traceId, feature));
     }
 
-    /**
-     * @return the dao
-     */
-    public SatelliteDao getDao() {
-        return dao;
-    }
-
-    /**
-     * @param dao
-     *            the dao to set
-     */
-    public void setDao(SatelliteDao dao) {
-        this.dao = dao;
-    }
 }

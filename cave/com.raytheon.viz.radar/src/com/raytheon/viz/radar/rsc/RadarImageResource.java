@@ -386,7 +386,11 @@ public class RadarImageResource<D extends IDescriptor> extends
         if (image == null || image.getCoverage() == null) {
             VizRadarRecord record = getRadarRecord(dataTime);
             if (record != null) {
-                if (record.getStoredDataAsync() == null) {
+                if (record.getNumRadials() == 0 || record.getNumBins() == 0) {
+                    // This is expected for dual pol precip products(DSD,DOD)
+                    // when it isn't raining.
+                    return null;
+                } else if (record.getStoredDataAsync() == null) {
                     issueRefresh();
                 } else {
                     try {

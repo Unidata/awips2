@@ -18,6 +18,9 @@ package gov.noaa.nws.ncep.ui.nsharp;
  * @author Chin Chen
  * @version 1.0
  */
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -35,6 +38,12 @@ public class NsharpGraphProperty implements ISerializableObject{
 	
 	@XmlAttribute
 	private boolean parcel=true;
+	
+	@XmlAttribute
+	private boolean parcelAscent=true;
+	
+	@XmlAttribute
+	private boolean dcape=true;
 	
 	@XmlAttribute
 	private boolean VTemp=true;
@@ -91,7 +100,10 @@ public class NsharpGraphProperty implements ISerializableObject{
 	private int tempOffset=0;
 	
 	@XmlAttribute
-	private String paneConfigurationName= NsharpConstants.PANE_LEGACY_CFG_STR;
+	private String paneConfigurationName= NsharpConstants.PANE_DEF_CFG_1_STR;
+	
+	@XmlAttribute
+	private List<String> gribModelTypeList = new ArrayList<String>();  
 	
 	public boolean isTemp() {
 		return temp;
@@ -115,6 +127,23 @@ public class NsharpGraphProperty implements ISerializableObject{
 
 	public void setParcel(boolean parcel) {
 		this.parcel = parcel;
+	}
+
+	
+	public boolean isParcelAscent() {
+		return parcelAscent;
+	}
+
+	public void setParcelAscent(boolean parcelAscent) {
+		this.parcelAscent = parcelAscent;
+	}
+
+	public boolean isDcape() {
+		return dcape;
+	}
+
+	public void setDcape(boolean dcape) {
+		this.dcape = dcape;
 	}
 
 	public boolean isVTemp() {
@@ -268,6 +297,14 @@ public class NsharpGraphProperty implements ISerializableObject{
 
 	public void setPaneConfigurationName(String paneConfigurationName) {
 		this.paneConfigurationName = paneConfigurationName;
+	}
+
+	public List<String> getGribModelTypeList() {
+		return gribModelTypeList;
+	}
+
+	public void setGribModelTypeList(List<String> gribModelTypeList) {
+		this.gribModelTypeList = gribModelTypeList;
 	}
 
 	
