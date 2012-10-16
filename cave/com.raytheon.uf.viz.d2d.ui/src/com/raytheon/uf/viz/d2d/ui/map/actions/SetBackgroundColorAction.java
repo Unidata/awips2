@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.colordialog.BackgroundColorDialog;
 
 /**
@@ -38,6 +39,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.BackgroundColorDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2009            mschenke     Initial creation
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking BackgroundColorDialog.
  * 
  * </pre>
  * 
@@ -67,12 +69,18 @@ public class SetBackgroundColorAction extends AbstractRightClickAction {
     @Override
     public void run() {
         BackgroundColorDialog dialog = dialogMap.get(container);
-        if (dialog == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new BackgroundColorDialog(Display.getCurrent()
                     .getActiveShell(), container, mode);
             dialogMap.put(container, dialog);
+            dialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    dialogMap.remove(container);
+                }
+            });
             dialog.open();
-            dialogMap.remove(container);
         } else {
             dialog.bringToTop();
         }
