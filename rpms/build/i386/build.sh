@@ -245,6 +245,8 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-psql"
    buildRPM "awips2-tools"
    buildRPM "awips2-edex-environment"
+   buildRPM "awips2-openfire"
+   buildRPM "awips2-httpd-collaboration"
 
    exit 0
 fi
