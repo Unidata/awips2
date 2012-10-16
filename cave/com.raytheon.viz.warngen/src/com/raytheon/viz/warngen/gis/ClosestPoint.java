@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Dec 11, 2007 #601        chammack    Initial Creation.
  *    APr 18, 2012 #14733      Qinglu Lin  David's fix is used, which adds 
  *                                         a copy constructor.
- *    Sep 18, 2012             jsanchez    Added setter methods.
+ *    Sep 25, 2012 #15425      Qinglu Lin  Updated two ClosestPoint() and added getGid().
  * 
  * </pre>
  * 
@@ -45,8 +45,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1
  */
 public class ClosestPoint implements Comparable<ClosestPoint> {
-    protected int gid;
-
     protected String name;
 
     protected String area;
@@ -75,6 +73,8 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     protected List<String> partOfArea;
 
+    protected int gid;
+
     public ClosestPoint() {
 
     }
@@ -94,19 +94,21 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
         this.warngenlev = o.warngenlev;
         this.time = o.time;
         this.partOfArea = o.partOfArea;
+        this.gid = o.gid;
     }
 
     public ClosestPoint(String name, Coordinate point) {
-        this(name, point, 0, 0, null);
+        this(name, point, 0, 0, null, 0);
     }
 
     public ClosestPoint(String name, Coordinate point, int population,
-            int warngenlev, List<String> partOfArea) {
+            int warngenlev, List<String> partOfArea, int gid) {
         this.name = name;
         this.point = point;
         this.population = population;
         this.warngenlev = warngenlev;
         this.partOfArea = partOfArea;
+        this.gid = gid;
     }
 
     /**
@@ -176,72 +178,8 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
         return partOfArea;
     }
 
-    public int getGid() {
+    public int  getGid() {
         return gid;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setTime(Date time) {
-        this.time = time;
-    }
-
-    public void setGid(int gid) {
-        this.gid = gid;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
-    public void setParentArea(String parentArea) {
-        this.parentArea = parentArea;
-    }
-
-    public void setPoint(Coordinate point) {
-        this.point = point;
-    }
-
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public void setRoundedDistance(int roundedDistance) {
-        this.roundedDistance = roundedDistance;
-    }
-
-    public void setAzimuth(double azimuth) {
-        this.azimuth = azimuth;
-    }
-
-    public void setRoundedAzimuth(double roundedAzimuth) {
-        this.roundedAzimuth = roundedAzimuth;
-    }
-
-    public void setOppositeAzimuth(double oppositeAzimuth) {
-        this.oppositeAzimuth = oppositeAzimuth;
-    }
-
-    public void setOppositeRoundedAzimuth(double oppositeRoundedAzimuth) {
-        this.oppositeRoundedAzimuth = oppositeRoundedAzimuth;
-    }
-
-    public void setPopulation(int population) {
-        this.population = population;
-    }
-
-    public void setWarngenlev(int warngenlev) {
-        this.warngenlev = warngenlev;
-    }
-
-    public void setPartOfArea(List<String> partOfArea) {
-        this.partOfArea = partOfArea;
     }
 
     /**
