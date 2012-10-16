@@ -25,8 +25,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg.Mode;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * DeleteAWIPSProcedure
@@ -41,6 +46,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg.Mode;
  *    ------------ ----------  ----------- --------------------------
  *    Sep 13, 2007             chammack    Initial Creation.
  *    Jul 8, 2008  #1183       chammack    Migrate to new localization
+ *    Oct 16, 2012 #1229       rferrel     Changes for non-blocking ProcedureListDlg.
  * 
  * </pre>
  * 
@@ -48,6 +54,10 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureListDlg.Mode;
  * @version 1
  */
 public class DeleteAWIPSProcedure extends AbstractHandler {
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DeleteAWIPSProcedure.class);
+
+    private ProcedureListDlg listDlg;
 
     /*
      * (non-Javadoc)
@@ -58,18 +68,30 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        ProcedureListDlg listDlg = new ProcedureListDlg("Delete Procedure",
-                HandlerUtil.getActiveShell(event), Mode.DELETE);
-        listDlg.open();
+        if (listDlg == null || listDlg.getShell() == null
+                || listDlg.isDisposed()) {
+            listDlg = new ProcedureListDlg("Delete Procedure",
+                    HandlerUtil.getActiveShell(event), Mode.DELETE);
+            listDlg.setCloseCallback(new ICloseCallback() {
 
-        LocalizationFile selectedFile = listDlg.getSelectedFile();
-        if (selectedFile != null && selectedFile.exists()) {
-            try {
-                selectedFile.delete();
-            } catch (Exception e) {
-                throw new ExecutionException("Error deleting procedure: "
-                        + selectedFile.getName(), e);
-            }
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile selectedFile = (LocalizationFile) returnValue;
+                        try {
+                            selectedFile.delete();
+                        } catch (LocalizationOpFailedException e) {
+                            statusHandler.handle(
+                                    Priority.PROBLEM,
+                                    "Error deleting procedure: "
+                                            + selectedFile.getName());
+                        }
+                    }
+                }
+            });
+            listDlg.open();
+        } else {
+            listDlg.bringToTop();
         }
 
         return null;

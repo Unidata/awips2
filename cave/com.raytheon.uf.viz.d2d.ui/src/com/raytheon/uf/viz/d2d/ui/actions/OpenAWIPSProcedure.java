@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.OpenProcedureListDlg;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.actions.LoadSerializedXml;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * OpenAWIPSProcedure
@@ -45,6 +46,7 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  *    ------------ ----------  ----------- --------------------------
  *    Sep 13, 2007             chammack    Initial Creation.
  *    Oct 16, 2012 1229        rferrel     Change to use ProcedureDlg.displayDialog.
+ *    Oct 16, 2012 1229        rferrel     Changes for non-blocking ProcedureListDlg.
  * 
  * </pre>
  * 
@@ -64,23 +66,28 @@ public class OpenAWIPSProcedure extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        if (dialog != null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            dialog = new OpenProcedureListDlg(HandlerUtil.getActiveShell(event));
+            dialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile selectedFile = (LocalizationFile) returnValue;
+                        File f = selectedFile.getFile();
+                        Procedure p = (Procedure) LoadSerializedXml
+                                .deserialize(f);
+                        ProcedureDlg.displayDialog(LocalizationUtil
+                                .extractName(selectedFile.getName()), p,
+                                VizWorkbenchManager.getInstance()
+                                        .getCurrentWindow().getShell());
+                    }
+                    dialog = null;
+                }
+            });
             dialog.open();
-            return null;
-        }
-
-        dialog = new OpenProcedureListDlg(HandlerUtil.getActiveShell(event));
-        dialog.open();
-
-        LocalizationFile selectedFile = dialog.getSelectedFile();
-        dialog = null;
-        if (selectedFile != null) {
-            File f = selectedFile.getFile();
-            Procedure p = (Procedure) LoadSerializedXml.deserialize(f);
-            ProcedureDlg.displayDialog(
-                    LocalizationUtil.extractName(selectedFile.getName()), p,
-                    VizWorkbenchManager.getInstance().getCurrentWindow()
-                            .getShell());
+        } else {
+            dialog.bringToTop();
         }
 
         return null;
