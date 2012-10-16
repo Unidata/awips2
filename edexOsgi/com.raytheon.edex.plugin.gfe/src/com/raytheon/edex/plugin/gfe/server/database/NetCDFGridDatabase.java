@@ -201,14 +201,14 @@ public class NetCDFGridDatabase extends VGridDatabase {
                     this.outputGloc);
 
             if (this.subdomain.isEmpty()) {
-                valid = false;
-                throw new GfeException("Unable to create " + this.dbId
-                        + ". GFE domain does not overlap dataset domain.");
+                statusHandler.warn(this.dbId
+                        + ": GFE domain does not overlap dataset domain.");
+                this.remap = null;
+            } else {
+                this.remap = new RemapGrid(NetCDFUtils.subGridGL(
+                        this.dbId.toString(), this.inputGloc, this.subdomain),
+                        this.outputGloc);
             }
-
-            this.remap = new RemapGrid(NetCDFUtils.subGridGL(
-                    this.dbId.toString(), this.inputGloc, this.subdomain),
-                    this.outputGloc);
             loadParms();
         }
     }
@@ -584,35 +584,51 @@ public class NetCDFGridDatabase extends VGridDatabase {
         GridDataHistory gdh = new GridDataHistory(OriginType.INITIALIZED,
                 p.getPid(), p.getInv().get(index));
 
-        switch (p.getGpi().getGridType()) {
+        GridParmInfo gpi = p.getGpi();
+        GridLocation gloc = gpi.getGridLoc();
+
+        switch (gpi.getGridType()) {
         case SCALAR: {
-            Grid2DFloat data = new Grid2DFloat(getGrid(p.getVarName(),
-                    p.getIndices()[index], p.getLevel(), p.getGpi()
-                            .getMinValue(), p.getGpi().getMaxValue()));
+            Grid2DFloat data = null;
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                data = new Grid2DFloat(gloc.getNx(), gloc.getNy(),
+                        gpi.getMinValue());
+
+            } else {
+                data = new Grid2DFloat(getGrid(p.getVarName(),
+                        p.getIndices()[index], p.getLevel(), gpi.getMinValue(),
+                        gpi.getMaxValue()));
+            }
             if (!data.isValid()) {
                 return null;
             }
-            gs = new ScalarGridSlice(p.getInv().get(index), p.getGpi(),
+            gs = new ScalarGridSlice(p.getInv().get(index), gpi,
                     Arrays.asList(gdh), data);
             break;
         }
         case VECTOR: {
-            Grid2DFloat mag = new Grid2DFloat(p.getGpi().getGridLoc().getNx(),
-                    p.getGpi().getGridLoc().getNy());
-            Grid2DFloat dir = new Grid2DFloat(p.getGpi().getGridLoc().getNx(),
-                    p.getGpi().getGridLoc().getNy());
-            getWindGrid(p.getIndices()[index], p.getLevel(), p.getGpi()
-                    .getMinValue(), p.getGpi().getMaxValue(), mag, dir);
+            Grid2DFloat mag = new Grid2DFloat(gloc.getNx(), gloc.getNy());
+            Grid2DFloat dir = new Grid2DFloat(gloc.getNx(), gloc.getNy());
+
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                mag.setAllValues(gpi.getMinValue());
+                dir.setAllValues(0.0f);
+            } else {
+                getWindGrid(p.getIndices()[index], p.getLevel(),
+                        gpi.getMinValue(), gpi.getMaxValue(), mag, dir);
+            }
             if (!mag.isValid() || !dir.isValid()) {
                 return null;
             }
-            gs = new VectorGridSlice(p.getInv().get(index), p.getGpi(),
+            gs = new VectorGridSlice(p.getInv().get(index), gpi,
                     Arrays.asList(gdh), mag, dir);
             break;
         }
         default:
             statusHandler.handle(Priority.PROBLEM,
-                    "unsupported parm type for: " + p.getGpi());
+                    "unsupported parm type for: " + gpi);
         }
 
         return gs;
