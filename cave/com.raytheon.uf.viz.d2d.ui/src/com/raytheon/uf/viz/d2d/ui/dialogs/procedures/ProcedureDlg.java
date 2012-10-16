@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -89,20 +90,22 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Dialog for loading or modifying procedures.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *
+ *                                     Initial Creation
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
+ * 
  * </pre>
- *
+ * 
  * @author unknown
  * @version 1.0
  */
 public class ProcedureDlg extends CaveSWTDialog {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProcedureDlg.class);
 
     public static final String ORIGINAL = "Original Location";
@@ -131,9 +134,9 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private Button firstNextBtn;
 
-    private static final String FIRST = "First";
+    private final String FIRST = "First";
 
-    private static final String NEXT = "Next";
+    private final String NEXT = "Next";
 
     private Button loadBtn;
 
@@ -166,6 +169,8 @@ public class ProcedureDlg extends CaveSWTDialog {
     private static int initialPosY = -1;
 
     private final java.util.List<BundlePair> bundles;
+
+    private AlterBundleDlg alterDlg;
 
     private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
@@ -877,19 +882,34 @@ public class ProcedureDlg extends CaveSWTDialog {
             return;
         }
         try {
-            BundlePair bp = new BundlePair();
-            bp.name = bundles.get(dataList.getSelectionIndex()).name;
-            bp.xml = bundles.get(dataList.getSelectionIndex()).xml;
-            Bundle b = Bundle.unmarshalBundle(bp.xml, null);
+            if (mustCreate(alterDlg)) {
+                final BundlePair bp = new BundlePair();
+                bp.name = bundles.get(dataList.getSelectionIndex()).name;
+                bp.xml = bundles.get(dataList.getSelectionIndex()).xml;
+                Bundle b = Bundle.unmarshalBundle(bp.xml, null);
 
-            AlterBundleDlg dlg = new AlterBundleDlg(b, getParent());
-            b = (Bundle) dlg.open();
+                alterDlg = new AlterBundleDlg(b, getShell());
+                alterDlg.setCloseCallback(new ICloseCallback() {
 
-            if (b != null) {
-                // Load was issued in alterBundleDlg
-                bp.xml = b.toXML();
-                saveProcedure();
-                load(b);
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof Bundle) {
+                            Bundle b = (Bundle) returnValue;
+                            try {
+                                // Load was issued in alterBundleDlg
+                                bp.xml = b.toXML();
+                                saveProcedure();
+                                load(b);
+                            } catch (VizException e) {
+                                final String err = "Error altering bundle";
+                                statusHandler.handle(Priority.PROBLEM, err, e);
+                            }
+                        }
+                    }
+                });
+                alterDlg.open();
+            } else {
+                alterDlg.bringToTop();
             }
         } catch (VizException e) {
             final String err = "Error altering bundle";
@@ -1033,7 +1053,8 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     /**
-     * Get the ProcedureDlg for the given fileName. If the fileName is null or if there is no open dialog, create a new ProcedureDlg.
+     * Get the ProcedureDlg for the given fileName. If the fileName is null or
+     * if there is no open dialog, create a new ProcedureDlg.
      * 
      * @param fileName
      * @param p
