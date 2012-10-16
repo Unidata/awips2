@@ -30,21 +30,21 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/19/11        8804          MHuang         Initial creation
+#    10/09/12        DR 13901      D. Friedman    Limit execution time
 ##############################################################################
 
 from ufpy import qpidingest
+from lib.Util import doWithinTime
+
 import os
 import os.path
 import sys
+import traceback
 
 class mhsFileIngest:
-    def __init__(self):
-        print "Initializing mhsFileIngest object"
-
-    def qpidNotify(*args):
+    def startConnection(self):
         #Find current QPID running hostname
         server=os.getenv('DEFAULT_HOST')
-#        print "Current EDEX server:", server
 
         #Make connection to QPID
         try:
@@ -52,6 +52,11 @@ class mhsFileIngest:
         except:
             print "Cannot connect qpid server:", server
             sys.exit(1)
+
+        self.conn = cnn
+
+    def qpidNotify(self):
+        cnn = self.conn
         
         #Get uplink files
         size=len(sys.argv) - 1
@@ -85,14 +90,24 @@ class mhsFileIngest:
         cnn.close()
         if fileCount == size:
             print "Successfully sent", fileCount, "file(s) to EDEX via qpidingest"
-            sys.exit(0)
+            return 0
         elif errCount == size:
             print "Failed to send", fileCount, "file(s) to EDEX via qpidingest"            
-            sys.exit(1)
+            return 1
         elif errCount > 0 and fileCount < size:
             print errcount, "out of", size, "failed to be sent to EDEX via qpidingest"
-            sys.exit(2)
-   
+            return 2
+
+def run():
+    try:
+        m = mhsFileIngest()
+        doWithinTime(m.startConnection, description='connect to qpid')
+        exit_code = doWithinTime(m.qpidNotify, description='send messages', max_tries=1)
+    except:
+        traceback.print_exc()
+        sys.exit(1)
+    else:
+        sys.exit(exit_code)
+
 if __name__ == '__main__':
-    q = mhsFileIngest()
-    q.qpidNotify()
+    run()
