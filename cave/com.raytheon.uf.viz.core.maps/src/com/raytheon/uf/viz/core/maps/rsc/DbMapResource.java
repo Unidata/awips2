@@ -86,6 +86,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            randerso     Initial creation
+ * Sep 18, 2012      #1019 randerso     improved error handling
  * 
  * </pre>
  * 
@@ -526,8 +527,8 @@ public class DbMapResource extends
         queryJob = new MapQueryJob();
 
         // Prepopulate fields
-        getLabelFields();
         getGeometryType();
+        getLabelFields();
         getLevels();
     }
 
@@ -842,8 +843,8 @@ public class DbMapResource extends
                         resourceData.getTable(), resourceData.getGeomField())
                         .getGeometryType();
             } catch (Throwable e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error querying geometry type", e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
 

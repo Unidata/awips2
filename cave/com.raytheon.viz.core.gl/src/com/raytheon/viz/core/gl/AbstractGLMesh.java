@@ -356,16 +356,16 @@ public abstract class AbstractGLMesh implements IMesh {
         // Get various x distances to use as weights in interpolating
         double abDist = 360 - Math.abs(ax - bx);
         double acDist = 360 - Math.abs(ax - cx);
-        double amDist = 360 + ax - wwc.getInverseCentralMeridian();
+        double amDist = ax - wwc.getLowInverseCentralMeridian();
         if (amDist > 360) {
             amDist = amDist - 360;
         }
         // x location to use for midpoints on the triangle side, should be on
         // same side of central meridian as a
-        double tx = wwc.getInverseCentralMeridian() - 360 + 0.00001;
+        double tx = wwc.getLowInverseCentralMeridian() + 0.00001;
         // x location to use for midpoints on the quad side, should be on
         // same side of central meridian as b and c
-        double qx = wwc.getInverseCentralMeridian() - 0.00001;
+        double qx = wwc.getHighInverseCentralMeridian() - 0.00001;
         // If a is closer to the central meridian on the other side then switch
         // amDist, tx, and qx
         if (amDist > 180) {

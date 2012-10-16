@@ -19,6 +19,8 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResourceData;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 
 import java.util.ArrayList;
@@ -32,8 +34,13 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 @XmlAccessorType(XmlAccessType.NONE)
@@ -69,7 +76,7 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
     public void dispose() {
     	
     	 int editorInstanceNum = EditorManager.getNumOfEditorInstance(editorNum);
-    	 //System.out.println("NsharpAbstractPaneDisplay disposed  editor num " + editorNum +" instance "+ editorInstanceNum);
+    	 //System.out.println("NsharpAbstractPaneDisplay disposed  "+ this.toString());
     	 if (this.descriptor != null && editorInstanceNum <= 1) {
             super.dispose();
         }
@@ -129,5 +136,27 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
 	public String getPaneName() {
 		return paneName;
 	}
+	
+	@Override
+    protected void customizeResourceList(ResourceList resourceList) {
+    	AbstractResourceData resourceData = new NsharpAbstractPaneResourceData();
+    	// get a load properties
+    	LoadProperties loadProperties = new LoadProperties();
+    	ColorableCapability colorableCapability = new ColorableCapability();
+    	colorableCapability.setColor(NsharpConstants.backgroundColor);
+    	loadProperties.getCapabilities().addCapability(colorableCapability);
+    	// get some resource properties
+    	ResourceProperties resourceProperties = new ResourceProperties();
+    	resourceProperties.setVisible(true);
+    	resourceProperties.setMapLayer(true);
+    	resourceProperties.setSystemResource(true);
+    	// Make a resource pair
+    	ResourcePair resourcePair = new ResourcePair();
+    	resourcePair.setResourceData(resourceData);
+    	resourcePair.setLoadProperties(loadProperties);
+    	resourcePair.setProperties(resourceProperties);
+    	// add it to the resource list.
+    	resourceList.add(resourcePair);           
+    }
 
 }

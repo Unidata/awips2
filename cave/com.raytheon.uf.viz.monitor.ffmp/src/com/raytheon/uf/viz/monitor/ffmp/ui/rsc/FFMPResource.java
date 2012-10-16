@@ -150,6 +150,7 @@ import com.vividsolutions.jts.geom.Point;
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
  * 31 July  2012 14517         mpduff      Fix for blanking map on update.
+ * 14 Sep 2012   1048         njensen      Code cleanup
  * 
  * </pre>
  * 
@@ -161,6 +162,10 @@ public class FFMPResource extends
         AbstractVizResource<FFMPResourceData, MapDescriptor> implements
         IResourceDataChanged, IFFMPResourceListener, FFMPListener,
         FFMPLoadListener {
+
+    // TODO move ALL constant to common plugin
+    private static final String ALL = "ALL";
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPResource.class);
 
@@ -375,7 +380,7 @@ public class FFMPResource extends
 
     /** ordered list of times **/
     private ArrayList<Date> timeOrderedKeys = new ArrayList<Date>();
-    
+
     private boolean toKeysInitialized = false;
 
     /** force utility **/
@@ -424,22 +429,19 @@ public class FFMPResource extends
                         .equals(getResourceData().sourceName)) {
                     // go back an extra time step
                     Date previousMostRecentTime = null;
-                    if (getTimeOrderedKeys().size() >= 2) {
-                        previousMostRecentTime = getTimeOrderedKeys().get(
-                                getTimeOrderedKeys().size() - 2);
-                    } else if (getTimeOrderedKeys().size() >= 1) {
-                        previousMostRecentTime = getTimeOrderedKeys().get(
-                                getTimeOrderedKeys().size() - 1);
+                    List<Date> tok = getTimeOrderedKeys();
+                    if (tok.size() >= 2) {
+                        previousMostRecentTime = tok.get(tok.size() - 2);
                     } else {
-                        previousMostRecentTime = getTimeOrderedKeys().get(0);
+                        previousMostRecentTime = tok.get(0);
                     }
 
                     updateTimeOrderedkeys(ffmpRec.getDataTime().getRefTime());
-                    
+
                     if (getResourceData().tableLoad) {
                         setTableTime();
                     }
-                    
+
                     setRecord(ffmpRec);
 
                     statusHandler.handle(Priority.INFO, "Updating : Previous: "
@@ -476,17 +478,7 @@ public class FFMPResource extends
                         purge(ffmpRec.getDataTime().getRefTime());
                     }
 
-                    qpeRecord = null;
-                    isNewQpe = true;
-                    isNewRate = true;
-                    rateRecord = null;
-                    isNewRate = true;
-                    virtualRecord = null;
-                    isNewVirtual = true;
-                    guidRecord = null;
-                    isNewGuid = true;
-                    qpfRecord = null;
-                    isNewQpf = true;
+                    resetRecords();
                 }
 
             } catch (VizException ve) {
@@ -501,6 +493,24 @@ public class FFMPResource extends
         }
 
         refresh();
+    }
+
+    /**
+     * Resets the records to null and sets the boolean values relating to if the
+     * data is new to true
+     */
+    private void resetRecords() {
+        isNewQpe = true;
+        isNewRate = true;
+        isNewVirtual = true;
+        isNewGuid = true;
+        isNewQpf = true;
+
+        qpeRecord = null;
+        rateRecord = null;
+        virtualRecord = null;
+        guidRecord = null;
+        qpfRecord = null;
     }
 
     @Override
@@ -573,13 +583,14 @@ public class FFMPResource extends
             Date recentTime, boolean aggregate) throws VizException {
         FFMPBasin basin = null;
 
+        String huc = null;
         if (aggregate) {
-            basin = getRecord(bfield, recentTime).getBasinData(getHuc())
-                    .getBasins().get(key);
+            huc = getHuc();
         } else {
-            basin = getRecord(bfield, recentTime).getBasinData("ALL")
-                    .getBasins().get(key);
+            huc = ALL;
         }
+        basin = getRecord(bfield, recentTime).getBasinData(huc).getBasins()
+                .get(key);
 
         return basin;
     }
@@ -598,7 +609,7 @@ public class FFMPResource extends
         double value = Double.NaN;
 
         if (centeredAggregationKey != null) {
-            if (getHuc().equals("ALL")) {
+            if (getHuc().equals(ALL)) {
                 value = getBasinValue(key, recentTime, false);
                 return getColorUtil().colorByValue(value);
             } else {
@@ -653,12 +664,12 @@ public class FFMPResource extends
                     break;
                 }
                 case RATE: {
-                    value = getRateRecord(recentTime).getBasinData("ALL")
+                    value = getRateRecord(recentTime).getBasinData(ALL)
                             .getMaxValue(pfafs, recentTime);
                     break;
                 }
                 case QPF: {
-                    value = getQpfRecord(recentTime).getBasinData("ALL")
+                    value = getQpfRecord(recentTime).getBasinData(ALL)
                             .getAverageMaxValue(pfafs, recentTime,
                                     getQpfSourceExpiration());
                     break;
@@ -667,21 +678,17 @@ public class FFMPResource extends
                     long fips = monitor.getTemplates(getSiteKey())
                             .getCountyFipsByPfaf(pfafs.get(0));
 
-                    value = getGuidanceRecord().getBasinData("ALL")
+                    value = getGuidanceRecord().getBasinData(ALL)
                             .getMaxGuidanceValue(pfafs,
                                     getGuidanceInterpolation(getFFGName()),
                                     getGuidSourceExpiration(), fips);
                     break;
                 }
                 case QPE: {
-                    value = getQpeRecord().getBasinData("ALL")
-                            .getAccumMaxValue(
-                                    pfafs,
-                                    recentTime,
-                                    getTableTime(),
-                                    getQpeSourceExpiration(),
-                                    getResourceData().getPrimarySourceXML()
-                                            .isRate());
+                    value = getQpeRecord().getBasinData(ALL).getAccumMaxValue(
+                            pfafs, recentTime, getTableTime(),
+                            getQpeSourceExpiration(),
+                            getResourceData().getPrimarySourceXML().isRate());
                     break;
                 }
                 }
@@ -781,12 +788,12 @@ public class FFMPResource extends
             boolean forced = forceUtil.isForced();
             if ((forcedPfafs.size() > 0) && forced) {
                 // Recalculate the guidance using the forced value(s)
-                value = guidRecord.getBasinData("ALL").getAverageGuidanceValue(
+                value = guidRecord.getBasinData(ALL).getAverageGuidanceValue(
                         pfafList, this.getGuidanceInterpolation(getFFGName()),
                         new Float(value), forcedPfafs,
                         getGuidSourceExpiration());
             } else if (forcedPfafs.size() > 0) {
-                value = guidRecord.getBasinData("ALL").getAverageGuidanceValue(
+                value = guidRecord.getBasinData(ALL).getAverageGuidanceValue(
                         pfafList, this.getGuidanceInterpolation(getFFGName()),
                         Float.NaN, forcedPfafs, getGuidSourceExpiration());
             }
@@ -851,6 +858,21 @@ public class FFMPResource extends
     }
 
     /**
+     * Returns the ALL huc if worst case, otherwise the huc
+     * 
+     * @return
+     */
+    private String getHucIfWorstCase() {
+        String huc = null;
+        if (isWorstCase()) {
+            huc = ALL;
+        } else {
+            huc = getHuc();
+        }
+        return huc;
+    }
+
+    /**
      * Gets the record currently used
      * 
      * @return FFMPCacheRecord
@@ -859,19 +881,11 @@ public class FFMPResource extends
 
         if ((rateRecord == null) && isNewRate) {
             try {
-
-                if (isWorstCase()) {
-                    rateRecord = monitor.getRateRecord(getProduct(),
-                            getSiteKey(), getDataKey(), getPrimarySource(),
-                            recentTime, "ALL", false);
-                } else {
-                    rateRecord = monitor.getRateRecord(getProduct(),
-                            getSiteKey(), getDataKey(), getPrimarySource(),
-                            recentTime, getHuc(), false);
-                }
-
+                String huc = getHucIfWorstCase();
+                rateRecord = monitor.getRateRecord(getProduct(), getSiteKey(),
+                        getDataKey(), getPrimarySource(), recentTime, huc,
+                        false);
                 isNewRate = false;
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -887,18 +901,10 @@ public class FFMPResource extends
     public FFMPCacheRecord getQpeRecord() {
         try {
             if ((qpeRecord == null) && (getTableTime() != null) && isNewQpe) {
-
-                if (isWorstCase()) {
-                    qpeRecord = monitor.getQPERecord(getProduct(),
-                            getSiteKey(), getDataKey(), getPrimarySource(),
-                            getTableTime(), "ALL", false);
-
-                } else {
-                    qpeRecord = monitor.getQPERecord(getProduct(),
-                            getSiteKey(), getDataKey(), getPrimarySource(),
-                            getTableTime(), getHuc(), false);
-                }
-
+                String huc = getHucIfWorstCase();
+                qpeRecord = monitor.getQPERecord(getProduct(), getSiteKey(),
+                        getDataKey(), getPrimarySource(), getTableTime(), huc,
+                        false);
                 isNewQpe = false;
             }
         } catch (Exception e) {
@@ -930,16 +936,9 @@ public class FFMPResource extends
                     isStandAlone = true;
                 }
 
-                if (isWorstCase()) {
-                    guidRecord = monitor
-                            .getGuidanceRecord(getProduct(), getSiteKey(),
-                                    sourceName, date, "ALL", isStandAlone);
-                } else {
-                    guidRecord = monitor.getGuidanceRecord(getProduct(),
-                            getSiteKey(), sourceName, date, getHuc(),
-                            isStandAlone);
-                }
-
+                String huc = getHucIfWorstCase();
+                guidRecord = monitor.getGuidanceRecord(getProduct(),
+                        getSiteKey(), sourceName, date, huc, isStandAlone);
                 isNewGuid = false;
             }
 
@@ -968,15 +967,9 @@ public class FFMPResource extends
                     }
                 }
 
-                qpfRecord = monitor
-                        .getQPFRecord(getProduct(), getSiteKey(), getDataKey(),
-                                getPrimarySource(), date, getHuc(), false);
-                if (isWorstCase()) {
-                    qpfRecord = monitor.getQPFRecord(getProduct(),
-                            getSiteKey(), getDataKey(), getPrimarySource(),
-                            date, "ALL", false);
-                }
-
+                String huc = getHucIfWorstCase();
+                qpfRecord = monitor.getQPFRecord(getProduct(), getSiteKey(),
+                        getDataKey(), getPrimarySource(), date, huc, false);
                 isNewQpf = false;
             }
         } catch (Exception e) {
@@ -996,7 +989,7 @@ public class FFMPResource extends
             if ((virtualRecord == null) && isNewVirtual) {
                 virtualRecord = monitor.getVirtualRecord(getProduct(),
                         getSiteKey(), getDataKey(), getPrimarySource(),
-                        getTableTime(), "ALL", false);
+                        getTableTime(), ALL, false);
                 isNewVirtual = false;
             }
 
@@ -1191,7 +1184,8 @@ public class FFMPResource extends
             FFMPDrawable drawable = null;
 
             if (paintTime != null) {
-                if (loader != null && !loader.isDone && loader.loadType == LOADER_TYPE.GENERAL) {
+                if (loader != null && !loader.isDone
+                        && loader.loadType == LOADER_TYPE.GENERAL) {
                     return;
                 }
                 if (!drawables.containsKey(paintTime)) {
@@ -1201,7 +1195,7 @@ public class FFMPResource extends
                 } else {
                     // we found it!
                     drawable = drawables.get(paintTime);
-//                    System.out.println("Found the drawable");
+                    // System.out.println("Found the drawable");
 
                     if (!paintTime.equals(drawable.getTime())) {
                         drawable.setDirty(true);
@@ -1223,7 +1217,8 @@ public class FFMPResource extends
                         && !paintTime.getRefTime().equals(getMostRecentTime())) {
                     setMostRecentTime(paintTime.getRefTime());
                     setTableTime();
-//                    if (isLinkToFrame && loader != null && loader.loadType != LOADER_TYPE.GENERAL) {
+                    // if (isLinkToFrame && loader != null && loader.loadType !=
+                    // LOADER_TYPE.GENERAL) {
                     if (isLinkToFrame) {
                         updateDialog();
                     }
@@ -1246,6 +1241,7 @@ public class FFMPResource extends
                 lastExtent = expandedExtent;
             }
 
+            boolean isAllHuc = getHuc().equals(ALL);
             for (DomainXML domain : getDomains()) {
                 String cwa = domain.getCwa();
                 if (isShaded) {
@@ -1295,9 +1291,8 @@ public class FFMPResource extends
                     }
 
                     if ((lowestCenter == ZOOM.AGGREGATE)
-                            || (lowestCenter == ZOOM.BASIN)
-                            || getHuc().equals("ALL") || this.isBasinToggle()
-                            || isSmallBasins) {
+                            || (lowestCenter == ZOOM.BASIN) || isAllHuc
+                            || this.isBasinToggle() || isSmallBasins) {
 
                         if (isSmallBasins && this.isBasinToggle()) {
                             if ((smallBasinOverlayShape != null)
@@ -1334,31 +1329,29 @@ public class FFMPResource extends
             if (centeredAggregationKey != null) {
                 vgbDrawables.clear();
                 // create pixelCoverages for the VGB's
-                if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
-                    if (getHuc().equals("ALL")) {
-                        for (DomainXML domain : getDomains()) {
-                            for (Long pfaf : monitor
+                if (isAllHuc) {
+                    for (DomainXML domain : getDomains()) {
+                        for (Long pfaf : monitor
+                                .getTemplates(getSiteKey())
+                                .getMap(getSiteKey(), domain.getCwa(), getHuc())
+                                .keySet()) {
+                            ArrayList<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
                                     .getTemplates(getSiteKey())
-                                    .getMap(getSiteKey(), domain.getCwa(),
-                                            getHuc()).keySet()) {
-                                ArrayList<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
-                                        .getTemplates(getSiteKey())
-                                        .getVirtualGageBasinMetaData(
-                                                getSiteKey(), domain.getCwa(),
-                                                pfaf);
-                                if (fvgmdList != null) {
-                                    for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                        vgbDrawables.put(
-                                                fvgmd.getLid(),
-                                                getPixelCoverage(
-                                                        fvgmd.getCoordinate(),
-                                                        paintProps));
-                                    }
+                                    .getVirtualGageBasinMetaData(getSiteKey(),
+                                            domain.getCwa(), pfaf);
+                            if (fvgmdList != null) {
+                                for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
+                                    vgbDrawables.put(
+                                            fvgmd.getLid(),
+                                            getPixelCoverage(
+                                                    fvgmd.getCoordinate(),
+                                                    paintProps));
                                 }
                             }
                         }
-
-                    } else {
+                    }
+                } else {
+                    if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
                         for (Long pfaf : monitor.getTemplates(getSiteKey())
                                 .getAllAggregatePfafs(centeredAggregationKey,
                                         getHuc())) {
@@ -1373,30 +1366,6 @@ public class FFMPResource extends
                                             getPixelCoverage(
                                                     fvgmd.getCoordinate(),
                                                     paintProps));
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (getHuc().equals("ALL")) {
-                        for (DomainXML domain : getDomains()) {
-                            for (Long pfaf : monitor
-                                    .getTemplates(getSiteKey())
-                                    .getMap(getSiteKey(), domain.getCwa(),
-                                            getHuc()).keySet()) {
-                                ArrayList<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
-                                        .getTemplates(getSiteKey())
-                                        .getVirtualGageBasinMetaData(
-                                                getSiteKey(), domain.getCwa(),
-                                                pfaf);
-                                if (fvgmdList != null) {
-                                    for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                        vgbDrawables.put(
-                                                fvgmd.getLid(),
-                                                getPixelCoverage(
-                                                        fvgmd.getCoordinate(),
-                                                        paintProps));
-                                    }
                                 }
                             }
                         }
@@ -1604,7 +1573,7 @@ public class FFMPResource extends
         try {
             FFMPBasinMetaData metaBasin = monitor.getTemplates(getSiteKey())
                     .findBasinByLatLon(getSiteKey(), coord.asLatLon());
-            if (getHuc().equals("ALL") || centeredAggregationKey != null) {
+            if (getHuc().equals(ALL) || centeredAggregationKey != null) {
                 pfaf = metaBasin.getPfaf();
                 if (isMaintainLayer) {
                     pfaf = monitor.getTemplates(getSiteKey())
@@ -1717,10 +1686,11 @@ public class FFMPResource extends
         int mapWidth = getDescriptor().getMapWidth() / 1000;
         FFMPTemplates templates = monitor.getTemplates(getSiteKey());
         String huc = getHuc();
+        boolean isAllHuc = huc.equals(ALL);
 
         if (centeredAggregationKey == null) {
             centeredAggregationKey = fz.getKey();
-            if (!"ALL".equals(huc)) {
+            if (!isAllHuc) {
                 center = templates.findAggregationCenter(
                         (Long) centeredAggregationKey, getSiteKey(), huc);
 
@@ -1732,7 +1702,7 @@ public class FFMPResource extends
             getDescriptor().getRenderableDisplay().getExtent().reset();
             float zoomLevel = 0.0f;
 
-            if (!getHuc().equals("ALL")) {
+            if (!isAllHuc) {
                 if (lowestCenter == FFMPRecord.ZOOM.WFO) {
                     clearAllHuc();
                 }
@@ -1749,7 +1719,7 @@ public class FFMPResource extends
         } else if (!centeredAggregationKey.equals(fz.getKey())) {
             centeredAggregationKey = fz.getKey();
             if (lowestCenter == FFMPRecord.ZOOM.WFO) {
-                if (!getHuc().equals("ALL")) {
+                if (!isAllHuc) {
                     centeredAggregationKey = fz.getKey();
                     center = templates.findAggregationCenter(
                             (Long) centeredAggregationKey, getSiteKey(),
@@ -1762,7 +1732,7 @@ public class FFMPResource extends
                 getDescriptor().getRenderableDisplay().getExtent().reset();
                 float zoomLevel = 0.0f;
 
-                if (!getHuc().equals("ALL")) {
+                if (!isAllHuc) {
                     clearTables();
                     lowestCenter = FFMPRecord.ZOOM.AGGREGATE;
                     zoomLevel = (float) AGGREGATE_ZOOM / mapWidth;
@@ -1798,8 +1768,7 @@ public class FFMPResource extends
             }
 
             // stops the annoying wait cursor every time you re-center
-            if (getHuc().equals("ALL")
-                    || (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
+            if (isAllHuc || (lowestCenter == FFMPRecord.ZOOM.BASIN)) {
                 basinTableDlg.getShell().setCursor(null);
             }
         }
@@ -1874,12 +1843,11 @@ public class FFMPResource extends
                     ArrayList<Float> guids = null;
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
-                        qpes = getQpeRecord().getBasinData("ALL")
-                                .getAccumValues(pfafs, getTableTime(),
-                                        recentTime, getQpeSourceExpiration(),
-                                        isRate());
+                        qpes = getQpeRecord().getBasinData(ALL).getAccumValues(
+                                pfafs, getTableTime(), recentTime,
+                                getQpeSourceExpiration(), isRate());
 
-                        guids = getGuidanceRecord().getBasinData("ALL")
+                        guids = getGuidanceRecord().getBasinData(ALL)
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(getFFGName()),
                                         getGuidSourceExpiration());
@@ -1911,14 +1879,14 @@ public class FFMPResource extends
             } else {
                 if ((getQpeRecord() != null) && (getGuidanceRecord() != null)) {
                     qpe = getQpeRecord()
-                            .getBasinData("ALL")
+                            .getBasinData(ALL)
                             .get(key)
                             .getAccumValue(getTableTime(), recentTime,
                                     getQpeSourceExpiration(), isRate());
 
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData("ALL").get(key), recentTime,
+                                    .getBasinData(ALL).get(key), recentTime,
                             getFFGName());
                     guid = forceValue(pfafs,
                             getBasin(key, getField(), recentTime, aggregate),
@@ -1952,13 +1920,12 @@ public class FFMPResource extends
                     ArrayList<Float> qpes = null;
                     ArrayList<Float> guids = null;
                     if (getQpeRecord() != null) {
-                        qpes = getQpeRecord().getBasinData("ALL")
-                                .getAccumValues(pfafs, getTableTime(),
-                                        recentTime, getQpeSourceExpiration(),
-                                        isRate());
+                        qpes = getQpeRecord().getBasinData(ALL).getAccumValues(
+                                pfafs, getTableTime(), recentTime,
+                                getQpeSourceExpiration(), isRate());
                     }
                     if (getGuidanceRecord() != null) {
-                        guids = getGuidanceRecord().getBasinData("ALL")
+                        guids = getGuidanceRecord().getBasinData(ALL)
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(getFFGName()),
                                         getGuidSourceExpiration());
@@ -1988,13 +1955,13 @@ public class FFMPResource extends
             } else {
                 if ((getQpeRecord() != null) && (getGuidanceRecord() != null)) {
                     qpe = getQpeRecord()
-                            .getBasinData("ALL")
+                            .getBasinData(ALL)
                             .get(key)
                             .getAccumValue(getTableTime(), recentTime,
                                     getQpeSourceExpiration(), isRate());
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData("ALL").get(key), recentTime,
+                                    .getBasinData(ALL).get(key), recentTime,
                             getFFGName());
                     ratio = FFMPUtils.getRatioValue(qpe, guid);
                 }
@@ -2067,7 +2034,7 @@ public class FFMPResource extends
     public void clearAllHuc() {
         if (drawables != null) {
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
-                entry.getValue().removeTable("ALL");
+                entry.getValue().removeTable(ALL);
             }
         }
     }
@@ -2219,7 +2186,7 @@ public class FFMPResource extends
             for (DomainXML domain : getDomains()) {
                 try {
                     Map<Long, Geometry> map = hucGeomFactory.getGeometries(
-                            templates, getSiteKey(), domain.getCwa(), "ALL");
+                            templates, getSiteKey(), domain.getCwa(), ALL);
 
                     if (map.containsKey(pfaf)) {
                         center = map.get(pfaf).getCentroid().getCoordinate();
@@ -2359,40 +2326,40 @@ public class FFMPResource extends
     private float getVGBValue(Long pfaf, Date recentTime) {
         float value = 0.0f;
         if (getField() == FIELDS.RATE) {
-            value = getVirtualRecord().getBasinsMap().get("ALL").get(pfaf)
+            value = getVirtualRecord().getBasinsMap().get(ALL).get(pfaf)
                     .getValue(recentTime);
         } else if (getField() == FIELDS.QPE) {
             value = getVirtualRecord()
                     .getBasinsMap()
-                    .get("ALL")
+                    .get(ALL)
                     .get(pfaf)
                     .getAccumValue(getTableTime(), getMostRecentTime(),
                             getQpeSourceExpiration(), isRate());
         } else if (getField() == FIELDS.RATIO) {
             float qpe = getVirtualRecord()
                     .getBasinsMap()
-                    .get("ALL")
+                    .get(ALL)
                     .get(pfaf)
                     .getAccumValue(getTableTime(), getMostRecentTime(),
                             getQpeSourceExpiration(), isRate());
             float guidance = getGuidanceValue(
                     ((FFMPGuidanceBasin) getGuidanceRecord().getBasinsMap()
-                            .get("ALL").get(pfaf)), recentTime, getFFGName());
+                            .get(ALL).get(pfaf)), recentTime, getFFGName());
             value = FFMPUtils.getRatioValue(qpe, guidance);
         } else if (getField() == FIELDS.DIFF) {
             float qpe = getVirtualRecord()
                     .getBasinsMap()
-                    .get("ALL")
+                    .get(ALL)
                     .get(pfaf)
                     .getAccumValue(getTableTime(), getMostRecentTime(),
                             getQpeSourceExpiration(), isRate());
             float guidance = getGuidanceValue(
                     ((FFMPGuidanceBasin) getGuidanceRecord().getBasinsMap()
-                            .get("ALL").get(pfaf)), recentTime, getFFGName());
+                            .get(ALL).get(pfaf)), recentTime, getFFGName());
             value = FFMPUtils.getDiffValue(qpe, guidance);
         } else if (getField() == FIELDS.GUIDANCE) {
             value = getGuidanceValue(((FFMPGuidanceBasin) getGuidanceRecord()
-                    .getBasinsMap().get("ALL").get(pfaf)), recentTime,
+                    .getBasinsMap().get(ALL).get(pfaf)), recentTime,
                     getFFGName());
         }
         return value;
@@ -2542,6 +2509,7 @@ public class FFMPResource extends
                             .getTemplates(getSiteKey());
 
                     String phuc = getHuc();
+                    boolean isAllPhuc = phuc.equals(ALL);
                     FIELDS field = getField();
 
                     if (getResourceData().tableLoad) {
@@ -2563,16 +2531,7 @@ public class FFMPResource extends
                             .isWorstCase()));
 
                     if (globalRegen) {
-                        rateRecord = null;
-                        isNewRate = true;
-                        qpfRecord = null;
-                        isNewQpf = true;
-                        qpeRecord = null;
-                        isNewQpe = true;
-                        guidRecord = null;
-                        isNewGuid = true;
-                        virtualRecord = null;
-                        isNewVirtual = true;
+                        resetRecords();
                     }
 
                     for (DomainXML domain : getDomains()) {
@@ -2598,7 +2557,7 @@ public class FFMPResource extends
                                 pfafsToProcess = cwaPfafs;
                             } else {
                                 // center selected, determine center key
-                                if (!phuc.equals("ALL")) {
+                                if (!isAllPhuc) {
                                     if (centeredAggregationKey instanceof String) {
                                         if (lowestCenter != ZOOM.BASIN) {
 
@@ -2661,7 +2620,7 @@ public class FFMPResource extends
                                 HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>();
                                 String shadedHuc = null;
 
-                                if (!phuc.equals("ALL")) {
+                                if (!isAllPhuc) {
 
                                     Map<Long, Geometry> geomMap = hucGeomFactory
                                             .getGeometries(templates,
@@ -2670,28 +2629,19 @@ public class FFMPResource extends
                                     for (Long pfaf : pfafsToProcess) {
 
                                         if (!isMaintainLayer() && isParent()
-                                                && !"ALL".equals(phuc)
                                                 && pfaf.equals(centeredAggr)) {
                                             // add centered aggr to shape
                                             Collection<Long> allPfafs = null;
 
-                                            if (!"ALL".equals(phuc)) {
-
-                                                if (isParent()) {
-                                                    allPfafs = templates
-                                                            .getMap(getSiteKey(),
-                                                                    cwa, "ALL")
-                                                            .keySet();
-                                                } else {
-                                                    allPfafs = (List<Long>) (templates
-                                                            .getMap(getSiteKey(),
-                                                                    cwa, phuc)
-                                                            .get(centeredAggr));
-                                                }
+                                            if (isParent()) {
+                                                allPfafs = templates.getMap(
+                                                        getSiteKey(), cwa, ALL)
+                                                        .keySet();
                                             } else {
-                                                allPfafs = new ArrayList<Long>(
-                                                        1);
-                                                allPfafs.add(centeredAggr);
+                                                allPfafs = (List<Long>) (templates
+                                                        .getMap(getSiteKey(),
+                                                                cwa, phuc)
+                                                        .get(centeredAggr));
                                             }
 
                                             if (allPfafs != null) {
@@ -2699,29 +2649,29 @@ public class FFMPResource extends
                                                         .getGeometries(
                                                                 templates,
                                                                 getSiteKey(),
-                                                                cwa, "ALL");
+                                                                cwa, ALL);
                                                 IColormapShadedShape shape = shadedShapes
-                                                        .getShape(cwa, "ALL",
+                                                        .getShape(cwa, ALL,
                                                                 req.target,
                                                                 descriptor);
-                                                shadedHuc = "ALL";
+                                                shadedHuc = ALL;
 
                                                 for (Long allPfaf : allPfafs) {
 
                                                     generateShapes(templates,
-                                                            "ALL", allPfaf,
+                                                            ALL, allPfaf,
                                                             allGeomMap, req,
                                                             shape, colorMap);
                                                 }
                                             }
                                         } else if (!isMaintainLayer()
                                                 && !isParent()
-                                                && !"ALL".equals(phuc)
+                                                && !ALL.equals(phuc)
                                                 && pfaf.equals(centeredAggr)) {
 
                                             Collection<Long> allPfafs = templates
                                                     .getMap(getSiteKey(), cwa,
-                                                            "ALL").keySet();
+                                                            ALL).keySet();
 
                                             if (allPfafs != null) {
 
@@ -2729,19 +2679,19 @@ public class FFMPResource extends
                                                         .getGeometries(
                                                                 templates,
                                                                 getSiteKey(),
-                                                                cwa, "ALL");
+                                                                cwa, ALL);
 
                                                 IColormapShadedShape shape = shadedShapes
-                                                        .getShape(cwa, "ALL",
+                                                        .getShape(cwa, ALL,
                                                                 req.target,
                                                                 descriptor);
 
-                                                shadedHuc = "ALL";
+                                                shadedHuc = ALL;
 
                                                 for (Long allPfaf : allPfafs) {
 
                                                     generateShapes(templates,
-                                                            "ALL", allPfaf,
+                                                            ALL, allPfaf,
                                                             allGeomMap, req,
                                                             shape, colorMap);
                                                 }
@@ -2768,17 +2718,16 @@ public class FFMPResource extends
 
                                         Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                 .getGeometries(templates,
-                                                        getSiteKey(), cwa,
-                                                        "ALL");
+                                                        getSiteKey(), cwa, ALL);
 
                                         IColormapShadedShape shape = shadedShapes
-                                                .getShape(cwa, "ALL",
-                                                        req.target, descriptor);
+                                                .getShape(cwa, ALL, req.target,
+                                                        descriptor);
 
-                                        shadedHuc = "ALL";
+                                        shadedHuc = ALL;
 
                                         for (Long allPfaf : pfafsToProcess) {
-                                            generateShapes(templates, "ALL",
+                                            generateShapes(templates, ALL,
                                                     allPfaf, allGeomMap, req,
                                                     shape, colorMap);
                                         }
@@ -2894,7 +2843,7 @@ public class FFMPResource extends
                 try {
 
                     color = getColor(pfaf, req.time.getRefTime(),
-                            !"ALL".equals(huc));
+                            !ALL.equals(huc));
 
                     if (color != null) {
                         if (!shape.getColorKeys().contains(pfaf)) {
@@ -2969,7 +2918,7 @@ public class FFMPResource extends
 
                         Map<Long, Geometry> geomMap = hucGeomFactory
                                 .getGeometries(templates, getSiteKey(), cwa,
-                                        "ALL");
+                                        ALL);
 
                         for (Long pfaf : streamPfafIds) {
                             // TODO: streamPfafIds should be ordered by
@@ -3028,7 +2977,7 @@ public class FFMPResource extends
                 for (DomainXML domains : templates.getDomains()) {
                     String cwa = domains.getCwa();
                     Map<Long, Geometry> geomMap = hucGeomFactory.getGeometries(
-                            templates, getSiteKey(), cwa, "ALL");
+                            templates, getSiteKey(), cwa, ALL);
 
                     if (geomMap != null) {
                         for (Long pfaf : geomMap.keySet()) {
@@ -3309,7 +3258,7 @@ public class FFMPResource extends
         try {
             rateBasin = monitor.getGraphRateBasin(getProduct(), getSiteKey(),
                     getDataKey(), fvgbmd == null ? getProduct().getRate()
-                            : getProduct().getVirtual(), oldestRefTime, "ALL",
+                            : getProduct().getVirtual(), oldestRefTime, ALL,
                     dataId);
 
             ArrayList<Double> rateTimes = new ArrayList<Double>();
@@ -3333,13 +3282,13 @@ public class FFMPResource extends
         try {
             qpeBasin = monitor.getGraphQPEBasin(getProduct(), getSiteKey(),
                     getDataKey(), fvgbmd == null ? getProduct().getQpe()
-                            : getProduct().getVirtual(), oldestRefTime, "ALL",
+                            : getProduct().getVirtual(), oldestRefTime, ALL,
                     dataId);
 
             ArrayList<Double> qpeTimes = new ArrayList<Double>();
 
             if (qpeBasin != null) {
-            	
+
                 for (Date date : qpeBasin.getValues().keySet()) {
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
@@ -3363,7 +3312,7 @@ public class FFMPResource extends
         try {
 
             qpfBasin = monitor.getGraphQPFBasin(getProduct(), getSiteKey(),
-                    getDataKey(), null, oldestRefTime, "ALL", basinPfaf);
+                    getDataKey(), null, oldestRefTime, ALL, basinPfaf);
 
             Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
                     .getBeforeTime(), monitor.getQpfWindow().getAfterTime());
@@ -3408,7 +3357,7 @@ public class FFMPResource extends
 
             guidBasin = (FFMPGuidanceBasin) monitor.getGraphGuidanceBasin(
                     getProduct(), getSiteKey(), getDataKey(), null,
-                    oldestRefTime, "ALL", basinPfaf);
+                    oldestRefTime, ALL, basinPfaf);
             ArrayList<Double> guidTimes = new ArrayList<Double>();
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
                     ffgGraphType)) {
@@ -3597,7 +3546,7 @@ public class FFMPResource extends
         if (tableTime == null) {
             tableTime = new Date();
         }
-        
+
         synchronized (tableTime) {
             Date recentTime = getMostRecentTime();
             long time = new Double(recentTime.getTime() - (1000 * 3600)
@@ -3766,7 +3715,7 @@ public class FFMPResource extends
     public synchronized ArrayList<Date> getTimeOrderedKeys() {
         if (timeOrderedKeys == null || !toKeysInitialized) {
             toKeysInitialized = true;
-            
+
             // stand alone displays use this
             timeOrderedKeys = new ArrayList<Date>();
 
@@ -4254,7 +4203,7 @@ public class FFMPResource extends
         ArrayList<String> hucsToLoad = new ArrayList<String>();
 
         if (isWorstCase) {
-            hucsToLoad.add("ALL");
+            hucsToLoad.add(ALL);
         }
 
         // tertiary loader only loads ALL
@@ -4263,8 +4212,8 @@ public class FFMPResource extends
                 hucsToLoad.add(getHuc());
             }
         } else {
-            if (!hucsToLoad.contains("ALL")) {
-                hucsToLoad.add("ALL");
+            if (!hucsToLoad.contains(ALL)) {
+                hucsToLoad.add(ALL);
             }
         }
         // destroy any old loader
