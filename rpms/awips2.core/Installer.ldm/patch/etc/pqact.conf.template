@@ -4,6 +4,7 @@
 # ------------ ---------- ----------- --------------------------
 # 20120905           1090 jkorman     Corrected several patterns as well as
 #                                     combining similar patterns.
+#20121009            1252 jkorman     Corrections and additions from Dale Morris.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -64,9 +65,8 @@ HDS	^(Z[DE]W[A-D][89]8) KWNO (..)(..)(..) /m0 !(grib|grib2)/[^/]*/([^/]*)/#([^/]
 
 # AWIPS1:	GRID    ^[YZ].[A-WYZ].*KWB.*            /Grid/SBN/Raw
 # YUWG97 KWBG 010600 /mRUC2 !grib/ncep/RUC2/#236/201102010600/F006/UGRD/tropopause/
-
 HDS	^([YZ].[A-WYZ].{1,3}) (KWB.) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\5.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^YEI.[89]8.*KWNH                /Grid/SBN/Raw
 #!MAINT! This line is a superset duplicate of line 16 (which only triggers on /ncep/) - However cannot find any data matching this pattern.
@@ -75,7 +75,7 @@ HDS	^(YEI.[89]8) KWNH (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-
 
 # This line enables the regional rfc qpf gribs
 HDS	^(YEI.[89]8) (KALR|KFWR|KKRF|KMSR|KORN|KPTR|KRHA|KRSA|KSTR|KTAR|KTIR|KTUA) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})/[^/]*/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)/\3/\4/\7/GRID\8/(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 
 # AWIPS1:	GRID    ^ZEX.98.*KWNH                   /Grid/SBN/Raw
@@ -266,19 +266,21 @@ ANY	^([LM].[AB].{1,3}) (KWBS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/
 # *** This is only be available during an active storm. Verified 20120828 - Hurricane Isaac.
 
 ANY	^(LGXT[0-2][0-9]) KNHC (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\3\4Z_SURGE-\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
 
 # AWIPS1:	GRID    ^LGXP[0-9][0-9].*KNHC               /Grid/SBN/rawGrib2
 # *** This is only be available during an active storm. Verified 20120828 - Hurricane Isaac.
 
 ANY	^(LGXP[0-9][0-9]) KNHC (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\3\4Z_SURGE-\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
 
 # AWIPS1:	GRID    ^LDIZ11.*KWNS                   /Grid/SBN/rawGrib2
 # LDIZ11 KWNS 180039 !grib2/ncep/0/#202/FHRS//LVL
 
-ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\4/\5Z_\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+#ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
+#	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\4\5Z-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/SPC/GRID\7/\9Z_\(10)_\(11)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^ZETA98.(KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR) /Grid/SBN/HydroRaw
 # ZETA98 KTAR 012300 /mNWS_160 !grib/nws/NWS_160/#255/201102012200/F001/APCP/sfc/
@@ -297,7 +299,7 @@ ANY	^(ZDIA98) (....) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9
 # AWIPS1:	POINT   ^IUAK01.*                       /ispan/bufr/profiler
 # IUAK01 PANC 012300
 HDS	^(IUPT0[1-4]|IUPT40|IUAK01) (.{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex    /data_store/profiler/(\3:yyyy)(\3:mm)3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+	FILE	-overwrite -log -close -edex    /data_store/profiler/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 # AWIPS1: 	POINT	^IUSZ[4-9][0-9].*		/ispan/bufr/raob
 # IUSZ53 KWBC 020205
@@ -325,8 +327,20 @@ IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
 # summaries
-IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
+#IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/summaries/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+# Change submitted by Dale Morris 
+IDS|DDPLUS	^(A[AC-FH-RT-Z]..[0-9][0-9]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/summaries/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(AG..[0-9][0-9]) (KWB.) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/summaries/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+#shef
+IDS|DDPLUS	^(A[BS]..[0-9][0-9]) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(AG..[0-9][0-9]) (KALR|KFWR|KKRF|KMSR|KORN|KPTR|KRHA|KRSA|KSTR|KTAR|KTIR|KTUR|KTUA)(..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(SR..[0-9][0-9]) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # fire wx spot fcst reports 
 IDS|DDPLUS	^(B.{5}) (.{4}) (..)(..)(..)
@@ -337,11 +351,33 @@ IDS|DDPLUS	^(C.{5}) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/climate/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # forecast
-IDS|DDPLUS	^(F.{5}) (.{4}) (..)(..)(..)
+#IDS|DDPLUS	^(F.{5}) (.{4}) (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+# Change submitted by Dale Morris 
+IDS|DDPLUS	^(F[A-FH-NP-Z]..[0-9][0-9]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(FOUS[1-589].) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/forecast/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+#shef forecasts
+IDS|DDPLUS	^(FG..[0-9][0-9]) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(FOUS[67].) (....) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # misc adm messages
-IDS|DDPLUS	^(N.{5}) (.{4}) (..)(..)(..)
+#IDS|DDPLUS	^(N.{5}) (.{4}) (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+#
+# separate out svrwx lsr and GSM misc adm messages
+IDS|DDPLUS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(NWUS[01346-9].) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(NWUS5.) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/lsr/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(NWUS2.) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/svrwx/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(NXUS[0-57-9].) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # xml 
@@ -435,9 +471,10 @@ IDS|DDPLUS	^(V.{5}) (.{4}) (..)(..)(..)
 #    ^(WT)(NT|PZ)\d{2} KNHC.*
 #    ^(WTP)A\d{2} PHFO.*
 #    ^(NWU)S\d{2} KWNS.*
-# 
+#
+# Change suggested by Dale Morris 
 IDS|DDPLUS	^(W.....) (.{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/warning/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/wwa/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:       TEXT    ^WAUS4[1-6].*                /aiv/advisories/Raw
 # WAUS44 KKCI 031822 AAA /pWA4T
@@ -468,6 +505,19 @@ IDS|DDPLUS	^(WSUS3[123]) (.{4}) (..)(..)(..)
 # TEXT    ^W[CSV]US0[1-6].*             /aiv/advisories/Raw
 IDS|DDPLUS	^(W[ACSV]US[04][1-6]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/nonconvsigment/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# airmet
+IDS|DDPLUS	^(WAUS4[1-6]) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/airmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+# intlsigmets
+IDS|DDPLUS	^(W[CSV]PA((0[1-9])|(1[1-3]))) (PHFO) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4/\1_\5_\6\7\8_(seq).%Y%m%d%H
+IDS|DDPLUS	^(W[CSV]NT((0[1-9])|(1[1-3]))) (KKCI) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4/\1_\5_\6\7\8_(seq).%Y%m%d%H
+IDS|DDPLUS	^(WAAK4[789]) (PAWU) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(S[IMN]V[DCE]..|SSV[DX]..) (....) (..)(..)(..)
@@ -508,8 +558,9 @@ ANY	^(IUAX0[12]) (....) (..)(..)(..)
 
 EXP	^/data_store/acars/acars_raw/(acars_decrypted.*)
 	FILE	-overwrite -log -close -edex	/data_store/acars/acars_decrypted/\1.acars.%Y%m%d%H
-	
-ANY	^(IUA[^X]0[12]) (....) (..)(..)(..)
+# Need to make sure that IUAK and IUAX are disallowed.
+# IUAK are Alaskan profilers and IUAX has encrypted ACARS handled above!
+ANY	^(IUA[^XK]0[12]) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex /data_store/acars/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 # AWIPS1:	POINT   ^JSAT98.*KKCI.*                 /aiv/ncwf/Raw
@@ -554,7 +605,7 @@ HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
 HDS	^(IUTX0[1-9]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/poessndg/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
-## HDW Bufr Patters ##
+## HDW Bufr Patterns ##
 # From [east|west]HDWBufrAcq_patterns.template # 
 ### From Automation ###
 
