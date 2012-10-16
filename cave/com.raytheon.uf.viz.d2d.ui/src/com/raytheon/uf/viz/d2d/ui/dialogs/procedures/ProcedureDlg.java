@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *                                     Initial Creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
  * 
  * </pre>
  * 
@@ -172,6 +173,8 @@ public class ProcedureDlg extends CaveSWTDialog {
     private final java.util.List<BundlePair> bundles;
 
     private AlterBundleDlg alterDlg;
+
+    private ProcedureListDlg saveAsDlg;
 
     private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
@@ -919,30 +922,38 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     private void showSaveAsDlg() {
-        ProcedureListDlg dlg = new ProcedureListDlg("Save Procedure As...",
-                shell, ProcedureListDlg.Mode.SAVE);
-        dlg.open();
+        if (mustCreate(saveAsDlg)) {
+            saveAsDlg = new ProcedureListDlg("Save Procedure As...", shell,
+                    ProcedureListDlg.Mode.SAVE);
 
-        String fn = dlg.getSelectedFileName();
-        if (fn == null) {
-            return;
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    String fn = saveAsDlg.getSelectedFileName();
+                    if (fn != null) {
+                        ProcedureDlg oldDlg = getDialog(fn);
+
+                        if (oldDlg != null) {
+                            oldDlg.close();
+                        }
+
+                        // Update mapping to new file name.
+                        synchronized (openDialogs) {
+                            openDialogs.remove(fileName);
+                            openDialogs.put(fn, ProcedureDlg.this);
+                        }
+
+                        frozen = saveAsDlg.isFrozen();
+                        fileName = fn;
+                        saveProcedure();
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
         }
-
-        ProcedureDlg oldDlg = getDialog(fn);
-
-        if (oldDlg != null) {
-            oldDlg.close();
-        }
-
-        // Update mapping to new file name.
-        synchronized (openDialogs) {
-            openDialogs.remove(fileName);
-            openDialogs.put(fn, this);
-        }
-
-        frozen = dlg.isFrozen();
-        fileName = fn;
-        saveProcedure();
     }
 
     /**
