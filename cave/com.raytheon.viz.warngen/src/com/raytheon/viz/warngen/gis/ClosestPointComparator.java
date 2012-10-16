@@ -37,7 +37,7 @@ import org.apache.commons.lang.ArrayUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 3, 2011            jsanchez     Initial creation
- * Sep 18, 2012   15428   jsanchez     Updated the enum sort to be more flexible.
+ * Sep 25, 2012 15425     Qinglu Lin   Implemented sorting on 'gid' in ascending order.
  * 
  * </pre>
  * 
@@ -47,11 +47,11 @@ import org.apache.commons.lang.ArrayUtils;
 
 public class ClosestPointComparator implements Comparator<ClosestPoint> {
 
-    public static enum Sort {
-        NAME, POPULATION, DISTANCE, WARNGENLEV, LAT, LON, AREA, PARENTAREA, GID
+    private enum Sort {
+        NAME, POPULATION, DISTANCE, LEVEL, LAT, LON, AREA, PARENT_AREA, GID
     }
 
-    private final ArrayList<Sort> list;
+    private ArrayList<Sort> list;
 
     private int counter;
 
@@ -64,25 +64,25 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         counter = 0;
         list = new ArrayList<Sort>();
         for (String field : fields) {
-            if (field.equalsIgnoreCase(Sort.NAME.toString())) {
+            if (field.equalsIgnoreCase("name")) {
                 list.add(Sort.NAME);
-            } else if (field.equalsIgnoreCase(Sort.POPULATION.toString())) {
+            } else if (field.equalsIgnoreCase("population")) {
                 list.add(Sort.POPULATION);
-            } else if (field.equalsIgnoreCase(Sort.DISTANCE.toString())) {
+            } else if (field.equalsIgnoreCase("distance")) {
                 list.add(Sort.DISTANCE);
-            } else if (field.equalsIgnoreCase(Sort.WARNGENLEV.toString())
+            } else if (field.equalsIgnoreCase("warngenlev")
                     || field.equalsIgnoreCase("watch_warn")) {
-                list.add(Sort.WARNGENLEV);
-            } else if (field.equalsIgnoreCase(Sort.LAT.toString())) {
+                list.add(Sort.LEVEL);
+            } else if (field.equalsIgnoreCase("lat")) {
                 list.add(Sort.LAT);
-            } else if (field.equalsIgnoreCase(Sort.LON.toString())) {
+            } else if (field.equalsIgnoreCase("lon")) {
                 list.add(Sort.LON);
-            } else if (field.equalsIgnoreCase(Sort.AREA.toString())) {
+            } else if (field.equalsIgnoreCase("area")) {
                 list.add(Sort.AREA);
-            } else if (field.equalsIgnoreCase(Sort.PARENTAREA.toString())) {
-                list.add(Sort.PARENTAREA);
-            } else if (field.equalsIgnoreCase(Sort.GID.toString())) {
-                list.add(Sort.GID);
+            } else if (field.equalsIgnoreCase("parentArea")) {
+            	list.add(Sort.PARENT_AREA);
+            }	else if (field.equalsIgnoreCase("gid")) {
+            	list.add(Sort.GID);
             }
         }
     }
@@ -105,13 +105,13 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         list.clear();
 
         ClosestPointComparator comparator = new ClosestPointComparator(
-                Arrays.asList(fields));
-        Collections.sort(Arrays.asList(points), comparator);
+                (ArrayList<String>) Arrays.asList(fields));
+        Collections
+                .sort((List<ClosestPoint>) Arrays.asList(points), comparator);
 
         return points;
     }
 
-    @Override
     public int compare(ClosestPoint cp1, ClosestPoint cp2) {
         if (list.isEmpty()) {
             return cp1.compareTo(cp2);
@@ -121,7 +121,7 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         switch (list.get(counter)) {
         case NAME:
             if (cp1.name.matches("((-|\\+)?[0-9]+(\\.[0-9]+)?)+")
-                    && cp2.name.matches("((-|\\+)?[0-9]+(\\.[0-9]+)?)+")) {
+                    && cp1.name.matches("((-|\\+)?[0-9]+(\\.[0-9]+)?)+")) {
                 value = Double.valueOf(cp1.name).compareTo(
                         Double.valueOf(cp2.name));
             } else {
@@ -131,7 +131,7 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         case POPULATION:
             value = -1 * Double.compare(cp1.population, cp2.population);
             break;
-        case WARNGENLEV:
+        case LEVEL:
             value = Double.compare(cp1.warngenlev, cp2.warngenlev);
             break;
         case LAT:
@@ -143,7 +143,7 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
         case AREA:
             value = cp1.area.compareTo(cp2.area);
             break;
-        case PARENTAREA:
+        case PARENT_AREA:
             value = cp1.parentArea.compareTo(cp2.parentArea);
             break;
         case DISTANCE:
@@ -151,7 +151,8 @@ public class ClosestPointComparator implements Comparator<ClosestPoint> {
                     .compareTo(cp2.roundedDistance);
             break;
         case GID:
-            value = new Integer(cp1.gid).compareTo(cp2.gid);
+            value = new Integer(cp1.gid)
+                    .compareTo(cp2.gid);
             break;
         }
 
