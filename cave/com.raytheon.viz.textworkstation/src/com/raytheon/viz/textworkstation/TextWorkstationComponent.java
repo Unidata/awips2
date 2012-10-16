@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
@@ -36,6 +37,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * Oct 02, 2012 1229       rferrel     Make a blocking dialog.
  * 
  * </pre>
  * 
@@ -56,7 +58,7 @@ public class TextWorkstationComponent extends AbstractCAVEComponent {
     protected void startInternal(String componentName) throws Exception {
         SerializationUtil.getJaxbContext();
         TextWorkstationDlg textWorkstationDlg = new TextWorkstationDlg(
-                new Shell(Display.getCurrent()));
+                new Shell(Display.getCurrent()), CAVE.NONE);
         textWorkstationDlg.open();
     }
 

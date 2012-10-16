@@ -17,6 +17,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  * @version 1.0
  */
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
@@ -26,6 +27,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
@@ -35,11 +41,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
 	private  Cursor editingCursor ;
-    
-    //private boolean cursorInSkewT = false;
+	private  Cursor movingCursor ;
+	//private boolean cursorInSkewT = false;
     public NsharpSkewTPaneMouseHandler(NsharpEditor editor, IDisplayPane pane) {
     	super(editor,pane);
     	editingCursor = new Cursor( display, SWT.CURSOR_CROSS);
+    	movingCursor = new Cursor( display, SWT.CURSOR_SIZEWE);
     }
     @Override
     public boolean handleKeyDown(int keyCode) {
@@ -133,7 +140,7 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
             	//get editing cursor point
             	anchoredPtC= skewRsc.getPickedTempPoint(c);
             	if(anchoredPtC.x == 0 && anchoredPtC.y==0)
-            		//cursor is not within editing range ( i.e within 2 degree range from temp/dew line)
+            		//cursor is not within editing range ( i.e within 4 degree range from temp/dew line)
             		return false;
             	skewRsc.getRscHandler().setInteractiveTempPointCoordinate(anchoredPtC);
             	//System.out.println("returned pt before reverse translate x " + anchoredPtC.x + " y "+ anchoredPtC.y);
@@ -258,9 +265,13 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
                 	Coordinate anchoredPtC;
                 	//get editing cursor point
                 	anchoredPtC= skewRsc.getPickedTempPoint(c);
+                	int currentSkewTEditMode = skewRsc.getCurrentSkewTEditMode();
                 	if(anchoredPtC.x != 0 || anchoredPtC.y!=0){
                 		//cursor is  within editing range ( i.e within 2 degree range from temp/dew line)
-                		display.getCursorControl().setCursor(editingCursor);      	
+                		if(currentSkewTEditMode == NsharpConstants.SKEWT_EDIT_MODE_EDITPOINT)
+                			display.getCursorControl().setCursor(editingCursor); 
+                		else if(currentSkewTEditMode == NsharpConstants.SKEWT_EDIT_MODE_MOVELINE)
+                			display.getCursorControl().setCursor(movingCursor); 
                 	}
                 	else
                 		display.getCursorControl().setCursor(null);
@@ -287,15 +298,18 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     		return false;
     	}
     	if(editor!=null){
-			NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
-        	// button 1 is left mouse button 
+    		NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
+    		// button 1 is left mouse button 
     		if (mouseButton == 1 ){
     			Coordinate c = editor.translateClick(x, y);
     			if(skewRsc.getSkewTBackground().contains(c) == true && this.mode == Mode.SKEWT_DOWN) {// && mouseDownMove == true) {
     				//stopEditingCursor();
     				skewRsc.getRscHandler().setPlotInteractiveTemp(false);
-    				skewRsc.getRscHandler().applyInteractiveTempPoint();
-    				//System.out.println("skewtRsc handleMouseUp MOVE_POINT");
+    				int currentSkewTEditMode = skewRsc.getCurrentSkewTEditMode();
+    				if(currentSkewTEditMode == NsharpConstants.SKEWT_EDIT_MODE_EDITPOINT)
+    					skewRsc.getRscHandler().applyInteractiveTempPoint();
+    				else if(currentSkewTEditMode == NsharpConstants.SKEWT_EDIT_MODE_MOVELINE)
+    					skewRsc.getRscHandler().applyMovingTempLine();
     				NsharpShowTextDialog osDia =  NsharpShowTextDialog.getAccess( );    
     				if(osDia != null)
     					osDia.refreshTextData();
@@ -303,8 +317,45 @@ public class NsharpSkewTPaneMouseHandler extends NsharpAbstractMouseHandler{
     			this.mode = Mode.CREATE;
     		} else if(mouseButton == 3){
     			//right mouse button
-    			//System.out.println("skewtRsc handleMouseUp right button");
-    			NsharpMapResource.bringMapEditorToTop();
+    			boolean graphEditOn = skewRsc.getRscHandler().isEditGraphOn();
+    			if(!graphEditOn)
+    				NsharpMapResource.bringMapEditorToTop();
+    			else {
+    				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+    				Menu menu = new Menu(shell, SWT.POP_UP);
+    				menu.setVisible(true);
+    				MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+    				item1.setText("Edit Point");
+    				item1.addListener(SWT.Selection, new Listener() {
+    					@Override
+    					public void handleEvent(Event event) {
+    						MenuItem selItem = (MenuItem) event.widget;
+    						String string = selItem.getText();
+    						if ("Edit Point".equals(string)) {
+    							int currentSkewTEditMode = NsharpConstants.SKEWT_EDIT_MODE_EDITPOINT;
+    							NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
+    							skewRsc.setCurrentSkewTEditMode(currentSkewTEditMode);
+    						}
+    					}
+
+    				});
+    				MenuItem item2 = new MenuItem(menu, SWT.PUSH);
+    				item2.setText("Move Line");
+    				item2.addListener(SWT.Selection, new Listener() {
+    					@Override
+    					public void handleEvent(Event event) {
+    						MenuItem selItem = (MenuItem) event.widget;
+    						String string = selItem.getText();
+    						if ("Move Line".equals(string)) {
+    							int currentSkewTEditMode = NsharpConstants.SKEWT_EDIT_MODE_MOVELINE;
+    							NsharpSkewTPaneResource skewRsc = (NsharpSkewTPaneResource)getDescriptor().getPaneResource();
+    							skewRsc.setCurrentSkewTEditMode(currentSkewTEditMode);    							
+    						}
+    					}
+
+    				});
+    				
+    			}
     		}
     		editor.refresh();
     	}

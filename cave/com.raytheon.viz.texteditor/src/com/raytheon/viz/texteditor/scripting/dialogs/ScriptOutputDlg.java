@@ -43,6 +43,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            mfegan     Initial creation
+ * Sep 27, 2012 1196       rferrel     No longer blocks.
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public class ScriptOutputDlg extends CaveSWTDialog implements SelectionListener 
      */
     public ScriptOutputDlg(Shell parent, String token) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText(String.format(DLG_TITLE_FMT, token));
     }
 

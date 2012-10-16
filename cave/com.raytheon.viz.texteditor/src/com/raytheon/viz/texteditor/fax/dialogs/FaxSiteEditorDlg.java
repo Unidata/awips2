@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 1, 2010            lvenable     Initial creation
+ * 26Sep2012    1196      lvenable     Update for dialog refactor to not block the dialog on open.
  * 
  * </pre>
  * 
@@ -71,7 +72,8 @@ public class FaxSiteEditorDlg extends CaveSWTDialog {
     private LdadFaxSitesDlg callback;
 
     public FaxSiteEditorDlg(Shell parent, LdadFaxSitesDlg callback) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("Fax Message");
         this.callback = callback;
     }

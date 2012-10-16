@@ -229,6 +229,14 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_ade_dir}/Installer.eclipse"
       return 0
    fi
+   if [ "${1}" = "awips2-openfire" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.xmpp"
+      return 0
+   fi
+   if [ "${1}" = "awips2-httpd-collaboration" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.httpd-collaboration"
+      return 0
+   fi
 
    # awips2 rpms -> viz rpms.
    if [ "${1}" = "awips2-alertviz" ]; then

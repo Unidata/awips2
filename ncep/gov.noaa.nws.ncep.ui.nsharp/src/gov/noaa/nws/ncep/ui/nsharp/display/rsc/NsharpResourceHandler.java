@@ -33,7 +33,6 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative;
@@ -58,14 +57,10 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.sounding.WxMath;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
-//import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -75,13 +70,12 @@ import com.raytheon.uf.viz.sounding.SoundingParams;
 import com.raytheon.viz.core.graphing.LineStroke;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.raytheon.viz.core.graphing.WindBarbFactory;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.sun.jna.ptr.FloatByReference;
 import com.vividsolutions.jts.geom.Coordinate;
 @SuppressWarnings("deprecation")
 public class NsharpResourceHandler {
 	private IRenderableDisplay[] displayArray=null;
-	private NsharpPerspectiveListener pspLsner;
+	private NsharpPartListener.PartEvent editorPartStatus =NsharpPartListener.PartEvent.partClosed;
 	private NsharpSkewTPaneResource skewtPaneRsc;
 	private NsharpWitoPaneResource witoPaneRsc;
 	private NsharpHodoPaneResource hodoPaneRsc;
@@ -89,7 +83,8 @@ public class NsharpResourceHandler {
 	private NsharpInsetPaneResource insetPaneRsc;
 	private NsharpDataPaneResource dataPaneRsc;
 	private NsharpSpcGraphsPaneResource spcGraphsPaneRsc;
-	private NsharpSpcGraphsPaneResource futurePaneRsc;
+	private NsharpAbstractPaneResource futurePaneRsc;
+	//private Coordinate hodoStmCenter; //hodo storm motion center
 	NsharpNative nsharpNative=null;
 	private static final int  DATAPAGEMAX = NsharpConstants.PAGE_MAX_NUMBER/ 2;
 	private static final int  INSETPAGEMAX =2;
@@ -98,7 +93,10 @@ public class NsharpResourceHandler {
 	private int cnYOrig = NsharpConstants.COLOR_NOTATION_Y_ORIG;
 	private int dtNextPageEnd = NsharpConstants.DATA_TIMELINE_NEXT_PAGE_END_;
 	private int charHeight = NsharpConstants.CHAR_HEIGHT_;
+	private int dtXOrig = NsharpConstants.DATA_TIMELINE_X_ORIG;
 	private int dtYOrig = NsharpConstants.DATA_TIMELINE_Y_ORIG;
+	private int dtWidth = NsharpConstants.DATA_TIMELINE_WIDTH;
+	private String paneConfigurationName;
 	/* Hodograph Modes - definition is based on definitions in globals_xw.h of BigNsharp  */
 	private static final int HODO_NORMAL	=		0;
 	//private static int HODO_EFFECTIVE=		1; not used in BigNsharp source code
@@ -207,8 +205,8 @@ public class NsharpResourceHandler {
 	private int totalTimeLinePage=1;
 	private int curStnIdPage=1;
 	private int totalStnIdPage=1;
-	private int currentStnStateListIndex;
-	private int currentTimeLineStateListIndex;
+	private int currentStnStateListIndex=-1;
+	private int currentTimeLineStateListIndex=-1;
 	private int previousTimeLineStateListIndex;
 		
 	public List<List<NsharpSoundingElementStateProperty>> getStnTimeTable() {
@@ -227,29 +225,7 @@ public class NsharpResourceHandler {
 
 	private HashMap<NsharpConstants.State, RGB> elementColorMap = new HashMap<NsharpConstants.State, RGB>();
 	
-	
-	//TBD private NsharpDrawPanels drawPanel; 
-
-	public class ParcelData{
-		short parcelType;
-		float parcelLayerPressure;
-
-		public short getParcelType() {
-			return parcelType;
-		}
-		public void setParcelType(short parcelType) {
-			this.parcelType = parcelType;
-		}
-		public float getParcelLayerPressure() {
-			return parcelLayerPressure;
-		}
-		public void setParcelLayerPressure(float parcelLayerPressure) {
-			this.parcelLayerPressure = parcelLayerPressure;
-		}
-
-
-	};
-	private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
+	//private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
 	private short currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
 	private float currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER; 
 	//private Coordinate hodoHouseC = new Coordinate(NsharpConstants.HODO_CENTER_X, NsharpConstants.HODO_CENTER_Y);
@@ -478,27 +454,45 @@ public class NsharpResourceHandler {
 		if(dataPaneRsc!=null){
 			dataPaneRsc.setCurrentParcel(currentParcel);
 		}
+		if(skewtPaneRsc!=null){
+			if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED)
+				currentParcelLayerPressure = NsharpParcelDialog.getUserDefdParcelMb();
+			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createLCLEtcLinesShape();
+		}
+	}
+    public void setCurrentParcelData(short currentParcel, float pressure) {
+		this.currentParcel = currentParcel;
+		currentParcelLayerPressure=pressure;
+		//inform draw panel as well
+		if(dataPaneRsc!=null){
+			dataPaneRsc.setCurrentParcel(currentParcel);
+		}
 	}
 	/*
      * NOTE:::ONly one parcel will be in parcel list as current design changed to only show one configured parcel
      * This is how BigNsharp does.
      * Todo: replace List<ParcelData>  with just one ParcelData
      */
-	public void setParcelList(List<ParcelData> parcelList) {
+	/*public void setParcelList(List<ParcelData> parcelList) {
 		this.parcelList = parcelList;
 		if(skewtPaneRsc!=null)
 			skewtPaneRsc.createParcelShapes(parcelList);
-	}
+	}*/
 	public void updateParcelFromPanel(short currentParcel){
 		this.currentParcel = currentParcel;
 		currentParcelLayerPressure=NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createLCLEtcLinesShape();
+		}
 		//update parcel shape
-		List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
+		/*List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
 		ParcelData pd= new ParcelData();
 		pd.setParcelType(currentParcel);
 		pd.setParcelLayerPressure(currentParcelLayerPressure);
 		parcelList.add(pd);
-		setParcelList(parcelList);
+		setParcelList(parcelList);*/
 	}
     /*
      * NOTE:::when called, it assumed that this new element is current parcel. Therefore caller has to make sure of this.
@@ -526,10 +520,12 @@ public class NsharpResourceHandler {
 	public void setSoundingLysList(List<List<NcSoundingLayer>> soundingLysList) {
 		this.soundingLysList = soundingLysList;
 	}
-	public void setHodoHouseC(Coordinate hodoHouseC) {
+	
+
+	public void setHodoStmCenter(Coordinate hodoHouseC) {
 		if(hodoPaneRsc==null)
 			return;
-		hodoPaneRsc.setHodoHouseC(hodoHouseC);
+		//hodoPaneRsc.setHodoHouseC(hodoHouseC);
 		Coordinate c = hodoPaneRsc.getHodoBackground().getWorld().unMap(hodoHouseC.x, hodoHouseC.y);
 		c = WxMath.speedDir((float) c.x, (float) c.y);
 		smWindDir = (float) c.y;
@@ -543,7 +539,10 @@ public class NsharpResourceHandler {
 			WGc=  insetPaneRsc.getSrWindsBackground().getWorld();	
 			insetPaneRsc.createRscSrWindShape(WGc); 
 		}
-		
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.createEffectiveLayerLinesShape();
+			skewtPaneRsc.updatePsblWatchColor();
+		}
 	}
 	
 	//This function is called only when interpolation "on/off" is changed by user
@@ -613,6 +612,21 @@ public class NsharpResourceHandler {
 			dest.put(key, lys);
 		}
 	}
+	public void handleNsharpEditorPartEvent(NsharpPartListener.PartEvent pStatus){
+		switch(pStatus){
+		case partActivated:
+			if(editorPartStatus != NsharpPartListener.PartEvent.partDeactivated){
+				//repopulateSndgData();
+				//resetRsc();
+				resetData();
+			}
+			
+			break;
+		default:
+			break;
+		}
+		editorPartStatus = pStatus;
+	}
 	public void resetRsc() {
 		//System.out.println("resetRsc called");
 		this.dataTimelineSndLysListMap.clear();
@@ -620,23 +634,21 @@ public class NsharpResourceHandler {
 		deepCopyDataMap(this.originalDataTimelineSndLysListMap,this.dataTimelineSndLysListMap);
 		this.soundingLys = this.dataTimelineSndLysListMap.get(pickedStnInfoStr);
 		//Set default parcel trace data
-		parcelList.clear();
-		ParcelData defParcel = new ParcelData();
-		defParcel.setParcelType(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE );
-		defParcel.setParcelLayerPressure(NsharpNativeConstants.MU_LAYER);
-		parcelList.add(defParcel);
-		setParcelList(parcelList);
+		currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
+		currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER; 
 		setSoundingInfo(dataTimelineSndLysListMap.get(pickedStnInfoStr));
 		currentTextChapter = 1;
 		overlayIsOn = false;
 		interpolateIsOn = false;
 		compareStnIsOn = false;
 		editGraphOn = false;
+		if(skewtPaneRsc!=null)
+			skewtPaneRsc.setCurrentSkewTEditMode(NsharpConstants.SKEWT_EDIT_MODE_EDITPOINT);
 		resetData();
 
 	}
-	private synchronized void resetData(){
-		//System.out.println("resetData called");
+	public synchronized void resetData(){
+		//System.out.println("resetData called, rscHdr="+this.toString() + " pickedStnInfoStr="+pickedStnInfoStr+ " nsharpNative="+nsharpNative.toString());
 		
 		//update active sounding layer and picked stn info						
 		//re-populate snd data to nsharp native code lib for later calculating
@@ -668,11 +680,7 @@ public class NsharpResourceHandler {
 			FloatByReference bwdir= new FloatByReference(-999);
 			FloatByReference bwspd= new FloatByReference(-999);
 			nsharpNative.nsharpLib.bunkers_storm_motion(dummy1, dummy2, bwdir, bwspd);
-			Coordinate c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
-			if(hodoPaneRsc!=null){
-				Coordinate hodoHouseC= hodoPaneRsc.getHodoBackground().getWorld().map(c);			
-				hodoPaneRsc.setHodoHouseC(hodoHouseC);
-			}
+			//System.out.println("resetData windspd="+  bwspd.getValue()+ " dir="+bwdir.getValue());
 			smWindSpd = bwspd.getValue();
 			smWindDir = bwdir.getValue();
 			nsharpNative.nsharpLib.set_storm(smWindSpd, smWindDir);
@@ -690,8 +698,12 @@ public class NsharpResourceHandler {
 				drawPanel.resetCurrentParcel();
 			}*/
 		}
+		//Chin: TBD remove handle resize here to fix sizing issue when swapped nsharp from side pane back to main pane 
+		// but, may cause other problem?
+		//if(skewtPaneRsc!=null)
+			//skewtPaneRsc.handleResize();
 		if(skewtPaneRsc!=null)
-			skewtPaneRsc.handleResize();
+			skewtPaneRsc.createRscWireFrameShapes();
 		if(hodoPaneRsc!=null)
 			hodoPaneRsc.createRscHodoWindShapeAll();
 		if(insetPaneRsc!=null)
@@ -1403,6 +1415,8 @@ public class NsharpResourceHandler {
 				curSndDeleted = true;
 			}
 			dataTimelineSndLysListMap.remove(dataTmLine);
+			originalDataTimelineSndLysListMap.remove(dataTmLine);
+			
 			//set state to NOTAVAIL from stnTimeTable
 			boolean setdone = false;
 			for(List<NsharpSoundingElementStateProperty> stnList: stnTimeTable){
@@ -1506,7 +1520,7 @@ public class NsharpResourceHandler {
 			pickedStnInfo= null;
 		}
 	}
-	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
+	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean displayNewData){
 		deepCopyDataMap(this.originalDataTimelineSndLysListMap,this.dataTimelineSndLysListMap);
 		//make sure not adding duplicated sounding data
 		//System.out.println("NsharpSkewTResource addRsc called");
@@ -1521,7 +1535,20 @@ public class NsharpResourceHandler {
 		if(soundMap.size() <=0 || (skewtPaneRsc==null)){
 			return;
 		}
-		//add new data 
+		if(timeLineStateList.isEmpty() || stnStateList.isEmpty()){
+			//if no data was loaded since, then display this data any way
+			displayNewData = true;
+		}
+		//save current timeline and stn state properties if we are NOT loading new data
+		NsharpTimeLineStateProperty currentTL=null;
+		NsharpStationStateProperty currentStn=null;
+		NsharpSoundingElementStateProperty currentPreSndProfileProp=null;
+		if(!displayNewData){
+			currentTL = timeLineStateList.get(currentTimeLineStateListIndex);
+			currentStn = stnStateList.get(currentStnStateListIndex);
+			currentPreSndProfileProp = preSndProfileProp;
+		}
+		//add new data to map/lists
 		dataTimelineSndLysListMap.putAll(soundMap);
 		Set<String> dataTimelineSet = soundMap.keySet();	
 		String[] tempTimeLineArr = dataTimelineSet.toArray(new String[dataTimelineSet.size()]);
@@ -1535,14 +1562,20 @@ public class NsharpResourceHandler {
 			//add time line to stnTimeTable and set its index
 			addElementToTableAndLists(elmDesc,stnId,timeLine,stnInfo);
 		}
-		//Set default parcel trace data
-		parcelList.clear();
-		ParcelData defParcel = new ParcelData();
-		defParcel.setParcelType(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE );
-		defParcel.setParcelLayerPressure(NsharpNativeConstants.MU_LAYER);
-		parcelList.add(defParcel);
-		setCurrentSoundingLayerInfo();
-		resetData();
+		if(displayNewData){
+			//Set default parcel trace data
+			currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
+			currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER; 
+			setCurrentSoundingLayerInfo();
+			resetData();
+		}
+		else {
+			//Not display new data. Reset current "parameter"s after adding data to map/lists
+			currentStnStateListIndex= stnStateList.indexOf(currentStn);
+			currentTimeLineStateListIndex = timeLineStateList.indexOf(currentTL);
+			preSndProfileProp = currentPreSndProfileProp;
+			curSndProfileProp = stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex);
+		}
 
 		//set total time line group and stn id list page  number
 		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
@@ -1552,7 +1585,7 @@ public class NsharpResourceHandler {
 		totalStnIdPage = stnStateList.size()/numTimeLinePerPage + 1; //NEW CODE
 		curStnIdPage= currentStnStateListIndex/numTimeLinePerPage + 1; //NEW CODE
 		
-		//System.out.println("totalTimeGroupPage ="+totalTimeGroupPage+ " curTimeGroupPage:"+ this.curTimeGroupPage);
+		/* Chin: TBD: do we need these code?
 		NsharpSkewTPaneDisplay renderableDisplay = (NsharpSkewTPaneDisplay) skewtPaneRsc.getDescriptor().getRenderableDisplay();
 		if(renderableDisplay != null) {
 		    IDisplayPaneContainer editor = renderableDisplay.getContainer();
@@ -1560,7 +1593,7 @@ public class NsharpResourceHandler {
 		       int editorNum = ((NsharpEditor) editor).getEditorNum();
 		       renderableDisplay.setEditorNum(editorNum);
 		    }
-		}
+		}*/
 		//set data time to descriptor
 		//this is necessary for looping	
         if (( skewtPaneRsc.getDescriptor().getTimeMatcher() == null ||  skewtPaneRsc.getDescriptor().getTimeMatcher().getTimeMatchBasis() == null)&& !getTimeMatcher) {
@@ -1582,7 +1615,9 @@ public class NsharpResourceHandler {
 		if(textarea != null){
 			textarea.refreshTextData();
 		}
-		currentGraphMode=NsharpPaletteWindow.getCurrentGraphMode();
+		NsharpPaletteWindow win = NsharpPaletteWindow.getInstance() ;
+		if(win!=null)
+			currentGraphMode=win.getCurrentGraphMode();
 		
 		deepCopyDataMap(this.dataTimelineSndLysListMap,this.originalDataTimelineSndLysListMap);
 		/*NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
@@ -1593,6 +1628,11 @@ public class NsharpResourceHandler {
 		
 	}
 
+	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
+		//by default, display new data 
+		this.addRsc(soundMap, stnInfo,true);
+		return;
+	}
  	public String getPickedStnInfoStr() {
 		return pickedStnInfoStr;
 	}
@@ -1603,14 +1643,20 @@ public class NsharpResourceHandler {
 		//first to find if it is for change to next page, or change sorting
 		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage+"gap="+(cnYOrig-dtNextPageEnd));
 		int index =((int)(c.y - dtYOrig))/ charHeight;
+		
 		if(index == 0 ){
+			//change to next/previous page
 			if( totalStnIdPage == 1) 
 				return;
-
-			curStnIdPage++;
-			if(curStnIdPage>totalStnIdPage)
-				curStnIdPage=1;
-
+			if((c.x - (dtXOrig+dtWidth)) < (dtWidth/2)){
+				curStnIdPage++;
+				if(curStnIdPage>totalStnIdPage)
+					curStnIdPage=1;
+			} else {
+				curStnIdPage--;
+				if(curStnIdPage <=0)
+					curStnIdPage = totalStnIdPage;
+			}
 			return;
 		}
 		// recalculate index for time line
@@ -1640,16 +1686,22 @@ public class NsharpResourceHandler {
 	
 	public void handleUserClickOnTimeLine(Coordinate c) {
 		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
-		//first to find if it is for change to next page, or change sorting
+		//first to find if it is for change to next/prev page
 		//System.out.println("numTimeLinePerPage="+numTimeLinePerPage+"gap="+(cnYOrig-dtNextPageEnd));
 		int index =((int)(c.y - dtYOrig))/ charHeight;
 		if(index == 0 ){
-			if( totalTimeLinePage == 1) //
+			//change to next/previous page
+			if( totalTimeLinePage == 1) 
 				return;
-
-			curTimeLinePage++;
-			if(curTimeLinePage>totalTimeLinePage)
-				curTimeLinePage=1;
+			if((c.x - dtXOrig) < (dtWidth/2)){
+				curTimeLinePage++;
+				if(curTimeLinePage>totalTimeLinePage)
+					curTimeLinePage=1;
+			} else {
+				curTimeLinePage--;
+				if(curTimeLinePage <=0)
+					curTimeLinePage = totalTimeLinePage;
+			}
 			return;
 		}
 		// recalculate index for time line
@@ -2119,72 +2171,68 @@ public class NsharpResourceHandler {
 		dataPaneRsc = null;
 		spcGraphsPaneRsc = null;
 		futurePaneRsc = null;
-		ResourcePair skewtRscPair =  displayArray[NsharpEditor.DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
-		if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
-			skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
-			skewtPaneRsc.setLinePropertyMap(linePropertyMap);
-			skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			skewtPaneRsc.setNsharpNative(nsharpNative);
-		}
-		ResourcePair dataRscPair =  displayArray[NsharpEditor.DISPLAY_DATA].getDescriptor().getResourceList().get(0);
-		if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
-			dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
-			dataPaneRsc.setLinePropertyMap(linePropertyMap);
-			dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			dataPaneRsc.setNsharpNative(nsharpNative);
-			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
-		}
-		ResourcePair hodoRscPair =  displayArray[NsharpEditor.DISPLAY_HODO].getDescriptor().getResourceList().get(0);
-		if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
-			hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
-			hodoPaneRsc.setLinePropertyMap(linePropertyMap);
-			hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
-			hodoPaneRsc.setNsharpNative(nsharpNative);
-		}
-		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
-				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
-				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
-			
-			ResourcePair witoRscPair =  displayArray[NsharpEditor.DISPLAY_WITO].getDescriptor().getResourceList().get(0);
-			if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
-				witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
+		for(IRenderableDisplay disp: displayArray) {
+			ResourcePair rscP = disp.getDescriptor().getResourceList().get(0);
+			NsharpAbstractPaneResource absPaneRsc = (NsharpAbstractPaneResource)rscP.getResource();
+			if (absPaneRsc instanceof NsharpSkewTPaneResource){
+				skewtPaneRsc = (NsharpSkewTPaneResource)absPaneRsc ;
+				skewtPaneRsc.setLinePropertyMap(linePropertyMap);
+				skewtPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				skewtPaneRsc.setNsharpNative(nsharpNative);
+			}
+			else if (absPaneRsc instanceof NsharpDataPaneResource){
+				dataPaneRsc = (NsharpDataPaneResource)absPaneRsc;
+				dataPaneRsc.setLinePropertyMap(linePropertyMap);
+				dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				dataPaneRsc.setNsharpNative(nsharpNative);
+				dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+			}
+			else if (absPaneRsc instanceof NsharpHodoPaneResource){
+				hodoPaneRsc = (NsharpHodoPaneResource)absPaneRsc;
+				hodoPaneRsc.setLinePropertyMap(linePropertyMap);
+				hodoPaneRsc.setGraphConfigProperty(graphConfigProperty);
+				hodoPaneRsc.setNsharpNative(nsharpNative);
+			} 
+			else if (absPaneRsc instanceof NsharpWitoPaneResource &&
+					(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR))){
+
+				witoPaneRsc = (NsharpWitoPaneResource)absPaneRsc;
 				witoPaneRsc.setLinePropertyMap(linePropertyMap);
 				witoPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				witoPaneRsc.setNsharpNative(nsharpNative);
+
 			}
-			ResourcePair insetRscPair =  displayArray[NsharpEditor.DISPLAY_INSET].getDescriptor().getResourceList().get(0);
-			if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
-				insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
+			else if (absPaneRsc instanceof NsharpInsetPaneResource &&
+					(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR))){
+
+				insetPaneRsc = (NsharpInsetPaneResource)absPaneRsc;
 				insetPaneRsc.setLinePropertyMap(linePropertyMap);
 				insetPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				insetPaneRsc.setNsharpNative(nsharpNative);
+
 			}
-		}
-		
-		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
-			ResourcePair spcRscPair =  displayArray[NsharpEditor.DISPLAY_SPC_GRAPHS].getDescriptor().getResourceList().get(0);
-			if (spcRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
-				spcGraphsPaneRsc = (NsharpSpcGraphsPaneResource)spcRscPair.getResource() ;
+			else if (absPaneRsc instanceof NsharpSpcGraphsPaneResource && paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+				spcGraphsPaneRsc = (NsharpSpcGraphsPaneResource)absPaneRsc;
 				spcGraphsPaneRsc.setLinePropertyMap(linePropertyMap);
 				spcGraphsPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				spcGraphsPaneRsc.setNsharpNative(nsharpNative);
 			}
-		}
-		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
-			ResourcePair futureRscPair =  displayArray[NsharpEditor.DISPLAY_FUTURE].getDescriptor().getResourceList().get(0);
-			if (futureRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
-				futurePaneRsc = (NsharpSpcGraphsPaneResource)futureRscPair.getResource() ;
+			else if(absPaneRsc instanceof NsharpAbstractPaneResource && paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+				futurePaneRsc = (NsharpAbstractPaneResource)absPaneRsc;
 				futurePaneRsc.setLinePropertyMap(linePropertyMap);
 				futurePaneRsc.setGraphConfigProperty(graphConfigProperty);
 				futurePaneRsc.setNsharpNative(nsharpNative);
+
 			}
-		}
-		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
-				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
-				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
-			ResourcePair timeStnRscPair =  displayArray[NsharpEditor.DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
-			if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
-				timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
+			else if (absPaneRsc instanceof NsharpTimeStnPaneResource && 
+					(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+							paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR))){
+				timeStnPaneRsc = (NsharpTimeStnPaneResource)absPaneRsc ;
 				timeStnPaneRsc.setLinePropertyMap(linePropertyMap);
 				timeStnPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				timeStnPaneRsc.setNsharpNative(nsharpNative);
@@ -2203,9 +2251,14 @@ public class NsharpResourceHandler {
 			dataPaneRsc.resetData(soundingLys, previousSoundingLys);
 		if(insetPaneRsc!=null)
 			insetPaneRsc.resetData(soundingLys, previousSoundingLys);
+		if(spcGraphsPaneRsc!=null)
+			spcGraphsPaneRsc.resetData(soundingLys, previousSoundingLys);
 	}
-	public NsharpResourceHandler(IRenderableDisplay[] displayArray) {
+
+
+	public NsharpResourceHandler(IRenderableDisplay[] displayArray, NsharpEditor editor) {
     	//System.out.println("NsharpResourceHandler constructed");
+		//myNsharpEditor = editor;
         this.soundingMap = new HashMap<Date, SoundingParams>();
         elementColorMap.put(NsharpConstants.State.CURRENT,NsharpConstants.color_green); //green
         elementColorMap.put(NsharpConstants.State.ACTIVE,NsharpConstants.color_yellow);//cyan
@@ -2214,6 +2267,7 @@ public class NsharpResourceHandler {
         elementColorMap.put(NsharpConstants.State.OVERLAY,NsharpConstants.color_red);//red
         elementColorMap.put(NsharpConstants.State.AVAIL,NsharpConstants.color_yellow);//white
         nsharpNative = new NsharpNative();
+        //System.out.println("NsharpResourceHandler constructed"+this.toString() + " nsharpNative="+nsharpNative.toString());
 		//based on BigNsharp storm slinky color used and gempak color definition
 		stormSlinkyColorMap.put(new Integer(3),NsharpConstants.color_green); //green
 		stormSlinkyColorMap.put(new Integer(7),NsharpConstants.color_magenta);
@@ -2221,13 +2275,16 @@ public class NsharpResourceHandler {
 		stormSlinkyColorMap.put(new Integer(13),NsharpConstants.color_violet_md);
 		stormSlinkyColorMap.put(new Integer(20),NsharpConstants.color_yellow_DK);
 		stormSlinkyColorMap.put(new Integer(27),NsharpConstants.color_cyan_md);
-		currentGraphMode=NsharpPaletteWindow.getCurrentGraphMode();
+		NsharpPaletteWindow win = NsharpPaletteWindow.getInstance() ;
+		if(win!=null)
+			currentGraphMode=win.getCurrentGraphMode();
+			
 		
 		// new for configMgr
 		configMgr = NsharpConfigManager.getInstance();
 		configStore = configMgr.retrieveNsharpConfigStoreFromFs();
 		graphConfigProperty = configStore.getGraphProperty();
-		String paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
 		
 		int tempOffset = graphConfigProperty.getTempOffset();
 		NsharpWxMath.setTempOffset(tempOffset);
@@ -2235,11 +2292,13 @@ public class NsharpResourceHandler {
 		dataPageProperty = configStore.getDataPageProperty();
 		updatePageOrderArray();
 		updateDisplay(displayArray,paneConfigurationName);
-		pspLsner = new NsharpPerspectiveListener();
-		pspLsner.setRscHandler(this);
-		pspLsner.setMyPerspectiveId(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
+		//pspLsner = new NsharpPerspectiveListener();
+		//pspLsner.setRscHandler(this);
+		//pspLsner.setMyPerspectiveId(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
 		//System.out.println("perspective id = " + VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(pspLsner);
+		//PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(pspLsner);
+		
+		
     }
     public void cleanUpRsc(){
     	if(dataTimelineSndLysListMap!= null)
@@ -2279,7 +2338,7 @@ public class NsharpResourceHandler {
 	public void disposeInternal() {
 		//System.out.println("NsharpSkewTResource disposeInternal called");
 	    soundingMap= null;
-	    parcelList= null;
+	    //parcelList= null;
 	    listenerList=null;
 	    soundingLysList=null;
 	    soundingLys = null;
@@ -2296,8 +2355,8 @@ public class NsharpResourceHandler {
 		}
 		
 		nsharpNative = null;
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().removePerspectiveListener(pspLsner);
-		pspLsner = null;
+		//PlatformUI.getWorkbench().getActiveWorkbenchWindow().removePerspectiveListener(pspLsner);
+		//pspLsner = null;
 	}
 
 	
@@ -2511,10 +2570,10 @@ public class NsharpResourceHandler {
      
     public void printNsharpParcelTraceCurve(WGraphics world, GC gc) throws VizException{
     	if(soundingLys.size() > 0){
-    		for (ParcelData parData: parcelList){
+    		//for (ParcelData parData: parcelList){
     			//plotNsharpParcelTraceCurve(null, 0, world, NsharpConstants.color_white,parData.parcelType, parData.userPressure, gc, true);
-    			nsharpNative.nsharpLib.define_parcel(parData.parcelType, parData.parcelLayerPressure);
-
+    			//nsharpNative.nsharpLib.define_parcel(parData.parcelType, parData.parcelLayerPressure);
+    			nsharpNative.nsharpLib.define_parcel(currentParcel,currentParcelLayerPressure);
     			_lplvalues lpvls = new _lplvalues();
     			nsharpNative.nsharpLib.get_lpvaluesData(lpvls);
 
@@ -2558,7 +2617,7 @@ public class NsharpResourceHandler {
     			c2.y = world.mapY(c2.y);
 
     			gc.drawLine((int)c1.x, (int)c1.y, (int)c2.x, (int)c2.y);
-    		}
+    		//}
 		}
     }
     /**
@@ -2679,6 +2738,74 @@ public class NsharpResourceHandler {
 		}
 		catch(Exception e)  {
 			
+		}
+	}
+	public void applyMovingTempLine(){
+		if(skewtPaneRsc==null)
+			return;
+		Coordinate inC = NsharpWxMath.reverseSkewTXY(skewtPaneRsc.getWorld().unMap(interactiveTempPointCoordinate));
+		float inTemp = (float) inC.x;
+		currentSoundingLayerIndex = skewtPaneRsc.getCurrentSoundingLayerIndex();
+		currentTempCurveType = skewtPaneRsc.getCurrentTempCurveType();
+		float currentLayerTemp, currentLayerDewP;
+		float smallestGap = skewtPaneRsc.getTempDewPtSmallestGap();
+		float tempShiftedDist;
+    	currentLayerTemp = soundingLys.get(currentSoundingLayerIndex).getTemperature();
+    	currentLayerDewP = soundingLys.get(currentSoundingLayerIndex).getDewpoint();
+		if(currentTempCurveType == TEMP_TYPE){
+    		if(inTemp < currentLayerTemp){
+    			// shift to left, tempShiftedDist should be a negative number
+    			if((currentLayerTemp - inTemp)> smallestGap){
+    				tempShiftedDist = -smallestGap;
+    			}
+    			else {
+    				tempShiftedDist = inTemp - currentLayerTemp;
+    			}
+    		}
+    		else {
+    			// shift to right, tempShiftedDist should be a positive number
+    			tempShiftedDist = inTemp - currentLayerTemp;
+    		}
+    	}
+    	else {
+    		if(inTemp < currentLayerDewP){
+    			// shift to left, tempShiftedDist should be a negative number
+    			tempShiftedDist = inTemp - currentLayerDewP;
+    		}
+    		else {
+    			// shift to right, tempShiftedDist should be a positive number
+    			if((inTemp - currentLayerDewP)> smallestGap){
+    				tempShiftedDist = smallestGap;
+    			}
+    			else {
+    				tempShiftedDist = inTemp - currentLayerDewP;
+    			}
+    		}
+    	}
+		for (NcSoundingLayer layer : soundingLys) {
+			float t;
+			if(currentTempCurveType == TEMP_TYPE){
+				t = layer.getTemperature();
+				if (t != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA  ) {
+					layer.setTemperature(t+tempShiftedDist);
+				}
+			}
+			else{
+				t = layer.getDewpoint();
+				if (t != NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA  ) {
+					layer.setDewpoint(t+tempShiftedDist);
+				}
+			}
+		}
+		this.dataTimelineSndLysListMap.put(pickedStnInfoStr, this.soundingLys);
+		//re-populate snd data to nsharp native code lib for later calculating
+		nsharpNative.populateSndgData(soundingLys);
+		//get storm motion wind data after populate sounding from NsharpLib		
+		skewtPaneRsc.setSoundingLys(soundingLys);
+		skewtPaneRsc.handleResize();
+		if(hodoPaneRsc!=null){
+			hodoPaneRsc.setSoundingLys(soundingLys);
+			hodoPaneRsc.createRscHodoWindShapeAll();
 		}
 	}
 	public void applyInteractiveTempPoint(){
@@ -2955,9 +3082,9 @@ public class NsharpResourceHandler {
 	}
 
 
-	public List<ParcelData> getParcelList() {
-		return parcelList;
-	}
+	//public List<ParcelData> getParcelList() {
+	//	return parcelList;
+	//}
 
 
 	public float getCurrentParcelLayerPressure() {
@@ -3036,6 +3163,17 @@ public class NsharpResourceHandler {
 	}
 
 
+	public NsharpInsetPaneResource getInsetPaneRsc() {
+		return insetPaneRsc;
+	}
+	
+
+
+	public NsharpSpcGraphsPaneResource getSpcGraphsPaneRsc() {
+		return spcGraphsPaneRsc;
+	}
+
+
 	/*public void setCnYOrig(int cnYOrig) {
 		this.cnYOrig = cnYOrig;
 	}
@@ -3049,9 +3187,11 @@ public class NsharpResourceHandler {
 	public void setDtYOrig(int dtYOrig) {
 		this.dtYOrig = dtYOrig;
 	}*/
-	public void setTimeStnBoxData(int cnYOrig,int dtNextPage_end, int dtYOrig , int charHeight){
+	public void setTimeStnBoxData(int cnYOrig,int dtNextPage_end, int dtYOrig , int dtXOrig, int dtWidth, int charHeight){
 		this.charHeight = charHeight;
 		this.dtYOrig = dtYOrig;
+		this.dtXOrig = dtXOrig;
+		this.dtWidth = dtWidth;
 		this.cnYOrig = cnYOrig;
 		this.dtNextPageEnd = dtNextPage_end;
 		int numTimeLinePerPage = (cnYOrig-dtNextPageEnd)/charHeight;
@@ -3072,9 +3212,14 @@ public class NsharpResourceHandler {
 		this.charHeight = charHeight;
 	}*/
 	public void refreshPane(){
-		for(int i =0; i< NsharpEditor.DISPLAY_TOTAL; i++){
+		for(int i =0; i< displayArray.length ; i++){
 			displayArray[i].refresh();
 		}
+	}
+
+
+	public String getPaneConfigurationName() {
+		return paneConfigurationName;
 	}
 
 }
