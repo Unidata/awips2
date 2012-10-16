@@ -54,11 +54,9 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.d2d.core.map.MapScales;
 import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.uf.viz.d2d.ui.DensityPopulator;
 import com.raytheon.uf.viz.d2d.ui.MagnificationPopulator;
 import com.raytheon.uf.viz.d2d.ui.actions.DensityHandler;
@@ -78,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            bgonzale     Initial creation
+ * Oct 16, 2012 1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -86,7 +85,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class DisplayPropertiesDialog extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DisplayPropertiesDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DisplayPropertiesDialog.class);
 
     private Combo scale;
 
@@ -171,7 +171,8 @@ public class DisplayPropertiesDialog extends CaveSWTDialog {
      * @param editor
      */
     public DisplayPropertiesDialog(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
         setText("Display Properties");
 
         this.sHandler = new ScaleHandler();
