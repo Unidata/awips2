@@ -30,7 +30,10 @@ import jep.JepException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2011            njensen     Initial creation
+ * Oct  5, 2011            njensen     Initial creation
+ * Sep 19, 2012      #1091 randerso    Changed to extend PythonScript to 
+ *                                     allow access to both eval and execute
+ *                                     methods
  * 
  * </pre>
  * 
@@ -38,7 +41,7 @@ import jep.JepException;
  * @version 1.0
  */
 
-public class PythonEval extends PythonInterpreter {
+public class PythonEval extends PythonScript {
 
     public PythonEval(String anIncludePath, ClassLoader aClassLoader)
             throws JepException {

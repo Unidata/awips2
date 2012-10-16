@@ -182,6 +182,8 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
 		target.drawRect(pe, NsharpConstants.backgroundColor, 1.0f, 1.0f);
 		target.clearClippingPlane();
 		double zoomLevel = paintProps.getZoomLevel();
+		if(zoomLevel > 1.0f)
+			zoomLevel = 1.0f;
         if(zoomLevel != currentZoomLevel)
 		{
 			currentZoomLevel = zoomLevel;
@@ -331,7 +333,7 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
 		this.rectangle = new Rectangle(iceXOrig, iceYOrig,
 				iceWidth, (int) ext.getHeight()-2*(int)labelSpace);
         pe = new PixelExtent(this.rectangle);
-        desc.setNewPe(pe);
+        //desc.setNewPe(pe);
         world = new WGraphics(this.rectangle);
         
         if(linesNumbersShape!= null){

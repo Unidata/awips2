@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -112,6 +112,7 @@ import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.MemoryBasedTileSet;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.grid.GridLevelTranslator;
+import com.raytheon.viz.grid.record.RequestableDataRecord;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
@@ -121,14 +122,14 @@ import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Grid Resource
- * 
+ *
  * Accepts grib data records from different time and levels. Data record array
  * should represent a single parameter.
- * 
+ *
  * <pre>
- * 
+ *
  *    SOFTWARE HISTORY
- *   
+ *
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Feb 28, 2007             chammack    Initial Creation.
@@ -139,9 +140,10 @@ import com.vividsolutions.jts.io.WKTReader;
  *    06/19/2012   14988       D. Friedman Choose interpolation method based on
  *                                         ImagingCapability.isInterpolationState().
  *                                         Oversample reprojected grids.
- * 
+ *    09/20/2012    15394      mpduff      Condense the PDOs based on grid version.
+ *                                         Get DataTime from paintProps.
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1
  */
@@ -202,7 +204,7 @@ public class GridResource extends
      * The great protector of all things related to dataTimes, do not modify or
      * iterate over pdosToParse, dataTimes, or tileSet unless you sync on this
      * or else...
-     * 
+     *
      */
     protected Object timeLock = new Object();
 
@@ -540,7 +542,7 @@ public class GridResource extends
     }
 
     private class DataRetrievalJob extends Job {
-        private ConcurrentLinkedQueue<GridMemoryBasedTileSet> tilesToRetrieve = new ConcurrentLinkedQueue<GridMemoryBasedTileSet>();
+        private final ConcurrentLinkedQueue<GridMemoryBasedTileSet> tilesToRetrieve = new ConcurrentLinkedQueue<GridMemoryBasedTileSet>();
 
         public DataRetrievalJob() {
             super("Retrieving Gridded Data");
@@ -566,7 +568,7 @@ public class GridResource extends
         }
     }
 
-    private DataRetrievalJob dataRetriever = new DataRetrievalJob();
+    private final DataRetrievalJob dataRetriever = new DataRetrievalJob();
 
     /**
      * Constructor
@@ -785,7 +787,7 @@ public class GridResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
      */
     @Override
@@ -807,6 +809,7 @@ public class GridResource extends
             this.target = target;
 
             if (pdosToParse.size() > 0) {
+                condensePDOs();
                 for (PluginDataObject pdo : pdosToParse) {
                     createTile(pdo);
                 }
@@ -894,8 +897,70 @@ public class GridResource extends
     }
 
     /**
+     * Condense the PDOs to one pdo per level per DataTime based on
+     * the gridVersion.
+     */
+    private void condensePDOs() {
+        Map<DataTime, Map<String, List<PluginDataObject>>> dateMap = new HashMap<DataTime, Map<String, List<PluginDataObject>>>();
+        List<PluginDataObject> newList = new ArrayList<PluginDataObject>();
+
+        for (PluginDataObject pdo : pdosToParse) {
+            if (pdo instanceof RequestableDataRecord) {
+                String level = null;
+                if (!dateMap.containsKey(pdo.getDataTime())) {
+                    Map<String, List<PluginDataObject>> levelMap = new HashMap<String, List<PluginDataObject>>();
+
+                    RequestableDataRecord rdr = (RequestableDataRecord) pdo;
+                    level = rdr.getModelInfo().getLevel().getLevelInfo();
+                    levelMap.put(level, new ArrayList<PluginDataObject>());
+                    dateMap.put(pdo.getDataTime(), levelMap);
+                }
+
+                Map<String, List<PluginDataObject>> levelsMap = dateMap.get(pdo
+                        .getDataTime());
+                String lvl = ((RequestableDataRecord) pdo).getModelInfo()
+                        .getLevelInfo();
+                if (!levelsMap.containsKey(lvl)) {
+                    levelsMap.put(lvl, new ArrayList<PluginDataObject>());
+                }
+                levelsMap.get(lvl).add(pdo);
+            }
+        }
+
+        // loop over each date
+        for (DataTime time : dateMap.keySet()) {
+            Map<String, List<PluginDataObject>> levelMap = dateMap.get(time);
+
+            // loop over each level
+            for (String key : levelMap.keySet()) {
+                List<PluginDataObject> pdos = levelMap.get(key);
+
+                PluginDataObject maxVersionedPdo = null;
+                int maxVersion = -1;
+
+                // loop over all the pdos for this level
+                for (PluginDataObject pdo : pdos) {
+                    RequestableDataRecord rdr = (RequestableDataRecord) pdo;
+                    int version = ((GribRecord) rdr).getGridVersion();
+                    if (version > maxVersion) {
+                        maxVersion = version;
+                        maxVersionedPdo = pdo;
+                    }
+                }
+
+                newList.add(maxVersionedPdo);
+            }
+        }
+
+        if (!newList.isEmpty()) {
+            pdosToParse.clear();
+            pdosToParse.addAll(newList);
+        }
+    }
+
+    /**
      * Combine the given tiles sets
-     * 
+     *
      * @param gridMemoryBasedTileSet
      * @param gridMemoryBasedTileSet2
      * @param dataTime
@@ -1099,7 +1164,7 @@ public class GridResource extends
 
     /**
      * Subtracts the second parameter from the first.
-     * 
+     *
      * @param floatDataRecord1
      * @param floatDataRecord2
      * @param primaryMax
@@ -1157,7 +1222,7 @@ public class GridResource extends
 
     /**
      * Dynamically scale the color map based on the data in the given tileset
-     * 
+     *
      * @param gridMemoryBasedTileSet
      */
     private void updateColorMap(GridMemoryBasedTileSet gridMemoryBasedTileSet) {
@@ -1202,7 +1267,7 @@ public class GridResource extends
             PaintProperties paintProps) throws VizException {
         this.target = target;
 
-        DataTime time = descriptor.getFramesInfo().getTimeForResource(this);
+        DataTime time = paintProps.getDataTime();
         Map<Float, GridMemoryBasedTileSet> tileGroup = tileSet.get(time);
         if (tileGroup == null) {
             return;
@@ -1441,7 +1506,7 @@ public class GridResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IVertSeqResource#getVerticalLevels
      * ()
@@ -1452,7 +1517,7 @@ public class GridResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IVertSeqResource#getVerticalLevelType
      * ()
@@ -1463,7 +1528,7 @@ public class GridResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IVertSeqResource#setVerticalLevel
      * (float)
@@ -1520,9 +1585,10 @@ public class GridResource extends
             if (object instanceof ImagingCapability) {
                 // TODO: check if interpolation state really changed
                 try {
-                    if (descriptor != null)
+                    if (descriptor != null) {
                         project(descriptor.getGridGeometry()
                                 .getCoordinateReferenceSystem());
+                    }
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error updating grid resource imaging", e);
@@ -1550,7 +1616,7 @@ public class GridResource extends
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
      */
     @Override
