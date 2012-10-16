@@ -47,6 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2011            mschenke     Initial creation
+ * Sep 17, 2012 #875       rferrel     Added check that file exists before 
+ *                                      deleting it.
  * 
  * </pre>
  * 
@@ -196,7 +198,7 @@ public class LocalizationNotificationObserver {
         // If file deleted, delete from filesystem if non directory
         if (fum.getChangeType() == FileChangeType.DELETED) {
             File local = pm.adapter.getPath(fum.getContext(), filename);
-            if (local != null && local.isDirectory() == false) {
+            if (local != null && local.isDirectory() == false && local.exists()) {
                 local.delete();
             }
         }

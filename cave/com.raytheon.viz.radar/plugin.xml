@@ -134,4 +134,24 @@
             name="Radar"
             category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=CellTrendsSep">
+         <menu
+               id="Points"
+               label="Points"
+               >
+             <visibleWhen>
+                <reference
+                      definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                </reference>
+             </visibleWhen>
+             <dynamic
+                   class="com.raytheon.viz.radar.util.CellTrendMenu"
+                   id="com.raytheon.viz.radar.util.CellTrendMenu">
+             </dynamic>
+         </menu>
+      </menuContribution>
+   </extension>
 </plugin>
