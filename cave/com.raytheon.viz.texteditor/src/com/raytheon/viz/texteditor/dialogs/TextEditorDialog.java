@@ -291,6 +291,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
  * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 27SEP2012   15424        S.Naples    Set focus on AFOS command text field after executing retrieval of product.
+ * 09Oct2012   14889	    M.Gamazaychikov	Add call to checkAndWrapPreviousLine
  * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
  * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * 01OCT2012   1229         rferrel     Change WmoBrowserDlg to non-blocking
@@ -346,6 +348,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * When auto wrapping the last line that needs to be wrapped.
      */
     private int endWrapLine = -1;
+    
+    /**
+     * Last line was wrapped backwards
+     */
+    private boolean isPreviousLineWrapped = false;
+    
 
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
 
@@ -960,7 +968,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * flag to indicate it a product request is from the GUI or an updated ob.
      */
-    private AtomicInteger updateCount = new AtomicInteger(0);
+    private final AtomicInteger updateCount = new AtomicInteger(0);
 
     private NotifyExpiration notify;
 
@@ -2899,11 +2907,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         afosCmdTF.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent event) {
+            @Override
+			public void widgetSelected(SelectionEvent event) {
 
             }
 
-            public void widgetDefaultSelected(SelectionEvent event) {
+            @Override
+			public void widgetDefaultSelected(SelectionEvent event) {
                 String tmp = afosCmdTF.getText();
                 tmp = tmp.trim();
                 afosCmdTF.setText(tmp);
@@ -2924,8 +2934,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 executeCommand(CommandFactory.getAfosCommand(afosCmdTF
                         .getText()));
 
-                // Highlight the text contained in the Afos Command Field.
-                afosCmdTF.selectAll();
+                // Place cursor back in the Afos Command Field.
+                afosCmdTF.setFocus();
             }
         });
 
@@ -2977,7 +2987,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
+            @Override
+			public void modifyText(ModifyEvent event) {
                 if (wmoTtaaiiTF.getCaretPosition() == wmoTtaaiiTF
                         .getTextLimit()) {
                     ccccTF.setFocus();
@@ -2986,11 +2997,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent event) {
+            @Override
+			public void widgetSelected(SelectionEvent event) {
 
             }
 
-            public void widgetDefaultSelected(SelectionEvent event) {
+            @Override
+			public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
                 wmoSearch();
@@ -3044,11 +3057,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         ccccTF.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent event) {
+            @Override
+			public void widgetSelected(SelectionEvent event) {
 
             }
 
-            public void widgetDefaultSelected(SelectionEvent event) {
+            @Override
+			public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
                 wmoSearch();
@@ -3105,11 +3120,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         awipsIdTF.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent event) {
+            @Override
+			public void widgetSelected(SelectionEvent event) {
 
             }
 
-            public void widgetDefaultSelected(SelectionEvent event) {
+            @Override
+			public void widgetDefaultSelected(SelectionEvent event) {
                 awipsIdTF.setText(awipsIdTF.getText().trim().toUpperCase());
                 int charCount = awipsIdTF.getCharCount();
                 if (charCount < 4 || charCount > 6) {
@@ -3503,7 +3520,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // });
 
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
-            public void verifyKey(VerifyEvent event) {
+            @Override
+			public void verifyKey(VerifyEvent event) {
                 if (event.keyCode == SWT.DEL || event.character == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
@@ -5302,7 +5320,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return TextDisplayModel.getInstance().getStdTextProduct(token);
     }
 
-    public void setAfosCmdField(String cmd) {
+    @Override
+	public void setAfosCmdField(String cmd) {
         afosCmdTF.setText(cmd);
         TextDisplayModel.getInstance().setAfosCommand(token, cmd);
     }
@@ -5315,7 +5334,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return addressee;
     }
 
-    public void executeCommand(ICommand command) {
+    @Override
+	public void executeCommand(ICommand command) {
         executeCommand(command, false);
     }
 
@@ -6475,7 +6495,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void run() {
                     getDisplay().syncExec(new Runnable() {
-                        public void run() {
+                        @Override
+						public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {
                                     saveEditedProduct(true, false);
@@ -6885,6 +6906,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // performingWrap = true;
         int lineNumber = textEditor.getLineAtOffset(start);
         endWrapLine = textEditor.getLineAtOffset(end);
+        /*
+         * DR154889 - resetting isPreviousLineWrapped
+         */
+        isPreviousLineWrapped = false;
         rewrapInternal(lineNumber);
 
         // The rest of this method is adjusting the view of the display.
@@ -7118,6 +7143,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
             }
         }
+        
+        /*
+         * DR14889 - add call to checkAndWrapPreviousLine
+         */
+        checkAndWrapPreviousLine(lineNumber);
 
         checkAndWrapNextLine(lineNumber);
     }
@@ -7212,11 +7242,54 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // split at the column, no whitespace
             wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
         }
-
+        
+        /*
+         * DR14889 - add call to checkAndWrapPreviousLine
+         */
+        checkAndWrapPreviousLine(lineNumber);
+        
         checkAndWrapNextLine(lineNumber);
     }
 
-    /**
+    /** checks if the previous line is part of the same paragraph and continues
+     * wrapping if it is
+     * @param line
+     */
+    private void checkAndWrapPreviousLine(int line) {
+    	 // if there is a previous line
+    	if ( isPreviousLineWrapped ){
+    		return;
+    	}
+        if (line - 1 > 0) {
+            // if the previous line does not start a new paragraph
+            if (!isParagraphStart(line - 1)) {
+                // if the previous line is not empty ( marks the end of a paragraph
+                // )
+                if (!textEditor.getLine(line - 1).trim().isEmpty()) {
+                    // rewrap the previous line
+                	isPreviousLineWrapped = true;
+                    rewrapInternal(line - 1);
+                } else if (line - 1 < endWrapLine) {
+                    // See if another paragraph needs to be wrapped.
+                    int nextLine = line - 1;
+                    while (nextLine <= endWrapLine
+                            && textEditor.getLine(nextLine).trim().isEmpty()) {
+                        --nextLine;
+                    }
+                    if (nextLine <= endWrapLine) {
+                    	isPreviousLineWrapped = true;
+                        rewrapInternal(nextLine);
+                    }
+                }
+            } else if (line - 1 <= endWrapLine) {
+            	isPreviousLineWrapped = true;
+                rewrapInternal(line - 1);
+            }
+        }
+		
+	}
+
+	/**
      * checks if the paragraph starting at the line passed in uses two space
      * padding for subsequent lines
      * 
