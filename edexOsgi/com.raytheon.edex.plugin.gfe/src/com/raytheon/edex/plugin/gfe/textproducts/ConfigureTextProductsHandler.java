@@ -19,14 +19,9 @@
  **/
 package com.raytheon.edex.plugin.gfe.textproducts;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.plugin.gfe.reference.EditAreaLoader;
 import com.raytheon.uf.common.dataplugin.gfe.request.ConfigureTextProductsRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
@@ -39,8 +34,10 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 9, 2011            wldougher     Initial creation
- * May 4, 2011            wldougher     Add script file creation
+ * Mar  9, 2011            wldougher   Initial creation
+ * May  4, 2011            wldougher   Add script file creation
+ * Sep 18, 2011      #1091 randerso    Removed combo file and area dictionary creation
+ *                                     since they were not in A1
  * 
  * </pre>
  * 
@@ -86,11 +83,6 @@ public class ConfigureTextProductsHandler implements
         configurator.execute();
         log.info(String.format("configureTextProducts ran for site %s", site));
 
-        Map<String, List<String>> editAreaMap = new HashMap<String, List<String>>();
-        Map<String, Map<String, String>> editAreaAttrs = new HashMap<String, Map<String, String>>();
-        new EditAreaLoader().load(site, editAreaMap, editAreaAttrs);
-        combinationsFileMaker.genCombinationsFiles(site, editAreaMap);
-        areaDictionaryMaker.genAreaDictionary(site, editAreaAttrs);
         return null;
     }
 }
