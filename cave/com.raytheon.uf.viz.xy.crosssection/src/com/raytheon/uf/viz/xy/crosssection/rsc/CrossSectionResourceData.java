@@ -282,4 +282,36 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
         blackListedTimes.add(cloned);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((parameter == null) ? 0 : parameter.hashCode());
+        result = prime * result + ((source == null) ? 0 : source.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CrossSectionResourceData other = (CrossSectionResourceData) obj;
+        if (parameter == null) {
+            if (other.parameter != null)
+                return false;
+        } else if (!parameter.equals(other.parameter))
+            return false;
+        if (source == null) {
+            if (other.source != null)
+                return false;
+        } else if (!source.equals(other.source))
+            return false;
+        return true;
+    }
+
 }

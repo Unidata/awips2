@@ -38,17 +38,19 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 public class NsharpSkewTPaneDisplay extends NsharpAbstractPaneDisplay {
     public NsharpSkewTPaneDisplay(PixelExtent pixelExtent,int paneNumber) {
         super(pixelExtent,paneNumber, "SkewTPane",(NsharpAbstractPaneDescriptor)( new NsharpSkewTPaneDescriptor(pixelExtent, paneNumber)));
+        //System.out.println("NsharpSkewTPaneDisplay("+pixelExtent+","+paneNumber+")  called "+ this.toString());
     }
     
     public NsharpSkewTPaneDisplay() {
 		super();
-		// TODO Auto-generated constructor stub
+		//System.out.println("NsharpSkewTPaneDisplay() called "+ this.toString());
+		
 	}
 
 	public NsharpSkewTPaneDisplay(PixelExtent pixelExtent, int paneNumber,
 			String name, NsharpAbstractPaneDescriptor desc) {
 		super(pixelExtent, paneNumber, name, desc);
-		// TODO Auto-generated constructor stub
+		//System.out.println("NsharpSkewTPaneDisplay("+pixelExtent+","+paneNumber+","+name+","+desc+")  called "+ this.toString());
 	}
 
 	@Override
@@ -58,6 +60,12 @@ public class NsharpSkewTPaneDisplay extends NsharpAbstractPaneDisplay {
     
 
     @Override
+	public void dispose() {
+    	//System.out.println("NsharpSkewTPaneDisplay.dispose() called "+this.toString());
+		super.dispose();
+	}
+
+	@Override
     protected void customizeResourceList(ResourceList resourceList) {
     	AbstractResourceData resourceData = new NsharpSkewTPaneResourceData();
     	// get a load properties

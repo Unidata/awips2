@@ -428,7 +428,7 @@ public class RadarGraphResource extends
     private CellTrendDataPacket getNearestCell(String point,
             Map<RadarDataKey, RadarDataPoint> symbologyData) {
 
-        Coordinate pointCoord = PointsDataManager.getInstance().getPoint(point);
+        Coordinate pointCoord = PointsDataManager.getInstance().getCoordinate(point);
 
         CellTrendDataPacket nearestCell = null;
         CellTrendDataPacket currCell = null;
