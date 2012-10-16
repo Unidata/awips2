@@ -51,7 +51,7 @@ public class LocalizationFileGroupData extends FileTreeEntryData {
      *            should be a actual file, not a directory
      */
     public LocalizationFileGroupData(PathData pathData, String path) {
-        super(pathData, path, false);
+        super(pathData, path);
         childrenData = new HashSet<LocalizationFileEntryData>();
     }
 

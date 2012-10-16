@@ -22,12 +22,9 @@
 # You must include the following line
 from Maps import * 
 
-# The following few lines removes the maps that are not wanted.  The
+# The following few lines removes the edit areas that are not wanted.  The
 # names are the Python variable names.  The following removes the
-# CWA marine zones, marine zones, lakes, interstates, and highway maps.
+# CWA marine zones, marine zones.
 maps.remove(CWAmzones) 
 maps.remove(Mzones) 
-maps.remove(lakes)
-maps.remove(interstates)
-maps.remove(highways)
 

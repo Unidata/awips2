@@ -500,6 +500,7 @@ public class NsharpNative {
     	/**
     	 * from skparams.h
     	 */
+    	float Mean_thetae(FloatByReference param, float lower, float upper);
     	/**
     	 * Original signature : <code>float bulk_rich(_parcel, float*)</code><br>
     	 * <i>native declaration : line 24</i><br>

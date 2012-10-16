@@ -42,7 +42,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2008       1659 jkorman     Initial creation
- * 
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120918           1185 jkorman     Added save to archive capability.     
  * </pre>
  * 
  * @author jkorman
@@ -77,37 +79,33 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
         // Transformed Synoptic PluginDataObject to SHEF
         byte[] result = null;
         try {
-            // Ensure we're dealing with synoptic data.
-            if (report instanceof ObsCommon) {
+            // Currently returns false, so nothing is encoded at this time.
+            if (encodeThisStation(report)) {
 
-                ObsCommon rec = (ObsCommon) report;
+                WMOHeader hdr = new WMOHeader(report.getObsText().getBytes());
 
-                // Currently returns false, so nothing is encoded at this time.
-                if (encodeThisStation(rec)) {
+                StringBuilder sb = makeWMOHeader(openWMOMessage(200),
+                        "KWOH", headers, hdr);
+                String fileName = makeWMOHeader(new StringBuilder(20), "KWOH",
+                        headers, hdr).toString().trim().replace(' ', '_');
 
-                    WMOHeader hdr = new WMOHeader(rec.getObsText().getBytes());
+                startMessageLine(sb).append(
+                        ": SHEF derived data created by SMToShefTransformer");
+                startMessageLine(sb).append(": TRACEID = ");
+                sb.append(headers.get(DecoderTools.INGEST_FILE_NAME));
 
-                    StringBuilder sb = makeWMOHeader(openWMOMessage(0, 200),
-                            "KWOH", headers, hdr);
+                String shef = closeWMOMessage(encodeShef(sb, report, headers))
+                        .toString();
 
-                    startMessageLine(sb)
-                            .append(":SHEF derived data created by SMToShefTransformer");
-                    startMessageLine(sb)
-                            .append(":TRACEID = "
-                                    + headers
-                                            .get(DecoderTools.INGEST_FILE_NAME));
-
-                    String shef = closeWMOMessage(encodeShef(sb, rec, headers))
-                            .toString();
-
-                    if (options.isOptVerbose()) {
-                        logger.info("SynopticToShef: = " + shef);
-                    }
-
-                    setLastMessage(shef);
-                    result = shef.getBytes();
-
+                if (options.isOptVerbose()) {
+                    logger.info("SynopticToShef: = " + shef);
                 }
+
+                archiveSHEFObs(shef, fileName);
+
+                setLastMessage(shef);
+                result = shef.getBytes();
+
             }
         } catch (Exception e) {
             logger.error(e);
