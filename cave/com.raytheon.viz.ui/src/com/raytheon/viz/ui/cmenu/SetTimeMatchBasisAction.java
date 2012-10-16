@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
 
 /**
  * Time match basis action, sets the selected resource as the time match basis
@@ -131,6 +132,31 @@ public class SetTimeMatchBasisAction extends AbstractRightClickAction {
         }
 
         return tmb;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.cmenu.AbstractRightClickAction#isHidden()
+     */
+    @Override
+    public boolean isHidden() {
+        AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
+        if (rsc.hasCapability(TimeMatchBasisCapability.class) == false) {
+            if (rsc.hasCapability(BlendableCapability.class)) {
+                ResourceList list = rsc
+                        .getCapability(BlendableCapability.class)
+                        .getResourceList();
+                for (ResourcePair rp : list) {
+                    if (rp.getResource().hasCapability(
+                            TimeMatchBasisCapability.class)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
 }

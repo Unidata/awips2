@@ -19,10 +19,14 @@
  **/
 package com.raytheon.edex.transform.shef;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.transform.TransformerException;
 
@@ -33,7 +37,6 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -45,6 +48,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2008       1659 jkorman     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120918           1185 jkorman     Added save to archive capability.     
  * </pre>
  * 
  * @author jkorman
@@ -54,8 +60,24 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public abstract class AbstractShefTransformer<T extends PluginDataObject>
         implements ShefTransformerInterface {
 
-    protected Log logger = LogFactory.getLog(getClass());
+    protected static final String SOH = String.valueOf((char) 1);
 
+    protected static final String CRCRLF = "\r\r\n";
+
+    protected static final String ETX = String.valueOf((char) 3);
+
+    private final String WMO_HEADER_FMT;
+
+    private static final String ARCHIVE_FORMAT = "%s_%04d";
+    
+    // Note that the nuber of digits must agree with ARCHIVE_FORMAT
+    private static final int MAX_ARCHIVE_SEQUENCE = 10000;
+    
+    private static final String WMO_MSG_SEQ_FMT = "%03d";
+    
+    // WMO Sequence number range from 001..999
+    private static final int MAX_WMO_MSG_SEQ = 1000;
+    
     public static final String METAR_2_SHEF_NNN = "MTR";
     
     public static final String METAR_2_SHEF_OPT = "metar2shef_options";
@@ -76,6 +98,10 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     public static final String SHEF_OBS_BASISTIME_FMT = "/DC%1$ty%1$tm%1$td%1$tH%1$tM";
 
+    public static final String OPT_ARC_ENABLE = "archive_enable";
+    
+    public static final String OPT_SHEF_ARC_DIR = "archive_shefdata_dir";
+
     // ***********************
     private static Integer instanceId = 0;
 
@@ -83,6 +109,9 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     // ***********************
     // Exposed properties
+
+    protected Log logger = LogFactory.getLog(getClass());
+
     private String serviceName = null;
 
     private int messageCount = 0;
@@ -93,18 +122,26 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
 
     private String metar2ShefOptions = null;
 
-    ObsToSHEFOptions options = null;
+    private boolean archiveEnabled = false;
+    
+    private String shefArchiveDir = null;
 
+    private File shefArchiveFileDir = null;
+    
+    protected ObsToSHEFOptions options = null;
+
+    private static AtomicInteger sequenceNumber = new AtomicInteger();
+
+    protected static AtomicInteger msgSequence = new AtomicInteger();
     // ************************************************************
 
-    protected static final String SOH = String.valueOf((char) 1);
-
-    protected static final String CRCRLF = "\r\r\n";
-
-    protected static final String ETX = String.valueOf((char) 3);
-
-    private final String WMO_HEADER_FMT;
-
+    /**
+     * Create the common transformer.
+     * @param cmdLine Command line options that may be used if these
+     * options are not present in the Apps_defaults.
+     * @param headerFmt The specific WMO header format string to be used
+     * when constructing a WMO header for a particular subclass.
+     */
     public AbstractShefTransformer(String cmdLine, String headerFmt) {
 
         commandLineOptions = cmdLine;
@@ -128,13 +165,17 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             throws TransformerException {
         String cmdLine = AppsDefaults.getInstance().getToken(METAR_2_SHEF_OPT,
                 null);
-        if ((options != null) && (cmdLine != null)) {
-            if (!cmdLine.equals(metar2ShefOptions)) {
-                metar2ShefOptions = cmdLine;
-                options.updateCommandLine(cmdLine);
+        if(options != null) {
+            if(cmdLine != null) {
+                if (!cmdLine.equals(metar2ShefOptions)) {
+                    metar2ShefOptions = cmdLine;
+                    options.updateCommandLine(cmdLine);
+                }
             }
             options.updateOptions();
         }
+        configureArchiveDir();
+        
         return transformReport(report, headers);
     }
 
@@ -145,7 +186,7 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
      */
     public static Iterator<?> iterate(PluginDataObject[] objects) {
         Iterator<PluginDataObject> it = null;
-        if (objects != null) {
+        if ((objects != null)&&(objects.length > 0)) {
             List<PluginDataObject> obj = Arrays.asList(objects);
             if (obj != null) {
                 it = obj.iterator();
@@ -173,25 +214,24 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     }
 
     /**
-     * 
-     * @param report
-     * @return
-     * @throws TransformerException
+     * Transform the input report to a SHEF encoded report.
+     * @param report A report to transform.
+     * @return The encoded SHEF report.
+     * @throws TransformerException An error occurred during proccessing.
      */
     protected abstract byte[] transformReport(T report, Headers headers)
             throws TransformerException;
 
     /**
-     * 
-     * @param buffer
+     * Create a new buffer containing the opening stanza of a WMO bulletin.
+     * @param sequenceId Abuffer 
      * @param report
      * @return
      */
-    protected StringBuilder openWMOMessage(int sequenceId, int initialSize) {
-
-        sequenceId = (sequenceId % 1000) + 1;
+    protected StringBuilder openWMOMessage(int initialSize) {
         StringBuilder buffer = new StringBuilder(initialSize);
-        buffer.append(String.format("%s" + CRCRLF + "%03d", SOH, sequenceId));
+        startMessageLine(buffer);
+        buffer.append(String.format(WMO_MSG_SEQ_FMT, getMsgSequenceNumber()));
         return buffer;
     }
 
@@ -328,6 +368,23 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
     }
 
     /**
+     * Get the state of the archive enabled flag. This value follows
+     * AppsDefaults:archive_enable. 
+     * @return The archive enabled state.
+     */
+    private boolean isArchiveEnabled() {
+        return archiveEnabled;
+    }
+
+    /**
+     * Get the shef archive file directory if it exists.
+     * @return 
+     */
+    private File getShefArchiveFileDir() {
+        return shefArchiveFileDir;
+    }
+    
+    /**
      * 
      */
     private void getAppsDefaults() {
@@ -339,6 +396,60 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
             metar2ShefOptions = commandLineOptions;
         }
         options = new ObsToSHEFOptions(metar2ShefOptions, true);
+        configureArchiveDir();
+    }
+
+    /**
+     * Write an encoded SHEF observation to a specified archive directory.
+     * @param shefObs The SHEF encoded data to archive.
+     * @param fileName The base filename.
+     */
+    protected void archiveSHEFObs(String shefObs, String fileName) {
+        if(isArchiveEnabled()) {
+            File arcFile = getShefArchiveFileDir();
+            if(arcFile != null) {
+                String fName = String.format(ARCHIVE_FORMAT, fileName, getSequenceNumber());
+                File outFile = new File(arcFile, fName);
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(outFile);
+                    fos.write(shefObs.getBytes());
+                    fos.flush();
+                } catch(IOException ioe) {
+                    logger.error("Could not archive data " + fName);
+                } finally {
+                    if(fos != null) {
+                        try {
+                            fos.close();
+                        } catch(IOException ioe) {
+                            logger.error("Could not close archive file " + fName);
+                        }
+                    }
+                }
+            } else {
+                logger.error("Could not archive data for " + fileName);
+            }
+        }
+    }
+    
+    /**
+     * Get the next sequence number.
+     * @return The sequence number.
+     */
+    private synchronized int getSequenceNumber() {
+        int seq = sequenceNumber.addAndGet(1);
+        sequenceNumber.compareAndSet(MAX_ARCHIVE_SEQUENCE, 1);
+        return seq;
+    }
+
+    /**
+     * Get the next message sequence number.
+     * @return The message sequence number.
+     */
+    private synchronized int getMsgSequenceNumber() {
+        int seq = msgSequence.addAndGet(1);
+        msgSequence.compareAndSet(MAX_WMO_MSG_SEQ, 1);
+        return seq;
     }
 
     /**
@@ -369,4 +480,59 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
         return rtn.toString();
     }
 
+    /**
+     * Create, or recreate and validate the shef archive directory.
+     */
+    private void configureArchiveDir() {
+        archiveEnabled = AppsDefaults.getInstance().getBoolean(OPT_ARC_ENABLE,
+                false);
+        String arcDir = AppsDefaults.getInstance().getToken(OPT_SHEF_ARC_DIR);
+        if (arcDir != null) {
+            if (archiveEnabled) {
+                boolean update = false;
+                if (shefArchiveDir == null) {
+                    update = true;
+                } else {
+                    update = !shefArchiveDir.equals(arcDir);
+                }
+                if (update) {
+                    File f = null;
+                    try {
+                        f = new File(arcDir);
+                        if (!f.exists()) {
+                            if (!f.mkdirs()) {
+                                f = null;
+                                logger.error(String
+                                        .format("Could not create SHEF archive directory [%s] - Are permissions set correctly?",
+                                                arcDir));
+                            }
+                        } else {
+                            // Ok, the arcDir exists, ensure that it is a
+                            // directory!
+                            if (!f.isDirectory()) {
+                                logger.error(String
+                                        .format("Path [%s] is not a directory, cannot create directory",
+                                                f.getAbsolutePath()));
+                                f = null;
+                            }
+                        }
+                    } catch (Exception e) {
+                        f = null;
+                        logger.error(
+                                String.format(
+                                        "Could not create SHEF archive directory [%s] - Are permissions set correctly?",
+                                        arcDir), e);
+                    }
+                    if (f != null) {
+                        shefArchiveFileDir = f;
+                        shefArchiveDir = arcDir;
+                    }
+                }
+            }
+        } else {
+            logger.error(String.format(
+                    "Apps_defaults token [%s] is not defined!",
+                    OPT_SHEF_ARC_DIR));
+        }
+    }
 }

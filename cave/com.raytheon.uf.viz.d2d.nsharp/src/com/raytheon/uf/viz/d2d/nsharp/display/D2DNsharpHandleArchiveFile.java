@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.d2d.nsharp.display;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -305,10 +305,9 @@ public class D2DNsharpHandleArchiveFile {
             throw new VizException("No valid sounding layers found in data");
         }
 
-        NsharpSkewTEditor skewtEdt = NsharpSkewTEditor
-                .createOrOpenSkewTEditor();
-        NsharpSkewTResource skewRsc = skewtEdt.getNsharpSkewTDescriptor()
-                .getSkewtResource();
+        NsharpEditor skewtEdt = NsharpEditor
+                .createOrOpenEditor();
+        NsharpResourceHandler skewRsc = skewtEdt.getRscHandler();
         Map<String, List<NcSoundingLayer>> soundingLysLstMap = new HashMap<String, List<NcSoundingLayer>>();
         soundingLysLstMap.put(stninfo.getStnDisplayInfo(), layers);
         skewRsc.addRsc(soundingLysLstMap, stninfo);

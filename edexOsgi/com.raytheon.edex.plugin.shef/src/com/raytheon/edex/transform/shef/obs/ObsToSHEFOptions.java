@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,11 +41,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
- * TODO Add Description
+ * Reads options available from the metar2shef command line string, as well as
+ * the metar.cfg.
  * 
  * <pre>
  * 
@@ -55,6 +55,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2010            jkorman     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120918           1185 jkorman     Added save to archive capability.     
  * 
  * </pre>
  * 
@@ -64,7 +67,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 
 public class ObsToSHEFOptions {
     // 1 minute update delta.
-    private static final long updateDelta = 60L * 1000L;
+    private static final long UPDATE_DELTA = 60L * 1000L;
 
     private static final String METAR_CFG = "metar.cfg";
 
@@ -213,7 +216,7 @@ public class ObsToSHEFOptions {
         final Class<?> clazz;
 
         public CmdLineData(String key, String option, Integer numOptions,
-                Class clazz) {
+                Class<?> clazz) {
             this.key = key;
             this.option = option;
             this.numOptions = numOptions;
@@ -833,9 +836,12 @@ public class ObsToSHEFOptions {
         parseCommandLine(commandLine);
     }
 
+    /**
+     * Check if the metar.cfg needs to be reread.
+     */
     public void updateOptions() {
         long cTime = System.currentTimeMillis() - updateTime;
-        if (cTime > updateDelta) {
+        if (cTime > UPDATE_DELTA) {
             if (loaded && localized) {
                 readConfig(METAR_CFG, optConfigContext);
                 updateTime = System.currentTimeMillis();
@@ -919,7 +925,6 @@ public class ObsToSHEFOptions {
                     saoOut = val;
                 } else if (ERROR_FILE.equals(m.group(2)) && lineCount == 5) {
                     errorFile = val;
-                    errorFile = val;
                 } else if (SHEF_PASS.equals(m.group(2)) && lineCount == 6) {
                     shefPass = val;
                 }
@@ -982,64 +987,5 @@ public class ObsToSHEFOptions {
             }
         }
         return sb.toString();
-    }
-
-    public static final void main(String[] args) {
-
-        String METAR_CFG_DATA = "/tmp/queue/metar/in\n"
-                + "/tmp/queue/metar/out\n"
-                + "/tmp/queue/metar/err\n"
-                + "+SAOOUT\n"
-                + "-ERRORFILE\n"
-                + "-SHEFPASS\n"
-                + "TAIRZZ TD UP SD UD US PL TX TN PPT PPQ PPH PPD PA TAIRZR TAIRZH TAIRZP TAIRZY PTIR\n"
-                + ".begin_names\n" + "  KOMA\n" + "  KOFF\n" + "  KLNK\n"
-                + "  KFET\n" + "  KOFK\n" + "  KPMV\n" + "  KCBF\n"
-                + "  KSUX\n" + ".end_names\n" + ".begin_sm_alias\n"
-                + "  72550 KOMA\n" + "  72551 KLNK\n" + "  72552 KGRI\n"
-                + "  72556 KOFK\n" + "  72557 KSUX\n" + ".end_sm_alias\n"
-                + ".begin_pc_reset\n" + "  KOMA 40\n" + ".end_pc_reset\n";
-
-        String cmdLine = " -a -pedtsep -v -b -strip -pct 4 -howold 405 -p1 -p6 -pall6 -round -w -q1 -g";
-
-        ObsToSHEFOptions options = new ObsToSHEFOptions(cmdLine, false);
-
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new StringReader(METAR_CFG_DATA));
-            options.readConfig(reader);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-        }
-
-        System.out.println(options);
-        System.out.println(String.format("%s%s", SAO_OUT, options.saoOut ? "+"
-                : "-"));
-        System.out.println(String.format("%s%s", ERROR_FILE,
-                options.errorFile ? "+" : "-"));
-        System.out.println(String.format("%s%s", SHEF_PASS,
-                options.shefPass ? "+" : "-"));
-        System.out.println(options.optPE);
-        System.out.println(options.optNames);
-        System.out.println(options.optAlias);
-        System.out.println(options.optPCReset);
-
-        System.out.println("Getting pc reset for KOMA = ["
-                + options.getPCReset("KOMA") + "]");
-        System.out.println("Checking station KSAT = " + options.checkName("KSAT"));
-
-        System.out.println(options.isOptZeroAuto1HourPrecip());
-        
-        System.out.println(options.isOptTypeSrcV());
-        
     }
 }

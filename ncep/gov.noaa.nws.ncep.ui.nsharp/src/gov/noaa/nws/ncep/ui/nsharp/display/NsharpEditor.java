@@ -26,22 +26,24 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
-import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpDataPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpInsetPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpPartListener;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSpcGraphsPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
 
-import org.eclipse.core.runtime.Status;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -62,8 +64,10 @@ import org.eclipse.ui.commands.ICommandService;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -71,7 +75,6 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.input.InputManager;
@@ -80,20 +83,20 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpEditor extends AbstractEditor implements AddListener,
-        RemoveListener, AbstractNcEditor {
+        RemoveListener, AbstractNcEditor, IRenderableDisplayChangedListener {
 	private boolean restarting= false;
-    public static int DISPLAY_SKEWT;
-    public static int DISPLAY_WITO;
-    public static int DISPLAY_INSET;
-    public static int DISPLAY_HODO;
-    public static int DISPLAY_TIMESTN;
-    public static int DISPLAY_DATA;
-    public static int DISPLAY_SPC_GRAPHS;
-    public static int DISPLAY_FUTURE;
-    public static int DISPLAY_TOTAL;
-    public static final String EDITOR_ID = "gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor";
+	private final int DISPLAY_SKEWT =0; // always set it as first display, dont change it
+	private  int DISPLAY_WITO;
+	private  int DISPLAY_INSET;
+	private  int DISPLAY_HODO;
+	private  int DISPLAY_TIMESTN;
+	private  int DISPLAY_DATA;
+	private  int DISPLAY_SPC_GRAPHS;
+	private  int DISPLAY_FUTURE;
+	private  int DISPLAY_TOTAL;
+    public static final String EDITOR_ID = "gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor";
     private  int editorNum=0;
-    private static NsharpResourceHandler rscHandler;
+    private  NsharpResourceHandler rscHandler;
     private int baseWidth;
     private int baseHeight;
     private double skewTHeightHintRatio;
@@ -127,8 +130,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     private int spcWidthHint;
     private int futureHeightHint;
     private int futureWidthHint;
-    private static String paneConfigurationName;
-    private static IRenderableDisplay[] displayArray;
+    private  String paneConfigurationName;
+    private  IRenderableDisplay[] displayArray;
     private ResizeListener resizeLsner;
 	public NsharpResourceHandler getRscHandler() {
 		return rscHandler;
@@ -137,7 +140,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		return editorNum;
 	}
 	//Note: nsharpComp used to store composite for each pane.  
-    private static Composite[] nsharpComp;// = new Composite[DISPLAY_TOTAL];
+    private Composite[] nsharpComp;// = new Composite[DISPLAY_TOTAL];
     private GridData leftGpGd,topGpGd, botGpGd;
     private GridData rightGpGd;
     private GridData rightTopGpGd,leftTopGpGd, leftBotGpGd;
@@ -150,7 +153,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     protected InputManager timeStnInputManager;
     protected InputManager dataInputManager;
     protected InputManager insetInputManager;
-
+    protected InputManager spcGraphsInputManager;
     /** The activated context, else null if not activated. */
     //protected IContextActivation contextActivation;
 
@@ -160,8 +163,9 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     private NsharpTimeStnPaneMouseHandler timeStnPaneMouseHandler = null;
     private NsharpDataPaneMouseHandler dataPaneMouseHandler = null;
     private NsharpAbstractMouseHandler insetPaneMouseHandler = null;
+    private NsharpAbstractMouseHandler spcGraphsPaneMouseHandler = null;
  
-    protected static VizDisplayPane displayPane[];//= new VizDisplayPane[DISPLAY_TOTAL];
+    protected VizDisplayPane displayPane[];//= new VizDisplayPane[DISPLAY_TOTAL];
     protected VizDisplayPane selectedPane;
     public static NsharpEditor getActiveNsharpEditor() {
         IEditorPart ep = EditorUtil.getActiveEditor();
@@ -295,6 +299,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		hodoInputManager = new InputManager(this);
 		dataInputManager = new InputManager(this);
 		insetInputManager = new InputManager(this);
+		spcGraphsInputManager = new InputManager(this);
 		try {
 			for(int i=0; i < displayPane.length; i++){
 				if (displayPane[i] == null && nsharpComp [i]!=null) {
@@ -727,7 +732,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
                 true);
         dataComp.setLayoutData(dataGd);
         GridLayout dataLayout = new GridLayout(1, true);
-        dataLayout.marginHeight = 0;
+        dataLayout.marginHeight = 1;
         dataLayout.marginWidth=0;
         dataComp.setLayout(dataLayout);
 		nsharpComp[DISPLAY_DATA] = dataComp; 
@@ -761,6 +766,11 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     				mouseHandler =insetPaneMouseHandler;
     				inputMgr =insetInputManager;
     			}
+    			else if(i==  DISPLAY_SPC_GRAPHS) {
+    				spcGraphsPaneMouseHandler = new NsharpAbstractMouseHandler(this,pane);
+    				mouseHandler =spcGraphsPaneMouseHandler;
+    				inputMgr =spcGraphsInputManager;
+    			}
     			else if(i==  DISPLAY_DATA){
     				dataPaneMouseHandler = new NsharpDataPaneMouseHandler(this,pane);
     				mouseHandler =dataPaneMouseHandler;
@@ -787,22 +797,111 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 
 
     @Override
-    public void init(IEditorSite site, IEditorInput input)
+    public void init(IEditorSite site, IEditorInput editorInput)
             throws PartInitException {
-        super.init(site, input);
-        System.out.println("SkewtEditor init called");
-        EditorInput editorInput = (EditorInput) input;
-        if (input instanceof EditorInput) {
-        	displaysToLoad = editorInput.getRenderableDisplays();
+    	//System.out.println("NsharpEditor init!! " + this.toString()  );
+    	NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+    	NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
+    	NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
+    	paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
+    	initDisplayPublicParms();
+    	createRenderableDisplayArray();
+    	/*
+    	 * Chin note: we ignore "Renderable displays" sent with "editorInput" parameter here, as in D2D
+    	 * application the "Renderable displays" only contains skewTPaneDisplay.  
+    	 * We recreate displayArray and reset them to EditorInput here based on current "paneConfigurationName"
+    	 * 
+    	 */
+    	
+        EditorInput edInput  = (EditorInput)editorInput;
+        boolean getRscHandlerDone = false;
+        // bsteffen: reuse any displays that already exist in the current editorInput
+        for(IRenderableDisplay display : edInput.getRenderableDisplays()){
+            int index = -1;
+            if(display instanceof NsharpSkewTPaneDisplay ){
+                index = DISPLAY_SKEWT;
+            }else if(display instanceof NsharpWitoPaneDisplay ){
+                index = DISPLAY_WITO;
+            }else if(display instanceof NsharpInsetPaneDisplay ){
+                index = DISPLAY_INSET;
+            }else if(display instanceof NsharpHodoPaneDisplay ){
+                index = DISPLAY_HODO;
+            }else if(display instanceof NsharpTimeStnPaneDisplay ){
+                index = DISPLAY_TIMESTN;
+            }else if(display instanceof NsharpDataPaneDisplay ){
+                index = DISPLAY_DATA;
+            }else if(display instanceof NsharpSpcGraphsPaneDisplay ){
+                index = DISPLAY_SPC_GRAPHS;
+            }else if(display instanceof NsharpAbstractPaneDisplay ){
+                index = DISPLAY_FUTURE;
+            }
+            if(index >= 0){
+            	//System.out.println("displayArray["+index+"] was "+ displayArray[index]+" set to "+display.toString());
+            	displayArray[index].dispose();
+                displayArray[index] = display;
+                //Chin: only do this once
+                if(!getRscHandlerDone){
+                
+                	// attempt to find and reuse rscHandler if possible
+                	List<NsharpAbstractPaneResource> paneRscs = display.getDescriptor()
+                	.getResourceList().getResourcesByTypeAsType(
+                			NsharpAbstractPaneResource.class);
+                	for (NsharpAbstractPaneResource paneRsc : paneRscs) {
+                		NsharpResourceHandler handler = paneRsc.getRscHandler();
+                		if (handler != null) {
+                			rscHandler = handler;
+                			getRscHandlerDone = true;
+                        	
+                		}
+                	}
+                	// bsteffen: not sure if this is necessary, getPaneNumber is never used
+                	IDescriptor descriptor = display.getDescriptor();
+                	if(descriptor instanceof NsharpAbstractPaneDescriptor){
+                		((NsharpAbstractPaneDescriptor) descriptor).setPaneNumber(index);
+                	}
+                }
+
+            }
         }
-        //System.out.println("SkewtEditor  title " + this.getTitle() );
-        if (editorNum == 0 ){
-        	editorNum = EditorManager.getEditorNumber();
-        	
-        }
-       // a new instance, do the registration
-        EditorManager.registerEditorNumber(editorNum);
-        this.setTabTitle(editorNum+"-NsharpEditor");
+        
+    	edInput.setRenderableDisplays(displayArray);
+
+    	
+    	super.init(site, edInput);
+
+    	
+    	//System.out.println("SkewtEditor  title " + this.getTitle() );
+    	if (editorNum == 0 ){
+    		editorNum = EditorManager.getEditorNumber();
+
+    	}
+    	// a new instance, do the registration
+    	EditorManager.registerEditorNumber(editorNum);
+    	this.setTabTitle(editorNum+"-NsharpEditor");
+    	
+    	//Note: NsharpResourceHandler should be created after editor is created, so all display pane properties and
+    	// pane resource are also constructed
+		// bsteffen: only create rscHandler if it doesn't exist already
+    	if(rscHandler == null){
+    	    rscHandler = new NsharpResourceHandler(displayArray,this);
+    	}else{
+    	    rscHandler.updateDisplay(displayArray, paneConfigurationName);
+    	    
+    	}
+    	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+    	if(paletteWin!=null){
+    		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
+    				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
+    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn()); 
+    	}
+    	createPaneResource();
+    	
+    	rscHandler.resetData();
+    	//  listen for changes to renderable displays
+    	addRenderableDisplayChangedListener(this);
+    	//add a new part listener if not added yet
+		NsharpPartListener.addPartListener();
+		
     }
 
 
@@ -853,12 +952,12 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     				insetPaneMouseHandler = null;
     				insetInputManager = null;
     			}
-    			/*if (witoPaneMouseHandler != null && witoInputManager != null) {
-    				witoPaneMouseHandler.setEditor(null);
-    				witoInputManager.unregisterMouseHandler(witoPaneMouseHandler);
-    				witoPaneMouseHandler = null;
-    				witoInputManager = null;
-    			}*/
+    			if (spcGraphsPaneMouseHandler != null && spcGraphsInputManager != null) {
+    				spcGraphsPaneMouseHandler.setEditor(null);
+    				spcGraphsInputManager.unregisterMouseHandler(spcGraphsPaneMouseHandler);
+    				spcGraphsPaneMouseHandler = null;
+    				spcGraphsInputManager = null;
+    			}
     			if (timeStnPaneMouseHandler != null && timeStnInputManager != null) {
     				timeStnPaneMouseHandler.setEditor(null);
     				timeStnInputManager.unregisterMouseHandler(timeStnPaneMouseHandler);
@@ -867,8 +966,13 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     			}
 
     			editorNum=0;
-    			if(rscHandler!=null)
-    				rscHandler.disposeInternal();
+    			// bsteffen only dispose the rscHandler if not swapping.
+    			if(!displayArray[DISPLAY_SKEWT].isSwapping()){
+        			if(rscHandler!=null){
+        				rscHandler.disposeInternal();
+        			}
+    			}
+                rscHandler = null;
     		}
     	}
     	try{
@@ -885,7 +989,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 
     public void restartEditor(String paneConfigurationName) {
     	//System.out.println("reStartEditor! "  );
-    	setPaneConfigurationName(paneConfigurationName);
+    	this.paneConfigurationName = paneConfigurationName ;
     	if (skewtPaneMouseHandler != null && skewtInputManager != null) {
     		skewtPaneMouseHandler.setEditor(null);
     		skewtInputManager.unregisterMouseHandler(skewtPaneMouseHandler);
@@ -910,12 +1014,12 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     		insetPaneMouseHandler = null;
     		insetInputManager = null;
     	}
-    	/*if (witoPaneMouseHandler != null && witoInputManager != null) {
-    				witoPaneMouseHandler.setEditor(null);
-    				witoInputManager.unregisterMouseHandler(witoPaneMouseHandler);
-    				witoPaneMouseHandler = null;
-    				witoInputManager = null;
-    			}*/
+    	if (spcGraphsPaneMouseHandler != null && spcGraphsInputManager != null) {
+    				spcGraphsPaneMouseHandler.setEditor(null);
+    				spcGraphsInputManager.unregisterMouseHandler(spcGraphsPaneMouseHandler);
+    				spcGraphsPaneMouseHandler = null;
+    				spcGraphsInputManager = null;
+    	}
     	if (timeStnPaneMouseHandler != null && timeStnInputManager != null) {
     		timeStnPaneMouseHandler.setEditor(null);
     		timeStnInputManager.unregisterMouseHandler(timeStnPaneMouseHandler);
@@ -925,20 +1029,29 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	baseComposite.removeListener(SWT.Resize, resizeLsner);
     	displayArray = null;
     	nsharpComp=null;
-    	for (VizDisplayPane pane: displayPane){
-    		pane.dispose();
+    	if(displayPane!=null){
+    		for (VizDisplayPane pane: displayPane){
+    			if(pane!=null)
+    				pane.dispose();
+    		}
     	}
     	displayPane = null;
     	rightTopGp= leftTopGp= leftBotGp= leftGp= rightGp= topGp= botGp=null;
-    	createOrUpdateEditor(true);
+    	//createOrUpdateEditor(true);
+    	updateEditor();
     	restarting = true;
     	createPartControl(parantComp);
     	editorInput.setRenderableDisplays(getRenderableDisplays());
     	//Chin: note: after reset all resource in editor, editor displays an empty screen. Refresh() does not work.
     	//Therefore, play the following trick. I.e. bring map editor to top and then this editor to top. After this trick,
     	// editor displays normally.
-    	NsharpMapResource.bringMapEditorToTop();
-    	bringEditorToTop();
+    	parantComp.layout(); // from ben
+    	//NsharpMapResource.bringMapEditorToTop();
+    	//bringEditorToTop();
+    	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+    	if(paletteWin!=null){
+    		paletteWin.updateSpcGraphBtn(paneConfigurationName);
+    	}
     }
     /**
      * Perform a refresh asynchronously
@@ -946,9 +1059,11 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
      */
     @Override
     public void refresh() {
-        for (IDisplayPane pane : displayPane) {
-            pane.refresh();
-        }
+    	if(displayPane!= null)
+    		for (IDisplayPane pane : displayPane) {
+    			if(pane!=null)
+    				pane.refresh();
+    		}
         //System.out.println("NsharpEditor refresh called");
     }
     @Override
@@ -972,12 +1087,16 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	for(int i=0; i < DISPLAY_TOTAL; i++){
     		if(displayPane[i]!=null){
     			displayPane[i].getRenderableDisplay().getExtent().reset();
-    			displayPane[i].getRenderableDisplay().zoom(1);
+    			displayPane[i].getRenderableDisplay().zoom(1.0);
     			displayPane[i].getRenderableDisplay().refresh();
     		}
     	}
-    	if(rscHandler!=null && rscHandler.getWitoPaneRsc()!=null)
-    		rscHandler.getWitoPaneRsc().createAllWireFrameShapes();
+    	if(rscHandler!=null) {
+    		if(rscHandler.getWitoPaneRsc()!=null){
+    			rscHandler.getWitoPaneRsc().createAllWireFrameShapes();
+    		}
+    		//rscHandler.getSkewtPaneRsc().handleZooming();
+    	}
     }
     public void registerMouseHandler(IInputHandler handler, IInputHandler.InputPriority priority) {
         skewtInputManager.registerMouseHandler(handler, priority);
@@ -1010,12 +1129,15 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     @Override
     public IDisplayPane[] getDisplayPanes() {
     	//System.out.println("SkewtEditor getDisplayPanes called");
-        return getDisplayPaneArray();//this.displayPane;
+        //return getDisplayPaneArray();//this.displayPane;
+    	// changed for D2D
+    	IDisplayPane[] pan = { displayPane[DISPLAY_SKEWT]};
+    	return pan;
     }
-    private IRenderableDisplay[] getRenderableDisplays() {
-        IRenderableDisplay[] displays = new IRenderableDisplay[getDisplayPanes().length];
+    public IRenderableDisplay[] getRenderableDisplays() {
+        IRenderableDisplay[] displays = new IRenderableDisplay[displayPane.length];
         int i = 0;
-        for (IDisplayPane pane : getDisplayPanes()) {
+        for (IDisplayPane pane : displayPane) {
             displays[i++] = pane.getRenderableDisplay();
         }
         return displays;
@@ -1097,17 +1219,9 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		
 		return null;
 	}
-	
-	private static NsharpEditor createOrUpdateEditor(boolean updateInputOnly) {	
-		NsharpEditor editor;
-		if(updateInputOnly == false){
-		NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
-		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
-		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
-		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
-		}
+	private  void initDisplayPublicParms(){
 		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
-			DISPLAY_SKEWT = 0; 
+			//DISPLAY_SKEWT = 0; 
 			DISPLAY_WITO= DISPLAY_SKEWT+1;
 			DISPLAY_INSET= DISPLAY_WITO+1;
 		    DISPLAY_HODO= DISPLAY_INSET+1;
@@ -1116,17 +1230,8 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		    DISPLAY_TOTAL= DISPLAY_SPC_GRAPHS+1;	
 		    DISPLAY_FUTURE = -1;
 		    DISPLAY_TIMESTN = -1;
-		    nsharpComp = new Composite[DISPLAY_TOTAL];
-			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
-			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
-			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
-			displayArray[DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),DISPLAY_WITO);
-			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
-			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
-			displayArray[DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),DISPLAY_INSET);
-			displayArray[DISPLAY_SPC_GRAPHS]= new NsharpSpcGraphsPaneDisplay(new PixelExtent(NsharpConstants.SPC_GRAPH_DISPLAY_REC),DISPLAY_SPC_GRAPHS);	
 		} else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
-			DISPLAY_SKEWT = 0; 
+			//DISPLAY_SKEWT = 0; 
 			DISPLAY_TIMESTN= DISPLAY_SKEWT+1;
 			DISPLAY_HODO= DISPLAY_TIMESTN+1;
 		    DISPLAY_DATA=DISPLAY_HODO+1;
@@ -1135,17 +1240,9 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		    DISPLAY_WITO= -1;
 			DISPLAY_INSET= -1;
 			DISPLAY_SPC_GRAPHS = -1;
-			nsharpComp = new Composite[DISPLAY_TOTAL];
-			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
-			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
-			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
-			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
-			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
-			displayArray[DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),DISPLAY_TIMESTN);
-			displayArray[DISPLAY_FUTURE]= new NsharpSpcGraphsPaneDisplay(new PixelExtent(NsharpConstants.FUTURE_DISPLAY_REC),DISPLAY_FUTURE);
 		} 
 		else { // case of default1 and default 2 pane configurations
-			DISPLAY_SKEWT = 0; 
+			//DISPLAY_SKEWT = 0; 
 			DISPLAY_WITO= DISPLAY_SKEWT+1;
 			DISPLAY_INSET= DISPLAY_WITO+1;
 		    DISPLAY_HODO= DISPLAY_INSET+1;
@@ -1154,120 +1251,157 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 		    DISPLAY_TOTAL= DISPLAY_DATA+1;
 		    DISPLAY_FUTURE = -1;
 		    DISPLAY_SPC_GRAPHS = -1;
-		    nsharpComp = new Composite[DISPLAY_TOTAL];
-			displayPane = new VizDisplayPane[DISPLAY_TOTAL];
-			displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
+		}
+		nsharpComp = new Composite[DISPLAY_TOTAL];
+		displayPane = new VizDisplayPane[DISPLAY_TOTAL];
+		displayArray = new IRenderableDisplay[DISPLAY_TOTAL];
+	}
+	/*
+	 * Note: initDisplayPublicParms() should be called before calling this function
+	 */
+	private  IRenderableDisplay[] createRenderableDisplayArray(){
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+		    
 			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
+			displayArray[DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),DISPLAY_WITO);
+			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
+			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
+			displayArray[DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),DISPLAY_INSET);
+			displayArray[DISPLAY_SPC_GRAPHS]= new NsharpSpcGraphsPaneDisplay(new PixelExtent(NsharpConstants.SPC_GRAPH_DISPLAY_REC),DISPLAY_SPC_GRAPHS);	
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
+			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
+			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
+			displayArray[DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),DISPLAY_TIMESTN);
+			displayArray[DISPLAY_FUTURE]= new NsharpAbstractPaneDisplay(new PixelExtent(NsharpConstants.FUTURE_DISPLAY_REC),DISPLAY_FUTURE);
+		} 
+		else { // case of default1 and default 2 pane configurations
+		    displayArray[DISPLAY_SKEWT]= new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),DISPLAY_SKEWT);
 			displayArray[DISPLAY_WITO]= new NsharpWitoPaneDisplay(new PixelExtent(NsharpConstants.WITO_DISPLAY_REC),DISPLAY_WITO);
 			displayArray[DISPLAY_HODO]= new NsharpHodoPaneDisplay(new PixelExtent(NsharpConstants.HODO_DISPLAY_REC),DISPLAY_HODO);
 			displayArray[DISPLAY_DATA]= new NsharpDataPaneDisplay(new PixelExtent(NsharpConstants.DATA_DISPLAY_REC),DISPLAY_DATA);
 			displayArray[DISPLAY_INSET]= new NsharpInsetPaneDisplay(new PixelExtent(NsharpConstants.INSET_DISPLAY_REC),DISPLAY_INSET);
 			displayArray[DISPLAY_TIMESTN]= new NsharpTimeStnPaneDisplay(new PixelExtent(NsharpConstants.TIMESTN_DISPLAY_REC),DISPLAY_TIMESTN);
 		}
-		//System.out.println("createOrOpenSkewTEditor....... ");
-		try {
-			
-			EditorInput edInput = new EditorInput(new NCLoopProperties(),
-					displayArray);
-
-			System.out.println("createEditor creating new one");
-			if(updateInputOnly == true){
-				editor = getActiveNsharpEditor();
-				editor.setInput(edInput);
-				editor.displaysToLoad = editor.editorInput.getRenderableDisplays();
-				for (IRenderableDisplay display : editor.displaysToLoad) {
-		            if (display != null) {
-		            	editor.initDisplay(display);
-		            }
-		        }
-				rscHandler.updateDisplay(displayArray,paneConfigurationName);
-				rscHandler.resetRscSoundingData();
-				
-				
-			}
-			else {
-				editor = (NsharpEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-						.openEditor(edInput, EDITOR_ID);
-				//Note: NsharpResourceHandler should be created after editor is created, so all display pane properties and
-				// pane resource are also constructed
-				rscHandler = new NsharpResourceHandler(displayArray);
-			}
-			
-			ResourcePair skewtRscPair =  displayArray[DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
-			if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
-				NsharpSkewTPaneResource skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
-				skewtPaneRsc.setRscHandler(rscHandler);
-			}
-			ResourcePair dataRscPair =  displayArray[DISPLAY_DATA].getDescriptor().getResourceList().get(0);
-			if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
-				NsharpDataPaneResource dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
-				dataPaneRsc.setRscHandler(rscHandler);
-			}
-			
-			ResourcePair hodoRscPair =  displayArray[DISPLAY_HODO].getDescriptor().getResourceList().get(0);
-			if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
-				NsharpHodoPaneResource hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
-				hodoPaneRsc.setRscHandler(rscHandler);
-			}
-
-			if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
-					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
-					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
-				ResourcePair witoRscPair =  displayArray[DISPLAY_WITO].getDescriptor().getResourceList().get(0);
-				if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
-					NsharpWitoPaneResource witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
-					witoPaneRsc.setRscHandler(rscHandler);
-				}
-
-
-				ResourcePair insetRscPair =  displayArray[DISPLAY_INSET].getDescriptor().getResourceList().get(0);
-				if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
-					NsharpInsetPaneResource insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
-					insetPaneRsc.setRscHandler(rscHandler);
-				}
-			}
-			if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
-				ResourcePair spcGraphRscPair =  displayArray[DISPLAY_SPC_GRAPHS].getDescriptor().getResourceList().get(0);
-				if (spcGraphRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
-					NsharpSpcGraphsPaneResource spcPaneRsc = (NsharpSpcGraphsPaneResource)spcGraphRscPair.getResource() ;
-					spcPaneRsc.setRscHandler(rscHandler);
-				}
-			}
-			if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
-				ResourcePair futureRscPair =  displayArray[DISPLAY_FUTURE].getDescriptor().getResourceList().get(0);
-				if (futureRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
-					NsharpSpcGraphsPaneResource futurePaneRsc = (NsharpSpcGraphsPaneResource)futureRscPair.getResource() ;
-					futurePaneRsc.setRscHandler(rscHandler);
-				}
-			}
-			if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
-					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
-					paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
-				ResourcePair timeStnRscPair =  displayArray[DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
-				if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
-					NsharpTimeStnPaneResource timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
-					timeStnPaneRsc.setRscHandler(rscHandler);
-				}
-			}
-			return editor;
-		} catch (PartInitException e) {
-			UiPlugin.getDefault()
-			.getLog()
-			.log(new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
-					"Error constituting NsharpEditor", e));
+		return displayArray;
+	}
+	/*
+	 * Note: initDisplayPublicParms() and createRenderableDisplayArray() should be called before calling this function
+	 */
+	private  void createPaneResource(){
+		
+		ResourcePair skewtRscPair =  displayArray[DISPLAY_SKEWT].getDescriptor().getResourceList().get(0);
+		NsharpSkewTPaneResource skewtPaneRsc=null;
+		if (skewtRscPair.getResource() instanceof NsharpSkewTPaneResource){
+			skewtPaneRsc = (NsharpSkewTPaneResource)skewtRscPair.getResource() ;
+			skewtPaneRsc.setRscHandler(rscHandler);
 		}
+		ResourcePair dataRscPair =  displayArray[DISPLAY_DATA].getDescriptor().getResourceList().get(0);
+		if (dataRscPair.getResource() instanceof NsharpDataPaneResource){
+			NsharpDataPaneResource dataPaneRsc = (NsharpDataPaneResource)dataRscPair.getResource() ;
+			dataPaneRsc.setRscHandler(rscHandler);
+		}
+
+		ResourcePair hodoRscPair =  displayArray[DISPLAY_HODO].getDescriptor().getResourceList().get(0);
+		if (hodoRscPair.getResource() instanceof NsharpHodoPaneResource){
+			NsharpHodoPaneResource hodoPaneRsc = (NsharpHodoPaneResource)hodoRscPair.getResource() ;
+			hodoPaneRsc.setRscHandler(rscHandler);
+		}
+
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)|| 
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+			ResourcePair witoRscPair =  displayArray[DISPLAY_WITO].getDescriptor().getResourceList().get(0);
+			if (witoRscPair.getResource() instanceof NsharpWitoPaneResource){
+				NsharpWitoPaneResource witoPaneRsc = (NsharpWitoPaneResource)witoRscPair.getResource() ;
+				witoPaneRsc.setRscHandler(rscHandler);
+			}
+
+
+			ResourcePair insetRscPair =  displayArray[DISPLAY_INSET].getDescriptor().getResourceList().get(0);
+			if (insetRscPair.getResource() instanceof NsharpInsetPaneResource){
+				NsharpInsetPaneResource insetPaneRsc = (NsharpInsetPaneResource)insetRscPair.getResource() ;
+				insetPaneRsc.setRscHandler(rscHandler);
+			}
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)){
+			ResourcePair spcGraphRscPair =  displayArray[DISPLAY_SPC_GRAPHS].getDescriptor().getResourceList().get(0);
+			if (spcGraphRscPair.getResource() instanceof NsharpSpcGraphsPaneResource){
+				NsharpSpcGraphsPaneResource spcPaneRsc = (NsharpSpcGraphsPaneResource)spcGraphRscPair.getResource() ;
+				spcPaneRsc.setRscHandler(rscHandler);
+			}
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			ResourcePair futureRscPair =  displayArray[DISPLAY_FUTURE].getDescriptor().getResourceList().get(0);
+			if (futureRscPair.getResource() instanceof NsharpAbstractPaneResource){
+				NsharpAbstractPaneResource futurePaneRsc = (NsharpAbstractPaneResource)futureRscPair.getResource() ;
+				futurePaneRsc.setRscHandler(rscHandler);
+			}
+		}
+		if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)|| 
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
+			ResourcePair timeStnRscPair =  displayArray[DISPLAY_TIMESTN].getDescriptor().getResourceList().get(0);
+			if (timeStnRscPair.getResource() instanceof NsharpTimeStnPaneResource){
+				NsharpTimeStnPaneResource timeStnPaneRsc = (NsharpTimeStnPaneResource)timeStnRscPair.getResource() ;
+				timeStnPaneRsc.setRscHandler(rscHandler);
+			}
+		}
+		if(skewtPaneRsc!=null){
+			skewtPaneRsc.setCurrentGraphMode(rscHandler.getCurrentGraphMode());
+			//skewtPaneRsc.handleResize();
+		}
+	}
 	
-		return null;
+	private void updateEditor() {	
+		initDisplayPublicParms();
+		createRenderableDisplayArray();
+		nsharpComp = new Composite[DISPLAY_TOTAL];
+		displayPane = new VizDisplayPane[DISPLAY_TOTAL];
+		
+		EditorInput edInput = new EditorInput(new NCLoopProperties(),
+				displayArray);
+
+		this.setInput(edInput);
+		this.displaysToLoad = displayArray;
+		for (IRenderableDisplay display : displayArray) {
+			if (display != null) {
+				this.initDisplay(display);
+			}
+		}
+		rscHandler.updateDisplay(displayArray,paneConfigurationName);
+		rscHandler.resetRscSoundingData();
+
+		createPaneResource();
+		
 	}
 	public static NsharpEditor createOrOpenEditor(  ) {	
 		NsharpEditor editor = getActiveNsharpEditor();
 		if (editor != null) {
-			//System.out.println("createOrOpenSkewTEditor return editor from getActiveNsharpEditor");
-			//PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-			//        .getActivePage().bringToTop(editor);
+			//System.out.println("createOrOpenSkewTEditor return existing editor "+ editor.toString());
 			return editor;
 		} else {
-			return createOrUpdateEditor(false);
+			try {
+				/*
+				 * Chin note: all initialization logics now are done in init() method to support standard  eclipse
+				 * Editor open procedure.
+				 * At init(), display array and EditorInput will be created based on user configured  pane configuration. 
+				 * Therefore, we just create a dummy EditorInput here.
+				 * The following IWorkbenchPage.openEditor() will eventually invoke init() method.
+				 */
+				IRenderableDisplay[] tempDisp  =  new IRenderableDisplay[1];
+				tempDisp[0] = new NsharpSkewTPaneDisplay(new PixelExtent(NsharpConstants.SKEWT_DISPLAY_REC),0);
+				EditorInput edInput = new EditorInput(new NCLoopProperties(),
+						tempDisp);
+				editor = (NsharpEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+				.openEditor(edInput, EDITOR_ID);
+				
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//System.out.println("createOrOpenSkewTEditor return new editor "+ editor.toString());
+			return editor;
 		}
 	}
 	public static void bringEditorToTop(  ) {
@@ -1342,6 +1476,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         public void handleEvent(Event event) {
 			baseHeight = baseComposite.getSize().y;
 	        baseWidth = baseComposite.getSize().x;
+	        //System.out.println("ResizeListener resizing...nsharp base w= " + baseWidth + " h= "+ baseHeight);
 	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)){
 	        	skewTHeightHint = (int) (baseHeight * skewTHeightHintRatio);
 	        	skewTWidthHint = (int) (baseWidth*leftGroupWidthRatio *skewTWidthHintRatio);
@@ -1395,7 +1530,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 	        	hodoHeightHint = (int) (baseHeight *botGroupHeightRatio* hodoHeightHintRatio);
 	        	hodoWidthHint = (int) (baseWidth*hodoWidthHintRatio);
 	        }
-	        //System.out.println("resizing...nsjarp base w= " + baseWidth + " h= "+ baseHeight);
+	       
 	        if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR) || paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
 	        	leftGpGd = new GridData(SWT.FILL, SWT.FILL, true,
 	        			true);
@@ -1594,17 +1729,78 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         super.setInput(input);
         this.editorInput = (EditorInput)input;
     }
-	public static String getPaneConfigurationName() {
-		return paneConfigurationName;
-	}
-	public static void setPaneConfigurationName(String paneConfigurationName) {
-		NsharpEditor.paneConfigurationName = paneConfigurationName;
-	}
-	public static VizDisplayPane[] getDisplayPaneArray() {
-		return displayPane;
-	}
-	public static void setDisplayPaneArray(VizDisplayPane[] displayPane) {
-		NsharpEditor.displayPane = displayPane;
-	}
-	
+   @Override
+    public void renderableDisplayChanged(IDisplayPane pane,
+            IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+    	
+        if(type == DisplayChangeType.ADD){
+        	//System.out.println("Editor="+this.toString()+" renderableDisplayChanged ADD called,  pane = " + pane.toString()+" newRenderableDisplay="+newRenderableDisplay.toString());
+        	boolean swapping = false;
+            for(int i = 0 ; i < displayPane.length ; i+= 1){
+                if(displayPane[i] == pane){
+                    //displayArray[i] = newRenderableDisplay;
+                    //System.out.println( "swapping pane, current handler "+rscHandler.toString()+"#############################");
+                    /* 
+                     * Chin Note: For the scenarios of 2 instance of Nsharps. One in Main and one in side pane.
+                     * In order to handle pane swapping in D2D. When this renderableDisplayChanged event happened with
+                     * change type of ADD.
+                     * It indicates that current nsharp in main pane is about to be swapped with Nsharp in side pane.
+                     * Current D2D architecture will not dispose this NsharpEditor (in main pane) but will reuse it for the
+                     * existing Nsharp coming from side pane.
+                     * In other words, we only swap "NsharpResourceHandler" and keep editor. 
+                     * Therefore, rscHandler (at this moment) is about to be moved out. Before it is moved out,
+                     *  we raise "justMoveToSidePane" flag to be used by skewTPaneRsc at side pane. 
+                     */
+                	if(rscHandler.getSkewtPaneRsc()!=null)
+                		rscHandler.getSkewtPaneRsc().setJustMoveToSidePane(true);
+                	if(rscHandler.getWitoPaneRsc() !=null)
+                		rscHandler.getWitoPaneRsc().setInSidePane(true);
+                	swapping= true;
+                }
+                
+            }
+            /*
+             * Chin Note: We only have to handle the following procedures once, either during swapping or NshaepEditor is created.
+             * Since, in any case, we will have NsharpSkewTPane, therefore we are checking  NsharpSkewTPaneDescriptor
+             * to avoid multiple access of the following code. 
+             */
+            if(newRenderableDisplay.getDescriptor() instanceof NsharpSkewTPaneDescriptor){
+                NsharpAbstractPaneDescriptor desc = (NsharpAbstractPaneDescriptor) newRenderableDisplay.getDescriptor();
+                NsharpResourceHandler handler = desc.getRscHandler();
+                if (handler != null) {
+                	//System.out.println("renderableDisplayChanged current handler=" + rscHandler.toString() + " set new Handler=" + handler.toString() + " editor "+ this.toString());
+                	rscHandler = handler;
+                	if(swapping){
+                		/*
+                		 * Chin Note: If swapping happened, rscHandler is the newly swapping nsharp's. 
+                		 * We will have to restart editor to construct all graphs and displays for this nsharp instance.
+                		 * We also have to re-store nsharp to its previous status (when it was in main pane). 
+                		 */
+                		restartEditor( paneConfigurationName);
+                    	/*rscHandler.resetRsc();
+                    	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+                    	if(paletteWin!=null){
+                    		paletteWin.restorePaletteWindow(paneConfigurationName, rscHandler.getCurrentGraphMode(),
+                    				rscHandler.isInterpolateIsOn(), rscHandler.isOverlayIsOn(),
+                    				rscHandler.isCompareStnIsOn(),rscHandler.isCompareTmIsOn(),rscHandler.isEditGraphOn());
+                    	}*/
+                    	if(rscHandler.getSkewtPaneRsc()!=null)
+                    		rscHandler.getSkewtPaneRsc().setJustBackToMainPane(true);
+                    	if(rscHandler.getWitoPaneRsc() !=null)
+                    		rscHandler.getWitoPaneRsc().setInSidePane(false);
+                    	
+                    }
+                    else{
+                    	// Chin Note: This is when NsharpEditor is created case.
+                    	// Note that, in D2D when only one Nsharp instance is in side pane, then when it
+                    	// is swapped back to main pane, NsharpEditor also is created.
+                    	//System.out.println("Editor="+this.toString()+" renderableDisplayChanged ADD but not swapping"+" newRenderableDisplay="+newRenderableDisplay.toString());
+                    }
+                    return;
+                }
+            } 
+        }
+       // else
+       // 	System.out.println("Editor="+this.toString()+" renderableDisplayChanged REMOVE called,  pane = " + pane.toString()+" newRenderableDisplay="+newRenderableDisplay.toString());
+    }
 }
