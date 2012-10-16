@@ -91,6 +91,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource;
@@ -99,7 +100,6 @@ import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.LabelMode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
-import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.warngen.WarngenException;
@@ -1155,7 +1155,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                intersection = GeometryUtil.intersection(hatchedArea,prepGeom);
+                intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
                 if (intersection.isEmpty()) {
                     continue;
                 }

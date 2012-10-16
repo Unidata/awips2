@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 04/22/08     1088        chammack     Added dialog event propagation fix
  * 09/13/12     1165        lvenable     Update for the initial process
  *                                       of removing the dialog blocking capability.
+ * 09/20/12     1196        rferrel      Changes to setBlockOnOpen.
+ * 09/27/12     1196        rferrel      Added bringToTop
  * 
  * </pre>
  * 
@@ -93,6 +95,9 @@ public class CaveJFACEDialog extends Dialog implements
                 mgr.addPerspectiveDialog(this);
             }
         }
+        // Eventually this will be the default but for now do not know what this
+        // will break.
+        // setBlockOnOpen(false);
     }
 
     /*
@@ -182,6 +187,18 @@ public class CaveJFACEDialog extends Dialog implements
     }
 
     /**
+     * Gives the dialog focus.
+     */
+    public final void bringToTop() {
+        Shell shell = getShell();
+        if (shell != null && shell.isDisposed() == false) {
+            shell.setVisible(true);
+            shell.forceFocus();
+            shell.forceActive();
+        }
+    }
+
+    /**
      * Call the callback method as this dialog has been disposed.
      */
     private void callCloseCallback() {
@@ -197,6 +214,17 @@ public class CaveJFACEDialog extends Dialog implements
      */
     public final boolean isOpen() {
         return (getShell() != null && !getShell().isDisposed());
+    }
+
+    /**
+     * Returns if the dialog is disposed, a null dialog will not mean it is
+     * disposed as it may not have been opened yet.
+     * 
+     * @return
+     */
+    public final boolean isDisposed() {
+        Shell shell = getShell();
+        return (shell != null && shell.isDisposed());
     }
 
     /**
@@ -234,17 +262,21 @@ public class CaveJFACEDialog extends Dialog implements
      * @param blockOnOpen
      *            Flag indicating if the dialog should block when opened.
      */
+    @Override
     public void setBlockOnOpen(boolean blockOnOpen) {
-        /*
-         * If the dialog is already opened then just return because setting the
-         * block won't work. In JFACE the setBlockOnOpen needs to be set before
-         * the open() call, otherwise it is ignored.
-         */
-        if (isOpen()) {
-            return;
-        }
+        // TODO investigate eventually should never allow blocking?
+        // /*
+        // * If the dialog is already opened then just return because setting
+        // the
+        // * block won't work. In JFACE the setBlockOnOpen needs to be set
+        // before
+        // * the open() call, otherwise it is ignored.
+        // */
+        // if (isOpen()) {
+        // return;
+        // }
 
         super.setBlockOnOpen(blockOnOpen);
-        blockedOnOpen = blockOnOpen;
+        // blockedOnOpen = blockOnOpen;
     }
 }
