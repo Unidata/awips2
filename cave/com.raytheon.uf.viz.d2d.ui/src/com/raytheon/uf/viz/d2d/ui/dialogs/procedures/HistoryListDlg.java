@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
+ * Oct 16, 2012 1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -93,7 +94,7 @@ public class HistoryListDlg extends CaveSWTDialog {
     private AlterBundleDlg alterDlg;
 
     public HistoryListDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("History List");
 
         try {
