@@ -25,9 +25,6 @@ from Maps import *
 # The following changes the configuration of the CWAzones maps.  It overrides
 # every possible item that can be overridden.
 
-# Rename by name of the CWAzones map
-CWAzones.name = "MyCWAZones" 
-
 # Change the filter to only include "OH" (Ohio) zones
 CWAzones.filter(lambda x : x['state'] == "OH")
 
