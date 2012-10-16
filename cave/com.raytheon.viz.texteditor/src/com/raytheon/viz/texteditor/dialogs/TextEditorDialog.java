@@ -291,6 +291,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
  * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * 27SEP2012   15424        S.Naples    Set focus on AFOS command text field after executing retrieval of product.
  * 09Oct2012   14889	    M.Gamazaychikov	Add call to checkAndWrapPreviousLine
  * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
@@ -348,12 +350,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * When auto wrapping the last line that needs to be wrapped.
      */
     private int endWrapLine = -1;
-    
-    /**
-     * Last line was wrapped backwards
-     */
-    private boolean isPreviousLineWrapped = false;
-    
 
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
 
@@ -968,7 +964,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * flag to indicate it a product request is from the GUI or an updated ob.
      */
-    private final AtomicInteger updateCount = new AtomicInteger(0);
+    private AtomicInteger updateCount = new AtomicInteger(0);
 
     private NotifyExpiration notify;
 
@@ -2907,13 +2903,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         afosCmdTF.addSelectionListener(new SelectionListener() {
-            @Override
-			public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent event) {
 
             }
 
-            @Override
-			public void widgetDefaultSelected(SelectionEvent event) {
+            public void widgetDefaultSelected(SelectionEvent event) {
                 String tmp = afosCmdTF.getText();
                 tmp = tmp.trim();
                 afosCmdTF.setText(tmp);
@@ -2987,8 +2981,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addModifyListener(new ModifyListener() {
-            @Override
-			public void modifyText(ModifyEvent event) {
+            public void modifyText(ModifyEvent event) {
                 if (wmoTtaaiiTF.getCaretPosition() == wmoTtaaiiTF
                         .getTextLimit()) {
                     ccccTF.setFocus();
@@ -2997,13 +2990,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         wmoTtaaiiTF.addSelectionListener(new SelectionListener() {
-            @Override
-			public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent event) {
 
             }
 
-            @Override
-			public void widgetDefaultSelected(SelectionEvent event) {
+            public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
                 wmoSearch();
@@ -3057,13 +3048,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         ccccTF.addSelectionListener(new SelectionListener() {
-            @Override
-			public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent event) {
 
             }
 
-            @Override
-			public void widgetDefaultSelected(SelectionEvent event) {
+            public void widgetDefaultSelected(SelectionEvent event) {
                 wmoTtaaiiTF.setText(wmoTtaaiiTF.getText().toUpperCase());
                 ccccTF.setText(ccccTF.getText().toUpperCase());
                 wmoSearch();
@@ -3120,13 +3109,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
 
         awipsIdTF.addSelectionListener(new SelectionListener() {
-            @Override
-			public void widgetSelected(SelectionEvent event) {
+            public void widgetSelected(SelectionEvent event) {
 
             }
 
-            @Override
-			public void widgetDefaultSelected(SelectionEvent event) {
+            public void widgetDefaultSelected(SelectionEvent event) {
                 awipsIdTF.setText(awipsIdTF.getText().trim().toUpperCase());
                 int charCount = awipsIdTF.getCharCount();
                 if (charCount < 4 || charCount > 6) {
@@ -3520,8 +3507,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // });
 
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
-            @Override
-			public void verifyKey(VerifyEvent event) {
+            public void verifyKey(VerifyEvent event) {
                 if (event.keyCode == SWT.DEL || event.character == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
@@ -5320,8 +5306,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return TextDisplayModel.getInstance().getStdTextProduct(token);
     }
 
-    @Override
-	public void setAfosCmdField(String cmd) {
+    public void setAfosCmdField(String cmd) {
         afosCmdTF.setText(cmd);
         TextDisplayModel.getInstance().setAfosCommand(token, cmd);
     }
@@ -5334,8 +5319,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return addressee;
     }
 
-    @Override
-	public void executeCommand(ICommand command) {
+    public void executeCommand(ICommand command) {
         executeCommand(command, false);
     }
 
@@ -6495,8 +6479,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void run() {
                     getDisplay().syncExec(new Runnable() {
-                        @Override
-						public void run() {
+                        public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {
                                     saveEditedProduct(true, false);
@@ -6907,7 +6890,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int lineNumber = textEditor.getLineAtOffset(start);
         endWrapLine = textEditor.getLineAtOffset(end);
         /*
-         * DR154889 - resetting isPreviousLineWrapped
+         * DR14889 - resetting isPreviousLineWrapped
          */
         isPreviousLineWrapped = false;
         rewrapInternal(lineNumber);
