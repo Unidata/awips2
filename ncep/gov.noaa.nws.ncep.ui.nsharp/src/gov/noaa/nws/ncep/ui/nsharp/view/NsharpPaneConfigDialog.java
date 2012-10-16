@@ -23,6 +23,8 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
+import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -40,9 +42,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.editor.EditorInput;
 
 public class NsharpPaneConfigDialog extends Dialog {
 	private static NsharpPaneConfigDialog thisDialog=null;
@@ -180,15 +187,38 @@ public class NsharpPaneConfigDialog extends Dialog {
 		//"Enter" key is pressed, or "Apply" button is pressed.
 		//Chin: handle user entered data and apply its changes.
 		//System.out.println("CR is pressed");
-		paneConfigurationName = paneCfgCombo.getItem(paneCfgCombo.getSelectionIndex());
-		if(paneConfigurationName.equals(NsharpConstants.PANE_LEGACY_CFG_STR)){
+		String newpaneConfigurationName = paneCfgCombo.getItem(paneCfgCombo.getSelectionIndex());
+		//if(newpaneConfigurationName.equals(paneConfigurationName)){
+		//	setReturnCode(OK);
+		//	return;
+		//}
+		/*if(newpaneConfigurationName.equals(NsharpConstants.PANE_LEGACY_CFG_STR)){
 			mb.open();
 		}
-		else{
+		else */{
+			paneConfigurationName = newpaneConfigurationName;
 			updateCfgStore();
 			NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
-			if(editor!=null)
+			if(editor!=null){
 				editor.restartEditor(paneConfigurationName);
+				/*IRenderableDisplay[] tempDisp  =  editor.getRenderableDisplays();
+				editor.dispose();
+				EditorInput edInput = new EditorInput(new NCLoopProperties(),
+						tempDisp);
+				try {
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.openEditor(edInput, "gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor");
+				} catch (PartInitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+			}
+			else {
+				NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+		    	if(paletteWin!=null){
+		    		paletteWin.updateSpcGraphBtn(paneConfigurationName);
+		    	}
+			}
 		}
 		setReturnCode(OK);
 	}

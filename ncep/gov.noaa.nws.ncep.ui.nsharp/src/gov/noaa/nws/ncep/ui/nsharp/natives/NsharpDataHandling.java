@@ -32,7 +32,7 @@ import java.util.List;
 public class NsharpDataHandling {
 	
 
-	static short qc ( float value )
+	public static short qc ( float value )
 	/*************************************************************/
 	/*  QC                                                       */
 	/*  John Hart  NSSFC KCMO                                    */
@@ -45,7 +45,7 @@ public class NsharpDataHandling {
 		if( value > 2.0E+05F ) { return 0; }
 		return 1;
 	}
-	static float vcomp ( float wdir, float wspd )
+	public static float vcomp ( float wdir, float wspd )
 	/*************************************************************/
 	/*  VCOMP                                                    */
 	/*  John Hart  NSSFC KCMO                                    */
@@ -62,7 +62,7 @@ public class NsharpDataHandling {
 		return wspd * (float)Math.cos(wdir);
 	}
 
-	static float ucomp ( float wdir, float wspd )
+	public static float ucomp ( float wdir, float wspd )
 	/*************************************************************/
 	/*  UCOMP                                                    */
 	/*  John Hart  NSSFC KCMO                                    */
@@ -79,7 +79,7 @@ public class NsharpDataHandling {
 		return wspd * (float)Math.sin(wdir);
 	}
 
-	static float i_wndu ( float pres, List<NcSoundingLayer> sndLys )
+	public static float i_wndu ( float pres, List<NcSoundingLayer> sndLys )
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_WNDU         basics.c                                  */
@@ -138,7 +138,7 @@ public class NsharpDataHandling {
 	}
 
 
-	static float i_wndv ( float pres , List<NcSoundingLayer> sndLys)
+	public static float i_wndv ( float pres , List<NcSoundingLayer> sndLys)
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_WNDV         basics.c                                  */
@@ -195,7 +195,7 @@ public class NsharpDataHandling {
 				* (vbot - vtop));
 	}
 
-	static float angle ( float u, float v )
+	public static float angle ( float u, float v )
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  ANGLE      winds.c                                      */
@@ -219,7 +219,7 @@ public class NsharpDataHandling {
 		{return (float)(270 - t1);}
 	}
 
-	private static float i_wdir ( float pres, List<NcSoundingLayer> sndLys )
+	public static float i_wdir ( float pres, List<NcSoundingLayer> sndLys )
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_WDIR         basics.c                                  */
@@ -244,7 +244,7 @@ public class NsharpDataHandling {
 
 	/*=============================================================================*/
 
-	private static float i_wspd ( float pres, List<NcSoundingLayer> sndLys ) {
+	public static float i_wspd ( float pres, List<NcSoundingLayer> sndLys ) {
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_WSPD         basics.c                                  */
@@ -269,7 +269,7 @@ public class NsharpDataHandling {
 	}
 
 	
-	private static float i_temp ( float pres, List<NcSoundingLayer> sndLys ) {
+	public static float i_temp ( float pres, List<NcSoundingLayer> sndLys ) {
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_TEMP         basics.c                                  */
@@ -332,7 +332,7 @@ public class NsharpDataHandling {
 
 	/*=============================================================================*/
 
-	private static float i_dwpt ( float pres, List<NcSoundingLayer> sndLys ){
+	public static float i_dwpt ( float pres, List<NcSoundingLayer> sndLys ){
 		/*************************************************************/
 		/* Chin: port it from  										*/
 		/*  I_DWPT      basics.c                                    */
@@ -390,7 +390,7 @@ public class NsharpDataHandling {
 	}
 
 
-	private static float i_pres ( float hght , List<NcSoundingLayer> sndLys, int index) {
+	public static float i_pres ( float hght , List<NcSoundingLayer> sndLys, int index) {
 	/*************************************************************/
 	/* Chin: port it from  										*/
 	/*  I_PRES  basics.c                                         */
@@ -451,7 +451,7 @@ public class NsharpDataHandling {
 	}
 
 	
-	private static float i_hght ( float pres , List<NcSoundingLayer> sndLys, int index){
+	public static float i_hght ( float pres , List<NcSoundingLayer> sndLys, int index){
 		/*************************************************************/
 		/* Chin: port it from  										*/
 		/* I_HGHT basics.c                                           */

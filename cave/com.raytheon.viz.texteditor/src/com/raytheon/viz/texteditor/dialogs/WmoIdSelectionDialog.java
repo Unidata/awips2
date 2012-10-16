@@ -23,6 +23,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -43,6 +44,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 28, 2009 2924       rjpeter     Initial creation.
+ * Sep 19, 2012 1196       rferrel     Scroll bar now displays and limit placed
+ *                                      on the height of the dialog.
  * </pre>
  * 
  * @author rjpeter
@@ -124,7 +127,7 @@ public class WmoIdSelectionDialog extends CaveJFACEDialog {
         label.setLayoutData(data);
 
         wmoIdList = new List(top, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
-        data = new GridData(SWT.BEGINNING, SWT.DEFAULT, true, false);
+        data = new GridData(SWT.CENTER, SWT.FILL, false, true);
         wmoIdList.setLayoutData(data);
 
         for (int i = 0; i < ttaaiiIds.size(); i++) {
@@ -159,5 +162,14 @@ public class WmoIdSelectionDialog extends CaveJFACEDialog {
 
         top.layout();
         return top;
+    }
+
+    @Override
+    protected Point getInitialSize() {
+        Point point = super.getInitialSize();
+        if (point.y > 500) {
+            point.y = 500;
+        }
+        return point;
     }
 }
