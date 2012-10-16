@@ -7,19 +7,17 @@ import java.util.TimerTask;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * 
@@ -33,16 +31,16 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2011            jsanchez     Initial creation
+ * Sep 26, 2012 1193       rferrel      Convert to extend CaveSWTDialog
+ *                                       and made non-blocking.
  * 
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
-public class ValidPeriodDialog extends Dialog {
+public class ValidPeriodDialog extends CaveSWTDialog {
     private Shell shell;
-
-    private Font font;
 
     private Button okBtn;
 
@@ -76,54 +74,23 @@ public class ValidPeriodDialog extends Dialog {
 
     private Spinner endSecondSpinner;
 
-    private int duration = -1;
-
     private Timer timer;
 
     private TimerTask updateTimeTask;
 
     public ValidPeriodDialog(Shell parentShell, Calendar startTime,
             Calendar endTime) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
         this.startTime = startTime;
         this.endTime = endTime;
+        setReturnValue(-1);
     }
 
-    public int open() {
-        Shell parent = getParent();
-        Display display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+    @Override
+    protected void initializeComponents(Shell shell) {
+        this.shell = shell;
         shell.setText("Valid Period");
-
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, true);
-        mainLayout.marginHeight = 1;
-        mainLayout.marginWidth = 1;
-        shell.setLayout(mainLayout);
-
-        font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
-
-        // Initialize all of the controls and layouts
-        initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        font.dispose();
-
-        return duration;
-    }
-
-    /**
-     * Initialize the dialog components.
-     */
-    private void initializeComponents() {
         createStartTimeComp();
         createEndTimeComp();
         createButtonComp();
@@ -397,15 +364,26 @@ public class ValidPeriodDialog extends Dialog {
              */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                duration = -1;
-                shell.dispose();
+                setReturnValue(-1);
+                close();
             }
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        timer.cancel();
+    }
+
     private void calculateDuration() {
-        duration = (int) (endTime.getTimeInMillis() - startTime
+        int duration = (int) (endTime.getTimeInMillis() - startTime
                 .getTimeInMillis()) / (60 * 1000);
+        setReturnValue(duration);
     }
 
     private void validateEndTime() {
@@ -414,13 +392,6 @@ public class ValidPeriodDialog extends Dialog {
         } else {
             okBtn.setEnabled(true);
         }
-    }
-
-    public boolean isDisposed() {
-        if (shell != null) {
-            return shell.isDisposed();
-        }
-        return true;
     }
 
     private void startTimeTimer() {
@@ -432,21 +403,23 @@ public class ValidPeriodDialog extends Dialog {
 
                 shell.getDisplay().syncExec(new Runnable() {
                     public void run() {
-                        startTime.setTime(SimulatedTime.getSystemTime()
-                                .getTime());
-                        startYearSpinner.setSelection(startTime
-                                .get(Calendar.YEAR));
-                        startMonthSpinner.setSelection(startTime
-                                .get(Calendar.MONTH) + 1);
-                        startDaySpinner.setSelection(startTime
-                                .get(Calendar.DAY_OF_MONTH));
-                        startHourSpinner.setSelection(startTime
-                                .get(Calendar.HOUR_OF_DAY));
-                        startMinuteSpinner.setSelection(startTime
-                                .get(Calendar.MINUTE));
-                        startSecondSpinner.setSelection(startTime
-                                .get(Calendar.SECOND));
-                        validateEndTime();
+                        if (shell != null && !shell.isDisposed()) {
+                            startTime.setTime(SimulatedTime.getSystemTime()
+                                    .getTime());
+                            startYearSpinner.setSelection(startTime
+                                    .get(Calendar.YEAR));
+                            startMonthSpinner.setSelection(startTime
+                                    .get(Calendar.MONTH) + 1);
+                            startDaySpinner.setSelection(startTime
+                                    .get(Calendar.DAY_OF_MONTH));
+                            startHourSpinner.setSelection(startTime
+                                    .get(Calendar.HOUR_OF_DAY));
+                            startMinuteSpinner.setSelection(startTime
+                                    .get(Calendar.MINUTE));
+                            startSecondSpinner.setSelection(startTime
+                                    .get(Calendar.SECOND));
+                            validateEndTime();
+                        }
                     }
                 });
             }
@@ -454,4 +427,5 @@ public class ValidPeriodDialog extends Dialog {
 
         timer.schedule(updateTimeTask, 60000, 60000);
     }
+
 }

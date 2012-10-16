@@ -81,6 +81,7 @@ import com.vividsolutions.jts.geom.LineString;
  * May 27, 2009 #2161      lvenable     Initial creation
  * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
  * 11/17/2009   #3120      rjpeter     Updated to use LevelMappingFactory.
+ * 07/31/2012   #875       rferrel     Now uses points.
  * 
  * </pre>
  * 
@@ -407,8 +408,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
             ;//
         } else if (viewSelection == ViewMenu.TIMESERIES) {
             pointLetters.add(VolumeBrowserAction.getVolumeBrowserDlg()
-                    .getDialogSettings().getPointsSelection().toString()
-                    .replace("POINT_", ""));
+                    .getDialogSettings().getPointsSelection().getName());
         } else {
             if (planes == null) {
                 return null;
@@ -454,8 +454,8 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                         .getCoordinateReferenceSystem());
                 Envelope2D env = gridGeom.getEnvelope2D();
                 for (String letter : pointLetters) {
-                    Coordinate c = PointsDataManager.getInstance().getPoint(
-                            letter);
+                    Coordinate c = PointsDataManager.getInstance()
+                            .getCoordinate(letter);
                     DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                     llToCRS.transform(dp, dp);
                     if (env.contains(dp.x, dp.y)) {
@@ -546,7 +546,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                         .getCoordinateReferenceSystem());
                 Envelope2D env = gridGeom.getEnvelope2D();
                 for (String letter : pdm.getPointNames()) {
-                    Coordinate c = pdm.getPoint(letter);
+                    Coordinate c = pdm.getCoordinate(letter);
                     DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                     llToCRS.transform(dp, dp);
                     if (env.contains(dp.x, dp.y)) {
