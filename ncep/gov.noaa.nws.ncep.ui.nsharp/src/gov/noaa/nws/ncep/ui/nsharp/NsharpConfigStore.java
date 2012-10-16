@@ -21,6 +21,7 @@
 package gov.noaa.nws.ncep.ui.nsharp;
 
 import java.util.HashMap;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -45,7 +46,20 @@ public class NsharpConfigStore implements ISerializableObject{
 			i++;
 		}
 	}
-
+	/*
+	 * When new development adding parameters, existing configuration xml may not have such parameters. Add defaults to it.
+	 */
+	public void upToDateLinePropertyMap (){
+		int i =0;
+		for(String lnName: NsharpConstants.lineNameArray){
+			if(linePropertyMap.get(lnName) == null){
+				NsharpLineProperty lp = NsharpConstants.defaultLineProperty[i];
+			
+				linePropertyMap.put(lnName, lp);
+			}
+			i++;
+		}
+	}
 	@XmlElement
 	private NsharpGraphProperty graphProperty = new NsharpGraphProperty();
 	

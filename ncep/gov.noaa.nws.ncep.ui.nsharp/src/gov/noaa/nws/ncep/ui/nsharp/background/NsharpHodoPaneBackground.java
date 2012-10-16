@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
 	private IWireframeShape hodoShape=null;
+	private String paneConfigurationName; 
     //private NsharpHodoPaneDescriptor desc;
     /**
      * Public constructor
@@ -237,14 +238,19 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
     	desc.setNewPe(pe);
     	world = new WGraphics(this.rectangle);
     	float hRatio = (NsharpConstants.HODO_COORDINATE_Y1-NsharpConstants.HODO_COORDINATE_Y2)/ (float)ext.getHeight();
-    		
-    	float x2 = hRatio* (float)ext.getWidth()+ NsharpConstants.HODO_COORDINATE_X1;
-    	world.setWorldCoordinates(NsharpConstants.HODO_COORDINATE_X1,NsharpConstants.HODO_COORDINATE_Y1,x2,NsharpConstants.HODO_COORDINATE_Y2);
+    	float x1 = NsharpConstants.HODO_COORDINATE_X1;
+    	if(paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR))
+    		x1 = NsharpConstants.HODO_COORDINATE_X1_STD;
+    	float x2 = hRatio* (float)ext.getWidth() + x1;
+    	world.setWorldCoordinates(x1,NsharpConstants.HODO_COORDINATE_Y1,x2,NsharpConstants.HODO_COORDINATE_Y2);
     	if(hodoShape!=null){
     		hodoShape.dispose();
     		hodoShape=null;
     	}
     	createHodoShape();
     }
-
+	public void setPaneConfigurationName(String paneConfigurationName) {
+		this.paneConfigurationName = paneConfigurationName;
+	}
+    
 }
