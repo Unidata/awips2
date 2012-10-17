@@ -63,6 +63,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 
@@ -75,6 +76,7 @@ import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
  * ------------ ---------- ----------- --------------------------
  *                         lvenable    Initial Creation.
  * Jul 24, 2007            njensen     Hooked into backend.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking SaveColorMapDialog.
  * 
  * </pre>
  * 
@@ -85,10 +87,10 @@ public class ColorEditDialog extends CaveSWTDialog implements
         IVizEditorChangedListener, IRenderableDisplayChangedListener,
         RemoveListener, AddListener, IResourceDataChanged,
         ISelectedPanesChangedListener, IColorEditCompCallback {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ColorEditDialog.class);
 
-    private static final String NO_COLOR_TABLE = "No color table is being edited";
+    private final String NO_COLOR_TABLE = "No color table is being edited";
 
     private String currentColormapName;
 
@@ -143,6 +145,10 @@ public class ColorEditDialog extends CaveSWTDialog implements
     private AbstractVizResource<?, ?> singleResourceToEdit;
 
     private static ColorEditDialog instance = null;
+
+    private SaveColorMapDialog officeSaveAsDialog;
+
+    private SaveColorMapDialog saveAsDialog;
 
     public static void openDialog(Shell parent,
             IDisplayPaneContainer container,
@@ -831,24 +837,44 @@ public class ColorEditDialog extends CaveSWTDialog implements
     }
 
     private void officeSaveAs() {
-        SaveColorMapDialog saveDialog = new SaveColorMapDialog(shell,
-                (ColorMap) cap.getColorMapParameters().getColorMap(), true,
-                currentColormapName);
-        String newName = (String) saveDialog.open();
-        if (newName != null) {
-            currentColormapName = newName;
-            completeSave();
+        if (mustCreate(officeSaveAsDialog)) {
+            officeSaveAsDialog = new SaveColorMapDialog(shell, (ColorMap) cap
+                    .getColorMapParameters().getColorMap(), true,
+                    currentColormapName);
+            officeSaveAsDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        currentColormapName = (String) returnValue;
+                        completeSave();
+                    }
+                }
+            });
+            officeSaveAsDialog.open();
+        } else {
+            officeSaveAsDialog.bringToTop();
         }
     }
 
     private void saveAs() {
-        SaveColorMapDialog saveDialog = new SaveColorMapDialog(shell,
-                (ColorMap) cap.getColorMapParameters().getColorMap(), false,
-                currentColormapName);
-        String newName = (String) saveDialog.open();
-        if (newName != null) {
-            currentColormapName = newName;
-            completeSave();
+        if (mustCreate(saveAsDialog)) {
+            saveAsDialog = new SaveColorMapDialog(shell, (ColorMap) cap
+                    .getColorMapParameters().getColorMap(), false,
+                    currentColormapName);
+            saveAsDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        currentColormapName = (String) returnValue;
+                        completeSave();
+                    }
+                }
+            });
+            saveAsDialog.open();
+        } else {
+            saveAsDialog.bringToTop();
         }
     }
 
