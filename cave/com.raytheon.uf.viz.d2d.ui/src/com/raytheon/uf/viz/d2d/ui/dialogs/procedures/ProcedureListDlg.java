@@ -56,19 +56,21 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * 
- * A dialog which displays a list of procedures for opening, saving, or deleting.
+ * A dialog which displays a list of procedures for opening, saving, or
+ * deleting.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * ???                                 Initial creation
  * 07/31/2012   DR 15036   D. Friedman Ensure current user's procedures
  *                                     are visible.
+ * 10/16/2012   1229       rferrel     Made dialog non-blocking.
  * </pre>
- *
+ * 
  * @author unknown
  * @version 1.0
  */
@@ -79,8 +81,6 @@ public class ProcedureListDlg extends CaveSWTDialog {
     private Font font;
 
     private Text procedureTF;
-
-    private LocalizationFile selectedFile;
 
     private TreeViewer treeViewer;
 
@@ -103,7 +103,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
     private final Mode mode;
 
     public ProcedureListDlg(String title, Shell parent, Mode mode) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE); // Win32
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK); // Win32
         setText(title);
 
         this.mode = mode;
@@ -343,7 +343,8 @@ public class ProcedureListDlg extends CaveSWTDialog {
                         public void run() {
                             TreeItem[] items = treeViewer.getTree().getItems();
                             if (items != null && items.length > 0)
-                                treeViewer.getTree().showItem(items[items.length - 1]);
+                                treeViewer.getTree().showItem(
+                                        items[items.length - 1]);
                             treeViewer.reveal(find);
                         }
                     });
@@ -401,7 +402,7 @@ public class ProcedureListDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -418,13 +419,6 @@ public class ProcedureListDlg extends CaveSWTDialog {
                 }
             });
         }
-    }
-
-    /**
-     * @return the fileName
-     */
-    public LocalizationFile getSelectedFile() {
-        return selectedFile;
     }
 
     /**
@@ -492,21 +486,22 @@ public class ProcedureListDlg extends CaveSWTDialog {
                                     + " already exists.  Overwrite anyways?");
                     if (result == true) {
                         fileName = procedureTF.getText();
-                        shell.dispose();
+                        close();
                     }
                 }
             } else {
                 fileName = procedureTF.getText();
-                shell.dispose();
+                close();
             }
         } else if (mode == Mode.OPEN) {
             fileName = procedureTF.getText();
             if (tmp instanceof ProcedureTree) {
                 // it must be a procedure tree, that is what the content
                 // provider uses internally
-                selectedFile = ((ProcedureTree) tmp).getFile();
+                LocalizationFile selectedFile = ((ProcedureTree) tmp).getFile();
+                setReturnValue(selectedFile);
             }
-            shell.dispose();
+            close();
         } else if (mode == Mode.DELETE) {
 
             TreeItem[] selection = treeViewer.getTree().getSelection();
@@ -520,9 +515,11 @@ public class ProcedureListDlg extends CaveSWTDialog {
                     if (tmp instanceof ProcedureTree) {
                         // it must be a procedure tree, that is what the content
                         // provider uses internally
-                        selectedFile = ((ProcedureTree) tmp).getFile();
+                        LocalizationFile selectedFile = ((ProcedureTree) tmp)
+                                .getFile();
+                        setReturnValue(selectedFile);
                     }
-                    shell.dispose();
+                    close();
                 }
             }
         }

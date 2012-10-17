@@ -38,6 +38,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.BackgroundColorDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 7,2008              Dan Fitch   Initial Creation
+ * Oct 16, 2012 1229       rferrel     Changed for non-blocking BackgroundColorDialog.
  * 
  * </pre>
  * 
@@ -50,11 +51,10 @@ public class SetBackgroundColor extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        if (dialog == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new BackgroundColorDialog(
                     HandlerUtil.getActiveShell(event), null, BGColorMode.GLOBAL);
             dialog.open();
-            dialog = null;
         } else {
             dialog.bringToTop();
         }
