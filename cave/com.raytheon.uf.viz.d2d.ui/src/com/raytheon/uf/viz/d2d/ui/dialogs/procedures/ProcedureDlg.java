@@ -23,7 +23,7 @@ package com.raytheon.uf.viz.d2d.ui.dialogs.procedures;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -97,6 +97,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial Creation
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
+ * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
+ * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
  * 
  * </pre>
  * 
@@ -114,7 +116,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     public static final String PROCEDURES_DIR = "/procedures";
 
-    private static Collection<ProcedureDlg> openDialogs = new ArrayList<ProcedureDlg>();
+    private static final Map<String, ProcedureDlg> openDialogs = new HashMap<String, ProcedureDlg>();
 
     private Font font;
 
@@ -172,6 +174,8 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private AlterBundleDlg alterDlg;
 
+    private ProcedureListDlg saveAsDlg;
+
     private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
@@ -228,7 +232,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     protected void disposed() {
         font.dispose();
         synchronized (openDialogs) {
-            openDialogs.remove(this);
+            openDialogs.remove(fileName);
         }
     }
 
@@ -918,18 +922,38 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     private void showSaveAsDlg() {
-        ProcedureListDlg dlg = new ProcedureListDlg("Save Procedure As...",
-                shell, ProcedureListDlg.Mode.SAVE);
-        dlg.open();
+        if (mustCreate(saveAsDlg)) {
+            saveAsDlg = new ProcedureListDlg("Save Procedure As...", shell,
+                    ProcedureListDlg.Mode.SAVE);
 
-        String fn = dlg.getSelectedFileName();
-        if (fn == null) {
-            return;
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    String fn = saveAsDlg.getSelectedFileName();
+                    if (fn != null) {
+                        ProcedureDlg oldDlg = getDialog(fn);
+
+                        if (oldDlg != null) {
+                            oldDlg.close();
+                        }
+
+                        // Update mapping to new file name.
+                        synchronized (openDialogs) {
+                            openDialogs.remove(fileName);
+                            openDialogs.put(fn, ProcedureDlg.this);
+                        }
+
+                        frozen = saveAsDlg.isFrozen();
+                        fileName = fn;
+                        saveProcedure();
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
         }
-
-        frozen = dlg.isFrozen();
-        fileName = fn;
-        saveProcedure();
     }
 
     /**
@@ -1040,36 +1064,30 @@ public class ProcedureDlg extends CaveSWTDialog {
      * @return
      */
     public static ProcedureDlg getDialog(String fileName) {
-        synchronized (openDialogs) {
-            if (fileName != null) {
-                for (ProcedureDlg dialog : openDialogs) {
-                    if (fileName.equals(dialog.fileName)) {
-                        return dialog;
-                    }
-                }
-            }
-            return null;
+        synchronized (ProcedureDlg.openDialogs) {
+            ProcedureDlg dialog = openDialogs.get(fileName);
+            return dialog;
         }
     }
 
     /**
-     * Get the ProcedureDlg for the given fileName. If the fileName is null or
-     * if there is no open dialog, create a new ProcedureDlg.
+     * Get the ProcedureDlg for the given fileName and display it.
      * 
      * @param fileName
      * @param p
      * @param parent
-     * @return
      */
-    public static ProcedureDlg getOrCreateDialog(String fileName, Procedure p,
-            Shell parent) {
+    public static void displayDialog(String fileName, Procedure p, Shell parent) {
         synchronized (openDialogs) {
             ProcedureDlg dialog = getDialog(fileName);
-            if (dialog == null) {
+            if (dialog == null || dialog.getShell() == null
+                    || dialog.isDisposed()) {
                 dialog = new ProcedureDlg(fileName, p, parent);
-                openDialogs.add(dialog);
+                openDialogs.put(fileName, dialog);
+                dialog.open();
+            } else {
+                dialog.bringToTop();
             }
-            return dialog;
         }
     }
 }
