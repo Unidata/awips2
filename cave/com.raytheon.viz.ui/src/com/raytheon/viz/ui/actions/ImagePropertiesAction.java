@@ -37,6 +37,7 @@ import com.raytheon.viz.ui.dialogs.ImagingDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Nov 22, 2006             chammack    Initial Creation.
+ * Oct 17, 2012 1229        rferrel     Changes for non-blocking ImagingDialog.
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ public class ImagePropertiesAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (dialog == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             IDisplayPaneContainer container = EditorUtil
                     .getActiveVizContainer();
             if (container != null) {
@@ -64,11 +65,12 @@ public class ImagePropertiesAction extends AbstractHandler {
                         .getCurrentWindow().getShell(), container);
                 // initalize
                 dialog.open();
+            } else {
                 dialog = null;
             }
         } else {
             dialog.refreshComponents();
-            dialog.open();
+            dialog.bringToTop();
         }
 
         return null;
