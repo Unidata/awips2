@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Spinner;
 import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
 
 /**
- * TODO Add Description
+ * Dialog change the location of labels.
  * 
  * <pre>
  * 
@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 3, 2011            randerso     Initial creation
+ * Oct 17, 2012 1229       rferrel     Set origyOffset to the proper value.
  * 
  * </pre>
  * 
@@ -64,7 +65,6 @@ public class LabelOffsetDialog extends CaveJFACEDialog {
      */
     public LabelOffsetDialog(Shell parentShell) {
         super(parentShell);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -75,7 +75,7 @@ public class LabelOffsetDialog extends CaveJFACEDialog {
         super(parentShell);
         this.cap = cap;
         this.origxOffset = cap.getxOffset();
-        this.origyOffset = cap.getxOffset();
+        this.origyOffset = cap.getyOffset();
     }
 
     /*
