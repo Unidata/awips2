@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *                                      show full colormap names, and added comments &amp; Javadoc.
  * Aug 20, 2008				dglazesk	Updated for the new ColorMap interface
  * Feb 10, 2011 #7842       bkowal      set caveStyle for dialog to INDEPENDENT SHELL
+ * Oct 17, 2012 #1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -92,7 +93,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 public class ImagingDialog extends CaveSWTDialog implements
         IVizEditorChangedListener, IRenderableDisplayChangedListener,
         AddListener, RemoveListener, IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ImagingDialog.class);
 
     private static enum Type {
@@ -149,7 +150,7 @@ public class ImagingDialog extends CaveSWTDialog implements
      */
     private Button combineNextImage;
 
-    private static final String UNSAVED_CMAP_DISPLAY_NAME = "Untitled Colormap";
+    private final String UNSAVED_CMAP_DISPLAY_NAME = "Untitled Colormap";
 
     private boolean fromControl = false;
 
@@ -196,7 +197,8 @@ public class ImagingDialog extends CaveSWTDialog implements
      * @param dialogTitle
      */
     public ImagingDialog(Shell parentShell, IDisplayPaneContainer initialEditor) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
         setText("Imaging...");
         this.currentEditor = initialEditor;
 
@@ -207,7 +209,8 @@ public class ImagingDialog extends CaveSWTDialog implements
     }
 
     public ImagingDialog(Shell parentShell, AbstractVizResource<?, ?> rscToEdit) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
         setText("Imaging...");
         this.rscToEdit = rscToEdit;
     }
