@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.dialogs.LabelOffsetDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 3, 2011            randerso     Initial creation
+ * Oct 17, 2012 1229       rferrel     Made the dialog non-blocking.
  * 
  * </pre>
  * 
@@ -43,6 +44,8 @@ import com.raytheon.viz.ui.dialogs.LabelOffsetDialog;
  */
 
 public class LabelOffsetAction extends AbstractRightClickAction {
+    private LabelOffsetDialog dialog;
+
     /**
      * Constructor
      */
@@ -57,14 +60,18 @@ public class LabelOffsetAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        LabelableCapability cap = getSelectedRsc().getCapability(
-                LabelableCapability.class);
+            LabelableCapability cap = getSelectedRsc().getCapability(
+                    LabelableCapability.class);
 
-        LabelOffsetDialog dlg = new LabelOffsetDialog(shell, cap);
-        dlg.setBlockOnOpen(true);
-        dlg.open();
+            dialog = new LabelOffsetDialog(shell, cap);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 }
