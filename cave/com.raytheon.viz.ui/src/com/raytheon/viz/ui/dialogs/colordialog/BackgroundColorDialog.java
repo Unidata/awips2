@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1/8/2008     706        Dan Fitch   Initial Creation.
+ * 10/16/2012   1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -108,7 +109,8 @@ public class BackgroundColorDialog extends CaveSWTDialog implements
      */
     public BackgroundColorDialog(Shell parent, IDisplayPaneContainer container,
             BGColorMode mode) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Set Background Color");
         this.container = container;
         this.mode = mode;
