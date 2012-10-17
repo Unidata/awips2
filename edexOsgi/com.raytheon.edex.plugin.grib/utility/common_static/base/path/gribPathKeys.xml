@@ -5,8 +5,8 @@
 		<order>0</order>
 	</pathKey>
     <pathKey>
-        <key>modelInfo.level</key>
-        <order>1</order>
+        <key>modelInfo.level.masterLevel.name</key>
+        <order>0</order>
     </pathKey>
 </pathKeySet>
 
