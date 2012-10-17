@@ -1137,6 +1137,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 .getTimeZone(TimeTools.ZULU_TIMEZONE));
     }
 
+    private boolean isPreviousLineWrapped;
+
     /**
      * Constructor with additional cave style rules
      * 
@@ -7126,7 +7128,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
             }
         }
-        
+
         /*
          * DR14889 - add call to checkAndWrapPreviousLine
          */
@@ -7225,32 +7227,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // split at the column, no whitespace
             wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
         }
-        
+
         /*
          * DR14889 - add call to checkAndWrapPreviousLine
          */
         checkAndWrapPreviousLine(lineNumber);
-        
+
         checkAndWrapNextLine(lineNumber);
     }
 
-    /** checks if the previous line is part of the same paragraph and continues
+    /**
+     * checks if the previous line is part of the same paragraph and continues
      * wrapping if it is
+     * 
      * @param line
      */
     private void checkAndWrapPreviousLine(int line) {
-    	 // if there is a previous line
-    	if ( isPreviousLineWrapped ){
-    		return;
-    	}
+        // if there is a previous line
+        if (isPreviousLineWrapped) {
+            return;
+        }
         if (line - 1 > 0) {
             // if the previous line does not start a new paragraph
             if (!isParagraphStart(line - 1)) {
-                // if the previous line is not empty ( marks the end of a paragraph
+                // if the previous line is not empty ( marks the end of a
+                // paragraph
                 // )
                 if (!textEditor.getLine(line - 1).trim().isEmpty()) {
                     // rewrap the previous line
-                	isPreviousLineWrapped = true;
+                    isPreviousLineWrapped = true;
                     rewrapInternal(line - 1);
                 } else if (line - 1 < endWrapLine) {
                     // See if another paragraph needs to be wrapped.
@@ -7260,19 +7265,19 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         --nextLine;
                     }
                     if (nextLine <= endWrapLine) {
-                    	isPreviousLineWrapped = true;
+                        isPreviousLineWrapped = true;
                         rewrapInternal(nextLine);
                     }
                 }
             } else if (line - 1 <= endWrapLine) {
-            	isPreviousLineWrapped = true;
+                isPreviousLineWrapped = true;
                 rewrapInternal(line - 1);
             }
         }
-		
-	}
 
-	/**
+    }
+
+    /**
      * checks if the paragraph starting at the line passed in uses two space
      * padding for subsequent lines
      * 
