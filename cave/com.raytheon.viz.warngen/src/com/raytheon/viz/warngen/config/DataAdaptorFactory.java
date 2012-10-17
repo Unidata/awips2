@@ -19,16 +19,11 @@
  **/
 package com.raytheon.viz.warngen.config;
 
-import javax.measure.converter.UnitConverter;
-
-import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration.PointType;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * Creates data adaptors for PointSource data.
+ * Creates data adaptors for PointSource and Pathcast data.
  * 
  * <pre>
  * 
@@ -37,7 +32,6 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2011            bgonzale     Initial creation
- * Sep 19, 2012            jsanchez     Allowed adaptor to be used for pathcast.
  * 
  * </pre>
  * 
@@ -47,32 +41,15 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class DataAdaptorFactory {
 
-    public static AbstractDbSourceDataAdaptor createDataAdaptor(
-            PointSourceConfiguration pointConfig, Geometry searchArea,
-            String localizedSite) throws VizException {
+    public static AbstractDbSourceDataAdaptor createPointSource(
+            PointSourceConfiguration pointConfig) {
+
         AbstractDbSourceDataAdaptor adaptor = null;
+
         if (pointConfig.getType() == PointType.AREA) {
-            adaptor = new DbAreaSourceDataAdaptor(pointConfig, searchArea,
-                    localizedSite);
+            adaptor = new DbAreaSourceDataAdaptor();
         } else if (pointConfig.getType() == PointType.POINT) {
-            adaptor = new DbPointSourceDataAdaptor(pointConfig, searchArea,
-                    localizedSite);
-        }
-        return adaptor;
-    }
-
-    public static AbstractDbSourceDataAdaptor createPathcastDataAdaptor(
-            PathcastConfiguration pathcastConfiguration,
-            UnitConverter distanceToMeters, Geometry searchArea,
-            String localizedSite) throws VizException {
-        AbstractDbSourceDataAdaptor adaptor = null;
-
-        if (pathcastConfiguration.getType() == PointType.AREA) {
-            adaptor = new DbAreaSourceDataAdaptor(pathcastConfiguration,
-                    distanceToMeters, searchArea, localizedSite);
-        } else if (pathcastConfiguration.getType() == PointType.POINT) {
-            adaptor = new DbPointSourceDataAdaptor(pathcastConfiguration,
-                    distanceToMeters, searchArea, localizedSite);
+            adaptor = new DbPointSourceDataAdaptor();
         }
 
         return adaptor;
