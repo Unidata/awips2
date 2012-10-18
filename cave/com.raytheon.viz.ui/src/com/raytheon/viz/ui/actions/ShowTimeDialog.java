@@ -39,6 +39,7 @@ import com.raytheon.viz.ui.dialogs.SetTimeDialog;
  * Aug 23,2012  #1087      dgilling    Allow DRT mode to be engaged 
  *                                     regardless of practice or 
  *                                     operational mode.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking SetTimeDialog.
  * 
  * </pre>
  * 
@@ -49,9 +50,7 @@ public class ShowTimeDialog extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (!SetTimeDialog.getInstance().isOpen()) {
-            SetTimeDialog.getInstance().open();
-        }
+        SetTimeDialog.openDialog();
 
         return null;
     }
