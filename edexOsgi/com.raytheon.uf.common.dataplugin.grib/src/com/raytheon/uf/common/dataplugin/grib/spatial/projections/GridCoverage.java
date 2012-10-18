@@ -377,8 +377,8 @@ public abstract class GridCoverage extends PersistableDataObject implements
         if (gridGeometry == null) {
             gridGeometry = MapUtil.getGridGeometry(this);
         }
-
-        return gridGeometry;
+    
+    return gridGeometry;
     }
 
     public void setGridGeometry(GridGeometry2D gridGeometry) {
@@ -595,6 +595,20 @@ public abstract class GridCoverage extends PersistableDataObject implements
                 maxLon -= 1.0E-12;
                 minLon += 1.0E-12;
             }
+
+            // Normalize the range by shifting 360 degrees to bring the range
+            // within +/-360 degree as much as possible. For example the
+            // Canadian-NH model gets calculated as 179.7 to 540.3 but it
+            // works better to use -180.3 to 180.3.
+            while (minLon > 0 && maxLon > 360) {
+                minLon -= 360;
+                maxLon -= 360;
+            }
+            // Normalize the low end.
+            while (minLon < -360 && maxLon < 0) {
+                minLon += 360;
+                maxLon += 360;
+            }
             try {
                 geometry = MapUtil.createGeometry(minLat, minLon, maxLat,
                         maxLon);
@@ -743,7 +757,8 @@ public abstract class GridCoverage extends PersistableDataObject implements
         if (isSubGridded()) {
             String subGridName = getName();
             int index = subGridName.lastIndexOf(SUBGRID_TOKEN);
-            if (index >= 0 && index + SUBGRID_TOKEN.length() < subGridName.length()) {
+            if (index >= 0
+                    && index + SUBGRID_TOKEN.length() < subGridName.length()) {
                 model = subGridName.substring(index + SUBGRID_TOKEN.length());
             }
         }
