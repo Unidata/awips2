@@ -299,6 +299,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * 01OCT2012   1229         rferrel     Change WmoBrowserDlg to non-blocking
  * 10OCT2012   1229         rferrel     Changed AwipsBrowserDlg to non-blocking.
+ * 17OCT2012   1229         rferrel     Changes for non-blocking SWTMessageBox.
  * </pre>
  * 
  * @author lvenable
@@ -1002,6 +1003,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private AfosBrowserDlg afosBrowser;
 
+    private boolean displayAfosBrowser = false;
+
+    private boolean cancelDoClose = false;
+
     /**
      * Where the last modified text event started.
      */
@@ -1233,8 +1238,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             shell.addShellListener(new ShellAdapter() {
                 @Override
                 public void shellClosed(ShellEvent event) {
-                    if (!cancelEditor(true)) {
-                        shell.setVisible(true);
+                    if (inEditMode) {
+                        cancelDoClose = true;
+                        cancelEditor(true);
+                        bringToTop();
                         event.doit = false;
                         return;
                     }
@@ -1253,12 +1260,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         return;
                     }
 
+                    if (afosBrowser != null
+                            && afosBrowser.isAfosBrowserActive()) {
+                        afosBrowser.hide();
+                        displayAfosBrowser = true;
+                    } else {
+                        displayAfosBrowser = false;
+                    }
+
                     if (browser != null) {
-                        browser.getShell().setVisible(false);
+                        browser.hide();
                     }
 
                     // Block the disposal of this dialog.
-                    shell.setVisible(false);
+                    hide();
                     event.doit = false;
                 }
             });
@@ -1267,7 +1282,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void widgetDisposed(DisposeEvent e) {
                     inEditMode = false;
-                    shell.dispose();
+                    close();
                 }
             });
         }
@@ -1528,9 +1543,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (disposeOnExit == true) {
-                    shell.dispose();
+                    close();
                 } else {
-                    shell.setVisible(false);
+                    hide();
                 }
                 inEditMode = false;
             }
@@ -3790,7 +3805,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            true if prompting desired
      */
     private boolean cancelEditor(boolean prompt) {
-        if (shell.isDisposed()) {
+        if (isDisposed()) {
             // If the shell has been disposed due to closing of a parent,
             // do not follow the normal cancel procedure.
             return false;
@@ -3800,11 +3815,30 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             SWTMessageBox mb = new SWTMessageBox(shell, "Cancel Editor",
                     "Any unsaved changes will be lost. Cancel anyway?",
                     SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.ICON_WARNING);
-            Object rval = mb.open();
-            if (!(rval instanceof Integer) || ((Integer) rval) == SWT.NO) {
-                return false;
-            }
+            mb.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int rval = (Integer) returnValue;
+                        if (rval == SWT.YES) {
+                            doCancelEditor();
+                            if (cancelDoClose) {
+                                hide();
+                            }
+                        }
+                        cancelDoClose = false;
+                    }
+                }
+            });
+
+            mb.open();
+            return false;
         }
+        return doCancelEditor();
+    }
+
+    private boolean doCancelEditor() {
 
         stopAutoSave();
 
@@ -4349,12 +4383,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Display the AFOS Browser dialog.
      */
     private void displayAfosBrowser() {
-        if (afosBrowser == null || afosBrowser.isDisposed() == true) {
+        if (mustCreate(afosBrowser)) {
             afosBrowser = new AfosBrowserDlg(shell, shell.getText(), this,
                     token);
             afosBrowser.open();
         } else {
-            afosBrowser.showDialog();
+            afosBrowser.bringToTop();
         }
     }
 
@@ -4367,17 +4401,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             open();
         }
 
-        if (shell.isVisible() == false) {
-            shell.setVisible(true);
-        }
-
-        shell.setActive();
-        if (afosBrowser != null && afosBrowser.isAfosBrowserActive()) {
+        bringToTop();
+        if (displayAfosBrowser) {
             afosBrowser.showDialog();
         }
 
         if (browser != null) {
-            browser.getShell().setVisible(true);
+            browser.bringToTop();
         }
     }
 
@@ -4386,9 +4416,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        if (shell != null && shell.isVisible() == true) {
-            shell.setVisible(false);
-        }
+        // Allow the shell listener to clean up other dialogs and then hide the
+        // dialog.
+        close();
         inEditMode = false;
     }
 
