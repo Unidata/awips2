@@ -62,7 +62,7 @@ def getConnectionParams():
 
 def createRequest():
     print  sys.argv
-    obj = ProcessReceivedDigitalDataRequest.ProcessReceivedDigitalDataRequest()
+    obj = ProcessReceivedDigitalDataRequest()
     
     wsId = WsId(progName="receive_grids")
     
