@@ -6,6 +6,8 @@ RUN_FROM_DIR=`dirname $0`
 
 # set up SOME environment variables for WHFS applications
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
 export SSHP_INVOKE_MAP_PREPROCESS=$(get_apps_defaults sshp_invoke_map_preprocess)
 export SSHP_LOG_DIR=$(get_apps_defaults sshp_log_dir)
 export MPE_GAGE_QC=$(get_apps_defaults mpe_gage_qc)
