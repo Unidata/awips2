@@ -110,7 +110,9 @@
 		<include>cpgsrv-spring.xml</include>
 	 	<include>persist-ingest.xml</include>
 		<include>binlightning-common.xml</include>
-		<include>grib-common.xml</include>
+		<include>parameter-common.xml</include>
+		<include>gridcoverage-common.xml</include>
+		<include>grid-common.xml</include>
 		<include>radar-common.xml</include>
 		<include>text-common.xml</include>
 		<include>level-common.xml</include>
