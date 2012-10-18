@@ -97,7 +97,16 @@ public class LatLonGridCoverage extends GridCoverage {
         double maxLon = minLon + dx * nx;
 
         double centralMeridian = (minLon + maxLon) / 2.0;
-        centralMeridian = MapUtil.correctLon(centralMeridian);
+        if (dx * nx <= 360) {
+            centralMeridian = MapUtil.correctLon(centralMeridian);
+        } else {
+            // For almost all map projections geotools will clip all math
+            // transforms to be within +-180 of the central meridian. For grids
+            // that wrap around the world more than once this is a problem. When
+            // the central Meridian is 0.0 then geotools does not do this
+            // clipping, which works much better.
+            centralMeridian = 0.0;
+        }
         crs = MapUtil.constructEquidistantCylindrical(
                 MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
                 centralMeridian, 0);
