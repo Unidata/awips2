@@ -260,128 +260,134 @@ public class ArealQpeGenSrv {
             // gribit environment vars
             Map<String, String> envVars = new HashMap<String, String>();
 
-            envVars.put("grib_in_dir", gaq_temp_xmrg_dir);
-            envVars.put("grib_out_dir", gaq_temp_xmrg_dir);
-            envVars.put("grib_set_subcenter_0", "on");
+            if (AppsDefaults.getInstance().setAppContext(this)) {
+                envVars.put("grib_in_dir", gaq_temp_xmrg_dir);
+                envVars.put("grib_out_dir", gaq_temp_xmrg_dir);
+                envVars.put("grib_set_subcenter_0", "on");
 
-            String pproc_bin = appsDefaults.getToken("pproc_bin");
-            MainMethod m = new MainMethod(new ProcessBuilder(pproc_bin + "/"
-                    + GRIBIT));
+                String pproc_bin = appsDefaults.getToken("pproc_bin");
+                MainMethod m = new MainMethod(new ProcessBuilder(pproc_bin
+                        + "/" + GRIBIT));
 
-            for (File fr : fa) {
-                String inFile = "";
-                String gribOutFile = "";
-                inFile = fr.getName();
-                gribOutFile = inFile + ".grib";
-                envVars.put("grib_in_file", inFile);
-                envVars.put("grib_out_file", gribOutFile);
-                if (envVars != null) {
-                    m.getProcessBuilder().environment().putAll(envVars);
-                }
-                int exitValue = m.execute();
+                for (File fr : fa) {
+                    String inFile = "";
+                    String gribOutFile = "";
+                    inFile = fr.getName();
+                    gribOutFile = inFile + ".grib";
+                    envVars.put("grib_in_file", inFile);
+                    envVars.put("grib_out_file", gribOutFile);
+                    if (envVars != null) {
+                        m.getProcessBuilder().environment().putAll(envVars);
+                    }
+                    int exitValue = m.execute();
 
-                // Output result
-                if (exitValue == 0) {
-                    log.info("Areal QPE wrote output grib file: " + gribOutFile);
-                } else {
-                    log.error("Areal QPE grib file out process terminated with exit code: "
-                            + exitValue);
-                    return;
-                }
+                    // Output result
+                    if (exitValue == 0) {
+                        log.info("Areal QPE wrote output grib file: "
+                                + gribOutFile);
+                    } else {
+                        log.error("Areal QPE grib file out process terminated with exit code: "
+                                + exitValue);
+                        return;
+                    }
 
-                try {
-                    RandomAccessFile raf = new RandomAccessFile(new File(
-                            fr.getParentFile(), gribOutFile), "rw");
-                    raf.seek(0);
+                    try {
+                        RandomAccessFile raf = new RandomAccessFile(new File(
+                                fr.getParentFile(), gribOutFile), "rw");
+                        raf.seek(0);
 
-                    int idx = 0;
-                    byte b = raf.readByte();
+                        int idx = 0;
+                        byte b = raf.readByte();
 
-                    boolean found = false;
-                    while (!found) {
-                        if (b == (byte) 'G') {
-                            b = raf.readByte();
-                            if (b == (byte) 'R') {
+                        boolean found = false;
+                        while (!found) {
+                            if (b == (byte) 'G') {
                                 b = raf.readByte();
-                                if (b == (byte) 'I') {
+                                if (b == (byte) 'R') {
                                     b = raf.readByte();
-                                    if (b == (byte) 'B') {
-                                        found = true;
+                                    if (b == (byte) 'I') {
+                                        b = raf.readByte();
+                                        if (b == (byte) 'B') {
+                                            found = true;
+                                        } else {
+                                            idx += 3;
+                                        }
                                     } else {
-                                        idx += 3;
+                                        idx += 2;
                                     }
                                 } else {
-                                    idx += 2;
+                                    idx += 1;
                                 }
                             } else {
                                 idx += 1;
+                                b = raf.readByte();
                             }
-                        } else {
-                            idx += 1;
-                            b = raf.readByte();
+                        }
+
+                        // Index 8 bytes for Section 0 of grib spec, and 5 bytes
+                        // for
+                        // Section 1 of grib spec to get to gen process id index
+                        idx += (8 + 5);
+
+                        // Increment gen process id
+                        raf.seek(idx);
+                        byte gpid = raf.readByte();
+                        raf.seek(idx);
+                        raf.writeByte(gpid + 1);
+
+                        raf.close();
+                    } catch (Exception e) {
+                        log.error("Error modifying grib output file", e);
+                        return;
+                    }
+
+                    String newFname = fr.getName() + ".grib";
+                    File mvFile = new File(gaq_grib_dir + "/" + newFname);
+                    File goFile = new File(gaq_temp_xmrg_dir + "/"
+                            + gribOutFile);
+                    Date dt = new Date();
+                    Calendar cc = Calendar.getInstance(TimeZone
+                            .getTimeZone("GMT"));
+                    cc.setTime(dt);
+                    SimpleDateFormat ffn = new SimpleDateFormat("ddHHmmss");
+                    String dString = ffn.format(cc.getTime());
+                    File gribIngestFile = new File(d2d_input_dir
+                            + File.separator + "arealQpeGenSrv"
+                            + File.separator + fr.getName() + "_" + dString
+                            + ".grib");
+                    log.info("Move and rename grib file " + goFile + " to "
+                            + mvFile);
+                    boolean fmv = goFile.renameTo(mvFile);
+
+                    // The move failed. Remove the grib file.
+                    if (fmv == false) {
+                        log.error("Move and rename grib file " + goFile
+                                + " to " + mvFile + " failed. ");
+                        goFile.delete();
+                    } else {
+                        try {
+                            FileUtil.copyFile(mvFile, gribIngestFile);
+                            log.info("Copied grib file " + mvFile.getName()
+                                    + " to " + d2d_input_dir + File.separator
+                                    + "arealQpeGenSrv" + " for ingest to D2D. ");
+                        } catch (IOException e) {
+                            log.error("Copy grib file " + mvFile.getName()
+                                    + " to " + d2d_input_dir + File.separator
+                                    + "arealQpeGenSrv" + " failed. ");
+                            e.printStackTrace();
                         }
                     }
-
-                    // Index 8 bytes for Section 0 of grib spec, and 5 bytes for
-                    // Section 1 of grib spec to get to gen process id index
-                    idx += (8 + 5);
-
-                    // Increment gen process id
-                    raf.seek(idx);
-                    byte gpid = raf.readByte();
-                    raf.seek(idx);
-                    raf.writeByte(gpid + 1);
-
-                    raf.close();
-                } catch (Exception e) {
-                    log.error("Error modifying grib output file", e);
-                    return;
-                }
-
-                String newFname = fr.getName() + ".grib";
-                File mvFile = new File(gaq_grib_dir + "/" + newFname);
-                File goFile = new File(gaq_temp_xmrg_dir + "/" + gribOutFile);
-                Date dt = new Date();
-                Calendar cc = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-                cc.setTime(dt);
-                SimpleDateFormat ffn = new SimpleDateFormat("ddHHmmss");
-                String dString = ffn.format(cc.getTime());
-                File gribIngestFile = new File(d2d_input_dir + File.separator + 
-                        "arealQpeGenSrv" + File.separator
-                        + fr.getName() + "_" + dString + ".grib");
-                log.info("Move and rename grib file " + goFile + " to "
-                        + mvFile);
-                boolean fmv = goFile.renameTo(mvFile);
-
-                // The move failed. Remove the grib file.
-                if (fmv == false) {
-                    log.error("Move and rename grib file " + goFile + " to "
-                            + mvFile + " failed. ");
-                    goFile.delete();
-                } else {
-                    try {
-                        FileUtil.copyFile(mvFile, gribIngestFile);
-                        log.info("Copied grib file " + mvFile.getName()
-                                + " to " + d2d_input_dir + File.separator + 
-                                "arealQpeGenSrv" 
-                                + " for ingest to D2D. ");
-                    } catch (IOException e) {
-                        log.error("Copy grib file " + mvFile.getName() + " to "
-                                + d2d_input_dir + File.separator + 
-                                "arealQpeGenSrv"  + " failed. ");
-                        e.printStackTrace();
+                    // Remove the xmrg file from the temp directory.
+                    fr.delete();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Removed file " + fr
+                                + " from rfcqpe_temp directory.");
                     }
+                    mvFile = null;
+                    goFile = null;
                 }
-                // Remove the xmrg file from the temp directory.
-                fr.delete();
-                if (log.isDebugEnabled()) {
-                    log.debug("Removed file " + fr
-                            + " from rfcqpe_temp directory.");
-                }
-                mvFile = null;
-                goFile = null;
+                m = null;
             }
-            m = null;
         } else {
             log.info("No QPE mosaic files found in " + gaq_temp_xmrg_dir);
             Date dt = new Date();
