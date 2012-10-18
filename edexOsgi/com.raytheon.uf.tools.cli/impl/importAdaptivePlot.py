@@ -101,7 +101,7 @@ if fileName == "spotters.dat":
 
     shutil.copy(file, workFile)
     os.system("sed -i -e 's/spotterName/spottersName/g' /tmp/spotters.dat")
-    os.system("sed -i -e 's/spotterAddr/spottersAddr/g' /tmp/spotters.dat")
+    os.system("sed -i -e 's/spotterAddr/spottersAddress/g' /tmp/spotters.dat")
     os.system("sed -i -e 's/spotterCity/spottersCity/g' /tmp/spotters.dat")
     os.system("sed -i -e 's/spotterPhone/spottersPhone/g' /tmp/spotters.dat")
     file = workFile
