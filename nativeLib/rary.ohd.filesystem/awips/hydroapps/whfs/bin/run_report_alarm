@@ -15,6 +15,7 @@ RUN_FROM_DIR=`dirname $0`
 # set up SOME environment variables for WHFS applications
 # Run from local bin dir
 . $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
 
 export EDEX_HOME=/awips2/edex
 export DB_NAME=$(get_apps_defaults db_name)

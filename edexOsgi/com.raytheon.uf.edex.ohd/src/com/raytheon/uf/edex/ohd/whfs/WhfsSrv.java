@@ -59,11 +59,13 @@ public class WhfsSrv implements ServiceInterface {
      */
     @Override
     public void execute() throws EdexException {
-
         for (String script : serviceScripts) {
             ScriptService s = new ScriptService(scriptDir + File.separatorChar
                     + script);
-            s.execute();
+
+            if (AppsDefaults.getInstance().setAppContext(this)) {
+                s.execute();
+            }
         }
     }
 }
