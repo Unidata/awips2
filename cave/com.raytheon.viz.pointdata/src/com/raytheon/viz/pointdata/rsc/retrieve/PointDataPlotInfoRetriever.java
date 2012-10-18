@@ -48,7 +48,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 9, 2009            bsteffen     Initial creation
- * OCT 4, 2012 15132      kshresth    Restored "MSAS/LDAD QC plots" display data
+ * 
  * </pre>
  * 
  * @author bsteffen
@@ -76,7 +76,6 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
         } else {
             dq.addColumn("dataTime");
         }
-        dq.addColumn("id");
     }
 
     @Override
@@ -104,7 +103,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
             statusHandler.handle(Priority.CRITICAL, message, new Exception(
                     message));
         }
-        stationInfo.id = (Integer) data[5];
+
         return stationInfo;
     }
 
