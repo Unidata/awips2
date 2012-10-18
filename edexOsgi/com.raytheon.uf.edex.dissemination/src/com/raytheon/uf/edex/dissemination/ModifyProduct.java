@@ -155,12 +155,12 @@ public class ModifyProduct {
             TransProdHeader header) throws DataAccessLayerException {
         boolean changed = false;
         String productBBB = header.getBbb();
-        String[] splitLines = product.getProductText().split("\n");
-        String newBBB = TransmittedProductList.getBBB(header.getProductId(),
+        String[] splitLines = product.getProductText().split("\n", 2);
+        String bbbToUse = TransmittedProductList.getBBB(header.getProductId(),
                 header.getWmoId(), header.getProductTime(), header.getBbb());
 
-        if (!productBBB.equals(newBBB)) {
-            productBBB = newBBB;
+        if (!productBBB.equals(bbbToUse)) {
+            productBBB = bbbToUse;
         }
 
         if (productBBB != null) {
@@ -168,9 +168,13 @@ public class ModifyProduct {
             if (!splitLines[0].endsWith(" " + productBBB)) {
                 splitLines[0] += " " + productBBB;
                 StringBuilder sb = new StringBuilder();
+                boolean first = true;
                 for (String line : splitLines) {
+                    if (first)
+                        first = false;
+                    else
+                        sb.append("\n");
                     sb.append(line);
-                    sb.append("\n");
                 }
                 product.setProductText(sb.toString());
                 changed = true;
@@ -182,8 +186,7 @@ public class ModifyProduct {
         return changed;
     }
 
-    public static String convertNewline2rrn(String textString)
-            throws OUPHeaderException {
+    public static String convertNewline2rrn(String textString) {
         StringBuffer newString = new StringBuffer();
 
         // Don't do any change if string doesn't contain any newline
