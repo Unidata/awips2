@@ -121,7 +121,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         if (valid) {
             loadParms();
-
+            outputLoc = this.config.dbDomain();
         }
     }
 
