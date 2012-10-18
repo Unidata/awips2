@@ -385,11 +385,28 @@ public class MapUtil {
                 LATLON_PROJECTION, false);
         ReferencedEnvelope newTargetREnv = targetREnv.transform(
                 LATLON_PROJECTION, false);
-
+        com.vividsolutions.jts.geom.Envelope intersection = newTargetREnv
+                .intersection(newSourceEnv);
+        // Its possible to get two envelopes that don't intersect in a common
+        // space, for example one could have longitude from -200 to -160 and
+        // another could have longitude from 160 to 200. Even though these are
+        // the same range, they don't intersect. These two loops will shift the
+        // data 360 degrees in the x direction until all intersections are
+        // found.
+        while (newSourceEnv.getMaxX() > newTargetREnv.getMinX()) {
+            newSourceEnv.translate(-360, 0);
+            intersection.expandToInclude(newTargetREnv
+                    .intersection(newSourceEnv));
+        }
+        while (newSourceEnv.getMinX() < newTargetREnv.getMaxX()) {
+            newSourceEnv.translate(360, 0);
+            intersection.expandToInclude(newTargetREnv
+                    .intersection(newSourceEnv));
+        }
         // Get the newEnvelope
         ReferencedEnvelope newEnv = new ReferencedEnvelope(JTS.getEnvelope2D(
-                newTargetREnv.intersection(newSourceEnv), LATLON_PROJECTION),
-                LATLON_PROJECTION);
+                intersection, LATLON_PROJECTION), LATLON_PROJECTION);
+
         newEnv = newEnv.transform(targetCRS, false, 500);
         // Calculate nx and ny, start with the number of original grid
         // points in the intersection and then adjust to the new aspect
