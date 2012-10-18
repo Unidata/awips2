@@ -30,7 +30,8 @@ import java.util.regex.Pattern;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 24, 2012   15322    jsanchez     Initial creation
+ * Sep 24, 2012   15332    jsanchez     Initial creation
+ * Oct 18, 2012   15332    jsanchez     Replaced listOfAreaNamesPtrn with String pattern.
  * 
  * </pre>
  * 
@@ -53,9 +54,8 @@ public interface ICommonPatterns {
 
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
-    public static Pattern listOfAreaNamePtrn = Pattern.compile("^((" + LOCK_END
-            + "){0,1}(((\\w+\\s{1})+\\w{2}-)*((\\w+\\s{1})+\\w{2}-))" + newline
-            + ")", Pattern.MULTILINE);
+    public static final String listOfAreaName = "^((" + LOCK_END
+            + "){0,1}(((\\w+\\s{1})+\\w{2}-)*((\\w+\\s{1})+\\w{2}-)))";
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
