@@ -10,6 +10,7 @@ echo ""
 echo "Press Enter to undo the updates Ctrl-C to quit."
 read done
 
+IFS=$'\n'
 files=`find /awips2/edex/data/utility/cave_static/*/*/bundles/ -iname '*.xml'`
 
 if [ $? -ne 0 ]; then
