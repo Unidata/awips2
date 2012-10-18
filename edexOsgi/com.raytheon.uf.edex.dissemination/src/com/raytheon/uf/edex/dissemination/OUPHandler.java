@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2009            njensen     Initial creation
+ * Oct 12, 2012  DR 15418  D. Friedman Use clustered TransmittedProductList
  * 
  * </pre>
  * 
@@ -105,12 +106,9 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
                         py.dispose();
                     }
                 }
-                boolean success = resp.isSendLocalSuccess();
-                if (success) {
-                    TransmittedProductList.addProduct(header.getProductId(),
-                            header.getWmoId(), header.getProductTime(),
-                            header.getBbb());
-                }
+                /* TODO: Should be updating TransmittedProductList here, after
+                 * success has been confirmed.  
+                 */
             } catch (OUPHeaderException e) {
                 resp.setAttempted(false);
                 resp.setMessage("Product not sent, error encountered with header.\n"
