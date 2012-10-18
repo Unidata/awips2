@@ -41,6 +41,20 @@
       <appender-ref ref="ThriftSrvRequestLog" />
    </appender> 
 
+   <!-- GFEPerformance log --> 
+   <appender name="GFEPerformanceLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-request-GFEPerformance-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <appender name="GFEPerformanceLogAsync" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="GFEPerformanceLog" />
+   </appender> 
+
    <logger name="ProductSrvRequestLogger" additivity="false">
    		<level value="DEBUG"/>
    		<appender-ref ref="ProductSrvRequestLogAsync"/>
@@ -51,6 +65,10 @@
       <appender-ref ref="ThriftSrvRequestLogAsync" />
    </logger>
    
+   <logger name="GFEPerformanceLogger" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="GFEPerformanceLogAsync" />
+   </logger>
 
    <logger name="com.raytheon">
       <level value="INFO"/>

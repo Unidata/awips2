@@ -294,6 +294,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
  * 27SEP2012   15424        S.Naples    Set focus on AFOS command text field after executing retrieval of product.
  * 09Oct2012   14889	    M.Gamazaychikov	Add call to checkAndWrapPreviousLine
+ * 12OCT2012   15418        D.Friedman  Do not store product when sending in operational mode.
+ *                                      Do not use changed BBB from OUPResponse.
  * </pre>
  * 
  * @author lvenable
@@ -343,6 +345,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * When auto wrapping the last line that needs to be wrapped.
      */
     private int endWrapLine = -1;
+
+    /**
+     * Last line was wrapped backwards
+     */
+    private boolean isPreviousLineWrapped = false;
 
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
 
@@ -4522,11 +4529,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param resend
      * @param result
      */
-    private void warngenCloseCallback(boolean resend, boolean result) {
+    private void warngenCloseCallback(boolean resend, boolean isOperational) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
-        if (result) {
+        if (isOperational) {
             removeOptionalFields();
 
             try {
@@ -4537,7 +4544,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
+                if ((inEditMode || resend) && saveEditedProduct(false, resend, true)) {
                     inEditMode = false;
                 }
 
@@ -4583,7 +4590,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText()));
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
+                if ((inEditMode || resend) && saveEditedProduct(false, resend, false)) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -4664,7 +4671,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
             return;
         }
-        boolean successful = saveEditedProduct(false, false);
+        boolean successful = saveEditedProduct(false, false, false);
         if (successful) {
             // reset the editor status flags
             dirty = false;
@@ -4688,7 +4695,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return true is the save was successful
      */
     synchronized private boolean saveEditedProduct(boolean isAutoSave,
-            boolean resend) {
+            boolean resend, boolean isOperationalSend) {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
         if (product != null
@@ -4805,7 +4812,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          */
         if (isAutoSave) {
             autoSave.saveProduct(storedProduct);
-        } else if (resend) {
+        } else if (isOperationalSend || resend) {
             // OUPRequest will update the StdTextProduct table.
             successful = true;
         } else {
@@ -6410,7 +6417,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {
-                                    saveEditedProduct(true, false);
+                                    saveEditedProduct(true, false, false);
                                 }
                             }
                         }
@@ -6676,12 +6683,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     statusHandler.handle(p, response.getMessage());
                 } else {
                     // no failure
-                    String newBBB = response.getChangedBBB();
-                    if (newBBB != null) {
-                        statusHandler.handle(Priority.EVENTA,
-                                "MhsServer changed BBB field to " + newBBB);
-                        getStdTextProduct().setBbbid(newBBB);
-                    }
+                    // As of DR 15418, nothing is done with response.getChangedBBB()
                 }
 
                 Thread.interrupted();
