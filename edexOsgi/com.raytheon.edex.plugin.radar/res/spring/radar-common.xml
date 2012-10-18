@@ -14,6 +14,7 @@
 		<property name="pathProvider">
 			<ref bean="radarPathProvider" />
 		</property>
+        <property name="compression" value="LZF"/>
 	</bean>
 
 	<bean id="radarRegistered" factory-bean="pluginRegistry"
