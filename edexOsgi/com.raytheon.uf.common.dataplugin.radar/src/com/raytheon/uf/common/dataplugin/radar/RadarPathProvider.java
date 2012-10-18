@@ -76,8 +76,7 @@ public class RadarPathProvider extends DefaultPathProvider {
         sb.append(pluginName);
         sb.append("-");
         sb.append(pdo.getIcao());
-        sb.append("-");
-        sb.append(pdo.getDataTime().toString().replaceAll(" ", "_"));
+        sb.append(fileNameFormat.get().format(pdo.getDataTime().getRefTime()));
         sb.append(".h5");
 
         return sb.toString();
