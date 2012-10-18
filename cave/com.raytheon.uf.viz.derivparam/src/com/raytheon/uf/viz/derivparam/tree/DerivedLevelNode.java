@@ -308,6 +308,9 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
         Map<DerivParamField, Set<TimeAndSpace>> availCache = this.availCache;
         availability = matcher.match(availability, availCache.get(null))
                 .keySet();
+        if (availability.isEmpty()) {
+            return Collections.emptySet();
+        }
         Map<TimeAndSpace, DerivedParameterRequest> mapOfRequests = new HashMap<TimeAndSpace, DerivedParameterRequest>(
                 availability.size());
         List<DerivedRequestableData> initResponses = new ArrayList<DerivedRequestableData>(
