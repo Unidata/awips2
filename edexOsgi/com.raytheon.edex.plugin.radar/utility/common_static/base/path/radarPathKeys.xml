@@ -4,4 +4,9 @@
 		<key>icao</key>
 		<order>0</order>
 	</pathKey>
+    <pathKey>
+        <key>primaryElevationAngle</key>
+        <order>1</order>
+    </pathKey>
 </pathKeySet>
+

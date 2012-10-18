@@ -74,6 +74,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -84,6 +85,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -128,9 +130,9 @@ public class IFPGridDatabase extends GridDatabase {
 
     private static final float VECTOR_DIR_DATA_OFFSET = 0.0f;
 
-    private Map<String, GridParmInfo> parmInfo = new HashMap<String, GridParmInfo>();
+    private final Map<String, GridParmInfo> parmInfo = new HashMap<String, GridParmInfo>();
 
-    private Map<String, ParmStorageInfo> parmStorageInfo = new HashMap<String, ParmStorageInfo>();
+    private final Map<String, ParmStorageInfo> parmStorageInfo = new HashMap<String, ParmStorageInfo>();
 
     /** The grid configuration for this database */
     protected GridDbConfig gridConfig;
@@ -315,13 +317,13 @@ public class IFPGridDatabase extends GridDatabase {
             }
 
             // max/min changes
-            if (userGPI.getMaxValue() != dbGPI.getMaxValue()
-                    || userGPI.getMinValue() != dbGPI.getMinValue()
+            if ((userGPI.getMaxValue() != dbGPI.getMaxValue())
+                    || (userGPI.getMinValue() != dbGPI.getMinValue())
                     || unitsChanged || !userPSI.equals(dbPSI)) {
                 // If units were changed, the values need to be clamped to the
                 // min and max values
-                if (userGPI.getMaxValue() != dbGPI.getMaxValue()
-                        || userGPI.getMinValue() != dbGPI.getMinValue()) {
+                if ((userGPI.getMaxValue() != dbGPI.getMaxValue())
+                        || (userGPI.getMinValue() != dbGPI.getMinValue())) {
                     statusHandler.handle(
                             Priority.INFO,
                             "Changing Max/Min: " + dbGPI.getParmID()
@@ -405,7 +407,6 @@ public class IFPGridDatabase extends GridDatabase {
             return;
         }
         List<GFERecord> updatedRecords = new ArrayList<GFERecord>();
-        Set<String> locationsToDelete = new HashSet<String>();
         for (GFERecord rec : records) {
             switch (gridType) {
             case SCALAR:
@@ -433,7 +434,6 @@ public class IFPGridDatabase extends GridDatabase {
                         newGPI.getMinValue(), newGPI.getMaxValue());
                 rec.setMessageData(scalarRecord);
                 updatedRecords.add(rec);
-                locationsToDelete.add(scalarRecord.getGroup());
                 break;
             case VECTOR:
                 List<TimeRange> vectorTimes = new ArrayList<TimeRange>();
@@ -472,16 +472,12 @@ public class IFPGridDatabase extends GridDatabase {
                 vSlice.setDirGrid(rawData2);
                 rec.setMessageData(vSlice);
                 updatedRecords.add(rec);
-                locationsToDelete.add(vectorRecord[0].getGroup());
                 break;
             }
         }
+
         if (!updatedRecords.isEmpty()) {
-            File file = GfeUtil.getHDF5File(gfeBaseDataDir, parmId.getDbId());
             try {
-                DataStoreFactory.getDataStore(file).delete(
-                        locationsToDelete.toArray(new String[locationsToDelete
-                                .size()]));
                 this.saveGridsToHdf5(updatedRecords, newPSI);
             } catch (Exception e) {
                 statusHandler
@@ -672,9 +668,7 @@ public class IFPGridDatabase extends GridDatabase {
                 statusHandler.handle(Priority.INFO, "Removing: " + item
                         + " from the " + this.dbId + " database.");
                 try {
-                    dao.removeOldParm(item, this.dbId, DataStoreFactory
-                            .getDataStore(GfeUtil.getHDF5File(gfeBaseDataDir,
-                                    this.dbId)));
+                    dao.removeOldParm(item, this.dbId);
                     this.parmInfo.remove(item);
                     this.parmStorageInfo.remove(item);
                 } catch (DataAccessLayerException e) {
@@ -863,7 +857,7 @@ public class IFPGridDatabase extends GridDatabase {
         }
 
         // Save off the individual failures (if any), and then save what we can
-        if (failedGrids != null && failedGrids.length > 0) {
+        if ((failedGrids != null) && (failedGrids.length > 0)) {
             for (GFERecord gfeRecord : failedGrids) {
                 sr.addMessage("Failed to save grid to HDF5: " + gfeRecord);
             }
@@ -873,7 +867,7 @@ public class IFPGridDatabase extends GridDatabase {
 
             GFERecord[] gridsToStore = records.toArray(new GFERecord[records
                     .size()]);
-            if (failedGrids != null && failedGrids.length > 0) {
+            if ((failedGrids != null) && (failedGrids.length > 0)) {
                 Set<GFERecord> workingSet = new HashSet<GFERecord>(records);
                 workingSet.removeAll(Arrays.asList(failedGrids));
                 gridsToStore = workingSet.toArray(new GFERecord[workingSet
@@ -1331,8 +1325,8 @@ public class IFPGridDatabase extends GridDatabase {
             initGridParmInfo();
         }
         try {
-            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil.getHDF5File(
-                    gfeBaseDataDir, this.dbId));
+            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
+                    .getGridParmHdf5File(gfeBaseDataDir, this.dbId));
 
             IDataRecord[] parmInfoRecords = ds.retrieve(GRID_PARM_INFO_GRP);
             for (IDataRecord gpiRecord : parmInfoRecords) {
@@ -1491,7 +1485,7 @@ public class IFPGridDatabase extends GridDatabase {
 
     private ServerResponse<?> dbIsValid() {
         ServerResponse<?> sr = new ServerResponse<String>();
-        if (dbId == null || !dbId.isValid()) {
+        if ((dbId == null) || !dbId.isValid()) {
             sr.addMessage("DBInvalid - The database is not valid.");
         }
         return sr;
@@ -1518,11 +1512,11 @@ public class IFPGridDatabase extends GridDatabase {
      * @return The HDF5 file
      */
     protected void initGridParmInfo() {
-        IDataStore ds = DataStoreFactory.getDataStore(GfeUtil.getHDF5File(
-                gfeBaseDataDir, this.dbId));
-
         try {
-            if (gridConfig != null && gridConfig.parmAndLevelList().size() > 0) {
+            if ((gridConfig != null)
+                    && (gridConfig.parmAndLevelList().size() > 0)) {
+                IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
+                        .getGridParmHdf5File(gfeBaseDataDir, this.dbId));
                 ds.getDatasets(GRID_PARM_INFO_GRP);
                 parmInfoInitialized = true;
             }
@@ -1750,11 +1744,20 @@ public class IFPGridDatabase extends GridDatabase {
             ParmStorageInfo parmStorageInfo) throws GfeException {
         List<GFERecord> failedGrids = new ArrayList<GFERecord>();
         try {
+            StorageProperties sp = null;
+            String compression = PluginRegistry.getInstance()
+                    .getRegisteredObject("gfe").getCompression();
+            if (compression != null) {
+                sp = new StorageProperties();
+                sp.setCompression(StorageProperties.Compression
+                        .valueOf(compression));
+            }
+
             Map<File, List<GFERecord>> recordMap = new HashMap<File, List<GFERecord>>();
 
             for (GFERecord rec : dataObjects) {
-                File file = GfeUtil.getHDF5File(gfeBaseDataDir, rec.getParmId()
-                        .getDbId());
+                File file = GfeUtil.getHdf5File(gfeBaseDataDir,
+                        rec.getParmId(), rec.getTimeRange());
                 List<GFERecord> recList = recordMap.get(file);
                 if (recList == null) {
                     recList = new ArrayList<GFERecord>();
@@ -1772,7 +1775,7 @@ public class IFPGridDatabase extends GridDatabase {
                 for (GFERecord rec : entry.getValue()) {
                     Object data = rec.getMessageData();
                     String groupName = GfeUtil.getHDF5Group(rec.getParmId(),
-                            rec.getDataTime().getValidPeriod());
+                            rec.getTimeRange());
 
                     if (parmStorageInfo == null) {
                         parmStorageInfo = findStorageInfo(rec.getParmId());
@@ -1780,24 +1783,24 @@ public class IFPGridDatabase extends GridDatabase {
                     // Get storage info (for float and vector data)
                     String storageType = parmStorageInfo.storageType();
 
-                    if (data instanceof FloatDataRecord
+                    if ((data instanceof FloatDataRecord)
                             && !"float".equals(storageType)) {
                         storeConvertedFloatRecord((FloatDataRecord) data,
-                                dataStore, groupName, parmStorageInfo,
+                                dataStore, sp, groupName, parmStorageInfo,
                                 correlationMap, rec);
                     } else if (data instanceof IDataRecord) {
                         // store without conversion
                         ((IDataRecord) data).setGroup(groupName);
-                        dataStore.addDataRecord((IDataRecord) data);
+                        dataStore.addDataRecord((IDataRecord) data, sp);
                         correlationMap.put(((IDataRecord) data), rec);
                     } else if (data instanceof VectorGridSlice) {
-                        storeVectorGridSlice(data, dataStore, groupName,
+                        storeVectorGridSlice(data, dataStore, sp, groupName,
                                 parmStorageInfo, correlationMap, rec);
                     } else if (data instanceof ScalarGridSlice) {
-                        storeScalarGridSlice(data, dataStore, groupName,
+                        storeScalarGridSlice(data, dataStore, sp, groupName,
                                 parmStorageInfo, correlationMap, rec);
                     } else if (data instanceof DiscreteGridSlice) {
-                        storeDiscreteGridSlice(data, dataStore, groupName,
+                        storeDiscreteGridSlice(data, dataStore, sp, groupName,
                                 parmStorageInfo, correlationMap, rec);
                     } else if (data instanceof WeatherGridSlice) {
                         WeatherGridSlice slice = (WeatherGridSlice) data;
@@ -1810,7 +1813,7 @@ public class IFPGridDatabase extends GridDatabase {
                                                     .getNx(),
                                             slice.getGridInfo().getGridLoc()
                                                     .getNy() });
-                            dataStore.addDataRecord(rawRecord);
+                            dataStore.addDataRecord(rawRecord, sp);
 
                             StringBuffer sb = new StringBuffer();
                             boolean first = true;
@@ -1826,7 +1829,7 @@ public class IFPGridDatabase extends GridDatabase {
                             ByteDataRecord keyRecord = new ByteDataRecord(
                                     "Keys", groupName, keyBytes, 1,
                                     new long[] { keyBytes.length });
-                            dataStore.addDataRecord(keyRecord);
+                            dataStore.addDataRecord(keyRecord, sp);
                             correlationMap.put(rawRecord, rec);
                             correlationMap.put(keyRecord, rec);
                         }
@@ -1835,7 +1838,7 @@ public class IFPGridDatabase extends GridDatabase {
 
                 StorageStatus ss = dataStore.store(StoreOp.REPLACE);
                 StorageException[] exceptions = ss.getExceptions();
-                if (exceptions != null && exceptions.length > 0) {
+                if ((exceptions != null) && (exceptions.length > 0)) {
                     // Describe the errors, then
                     // only log the first one, don't flood the log with
                     // duplicates.
@@ -1883,7 +1886,8 @@ public class IFPGridDatabase extends GridDatabase {
      * @throws StorageException
      */
     protected void storeScalarGridSlice(Object data, IDataStore dataStore,
-            String groupName, ParmStorageInfo parmStorageInfo,
+            StorageProperties sp, String groupName,
+            ParmStorageInfo parmStorageInfo,
             Map<IDataRecord, GFERecord> correlationMap, GFERecord rec)
             throws StorageException {
         ScalarGridSlice slice = (ScalarGridSlice) data;
@@ -1893,7 +1897,7 @@ public class IFPGridDatabase extends GridDatabase {
                     rawData, 2, new long[] {
                             slice.getGridInfo().getGridLoc().getNx(),
                             slice.getGridInfo().getGridLoc().getNy() });
-            this.storeConvertedFloatRecord(rawRecord, dataStore, groupName,
+            this.storeConvertedFloatRecord(rawRecord, dataStore, sp, groupName,
                     parmStorageInfo, correlationMap, rec);
         }
     }
@@ -1917,11 +1921,12 @@ public class IFPGridDatabase extends GridDatabase {
      * @throws StorageException
      */
     protected void storeVectorGridSlice(Object data, IDataStore dataStore,
-            String groupName, ParmStorageInfo parmStorageInfo,
+            StorageProperties sp, String groupName,
+            ParmStorageInfo parmStorageInfo,
             Map<IDataRecord, GFERecord> correlationMap, GFERecord rec)
             throws StorageException {
         VectorGridSlice slice = (VectorGridSlice) data;
-        if (slice.getMagGrid() != null || slice.getDirGrid() != null) {
+        if ((slice.getMagGrid() != null) || (slice.getDirGrid() != null)) {
             float[] rawMagData = slice.getMagGrid().getFloats();
             float[] rawDirData = slice.getDirGrid().getFloats();
             FloatDataRecord rawMagRecord = new FloatDataRecord("Mag",
@@ -1941,10 +1946,10 @@ public class IFPGridDatabase extends GridDatabase {
                     parmStorageInfo.parmName(), parmStorageInfo.level(),
                     VECTOR_DIR_DATA_OFFSET, VECTOR_DIR_DATA_MULTIPLIER,
                     parmStorageInfo.storageType());
-            this.storeConvertedFloatRecord(rawMagRecord, dataStore, groupName,
-                    parmStorageInfo, correlationMap, rec);
-            this.storeConvertedFloatRecord(rawDirRecord, dataStore, groupName,
-                    dirStorageInfo, correlationMap, rec);
+            this.storeConvertedFloatRecord(rawMagRecord, dataStore, sp,
+                    groupName, parmStorageInfo, correlationMap, rec);
+            this.storeConvertedFloatRecord(rawDirRecord, dataStore, sp,
+                    groupName, dirStorageInfo, correlationMap, rec);
         }
     }
 
@@ -1955,6 +1960,8 @@ public class IFPGridDatabase extends GridDatabase {
      *            The discrete grid slice
      * @param dataStore
      *            The data store in which to save the slice
+     * @param sp
+     *            The storage properties for the slice
      * @param groupName
      *            The group name under which to save the slice
      * @param parmStorageInfo
@@ -1967,7 +1974,8 @@ public class IFPGridDatabase extends GridDatabase {
      * @throws StorageException
      */
     protected void storeDiscreteGridSlice(Object data, IDataStore dataStore,
-            String groupName, ParmStorageInfo parmStorageInfo,
+            StorageProperties sp, String groupName,
+            ParmStorageInfo parmStorageInfo,
             Map<IDataRecord, GFERecord> correlationMap, GFERecord rec)
             throws StorageException {
         DiscreteGridSlice slice = (DiscreteGridSlice) data;
@@ -1977,7 +1985,7 @@ public class IFPGridDatabase extends GridDatabase {
                     rawData, 2, new long[] {
                             slice.getGridInfo().getGridLoc().getNx(),
                             slice.getGridInfo().getGridLoc().getNy() });
-            dataStore.addDataRecord(rawRecord);
+            dataStore.addDataRecord(rawRecord, sp);
 
             StringBuffer sb = new StringBuffer();
             boolean first = true;
@@ -1992,7 +2000,7 @@ public class IFPGridDatabase extends GridDatabase {
             byte[] keyBytes = sb.toString().getBytes();
             ByteDataRecord keyRecord = new ByteDataRecord("Keys", groupName,
                     keyBytes, 1, new long[] { keyBytes.length });
-            dataStore.addDataRecord(keyRecord);
+            dataStore.addDataRecord(keyRecord, sp);
             correlationMap.put(rawRecord, rec);
             correlationMap.put(keyRecord, rec);
         }
@@ -2041,7 +2049,7 @@ public class IFPGridDatabase extends GridDatabase {
      *            The GFE record being stored
      */
     protected void storeConvertedFloatRecord(FloatDataRecord data,
-            IDataStore dataStore, String groupName,
+            IDataStore dataStore, StorageProperties sp, String groupName,
             ParmStorageInfo parmStorageInfo,
             Map<IDataRecord, GFERecord> correlationMap, GFERecord rec)
             throws StorageException {
@@ -2052,7 +2060,7 @@ public class IFPGridDatabase extends GridDatabase {
         float multiplier = parmStorageInfo.dataMultiplier();
         float fcvt;
         IDataRecord storeDataRec = null;
-        if ("short".equals(storageType) && multiplier != 0.0f) {
+        if ("short".equals(storageType) && (multiplier != 0.0f)) {
             short[] converted = new short[fdata.length];
             for (int i = 0; i < fdata.length; i++) {
                 fcvt = (fdata[i] - offset) * multiplier;
@@ -2061,7 +2069,7 @@ public class IFPGridDatabase extends GridDatabase {
             }
             storeDataRec = new ShortDataRecord(data.getName(), data.getGroup(),
                     converted, data.getDimension(), data.getSizes().clone());
-        } else if ("byte".equals(storageType) && multiplier != 0.0f) {
+        } else if ("byte".equals(storageType) && (multiplier != 0.0f)) {
             byte[] converted = new byte[fdata.length];
             for (int i = 0; i < fdata.length; i++) {
                 fcvt = (fdata[i] - offset) * multiplier;
@@ -2074,7 +2082,7 @@ public class IFPGridDatabase extends GridDatabase {
         }
 
         storeDataRec.setGroup(groupName);
-        dataStore.addDataRecord(storeDataRec);
+        dataStore.addDataRecord(storeDataRec, sp);
         correlationMap.put(storeDataRec, rec);
     }
 
@@ -2108,35 +2116,44 @@ public class IFPGridDatabase extends GridDatabase {
     public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[] scalarData = new FloatDataRecord[times.size()];
-        IDataStore dataStore = getDataStore(parmId);
-        String groups[] = GfeUtil.getHDF5Groups(parmId, times);
+        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
+                times);
 
         try {
-            IDataRecord[] rawData = dataStore.retrieveGroups(groups,
-                    Request.ALL);
-            if (rawData.length != times.size()) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 1 per group, received: "
-                                + (rawData.length / times.size()));
+            // overall index into scalar data
+            int scalarDataIndex = 0;
+            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(
+                        entry.getValue(), Request.ALL);
+
+                for (IDataRecord rec : rawData) {
+                    if (scalarDataIndex < scalarData.length) {
+                        if (rec instanceof FloatDataRecord) {
+                            scalarData[scalarDataIndex++] = (FloatDataRecord) rec;
+                        } else if (gridConfig == null) {
+                            throw new IllegalArgumentException(
+                                    "Data array for "
+                                            + parmId.getParmName()
+                                            + " "
+                                            + parmId.getParmLevel()
+                                            + " is not a float array, but database "
+                                            + toString()
+                                            + " does not contain a grid configuration.");
+                        } else {
+                            // Convert to a FloatDataRecord for internal use
+                            ParmStorageInfo psi = parmStorageInfo.get(parmId
+                                    .getCompositeName());
+                            scalarData[scalarDataIndex++] = storageToFloat(rec,
+                                    psi);
+                        }
+                    }
+                }
             }
 
-            for (int i = 0; i < rawData.length; i++) {
-                IDataRecord rec = rawData[i];
-                if (rec instanceof FloatDataRecord) {
-                    scalarData[i] = (FloatDataRecord) rec;
-                } else if (gridConfig == null) {
-                    throw new IllegalArgumentException("Data array for "
-                            + parmId.getParmName() + " "
-                            + parmId.getParmLevel()
-                            + " is not a float array, but database "
-                            + toString()
-                            + " does not contain a grid configuration.");
-                } else {
-                    // Convert to a FloatDataRecord for internal use
-                    ParmStorageInfo psi = parmStorageInfo.get(parmId
-                            .getCompositeName());
-                    scalarData[i] = storageToFloat(rec, psi);
-                }
+            if (scalarDataIndex != scalarData.length) {
+                throw new IllegalArgumentException(
+                        "Invalid number of dataSets returned expected 1 per group, received: "
+                                + (scalarDataIndex / scalarData.length));
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
@@ -2150,63 +2167,79 @@ public class IFPGridDatabase extends GridDatabase {
     public FloatDataRecord[][] retrieveVectorFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[][] vectorData = new FloatDataRecord[times.size()][2];
-        IDataStore dataStore = getDataStore(parmId);
-        String groups[] = GfeUtil.getHDF5Groups(parmId, times);
-        try {
-            IDataRecord[] rawData = dataStore.retrieveGroups(groups,
-                    Request.ALL);
-            if (rawData.length / 2 != times.size()) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 2 per group, received: "
-                                + (rawData.length / times.size()));
-            }
+        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
+                times);
 
-            for (int i = 0; i < rawData.length; i += 2) {
-                IDataRecord magRec = null;
-                IDataRecord dirRec = null;
-                for (int j = 0; j < 2; j++) {
-                    IDataRecord rec = rawData[i + j];
-                    if ("Mag".equals(rec.getName())) {
-                        magRec = rec;
-                    } else if ("Dir".equals(rec.getName())) {
-                        dirRec = rec;
+        try {
+            // overall index into vector data
+            int vectorDataIndex = 0;
+            // iterate over dataStore and their respective groups for the
+            // requested parm/time ranges
+            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(
+                        entry.getValue(), Request.ALL);
+
+                // iterate over the data retrieved from this dataStore for the
+                // groups
+                for (int i = 0; i < rawData.length; i += 2, vectorDataIndex++) {
+                    IDataRecord magRec = null;
+                    IDataRecord dirRec = null;
+
+                    // Should be vector data and each group should have had a
+                    // Dir and Mag dataset
+                    for (int j = 0; j < 2; j++) {
+                        IDataRecord rec = rawData[i + j];
+                        if ("Mag".equals(rec.getName())) {
+                            magRec = rec;
+                        } else if ("Dir".equals(rec.getName())) {
+                            dirRec = rec;
+                        } else {
+                            throw new IllegalArgumentException(
+                                    "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
+                                            + rec.getName());
+                        }
+                    }
+
+                    if (magRec.getClass() == dirRec.getClass()) {
+                        if (magRec instanceof FloatDataRecord) {
+                            vectorData[vectorDataIndex][0] = (FloatDataRecord) magRec;
+                            vectorData[vectorDataIndex][1] = (FloatDataRecord) dirRec;
+                        } else if (gridConfig == null) {
+                            throw new IllegalArgumentException(
+                                    "Data array for "
+                                            + parmId.getParmName()
+                                            + " "
+                                            + parmId.getParmLevel()
+                                            + " is not a float array, but database "
+                                            + toString()
+                                            + " does not contain a grid configuration.");
+                        } else {
+                            ParmStorageInfo magStorageInfo = parmStorageInfo
+                                    .get(parmId.getCompositeName());
+                            ParmStorageInfo dirStorageInfo = new ParmStorageInfo(
+                                    magStorageInfo.dataType(),
+                                    magStorageInfo.gridSize(),
+                                    magStorageInfo.parmName(),
+                                    magStorageInfo.level(),
+                                    VECTOR_DIR_DATA_OFFSET,
+                                    VECTOR_DIR_DATA_MULTIPLIER,
+                                    magStorageInfo.storageType());
+                            vectorData[vectorDataIndex][0] = storageToFloat(
+                                    magRec, magStorageInfo);
+                            vectorData[vectorDataIndex][1] = storageToFloat(
+                                    dirRec, dirStorageInfo);
+                        }
                     } else {
                         throw new IllegalArgumentException(
-                                "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
-                                        + rec.getName());
+                                "Magnitude and direction grids are not of the same type.");
                     }
                 }
+            }
 
-                if (magRec.getClass() == dirRec.getClass()) {
-                    if (magRec instanceof FloatDataRecord) {
-                        vectorData[i / 2][0] = (FloatDataRecord) magRec;
-                        vectorData[i / 2][1] = (FloatDataRecord) dirRec;
-                    } else if (gridConfig == null) {
-                        throw new IllegalArgumentException("Data array for "
-                                + parmId.getParmName() + " "
-                                + parmId.getParmLevel()
-                                + " is not a float array, but database "
-                                + toString()
-                                + " does not contain a grid configuration.");
-                    } else {
-                        ParmStorageInfo magStorageInfo = parmStorageInfo
-                                .get(parmId.getCompositeName());
-                        ParmStorageInfo dirStorageInfo = new ParmStorageInfo(
-                                magStorageInfo.dataType(),
-                                magStorageInfo.gridSize(),
-                                magStorageInfo.parmName(),
-                                magStorageInfo.level(), VECTOR_DIR_DATA_OFFSET,
-                                VECTOR_DIR_DATA_MULTIPLIER,
-                                magStorageInfo.storageType());
-                        vectorData[i / 2][0] = storageToFloat(magRec,
-                                magStorageInfo);
-                        vectorData[i / 2][1] = storageToFloat(dirRec,
-                                dirStorageInfo);
-                    }
-                } else {
-                    throw new IllegalArgumentException(
-                            "Magnitude and direction grids are not of the same type.");
-                }
+            if (vectorDataIndex != vectorData.length) {
+                throw new IllegalArgumentException(
+                        "Invalid number of dataSets returned expected 2 per group, received: "
+                                + (vectorDataIndex / vectorData.length) * 2);
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
@@ -2287,8 +2320,8 @@ public class IFPGridDatabase extends GridDatabase {
     private void storeGridParmInfo(List<GridParmInfo> gridParmInfo,
             List<ParmStorageInfo> parmStorageInfoList, StoreOp storeOp)
             throws Exception {
-        IDataStore ds = DataStoreFactory.getDataStore(GfeUtil.getHDF5File(
-                gfeBaseDataDir, this.dbId));
+        IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
+                .getGridParmHdf5File(gfeBaseDataDir, this.dbId));
         String parmNameAndLevel = null;
         for (GridParmInfo gpi : gridParmInfo) {
             parmNameAndLevel = gpi.getParmID().getParmName() + "_"

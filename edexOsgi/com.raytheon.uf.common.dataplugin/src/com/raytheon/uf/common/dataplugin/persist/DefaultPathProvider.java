@@ -64,19 +64,20 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultPathProvider.class);
 
-    /** Note: Do not use this without synchronization */
-    public static final SimpleDateFormat fileNameFormat = new SimpleDateFormat(
-            "-yyyy-MM-dd-HH");
+    public static final ThreadLocal<SimpleDateFormat> fileNameFormat = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat("-yyyy-MM-dd-HH");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return sdf;
+        }
+    };
 
     /**
      * The list of keys used to construct the HDF5 directory path. These keys
      * are contained in the plugin pathKeys.xml file.
      */
     protected static ConcurrentHashMap<String, List<String>> keyMap = new ConcurrentHashMap<String, List<String>>();
-
-    static {
-        fileNameFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
 
     private static DefaultPathProvider instance = new DefaultPathProvider();
 
@@ -115,9 +116,9 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                     // through to get the appropriate field
                     if (key.contains(".")) {
                         String[] subClasses = key.split("\\.");
-                        for (int i = 0; i < subClasses.length; i++) {
+                        for (String subClass : subClasses) {
                             property = PropertyUtils.getProperty(property,
-                                    subClasses[i]);
+                                    subClass);
                         }
 
                     }
@@ -152,6 +153,7 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
         return pathBuilder.toString();
     }
 
+    @Override
     public List<String> getKeyNames(String pluginName) {
 
         if (pluginName == null) {
@@ -257,23 +259,19 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
 
             Date refTime = ((PluginDataObject) persistable).getDataTime()
                     .getRefTime();
-            String refTimeString = null;
-            synchronized (fileNameFormat) {
-                refTimeString = fileNameFormat.format(refTime);
-            }
-            sb.append(refTimeString);
-            
+            sb.append(fileNameFormat.get().format(refTime));
+
             if (partition != null) {
-            	sb.append("-");
-            	sb.append(partition);
+                sb.append("-");
+                sb.append(partition);
             }
 
             sb.append(".h5");
             return sb.toString();
         }
-        
+
         if (partition == null) {
-        	return pluginName + ".h5";
+            return pluginName + ".h5";
         }
 
         return pluginName + "-" + partition + ".h5";

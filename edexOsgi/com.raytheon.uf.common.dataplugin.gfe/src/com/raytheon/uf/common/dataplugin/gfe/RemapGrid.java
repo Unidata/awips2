@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 5/16/08      875        bphillip    Initial Creation.
+ * 10/10/12     #1260      randerso    Added getters for source and destination glocs
  * 
  * </pre>
  * 
@@ -105,6 +106,14 @@ public class RemapGrid {
         this.sourceGloc = sourceGloc;
         this.destinationGloc = destinationGloc;
         this.rescale = rescale;
+    }
+
+    public GridLocation getSourceGloc() {
+        return sourceGloc;
+    }
+
+    public GridLocation getDestinationGloc() {
+        return destinationGloc;
     }
 
     /**
