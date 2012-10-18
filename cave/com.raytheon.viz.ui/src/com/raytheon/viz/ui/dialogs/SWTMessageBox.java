@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Shell;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2011            lvenable     Initial creation
+ * Oct 18, 2012 1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -92,13 +93,15 @@ public class SWTMessageBox extends CaveSWTDialogBase {
      * @param swtMessageBoxStyle
      *            Style for icon and buttons.
      */
-    public SWTMessageBox(Shell parent, String title, String message, int swtMessageBoxStyle) {
-        this(parent, title, message, swtMessageBoxStyle, SWT.PRIMARY_MODAL, false);
+    public SWTMessageBox(Shell parent, String title, String message,
+            int swtMessageBoxStyle) {
+        this(parent, title, message, swtMessageBoxStyle, SWT.PRIMARY_MODAL,
+                false);
     }
 
-    public SWTMessageBox(Shell parent, String title, String message, int swtMessageBoxStyle, int modalSetting,
-            boolean centerMessage) {
-        super(parent, SWT.DIALOG_TRIM | modalSetting);
+    public SWTMessageBox(Shell parent, String title, String message,
+            int swtMessageBoxStyle, int modalSetting, boolean centerMessage) {
+        super(parent, SWT.DIALOG_TRIM | modalSetting, CAVE.DO_NOT_BLOCK);
         this.swtMessageBoxStyle = swtMessageBoxStyle;
         this.message = message;
         this.centerMessage = centerMessage;
