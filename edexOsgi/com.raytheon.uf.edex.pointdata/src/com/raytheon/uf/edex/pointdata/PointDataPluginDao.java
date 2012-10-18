@@ -135,10 +135,11 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         private double[] values;
 
         public void setLevels(String parameter, double[] values) {
-            if (this != SPECIFIC)
+            if (this != SPECIFIC) {
                 throw new IllegalArgumentException(
                         "Can't specify specific levels for level + "
                                 + this.name());
+            }
 
             this.parameter = parameter;
             this.values = values;
@@ -160,7 +161,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
 
     };
 
-    private LinkedBlockingQueue<BeanMap> beanMapCache;
+    private final LinkedBlockingQueue<BeanMap> beanMapCache;
 
     protected PointDataDbDescription dbDataDescription;
 
@@ -227,7 +228,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                                 q.setString("dataURI",
                                         (String) pdo.getIdentifier());
                                 List<?> list = q.list();
-                                if (list == null || list.size() == 0) {
+                                if ((list == null) || (list.size() == 0)) {
                                     ss.insert(pdo);
                                     index++;
                                 } else {
@@ -277,7 +278,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                     dupOccurred = false;
 
                     // only persist individually through one commit interval
-                    while (itr.hasNext() && index / COMMIT_INTERVAL == 0) {
+                    while (itr.hasNext() && (index / COMMIT_INTERVAL == 0)) {
                         try {
                             tx = ss.beginTransaction();
                             PersistableDataObject pdo = (PersistableDataObject) itr
@@ -288,7 +289,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                             q = ss.createSQLQuery(sql);
                             q.setString("dataURI", (String) pdo.getIdentifier());
                             List<?> list = q.list();
-                            if (list == null || list.size() == 0) {
+                            if ((list == null) || (list.size() == 0)) {
                                 ss.insert(pdo);
                                 tx.commit();
                                 index++;
@@ -436,10 +437,11 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         List<PersistableDataObject> persist = new ArrayList<PersistableDataObject>(
                 Arrays.asList(records));
         persistAll(persist);
-        if (persist.size() != records.length)
+        if (persist.size() != records.length) {
             return persist.toArray(new PluginDataObject[persist.size()]);
-        else
+        } else {
             return records;
+        }
     }
 
     public File getFullFilePath(PluginDataObject p) {
@@ -538,8 +540,8 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                 pts[i] = new Point(indexes[i], 0);
             }
             dsRequest = Request.buildPointRequest(pts);
-        } else if (request == LevelRequest.ALL
-                || request == LevelRequest.SPECIFIC) {
+        } else if ((request == LevelRequest.ALL)
+                || (request == LevelRequest.SPECIFIC)) {
             int[] copy = new int[indexes.length];
             System.arraycopy(indexes, 0, copy, 0, indexes.length);
             dsRequest = Request.buildYLineRequest(copy);
@@ -566,7 +568,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             }
 
             double[] vals = request.getValues();
-            if (vals == null || vals.length == 0) {
+            if ((vals == null) || (vals.length == 0)) {
                 throw new IllegalArgumentException(
                         "Specific level requested without values specified");
             }
@@ -670,7 +672,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                 // went off the end of search. double check the other half of
                 // the array
                 boolean found = false;
-                search2: for (k = 0; k < originalPointer && k < iip.length; k++) {
+                search2: for (k = 0; (k < originalPointer) && (k < iip.length); k++) {
                     if (iip[k].index == retrievedIndexes[i]) {
                         correlatedIds[i] = iip[k].id;
                         break search2;
@@ -706,19 +708,17 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             }
             bm.putAll(obj);
             T bean = (T) bm.getBean();
-            synchronized (DefaultPathProvider.fileNameFormat) {
-                return HDF5_DIR
-                        + File.separator
-                        + this.pluginName
-                        + File.separator
-                        + this.pathProvider.getHDFPath(this.pluginName,
-                                (IPersistable) bean)
-                        + File.separator
-                        + getPointDataFileName(bean).replace(".h5", "")
-                        + DefaultPathProvider.fileNameFormat
-                                .format(((PluginDataObject) bean).getDataTime()
-                                        .getRefTime()) + ".h5";
-            }
+            return HDF5_DIR
+                    + File.separator
+                    + this.pluginName
+                    + File.separator
+                    + this.pathProvider.getHDFPath(this.pluginName,
+                            (IPersistable) bean)
+                    + File.separator
+                    + getPointDataFileName(bean).replace(".h5", "")
+                    + DefaultPathProvider.fileNameFormat.get().format(
+                            ((PluginDataObject) bean).getDataTime()
+                                    .getRefTime()) + ".h5";
         } finally {
             this.beanMapCache.offer(bm);
         }
@@ -737,11 +737,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                     (T) persistable).replace(".h5", ""));
             Date refTime = ((PluginDataObject) persistable).getDataTime()
                     .getRefTime();
-            String refTimeString = null;
-            synchronized (fileNameFormat) {
-                refTimeString = fileNameFormat.format(refTime);
-            }
-            tmp.append(refTimeString);
+            tmp.append(fileNameFormat.get().format(refTime));
             tmp.append(".h5");
             return tmp.toString();
         }
