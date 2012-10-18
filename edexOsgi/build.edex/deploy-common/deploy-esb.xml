@@ -49,6 +49,7 @@
         <delete>
             <fileset dir="${edex.root.directory}/conf">
                 <include name="**" />
+                <exclude name="**/site/**"/>
             </fileset>
         </delete>
 	</target>
