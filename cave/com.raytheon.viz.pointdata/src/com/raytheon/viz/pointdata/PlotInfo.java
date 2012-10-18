@@ -30,7 +30,6 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009            mschenke     Initial creation
- * OCT 04, 2012 15132      kshresth    Restored "MSAS/LDAD QC plots" display data
  * 
  * </pre>
  * 
@@ -39,8 +38,7 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class PlotInfo {
-	public Integer id;
-	
+
     public String stationId;
 
     public Double latitude;
@@ -75,18 +73,6 @@ public class PlotInfo {
         this.longitude = longitude;
         this.dataTime = dataTime;
         this.dataURI = dataURI;
-        this.plotQueued = false;
-        this.sampleQueued = false;
-    }
-    
-    public PlotInfo(String stationId, Double latitude,
-            Double longitude, DataTime dataTime, String dataURI, Integer id) {
-        this.stationId = stationId;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.dataTime = dataTime;
-        this.dataURI = dataURI;
-        this.id = id;
         this.plotQueued = false;
         this.sampleQueued = false;
     }
