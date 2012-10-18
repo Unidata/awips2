@@ -27,8 +27,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.geospatial.MapUtil;
-
 /**
  * 
  * Abstract class for any data implementation that can act as both a source and
@@ -138,8 +136,8 @@ public abstract class AbstractDataWrapper implements DataSource,
             grid2crs.transform(corner2, corner2);
             crs2LatLon.transform(corner1, corner1);
             crs2LatLon.transform(corner2, corner2);
-            corner1.x = MapUtil.correctLon(corner1.x);
-            corner2.x = MapUtil.correctLon(corner2.x);
+            corner1.x = corner1.x - 360;
+            corner2.x = corner2.x - 360;
             crs2LatLon.inverse().transform(corner1, corner1);
             crs2LatLon.inverse().transform(corner2, corner2);
             grid2crs.inverse().transform(corner1, corner1);
