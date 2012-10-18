@@ -42,7 +42,8 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 24, 2012    15322   jsanchez     Initial creation
+ * Sep 24, 2012    15332   jsanchez     Initial creation
+ * Oct 18, 2012    15332   jsanchez     Updated the find method.
  * 
  * </pre>
  * 
@@ -177,6 +178,8 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the list of area names.
      */
     private void areaNames() {
+        Pattern listOfAreaNamePtrn = Pattern.compile(listOfAreaName + newline,
+                Pattern.MULTILINE);
         find(listOfAreaNamePtrn.matcher(text));
     }
 
@@ -186,7 +189,7 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * @param m
      */
     protected void find(Matcher m) {
-        if (m.find()) {
+        while (m.find()) {
             String group = m.group();
             // If line already starts with a LOCK_END, the LOCK_END is removed
             // and the line just adds to the LOCK_END at the end.
