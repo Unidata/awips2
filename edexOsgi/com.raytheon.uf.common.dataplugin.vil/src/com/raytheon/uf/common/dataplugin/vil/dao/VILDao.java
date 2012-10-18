@@ -29,8 +29,10 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord.DATA_TYPE;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
@@ -49,51 +51,61 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  */
 public class VILDao extends PluginDao {
 
-    public VILDao(String pluginName) throws PluginException {
+    public VILDao(final String pluginName) throws PluginException {
         super(pluginName);
     }
 
     @Override
-    protected IDataStore populateDataStore(IDataStore dataStore,
-            IPersistable obj) throws Exception {
+    protected IDataStore populateDataStore(final IDataStore dataStore,
+            final IPersistable obj) throws Exception {
         VILRecord VILRec = (VILRecord) obj;
 
-        if (VILRec.getDataArray() != null
+        String compression = PluginRegistry.getInstance()
+                .getRegisteredObject(pluginName).getCompression();
+        StorageProperties sp = null;
+        if (compression != null) {
+            sp = new StorageProperties();
+            sp.setCompression(StorageProperties.Compression
+                    .valueOf(compression));
+        }
+
+        if ((VILRec.getDataArray() != null)
                 && VILRec.getFieldName().equals(DATA_TYPE.VILD.name())) {
 
             IDataRecord rec = new FloatDataRecord("Data", VILRec.getDataURI(),
                     VILRec.getDataArray(), 2, new long[] { VILRec.getNx(),
                             VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
-            dataStore.addDataRecord(rec);
+            dataStore.addDataRecord(rec, sp);
         }
 
-        if (VILRec.getDataArray() != null
+        if ((VILRec.getDataArray() != null)
                 && VILRec.getFieldName().equals(DATA_TYPE.DVILD.name())) {
             IDataRecord rec = new FloatDataRecord("Data", VILRec.getDataURI(),
                     VILRec.getDataArray(), 2, new long[] { VILRec.getNx(),
                             VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
-            dataStore.addDataRecord(rec);
+            dataStore.addDataRecord(rec, sp);
         }
 
-        if (VILRec.getDataArray() != null
+        if ((VILRec.getDataArray() != null)
                 && VILRec.getFieldName().equals(DATA_TYPE.EDVILD.name())) {
             IDataRecord rec = new FloatDataRecord("Data", VILRec.getDataURI(),
                     VILRec.getDataArray(), 2, new long[] { VILRec.getNx(),
                             VILRec.getNy() });
             rec.setCorrelationObject(VILRec);
-            dataStore.addDataRecord(rec);
+            dataStore.addDataRecord(rec, sp);
         }
-       
+
         logger.debug("VILDao: writing " + VILRec.toString());
 
         return dataStore;
     }
 
     @Override
-    public List<IDataRecord[]> getHDF5Data(List<PluginDataObject> objects,
-            int tileSet) throws PluginException {
+    public List<IDataRecord[]> getHDF5Data(
+            final List<PluginDataObject> objects, final int tileSet)
+            throws PluginException {
         List<IDataRecord[]> retVal = new ArrayList<IDataRecord[]>();
 
         for (PluginDataObject obj : objects) {
@@ -114,4 +126,3 @@ public class VILDao extends PluginDao {
         return retVal;
     }
 }
-
