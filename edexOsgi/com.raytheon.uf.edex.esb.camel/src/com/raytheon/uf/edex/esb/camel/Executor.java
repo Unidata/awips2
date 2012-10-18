@@ -21,15 +21,21 @@ package com.raytheon.uf.edex.esb.camel;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -59,6 +65,8 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  * Jul 14, 2009  #2950   njensen         Basic spring file ordering
  * Apr 5, 2010   #3857   njensen        Removed file ordering in favor of
  *                                                 spring's depends-on attribute
+ * Oct 19, 2012  #1274     bgonzale     Load properties from files in conf 
+ *                                         resources directory.
  * 
  * </pre>
  * 
@@ -84,8 +92,40 @@ public class Executor {
 
         List<String> xmlFiles = new ArrayList<String>();
 
+        List<File> propertiesFiles = new ArrayList<File>();
         File confDir = new File(System.getProperty("edex.home")
                 + File.separator + "conf");
+        File resourcesDir = new File(confDir, "resources");
+        propertiesFiles.addAll(Arrays.asList(findFiles(resourcesDir,
+                ".properties")));
+        // load site files after loading the config files so that their
+        // properties take precedence.
+        String site = System.getProperty("aw.site.identifier");
+        File siteResourcesDir = new File(confDir, "resources" + File.separator
+                + "site" + File.separator + site);
+        propertiesFiles.addAll(Arrays.asList(findFiles(siteResourcesDir,
+                ".properties")));
+
+        // Add each file to the system properties
+        for (File propertiesFile : propertiesFiles) {
+            InputStream is = null;
+            Reader reader = null;
+            try {
+               is = new FileInputStream(propertiesFile);
+               reader = new InputStreamReader(is);
+               Properties properties = new Properties();
+               properties.load(reader);
+               System.getProperties().putAll(properties);
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+
         File springDir = new File(confDir, "spring");
         File[] springFiles = springDir.listFiles(new FileFilter() {
 
@@ -178,6 +218,28 @@ public class Executor {
                 }
             }
         }
+    }
+
+    /**
+     * Finds all files in the specified directory with specified extension.
+     * 
+     * @param directory
+     *            the directory
+     * @param extension
+     *            file extension
+     * @return the file array
+     */
+    private static File[] findFiles(File directory, final String extension) {
+        File[] files = directory.listFiles(new FileFilter() {
+
+                @Override
+                public boolean accept(File pathname) {
+                        return pathname.getName().endsWith(extension);
+                    }
+            });
+
+        // If no files were found return an empty array
+        return (files == null) ? new File[0] : files;
     }
 
     private static String printList(List<String> components) {
