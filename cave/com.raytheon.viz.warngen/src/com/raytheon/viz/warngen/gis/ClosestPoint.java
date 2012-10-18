@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    APr 18, 2012 #14733      Qinglu Lin  David's fix is used, which adds 
  *                                         a copy constructor.
  *    Sep 25, 2012 #15425      Qinglu Lin  Updated two ClosestPoint() and added getGid().
+ *    Oct 17, 2012             jsanchez    Added setter methods.
  * 
  * </pre>
  * 
@@ -178,8 +179,72 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
         return partOfArea;
     }
 
-    public int  getGid() {
+    public int getGid() {
         return gid;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public void setParentArea(String parentArea) {
+        this.parentArea = parentArea;
+    }
+
+    public void setPoint(Coordinate point) {
+        this.point = point;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public void setRoundedDistance(int roundedDistance) {
+        this.roundedDistance = roundedDistance;
+    }
+
+    public void setAzimuth(double azimuth) {
+        this.azimuth = azimuth;
+    }
+
+    public void setRoundedAzimuth(double roundedAzimuth) {
+        this.roundedAzimuth = roundedAzimuth;
+    }
+
+    public void setOppositeAzimuth(double oppositeAzimuth) {
+        this.oppositeAzimuth = oppositeAzimuth;
+    }
+
+    public void setOppositeRoundedAzimuth(double oppositeRoundedAzimuth) {
+        this.oppositeRoundedAzimuth = oppositeRoundedAzimuth;
+    }
+
+    public void setPopulation(int population) {
+        this.population = population;
+    }
+
+    public void setWarngenlev(int warngenlev) {
+        this.warngenlev = warngenlev;
+    }
+
+    public void setPartOfArea(List<String> partOfArea) {
+        this.partOfArea = partOfArea;
+    }
+
+    public void setGid(int gid) {
+        this.gid = gid;
     }
 
     /**
