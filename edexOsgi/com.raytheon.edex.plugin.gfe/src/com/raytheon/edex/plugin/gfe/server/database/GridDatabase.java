@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -143,12 +144,14 @@ public abstract class GridDatabase {
      *            The record to remove
      */
     public void removeFromHDF5(GFERecord record) {
-        File hdf5File = GfeUtil.getHDF5File(gfeBaseDataDir, dbId);
+        File hdf5File = GfeUtil.getHdf5File(gfeBaseDataDir, record.getParmId(),
+                record.getDataTime().getValidPeriod());
+
         /*
          * Remove the grid from HDF5
          */
-        String groupName = GfeUtil.getHDF5Group(record.getParmId(), record
-                .getDataTime().getValidPeriod());
+        String groupName = GfeUtil.getHDF5Group(record.getParmId(),
+                record.getTimeRange());
 
         IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
 
@@ -171,21 +174,26 @@ public abstract class GridDatabase {
     public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[] scalarData = new FloatDataRecord[times.size()];
-        IDataStore dataStore = getDataStore(parmId);
-        String groups[] = GfeUtil.getHDF5Groups(parmId, times);
+        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
+                times);
 
         try {
-            IDataRecord[] rawData = dataStore.retrieveGroups(groups,
-                    Request.ALL);
-            if (rawData.length != times.size()) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 1 per group, received: "
-                                + (rawData.length / times.size()));
+            int index = 0;
+            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(
+                        entry.getValue(), Request.ALL);
+
+                for (IDataRecord record : rawData) {
+                    if (index < scalarData.length) {
+                        scalarData[index++] = (FloatDataRecord) record;
+                    }
+                }
             }
 
-            for (int i = 0; i < rawData.length; i++) {
-                IDataRecord rec = rawData[i];
-                scalarData[i] = (FloatDataRecord) rec;
+            if (index != scalarData.length) {
+                throw new IllegalArgumentException(
+                        "Invalid number of dataSets returned expected 1 per group, received: "
+                                + (index / scalarData.length));
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
@@ -204,33 +212,40 @@ public abstract class GridDatabase {
     public FloatDataRecord[][] retrieveVectorFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[][] vectorData = new FloatDataRecord[times.size()][2];
-        IDataStore dataStore = getDataStore(parmId);
-        String groups[] = GfeUtil.getHDF5Groups(parmId, times);
+        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
+                times);
+
         try {
-            IDataRecord[] rawData = dataStore.retrieveGroups(groups,
-                    Request.ALL);
-            if (rawData.length / 2 != times.size()) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 2 per group, received: "
-                                + (rawData.length / times.size()));
+            int index = 0;
+            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(
+                        entry.getValue(), Request.ALL);
+
+                for (IDataRecord rec : rawData) {
+                    if (index < vectorData.length * 2) {
+                        if ("Mag".equals(rec.getName())) {
+                            vectorData[index++ / 2][0] = (FloatDataRecord) rec;
+                        } else if ("Dir".equals(rec.getName())) {
+                            vectorData[index++ / 2][1] = (FloatDataRecord) rec;
+                        } else {
+                            throw new IllegalArgumentException(
+                                    "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
+                                            + rec.getName());
+                        }
+                    }
+                }
             }
 
-            for (int i = 0; i < rawData.length; i++) {
-                IDataRecord rec = rawData[i];
-                if ("Mag".equals(rec.getName())) {
-                    vectorData[i / 2][0] = (FloatDataRecord) rec;
-                } else if ("Dir".equals(rec.getName())) {
-                    vectorData[i / 2][1] = (FloatDataRecord) rec;
-                } else {
-                    throw new IllegalArgumentException(
-                            "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
-                                    + rec.getName());
-                }
+            if (index != vectorData.length * 2) {
+                throw new IllegalArgumentException(
+                        "Invalid number of dataSets returned expected  per group, received: "
+                                + (index / vectorData.length));
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
                     + parmId + " TimeRange: " + times, e);
         }
+
         return vectorData;
     }
 
@@ -243,28 +258,38 @@ public abstract class GridDatabase {
     public ByteDataRecord[][] retrieveDiscreteFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         ByteDataRecord[][] byteRecords = new ByteDataRecord[times.size()][2];
-        IDataStore dataStore = getDataStore(parmId);
-        String groups[] = GfeUtil.getHDF5Groups(parmId, times);
+        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
+                times);
+
         try {
-            IDataRecord[] rawData = dataStore.retrieveGroups(groups,
-                    Request.ALL);
-            if (rawData.length / 2 != times.size()) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 2 per group, received: "
-                                + (rawData.length / times.size()));
+            int index = 0;
+            // loop over the dataStores and their respective groups to pull all
+            // data
+            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(
+                        entry.getValue(), Request.ALL);
+
+                // iterate over the data from this dataStore adding it
+                // byteRecords
+                for (IDataRecord rec : rawData) {
+                    if (index < byteRecords.length * 2) {
+                        if ("Data".equals(rec.getName())) {
+                            byteRecords[index++ / 2][0] = (ByteDataRecord) rec;
+                        } else if ("Keys".equals(rec.getName())) {
+                            byteRecords[index++ / 2][1] = (ByteDataRecord) rec;
+                        } else {
+                            throw new IllegalArgumentException(
+                                    "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
+                                            + rec.getName());
+                        }
+                    }
+                }
             }
 
-            for (int i = 0; i < rawData.length; i++) {
-                IDataRecord rec = rawData[i];
-                if ("Data".equals(rec.getName())) {
-                    byteRecords[i / 2][0] = (ByteDataRecord) rec;
-                } else if ("Keys".equals(rec.getName())) {
-                    byteRecords[i / 2][1] = (ByteDataRecord) rec;
-                } else {
-                    throw new IllegalArgumentException(
-                            "Unknown dataset retrieved for discrete data.  Valid values: Data, Keys  Received: "
-                                    + rec.getName());
-                }
+            if (index != byteRecords.length * 2) {
+                throw new IllegalArgumentException(
+                        "Invalid number of dataSets returned expected  per group, received: "
+                                + (index / byteRecords.length));
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
@@ -273,9 +298,18 @@ public abstract class GridDatabase {
         return byteRecords;
     }
 
-    protected IDataStore getDataStore(ParmID parmId) {
-        File hdf5File = GfeUtil.getHDF5File(gfeBaseDataDir, parmId.getDbId());
-        return DataStoreFactory.getDataStore(hdf5File);
+    protected Map<IDataStore, String[]> getDataStoreAndGroups(ParmID parmId,
+            List<TimeRange> times) {
+        Map<File, String[]> fileMap = GfeUtil.getHdf5FilesAndGroups(
+                GridDatabase.gfeBaseDataDir, parmId, times);
+        // size hashMap accounting for load factor
+        Map<IDataStore, String[]> rval = new HashMap<IDataStore, String[]>(
+                (int) (fileMap.size() * 1.25) + 1);
+        for (Map.Entry<File, String[]> entry : fileMap.entrySet()) {
+            rval.put(DataStoreFactory.getDataStore(entry.getKey()),
+                    entry.getValue());
+        }
+        return rval;
     }
 
     /**
@@ -371,7 +405,7 @@ public abstract class GridDatabase {
     }
 
     public void deleteModelHDF5() {
-        File hdf5File = GfeUtil.getHDF5Dir(GridDatabase.gfeBaseDataDir, dbId);
+        File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
         IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
         try {
             ds.deleteFiles(null);

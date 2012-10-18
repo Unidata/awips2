@@ -28,7 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/16/10                      njensen       Initial Creation.
-#    05/03/11      9134        njensen       Optimized for pointdata
+#    05/03/11        9134          njensen       Optimized for pointdata
+#    10/09/12                      rjpeter       Optimized __getGroup for retrievals 
 #    
 # 
 #
@@ -46,6 +47,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage.records import 
 from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.response import *
 
 logger = pypies.logger
+timeMap = pypies.timeMap
      
 vlen_str_type = h5py.new_vlen(str)
 
@@ -82,6 +84,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             exc = []
             failRecs = []
             ss = None
+            t0=time.time()
             for r in recs:
                 try:
                     if r.getProps() and r.getProps().getDownscaled():
@@ -97,14 +100,18 @@ class H5pyDataStore(IDataStore.IDataStore):
                 status.setOperationPerformed(ss['op'])
                 if ss.has_key('index'):                    
                     status.setIndexOfAppend(ss['index'])
-                
+            t1=time.time()
+            timeMap['store']=t1-t0
             resp = StoreResponse()
             resp.setStatus(status)
             resp.setExceptions(exc)
             resp.setFailedRecords(failRecs)                 
             return resp
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
         
     
@@ -310,19 +317,47 @@ class H5pyDataStore(IDataStore.IDataStore):
         fn = request.getFilename()
         f, lock = self.__openFile(fn, 'w')
         resp = DeleteResponse()
-        resp.setSuccess(True)        
+        resp.setSuccess(True)
+        deleteFile = False
+                
         try:
             locs = request.getLocations()
             for dataset in locs:
                 ds = self.__getGroup(f, dataset)
                 grp = ds.parent
                 grp.id.unlink(ds.name)
+
+            # check if file has any remaining data sets
+            # if no data sets, flag file for deletion
+            f.flush()
+            deleteFile = not self.__hasDataSet(f)
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
+
+            
+            if deleteFile:
+                try:
+                    os.remove(fn)
+                except Exception, e:
+                    logger.error('Error occurred deleting file [' + str(fn) + ']: ' + IDataStore._exc())
+                
+
             LockManager.releaseLock(lock)
         return resp
-            
-        
+
+    # recursively looks for data sets
+    def __hasDataSet(self, group):
+        for key in group.keys():
+            child=group[key]
+            if type(child) == h5py.highlevel.Dataset:
+                return True
+            elif type(child) == h5py.highlevel.Group:
+                if self.__hasDataSet(child):
+                    return True
+        return False
     
     def retrieve(self, request):
         fn = request.getFilename()                                      
@@ -330,7 +365,7 @@ class H5pyDataStore(IDataStore.IDataStore):
         try:
             group = request.getGroup()            
             req = request.getRequest()
-            if req:                
+            if req:
                 grp = self.__getGroup(f, group)
                 result = [self.__retrieveInternal(grp, request.getDataset(), req)]
             else:
@@ -339,8 +374,12 @@ class H5pyDataStore(IDataStore.IDataStore):
             resp.setRecords(result)
             return resp
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
+            
         
     
     def __retrieve(self, f, group, includeInterpolated=False):
@@ -427,7 +466,10 @@ class H5pyDataStore(IDataStore.IDataStore):
             resp.setRecords(recs)
             return resp
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
     
     def getDatasets(self, request):        
@@ -439,7 +481,10 @@ class H5pyDataStore(IDataStore.IDataStore):
             ds = grp.keys()
             return ds
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
     
     def deleteFiles(self, request):
@@ -492,7 +537,10 @@ class H5pyDataStore(IDataStore.IDataStore):
             resp = StoreResponse()
             return resp
         finally:
+            t0=time.time()
             f.close()
+            t1=time.time()
+            timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
     
     def __createDatasetInternal(self, group, datasetName, dtype, szDims,
@@ -506,6 +554,7 @@ class H5pyDataStore(IDataStore.IDataStore):
         if chunks:
             plc.set_chunk(chunks)
         if compression == 'LZF':
+            plc.set_shuffle()
             plc.set_filter(h5py.h5z.FILTER_LZF, h5py.h5z.FLAG_OPTIONAL)
         
         szDims = tuple(szDims)
@@ -566,10 +615,11 @@ class H5pyDataStore(IDataStore.IDataStore):
             if gotLock:
                 LockManager.releaseLock(lock)  
     
-    def __openFile(self, filename, mode='r'):                
+    def __openFile(self, filename, mode='r'):      
         if mode == 'r' and not os.path.exists(filename):
             raise StorageException('File ' + filename + ' does not exist')        
         gotLock, fd = LockManager.getLock(filename, mode)
+        t0=time.time()
         if not gotLock:
             raise StorageException('Unable to acquire lock on file ' + filename)
         try:
@@ -581,33 +631,50 @@ class H5pyDataStore(IDataStore.IDataStore):
             logger.error(msg)
             LockManager.releaseLock(fd)
             raise e
-            
+
+        t1=time.time()
+        timeMap['openFile']=t1-t0
+
         return f, fd                            
     
     def __getGroup(self, f, name, create=False):
-        parts = name.split('/')
-        grp = None      
-        for s in parts:
-            if not grp:
-                if not s:
-                    s = '/'
-                if s in f.keys() or s == '/':
-                    grp = f[s]
-                else:
-                    if create:
+        t0=time.time()
+        if create:
+            parts = name.split('/')
+            grp = None      
+            for s in parts:
+                if not grp:
+                    if not s:
+                        s = '/'
+                    if s == '/' or s in f.keys():
+                        grp = f[s]
+                    else:
                         grp = f.create_group(s)
-                    else:
-                        raise StorageException("No group " + name + " found")                
-            else:
-                if s:
-                    if s in grp.keys():
-                        grp = grp[s]
-                    else:
-                        if create:
-                            grp = grp.create_group(s)
+                else:
+                    if s:
+                        if s in grp.keys():
+                            grp = grp[s]
                         else:
-                            raise StorageException("No group " + name + " found")
-                    
+                            grp = grp.create_group(s)
+        else:
+            if name is None or len(name.strip()) == 0:
+                # if no group is specific default to base group
+                grp = f['/']
+            else:
+                try:
+                    group=name
+                    if not group.startswith('/'):
+                        group = '/' + group
+                    grp = f[group]
+                except:
+                    raise StorageException("No group " + name + " found")
+
+        t1=time.time()
+        if timeMap.has_key('getGroup'):
+            timeMap['getGroup']+=t1-t0
+        else:
+            timeMap['getGroup']=t1-t0
+
         return grp
     
     def __link(self, group, linkName, dataset):
@@ -649,6 +716,7 @@ class H5pyDataStore(IDataStore.IDataStore):
         return results
     
     def __doRepack(self, filepath, basePath, outDir, compression):
+        t0=time.time()
         # call h5repack to repack the file
         if outDir is None:
             repackedFullPath = filepath + '.repacked'                    
@@ -673,6 +741,11 @@ class H5pyDataStore(IDataStore.IDataStore):
                 # repack failed, but they wanted the data in a different
                 # directory, so just copy the original data without the repack
                 shutil.copy(filepath, repackedFullPath)
+        t1=time.time()
+        if timeMap.has_key('repack'):
+            timeMap['repack']+=t1-t0
+        else:
+            timeMap['repack']=t1-t0
         return success
                 
     def __doFileAction(self, filepath, basePath, outputDir, fileAction, response, compression='NONE', timestampCheck=None):
