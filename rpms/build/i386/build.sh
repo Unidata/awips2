@@ -174,11 +174,11 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
-#   buildCAVE
-#   if [ $? -ne 0 ]; then
-#      exit 1
-#   fi
-#   buildRPM "awips2-alertviz"
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
