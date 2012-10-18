@@ -93,6 +93,8 @@ public class DbShapeSource {
 
     private boolean filtered = false;
 
+    private String displayName;
+
     private boolean hasEditAreaName = false;
 
     private String groupName;
@@ -355,6 +357,14 @@ public class DbShapeSource {
                     "DataStore must be open when calling getFeatureCount");
         }
         return this.featureCollection.size();
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String name) {
+        this.displayName = name;
     }
 
     public String getGroupName() {
