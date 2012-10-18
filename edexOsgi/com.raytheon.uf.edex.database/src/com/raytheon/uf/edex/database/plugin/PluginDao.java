@@ -344,8 +344,8 @@ public abstract class PluginDao extends CoreDao {
      * @param objects
      *            The objects to retrieve the HDF5 component for
      * @param tileSet
-     *            The tile set to retrieve. Any value less than or equal
-     *            to zero returns the "base" data only.
+     *            The tile set to retrieve. Any value less than or equal to zero
+     *            returns the "base" data only.
      * @return The HDF5 data records
      * @throws StorageException
      *             If problems occur while interacting with HDF5 data stores
@@ -361,7 +361,7 @@ public abstract class PluginDao extends CoreDao {
                 /* connect to the data store and retrieve the data */
                 IDataStore dataStore = getDataStore((IPersistable) obj);
                 boolean interpolated = DataStoreFactory.isInterpolated(tileSet);
-                if(!interpolated) {
+                if (!interpolated) {
                     tileSet = 0;
                 }
                 IDataRecord[] record = new IDataRecord[tileSet + 1];
@@ -374,8 +374,8 @@ public abstract class PluginDao extends CoreDao {
                             DataStoreFactory.DEF_DATASET_NAME, Request.ALL);
                     // Now get the interpolated data, if any!
                     for (int tile = 1; tile < record.length; tile++) {
-                            record[tile] = dataStore.retrieve(group,
-                                    String.valueOf(tile), Request.ALL);
+                        record[tile] = dataStore.retrieve(group,
+                                String.valueOf(tile), Request.ALL);
                     }
                 } catch (Exception e) {
                     throw new PluginException("Error getting HDF5 data", e);
@@ -884,6 +884,48 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
+     * Takes a list of IPersistable objects and return a map of IDataStore
+     * objects and a list of IPersistable objects that are stored in that data
+     * store.
+     * 
+     * @param objs
+     *            A list of IPersistable objects to get their respsective data
+     *            stores.
+     * @return
+     */
+    public Map<IDataStore, List<IPersistable>> getDataStoreMap(
+            List<IPersistable> objs) {
+        StringBuilder tmp = new StringBuilder(120);
+
+        Map<String, List<IPersistable>> fileMap = new HashMap<String, List<IPersistable>>();
+
+        // group objects by file
+        for (IPersistable obj : objs) {
+            tmp.setLength(0);
+            tmp.append(pathProvider.getHDFPath(this.pluginName, obj));
+            tmp.append(File.separatorChar);
+            tmp.append(pathProvider.getHDFFileName(this.pluginName, obj));
+            String path = tmp.toString();
+            List<IPersistable> objsInFile = fileMap.get(path);
+            if (objsInFile == null) {
+                objsInFile = new ArrayList<IPersistable>();
+                fileMap.put(path, objsInFile);
+            }
+            objsInFile.add(obj);
+        }
+
+        Map<IDataStore, List<IPersistable>> dataStoreMap = new HashMap<IDataStore, List<IPersistable>>(
+                (int) (fileMap.size() * 1.25) + 1);
+        for (Map.Entry<String, List<IPersistable>> entry : fileMap.entrySet()) {
+            dataStoreMap.put(
+                    DataStoreFactory.getDataStore(new File(PLUGIN_HDF5_DIR
+                            + entry.getKey())), entry.getValue());
+        }
+
+        return dataStoreMap;
+    }
+
+    /**
      * Gets a list of the distinct product keys for this plugin
      * 
      * @return The list of distinct product keys for this plugin
@@ -1005,7 +1047,7 @@ public abstract class PluginDao extends CoreDao {
                 results += pdos.size();
             }
 
-        } while (idList != null && !idList.isEmpty());
+        } while ((idList != null) && !idList.isEmpty());
 
         return results;
     }
@@ -1115,7 +1157,7 @@ public abstract class PluginDao extends CoreDao {
         query.addOrder("insertTime", true);
         query.setMaxResults(1);
         List<Calendar> result = (List<Calendar>) this.queryByCriteria(query);
-        if (result == null || result.isEmpty()) {
+        if ((result == null) || result.isEmpty()) {
             return null;
         } else {
             return result.get(0).getTime();
@@ -1165,8 +1207,8 @@ public abstract class PluginDao extends CoreDao {
         }
 
         String[] keyTokens = productKey.trim().split(";");
-        for (int i = 0; i < keyTokens.length; i++) {
-            String[] constraintTokens = keyTokens[i].split("=");
+        for (String keyToken : keyTokens) {
+            String[] constraintTokens = keyToken.split("=");
             constraintTokens[0] = constraintTokens[0].trim();
             constraintTokens[1] = constraintTokens[1].trim();
             params.add(constraintTokens);
@@ -1288,7 +1330,7 @@ public abstract class PluginDao extends CoreDao {
             SerializationException, IOException {
         List<PersistableDataObject> pdos = getRecordsToArchive(insertStartTime,
                 insertEndTime);
-        if (pdos != null && pdos.size() > 0) {
+        if ((pdos != null) && (pdos.size() > 0)) {
             // map of file to list of pdo
             Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
             if (pdos.get(0) instanceof IPersistable) {
@@ -1316,19 +1358,13 @@ public abstract class PluginDao extends CoreDao {
                         PluginDataObject pluginDataObj = (PluginDataObject) pdo;
                         Date time = pluginDataObj.getDataTime()
                                 .getRefTimeAsCalendar().getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
+                        timeString = DefaultPathProvider.fileNameFormat.get()
+                                .format(time);
                     } else {
                         // no refTime to use bounded insert query bounds
                         Date time = insertStartTime.getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
+                        timeString = DefaultPathProvider.fileNameFormat.get()
+                                .format(time);
                     }
 
                     String path = pluginName + timeString;
@@ -1349,7 +1385,7 @@ public abstract class PluginDao extends CoreDao {
 
                 // remove .h5
                 int index = path.lastIndexOf('.');
-                if (index > 0 && path.length() - index < 5) {
+                if ((index > 0) && (path.length() - index < 5)) {
                     // ensure its end of string in case extension is
                     // dropped/changed
                     path = path.substring(0, index);
