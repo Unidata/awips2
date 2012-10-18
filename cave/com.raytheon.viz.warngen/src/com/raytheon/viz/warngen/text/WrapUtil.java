@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
+ * Oct 19, 2012    15332   jsanchez     Created a local pattern listOfAreaNamesPtrn.
  * 
  * </pre>
  * 
@@ -68,6 +69,10 @@ public class WrapUtil implements ICommonPatterns {
 
     // ugc pattern
     private static final Pattern ugcPtrn = Pattern.compile(ugc);
+
+    // list of areas pattern
+    private static final Pattern listOfAreaNamePtrn = Pattern
+            .compile(listOfAreaName);
 
     /**
      * Wraps the text independent of being locked before or after.
