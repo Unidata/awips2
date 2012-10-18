@@ -61,7 +61,7 @@ def getConnectionParams():
     return ConfigFileUtil.parseKeyValueFile("/awips2/GFESuite/ServiceBackup/configuration/svcbu.properties")
 
 def createRequest():    
-    obj = ProcessReceivedConfRequest.ProcessReceivedConfRequest()
+    obj = ProcessReceivedConfRequest()
     
     wsId = WsId(progName="receive_configuration")
     
