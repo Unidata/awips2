@@ -357,8 +357,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Last line was wrapped backwards
      */
-    private boolean isPreviousLineWrapped = false;
-
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
 
     private static final String PADDED_PARAGRAPH_DELIMITERS = "*";
