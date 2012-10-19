@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.derivparam.inv;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -115,6 +116,10 @@ public class MetadataContainer {
     private Set<AbstractRequestableData> getData(AbstractRequestableNode node,
             Set<TimeAndSpace> availability, boolean doRequests)
             throws VizException {
+        if (availability == null || availability.isEmpty()) {
+            return Collections.emptySet();
+        }
+
         if (dataCache.containsKey(node)) {
             return dataCache.get(node);
         }
