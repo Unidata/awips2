@@ -9,6 +9,7 @@ echo ""
 echo "Press Enter to perform the updates Ctrl-C to quit."
 read done
 
+IFS=$'\n'
 files=`ls /awips2/edex/data/utility/cave_static/*/*/procedures/*.xml`
 
 if [ $? -ne 0 ]; then
