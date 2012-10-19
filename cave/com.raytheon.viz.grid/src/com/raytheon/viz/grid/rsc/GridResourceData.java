@@ -134,7 +134,13 @@ public class GridResourceData extends AbstractRequestableResourceData implements
             throws VizException {
         records = new GridRecord[objects.length];
         for (int i = 0; i < objects.length; i++) {
-            records[i] = (GridRecord) objects[i];
+            if (objects[i] instanceof GridRecord) {
+                records[i] = (GridRecord) objects[i];
+            } else {
+                throw new IllegalArgumentException(
+                        "GridResourceData only supports data stored in grid format, not "
+                                + objects[i].getPluginName() + " data");
+            }
         }
         sampling = sampling == null ? false : sampling;
         return new D2DGridResource(this, loadProperties);
