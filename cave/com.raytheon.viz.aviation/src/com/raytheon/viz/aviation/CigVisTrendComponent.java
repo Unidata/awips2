@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.aviation.climatology.CigVisTrendDlg;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This is a component class for lanuching the CigVisTrendDlg dialog.
@@ -39,14 +39,15 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
- * 
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                      CigVisTrendDlg.
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
 
-public class CigVisTrendComponent extends AbstractCAVEComponent {
+public class CigVisTrendComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -62,6 +63,7 @@ public class CigVisTrendComponent extends AbstractCAVEComponent {
         CigVisTrendDlg cigVisTrendDialog = new CigVisTrendDlg(new Shell(
                 Display.getCurrent()), siteList, StatusMessageType.Metar, null);
         cigVisTrendDialog.open();
+        blockUntilClosed(cigVisTrendDialog);
     }
 
     /*
