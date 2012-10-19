@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.bind.JAXB;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -165,7 +164,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     public static boolean USERTRANSMIT = true;
 
     /**
-     * List control containing forcaster names.
+     * List control containing forecaster names.
      */
     private List forecasterList;
 
@@ -178,25 +177,10 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      * Create a non-blocking dialog.
      * 
      * @param parent
-     *            Parent Shell.
      */
     public AviationDialog(Shell parent) {
-        this(parent, CAVE.DO_NOT_BLOCK);
-    }
-
-    /**
-     * Create dialog specifying NONE for blocking and DO_NOT_BLOCK for
-     * non-blocking dialog.
-     * 
-     * @param parent
-     * @param block
-     *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
-     */
-    public AviationDialog(Shell parent, int block) {
         super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.INDEPENDENT_SHELL | block);
-        // Do not allow other CAVE styles to be passed to this constructor.
-        Assert.isTrue(block == CAVE.DO_NOT_BLOCK || block == CAVE.NONE);
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Menu");
 
         ForecastModel.getInstance().setBackupRestartUtility(this);
