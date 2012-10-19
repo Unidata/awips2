@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.aviation.climatology.CigVisDistributionDlg;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This is a component class for launching the CigVisDistributionDlg dialog.
@@ -39,6 +39,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                       CigVisDistributionDlg.
  * 
  * </pre>
  * 
@@ -46,7 +48,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class CigVisDistComponent extends AbstractCAVEComponent {
+public class CigVisDistComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -63,6 +65,7 @@ public class CigVisDistComponent extends AbstractCAVEComponent {
                 new Shell(Display.getCurrent()), siteList,
                 StatusMessageType.Metar, null);
         cigVisDistDialog.open();
+        blockUntilClosed(cigVisDistDialog);
     }
 
     /*
