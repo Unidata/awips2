@@ -20,11 +20,11 @@
 package com.raytheon.viz.ui.statusline;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -32,12 +32,14 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
 
 /**
@@ -48,6 +50,7 @@ import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	May 19, 2008					Eric Babin Initial Creation
+ * Oct 22, 2012 1229       rferrel     Converted to CaveJFACEDialog.
  * 
  * </pre>
  * 
@@ -55,7 +58,7 @@ import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
  * @version 1.0
  */
 
-public class ViewMessagesDialog extends Dialog {
+public class ViewMessagesDialog extends CaveJFACEDialog {
 
     private SimpleDateFormat sdf;
 
@@ -70,6 +73,11 @@ public class ViewMessagesDialog extends Dialog {
     private Composite top;
 
     private Font font;
+
+    /**
+     * Track colors used so they can be reused and disposed.
+     */
+    private final Map<RGB, Color> colorMap = new HashMap<RGB, Color>();
 
     /**
      * @param parent
@@ -130,7 +138,9 @@ public class ViewMessagesDialog extends Dialog {
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
+     * @see
+     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
+     * .Shell)
      */
     @Override
     protected void configureShell(Shell shell) {
@@ -155,17 +165,36 @@ public class ViewMessagesDialog extends Dialog {
                 String s = sdf.format(m.getMessageDate()) + " "
                         + m.getMessageText() + "\n";
 
-                // TODO: need to ensure colors are disposed
+                RGB rgb = importance.getForegroundColor();
+                Color foregroundColor = colorMap.get(rgb);
+                if (foregroundColor == null) {
+                    foregroundColor = new Color(top.getDisplay(), rgb);
+                    colorMap.put(rgb, foregroundColor);
+                }
+
+                rgb = importance.getBackgroundColor();
+                Color backgroundColor = colorMap.get(rgb);
+                if (backgroundColor == null) {
+                    backgroundColor = new Color(top.getDisplay(), rgb);
+                    colorMap.put(rgb, backgroundColor);
+                }
                 styleRanges[i++] = new StyleRange(startIndex, s.length(),
-                        new Color(top.getDisplay(), importance
-                                .getForegroundColor()), new Color(top
-                                .getDisplay(), importance.getBackgroundColor()));
+                        foregroundColor, backgroundColor);
 
                 styledText.setText(styledText.getText() + s);
 
             }
             styledText.setStyleRanges(styleRanges);
         }
+    }
+
+    @Override
+    public boolean close() {
+        for (Color color : colorMap.values()) {
+            color.dispose();
+        }
+        colorMap.clear();
+        return super.close();
     }
 
 }
