@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.statusline.StatusStore.IStatusListener;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 14, 2008		#1223	randerso	Initial creation
+ * Oct 22, 2012 #1229       rferrel     Changes for non-blocking ViewMessageDialog.
  * 
  * </pre>
  * 
@@ -276,6 +277,6 @@ public class StatBar extends ContributionItem implements IStatusListener {
     }
 
     private void viewMessages() {
-        statusStore.getViewMessagesDialog().open();
+        statusStore.openViewMessagesDialog();
     }
 }
