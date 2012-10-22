@@ -27,7 +27,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
- * TODO Add Description
+ * Action to bring up the Dispaly attributes dialog.
  * 
  * <pre>
  * 
@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            mschenke     Initial creation
+ * Oct 22, 2012 1287       rferrel     Changes for non-blocking DisplayAttributesDialog.
  * 
  * </pre>
  * 
@@ -46,6 +47,8 @@ public class DisplayAttributesAction extends AbstractRightClickAction {
 
     private GFEResource rsc;
 
+    private DisplayAttributesDialog dialog;
+
     /*
      * (non-Javadoc)
      * 
@@ -53,14 +56,18 @@ public class DisplayAttributesAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        rsc = ((GFEResource) this.getSelectedRsc());
+            rsc = ((GFEResource) this.getSelectedRsc());
 
-        DisplayAttributesDialog dad = new DisplayAttributesDialog(shell, rsc);
-        dad.setBlockOnOpen(true);
-        dad.open();
+            dialog = new DisplayAttributesDialog(shell, rsc);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 
     /*
