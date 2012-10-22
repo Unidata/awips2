@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Shell;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2010            lvenable     Initial creation
+ * Oct 22, 2012 1229       rferrel     Dialog changed to non-blocking.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class CaveSWTWizardDlg extends CaveSWTDialog {
     private ArrayList<Composite> pageCompArray;
 
     public CaveSWTWizardDlg(Shell parent, CaveSWTWizard swtWizzard) {
-        super(parent, SWT.APPLICATION_MODAL | SWT.MIN);
+        super(parent, SWT.APPLICATION_MODAL | SWT.MIN, CAVE.DO_NOT_BLOCK);
         this.swtWizzard = swtWizzard;
         if (swtWizzard.getTitle() != null) {
             setText(swtWizzard.getTitle());
