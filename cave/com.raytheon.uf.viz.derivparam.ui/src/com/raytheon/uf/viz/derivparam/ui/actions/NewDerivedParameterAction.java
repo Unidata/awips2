@@ -36,6 +36,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizardDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 14, 2010            mschenke     Initial creation
+ * Oct 22, 2012 1229       rferrel     Changes for non-blocking CaveSWTWizardDlg.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizardDlg;
  */
 
 public class NewDerivedParameterAction extends Action {
+    private CaveSWTWizardDlg dialog;
 
     /**
      * 
@@ -55,9 +57,13 @@ public class NewDerivedParameterAction extends Action {
     @Override
     public void run() {
         DerivedParamWizard wizard = new DerivedParamWizard();
-        CaveSWTWizardDlg dialog = new CaveSWTWizardDlg(VizWorkbenchManager
-                .getInstance().getCurrentWindow().getShell(), wizard);
-        dialog.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            dialog = new CaveSWTWizardDlg(VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getShell(), wizard);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 
 }
