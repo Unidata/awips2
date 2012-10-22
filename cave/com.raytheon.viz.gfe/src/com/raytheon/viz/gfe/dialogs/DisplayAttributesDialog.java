@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Jun 11, 2008					Eric Babin Initial Creation
+ * Oct 22, 2012 1287       rferrel     Make dialog application modal
+ *                                      and non-blocking.
  * 
  * </pre>
  * 
@@ -84,7 +86,7 @@ public class DisplayAttributesDialog extends CaveJFACEDialog {
 
     public DisplayAttributesDialog(Shell parent, GFEResource rsc) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.TITLE | SWT.APPLICATION_MODAL | SWT.CLOSE);
 
         this.parm = rsc.getParm();
 
@@ -100,6 +102,7 @@ public class DisplayAttributesDialog extends CaveJFACEDialog {
 
         startImageTypes = null;
         startGraphicTypes = null;
+        setBlockOnOpen(false);
     }
 
     @Override
