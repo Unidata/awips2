@@ -124,6 +124,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 gridRecord, descriptor);
         if (dataRecs == null) {
             dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+            if (dataRecs == null) {
+                return null;
+            }
         }
         // For world wide lat lon grids we reproject, this is done to match A1,
         // but it also makes the wind barbs look more evenly spaced near the
