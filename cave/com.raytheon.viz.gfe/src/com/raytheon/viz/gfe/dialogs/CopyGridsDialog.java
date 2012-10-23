@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Feb 26, 2008					Eric Babin Initial Creation
+ * Oct 23, 2012 1287       rferrel     Made dialog modal like AWIPS 1.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public class CopyGridsDialog extends CaveJFACEDialog {
         super(parent);
         this.dataManager = dataManager;
         this.parmMgr = dataManager.getParmManager();
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         this.isSelected = isSelectedType;
 
     }
