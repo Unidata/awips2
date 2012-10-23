@@ -75,7 +75,10 @@ public class GridResource<T extends AbstractResourceData> extends
         List<GeneralGridData> dataList = new ArrayList<GeneralGridData>(
                 pdos.size());
         for (PluginDataObject pdo : pdos) {
-            dataList.add(getData((GridRecord) pdo));
+            GeneralGridData data = getData((GridRecord) pdo);
+            if (data != null) {
+                dataList.add(data);
+            }
         }
         return dataList;
     }
@@ -84,6 +87,9 @@ public class GridResource<T extends AbstractResourceData> extends
             throws VizException {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
         IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+        if (dataRecs == null) {
+            return null;
+        }
         return getData(dataRecs, gridRecord.getLocation().getGridGeometry(),
                 dataUnit);
     }

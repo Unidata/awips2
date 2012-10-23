@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.core.rsc.VizGroupResource;
@@ -42,9 +43,10 @@ import com.raytheon.viz.core.rsc.VizGroupResourceData;
  */
 
 public class FfgGridNameGenerator extends GridNameGenerator {
-    
+
     public FfgGridNameGenerator() {
     }
+
     /*
      * (non-Javadoc)
      * 
@@ -54,8 +56,15 @@ public class FfgGridNameGenerator extends GridNameGenerator {
      */
     @Override
     public String getName(AbstractVizResource<?, ?> absResource) {
-        String unit = ((VizGroupResource) absResource).getCapability(ColorMapCapability.class).getColorMapParameters().getDisplayUnit().toString();
-        return ((VizGroupResourceData) absResource.getResourceData()).getName() + "(" + unit + ")";
+        String unit = "";
+        ColorMapParameters params = ((VizGroupResource) absResource)
+                .getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+        if (params != null && params.getDisplayUnit() != null) {
+            unit = params.getDisplayUnit().toString();
+        }
+        return ((VizGroupResourceData) absResource.getResourceData()).getName()
+                + "(" + unit + ")";
     }
 
 }

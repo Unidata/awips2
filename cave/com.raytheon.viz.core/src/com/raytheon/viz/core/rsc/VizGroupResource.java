@@ -118,7 +118,7 @@ public class VizGroupResource extends
             if (pair.getResource() != null) {
                 AbstractVizResource<?,?> rsc = pair.getResource();
                 value = rsc.inspect(coord);
-                if (value.equals(NO_DATA) == false) {
+                if (value.equalsIgnoreCase(NO_DATA) == false) {
                     return value;
                 }
             }
