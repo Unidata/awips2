@@ -81,7 +81,7 @@ public class TiltRequestableData extends AbstractRequestableData {
             fdr = TiltUtils.getInstance().getHeightGrid(coverage,
                     level.getLevelonevalue());
         }
-        if (arg instanceof Request) {
+        if (fdr != null && arg instanceof Request) {
             return SliceUtil.slice(fdr, (Request) arg);
         } else {
             return fdr;
