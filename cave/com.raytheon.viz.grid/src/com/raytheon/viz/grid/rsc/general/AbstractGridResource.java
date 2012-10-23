@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
+import com.raytheon.uf.viz.core.style.MatchCriteria;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
@@ -346,22 +347,25 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected void initStylePreferences() throws VizStyleException {
         DisplayType displayType = getDisplayType();
         StyleRule styleRule = null;
-        switch (displayType) {
-        case IMAGE:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.IMAGERY, getMatchCriteria());
-            break;
-        case CONTOUR:
-        case STREAMLINE:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.CONTOUR, getMatchCriteria());
-            break;
-        case BARB:
-        case ARROW:
-        case DUALARROW:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.ARROW, getMatchCriteria());
-            break;
+        MatchCriteria criteria = getMatchCriteria();
+        if (criteria != null) {
+            switch (displayType) {
+            case IMAGE:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.IMAGERY, criteria);
+                break;
+            case CONTOUR:
+            case STREAMLINE:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.CONTOUR, criteria);
+                break;
+            case BARB:
+            case ARROW:
+            case DUALARROW:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.ARROW, criteria);
+                break;
+            }
         }
         if (styleRule != null) {
             stylePreferences = styleRule.getPreferences();
