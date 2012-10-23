@@ -690,12 +690,11 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     }
                 }
                 // If any one renderable fails to reproject then dispose them
-                // all,
-                // so that the whole frame gets regenerated.
-                for (IRenderable renderable : renderableList) {
-                    disposeRenderable(renderable);
-                }
+                // all, so that the whole frame gets regenerated.
                 if (remove) {
+                    for (IRenderable renderable : renderableList) {
+                        disposeRenderable(renderable);
+                    }
                     iter.remove();
                 }
             }
