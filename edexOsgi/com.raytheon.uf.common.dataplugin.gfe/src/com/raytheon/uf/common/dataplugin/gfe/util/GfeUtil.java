@@ -41,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -170,7 +171,8 @@ public class GfeUtil {
     public static File getHdf5File(String baseDir, ParmID parmId, TimeRange time) {
         List<TimeRange> list = new ArrayList<TimeRange>(1);
         list.add(time);
-        Map<File, String[]> map = getHdf5FilesAndGroups(baseDir, parmId, list);
+        Map<File, Pair<List<TimeRange>, String[]>> map = getHdf5FilesAndGroups(
+                baseDir, parmId, list);
         File rval = null;
 
         if (!map.isEmpty()) {
@@ -191,14 +193,14 @@ public class GfeUtil {
      * @param times
      * @return
      */
-    public static Map<File, String[]> getHdf5FilesAndGroups(String baseDir,
-            ParmID parmId, List<TimeRange> times) {
+    public static Map<File, Pair<List<TimeRange>, String[]>> getHdf5FilesAndGroups(
+            String baseDir, ParmID parmId, List<TimeRange> times) {
         DatabaseID dbId = parmId.getDbId();
         File directory = getHdf5Dir(baseDir, dbId);
         boolean isSingleton = DatabaseID.NO_MODEL_TIME.equals(dbId
                 .getModelTime());
 
-        Map<File, String[]> rval = null;
+        Map<File, Pair<List<TimeRange>, String[]>> rval = null;
         if (isSingleton) {
             // file per parm per day
             StringBuffer tmp = new StringBuffer(40);
@@ -234,13 +236,16 @@ public class GfeUtil {
             }
 
             // initialize map size, accounting for load factor
-            rval = new HashMap<File, String[]>(
+            rval = new HashMap<File, Pair<List<TimeRange>, String[]>>(
                     (int) (dateMap.size() * 1.25) + 1);
             for (Map.Entry<String, List<TimeRange>> entry : dateMap.entrySet()) {
                 tmp.setLength(0);
                 tmp.append(preString).append(entry.getKey()).append(postString);
                 File h5File = new File(directory, tmp.toString());
-                rval.put(h5File, getHDF5Groups(parmId, entry.getValue()));
+                Pair<List<TimeRange>, String[]> p = new Pair<List<TimeRange>, String[]>(
+                        entry.getValue(), getHDF5Groups(parmId,
+                                entry.getValue()));
+                rval.put(h5File, p);
             }
         } else {
             // file per parm
@@ -250,8 +255,10 @@ public class GfeUtil {
             fileName.append(parmId.getParmLevel()).append(
                     DATASTORE_FILE_EXTENSION);
             File h5File = new File(directory, fileName.toString());
-            rval = new HashMap<File, String[]>(2);
-            rval.put(h5File, getHDF5Groups(parmId, times));
+            rval = new HashMap<File, Pair<List<TimeRange>, String[]>>(2);
+            Pair<List<TimeRange>, String[]> p = new Pair<List<TimeRange>, String[]>(
+                    times, getHDF5Groups(parmId, times));
+            rval.put(h5File, p);
         }
 
         return rval;
