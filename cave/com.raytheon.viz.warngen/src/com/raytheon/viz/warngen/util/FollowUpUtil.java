@@ -27,6 +27,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008	#1284			bwoodle	Initial creation
+ * Oct 18, 2012 15332           jsanchez Fixed refactor bugs.
  * 
  * </pre>
  * 
@@ -165,26 +166,18 @@ public class FollowUpUtil {
      */
     public static ArrayList<AffectedAreas> canceledAreasFromText(
             String originalText) {
-        boolean ugcdone = false;
         boolean namedone = false;
         boolean insideHeadline = false;
-        String ugcLine = "";
+        String ugcLine = getUgcLineCanFromText(originalText);
         String namesLine = "";
         String headline = "";
-        Pattern ugcPtrn = Pattern.compile(ICommonPatterns.ugc);
+        Pattern listOfAreaNamePtrn = Pattern
+                .compile(ICommonPatterns.listOfAreaName);
         for (String line : originalText.trim().split("\n")) {
             if (line.contains("TEST") || line.trim().length() == 0) {
                 continue;
             }
-            Matcher m = ugcPtrn.matcher(line);
-            if (!ugcdone && m.find()) {
-                ugcLine += m.group();
-                continue;
-            } else if (ugcLine.length() > 0) {
-                ugcdone = true;
-            }
-
-            m = ICommonPatterns.listOfAreaNamePtrn.matcher(line);
+            Matcher m = listOfAreaNamePtrn.matcher(line);
             if (!namedone && m.find()) {
                 namesLine += m.group();
                 continue;
@@ -221,7 +214,6 @@ public class FollowUpUtil {
             AffectedAreas affectedArea = new AffectedAreas();
             String ugc = ugcs[i].trim();
             if (ugc.length() == 6) {
-                stateAbbreviation = ugc.substring(0, 2);
                 if (ugc.charAt(2) == 'Z') {
                     areaNotation = "ZONE";
                     areasNotation = "ZONES";
@@ -235,6 +227,7 @@ public class FollowUpUtil {
 
             if (i < names.length) {
                 name = names[i].substring(0, names[i].length() - 3);
+                stateAbbreviation = names[i].substring(names[i].length() - 2);
             }
 
             if (name != null) {
@@ -268,7 +261,7 @@ public class FollowUpUtil {
     public static String getUgcLineCanFromText(String originalText) {
         String ugcLine = "";
         Pattern ugcPtrn = Pattern.compile(ICommonPatterns.ugc);
-        for (String line : originalText.trim().split("\n")) {
+        for (String line : originalText.replaceAll("\r", "").trim().split("\n")) {
             Matcher m = ugcPtrn.matcher(line);
             if (m.find()) {
                 ugcLine += line;
