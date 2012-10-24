@@ -1,0 +1,91 @@
+diff -crB openfire-a/bin/openfire openfire-b/bin/openfire
+*** openfire-a/bin/openfire	2011-10-01 16:52:44.000000000 -0500
+--- openfire-b/bin/openfire	2012-05-17 10:54:53.000000000 -0500
+***************
+*** 259,265 ****
+      start)
+          echo "Starting openfire"
+  
+! nohup "$app_java_home/bin/java" -server -Dinstall4j.jvmDir="$app_java_home" -Dexe4j.moduleName="$prg_dir/$progname"  $INSTALL4J_ADD_VM_PARAMS -classpath "$local_classpath" com.install4j.runtime.Launcher start org.jivesoftware.openfire.starter.ServerStarter false false "$prg_dir/../logs/stderror.log" "$prg_dir/../logs/stdoutt.log" true true false "" true true 0 0 "" 20 20 "Arial" "0,0,0" 8 500 "version 3.7.1" 20 40 "Arial" "0,0,0" 8 500 -1 -DopenfireHome="$prg_dir/../" -Dopenfire.lib.dir="$app_home/lib" &
+  
+  
+      ;;
+--- 259,265 ----
+      start)
+          echo "Starting openfire"
+  
+! nohup "$app_java_home/bin/java" -server -Dinstall4j.jvmDir="$app_java_home" -Dexe4j.moduleName="$prg_dir/$progname"  $INSTALL4J_ADD_VM_PARAMS -classpath "$local_classpath" com.install4j.runtime.Launcher start org.jivesoftware.openfire.starter.ServerStarter false false "$prg_dir/../logs/stderror.log" "$prg_dir/../logs/stdoutt.log" true true false "" true true 0 0 "" 20 20 "Arial" "0,0,0" 8 500 "version 3.7.1" 20 40 "Arial" "0,0,0" 8 500 -1 -DopenfireHome="$prg_dir/../" -Dopenfire.lib.dir="$app_home/lib" > /dev/null 2>&1 &
+  
+  
+      ;;
+diff -crB openfire-a/lib/log4j.xml openfire-b/lib/log4j.xml
+*** openfire-a/lib/log4j.xml	2011-10-01 16:51:23.000000000 -0500
+--- openfire-b/lib/log4j.xml	2012-05-17 10:48:34.000000000 -0500
+***************
+*** 3,9 ****
+  <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  
+  	<appender name="debug-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="${openfireHome}/logs/debug.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+--- 3,9 ----
+  <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  
+  	<appender name="debug-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="/awips2/openfire/logs/debug.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+***************
+*** 16,22 ****
+  	</appender>
+  
+  	<appender name="info-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="${openfireHome}/logs/info.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+--- 16,22 ----
+  	</appender>
+  
+  	<appender name="info-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="/awips2/openfire/logs/info.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+***************
+*** 30,36 ****
+  	</appender>
+  
+  	<appender name="warn-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="${openfireHome}/logs/warn.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+--- 30,36 ----
+  	</appender>
+  
+  	<appender name="warn-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="/awips2/openfire/logs/warn.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+***************
+*** 44,50 ****
+  	</appender>
+  	
+  	<appender name="error-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="${openfireHome}/logs/error.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">
+--- 44,50 ----
+  	</appender>
+  	
+  	<appender name="error-out" class="org.apache.log4j.RollingFileAppender">
+! 		<param name="File" value="/awips2/openfire/logs/error.log" />
+  		<param name="MaxFileSize" value="1024KB"/>
+  		<param name="MaxBackupIndex" value="5"/>
+  		<layout class="org.apache.log4j.PatternLayout">

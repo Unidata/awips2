@@ -70,6 +70,8 @@ import com.raytheon.rcm.products.RadarProduct;
 import com.raytheon.rcm.products.RadarProduct.Param;
 import com.raytheon.rcm.products.Usage;
 import com.raytheon.rcm.request.Request;
+import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.radarapps.core.RadarApps;
 import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PMenuItem;
 import com.raytheon.uf.viz.radarapps.products.ui.PMenu.PProductItem;
@@ -92,6 +94,7 @@ import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
  * Jul 11, 2012 #875       rferrel     Refactored for changes in MenuButton and
  *                                      converted to abstract class making the
  *                                      needed methods abstract.
+ * Jul 31, 2012 #875       rferrel     Points now group in menu items.
  * 
  * </pre>
  * 
@@ -130,7 +133,7 @@ public abstract class BaseRadarProductUI {
 
     private ScaleWithLabel[] azRan2;
 
-    protected Combo geomCombo;
+    protected Composite geomCombo;
 
     protected String desiredGeom = "A";
 
@@ -961,16 +964,8 @@ public abstract class BaseRadarProductUI {
             }
 
             if (first.params.contains(Param.WINDOW_AZ_RAN)) {
-                String[] points = getPointList();
-                if (points != null) {
-                    isPoints = true;
-                    createGeom(rows, "Point:", points, "Load Points");
-                } else {
-                    r = new Composite(rows, SWT.NONE);
-                    l = new Label(r, SWT.LEFT);
-                    l.setText("Window center");
-                    azRan1 = createAzRan(l, r);
-                }
+                isPoints = true;
+                createGeom(rows, "Point:", null, "Load Points");
             }
 
             if (first.params.contains(Param.STORM_SPEED_DIR)) {
@@ -1164,12 +1159,37 @@ public abstract class BaseRadarProductUI {
         Label l = new Label(r2, SWT.LEFT);
         l.setText(labelText);
 
-        Combo c = new Combo(r2, SWT.READ_ONLY);
-        for (String s : list)
-            c.add(s);
-        gd = new GridData();
-        gd.horizontalIndent = 20;
-        c.setLayoutData(gd);
+        if (!isPoints) {
+            Combo c = new Combo(r2, SWT.READ_ONLY);
+            for (String s : list)
+                c.add(s);
+            gd = new GridData();
+            gd.horizontalIndent = 20;
+            c.setLayoutData(gd);
+            // TODO: points=true/false .. means baseline/point are exclusive
+            // (well, they are exclusive...)
+            c.addSelectionListener(new SelectionAdapter() {
+                public void widgetSelected(SelectionEvent e) {
+                    Combo c = (Combo) e.widget;
+                    onGeomSelected(c.getItem(c.getSelectionIndex()));
+                }
+            });
+            geomCombo = c;
+        } else {
+            MenuButton mb = new MenuButton(r2);
+            mb.addSelectionListener(new SelectionAdapter() {
+                public void widgetSelected(SelectionEvent e) {
+                    MenuItem item = (MenuItem) e.data;
+                    onGeomSelected(item.getText());
+                }
+            });
+            mb.setMinimumSize(SWT.DEFAULT, SWT.DEFAULT);
+
+            Menu menu = new Menu(mb);
+            createMenuItems(menu, null);
+            mb.setMenu(menu);
+            geomCombo = mb;
+        }
 
         azRanLabel = new Label(r2, SWT.LEFT);
         if (isPoints)
@@ -1196,18 +1216,28 @@ public abstract class BaseRadarProductUI {
         });
         gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
 
-        // TODO: points=true/false .. means baseline/point are exclusive
-        // (well, they are exclusive...)
-        c.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                Combo c = (Combo) e.widget;
-                onGeomSelected(c.getItem(c.getSelectionIndex()));
-            }
-        });
-        geomCombo = c;
-
         // TODO: left side will not grab extra space... Needed for azRanLabel
         setupRow(r, r2, b);
+    }
+
+    private void createMenuItems(Menu menu, IPointNode root) {
+        MenuItem item = null;
+        for (IPointNode node : PointsDataManager.getInstance().getChildren(
+                root)) {
+            if (node.isGroup()) {
+                if (PointsDataManager.getInstance().getChildren(node).size() == 0) {
+                    continue;
+                }
+                Menu childMenu = new Menu(menu);
+                item = new MenuItem(menu, SWT.CASCADE);
+                item.setMenu(childMenu);
+                createMenuItems(childMenu, node);
+            } else {
+                item = new MenuItem(menu, SWT.PUSH);
+            }
+            item.setText(node.getName());
+            item.setData(node);
+        }
     }
 
     protected void onLoadBaselines() {
@@ -1965,9 +1995,17 @@ public abstract class BaseRadarProductUI {
         }
 
         if (geomCombo != null) {
-            int index = geomCombo.indexOf(desiredGeom);
-            if (index != -1)
-                geomCombo.select(index);
+            if (geomCombo instanceof Combo) {
+                Combo c = (Combo) geomCombo;
+                int index = c.indexOf(desiredGeom);
+                if (index != -1) {
+                    c.select(index);
+                }
+            } else {
+                MenuButton mb = (MenuButton) geomCombo;
+                mb.setSelectedItem(desiredGeom);
+            }
+
         }
         refreshAzRanLabel();
 
@@ -2411,13 +2449,6 @@ public abstract class BaseRadarProductUI {
      * @return baselineNames
      */
     abstract protected String[] getBaselineList();
-
-    /**
-     * Get an array of point names to process.
-     * 
-     * @return pointNames
-     */
-    abstract protected String[] getPointList();
 
     /**
      * Get point's azimuth and range from the radar.

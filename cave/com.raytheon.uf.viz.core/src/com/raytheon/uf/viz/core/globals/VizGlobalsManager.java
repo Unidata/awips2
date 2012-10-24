@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
@@ -163,8 +164,12 @@ public class VizGlobalsManager {
      */
     public void updateUI(IDisplayPaneContainer editor,
             IRenderableDisplay display) {
-        if (window.getActivePage().getActiveEditor() != editor) {
-            return;
+        if (window != null) {
+            // Check the active editor on the window
+            IWorkbenchPage page = window.getActivePage();
+            if (page != null && page.getActiveEditor() != editor) {
+                return;
+            }
         }
         if (editor != null && display != null) {
             Map<String, Object> globals = display.getGlobalsMap();

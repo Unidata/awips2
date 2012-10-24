@@ -46,7 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/30/10      5875        bphillip    Initial Creation
- * 
+ * 9/20/2012    1206        jkorman     Added logging of postProcessedModels load.
  * </pre>
  * 
  * @author bphillip
@@ -95,6 +95,8 @@ public class GribPostProcessor {
             PostProcessedModelSet ppModelSet = (PostProcessedModelSet) SerializationUtil
                     .jaxbUnmarshalFromXmlFile(processorFile);
 
+			statusHandler.info(String.format("Using postProcessorFile [%s]", processorFile));
+			
             /*
              * Iterate over post processed models. Determine which models apply
              * to each post processor if a regex is present
