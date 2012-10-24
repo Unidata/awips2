@@ -76,7 +76,7 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["language"]          = "english"
     Definition["lineLength"]        = 66   #Maximum line length
  
-    Definition["purgeTime"]         = 24 # Default Expiration in hours if 
+    Definition["purgeTime"]         = 8 # Default Expiration in hours if 
     Definition["includeCities"]     = 0 # Cities not included in area header
     Definition["cityDescriptor"]    = "INCLUDING THE CITIES OF"
     Definition["includeZoneNames"]  = 1 # Zone names will be included in the area header

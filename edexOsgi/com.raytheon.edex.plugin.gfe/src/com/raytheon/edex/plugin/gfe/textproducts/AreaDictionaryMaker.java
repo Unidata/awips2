@@ -73,7 +73,7 @@ public class AreaDictionaryMaker {
      *            A Map from edit area names to shape file attributes
      */
     public void genAreaDictionary(String site,
-            Map<String, Map<String, String>> editAreaAttrs) {
+            Map<String, Map<String, Object>> editAreaAttrs) {
         theLogger.info("Area Dictionary generation phase");
 
         if (site == null) {

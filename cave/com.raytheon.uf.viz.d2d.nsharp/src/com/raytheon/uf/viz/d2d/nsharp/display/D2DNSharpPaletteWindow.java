@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.d2d.nsharp.display;
 
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
+import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IViewSite;
 
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -34,7 +34,9 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
 
 /**
  * 
- * TODO Add Description
+ * Extends NsharpPaletteWindow but overide load to prevent opening ncmapeditor.
+ * Also disable unload since loading and unloading is being handled by time
+ * matched resources.
  * 
  * <pre>
  * 
@@ -53,43 +55,39 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
 
     private static final String EDIT_TOOL_CATEGY = "com.raytheon.viz.ui.modalTool.nav";
 
-    private class EditTool extends AbstractModalTool {
+    private AbstractModalTool lastTool = null;
 
-        public EditTool() {
-            this.categoryId = EDIT_TOOL_CATEGY;
+    @Override
+    public void init(IViewSite site) {
+        super.init(site);
+        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
+                .getCurrentPerspectiveManager();
+        if (perspMgr == null) {
+            return;
         }
-
-        @Override
-        protected void deactivateTool() {
-            if (!graphEditBtn.isDisposed()) {
-                editGraphOn = false;
-                graphEditBtn.setText(EDIT_GRAPH_OFF);
-                notifyRsc();
-            }
-
+        ModalToolManager mgr = perspMgr.getToolManager();
+        lastTool = mgr.getSelectedModalTool(EDIT_TOOL_CATEGY);
+        if (lastTool != null) {
+            mgr.deselectModalTool(lastTool);
         }
-
-        @Override
-        protected void activateTool() {
-            editGraphOn = true;
-            graphEditBtn.setText(EDIT_GRAPH_ON);
-            notifyRsc();
-        }
-
-        private void notifyRsc() {
-            NsharpSkewTResource rsc = getSkewTRsc();
-            if (rsc == null)
-                return;
-
-            rsc.setEditGraphOn(editGraphOn);
-            rsc.issueRefresh();
-        }
-
     }
 
-    private AbstractModalTool editTool = new EditTool();
-
-    private AbstractModalTool lastTool = null;
+    @Override
+    public void dispose() {
+        super.dispose();
+        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
+                .getCurrentPerspectiveManager();
+        if (perspMgr == null) {
+            return;
+        }
+        ModalToolManager mgr = perspMgr.getToolManager();
+        if (lastTool != null
+                && mgr.getSelectedModalTool(EDIT_TOOL_CATEGY) == null) {
+            mgr.selectModalTool(lastTool);
+            lastTool.activate();
+            lastTool = null;
+        }
+    }
 
     @Override
     public void createDataControlGp(Composite parent) {
@@ -108,71 +106,6 @@ public class D2DNSharpPaletteWindow extends NsharpPaletteWindow {
             }
         });
 
-        for (Listener listener : graphEditBtn.getListeners(SWT.MouseUp)) {
-            graphEditBtn.removeListener(SWT.MouseUp, listener);
-        }
-        graphEditBtn.addListener(SWT.MouseUp, new Listener() {
-
-            @Override
-            public void handleEvent(Event event) {
-                if (editGraphOn) {
-                    disableEdit();
-                } else {
-                    enableEdit();
-                }
-            }
-        });
-        NsharpSkewTResource rsc = getSkewTRsc();
-        if (rsc != null && rsc.isEditGraphOn()) {
-            enableEdit();
-        } else {
-            disableEdit();
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow#dispose()
-     */
-    @Override
-    public void dispose() {
-        disableEdit();
-        getSite().getPage().removePartListener(this);
-    }
-
-    private void enableEdit() {
-        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
-                .getCurrentPerspectiveManager();
-        if (perspMgr == null) {
-            return;
-        }
-        ModalToolManager mgr = perspMgr.getToolManager();
-        lastTool = mgr.getSelectedModalTool(EDIT_TOOL_CATEGY);
-        if (lastTool != editTool) {
-            mgr.selectModalTool(editTool);
-            editTool.activate();
-        } else {
-            lastTool = null;
-        }
-    }
-
-    private void disableEdit() {
-        AbstractVizPerspectiveManager perspMgr = VizPerspectiveListener
-                .getCurrentPerspectiveManager();
-        if (perspMgr == null) {
-            return;
-        }
-        ModalToolManager mgr = perspMgr.getToolManager();
-        if (mgr.getSelectedModalTool(EDIT_TOOL_CATEGY) == editTool) {
-            mgr.deselectModalTool(editTool);
-            if (lastTool != null) {
-                mgr.selectModalTool(lastTool);
-                lastTool.activate();
-                lastTool = null;
-            }
-        }
     }
 
 }

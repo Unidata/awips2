@@ -23,11 +23,10 @@ package com.raytheon.viz.textworkstation;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -42,13 +41,14 @@ import org.eclipse.ui.PlatformUI;
  * 6/27/06                  randerso    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
  * 08/03/2011   9572        rferrel     Allow single instance of the dialog.
+ * 26Sep2012    1196        lvenable    Update for the dialog refactor.
  * 
  * </pre>
  * 
  * @author randerso
  * 
  */
-public class TextWorkstationAction extends AbstractHandler implements Listener {
+public class TextWorkstationAction extends AbstractHandler {
 
     private static TextWorkstationDlg textWorkstationDlg;
 
@@ -58,17 +58,18 @@ public class TextWorkstationAction extends AbstractHandler implements Listener {
                 .getShell();
         if (textWorkstationDlg == null || textWorkstationDlg.isDisposed()) {
             textWorkstationDlg = new TextWorkstationDlg(shell);
-            textWorkstationDlg.addListener(SWT.Dispose, this);
+            textWorkstationDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    textWorkstationDlg = null;
+                }
+            });
+            textWorkstationDlg.open();
+        } else {
+            textWorkstationDlg.bringToTop();
         }
-        textWorkstationDlg.open();
+
         return null;
     }
-
-    @Override
-    public void handleEvent(Event event) {
-        if (event.type == SWT.Dispose) {
-            textWorkstationDlg = null;
-        }
-    }
-
 }

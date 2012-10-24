@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/10/2008    722         grichard    Initial creation.
+ * 25SEP2012    1196        lvenable    Refactor dialogs to prevent blocking.
  * 
  * </pre>
  * 
@@ -93,7 +94,8 @@ public class TextCharWrapDlg extends CaveSWTDialog {
     public TextCharWrapDlg(Shell parent, ITextCharWrapCallback cbClient,
             final Integer defCharWrapCol, final int rangeStart,
             final int rangeEnd) {
-        super(parent, SWT.DIALOG_TRIM | CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM | CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("New Width");
         this.defCharWrapCol = defCharWrapCol;
         this.rangeStart = rangeStart;
