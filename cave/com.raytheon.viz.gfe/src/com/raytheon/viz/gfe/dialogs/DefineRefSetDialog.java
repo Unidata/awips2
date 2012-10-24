@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Mar 11, 2008		       Eric Babin  Initial Creation
  * Jul 15, 2008            njensen     Hooked into backend/fixes
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
  * 
  * </pre>
  * 
@@ -162,6 +163,10 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     private DataManager dataManager;
 
     private String[] initialGroups;
+
+    private SaveDeleteRefDialog deleteDlg;
+
+    private SaveDeleteRefDialog saveDlg;
 
     public DefineRefSetDialog(Shell parent, DataManager dataManager) {
         super(parent);
@@ -999,19 +1004,28 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void saveAreaCB() {
 
-        SaveDeleteRefDialog dialog = new SaveDeleteRefDialog(getShell(),
-                this.refSetMgr, "Save");
-
-        dialog.open();
-
+        if (saveDlg == null || saveDlg.getShell() == null
+                || saveDlg.isDisposed()) {
+            saveDlg = new SaveDeleteRefDialog(getShell(), this.refSetMgr,
+                    "Save");
+            saveDlg.setBlockOnOpen(false);
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
+        }
     }
 
     private void deleteAreaCB() {
 
-        SaveDeleteRefDialog dialog = new SaveDeleteRefDialog(this.getShell(),
-                refSetMgr, "Delete");
-        dialog.open();
-
+        if (deleteDlg == null || deleteDlg.getShell() == null
+                || deleteDlg.isDisposed()) {
+            deleteDlg = new SaveDeleteRefDialog(this.getShell(), refSetMgr,
+                    "Delete");
+            deleteDlg.setBlockOnOpen(false);
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
+        }
     }
 
     private void saveGroupCB() {
