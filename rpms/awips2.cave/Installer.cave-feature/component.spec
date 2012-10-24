@@ -128,6 +128,9 @@ fi
 export PATH=/awips2/java/bin:/awips2/python/bin:${PATH}
 export JAVA_HOME="/awips2/java/jre"
 
+# Set the CAVE logfile location.
+export LOGFILE_CAVE=/dev/null
+
 # Use the eclipse p2 manager.
 CAVE_EXE="/awips2/cave/cave"
 NOSPLASH_ARG="-nosplash"
@@ -219,6 +222,9 @@ fi
 # Need to use awips2-java to do this.
 export PATH=/awips2/java/bin:/awips2/python/bin:${PATH}
 export JAVA_HOME="/awips2/java/jre"
+
+# Set the CAVE logfile location.
+export LOGFILE_CAVE=/dev/null
 
 # Use the eclipse p2 manager.
 CAVE_EXE="/awips2/cave/cave"

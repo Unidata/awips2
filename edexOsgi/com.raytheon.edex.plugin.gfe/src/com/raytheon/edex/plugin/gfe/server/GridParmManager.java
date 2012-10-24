@@ -76,8 +76,10 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 07/09/09     #2590     njensen   Changed from singleton to static
- * 07/12/12     15162     ryu       added check for invalid db
+ * 07/09/09     #2590      njensen     Changed from singleton to static
+ * 07/12/12     15162      ryu         added check for invalid db
+ * 10/10/12     #1260      randerso    Added exception handling for domain not 
+ *                                     overlapping the dataset
  * 
  * </pre>
  * 
@@ -922,7 +924,7 @@ public class GridParmManager {
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
         try {
             sr = getDb(id).getParmList();
-        } catch (GfeException e) {
+        } catch (Exception e) {
             sr.addMessage("Error getting db: " + id);
             logger.error("Error getting db: " + id, e);
         }
@@ -1134,7 +1136,13 @@ public class GridParmManager {
                 if (db == null) {
                     IFPServerConfig serverConfig = IFPServerConfigManager
                             .getServerConfig(siteId);
-                    db = new D2DGridDatabase(serverConfig, dbId);
+                    try {
+                        db = new D2DGridDatabase(serverConfig, dbId);
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage());
+                        db = null;
+                    }
                 }
             } else {
                 // Check for topo type
@@ -1142,18 +1150,18 @@ public class GridParmManager {
                         .getModelName();
                 if (topoModel.equals(modelName)) {
                     db = TopoDatabaseManager.getTopoDatabase(dbId.getSiteId());
+
+                } else {
+                    db = new IFPGridDatabase(dbId);
+                    if (db.databaseIsValid()) {
+                        ((IFPGridDatabase) db).updateDbs();
+                    }
                 }
             }
 
-            boolean isIFP = (db == null);
-            if (db == null) {
-                db = new IFPGridDatabase(dbId);
-                if (db.databaseIsValid())
-                    ((IFPGridDatabase) db).updateDbs();
-            }
-
-            if (!isIFP || db.databaseIsValid())
+            if ((db != null) && db.databaseIsValid()) {
                 dbMap.put(dbId, db);
+            }
         }
         return db;
     }

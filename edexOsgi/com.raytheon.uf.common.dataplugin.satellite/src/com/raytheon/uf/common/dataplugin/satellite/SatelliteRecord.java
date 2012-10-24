@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -352,5 +353,30 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
         }
         interpolationLevels = levels;
     }
-  
+
+    /**
+     * Construct the data record from decoded data. Note this must not be called
+     * until after the record datauri has been created!
+     * 
+     * @param record
+     *            The SatelliteRecord containing a constructed dataURI, the
+     *            binary satellite data, and geospatial coverage information.
+     * @return The IDataRecord associated with this decoded data.
+     */
+    public static final IDataRecord getDataRecord(SatelliteRecord record) {
+        IDataRecord dataRec = null;
+        if (record != null) {
+            SatMapCoverage coverage = record.getCoverage();
+            byte[] image = (byte[]) record.getMessageData();
+            if ((coverage != null) && (image != null)) {
+                SatelliteMessageData messageData = new SatelliteMessageData(
+                        image, coverage.getNx(), coverage.getNy());
+                dataRec = messageData.getStorageRecord(record,
+                        SatelliteRecord.SAT_DATASET_NAME);
+            }
+        }
+        return dataRec;
+    }
+
+    
 }

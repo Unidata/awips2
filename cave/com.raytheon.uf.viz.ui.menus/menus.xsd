@@ -185,5 +185,18 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  <xs:complexType name="dynamicMenu">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+                <xs:element name="parameter"
+                        type="variableSubstitution" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="menuText" type="xs:string"/>
+        <xs:attribute name="classId" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 </xs:schema>
 

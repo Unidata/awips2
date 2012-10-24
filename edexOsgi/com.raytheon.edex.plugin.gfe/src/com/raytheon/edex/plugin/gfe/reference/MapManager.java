@@ -38,22 +38,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import jep.JepException;
+
 import org.geotools.geometry.jts.JTS;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.reference.ShapeFile.IEditAreaNamer;
-import com.raytheon.edex.plugin.gfe.reference.ShapeFile.IMapBackgroundFilter;
-import com.raytheon.edex.plugin.gfe.reference.ShapeFile.ShapeType;
+import com.raytheon.edex.plugin.gfe.reference.DbShapeSource.ShapeType;
 import com.raytheon.edex.plugin.gfe.textproducts.AreaDictionaryMaker;
 import com.raytheon.edex.plugin.gfe.textproducts.CombinationsFileMaker;
 import com.raytheon.edex.plugin.gfe.textproducts.Configurator;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
@@ -62,12 +62,17 @@ import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonEval;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -90,7 +95,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Apr 10, 2008		#1075	randerso	Initial creation
  * Jun 25, 2008     #1210   randerso    Modified to get directories from UtilityContext
  * Oct 13, 2008     #1607   njensen     Added genCombinationsFiles()
- * 
+ * Sep 18, 2012     #1091   randerso    Changed to use Maps.py and localMaps.py
  * 
  * </pre>
  * 
@@ -98,7 +103,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * @version 1.0
  */
 public class MapManager {
-    private static final Log theLogger = LogFactory.getLog(MapManager.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MapManager.class);
 
     private static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
             "editAreas");
@@ -109,211 +115,135 @@ public class MapManager {
     private static final String SAMPLE_SETS_DIR = FileUtil.join("gfe",
             "sampleSets");
 
-    protected static final String EDIT_AREA_GEN_TASK = "GfeEditAreaGeneration";
-
     private IFPServerConfig _config;
 
     private List<String> _mapErrors;
 
-    private List<MapID> _ids;
-
     private Map<String, ArrayList<String>> editAreaMap = new HashMap<String, ArrayList<String>>();
 
-    private Map<String, Map<String, String>> editAreaAttrs = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, Object>> editAreaAttrs = new HashMap<String, Map<String, Object>>();
 
     private List<String> iscMarkersID = new ArrayList<String>();
 
     private List<Coordinate> iscMarkers = new ArrayList<Coordinate>();
 
-    private String commonStaticConfigDir;
+    private final String commonStaticConfigDir;
 
-    private String edexStaticSiteDir;
+    private final String edexStaticBaseDir;
+
+    private final String edexStaticConfigDir;
+
+    private final String edexStaticSiteDir;
 
     private static final double EA_EQ_TOLERANCE = 0.0005;
+
+    private PythonEval pyScript;
 
     public MapManager(IFPServerConfig serverConfig) {
         this(serverConfig, null);
     }
 
+    @SuppressWarnings("unchecked")
     public MapManager(IFPServerConfig serverConfig, String dir) {
-        _config = serverConfig;
+        try {
+            _config = serverConfig;
 
-        String siteId = _config.getSiteID().get(0);
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext edexStaticSite = pathMgr.getContextForSite(
-                LocalizationType.EDEX_STATIC, siteId);
-        this.edexStaticSiteDir = pathMgr.getFile(edexStaticSite, ".")
-                .getAbsolutePath();
+            String siteId = _config.getSiteID().get(0);
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext edexStaticBase = pathMgr.getContext(
+                    LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
+            this.edexStaticBaseDir = pathMgr.getFile(edexStaticBase, ".")
+                    .getAbsolutePath();
+            LocalizationContext edexStaticConfig = pathMgr.getContext(
+                    LocalizationType.EDEX_STATIC, LocalizationLevel.CONFIGURED);
+            this.edexStaticConfigDir = pathMgr.getFile(edexStaticConfig, ".")
+                    .getAbsolutePath();
+            LocalizationContext edexStaticSite = pathMgr.getContextForSite(
+                    LocalizationType.EDEX_STATIC, siteId);
+            this.edexStaticSiteDir = pathMgr.getFile(edexStaticSite, ".")
+                    .getAbsolutePath();
 
-        if (dir != null) {
-            this.commonStaticConfigDir = dir;
-        } else {
-            LocalizationContext commonStaticConfig = pathMgr.getContext(
-                    LocalizationContext.LocalizationType.COMMON_STATIC,
-                    LocalizationContext.LocalizationLevel.CONFIGURED);
-            commonStaticConfig.setContextName(siteId);
+            if (dir != null) {
+                this.commonStaticConfigDir = dir;
+            } else {
+                LocalizationContext commonStaticConfig = pathMgr.getContext(
+                        LocalizationContext.LocalizationType.COMMON_STATIC,
+                        LocalizationContext.LocalizationLevel.CONFIGURED);
+                commonStaticConfig.setContextName(siteId);
 
-            this.commonStaticConfigDir = pathMgr.getFile(commonStaticConfig,
-                    ".").getAbsolutePath();
+                this.commonStaticConfigDir = pathMgr.getFile(
+                        commonStaticConfig, ".").getAbsolutePath();
+            }
+
+            _mapErrors = new ArrayList<String>();
+
+            long t0 = System.currentTimeMillis();
+            statusHandler.info("MapManager " + _config.getSiteID().get(0)
+                    + " started.");
+
+            String includePath = PyUtil.buildJepIncludePath(true,
+                    GfePyIncludeUtil.getGfeConfigIncludePath(siteId),
+                    FileUtil.join(edexStaticBaseDir, "gfe"),
+                    GfePyIncludeUtil.getCommonPythonIncludePath());
+
+            List<DbShapeSource> maps = null;
+            pyScript = null;
+            try {
+                pyScript = new PythonEval(includePath,
+                        MapManager.class.getClassLoader());
+                pyScript.eval("from Maps import *");
+                Object results = pyScript.execute("getMaps", null);
+                maps = (List<DbShapeSource>) results;
+            } catch (JepException e) {
+                statusHandler.error("Error getting maps", e);
+            }
+
+            boolean needUpdate = true;
+            needUpdate = updateNeeded(maps,
+                    FileUtil.join(this.commonStaticConfigDir, EDIT_AREAS_DIR));
+
+            statusHandler.info("getMaps took: "
+                    + (System.currentTimeMillis() - t0) + " ms");
+
+            if (needUpdate) {
+                statusHandler.info("Number of maps to process: " + maps.size());
+                // edit area generation phase,
+                // if any edit areas are out of date, then redo all
+                genEditArea(maps);
+            } else {
+                statusHandler.info("All edit areas are up to date.");
+            }
+
+            // configure the text products
+            Configurator configurator = new Configurator(_config.getSiteID()
+                    .get(0));
+            statusHandler.info("Configuring text products....");
+            configurator.execute();
+
+            if (needUpdate) {
+                // need the attributes from the edit area step to be able to do
+                // this right
+                String site = _config.getSiteID().get(0);
+                new CombinationsFileMaker().genCombinationsFiles(site,
+                        editAreaMap);
+                new AreaDictionaryMaker()
+                        .genAreaDictionary(site, editAreaAttrs);
+            }
+
+            statusHandler.info("MapManager ready.");
+            long t1 = System.currentTimeMillis();
+            statusHandler.info("MapCreation time: " + (t1 - t0) + " ms");
+        } finally {
+            if (pyScript != null) {
+                pyScript.dispose();
+            }
         }
-
-        _mapErrors = new ArrayList<String>();
-        _ids = new ArrayList<MapID>();
-
-        long t0 = System.currentTimeMillis();
-        theLogger
-                .info("MapManager " + _config.getSiteID().get(0) + " started.");
-
-        // try{
-        // Module mapMod("Maps");
-        ShapeFile[] maps = Maps.getMaps(_config.getSiteID().get(0),
-                Maps.GetMode.UNCONDITIONAL);
-
-        boolean anyCached;
-        // anyCached = maps != null;
-        anyCached = cacheNeeded(maps,
-                FileUtil.join(this.commonStaticConfigDir, EDIT_AREAS_DIR));
-
-        theLogger.info("getMaps took: " + (System.currentTimeMillis() - t0)
-                + " ms");
-
-        // map == null tells us the shape files have not changed, skip this
-        if (anyCached) {
-            theLogger.info("Number of maps to process: " + maps.length);
-            // edit area generation phase, if any maps are outdated, then redo
-            // all
-            genEditArea(maps);
-            ClusterLockUtils.lock(EDIT_AREA_GEN_TASK, _config.getSiteID()
-                    .get(0), 0, false);
-        } else {
-            theLogger.info("All edit areas are up to date.");
-        }
-
-        // adding valid maps to list
-        // addValidMaps(maps);
-
-        // configure the text products
-        Configurator configurator = new Configurator(_config.getSiteID().get(0));
-        theLogger.info("Configuring text products....");
-        configurator.execute();
-
-        if (anyCached) {
-            // need the attributes from the edit area step to be able to do this
-            // right
-            String site = _config.getSiteID().get(0);
-            new CombinationsFileMaker().genCombinationsFiles(site, editAreaMap);
-            new AreaDictionaryMaker().genAreaDictionary(site, editAreaAttrs);
-        }
-
-        // configure products (formatter templates)
-        // try
-        // {
-        // Module txtConfigMod("configureTextProducts");
-        // String mode = "CREATE";
-        // txtConfigMod.getAttr("configureTextProducts").call(
-        // _config.baseDir().stringPtr(),
-        // _config.siteID()[0].stringPtr(),
-        // mode.stringPtr(), _altA2Afile.stringPtr());
-        // }
-        // catch (Error &e)
-        // {
-        // std::ostringstream o;
-        // o + "Error in configuring text products: " + e + std::endl
-        // + std::ends;
-        // e.clear();
-        // String error =
-        // "********* TEXT PRODUCT CONFIGURATION ERROR *********\n";
-        // error += o.str().c_str();
-        // theLogger.error(error);
-        // _mapErrors.append(error);
-        // }
-        //
-        //
-        // // configure products (dictionaries and combos)
-        // try
-        // {
-        // Dictionary attD;
-        // for (int i = 0; i < _ids.length(); i++)
-        // attD.add(_ids[i].name().stringPtr(),
-        // getAttributes(_ids[i]));
-        // Module txtConfigMod("createComboAreaDict");
-        // txtConfigMod.getAttr("configureTextComboAreaDict").call(attD,
-        // _config.baseDir().stringPtr(),
-        // _config.siteID()[0].stringPtr());
-        // }
-        // catch (Error &e)
-        // {
-        // std::ostringstream o;
-        // o + "Error in configuring combinations/areaDictionary: "
-        // + e + std::endl + std::ends;
-        // e.clear();
-        // String error =
-        // "********* COMBINATIONS/AREADICTIONARY CONFIGURATION ERROR
-        // *********\n";
-        // error += o.str().c_str();
-        // theLogger.error(error);
-        // _mapErrors.append(error);
-        // }
-        //
-        // // determine unused shapefiles
-        // theLogger.debug("Unused Shapefiles: " + unusedShapefiles(basename)
-        // );
-        //
-        // mapMod.unload();
-        // }
-        // catch (Error &e)
-        // {
-        // theLogger.error("Error in Maps.py, localMaps.py, MapFiles.py, "
-        // + "or localMapFiles.py file: ", e);
-        // e.clear();
-        // }
-
-        theLogger.info("MapManager ready.");
-        long t1 = System.currentTimeMillis();
-        theLogger.info("MapCreation time: " + (t1 - t0) + " ms");
     }
 
     /**
      * @param maps
      */
     @SuppressWarnings("unused")
-    private void addValidMaps(ShapeFile[] maps) {
-        // PathMgr pm(_config.dbBaseDirectory(), "MAPS");
-        // String directory(pm.writePath(AccessLevel::baseName(), ""));
-        for (int i = 0; i < maps.length; i++) {
-            try {
-                // if cache file has no records, then don't add to list
-                // String cacheName = directory + maps[i].getName();
-                // ShapeFile shapeFile = new ShapeFile(cacheName);
-                ShapeFile shapeFile = maps[i];
-                shapeFile.open();
-                int nrecs = shapeFile.getFeatureCount();
-                theLogger.debug("RECORDS for: " + maps[i].getDisplayName()
-                        + " " + nrecs);
-                shapeFile.close();
-
-                if (nrecs > 0) {
-                    _ids.add(new MapID(maps[i].getDisplayName(), maps[i]
-                            .getShapeType(), maps[i].getFile()
-                            .getAbsolutePath()));
-                } else {
-                    theLogger.debug("Map [" + maps[i].getDisplayName()
-                            + "] contains no records.");
-                }
-            } catch (Exception e) {
-                String error = "********* MAP BACKGROUND GENERATION ERROR - Cached Shapefile *********\n"
-                        + "Error in generating map #"
-                        + i
-                        + " Name: "
-                        + maps[i].getDisplayName()
-                        + " Basename: "
-                        + maps[i].getFile();
-                theLogger.error(error, e);
-                _mapErrors.add(error);
-            }
-        }
-    }
-
     /**
      * Searches the parent directory of a provided list of shape files to
      * determine whether or not they contain a file that is newer than any files
@@ -327,34 +257,47 @@ public class MapManager {
      * @return True, if any file in the parent folder of any of the shape files
      *         is newer than anything in the specified directory. Else, false.
      */
-    @SuppressWarnings("unused")
-    private boolean cacheNeeded(ShapeFile[] maps, final String directory) {
+    private boolean updateNeeded(List<DbShapeSource> maps,
+            final String directory) {
         // calc newest file inside maps.directory()
-        long newestShapeFile = Long.MIN_VALUE;
-        for (ShapeFile map : maps) {
-            File shapePath = map.getFile().getParentFile().getAbsoluteFile();
-            File[] shapeFiles = shapePath.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isFile();
-                }
-            });
-
-            if (shapeFiles != null) {
-                for (File file : shapeFiles) {
-                    newestShapeFile = Math.max(newestShapeFile,
-                            file.lastModified());
-                }
-            }
+        long newestSource = Long.MIN_VALUE;
+        for (DbShapeSource map : maps) {
+            newestSource = Math.max(newestSource, map.getLastUpdated()
+                    .getTime());
         }
 
-        // also check for siteConfig or localConfig changes
-        String configDir = FileUtil.join(edexStaticSiteDir, "config", "gfe");
-        File file = new File(configDir, "siteConfig.py");
-        newestShapeFile = Math.max(newestShapeFile, file.lastModified());
-        file = new File(configDir, "localConfig.py");
+        // Determine time of last modification of Maps.py, serverConfig,
+        // localConfig, localMaps, and siteConfig.
+        String baseConfigDir = FileUtil
+                .join(edexStaticBaseDir, "config", "gfe");
+        String siteConfigDir = FileUtil
+                .join(edexStaticSiteDir, "config", "gfe");
+
+        File file = new File(baseConfigDir, "Maps.py");
+        newestSource = Math.max(newestSource, file.lastModified());
+
+        file = new File(baseConfigDir, "serverConfig.py");
+        newestSource = Math.max(newestSource, file.lastModified());
+
+        file = new File(siteConfigDir, "siteConfig.py");
+        newestSource = Math.max(newestSource, file.lastModified());
+
+        file = new File(siteConfigDir, "localConfig.py");
         if (file.exists()) {
-            newestShapeFile = Math.max(newestShapeFile, file.lastModified());
+            newestSource = Math.max(newestSource, file.lastModified());
+        }
+
+        // special case check for localMaps going away
+        // if the tag file exists, then localMaps was previously used
+        file = new File(siteConfigDir, "localMaps.py");
+        File localMapsTag = new File(FileUtil.join(this.edexStaticConfigDir,
+                "config", "gfe", "usingLocalMaps"));
+        if (file.exists()) {
+            newestSource = Math.max(newestSource, file.lastModified());
+            localMapsTag.mkdirs();
+        } else if (localMapsTag.exists()) {
+            localMapsTag.delete();
+            newestSource = System.currentTimeMillis();
         }
 
         // calc oldest file in directory
@@ -382,27 +325,22 @@ public class MapManager {
 
                 oldestEditArea = editAreaFiles[0].lastModified();
             }
-
-            // FIXME use last execution time instead
-            // ClusterTask task = ClusterLockUtils.lookupLock(
-            // MapManager.EDIT_AREA_GEN_TASK, cwa);
-            // oldestEditArea = task.getLastExecution();
         }
 
-        return (newestShapeFile > oldestEditArea);
+        return (newestSource > oldestEditArea);
     }
 
-    private void genEditArea(ShapeFile[] maps) {
+    private void genEditArea(List<DbShapeSource> maps) {
         long t0 = System.currentTimeMillis();
 
-        theLogger.info("Edit Area generation phase");
+        statusHandler.info("Edit Area generation phase");
 
         @SuppressWarnings("unused")
         WsId fakeBase = null;
         try {
             fakeBase = new WsId(InetAddress.getLocalHost(), "BASE", "ifpServer");
         } catch (UnknownHostException e1) {
-            theLogger.error("Unable to get IP address for localhost");
+            statusHandler.error("Unable to get IP address for localhost");
         }
 
         // _refMgr->deleteAllReferenceData(fakeBase);
@@ -432,9 +370,19 @@ public class MapManager {
             }
         }
 
-        for (int i = 0; i < maps.length; i++) {
-            ShapeFile m = maps[i];
+        int i = 0;
+        BoundingBox bounds = null;
+        try {
+            bounds = MapUtil.getBoundingEnvelope(this._config.dbDomain());
+        } catch (Exception e1) {
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+        }
+
+        for (DbShapeSource m : maps) {
+            m.setBoundingBox(bounds);
             try {
+                m.open();
                 if (m.getShapeType() != ShapeType.POLYGON) {
                     continue;
                 }
@@ -447,15 +395,23 @@ public class MapManager {
                         + " Name: "
                         + m.getDisplayName()
                         + " Basename: "
-                        + m.getFile();
-                theLogger.error(error, e);
+                        + m.getTableName();
+                statusHandler.error(error, e);
                 _mapErrors.add(error);
+            } finally {
+                try {
+                    m.close();
+                } catch (IOException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
             }
+            i++;
         }
         writeISCMarker();
 
         long t1 = System.currentTimeMillis();
-        theLogger.info("EditArea generation time: " + (t1 - t0) + " ms");
+        statusHandler.info("EditArea generation time: " + (t1 - t0) + " ms");
     }
 
     /**
@@ -505,12 +461,13 @@ public class MapManager {
                         SerializationUtil.jaxbMarshalToXmlFile(sd,
                                 path.getAbsolutePath());
                     } catch (Exception e) {
-                        theLogger.error("Error writing ISC Markers to file "
-                                + path.getAbsolutePath(), e);
+                        statusHandler.error(
+                                "Error writing ISC Markers to file "
+                                        + path.getAbsolutePath(), e);
                     }
                 }
             } else {
-                theLogger.error("Unable to write to " + sampleDir);
+                statusHandler.error("Unable to write to " + sampleDir);
             }
         }
     }
@@ -523,15 +480,14 @@ public class MapManager {
      * @param m
      * @param string
      */
-    private void makeReferenceData(ShapeFile mapDef) {
+    private void makeReferenceData(DbShapeSource mapDef) {
         // we skip over entries that don't have an editAreaName
         // this will throw an exception, if editAreaName not defined.
-        Object ean = mapDef.getEditAreaName();
-        if (ean == null) {
+        if (!mapDef.hasEditAreaName()) {
             return;
         }
 
-        theLogger.debug("creating: " + mapDef.getDisplayName());
+        statusHandler.debug("creating: " + mapDef.getDisplayName());
         List<ReferenceData> data = createReferenceData(mapDef);
         if (data.size() == 0) {
             return;
@@ -559,7 +515,7 @@ public class MapManager {
                     if (n.length() == 7 && n.startsWith("ISC_")) {
                         String cwa = n.substring(4, 7);
                         if (cwa.equals(thisSite)) {
-                            theLogger
+                            statusHandler
                                     .debug("creating: ISC_Tool_Area and ISC_Send_Area"
                                             + " from "
                                             + data.get(i).getId().getName());
@@ -589,7 +545,7 @@ public class MapManager {
                         if (knownSites.contains(cwa)) {
                             if (!anySites) {
                                 anySites = true;
-                                theLogger.debug("creating: ISC_Marker_Set");
+                                statusHandler.debug("creating: ISC_Marker_Set");
                             }
                             createISCMarker(cwa, data.get(i));
                         }
@@ -625,9 +581,8 @@ public class MapManager {
                         other = (ReferenceData) SerializationUtil
                                 .jaxbUnmarshalFromXmlFile(path);
                     } catch (Exception e) {
-                        theLogger.error(
-                                "Error reading edit area file "
-                                        + path.getAbsolutePath(), e);
+                        statusHandler.error("Error reading edit area file "
+                                + path.getAbsolutePath(), e);
                     }
 
                     Geometry refG = ref.getPolygons(CoordinateType.LATLON);
@@ -635,7 +590,7 @@ public class MapManager {
                     refG.normalize();
                     othG.normalize();
                     if (!refG.equalsExact(othG, EA_EQ_TOLERANCE)) {
-                        theLogger.warn("Ignoring " + ref.getId().getName()
+                        statusHandler.warn("Ignoring " + ref.getId().getName()
                                 + " due to previous definition.");
                     }
                 } else {
@@ -644,13 +599,13 @@ public class MapManager {
                         SerializationUtil.jaxbMarshalToXmlFile(ref,
                                 path.getAbsolutePath());
                     } catch (Exception e) {
-                        theLogger.error("Error writing edit area to file "
+                        statusHandler.error("Error writing edit area to file "
                                 + path.getAbsolutePath(), e);
                     }
                 }
             }
         } else {
-            theLogger.error("Unable to write to " + areaDir);
+            statusHandler.error("Unable to write to " + areaDir);
         }
 
     }
@@ -701,7 +656,8 @@ public class MapManager {
             iscMarkers.add(centerLatLon);
             iscMarkersID.add(wfo);
         } catch (Exception e) {
-            theLogger.error("Error generating ISC markers for wfo:" + wfo, e);
+            statusHandler.error("Error generating ISC markers for wfo:" + wfo,
+                    e);
         }
 
     }
@@ -744,7 +700,8 @@ public class MapManager {
                     out.write('\n');
                 }
             } catch (IOException e) {
-                theLogger.error("Error saving edit area group: " + groupName);
+                statusHandler.error("Error saving edit area group: "
+                        + groupName);
             } finally {
                 if (out != null) {
                     try {
@@ -755,7 +712,7 @@ public class MapManager {
                 }
             }
         } else {
-            theLogger.error("Unable to write to " + groupDir);
+            statusHandler.error("Unable to write to " + groupDir);
         }
     }
 
@@ -777,9 +734,8 @@ public class MapManager {
                         list.add(area);
                     }
                 } catch (Exception e) {
-                    theLogger.error(
-                            "Error reading group file: "
-                                    + groupFile.getAbsolutePath(), e);
+                    statusHandler.error("Error reading group file: "
+                            + groupFile.getAbsolutePath(), e);
                 } finally {
                     if (in != null) {
                         try {
@@ -836,66 +792,26 @@ public class MapManager {
         return swath;
     }
 
-    private String defaultEditAreaNaming(Map<String, String> info,
-            Object eanDefinition) {
-        // simple case, the edit area name definition is the attribute key
-        if (eanDefinition instanceof String) {
-            String ean = (String) eanDefinition;
-            if (info.containsKey(ean)) {
-                return info.get(ean);
-            } else {
-                return ean;
-            }
-
-        } else if (eanDefinition instanceof String[]) {
-            String s = "";
-            for (String e : (String[]) eanDefinition) {
-                // valid attribute
-                if (info.containsKey(e)) {
-                    if (s.length() == 0) {
-                        s = info.get(e);
-                    } else {
-                        s = s + "_" + info.get(e);
-                    }
-                    // not valid attribute, so use definition directly
-                } else {
-                    if (s.length() == 0) {
-                        s = e;
-                    } else {
-                        s = s + "_" + e;
-                    }
-                }
-            }
-            return s;
-
-        } else {
-            return "";
-        }
-
-    }
-
     /**
-     * Returns a sequence of ReferenceData objects for the supplied shapefile
-     * basename. Determines the naming of the edit areas by using the supplied
+     * Returns a sequence of ReferenceData objects for the supplied shape
+     * source. Determines the naming of the edit areas by using the supplied
      * mapconfig object's attributes.
      * 
      * @param name
      * @param mapDef
      * @return
      */
-    private List<ReferenceData> createReferenceData(ShapeFile mapDef) {
+    private List<ReferenceData> createReferenceData(DbShapeSource mapDef) {
         // ServerResponse sr;
         List<ReferenceData> data = new ArrayList<ReferenceData>();
 
         // Module dean("DefaultEditAreaNaming");
         ArrayList<String> created = new ArrayList<String>();
         GeometryFactory gf = new GeometryFactory();
+        DbShapeSource shapeSource = mapDef;
         try {
             // PathMgr pm(_config.dbBaseDirectory(), "MAPS");
             // String directory = pm.writePath(AccessLevel.baseName(), "");
-            ShapeFile shapeFile = mapDef;
-
-            IMapBackgroundFilter filter = shapeFile.getMapBackgroundFilter();
 
             GridLocation gloc = _config.dbDomain();
             MathTransform transform = MapUtil.getTransformFromLatLon(
@@ -910,27 +826,17 @@ public class MapManager {
             PreparedGeometry boundingGeometry = PreparedGeometryFactory
                     .prepare(p);
 
-            shapeFile.open();
             Map<String, ReferenceData> tempData = new HashMap<String, ReferenceData>();
-            while (shapeFile.hasNext()) {
-                SimpleFeature f = shapeFile.next();
-                Map<String, String> info = shapeFile.getAttributes(f);
+            while (shapeSource.hasNext()) {
+                SimpleFeature f = shapeSource.next();
+                Map<String, Object> info = shapeSource.getAttributes(f);
 
-                if (filter != null && !filter.filter(info)) {
+                if (mapDef.isFiltered()
+                        && !runFilter(mapDef.getInstanceName(), info)) {
                     continue;
                 }
 
-                String editAreaName;
-                // functions return a string
-                if (mapDef.getEditAreaName() instanceof IEditAreaNamer) {
-                    editAreaName = ((IEditAreaNamer) mapDef.getEditAreaName())
-                            .getEditAreaName(info);
-                    // non-functions allow only a string
-                } else {
-                    editAreaName = defaultEditAreaNaming(info,
-                            mapDef.getEditAreaName());
-                }
-
+                String editAreaName = runNamer(mapDef.getInstanceName(), info);
                 ReferenceData tmp;
 
                 // validate edit area name, add edit area to the dictionary
@@ -940,6 +846,10 @@ public class MapManager {
                 }
 
                 Geometry mp = (Geometry) f.getDefaultGeometry();
+                if (mp == null) {
+                    continue;
+                }
+
                 Geometry mpGrid = JTS.transform(mp, transform);
                 if (!boundingGeometry.intersects(mpGrid)) {
                     continue;
@@ -963,12 +873,12 @@ public class MapManager {
                     polygons = gf
                             .createMultiPolygon(new Polygon[] { (Polygon) mp });
                 } else {
-                    theLogger.info("Creating empty polygon");
+                    statusHandler.info("Creating empty polygon");
                     polygons = gf.createMultiPolygon(new Polygon[] {});
                 }
 
                 if (!polygons.isValid()) {
-                    String error = shapeFile.getFile()
+                    String error = shapeSource.getTableName()
                             + " contains invalid polygons.";
                     for (int i = 0; i < polygons.getNumGeometries(); i++) {
                         Geometry g = polygons.getGeometryN(i);
@@ -976,14 +886,12 @@ public class MapManager {
                             error += "\n" + g;
                         }
                     }
-                    theLogger.error(error);
+                    statusHandler.error(error);
                 }
 
                 tempData.put(ean, new ReferenceData(_config.dbDomain(),
                         new ReferenceID(ean), polygons, CoordinateType.LATLON));
             }
-
-            shapeFile.close();
 
             // transfer dictionary values to Seq values
             data.addAll(tempData.values());
@@ -992,13 +900,45 @@ public class MapManager {
             String error = "********* EDIT AREA GENERATION ERROR - Create Reference Data *********\n"
                     + "Error in generating edit areas from maps for map "
                     + mapDef.getDisplayName();
-            theLogger.error(error, e);
+            statusHandler.error(error, e);
             _mapErrors.add(error);
         }
 
-        theLogger.debug("EAs: " + created);
+        statusHandler.debug("EAs: " + created);
         editAreaMap.put(mapDef.getDisplayName(), created);
         return data;
+    }
+
+    private String runNamer(String instance, Map<String, Object> info) {
+        String editAreaName = "";
+
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("instance", instance);
+        args.put("info", info);
+        try {
+            editAreaName = (String) pyScript.execute("runNamer", args);
+        } catch (Throwable e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Exception getting editAreaName for " + instance, e);
+        }
+
+        return editAreaName;
+    }
+
+    private boolean runFilter(String instance, Map<String, Object> info) {
+        boolean result = false;
+
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("instance", instance);
+        args.put("info", info);
+        try {
+            result = (Boolean) pyScript.execute("runFilter", args);
+        } catch (Throwable e) {
+            statusHandler.handle(Priority.PROBLEM, "Exception filtering "
+                    + instance, e);
+        }
+
+        return result;
     }
 
     /**

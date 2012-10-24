@@ -51,8 +51,8 @@ public class DerivParamLocalizationAdapter extends
         // TODO: Think of other right click actions that might be desirable
         if (selectedData.length == 1
                 && selectedData[0].getClass() == FileTreeEntryData.class) {
-            menuMgr.add(new NewDerivedParameterAction());
-            return true;
+            IMenuManager newMenu = menuMgr.findMenuUsingPath(NEW_ID);
+            newMenu.add(new NewDerivedParameterAction());
         }
         return false;
     }
