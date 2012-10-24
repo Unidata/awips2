@@ -23,7 +23,7 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.python.PythonEval;
 
 /**
  * A wrapper for running smart init python
@@ -33,6 +33,10 @@ import com.raytheon.uf.common.python.PythonScript;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 28, 2008				njensen	    Initial creation
+ * Oct 23, 2012      #1291  randerso    Changed to extend PythonEval instead 
+ *                                      of PythonScript so it doesn't get run 
+ *                                      causing it to load as module __main__ 
+ *                                      instead of Init.
  * 
  * </pre>
  * 
@@ -40,7 +44,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * @version 1.0
  */
 
-public class SmartInitScript extends PythonScript {
+public class SmartInitScript extends PythonEval {
 
     private static final String METHOD_NAME = "runFromJava";
 
@@ -57,8 +61,8 @@ public class SmartInitScript extends PythonScript {
      */
     public SmartInitScript(String aFilePath, String anIncludePath,
             ClassLoader aClassLoader) throws JepException {
-        super(aFilePath, anIncludePath, aClassLoader);
-        jep.eval("import sys");
+        super(anIncludePath, aClassLoader);
+        jep.eval("from Init import *");
     }
 
     /**
