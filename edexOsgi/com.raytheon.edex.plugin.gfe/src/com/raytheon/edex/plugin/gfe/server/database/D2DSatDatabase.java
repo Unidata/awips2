@@ -51,8 +51,9 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 16, 2011            bphillip     Initial creation
- * May 04, 2012  #574      dgilling     Add unimplemented methods from GridDatabase.
+ * May 16, 2011            bphillip    Initial creation
+ * May 04, 2012  #574      dgilling    Add unimplemented methods from GridDatabase.
+ * Oct 10  2012     #1260  randerso    Added code to set valid flag
  * 
  * </pre>
  * 
@@ -81,6 +82,7 @@ public class D2DSatDatabase extends VGridDatabase {
         super(config);
         this.dbId = new DatabaseID(config.getSiteID().get(0), DataType.GRID,
                 "D2D", "Satellite", "00000000_0000");
+        this.valid = this.dbId.isValid();
         parms = new ArrayList<D2DSatParm>();
         for (int i = 0; i < productURIs.size(); i++) {
             D2DSatParm parm = new D2DSatParm(config, productURIs.get(i),

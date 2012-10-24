@@ -104,9 +104,7 @@ public class GridPathProvider extends DefaultPathProvider {
         sb.append(pdo.getDatasetId());
         Date refTime = pdo.getDataTime().getRefTime();
         String refTimeString = null;
-        synchronized (fileNameFormat) {
-            refTimeString = fileNameFormat.format(refTime);
-        }
+        refTimeString = fileNameFormat.get().format(refTime);
         sb.append(refTimeString);
         sb.append(FORECAST_HR_TOKEN);
         if (STATIC_PARAMETERS.contains(pdo.getParameter().getAbbreviation())) {
@@ -123,9 +121,7 @@ public class GridPathProvider extends DefaultPathProvider {
 
     public String formatTime(Date date) {
         String retVal = null;
-        synchronized (fileNameFormat) {
-            retVal = fileNameFormat.format(date);
-        }
+        retVal = fileNameFormat.get().format(date);
         return retVal;
     }
 }

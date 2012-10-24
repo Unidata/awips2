@@ -45,7 +45,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2012            randerso     Initial creation
+ * May 17, 2012            randerso    Initial creation
+ * Oct 10  2012     #1260  randerso    Added exception handling for domain not 
+ *                                     overlapping the dataset
  * 
  * </pre>
  * 
@@ -142,10 +144,15 @@ public class NetCDFDatabaseManager {
             if (file.isValid()) {
                 DatabaseID dbId = NetCDFGridDatabase.getDBID(file, config);
 
-                NetCDFGridDatabase db = new NetCDFGridDatabase(config, file);
-                statusHandler.handle(Priority.EVENTB, "New netCDF Database: "
-                        + dbId);
-                databaseMap.put(dbId, db);
+                try {
+                    NetCDFGridDatabase db = new NetCDFGridDatabase(config, file);
+                    statusHandler.handle(Priority.EVENTB,
+                            "New netCDF Database: " + dbId);
+                    databaseMap.put(dbId, db);
+                } catch (GfeException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage());
+                }
             }
         }
     }
