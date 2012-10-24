@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
@@ -101,9 +102,11 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/17/09     #2380      randerso    Removed purging of grid history.
  *                                     Should cascade when record deleted.
- * 08/07/09     #2763     njensen   Refactored queryByD2DParmId
- * 09/10/12     DR15137   ryu       Changed for MOSGuide D2D mxt/mnt grids for consistency
- *                                  with A1.
+ * 08/07/09     #2763      njensen     Refactored queryByD2DParmId
+ * 09/10/12     DR15137    ryu         Changed for MOSGuide D2D mxt/mnt grids for consistency
+ *                                     with A1.
+ * 10/10/12     #1260       randerso   Added check to ensure db can be created before 
+ *                                     adding it to the inventory
  * </pre>
  * 
  * @author bphillip
@@ -236,20 +239,20 @@ public class GFEDao extends DefaultPluginDao {
                 try {
                     q.setString("dataURI", rec.getDataURI());
                     List<?> list = q.list();
-                    if (list == null || list.size() == 0) {
+                    if ((list == null) || (list.size() == 0)) {
                         sess.save(rec);
                     } else {
                         rec.setId(((Number) list.get(0)).intValue());
                         sess.update(rec);
                     }
-                    if (index % batchSize == 0 || persistIndividually
+                    if ((index % batchSize == 0) || persistIndividually
                             || !notDone) {
                         sess.flush();
                         sess.clear();
                         tx.commit();
                         tx = null;
                         commitPoint = index;
-                        if (persistIndividually && index % batchSize == 0) {
+                        if (persistIndividually && (index % batchSize == 0)) {
                             // batch persisted individually switch back to batch
                             persistIndividually = false;
                         }
@@ -418,26 +421,28 @@ public class GFEDao extends DefaultPluginDao {
             }
         });
 
-        File hdf5File = GfeUtil.getHDF5File(GridDatabase.gfeBaseDataDir,
-                parmId.getDbId());
-        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
-        String[] groupsToDelete = new String[times.size()];
-        for (int i = 0; i < times.size(); i++) {
-            groupsToDelete[i] = GfeUtil.getHDF5Group(parmId, times.get(i));
-        }
-        try {
-            for (String grp : groupsToDelete) {
-                dataStore.delete(grp);
+        // we gain nothing by removing from hdf5
+        Map<File, String[]> fileMap = GfeUtil.getHdf5FilesAndGroups(
+                GridDatabase.gfeBaseDataDir, parmId, times);
+        for (Map.Entry<File, String[]> entry : fileMap.entrySet()) {
+            File hdf5File = entry.getKey();
+            IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+
+            try {
+                String[] groupsToDelete = entry.getValue();
+                for (String grp : groupsToDelete) {
+                    dataStore.delete(grp);
+                }
+
+                statusHandler.handle(Priority.DEBUG,
+                        "Deleted: " + Arrays.toString(groupsToDelete)
+                                + " from " + hdf5File.getName());
+
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error deleting hdf5 records", e);
             }
-            statusHandler.handle(Priority.DEBUG,
-                    "Deleted: " + Arrays.toString(groupsToDelete) + " from "
-                            + hdf5File.getName());
-
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error deleting hdf5 records", e);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -752,15 +757,14 @@ public class GFEDao extends DefaultPluginDao {
                 Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
                 int lowestHr = -1;
                 for (GridInfoRecord m : (List<GridInfoRecord>) results) {
-                    String param = m.getParameter().getAbbreviation()
-                            .toLowerCase();
-                    if (param.equals(abbreviation) && lowestHr < 0) {
+                    String param = m.getParameter().getAbbreviation().toLowerCase();
+                    if (param.equals(abbreviation) && (lowestHr < 0)) {
                         model = m;
                     } else {
                         Matcher matcher = p.matcher(param);
                         if (matcher.matches()) {
                             int hr = Integer.parseInt(matcher.group(1));
-                            if (lowestHr < 0 || hr < lowestHr) {
+                            if ((lowestHr < 0) || (hr < lowestHr)) {
                                 model = m;
                                 lowestHr = hr;
                             }
@@ -809,14 +813,13 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
-            if ((!uTimeList.isEmpty()) && (!vTimeList.isEmpty())
-                    & (uTimeList.size() == vTimeList.size())) {
-                for (TimeRange tr : uTimeList) {
-                    if (vTimeList.contains(tr)) {
-                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                    }
+            for (TimeRange tr : uTimeList) {
+                if (vTimeList.contains(tr)) {
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
+            }
 
+            if (!timeList.isEmpty()) {
                 return timeList;
             }
 
@@ -836,15 +839,14 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
-            if ((!sTimeList.isEmpty()) && (!dTimeList.isEmpty())
-                    & (sTimeList.size() == dTimeList.size())) {
-                for (TimeRange tr : sTimeList) {
-                    if (dTimeList.contains(tr)) {
-                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                    }
+            for (TimeRange tr : sTimeList) {
+                if (dTimeList.contains(tr)) {
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
 
-                return timeList;
+                if (!timeList.isEmpty()) {
+                    return timeList;
+                }
             }
         } else {
             List<DataTime> results = executeD2DParmQuery(id);
@@ -861,6 +863,7 @@ public class GFEDao extends DefaultPluginDao {
 
         return timeList;
     }
+
 
     private List<DataTime> executeD2DParmQuery(ParmID id)
             throws DataAccessLayerException {
@@ -914,10 +917,15 @@ public class GFEDao extends DefaultPluginDao {
             DatabaseID dbId = null;
             dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
                     (Date) obj);
-            if (!dbInventory.contains(dbId)) {
-                dbInventory.add(dbId);
+            try {
+                GridDatabase db = GridParmManager.getDb(dbId);
+                if (db != null && !dbInventory.contains(dbId)) {
+                    dbInventory.add(dbId);
+                }
+            } catch (GfeException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-
         }
         return dbInventory;
     }
@@ -989,17 +997,17 @@ public class GFEDao extends DefaultPluginDao {
      *            The parm and level to delete
      * @param dbId
      *            The database to delete from
-     * @param ds
-     *            The data store file
      * @throws DataAccessLayerException
      *             If errors occur
      */
-    public void removeOldParm(String parmAndLevel, DatabaseID dbId,
-            IDataStore ds) throws DataAccessLayerException {
+    public void removeOldParm(String parmAndLevel, DatabaseID dbId)
+            throws DataAccessLayerException {
 
         ParmID pid = new ParmID(parmAndLevel + ":" + dbId.toString());
 
         try {
+            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
+                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir, dbId));
             ds.delete("/GridParmInfo/" + parmAndLevel);
         } catch (Exception e1) {
             throw new DataAccessLayerException("Error deleting data from HDF5",

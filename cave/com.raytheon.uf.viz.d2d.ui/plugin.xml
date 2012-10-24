@@ -1895,12 +1895,6 @@
             contextId="com.raytheon.uf.viz.d2d.ui"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="NUMPAD_DECIMAL"/>
-      <scheme
-            id="com.raytheon.viz.ui.awips.scheme"
-            name="AWIPS personality scheme"
-            parentId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </scheme>
-      
    </extension>
    <extension
       point="org.eclipse.ui.commands">
