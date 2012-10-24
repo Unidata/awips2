@@ -43,6 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2008            Eric Babin  Initial Creation
  * 04/10/2009   #1290      rjpeter     Moved field validation to when ok pressed.
+ * Oct 24, 2012 #1287      rferrel     Change shell style.
  * </pre>
  * 
  * @author ebabin
@@ -61,7 +62,7 @@ public class DefineSamplesViaLatLongDialog extends CaveJFACEDialog {
 
     public DefineSamplesViaLatLongDialog(Shell parent) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
     }
 
     @Override
