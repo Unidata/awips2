@@ -84,8 +84,6 @@ import com.vividsolutions.jts.geom.Polygon;
  * as creating a grid coverage from an image, or from a data grid, and
  * reprojecting a coverage into another projection/coordinate system.
  * 
- * @author chammack
- * 
  * <pre>
  * 
  *    SOFTWARE HISTORY
@@ -95,8 +93,11 @@ import com.vividsolutions.jts.geom.Polygon;
  *    05/16/2012   14993       D. Friedman Add oversampling option to
  *                                         reprojectGeometry.
  *    06/19/2012   14988       D. Friedman Make oversampling more like AWIPS 1
+ *    09/18/2012   #1091       randerso    corrected getBoundingEnvelope
  * 
  * </pre>
+ * 
+ * @author chammack
  */
 @SuppressWarnings("unchecked")
 public class MapUtil {
@@ -354,14 +355,16 @@ public class MapUtil {
      * @param addBorder
      *            expand envelope to include a 1 grid cell border after
      *            reprojection
-     * @param oversampleFactor oversample factor for new grid
+     * @param oversampleFactor
+     *            oversample factor for new grid
      * @return the reprojected grid geometry
      * @throws FactoryException
      *             , TransformException
      */
     public static GeneralGridGeometry reprojectGeometry(
             GeneralGridGeometry sourceGeometry, Envelope targetEnvelope,
-            boolean addBorder, int oversampleFactor) throws FactoryException, TransformException {
+            boolean addBorder, int oversampleFactor) throws FactoryException,
+            TransformException {
         CoordinateReferenceSystem targetCRS = targetEnvelope
                 .getCoordinateReferenceSystem();
         ReferencedEnvelope targetREnv = null;
@@ -387,7 +390,6 @@ public class MapUtil {
         ReferencedEnvelope newEnv = new ReferencedEnvelope(JTS.getEnvelope2D(
                 newTargetREnv.intersection(newSourceEnv), LATLON_PROJECTION),
                 LATLON_PROJECTION);
-        ReferencedEnvelope newEnvInSourceProjection = newEnv.transform(sourceCRS, false, 500);
         newEnv = newEnv.transform(targetCRS, false, 500);
         // Calculate nx and ny, start with the number of original grid
         // points in the intersection and then adjust to the new aspect
@@ -401,10 +403,9 @@ public class MapUtil {
         int ny = (int) (nx * aspectRatio);
 
         if (oversampleFactor > 1) {
-            int inCount = sourceGeometry.getGridRange().getSpan(0) *
-                sourceGeometry.getGridRange().getSpan(1);
-            double outCount = inCount * newEnv.getArea() /
-                sourceEnv.getArea();
+            int inCount = sourceGeometry.getGridRange().getSpan(0)
+                    * sourceGeometry.getGridRange().getSpan(1);
+            double outCount = inCount * newEnv.getArea() / sourceEnv.getArea();
             outCount *= 4;
             nx = (int) Math.sqrt(outCount / aspectRatio);
             ny = (int) (nx * aspectRatio);
@@ -950,6 +951,13 @@ public class MapUtil {
         return latLon;
     }
 
+    public static void gridCoordinateToNative(Coordinate[] coords,
+            PixelOrientation orientation, ISpatialObject spatialObject) {
+
+        transformCoordinates(getTransformToNative(orientation, spatialObject),
+                coords);
+    }
+
     /**
      * Returns the rotation from true north (in degrees) of the specified point
      * (in latLon). A positive number indicates that north is to the right of
@@ -1039,7 +1047,7 @@ public class MapUtil {
      * @throws TransformException
      * @throws FactoryException
      */
-    public static com.vividsolutions.jts.geom.Envelope getBoundingEnvelope(
+    public static ReferencedEnvelope getBoundingEnvelope(
             ISpatialObject spatialObject) throws TransformException,
             FactoryException {
 
@@ -1048,12 +1056,12 @@ public class MapUtil {
 
         Coordinate[] coords = new Coordinate[] { new Coordinate(0, ny - 1),
                 new Coordinate(nx, -1) };
-        gridCoordinateToLatLon(coords, PixelOrientation.LOWER_LEFT,
+        gridCoordinateToNative(coords, PixelOrientation.LOWER_LEFT,
                 spatialObject);
 
         ReferencedEnvelope env = new ReferencedEnvelope(coords[0].x,
-                coords[1].x, coords[0].y, coords[1].y,
-                MapUtil.LATLON_PROJECTION);
+                coords[1].x, coords[0].y, coords[1].y, spatialObject.getCrs());
+
         ReferencedEnvelope boundingEnv;
         boundingEnv = env.transform(MapUtil.LATLON_PROJECTION, true);
 

@@ -80,19 +80,16 @@ public class TextArchiveFileNameFormatter implements
                 endTime);
 
         Set<String> newFileEntries = new HashSet<String>();
-        if (pdos != null && !pdos.isEmpty()) {
+        if ((pdos != null) && !pdos.isEmpty()) {
             if (pdos.get(0) instanceof StdTextProduct) {
                 for (PersistableDataObject pdo : pdos) {
                     StdTextProduct casted = (StdTextProduct) pdo;
 
                     // no refTime to use, so we use creation time
                     Date time = new Date(casted.getRefTime());
-                    String timeString = null;
-                    synchronized (DefaultPathProvider.fileNameFormat) {
-                        timeString = DefaultPathProvider.fileNameFormat
-                                .format(time);
-                    }
-                    String path = pluginName + timeString;
+                    String path = pluginName
+                            + DefaultPathProvider.fileNameFormat.get().format(
+                                    time);
 
                     newFileEntries.add(path);
                     List<PersistableDataObject> list = pdoMap.get(path);

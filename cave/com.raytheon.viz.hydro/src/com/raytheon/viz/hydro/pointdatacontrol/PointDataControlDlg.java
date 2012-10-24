@@ -96,7 +96,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     The actionListeners for certain controls
  *                                     have been updated so that they will set it
  *                                     to true when an update is actually required.
- * 
+ *
+ * 03 OCT 2012 #15395                  Added code to handle TimeStep when default is set 
+ * 									   to be "30 minutes Instantaneous" in the database.
+ * 09 OCT 2012 #15396				   Fixed Instantaneous precip index so legend and map display 
+ * 									   will change each time duration is incremented or decremented
+ * 									   for the "30 minutes Instantaneous" rainfall map .
  * </pre>
  * 
  * @author lvenable
@@ -599,6 +604,20 @@ public class PointDataControlDlg extends CaveSWTDialog {
         timeTF.setText(dateTimeFmt.format(cal.getTime()));
 
         populatePresetData(null);
+        
+        /* this is when in the database, the timeStep is set to be the 
+           default one */
+         
+        if (timeStepRdo.getSelection() == true) {
+            handleQueryModeSelection(PDCConstants.QueryMode.TIME_STEP_MODE);
+            previousQueryMode = PDCConstants.QueryMode.TIME_STEP_MODE;
+            shell.setCursor(waitCursor);
+            updateData = true;
+            drawMap();
+            shell.setCursor(arrowCursor);
+
+        }
+
     }
 
     /**
@@ -853,11 +872,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
         upPrecipBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	PDCOptionData pcOptions = PDCOptionData.getInstance();
                 if (precipIndex >= HydroConstants.InstPrecipSelection.values().length - 1) {
                     precipIndex = 0;
                 } else {
                     precipIndex++;
+                    if  (precipIndex == HydroConstants.InstPrecipSelection.
+                            values().length - 1) {
+                    	precipIndex=0;
+                    }
+
                 }
+            	pcOptions.setInstPrecipAccumTimeSelection(precipIndex);
                 setInstPrecipAccumText();
                 shell.setCursor(waitCursor);
                 updateData = true;
@@ -871,11 +897,21 @@ public class PointDataControlDlg extends CaveSWTDialog {
         downPrecipBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	PDCOptionData pcOptions = PDCOptionData.getInstance();
                 if (precipIndex == 0) {
-                    precipIndex = HydroConstants.InstPrecipSelection.values().length - 1;
+                    precipIndex = HydroConstants.InstPrecipSelection.
+                    								values().length - 1;
+                    if  (precipIndex == HydroConstants.InstPrecipSelection.
+                    										values().length - 1) {
+                    	precipIndex=HydroConstants.InstPrecipSelection.
+                            							values().length - 2;
+                    } 
+
                 } else {
                     precipIndex--;
                 }
+                
+                pcOptions.setInstPrecipAccumTimeSelection(precipIndex);
                 setInstPrecipAccumText();
                 shell.setCursor(waitCursor);
                 updateData = true;
