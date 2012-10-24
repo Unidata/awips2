@@ -41,7 +41,8 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.edex.uengine.tasks.query.TableQuery;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 import java.awt.Point;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -70,7 +71,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 public class MdlSoundingQuery {
 	private static final String NCGRIB_TBL_NAME = "ncgrib";
-	private static final String D2DGRIB_TBL_NAME = "grib";
+	private static final String D2DGRIB_TBL_NAME = "grid";
 	
 	private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, OMEG, RELH";
 	//private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH";
@@ -104,12 +105,12 @@ public class MdlSoundingQuery {
 		}else if(currentDBTblName.equals(D2DGRIB_TBL_NAME)){
 			TableQuery query;
 			try {
-				query = new TableQuery("metadata", GribRecord.class.getName());
+				query = new TableQuery("metadata", GridRecord.class.getName());
 				query.setDistinctField("dataTime.refTime");
-				query.addParameter("modelInfo.modelName", mdlType);
+				query.addParameter(GridConstants.DATASET_ID, mdlType);
 				query.setSortBy("dataTime.refTime", false);
 				@SuppressWarnings("unchecked")
-				List<GribRecord> recList = (List<GribRecord>) query.execute();
+				List<GridRecord> recList = (List<GridRecord>) query.execute();
 				tl.setTimeLines(recList.toArray());
 			} catch (DataAccessLayerException e) {
 				// TODO Auto-generated catch block
@@ -144,13 +145,13 @@ public class MdlSoundingQuery {
 		else if(currentDBTblName.equals(D2DGRIB_TBL_NAME)){
 			TableQuery query;
 			try {
-				query = new TableQuery("metadata", GribRecord.class.getName());
+				query = new TableQuery("metadata", GridRecord.class.getName());
 				query.setDistinctField("dataTime.validPeriod.start");
-				query.addParameter("modelInfo.modelName", mdlType);
+				query.addParameter(GridConstants.DATASET_ID, mdlType);
 				query.addParameter("dataTime.refTime", refTimeStr + ":00:00");
 				query.setSortBy("dataTime.validPeriod.start", true);
 				@SuppressWarnings("unchecked")
-				List<GribRecord> recList = (List<GribRecord>) query.execute();
+				List<GridRecord> recList = (List<GridRecord>) query.execute();
 				tl.setTimeLines(recList.toArray());
 			} catch (DataAccessLayerException e) {
 				// TODO Auto-generated catch block
@@ -406,21 +407,21 @@ public class MdlSoundingQuery {
 			}
 
 		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(GribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
+			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
 			query.setMaxResults(new Integer(1));
-			query.addQueryParam("modelInfo.modelName", modelName);
+			query.addQueryParam(GridConstants.DATASET_ID, modelName);
 			query.addQueryParam("dataTime.refTime", refTime);
 			query.addQueryParam("dataTime.validPeriod.start", validTime);
 
 			try {
-				List<GribRecord> recList = ((List<GribRecord>) dao
+				List<GridRecord> recList = ((List<GridRecord>) dao
 						.queryByCriteria(query));
 				if (recList.size() == 0) {
 					return false;
 				} else {
-					GribRecord rec = recList.get(0);
+					GridRecord rec = recList.get(0);
 					spatialArea = rec.getSpatialObject();
 				}
 
@@ -517,21 +518,21 @@ public class MdlSoundingQuery {
 			}
 
 		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(GribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
+			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
 			query.setMaxResults(new Integer(1));
-			query.addQueryParam("modelInfo.modelName", modelName);
+			query.addQueryParam(GridConstants.DATASET_ID, modelName);
 			query.addQueryParam("dataTime.refTime", refTime);
 			query.addQueryParam("dataTime.validPeriod.start", validTime);
 
 			try {
-				List<GribRecord> recList = ((List<GribRecord>) dao
+				List<GridRecord> recList = ((List<GridRecord>) dao
 						.queryByCriteria(query));
 				if (recList.size() == 0) {
 					return false;
 				} else {
-					GribRecord rec = recList.get(0);
+					GridRecord rec = recList.get(0);
 					spatialArea = rec.getSpatialObject();
 				}
 
@@ -626,20 +627,20 @@ public class MdlSoundingQuery {
 			}
 
 		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(GribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
+			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
-			query.addQueryParam("modelInfo.level.levelonevalue", "0.0");
-			query.addQueryParam("modelInfo.level.leveltwovalue", "-999999.0");
-			query.addQueryParam("modelInfo.level.masterLevel.name", "MSL");
-			query.addQueryParam("modelInfo.parameterAbbreviation", "PMSL");
-			query.addQueryParam("modelInfo.modelName", modelName);
+			query.addQueryParam(GridConstants.LEVEL_ONE, "0.0");
+			query.addQueryParam(GridConstants.LEVEL_TWO, "-999999.0");
+			query.addQueryParam(GridConstants.MASTER_LEVEL_NAME, "MSL");
+			query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "PMSL");
+			query.addQueryParam(GridConstants.DATASET_ID, modelName);
 			query.addQueryParam("dataTime.refTime", refTime);
 			query.addQueryParam("dataTime.validPeriod.start", validTime);
 
-			GribRecord rec = null;
+			GridRecord rec = null;
 			try {
-				List<GribRecord> recList = ((List<GribRecord>) dao
+				List<GridRecord> recList = ((List<GridRecord>) dao
 						.queryByCriteria(query));
 				if (recList.size() == 0) {
 					return null;
@@ -817,19 +818,19 @@ public class MdlSoundingQuery {
 			}
 		}	
 		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			List<GribRecord> recList = new ArrayList<GribRecord>(); ;
+			List<GridRecord> recList = new ArrayList<GridRecord>(); ;
 			TableQuery query;
 			try {
 				query = new TableQuery("metadata",
-						GribRecord.class.getName());
-				query.addParameter("modelInfo.level.masterLevel.name", "MB");
-				query.addParameter("modelInfo.modelName", modelName);
-				query.addList("modelInfo.parameterAbbreviation",
+						GridRecord.class.getName());
+				query.addParameter(GridConstants.MASTER_LEVEL_NAME, "MB");
+				query.addParameter(GridConstants.DATASET_ID, modelName);
+				query.addList(GridConstants.PARAMETER_ABBREVIATION,
 						D2D_PARMS);
 				query.addParameter("dataTime.refTime", refTime);
 				query.addParameter("dataTime.validPeriod.start", validTime);
-				query.setSortBy("modelInfo.level.levelonevalue", false);
-				recList = (List<GribRecord>) query.execute();					
+				query.setSortBy(GridConstants.LEVEL_ONE, false);
+				recList = (List<GridRecord>) query.execute();					
 				if (recList.size() != 0) {
 					PointIn pointIn = new PointIn(pluginName, recList.get(0));
 					fdataArrayList = pointIn.getHDF5GroupDataPoints(recList.toArray(),points);
@@ -858,10 +859,10 @@ public class MdlSoundingQuery {
 					double pressure= (Double)level;
 					soundingLy.setPressure( (float)pressure);
 					for (int i=0; i < recArray.length; i++) {
-						GribRecord rec1 = (GribRecord)recArray[i];
+						GridRecord rec1 = (GridRecord)recArray[i];
 						float fdata = fdataArray[i];
-						if(rec1.getModelInfo().getLevelOneValue() == pressure){
-							String prm = rec1.getModelInfo().getParameterAbbreviation();
+						if(rec1.getLevel().getLevelonevalue() == pressure){
+							String prm = rec1.getParameter().getAbbreviation();
 							switch (D2DParmNames.valueOf(prm)) {
 							case GH:
 								soundingLy.setGeoHeight(fdata);
@@ -1160,16 +1161,16 @@ public class MdlSoundingQuery {
 			}
 
 		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(GribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
-			query.addDistinctParameter("modelInfo.level.levelonevalue");
-			query.addQueryParam("modelInfo.parameterAbbreviation", "GH");
-			query.addQueryParam("modelInfo.level.masterLevel.name", "MB");
+			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
+			query.addDistinctParameter(GridConstants.LEVEL_ONE);
+			query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "GH");
+			query.addQueryParam(GridConstants.MASTER_LEVEL_NAME, "MB");
 
-			query.addQueryParam("modelInfo.modelName", modelName);
+			query.addQueryParam(GridConstants.DATASET_ID, modelName);
 			query.addQueryParam("dataTime.refTime", refTime);
 			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			query.addOrder("modelInfo.level.levelonevalue", false);
+			query.addOrder(GridConstants.LEVEL_ONE, false);
 
 			try {
 				return (List<?>) dao.queryByCriteria(query);
@@ -1237,20 +1238,20 @@ public class MdlSoundingQuery {
 			
 
 		} else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			CoreDao dao = new CoreDao(DaoConfig.forClass(GribRecord.class));
-			DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
+			CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+			DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
 
-			query.addQueryParam("modelInfo.parameterAbbreviation", "GH");
-			query.addQueryParam("modelInfo.level.masterLevel.name", "MB");
-			query.addQueryParam("modelInfo.modelName", modelName);
+			query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "GH");
+			query.addQueryParam(GridConstants.MASTER_LEVEL_NAME, "MB");
+			query.addQueryParam(GridConstants.DATASET_ID, modelName);
 			query.addQueryParam("dataTime.refTime", refTime);
 			query.addQueryParam("dataTime.validPeriod.start", validTime);
-			query.addQueryParam("modelInfo.level.levelonevalue", level);
-			query.addQueryParam("modelInfo.level.leveltwovalue", "-999999.0");
+			query.addQueryParam(GridConstants.LEVEL_ONE, level);
+			query.addQueryParam(GridConstants.LEVEL_TWO, "-999999.0");
 
-			GribRecord rec;
+			GridRecord rec;
 			try {
-				List<GribRecord> recList = ((List<GribRecord>) dao
+				List<GridRecord> recList = ((List<GridRecord>) dao
 						.queryByCriteria(query));
 				if (recList.size() == 0) {
 					return null;
