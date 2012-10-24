@@ -20,8 +20,13 @@
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
@@ -29,11 +34,23 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.graphing.GraphDescriptor;
-
+@XmlAccessorType(XmlAccessType.NONE)
 public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
+	@XmlElement
 	protected int paneNumber;
+	
+	protected NsharpResourceHandler rscHandler=null;
     
-    public int getPaneNumber() {
+	
+    public NsharpResourceHandler getRscHandler() {
+		return rscHandler;
+	}
+
+	public void setRscHandler(NsharpResourceHandler rscHandler) {
+		this.rscHandler = rscHandler;
+	}
+
+	public int getPaneNumber() {
 		return paneNumber;
 	}
 
@@ -77,6 +94,8 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
     }
     public void setNewPe(PixelExtent anExtent){
         try {
+        	//System.out.println("PaneDescriptor " + this.toString() + " PE="+anExtent.getMinX()+","+anExtent.getMinY()+
+        	//		","+anExtent.getMaxX()+","+anExtent.getMaxY());  
 			setGridGeometry(createGridGeometry(anExtent, DefaultEngineeringCRS.CARTESIAN_2D));
 		} catch (VizException e) {
 			// TODO Auto-generated catch block

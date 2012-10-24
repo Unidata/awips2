@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 06/01/2010   2187        cjeanbap    Added StdTextProductFactory 
  *                                       functionality.
  * 06/28/2010   3283        cjeanbap    Implement window resize.
+ * 25Sep2012    1196        lvenable    Dialog refactor to prevent blocking.
  * </pre>
  * 
  * @author lvenable
@@ -229,7 +230,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     public AfosBrowserDlg(Shell parent, String browserHdr,
             IAfosBrowserCallback cbClient, String token) {
         super(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
 
         setText(browserHdr + " Browser");
 

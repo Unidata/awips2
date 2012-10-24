@@ -115,7 +115,7 @@ public class RaobMenuUtil extends AbstractMenuUtil {
             vars.value = sites.get(i).getSiteId();
             bundleCont = new CommonBundleMenuContribution();
             bundleCont.text = sites.get(i).getCity();
-            bundleCont.editorType = "gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor";
+            bundleCont.editorType = "gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor";
             bundleCont.id = "raob_local_" + sites.get(i).getIcao();
             bundleCont.bundleFile = "bundles" + File.separator
                     + "UpperAirRaob.xml";

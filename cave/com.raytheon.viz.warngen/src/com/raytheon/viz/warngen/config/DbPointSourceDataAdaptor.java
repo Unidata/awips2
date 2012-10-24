@@ -19,23 +19,24 @@
  **/
 package com.raytheon.viz.warngen.config;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import javax.measure.converter.UnitConverter;
 
+import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
-import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * PointSource data adaptor for data retrieved from a Database.
@@ -47,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2011            bgonzale     Initial creation
+ * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
  * 
  * </pre>
  * 
@@ -56,19 +58,35 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
+    public DbPointSourceDataAdaptor(
+            PathcastConfiguration pathcastConfiguration,
+            UnitConverter distanceToMeters, Geometry searchArea,
+            String localizedSite) throws VizException {
+        super(pathcastConfiguration, distanceToMeters, searchArea,
+                localizedSite);
+    }
+
+    public DbPointSourceDataAdaptor(
+            PointSourceConfiguration pointSourceConfiguration,
+            Geometry searchArea, String localizedSite) throws VizException {
+        super(pointSourceConfiguration, searchArea, localizedSite);
+    }
+
     @Override
-    protected Set<String> createSpatialQueryField() {
+    protected Set<String> createSpatialQueryField(String pointField,
+            String[] sortBy) {
         Set<String> ptFields = new HashSet<String>();
-        ptFields.add(pointConfig.getPointField());
+        ptFields.add(pointField);
 
         List<String> fields = new ArrayList<String>();
-        if (pointConfig.getSortBy() != null) {
-            fields = Arrays.asList(pointConfig.getSortBy());
+        if (sortBy != null) {
+            fields = Arrays.asList(sortBy);
         }
 
+        // Sort fields don't exist in the db.
         for (String field : fields) {
-            if (sortFields.contains(field.toLowerCase()) == false) {
-                ptFields.add(field.toLowerCase());
+            if (undatabasedSortableFields.contains(field.toUpperCase()) == false) {
+                ptFields.add(field.toUpperCase());
             }
         }
 
@@ -76,22 +94,22 @@ public class DbPointSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
     }
 
     @Override
-    protected ClosestPoint createClosestPoint(Set<String> ptFields,
-            SpatialQueryResult ptRslt) {
+    protected ClosestPoint createClosestPoint(String pointField,
+            Set<String> ptFields, SpatialQueryResult ptRslt) {
         Map<String, Object> attributes = ptRslt.attributes;
 
-        String name = String
-                .valueOf(attributes.get(pointConfig.getPointField()));
+        String name = String.valueOf(attributes.get(pointField));
         Coordinate point = ptRslt.geometry.getCoordinate();
         int population = getPopulation(ptFields, attributes);
         int warngenlev = getWangenlev(ptFields, attributes);
+        int gid = getGid(ptFields, attributes);
 
-        return new ClosestPoint(name, point, population, warngenlev, null);
+        return new ClosestPoint(name, point, population, warngenlev, null, gid);
     }
 
     @Override
-    protected Map<String, RequestConstraint> processFilterSubstitution() {
-        Map<String, RequestConstraint> filter = pointConfig.getFilter();
+    protected Map<String, RequestConstraint> processFilterSubstitution(
+            Map<String, RequestConstraint> filter) {
         if (filter != null) {
             // Process substitutes for filter
             for (RequestConstraint rc : filter.values()) {

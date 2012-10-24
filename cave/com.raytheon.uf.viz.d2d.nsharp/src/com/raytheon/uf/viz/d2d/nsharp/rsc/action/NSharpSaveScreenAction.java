@@ -20,16 +20,15 @@
 
 package com.raytheon.uf.viz.d2d.nsharp.rsc.action;
 
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeMode;
-import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeOperation;
+import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.actions.SaveScreenAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -58,51 +57,38 @@ public class NSharpSaveScreenAction extends SaveScreenAction {
     @Override
     protected List<BufferedImage> captureAllFrames(AbstractEditor editor)
             throws VizException {
-        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
-        if (!(desc instanceof NsharpSkewTDescriptor)) {
+        if(!(editor instanceof NsharpEditor)){
             return super.captureAllFrames(editor);
         }
-        NsharpSkewTDescriptor ndesc = (NsharpSkewTDescriptor) desc;
+        NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         int startIndex = 0;
-        int endIndex = ndesc.getSkewtResource().getDataTimelineList().size();
+        int endIndex = NsharpFrameIndexUtil.getFrameCount(handler);
         return captureFrames(editor, startIndex, endIndex);
     }
 
     @Override
     protected List<BufferedImage> captureFrames(AbstractEditor editor,
             int startIndex, int endIndex) throws VizException {
-        IDisplayPane pane = editor.getActiveDisplayPane();
-        IDescriptor desc = pane.getDescriptor();
-        if (!(desc instanceof NsharpSkewTDescriptor)) {
+        if(!(editor instanceof NsharpEditor)){
             return super.captureFrames(editor, startIndex, endIndex);
         }
-        NsharpSkewTDescriptor ndesc = (NsharpSkewTDescriptor) desc;
+        IDisplayPane pane = editor.getActiveDisplayPane();
+        NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         // save the frame we are on;
-        String picked = ndesc.getSkewtResource().getPickedStnInfoStr();
+        int startingIndex = NsharpFrameIndexUtil.getCurrentIndex(handler);
         List<BufferedImage> images = new ArrayList<BufferedImage>();
-
-        desc.getFrameCoordinator().changeFrame(FrameChangeOperation.FIRST,
-                FrameChangeMode.TIME_AND_SPACE);
-        pane.refresh();
-        renderPane(pane, editor.getLoopProperties());
-        for (int i = 0; i < endIndex; i++) {
-            if (i >= startIndex) {
-                images.add(captureCurrentFrames(editor));
-            }
-            if (i < endIndex - 1) {
-                desc.getFrameCoordinator().changeFrame(
-                        FrameChangeOperation.NEXT,
-                        FrameChangeMode.TIME_AND_SPACE);
-                pane.refresh();
-                renderPane(pane, editor.getLoopProperties());
-            }
-        }
-        while (!ndesc.getSkewtResource().getPickedStnInfoStr().equals(picked)) {
-            desc.getFrameCoordinator().changeFrame(FrameChangeOperation.NEXT,
-                    FrameChangeMode.TIME_AND_SPACE);
+        LoopProperties loopProperties = ((AbstractEditor) editor)
+                .getLoopProperties();
+        renderPane(pane, loopProperties);
+        for (int i = startIndex; i < endIndex; i++) {
+            NsharpFrameIndexUtil.setCurrentIndex(handler, i);
             pane.refresh();
-            renderPane(pane, editor.getLoopProperties());
+            renderPane(pane, loopProperties);
+            images.add(captureCurrentFrames(editor));
         }
+        NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
+        pane.refresh();
+        renderPane(pane, loopProperties);
         return images;
     }
 

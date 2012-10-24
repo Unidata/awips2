@@ -51,9 +51,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class WorldWrapChecker {
 
-    private double inverseCentralMeridian = Double.NaN;
+    private double lowInverseCentralMeridian = Double.NaN;
 
-    private boolean low = false;
+    private double highInverseCentralMeridian = Double.NaN;
 
     private boolean checkForWrapping = false;
 
@@ -67,16 +67,14 @@ public class WorldWrapChecker {
                     AbstractProvider.CENTRAL_MERIDIAN.getName().getCode())
                     .doubleValue();
         }
-        inverseCentralMeridian = centralMeridian + 180.0;
-        if (inverseCentralMeridian > 180.0) {
-            inverseCentralMeridian -= 360.0;
-            low = true;
-        }
 
-        double l1 = inverseCentralMeridian - .1;
-        double l2 = inverseCentralMeridian - .2;
-        double r1 = inverseCentralMeridian - 359.9;
-        double r2 = inverseCentralMeridian - 359.8;
+        highInverseCentralMeridian = centralMeridian + 180.0;
+        lowInverseCentralMeridian = centralMeridian - 180.0;
+
+        double l1 = highInverseCentralMeridian - .1;
+        double l2 = highInverseCentralMeridian - .2;
+        double r1 = highInverseCentralMeridian - 359.9;
+        double r2 = highInverseCentralMeridian - 359.8;
 
         try {
             MathTransform latLonToGrid = new DefaultMathTransformFactory()
@@ -121,15 +119,26 @@ public class WorldWrapChecker {
         return Math.abs(aLon - bLon) > 180.0;
     }
 
-    public double getInverseCentralMeridian() {
-        return inverseCentralMeridian;
+    /**
+     * @return the lowInverseCentralMeridian
+     */
+    public double getLowInverseCentralMeridian() {
+        return lowInverseCentralMeridian;
+    }
+
+    /**
+     * @return the highInverseCentralMeridian
+     */
+    public double getHighInverseCentralMeridian() {
+        return highInverseCentralMeridian;
     }
 
     public double toProjectionRange(double aLon) {
-        if (low && aLon < inverseCentralMeridian) {
-            aLon += 360;
-        } else if (!low && aLon > inverseCentralMeridian) {
-            aLon -= 360;
+        while (aLon < lowInverseCentralMeridian) {
+            aLon += 360.0;
+        }
+        while (aLon > highInverseCentralMeridian) {
+            aLon -= 360.0;
         }
         return aLon;
     }

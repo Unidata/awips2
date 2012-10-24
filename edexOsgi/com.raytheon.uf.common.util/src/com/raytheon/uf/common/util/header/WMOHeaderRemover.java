@@ -48,24 +48,29 @@ public class WMOHeaderRemover {
             return data;
         }
 
+        // A header we can remove was found. Will discard any data before header
         byte[] headerBytes = header.getBytes();
 
-        boolean equal = false;
-        // Do < since there should be something after the header
-        if (headerBytes.length < data.length) {
-            equal = true;
-            for (int i = 0; i < headerBytes.length; ++i) {
-                if (headerBytes[i] != data[i]) {
-                    equal = false;
+        // Must be data after header
+        int endLength = data.length - headerBytes.length;
+        for (int i = 0; i < endLength; ++i) {
+            if (data[i] == headerBytes[0]) {
+                // First byte matches
+                int tmpI = i;
+                for (int j = 0; j < headerBytes.length; ++j, ++tmpI) {
+                    if (data[tmpI] != headerBytes[j]) {
+                        tmpI = -1;
+                        break;
+                    }
+                }
+                if (tmpI > 0) {
+                    // Copy data and break
+                    byte[] newData = new byte[data.length - tmpI];
+                    System.arraycopy(data, tmpI, newData, 0, newData.length);
+                    data = newData;
                     break;
                 }
             }
-        }
-        if (equal) {
-            byte[] newData = new byte[data.length - headerBytes.length];
-            System.arraycopy(data, headerBytes.length, newData, 0,
-                    newData.length);
-            data = newData;
         }
         return data;
     }
