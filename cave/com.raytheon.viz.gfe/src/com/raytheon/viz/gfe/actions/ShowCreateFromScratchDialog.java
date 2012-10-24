@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.CreateFromScratchDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 27, 2008					Eric Babin Initial Creation
  * 04/18/08     #857       bphillip    Implemented interaction with server
+ * Oct 24, 2012 #1287      rferrel     Changes for non-blocking CreateFromScratchDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.CreateFromScratchDialog;
  */
 
 public class ShowCreateFromScratchDialog extends AbstractHandler {
+    private CreateFromScratchDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -54,12 +56,16 @@ public class ShowCreateFromScratchDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        CreateFromScratchDialog dialog = new CreateFromScratchDialog(shell);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new CreateFromScratchDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
