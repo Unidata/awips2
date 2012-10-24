@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 2009-12-02			   vkorolev    Initial creation.
  * 2010-01-21	4268	   vkorolev	   Fixed Trend Plot
+ * 2012-10-15   1229       vkorolev    Changes for non-blocking TrendPlotDlg
  * </pre>
  * 
  * @author vkorolev
@@ -65,9 +66,12 @@ public class TrendPlotDlg extends CaveSWTDialog {
 
     public Date curdate;
 
+    public String var;
+
     public TrendPlotDlg(Shell parent, String selectedZone, String station,
             ArrayList<String> product, String dataName) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         setText(getTrendPlotName(product) + " Trend Plot for " + station + "#"
                 + dataName);
 
@@ -89,13 +93,13 @@ public class TrendPlotDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(product);
         // Initialize all layouts
         Iterator<String> prodVar = product.iterator();
         while (prodVar.hasNext()) {
-            String varname = prodVar.next();
-            new TrendPlotCanvas(shell, selectedZone, station, varname,
-                    dataName, obData);
+            String var = prodVar.next();
+            new TrendPlotCanvas(shell, selectedZone, station, var, dataName,
+                    obData);
         }
         addCloseBtn();
     }
