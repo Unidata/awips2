@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -84,11 +85,11 @@ public class SampleSetDialog extends CaveJFACEDialog {
 
     private int returnCode = OK;
 
-    private int type = 1;
+    private int type = CANCEL;
 
     public SampleSetDialog(Shell parent, ArrayList<SampleId> samples, int type) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.samples = samples;
         this.type = type;
     }
@@ -221,4 +222,7 @@ public class SampleSetDialog extends CaveJFACEDialog {
         this.sampleName = sampleName;
     }
 
+    public ArrayList<SampleId> getSamples() {
+        return samples;
+    }
 }
