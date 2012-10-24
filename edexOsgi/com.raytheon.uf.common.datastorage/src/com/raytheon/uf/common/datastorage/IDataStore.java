@@ -89,7 +89,8 @@ public interface IDataStore extends ISerializableObject {
 
     /**
      * Delete a (set of) location(s), where a location is either a group or a
-     * dataset
+     * dataset. If all datasets have been deleted from a file, the file will be
+     * deleted also.
      * 
      * @param location
      *            the full path to the group or dataset

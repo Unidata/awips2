@@ -71,6 +71,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 04, 2011 7953       bkowal       Fill values will now be placed
  *                                      in the data array for anything
  *                                      below 300MB for RUC80.
+ * Oct 2, 2012  DR 15259  M.Porricelli  Allow plotting when 3 levels
+ *                                      available (DGEX)                                     
  * 
  * </pre>
  * 
@@ -147,7 +149,7 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
             }
         }
 
-        if (xMap.size() < 4) {
+        if (xMap.size() < 3) {
             return null;
         }
 
@@ -161,7 +163,7 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
         xMap.keySet().retainAll(yMap.keySet());
         yMap.keySet().retainAll(xMap.keySet());
 
-        if (xMap.size() < 4) {
+        if (xMap.size() < 3) {
             return null;
         }
 

@@ -66,16 +66,23 @@
    <extension
          id="com.raytheon.viz.ui.bindings"
          point="org.eclipse.ui.bindings">
-      <!-- These keys represent default bindings we want to override --> 
+      <scheme
+            id="com.raytheon.viz.ui.awips.scheme"
+            name="AWIPS personality scheme"
+            parentId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </scheme>
+      <!-- These keys represent default bindings we don't want --> 
       <key
-            commandId="com.raytheon.viz.ui.actions.nullAction2"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+M2+T">
       </key>
       <key
-            commandId="com.raytheon.viz.ui.actions.nullAction2"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="M1+M2+R">
+      </key>
+      <key
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="M1+3">
       </key>
    </extension>
 </plugin>

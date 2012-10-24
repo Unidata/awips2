@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 6, 2009  2987       jelkins     Initial creation
  * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
  * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
+ * 07/31/2012   #875       rferrel     Now uses points.
  * 
  * 
  * </pre>
@@ -257,9 +258,10 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
         String pointLetter = getPointLetter(catalogEntry);
 
-        Coordinate c = PointsDataManager.getInstance().getPoint(pointLetter);
+        Coordinate c = PointsDataManager.getInstance().getCoordinate(
+                pointLetter);
         if (c == null) {
-            c = PointsDataManager.getInstance().getPoint("A");
+            c = PointsDataManager.getInstance().getCoordinate("A");
         }
         return c;
 
@@ -277,7 +279,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             break;
         case TIMESERIES:
             pointLetter = catalogEntry.getDialogSettings().getPointsSelection()
-                    .toString().replace("POINT_", "");
+                    .getName();
             break;
         }
         return pointLetter;
@@ -302,7 +304,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         if (catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.TIMESERIES) {
             name.append(" "
                     + catalogEntry.getDialogSettings().getPointsSelection()
-                            .getDisplayString());
+                            .getName());
         }
 
         name.append(String.format(" %s %s", catalogEntry.getSelectedData()

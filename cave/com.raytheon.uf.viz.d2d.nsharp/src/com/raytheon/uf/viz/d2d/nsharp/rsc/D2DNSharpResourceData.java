@@ -25,9 +25,6 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +37,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-
-import org.eclipse.core.runtime.Platform;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
@@ -162,8 +157,6 @@ public abstract class D2DNSharpResourceData extends
         List<NcSoundingLayer> layers = profileList.getSoundingLyLst();
         layers = NsharpDataHandling.organizeSoundingDataForShow(layers,
                 profileList.getStationElevation());
-        // TODO remove this, as it only exists to help resolve crashes.
-        logSoundingFiles(dataObject.getStationInfo(), layers);
         dataObject.setLayers(layers);
     }
 
@@ -259,89 +252,6 @@ public abstract class D2DNSharpResourceData extends
         } else if (!soundingType.equals(other.soundingType))
             return false;
         return true;
-    }
-
-    // TODO this purges debugging files, it can be removed when debugging is
-    // removed
-    private static long nextPurgeTime = 0;
-
-    /**
-     * 
-     * This function exists only to help identify data that can crash nsharp, it
-     * can be removed once nsharp is considered more stable.
-     * 
-     * @param info
-     * @param layers
-     */
-    private static void logSoundingFiles(NsharpStationInfo info,
-            List<NcSoundingLayer> layers) {
-        if (layers.isEmpty()) {
-            return;
-        }
-        try {
-            File caveData = new File(Platform.getUserLocation().getURL()
-                    .getPath());
-            File logs = new File(caveData, "logs");
-            if (!logs.exists()) {
-                logs.mkdir();
-            }
-            File nsharpFiles = new File(logs, "nsharpFiles");
-            if (!nsharpFiles.exists()) {
-                nsharpFiles.mkdir();
-            }
-            if (nextPurgeTime < System.currentTimeMillis()) {
-                // delete anything more than 3 hours old.
-                long lastValidTime = System.currentTimeMillis() - 3 * 60 * 60
-                        * 1000l;
-                for (File file : nsharpFiles.listFiles()) {
-                    if (file.lastModified() < lastValidTime) {
-                        file.delete();
-                    }
-                }
-                // run again in an hour.
-                nextPurgeTime = System.currentTimeMillis() + 60 * 60 * 1000l;
-            }
-
-            // EGM: Win32 can't have ':' in filenames
-            String logFilename = info.getStnDisplayInfo() + ".nsp";
-            logFilename = logFilename.replace(":", "_");
-            File nspFile = new File(nsharpFiles, logFilename);
-
-            FileWriter fstream = new FileWriter(nspFile);
-            BufferedWriter out = new BufferedWriter(fstream);
-            String textToSave = new String("");
-
-            List<NcSoundingLayer> soundLyList = layers;
-            String latlonstr;
-            latlonstr = "  LAT=" + info.getLatitude() + " LON="
-                    + info.getLongitude();
-            textToSave = info.getSndType()
-                    + " "
-                    + info.getSndType()
-                    + "  "
-                    + info.getStnDisplayInfo()
-                    + latlonstr
-                    + "\n"
-                    + "PRESSURE  HGHT\t   TEMP\t  DWPT    WDIR     WSPD    OMEG\n";
-
-            String tempText = "";
-            for (NcSoundingLayer layer : soundLyList) {
-                tempText = String.format("%f  %f  %f  %f  %f  %f  %f\n",
-                        layer.getPressure(), layer.getGeoHeight(),
-                        layer.getTemperature(), layer.getDewpoint(),
-                        layer.getWindDirection(), layer.getWindSpeed(),
-                        layer.getOmega());
-                textToSave = textToSave + tempText;
-            }
-            out.write(textToSave);
-            // Close the output stream
-            out.close();
-            nspFile.deleteOnExit();
-        } catch (Throwable e) {
-            // Ignore all errors, this operation does not need to complete
-            // normally if something goes wrong
-            e.printStackTrace();
-        }
     }
 
 }

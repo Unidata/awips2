@@ -212,7 +212,7 @@ public class NsharpHodoPaneMouseHandler extends NsharpAbstractMouseHandler{
     					if(osDia != null)
     						osDia.refreshTextData();
     				}else if (this.mode == Mode.HODO_DOWN){
-    					hodoRsc.getRscHandler().setHodoHouseC(c);
+    					hodoRsc.getRscHandler().setHodoStmCenter(c);
     				}
     			}
     			/*else if(hodoRsc.getTimeLineRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.TIMELINE_DOWN) {

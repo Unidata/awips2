@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import javax.persistence.Column;
@@ -60,6 +61,7 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
@@ -86,6 +88,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/24/08       @1047     randerso    Added fields to store projection information
+ * 10/10/12      #1260      randerso    Added new constructor that takes a GridCoverage
  * 
  * 
  * </pre>
@@ -235,9 +238,6 @@ public class GridLocation extends PersistableDataObject implements
                         + e.getLocalizedMessage(), e);
             }
 
-            DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-            double[] latLon = new double[8];
-
             // transform the grid corners from grid coordinates to CRS units
             Coordinate ll = domainOrigin;
             Coordinate ur = new Coordinate(domainOrigin.x + domainExtent.x,
@@ -270,11 +270,13 @@ public class GridLocation extends PersistableDataObject implements
                     PixelInCell.CELL_CORNER, mt, ge, null);
 
             // set up the transform from grid coordinates to lon/lat
+            DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
             mt = dmtf.createConcatenatedTransform(
                     gridGeom.getGridToCRS(PixelOrientation.UPPER_LEFT),
                     MapUtil.getTransformToLatLon(crsObject));
 
             // transform grid corner points to Lat/Lon
+            double[] latLon = new double[8];
             mt.transform(new double[] { 0, this.ny, 0, 0, this.nx, 0, this.nx,
                     this.ny }, 0, latLon, 0, 4);
 
@@ -305,6 +307,54 @@ public class GridLocation extends PersistableDataObject implements
                         proj.getGridPointUR().x - proj.getGridPointLL().x,
                         proj.getGridPointUR().y - proj.getGridPointLL().y),
                 "GMT");
+    }
+
+    public GridLocation(String id, GridCoverage coverage) {
+        this.siteId = id;
+        this.crsObject = coverage.getCrs();
+        this.crsWKT = this.crsObject.toWKT();
+        this.geometry = (Polygon) coverage.getGeometry();
+        this.nx = coverage.getNx();
+        this.ny = coverage.getNy();
+    }
+
+    public GridLocation(String id, GridLocation gloc, Rectangle subGrid) {
+        try {
+            this.siteId = id;
+            this.crsObject = gloc.crsObject;
+            this.crsWKT = gloc.crsWKT;
+            this.nx = subGrid.width;
+            this.ny = subGrid.height;
+            this.origin = new Coordinate(subGrid.x, subGrid.y);
+            this.extent = new Coordinate(subGrid.width, subGrid.height);
+
+            GridGeometry2D gridGeom = MapUtil.getGridGeometry(gloc);
+
+            // set up the transform from grid coordinates to lon/lat
+            DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
+            MathTransform mt = dmtf.createConcatenatedTransform(
+                    gridGeom.getGridToCRS(PixelOrientation.UPPER_LEFT),
+                    MapUtil.getTransformToLatLon(crsObject));
+
+            // transform grid corner points to Lat/Lon
+            double[] latLon = new double[8];
+            mt.transform(new double[] { subGrid.x, subGrid.y + subGrid.height,
+                    subGrid.x, subGrid.y, subGrid.x + subGrid.width, subGrid.y,
+                    subGrid.x + subGrid.width, subGrid.y + subGrid.height }, 0,
+                    latLon, 0, 4);
+
+            Coordinate[] corners = new Coordinate[] {
+                    MapUtil.getCoordinate(latLon[0], latLon[1]),
+                    MapUtil.getCoordinate(latLon[2], latLon[3]),
+                    MapUtil.getCoordinate(latLon[4], latLon[5]),
+                    MapUtil.getCoordinate(latLon[6], latLon[7]),
+                    MapUtil.getCoordinate(latLon[0], latLon[1]) };
+
+            this.geometry = MapUtil.getPolygon(corners);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.CRITICAL,
+                    "Error creating GridLocation", e);
+        }
     }
 
     /**
@@ -430,8 +480,9 @@ public class GridLocation extends PersistableDataObject implements
                         Math.abs(out1[0] - out2[0]) / 1000.0, Math.abs(out1[1]
                                 - out2[1]) / 1000.0);
             } catch (TransformException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                statusHandler.error(
+                        "Error computing gridCellSize: "
+                                + e.getLocalizedMessage(), e);
             }
 
         } else {

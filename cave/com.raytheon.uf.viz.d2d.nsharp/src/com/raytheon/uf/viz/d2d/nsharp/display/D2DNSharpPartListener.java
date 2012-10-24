@@ -19,20 +19,26 @@
  **/
 package com.raytheon.uf.viz.d2d.nsharp.display;
 
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
  * 
@@ -58,30 +64,55 @@ public class D2DNSharpPartListener implements IPartListener2 {
     private static final String VIEW_ID = D2DNSharpPaletteWindow.class
             .getCanonicalName();
 
-    private static D2DNSharpPartListener instance;
+    private final AbstractVizResource<?, ?> resource;
 
-    private D2DNSharpPartListener() {
+    public D2DNSharpPartListener(AbstractVizResource<?, ?> resource) {
+        this.resource = resource;
     }
 
-    public static D2DNSharpPartListener getInstance() {
-        if (instance != null) {
-            return instance;
-        }
-        synchronized (D2DNSharpPartListener.class) {
-            if (instance == null) {
-                instance = new D2DNSharpPartListener();
+    public void enable() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                IWorkbenchPage page = VizWorkbenchManager.getInstance()
+                        .getCurrentWindow().getActivePage();
+                page.addPartListener(D2DNSharpPartListener.this);
+                for (IEditorReference editor : page.getEditorReferences()) {
+                    if (page.isPartVisible(editor.getEditor(false))) {
+                        partVisible(editor);
+                    }
+                }
             }
-            return instance;
-        }
+        });
+    }
+
+    public void disable() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                IWorkbenchWindow window = VizWorkbenchManager.getInstance()
+                        .getCurrentWindow();
+                if (window == null) {
+                    // window will be null when CAVE is shutting down
+                    return;
+                }
+                IWorkbenchPage page = window.getActivePage();
+                page.removePartListener(D2DNSharpPartListener.this);
+            }
+        });
     }
 
     private boolean isD2DNSharpPart(IWorkbenchPartReference partRef) {
-        if (partRef.getPart(false) instanceof NsharpSkewTEditor) {
-            NsharpSkewTEditor editor = (NsharpSkewTEditor) partRef
-                    .getPart(false);
-            IRenderableDisplay display = editor.getActiveDisplayPane()
-                    .getRenderableDisplay();
-            return display instanceof D2DNSharpDisplay;
+        IWorkbenchPart part = partRef.getPart(false);
+        if (part instanceof NsharpEditor) {
+            NsharpEditor editor = (NsharpEditor) part;
+            for (IDisplayPane pane : editor.getDisplayPanes()) {
+                if (pane.getRenderableDisplay().getDescriptor() == resource
+                        .getDescriptor()) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -117,26 +148,33 @@ public class D2DNSharpPartListener implements IPartListener2 {
             IWorkbenchPage page = partRef.getPage();
             IViewPart view = page.findView(VIEW_ID);
             if (view != null) {
-                if (page.getActivePart() == view) {
-                    // TODO find a better solution to this problem.
-                    // It seems like when switching perspectives with the view
-                    // we want to hide active hideView causes an exception.
-                    // Making another view active fixes this.
-                    for (IViewReference viewRef : page.getViewReferences()) {
-                        if (viewRef.getView(false) != view) {
-                            page.activate(viewRef.getView(false));
-                            break;
-                        }
+                boolean hide = true;
+                // set visible for any other visible editors, for when there are
+                // two nsharp editors visible and one goes invisible.
+                for (IEditorReference editorRef : page.getEditorReferences()) {
+                    IEditorPart editor = editorRef.getEditor(false);
+                    if (page.isPartVisible(editor)
+                            && editor instanceof NsharpEditor) {
+                        hide = false;
                     }
                 }
-                page.hideView(view);
-            }
-            // set visible for any other visible editors, for when there are two
-            // nsharp editors visible and one goes invisible.
-            for (IEditorReference editor : page.getEditorReferences()) {
-                if (page.isPartVisible(editor.getEditor(false))) {
-                    partVisible(editor);
+                if (hide) {
+                    if (page.getActivePart() == view) {
+                        // TODO find a better solution to this problem.
+                        // It seems like when switching perspectives with the
+                        // view we want to hide active hideView causes an
+                        // exception.
+                        // Making another view active fixes this.
+                        for (IViewReference viewRef : page.getViewReferences()) {
+                            if (viewRef.getView(false) != view) {
+                                page.activate(viewRef.getView(false));
+                                break;
+                            }
+                        }
+                    }
+                    page.hideView(view);
                 }
+
             }
         }
 
