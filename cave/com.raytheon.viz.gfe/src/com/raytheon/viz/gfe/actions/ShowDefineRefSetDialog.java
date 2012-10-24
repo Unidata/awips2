@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.DefineRefSetDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 11, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking DefineRefSetDialog.
  * 
  * </pre>
  * 
@@ -63,11 +64,13 @@ public class ShowDefineRefSetDialog extends AbstractHandler {
             return null;
         }
 
-        if (dialog == null || dialog.getShell() == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new DefineRefSetDialog(shell, dm);
             dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        dialog.open();
         return null;
     }
 
