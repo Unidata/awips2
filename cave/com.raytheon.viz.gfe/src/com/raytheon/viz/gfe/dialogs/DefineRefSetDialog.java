@@ -92,6 +92,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Jul 15, 2008            njensen     Hooked into backend/fixes
  * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteEditAreaGroupDialog.
  * 
  * </pre>
  * 
@@ -167,6 +168,10 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     private SaveDeleteRefDialog deleteDlg;
 
     private SaveDeleteRefDialog saveDlg;
+
+    private SaveDeleteEditAreaGroupDialog deleteGroupDlg;
+
+    private SaveDeleteEditAreaGroupDialog saveGroupDlg;
 
     public DefineRefSetDialog(Shell parent, DataManager dataManager) {
         super(parent);
@@ -1029,18 +1034,28 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
     }
 
     private void saveGroupCB() {
-        SaveDeleteEditAreaGroupDialog dialog = new SaveDeleteEditAreaGroupDialog(
-                getShell(), this.refSetMgr, "Save");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+        if (deleteGroupDlg == null || deleteGroupDlg.getShell() == null
+                || deleteGroupDlg.isDisposed()) {
+            deleteGroupDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
+                    this.refSetMgr, "Save");
+            deleteGroupDlg.setBlockOnOpen(false);
+            deleteGroupDlg.open();
+        } else {
+            deleteGroupDlg.bringToTop();
+        }
     }
 
     private void deleteGroupCB() {
 
-        SaveDeleteEditAreaGroupDialog dialog = new SaveDeleteEditAreaGroupDialog(
-                getShell(), this.refSetMgr, "Delete");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+        if (saveGroupDlg == null || saveGroupDlg.getShell() == null
+                || saveGroupDlg.isDisposed()) {
+            saveGroupDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
+                    this.refSetMgr, "Delete");
+            saveGroupDlg.setBlockOnOpen(false);
+            saveGroupDlg.open();
+        } else {
+            saveGroupDlg.bringToTop();
+        }
     }
 
     private void addToQueryField(String s) {
