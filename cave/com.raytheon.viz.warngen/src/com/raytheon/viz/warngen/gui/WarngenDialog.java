@@ -80,6 +80,7 @@ import com.raytheon.viz.texteditor.msgs.IWarngenObserver;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
 import com.raytheon.viz.warngen.comm.WarningSender;
@@ -121,6 +122,9 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jul 26, 2012 #15227      Qinglu Lin  Added removeDuplicateVertices(), removeOverlaidSegments(),
  *                                       adjustLatLon(), etc.
  *  Sep 05, 2012 DR 15261    D. Friedman Prevent additional counties from being selected for EXPs
+ *  Sep 27, 2012 #1196       rferrel     Refactored to use non-blocking dialogs
+ *  Oct 03, 2012 DR 15426    Qinglu Lin  Unlock WarnGen GUI for COR, implemented in corSelected();
+ *                                       but lock immediate cause, implemented in individual template.
  * 
  * </pre>
  * 
@@ -154,8 +158,9 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final String CLOSE_BUTTON_LABEL = "Close";
 
     private static final double MIN_LATLON_DIFF = 1.0E-5;
+
     private static final double MIN_DIFF = 1.0E-8;
-    
+
     private ArrayList<String> mainProducts;
 
     private Map<String, String> otherProducts;
@@ -840,9 +845,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getCurrentWarnings();
 
         ArrayList<String> dropDownItems = new ArrayList<String>();
-        WarningAction[] acts = new WarningAction[] { WarningAction.CON, WarningAction.COR,
-                WarningAction.CAN, WarningAction.EXP, WarningAction.NEW,
-                WarningAction.EXT };
+        WarningAction[] acts = new WarningAction[] { WarningAction.CON,
+                WarningAction.COR, WarningAction.CAN, WarningAction.EXP,
+                WarningAction.NEW, WarningAction.EXT };
         for (int i = 0; i < warnings.size(); i++) {
             for (WarningAction act : acts) {
                 if (FollowUpUtil.checkApplicable(site,
@@ -1367,11 +1372,11 @@ public class WarngenDialog extends CaveSWTDialog implements
      *            - The button that has been clicked
      */
     private void changeTemplate(String templateName) {
-    	
-        //DR 14515
+
+        // DR 14515
         if (templateName.equals(warngenLayer.getTemplateName()))
-        	return;
-        
+            return;
+
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getGeospatialConfig().getAreaSource();
 
@@ -1648,17 +1653,26 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void changeSelected() {
         if (validPeriodDlg == null || validPeriodDlg.isDisposed()) {
             validPeriodDlg = new ValidPeriodDialog(shell, startTime, endTime);
-            int duration = validPeriodDlg.open();
-            if (duration != -1) {
-                durationList.setEnabled(false);
-                endTime.add(Calendar.MINUTE, duration);
-                end.setText(df.format(this.endTime.getTime()));
-                warngenLayer.getStormTrackState().newDuration = duration;
-                warngenLayer.getStormTrackState().geomChanged = true;
-                warngenLayer.issueRefresh();
-                changeStartEndTimes();
-            }
-            validPeriodDlg = null;
+            validPeriodDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    int duration = (Integer) returnValue;
+                    if (duration != -1) {
+                        durationList.setEnabled(false);
+                        endTime.add(Calendar.MINUTE, duration);
+                        end.setText(df.format(endTime.getTime()));
+                        warngenLayer.getStormTrackState().newDuration = duration;
+                        warngenLayer.getStormTrackState().geomChanged = true;
+                        warngenLayer.issueRefresh();
+                        changeStartEndTimes();
+                    }
+                    validPeriodDlg = null;
+                }
+            });
+            validPeriodDlg.open();
+        } else {
+            validPeriodDlg.bringToTop();
         }
     }
 
@@ -1852,7 +1866,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 allowsNewProduct = true;
             }
         }
-        bulletList.setEnabled(false);
         // Special case - allows for Correction of Followups
         if (!allowsNewProduct) {
             newWarn = conSelected(data);
@@ -1941,7 +1954,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     + "." + data.getSig());
         }
 
-        updatePolygon(newWarn);        
+        updatePolygon(newWarn);
 
         warngenLayer.setOldWarningPolygon(newWarn);
         setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
@@ -2046,8 +2059,8 @@ public class WarngenDialog extends CaveSWTDialog implements
     /**
      * Set the shell to visible and then move it on top of the CAVE dialog.
      */
-    public void showDialog(boolean show) {      
-        if (shell != null && shell.isDisposed() == false) {            
+    public void showDialog(boolean show) {
+        if (shell != null && shell.isDisposed() == false) {
             if (show) {
                 if (shell.isVisible() == false) {
                     shell.setVisible(true);
@@ -2091,7 +2104,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
         });
     }
-    
+
     /**
      * Update polygon in a warning product to remove intersected segment.
      */
@@ -2100,72 +2113,75 @@ public class WarngenDialog extends CaveSWTDialog implements
         Coordinate[] coords0 = geo.getCoordinates();
 
         GeometryFactory gf = new GeometryFactory();
-        
-        // Duplicate vertices (BOX.SV.W.0049, July 2012) makes removeOverlaidSegments 
+
+        // Duplicate vertices (BOX.SV.W.0049, July 2012) makes
+        // removeOverlaidSegments
         // not working. So, remove the duplicate vertex first.
         Coordinate[] coords = removeDuplicateVertices(coords0);
         if (coords.length != coords0.length) {
-            java.util.List<Coordinate> points = new ArrayList<Coordinate>(Arrays.asList(coords));
+            java.util.List<Coordinate> points = new ArrayList<Coordinate>(
+                    Arrays.asList(coords));
             Polygon rval = gf.createPolygon(gf.createLinearRing(points
-            		.toArray(new Coordinate[points.size()])), null);
-        	oldWarning.setGeometry(rval);        	
+                    .toArray(new Coordinate[points.size()])), null);
+            oldWarning.setGeometry(rval);
         }
-        
+
         int size = coords.length;
         boolean adjusted = false;
         if (size > 3) {
-        	Coordinate[] coords2 = new Coordinate[size+3];
-        	for (int i=0; i<size; i++) {
-        		coords2[i] = coords[i];
-        	}
-        	coords2[size] = coords[1];
-        	coords2[size+1] = coords[2];
-        	coords2[size+2] = coords[3];
-        	adjusted = removeOverlaidSegments(coords2);
-        	
-        	coords = Arrays.copyOf(coords2,size);
-        	coords[0] = coords2[size-1];
+            Coordinate[] coords2 = new Coordinate[size + 3];
+            for (int i = 0; i < size; i++) {
+                coords2[i] = coords[i];
+            }
+            coords2[size] = coords[1];
+            coords2[size + 1] = coords[2];
+            coords2[size + 2] = coords[3];
+            adjusted = removeOverlaidSegments(coords2);
+
+            coords = Arrays.copyOf(coords2, size);
+            coords[0] = coords2[size - 1];
         }
-        
-        java.util.List<Coordinate> points = new ArrayList<Coordinate>(Arrays.asList(coords));
+
+        java.util.List<Coordinate> points = new ArrayList<Coordinate>(
+                Arrays.asList(coords));
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
-        		.toArray(new Coordinate[points.size()])), null);
-        
+                .toArray(new Coordinate[points.size()])), null);
+
         if (adjusted)
-        	oldWarning.setGeometry(rval);
+            oldWarning.setGeometry(rval);
 
         boolean invalidPolyFlag = false;
         if (rval.isValid() == false) {
-        	invalidPolyFlag = true;
-        	points.remove(points.size()-1);
-        	PolygonUtil.removeIntersectedSeg(points);
-        	points.add(new Coordinate(points.get(0)));
-        	rval = gf.createPolygon(gf.createLinearRing(points
-        			.toArray(new Coordinate[points.size()])), null);
+            invalidPolyFlag = true;
+            points.remove(points.size() - 1);
+            PolygonUtil.removeIntersectedSeg(points);
+            points.add(new Coordinate(points.get(0)));
+            rval = gf.createPolygon(gf.createLinearRing(points
+                    .toArray(new Coordinate[points.size()])), null);
         }
         if (invalidPolyFlag) {
-        	oldWarning.setGeometry(rval);
+            oldWarning.setGeometry(rval);
             return true;
         }
         return false;
     }
-    
+
     /**
-     * Remove duplicate vertices 
+     * Remove duplicate vertices
      */
     private Coordinate[] removeDuplicateVertices(Coordinate[] coords) {
-    	int size = coords.length;
-    	java.util.List<Coordinate> coords2 = new ArrayList<Coordinate>();
-    	coords2.add(coords[0]);
-    	for (int i=1; i<size; i++) 
-    		if (Math.abs(coords[i].x-coords[i-1].x) > MIN_LATLON_DIFF || 
-    				Math.abs(coords[i].y-coords[i-1].y) > MIN_LATLON_DIFF) 
-    			coords2.add(coords[i]);
+        int size = coords.length;
+        java.util.List<Coordinate> coords2 = new ArrayList<Coordinate>();
+        coords2.add(coords[0]);
+        for (int i = 1; i < size; i++)
+            if (Math.abs(coords[i].x - coords[i - 1].x) > MIN_LATLON_DIFF
+                    || Math.abs(coords[i].y - coords[i - 1].y) > MIN_LATLON_DIFF)
+                coords2.add(coords[i]);
         size = coords2.size();
         Coordinate[] coords3 = coords2.toArray(new Coordinate[size]);
         return coords3;
     }
-    
+
     /**
      * Remove overlaid segments
      */
@@ -2173,124 +2189,123 @@ public class WarngenDialog extends CaveSWTDialog implements
         double diffx1, diffx2, diffy1, diffy2;
         double ratio1, ratio2;
         boolean adjusted = false;
-        for (int i=2; i<coords.length-2; i++) {
-        	diffx1 = coords[i-1].x - coords[i].x;
-        	if (Math.abs(diffx1) > MIN_LATLON_DIFF) {
-        		ratio1 = (coords[i-1].y-coords[i].y)/diffx1;
-        		diffx2 = coords[i].x - coords[i+1].x;
-        		if (Math.abs(diffx2) > MIN_LATLON_DIFF) {
-        			ratio2 = (coords[i].y-coords[i+1].y)/diffx2;
-        			if (Math.abs(ratio1-ratio2) < MIN_DIFF) {
-                		if (diffx1 > 0.0 && diffx2 > 0.0 ||
-                				diffx1 < 0.0 && diffx2 < 0.0) {
-            				// three vertices on a straight line. Not overlaid.
-                		} else {
-        					// two segments overlaid
-        					adjustLatLon('y',coords,i);
-        					adjusted = true;
-        				}
-        			}
-        		} else {
-        			continue;
-        		}
-        	} else {
-        		diffy1 = coords[i-1].y - coords[i].y;
-        		ratio1 = (coords[i-1].x-coords[i].x)/diffy1;
-        		diffy2 = coords[i].y - coords[i+1].y;
-        		if (Math.abs(diffy2) > MIN_LATLON_DIFF) {
-        			ratio2 = (coords[i].x-coords[i+1].x)/diffy2;
-        			if (Math.abs(ratio1-ratio2) < MIN_DIFF) {
-                		if (diffy1 > 0.0 && diffy2 > 0.0 ||
-                				diffy1 < 0.0 && diffy2 < 0.0) {
-            				// three vertices on a straight line. Not overlaid.
-        				} else {
-        					// two segments overlaid
-        					adjustLatLon('x',coords,i);
-        					adjusted = true;
-        				}
-        			}
-        		} else {
-        			continue;
-        		}
-        	}
+        for (int i = 2; i < coords.length - 2; i++) {
+            diffx1 = coords[i - 1].x - coords[i].x;
+            if (Math.abs(diffx1) > MIN_LATLON_DIFF) {
+                ratio1 = (coords[i - 1].y - coords[i].y) / diffx1;
+                diffx2 = coords[i].x - coords[i + 1].x;
+                if (Math.abs(diffx2) > MIN_LATLON_DIFF) {
+                    ratio2 = (coords[i].y - coords[i + 1].y) / diffx2;
+                    if (Math.abs(ratio1 - ratio2) < MIN_DIFF) {
+                        if (diffx1 > 0.0 && diffx2 > 0.0 || diffx1 < 0.0
+                                && diffx2 < 0.0) {
+                            // three vertices on a straight line. Not overlaid.
+                        } else {
+                            // two segments overlaid
+                            adjustLatLon('y', coords, i);
+                            adjusted = true;
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            } else {
+                diffy1 = coords[i - 1].y - coords[i].y;
+                ratio1 = (coords[i - 1].x - coords[i].x) / diffy1;
+                diffy2 = coords[i].y - coords[i + 1].y;
+                if (Math.abs(diffy2) > MIN_LATLON_DIFF) {
+                    ratio2 = (coords[i].x - coords[i + 1].x) / diffy2;
+                    if (Math.abs(ratio1 - ratio2) < MIN_DIFF) {
+                        if (diffy1 > 0.0 && diffy2 > 0.0 || diffy1 < 0.0
+                                && diffy2 < 0.0) {
+                            // three vertices on a straight line. Not overlaid.
+                        } else {
+                            // two segments overlaid
+                            adjustLatLon('x', coords, i);
+                            adjusted = true;
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            }
         }
         return adjusted;
     }
-        
+
     /**
      * Increase or decrease latitude or longitude slightly
      */
     private void adjustLatLon(char direction, Coordinate[] coords, int i) {
-        // Empirical value. 
-    	// 1.0E3 not working for horizontal rectangle cases
+        // Empirical value.
+        // 1.0E3 not working for horizontal rectangle cases
         double adjustedValue = 5.0E-3;
-        
+
         int n = coords.length;
         int factor;
         if (direction == 'x') {
-        	// adjust longitude
-        	double diffx = coords[i-2].x - coords[i-1].x;
-        	if (Math.abs(diffx) > MIN_LATLON_DIFF) {
-        		if (coords[i-1].y > coords[i].y) {
-        			factor = 1;
-        		} else
-        			factor = -1;
-        		if (diffx < 0.0) {
-        			coords[i+1].x -= factor*adjustedValue;
-        		} else {
-        			coords[i-1].x += factor*adjustedValue;
-        		}
-        		if (i == n-3)
-        			coords[0].x = coords[i-1].x;
-        	} else {
-            	diffx = coords[i+2].x - coords[i+1].x;
-            	if (Math.abs(diffx) > MIN_LATLON_DIFF) {
-            		if (coords[i+1].y > coords[i].y) {
-            			factor = -1;
-            		} else
-            			factor = 1;
-            		if (diffx < 0.0) {
-            			coords[i-1].x -= factor*adjustedValue;
-            		} else {
-            			coords[i+1].x += factor*adjustedValue;
-            		}
-            		if (i == n-3)
-            			coords[0].x = coords[i-1].x;	
-            	}
-        	}
+            // adjust longitude
+            double diffx = coords[i - 2].x - coords[i - 1].x;
+            if (Math.abs(diffx) > MIN_LATLON_DIFF) {
+                if (coords[i - 1].y > coords[i].y) {
+                    factor = 1;
+                } else
+                    factor = -1;
+                if (diffx < 0.0) {
+                    coords[i + 1].x -= factor * adjustedValue;
+                } else {
+                    coords[i - 1].x += factor * adjustedValue;
+                }
+                if (i == n - 3)
+                    coords[0].x = coords[i - 1].x;
+            } else {
+                diffx = coords[i + 2].x - coords[i + 1].x;
+                if (Math.abs(diffx) > MIN_LATLON_DIFF) {
+                    if (coords[i + 1].y > coords[i].y) {
+                        factor = -1;
+                    } else
+                        factor = 1;
+                    if (diffx < 0.0) {
+                        coords[i - 1].x -= factor * adjustedValue;
+                    } else {
+                        coords[i + 1].x += factor * adjustedValue;
+                    }
+                    if (i == n - 3)
+                        coords[0].x = coords[i - 1].x;
+                }
+            }
         } else {
-        	// adjust latitude
-        	double diffy = coords[i-2].y - coords[i-1].y;
-        	if (Math.abs(diffy) > MIN_LATLON_DIFF) {
-        		if (coords[i-1].x > coords[i].x) {
-        			factor = -1;
-        		} else
-        			factor = 1;
-        		if (diffy > 0.0) {
-        			coords[i+1].y -= factor*adjustedValue;
-        		} else {
-        			coords[i-1].y += factor*adjustedValue;
-        		}
-                if (i == n-3)
-                    coords[0].y = coords[i-1].y;
-        	}
-        	else {
-            	diffy = coords[i+2].y - coords[i+1].y;
-            	if (Math.abs(diffy) > MIN_LATLON_DIFF) {
-            		if (coords[i+1].x > coords[i].x) {
-            			factor = -1;
-            		} else
-            			factor = 1;
-            		if (diffy < 0.0) {
-            			coords[i-1].y -= factor*adjustedValue;
-            		} else {
-            			coords[i+1].y += factor*adjustedValue;
-            		}
-            		if (i == n-3)
-            			coords[0].y = coords[i-1].y;	
-            	}
-        	}
+            // adjust latitude
+            double diffy = coords[i - 2].y - coords[i - 1].y;
+            if (Math.abs(diffy) > MIN_LATLON_DIFF) {
+                if (coords[i - 1].x > coords[i].x) {
+                    factor = -1;
+                } else
+                    factor = 1;
+                if (diffy > 0.0) {
+                    coords[i + 1].y -= factor * adjustedValue;
+                } else {
+                    coords[i - 1].y += factor * adjustedValue;
+                }
+                if (i == n - 3)
+                    coords[0].y = coords[i - 1].y;
+            } else {
+                diffy = coords[i + 2].y - coords[i + 1].y;
+                if (Math.abs(diffy) > MIN_LATLON_DIFF) {
+                    if (coords[i + 1].x > coords[i].x) {
+                        factor = -1;
+                    } else
+                        factor = 1;
+                    if (diffy < 0.0) {
+                        coords[i - 1].y -= factor * adjustedValue;
+                    } else {
+                        coords[i + 1].y += factor * adjustedValue;
+                    }
+                    if (i == n - 3)
+                        coords[0].y = coords[i - 1].y;
+                }
+            }
         }
     }
-    
+
 }

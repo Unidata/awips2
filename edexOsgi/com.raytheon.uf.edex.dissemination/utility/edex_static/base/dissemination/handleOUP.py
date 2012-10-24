@@ -32,7 +32,8 @@
 #    12/09/09        DR3778        M. Huang      Add acknowledgment handling
 #    09/05/11        DR9602        M. Huang      Fix acknowledgment handling error
 #    04/13/12        DR 10388      D. Friedman   Correct acknowledgment handling
-#    08/17/12        DR 15304      D. Friedman   Use unique output file names  
+#    08/17/12        DR 15304      D. Friedman   Use unique output file names
+#    10/12/12        DR 15418      D. Friedman   Use unique attachment file names
 # 
 #
 
@@ -159,7 +160,7 @@ def process(oup, afosID, resp, ackMgr = None):
         attachedFilename = attachedFilename.replace(" ", "")
         # dealing with a java byte[] so write it out with java
         from java.io import File, FileOutputStream
-        attachedFilename = OUT_DIR + '/' + attachedFilename
+        attachedFilename = createTargetFile("", OUT_DIR + '/' + attachedFilename)
         f = File(attachedFilename)
         fos = FileOutputStream(f)
         fos.write(attachedFile)

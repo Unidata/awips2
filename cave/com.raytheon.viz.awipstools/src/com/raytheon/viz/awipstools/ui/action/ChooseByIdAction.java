@@ -31,10 +31,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.d2d.ui.map.actions.NewMapEditor;
+import com.raytheon.uf.viz.points.ui.action.PointsToolAction;
+import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 import com.raytheon.viz.awipstools.ui.dialog.ChooseByIdDialog;
 import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
 import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
-import com.raytheon.viz.awipstools.ui.layer.PointsToolLayer;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -48,6 +49,7 @@ import com.raytheon.viz.ui.tools.map.AbstractMapTool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06Dec2007    #576        Eric Babin Initial Creation
+ * 31Jul2012    #875       rferrel     Added checks for disposed dialgos.
  * 
  * </pre>
  * 
@@ -69,7 +71,7 @@ public class ChooseByIdAction extends AbstractMapTool {
         super.execute(arg0);
 
         if (editor.getActiveDisplayPane().getDescriptor() instanceof MapDescriptor) {
-            if (chooseByIdDialog == null) {
+            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
                 chooseByIdDialog = new ChooseByIdDialog(PlatformUI
                         .getWorkbench().getActiveWorkbenchWindow().getShell());
 
@@ -124,7 +126,7 @@ public class ChooseByIdAction extends AbstractMapTool {
             AbstractEditor mapEditor = UiUtil.createOrOpenEditor(
                     VizMapEditor.EDITOR_ID, display);
 
-            if (chooseByIdDialog == null) {
+            if (chooseByIdDialog == null || chooseByIdDialog.isDisposed()) {
                 chooseByIdDialog = new ChooseByIdDialog(PlatformUI
                         .getWorkbench().getActiveWorkbenchWindow().getShell());
                 chooseByIdDialog.setHomeResource(getResource(

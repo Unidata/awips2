@@ -19,11 +19,9 @@
  **/
 package com.raytheon.edex.transform.shef;
 
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +33,6 @@ import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 import com.raytheon.edex.transform.shef.obs.SHEF_Metar_Codes;
 import com.raytheon.edex.transform.shef.obs.SHEF_Obs_Codes;
 import com.raytheon.edex.transform.shef.obs.Utilities;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -50,6 +47,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2008       1659 jkorman     Initial creation
+ * ======================================
+ * AWIPS2 DR Work
+ * 20120918           1185 jkorman     Added save to archive capability.  
  * </pre>
  * 
  * @author jkorman
@@ -71,20 +71,30 @@ public class MetarToShefTransformer extends
 
     private static final String SENS_TYPE_AUTO = " AUTO";
 
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));        
+    }
+
+    
     private static final int P1_MIN  = 50;
     private static final int P2_MAX  =  5;
 
     /**
      * Construct an instance of this transformer.
+     * @param cmdLine Command line options that may be used if these
+     * options are not present in the Apps_defaults.
      */
     public MetarToShefTransformer(String cmdLine) {
         super(cmdLine, WMO_HEADER_FMT);
     }
 
     /**
-     * 
-     * @param report
-     * @return
+     * Attempt to transform a single metar observation into SHEF encoded observations.
+     * @param report A metar report to encode.
+     * @param The system headers associated with the original metar message.
+     * @return The encoded SHEF report as a byte array. May return an empty
+     * array if the report should not have been encoded or some error occured.
      * @throws TransformerException
      */
     @Override
@@ -94,84 +104,76 @@ public class MetarToShefTransformer extends
         // Transformed METAR PluginDataObject to SHEF
         byte[] result = null;
 
-       DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-       Calendar nowCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));              
-       Calendar metarTime = TimeTools.getSystemCalendar((String) headers
+        Calendar nowCalendar = TimeTools.getSystemCalendar();
+
+        Calendar metarTime = TimeTools.getSystemCalendar((String) headers
                 .get(DecoderTools.INGEST_FILE_NAME));
-        
-   
+
         logger.debug("report object type = " + report.getClass().getName());
 
         incrementMessageCount();
         int place = 0;
         try {
-            // Ensure we're dealing with metar data.
-            if (report instanceof MetarRecord) {
-                MetarRecord rec = (MetarRecord) report;
-
-                String ccc = null;
-                String msg = rec.getMessageData();
-                WMOHeader hdr = new WMOHeader(msg.getBytes());
-                if((hdr != null) && (hdr.isValid())) {
-                    ccc = hdr.getCccc();
-                    if(ccc != null) {
-                        if(ccc.length() > 3) {
-                            ccc = ccc.substring(ccc.length() - 3);
-                        }
+            String ccc = null;
+            String msg = report.getMessageData();
+            WMOHeader hdr = new WMOHeader(msg.getBytes());
+            if ((hdr != null) && (hdr.isValid())) {
+                ccc = hdr.getCccc();
+                if (ccc != null) {
+                    if (ccc.length() > 3) {
+                        ccc = ccc.substring(ccc.length() - 3);
                     }
                 }
+            }
 
-                if (encodeThisStation(rec)) {
-                    place = 1;
-                    String stnId = rec.getStationId();
-                    place = 2;
-                    StringBuilder sb = makeWMOHeader(openWMOMessage(0, 200),
-                            stnId, headers, hdr);
-                    place = 3;
+            if (encodeThisStation(report)) {
+                place = 1;
+                String stnId = report.getStationId();
+                place = 2;
+                StringBuilder sb = makeWMOHeader(openWMOMessage(200), stnId,
+                        headers, hdr);
+                String fileName = makeWMOHeader(new StringBuilder(20), stnId, headers, hdr).toString().trim().replace(' ', '_');
+                place = 3;
 
-                    startMessageLine(sb);
-                    if(ccc != null) {
-                        sb.append(ccc);
-                    }
-                    sb.append(METAR_2_SHEF_NNN);
-                    if(stnId.length() == 4) {
-                        sb.append(stnId.substring(1));
-                    } else if (stnId.length() == 3) {
-                        sb.append(stnId);
-                    }
-                    
-                    startMessageLine(sb);
-                    metarTime=rec.getTimeObs();
-                    if (metarTime.compareTo(nowCalendar)> 0) {
-                		sb.append(": WARNING: observation time is greater than the system time for the same day");
-                		startMessageLine(sb);
-                		sb.append(": observation time= " + rec.getDataTime()  +
-                				" System time= "+ dateFormat.format(nowCalendar.getTime()));
-                		startMessageLine(sb);
-                		} else {                		
-                		sb.append(": WARNING: observation time is less than the system time for the same day");
-                		startMessageLine(sb);
-                		sb.append("observation time= " + rec.getDataTime()  +
-                				" System time= "+ dateFormat.format(nowCalendar.getTime()));
-                		startMessageLine(sb);                		
-                	}
-                  
-                    sb.append(":SHEF derived data created by MetarToShefTransformer:");
-                    startMessageLine(sb);
-                    sb.append(":TRACEID = ");
-                    sb.append(rec.getWmoHeader());
-                    sb.append(":");
-                    place = 4;
-                    String shef = closeWMOMessage(encodeShef(sb, rec, headers))
-                            .toString();
-
-                    if (options.isOptVerbose()) {
-                        logger.info("MetarToShef: = " + shef);
-                    }
-
-                    setLastMessage(shef);
-                    result = shef.getBytes();
+                startMessageLine(sb);
+                if (ccc != null) {
+                    sb.append(ccc);
                 }
+                sb.append(METAR_2_SHEF_NNN);
+                if (stnId.length() == 4) {
+                    sb.append(stnId.substring(1));
+                } else if (stnId.length() == 3) {
+                    sb.append(stnId);
+                }
+
+                startMessageLine(sb);
+                metarTime = report.getTimeObs();
+                if (metarTime.compareTo(nowCalendar) > 0) {
+                    sb.append(": WARNING: observation time is greater than the system time for the same day");
+                    startMessageLine(sb);
+                    sb.append(":  Observation time = ");
+                    sb.append(report.getDataTime());
+                    sb.append(" System time= ");
+                    synchronized(dateFormat) {
+                        sb.append(dateFormat.format(nowCalendar.getTime()));
+                    }
+                }
+                sb.append(": SHEF derived data created by MetarToShefTransformer:");
+                startMessageLine(sb);
+                sb.append(": TRACEID = ");
+                sb.append(report.getWmoHeader());
+                sb.append(":");
+                place = 4;
+                String shef = closeWMOMessage(encodeShef(sb, report, headers))
+                        .toString();
+
+                if (options.isOptVerbose()) {
+                    logger.info(String.format("MetarToShef: = %s", shef));
+                }
+                archiveSHEFObs(shef, fileName);
+
+                setLastMessage(shef);
+                result = shef.getBytes();
             }
         } catch (Exception e) {
             logger.error("Error in transform:place " + place, e);
@@ -371,9 +373,14 @@ public class MetarToShefTransformer extends
         String s = report.getStationId();
         return (encodeOk & options.checkName(s));
     }
-    
-    private static StringBuilder writeObs(StringBuilder sb, String obs) {
 
+    /**
+     * Reformats observation text into a SHEF comment.
+     * @param sb Buffer to receive the formatted data.
+     * @param obs The observation to format.
+     * @return The formatted data.
+     */
+    public static StringBuilder writeObs(StringBuilder sb, String obs) {
         boolean startLine = true;
         int count = 0;
         String indent = "";
@@ -402,51 +409,6 @@ public class MetarToShefTransformer extends
                 }
             }
         }
-        
-        
-        
-        
-        
         return sb;
-    }
-    
-    
-    
-    
-
-    /**
-     * 
-     * @return
-     */
-    private static final Boolean testIterate() {
-        PluginDataObject[] pdos = null;
-        Iterator<?> it = MetarToShefTransformer.iterate(pdos);
-        return (it != null) && (!it.hasNext()) && (it.next() == null);
-    }
-
-    public static final void main(String[] args) {
-        if (testIterate()) {
-            System.out.println("Test passed");
-        } else {
-            System.out.println("Test failed");
-        }
-        
-        StringBuilder sb = new StringBuilder("KOMA 251152Z 35007KT 10SM BKN035 BKN250 03/01 A2970 RMK AO2 SLP062"
-     + "\n60000 T00330011 10078 20033 53021 931012 933025 98245 4/005=");
-        
-        
-        StringBuilder newobs = new StringBuilder();
-        newobs = writeObs(newobs,sb.toString());
-        
-        System.out.println(newobs);
-     
-        Calendar c = TimeTools.getBaseCalendar(2011, 11, 30);
-        c.set(Calendar.HOUR_OF_DAY, 16);
-        c.set(Calendar.MINUTE, 21);
-        
-        
-        System.out.println(String.format(WMO_HEADER_FMT, "KOMA", c));
-       
-        
     }
 }
