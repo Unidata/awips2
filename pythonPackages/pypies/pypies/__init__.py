@@ -46,6 +46,7 @@ def getLogger():
     return logger
 
 logger = getLogger()
+timeMap = {}
 
 
 def pypiesWrapper(request):

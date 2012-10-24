@@ -20,6 +20,7 @@
 
 package com.raytheon.edex.plugin.gfe.server.database;
 
+import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +60,11 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
+import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -80,12 +85,15 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 05/16/08     875         bphillip    Initial Creation
- * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 07/23/09     2342        ryu        Check for null gridConfig in getGridParmInfo
- * 03/02/12     DR14651     ryu        change time independency of staticTopo, staticCoriolis, staticSpacing
- * 05/04/12     #574        dgilling   Implement missing methods from GridDatabase.
- * 09/12/12     #1117       dgilling   Fix getParmList() so it returns all parms defined
- *                                     in the GribParamInfo file.
+ * 06/17/08     #940        bphillip    Implemented GFE Locking
+ * 07/23/09     2342        ryu         Check for null gridConfig in getGridParmInfo
+ * 03/02/12     DR14651     ryu         change time independency of staticTopo, staticCoriolis, staticSpacing
+ * 05/04/12     #574        dgilling    Implement missing methods from GridDatabase.
+ * 09/12/12     #1117       dgilling    Fix getParmList() so it returns all parms defined
+ *                                      in the GribParamInfo file.
+ * 10/10/12     #1260       randerso    Changed to only retrieve slab containing overlapping
+ *                                      data instead of full grid. Added logging to support
+ *                                      GFE performance testing
  * 
  * </pre>
  * 
@@ -95,6 +103,10 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 public class D2DGridDatabase extends VGridDatabase {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGridDatabase.class);
+
+    // separate logger for GFE performance logging
+    private static final IUFStatusHandler gfePerformanceLogger = UFStatus
+            .getNamedHandler("GFEPerformanceLogger");
 
     /** The remap object used for resampling grids */
     private Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
@@ -128,9 +140,28 @@ public class D2DGridDatabase extends VGridDatabase {
     private RemapGrid getOrCreateRemap(GridCoverage awipsGrid) {
         RemapGrid remap = this.remap.get(awipsGrid.getId());
         if (remap == null) {
-            GridLocation inputLoc = GfeUtil.transformGridCoverage(awipsGrid);
-            remap = new RemapGrid(inputLoc, outputLoc);
-            this.remap.put(awipsGrid.getId(), remap);
+            String gfeModelName = dbId.getModelName();
+            String d2dModelName = this.config
+            .d2dModelNameMapping(gfeModelName);
+            GridLocation inputLoc = new GridLocation(d2dModelName, awipsGrid);
+            inputLoc.setSiteId(d2dModelName);
+            Rectangle subdomain = NetCDFUtils.getSubGridDims(inputLoc,
+                    this.outputLoc);
+
+            // fix up coordinates for 0,0 in upper left in A2
+            subdomain.y = inputLoc.gridSize().y - subdomain.y
+                    - subdomain.height;
+
+            if (subdomain.isEmpty()) {
+                statusHandler.warn(this.dbId
+                        + ": GFE domain does not overlap dataset domain.");
+            } else {
+                remap = new RemapGrid(NetCDFUtils.subGridGL(
+                        dbId.toString(), inputLoc, subdomain),
+                        this.outputLoc);
+                this.remap.put(awipsGrid.getId(), remap);
+            }
+
         }
         return remap;
     }
@@ -417,7 +448,7 @@ public class D2DGridDatabase extends VGridDatabase {
      * @throws GfeException
      *             If the grid slice cannot be constructed
      */
-    public IGridSlice getGridSlice(ParmID parmId, GridParmInfo gpi,
+    private IGridSlice getGridSlice(ParmID parmId, GridParmInfo gpi,
             TimeRange time, boolean convertUnit) throws GfeException {
         IGridSlice gs = null;
         GridDataHistory[] gdh = { new GridDataHistory(
@@ -426,7 +457,14 @@ public class D2DGridDatabase extends VGridDatabase {
 
         switch (gpi.getGridType()) {
         case SCALAR:
-            Grid2DFloat data = getGrid(parmId, time, gpi, convertUnit);
+            Grid2DFloat data = null;
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                data = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
+                        .getGridLoc().getNy(), gpi.getMinValue());
+            } else {
+                data = getGrid(parmId, time, gpi, convertUnit);
+            }
             gs = new ScalarGridSlice(time, gpi, gdh, data);
             break;
         case VECTOR:
@@ -434,7 +472,14 @@ public class D2DGridDatabase extends VGridDatabase {
                     .getGridLoc().getNy());
             Grid2DFloat dir = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
                     .getGridLoc().getNy());
-            getWindGrid(parmId, time, gpi, mag, dir);
+
+            if (this.remap == null) {
+                // GFE domain does not overlap D2D grid, return default grid
+                mag.setAllValues(gpi.getMinValue());
+                dir.setAllValues(0.0f);
+            } else {
+                getWindGrid(parmId, time, gpi, mag, dir);
+            }
             gs = new VectorGridSlice(time, gpi, gdh, mag, dir);
             break;
         default:
@@ -460,11 +505,13 @@ public class D2DGridDatabase extends VGridDatabase {
      * @throws GfeException
      *             If the grid data cannot be retrieved
      */
-    public Grid2DFloat getGrid(ParmID parmId, TimeRange time, GridParmInfo gpi,
-            boolean convertUnit) throws GfeException {
+    private Grid2DFloat getGrid(ParmID parmId, TimeRange time,
+            GridParmInfo gpi, boolean convertUnit) throws GfeException {
+
         Grid2DFloat bdata = null;
         GridRecord d2dRecord = null;
 
+        long t0 = System.currentTimeMillis();
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
@@ -479,6 +526,7 @@ public class D2DGridDatabase extends VGridDatabase {
             throw new GfeException(
                     "Error retrieving D2D Grid record from database", e);
         }
+        long t1 = System.currentTimeMillis();
 
         if (d2dRecord == null) {
             throw new GfeException("No data available for " + parmId
@@ -487,6 +535,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         // Gets the raw data from the D2D grib HDF5 file
         bdata = getRawGridData(d2dRecord);
+        long t2 = System.currentTimeMillis();
 
         float fillV = Float.MAX_VALUE;
         ParameterInfo atts = GribParamInfoLookup.getInstance()
@@ -504,15 +553,20 @@ public class D2DGridDatabase extends VGridDatabase {
             retVal = remap.remap(bdata, fillV, gpi.getMaxValue(),
                     gpi.getMinValue(), gpi.getMinValue());
             if (convertUnit && d2dRecord != null) {
-                long t5 = System.currentTimeMillis();
                 convertUnits(d2dRecord, retVal, gpi.getUnitObject());
-                long t6 = System.currentTimeMillis();
-                statusHandler
-                        .info("Time spent converting units on d2d grid data: "
-                                + (t6 - t5));
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get Grid", e);
+        }
+        long t3 = System.currentTimeMillis();
+
+        if (gfePerformanceLogger.isPriorityEnabled(Priority.DEBUG)) {
+            gfePerformanceLogger.handle(Priority.DEBUG,
+                    "D2DGridDatabase.getGrid" + //
+                            " metaData: " + (t1 - t0) + //
+                            " hdf5: " + (t2 - t1) + //
+                            " remap: " + (t3 - t2) + //
+                            " total: " + (t3 - t0));
         }
 
         return retVal;
@@ -572,6 +626,7 @@ public class D2DGridDatabase extends VGridDatabase {
      */
     private void getWindGrid(ParmID parmId, TimeRange time, GridParmInfo gpi,
             Grid2DFloat mag, Grid2DFloat dir) throws GfeException {
+
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
@@ -683,21 +738,47 @@ public class D2DGridDatabase extends VGridDatabase {
      * @param d2dRecord
      *            The grib metadata
      * @return The raw data
+     * @throws GfeException
      */
-    private Grid2DFloat getRawGridData(GridRecord d2dRecord) {
-        FloatDataRecord hdf5Record;
+    private Grid2DFloat getRawGridData(GridRecord d2dRecord) 
+            throws GfeException {
         try {
             GridDao dao = new GridDao();
-            IDataRecord[] hdf5Data = dao.getHDF5Data(d2dRecord, -1);
-            hdf5Record = (FloatDataRecord) hdf5Data[0];
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to get grib hdf5 record", e);
-            return null;
-        }
-        return new Grid2DFloat((int) hdf5Record.getSizes()[0],
-                (int) hdf5Record.getSizes()[1], hdf5Record.getFloatData());
+            // reimplementing this call here with subgrid support
+            // dao.getHDF5Data(d2dRecord, -1);
+            // TODO should we add subgrid support to GribDao or PluginDao
+            IDataStore dataStore = dao.getDataStore(d2dRecord);
 
+            GridLocation gloc = getOrCreateRemap(d2dRecord.getLocation()).getSourceGloc();
+
+            String abbrev = d2dRecord.getParameter().getAbbreviation();
+            String group, dataset;
+            if (GridPathProvider.STATIC_PARAMETERS.contains(abbrev)) {
+                group = "/";
+                dataset = abbrev;
+            } else {
+                group = d2dRecord.getDataURI();
+                dataset = DataStoreFactory.DEF_DATASET_NAME;
+            }
+
+            IDataRecord record = dataStore.retrieve(group, dataset, Request
+                    .buildSlab(
+                            new int[] { (int) Math.floor(gloc.getOrigin().x),
+                                    (int) Math.floor(gloc.getOrigin().y), },
+                            new int[] {
+                                    (int) Math.ceil(gloc.getOrigin().x
+                                            + gloc.getExtent().x),
+                                    (int) Math.ceil(gloc.getOrigin().y
+                                            + gloc.getExtent().y), }));
+
+            FloatDataRecord hdf5Record = (FloatDataRecord) record;
+            return new Grid2DFloat((int) hdf5Record.getSizes()[0],
+                    (int) hdf5Record.getSizes()[1], hdf5Record.getFloatData());
+
+        } catch (Exception e) {
+            throw new GfeException("Error retrieving hdf5 record. "
+                    + e.getLocalizedMessage(), e);
+        }
     }
 
     /**

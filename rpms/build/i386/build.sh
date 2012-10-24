@@ -245,6 +245,8 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-psql"
    buildRPM "awips2-tools"
    buildRPM "awips2-edex-environment"
+   buildRPM "awips2-openfire"
+   buildRPM "awips2-httpd-collaboration"
 
    exit 0
 fi
@@ -323,6 +325,7 @@ if [ "${1}" = "-ade" ]; then
 fi
 
 if [ "${1}" = "-viz" ]; then
+   buildRPM "awips2"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1

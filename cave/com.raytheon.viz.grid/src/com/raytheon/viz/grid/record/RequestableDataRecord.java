@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -40,16 +40,17 @@ import com.raytheon.viz.grid.util.TiltRequest;
 /**
  * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
  * derived parameters to be used anywhere GridRecords can be used.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2010            bsteffen     Initial creation
  * 
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -58,7 +59,7 @@ public class RequestableDataRecord extends GridRecord {
 
     private static final long serialVersionUID = 1L;
 
-    private AbstractRequestableData requester;
+    private final AbstractRequestableData requester;
 
     public RequestableDataRecord(AbstractRequestableData requester)
             throws VizException {
@@ -66,6 +67,9 @@ public class RequestableDataRecord extends GridRecord {
         GridCoverage coverage = null;
         if (requester.getSpace() instanceof GridCoverage) {
             coverage = (GridCoverage) requester.getSpace();
+        if (requester instanceof GridRequestableData) {
+            setSecondaryId(((GridRequestableData) requester).getGridSource().getSecondaryId());
+        }
         }
         setDatasetId(requester.getSource());
         setLocation(coverage);

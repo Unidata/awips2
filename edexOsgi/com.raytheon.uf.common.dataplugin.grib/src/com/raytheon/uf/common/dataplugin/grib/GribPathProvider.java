@@ -98,11 +98,7 @@ public class GribPathProvider extends DefaultPathProvider {
         StringBuffer sb = new StringBuffer(64);
         sb.append(pdo.getModelInfo().getModelName());
         Date refTime = pdo.getDataTime().getRefTime();
-        String refTimeString = null;
-        synchronized (fileNameFormat) {
-            refTimeString = fileNameFormat.format(refTime);
-        }
-        sb.append(refTimeString);
+        sb.append(fileNameFormat.get().format(refTime));
         sb.append(FORECAST_HR_TOKEN);
         if (STATIC_PARAMETERS.contains(pdo.getModelInfo()
                 .getParameterAbbreviation())) {
@@ -121,11 +117,7 @@ public class GribPathProvider extends DefaultPathProvider {
     }
 
     public String formatTime(Date date) {
-        String retVal = null;
-        synchronized (fileNameFormat) {
-            retVal = fileNameFormat.format(date);
-        }
-        return retVal;
+        return fileNameFormat.get().format(date);
     }
 
     @Override

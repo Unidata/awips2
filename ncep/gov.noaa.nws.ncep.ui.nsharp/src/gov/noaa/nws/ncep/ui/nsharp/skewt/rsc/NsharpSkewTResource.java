@@ -2404,7 +2404,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
     }
 	@Override
 	protected void disposeInternal() {
-		//System.out.println("NsharpSkewTResource disposeInternal called");
+		System.out.println("NsharpSkewTResource disposeInternal called");
 		if(NsharpMapMouseHandler.getAccess() != null) 
 			NsharpMapMouseHandler.getAccess().setSkewRsc(null);
 		
