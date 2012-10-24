@@ -42,20 +42,18 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
-import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
- * TODO Add Description
+ * Dialog for performing a save or delete of an Edit Area.
  * 
  * <pre>
  * 
@@ -63,6 +61,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2010            randerso     Initial creation
+ * Oct 24, 2012 1287       rferrel     Code clean up part of non-blocking dialog.
  * 
  * </pre>
  * 
@@ -71,11 +70,12 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  */
 
 public class SaveDeleteRefDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SaveDeleteRefDialog.class);
-    private static final Pattern pythonVariable = Pattern
-            .compile("\\p{Alpha}\\w*");
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SaveDeleteRefDialog.class);
 
-    private static final int NUM_ITEMS = 10;
+    private final Pattern pythonVariable = Pattern.compile("\\p{Alpha}\\w*");
+
+    private final int NUM_ITEMS = 10;
 
     private IReferenceSetManager refSetMgr;
 
@@ -156,9 +156,9 @@ public class SaveDeleteRefDialog extends CaveJFACEDialog {
         editAreaList = new org.eclipse.swt.widgets.List(areaFrame, SWT.BORDER
                 | SWT.V_SCROLL | SWT.SINGLE);
 
-        Rectangle rect = editAreaList.computeTrim(0, 0, this
-                .convertWidthInCharsToPixels(24), editAreaList.getItemHeight()
-                * NUM_ITEMS);
+        Rectangle rect = editAreaList.computeTrim(0, 0,
+                this.convertWidthInCharsToPixels(24),
+                editAreaList.getItemHeight() * NUM_ITEMS);
         layoutData = new GridData(GridData.FILL_BOTH);
         layoutData.minimumWidth = rect.width;
         layoutData.heightHint = rect.height;
@@ -207,10 +207,9 @@ public class SaveDeleteRefDialog extends CaveJFACEDialog {
 
             groupListBox = new ToggleSelectList(groupFrame, SWT.BORDER
                     | SWT.V_SCROLL | SWT.MULTI);
-            rect = groupListBox.computeTrim(0, 0, this
-                    .convertWidthInCharsToPixels(24), groupListBox
-                    .getItemHeight()
-                    * NUM_ITEMS);
+            rect = groupListBox.computeTrim(0, 0,
+                    this.convertWidthInCharsToPixels(24),
+                    groupListBox.getItemHeight() * NUM_ITEMS);
             layoutData = new GridData(GridData.FILL_BOTH);
             layoutData.minimumWidth = rect.width;
             layoutData.heightHint = rect.height;
@@ -282,8 +281,8 @@ public class SaveDeleteRefDialog extends CaveJFACEDialog {
         // Check that name is a legal Python variable so
         // it can be used subsequently in queries
         if (!pythonVariable.matcher(name).matches()) {
-            statusHandler.handle(
-                            Priority.SIGNIFICANT,
+            statusHandler
+                    .handle(Priority.SIGNIFICANT,
                             "Illegal Name: Must begin with a letter and be alphanumeric or '_'. Please rename.");
             return false;
         }
