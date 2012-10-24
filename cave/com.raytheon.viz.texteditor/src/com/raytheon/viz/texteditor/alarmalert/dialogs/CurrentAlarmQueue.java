@@ -64,6 +64,7 @@ import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 
 /**
@@ -94,6 +95,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      exception associated with closing "Current 
  *                                      Alarm Queue" GUI
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
+ * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.
  * </pre>
  * 
  * @author mnash
@@ -384,32 +386,25 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             prods = produceTextProduct(command, refDate.getTime());
         }
 
-        if (alarmDisplayDlg == null) {
+        // Display the Alarm Display Window
+        if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
                     ACCUMULATE_STATE.UNCHANGE);
-            alarmDisplayDlg.open();
-            if (list != null && !list.isDisposed() && list.getItemCount() == 0) {
-                close();
-            }
-        } else {
-            if (alarmDisplayDlg.getShell() == null
-                    || alarmDisplayDlg.getShell().isDisposed()) {
-                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
-                        ACCUMULATE_STATE.UNCHANGE);
-                alarmDisplayDlg.open();
-                if (list != null && !list.isDisposed()
-                        && list.getItemCount() == 0) {
-                    close();
+            alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (list != null && !list.isDisposed()
+                            && list.getItemCount() == 0) {
+                        close();
+                    }
                 }
-            } else {
-                alarmDisplayDlg.setProds(prods);
-                alarmDisplayDlg.setDialogFocus();
-            }
-        }
-        if (list != null && !list.isDisposed()) {
-            if (list.getItemCount() == 0) {
-                displayAll.setEnabled(false);
-            }
+            });
+
+            alarmDisplayDlg.open();
+        } else {
+            alarmDisplayDlg.setProds(prods);
+            alarmDisplayDlg.setDialogFocus();
         }
     }
 
@@ -457,31 +452,25 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             }
         }
 
-        if (alarmDisplayDlg == null) {
+        // Display the Alarm Display Window
+        if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
                     ACCUMULATE_STATE.TRUE);
+            alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (list != null && !list.isDisposed()) {
+                        if (list.getItemCount() == 0) {
+                            displayAll.setEnabled(false);
+                        }
+                    }
+                }
+            });
             alarmDisplayDlg.open();
         } else {
-            if (alarmDisplayDlg.getShell() == null
-                    || alarmDisplayDlg.getShell().isDisposed()) {
-                alarmDisplayDlg = new AlarmDisplayWindow(shell, prods,
-                        ACCUMULATE_STATE.TRUE);
-                alarmDisplayDlg.open();
-            } else {
-                alarmDisplayDlg.setProds(prods);
-                alarmDisplayDlg.setAccumulate(true);
-                alarmDisplayDlg.setDialogFocus();
-            }
-        }
-        /*
-         * DR14795 - fix the "Unhandled event loop" exception
-         * 			 by calling setEnabled on displayAll only
-         * 			 for a valid list
-         */
-        if (list != null && !list.isDisposed()) {
-            if (list.getItemCount() == 0) {
-                displayAll.setEnabled(false);
-            }
+            alarmDisplayDlg.setProds(prods);
+            alarmDisplayDlg.setAccumulate(true);
+            alarmDisplayDlg.setDialogFocus();
         }
     }
 

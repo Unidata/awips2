@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -53,7 +53,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
 
 /**
  * Class for managing database query calls. TimeSeriesDataManager.java
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -63,14 +63,14 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 04Nov2009    2639       mpduff      Fixed some queries, code cleanup.
  * 21July2010   #5964      lbousaidi   Added contingencyValue table name
  * 									   to addDataRecord routine.
- * 25Oct 2010	2640	   lbousaidi   changed obstime to productime in 
+ * 25Oct 2010	2640	   lbousaidi   changed obstime to productime in
  * 									   getTabularData select query
  * Apr 05, 2011 8732       jpiatt      Added product_id to getGraphData query.
  * June 01 2011 9499       djingtao    add dur in getGraphData()
  * July 25 2011 10082      djingtao    modify edit()
  * May  30 2012 14967      wkwock      overload insertRejectedData method
  * </pre>
- * 
+ *
  * @author dhladky
  * @version 1.0
  */
@@ -79,9 +79,9 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	private static final String TIME_SERIES_DATA_QUERY = "select lid,obstime,lid,product_id from latestobsvalue";
 
-	private String INGEST_FILTER_QUERY = "select lid,pe,ts,extremum,dur from ingestfilter where lid=':lid' and ingest = 'T' order by pe asc,ts_rank asc,dur asc,ts asc,extremum asc";
+	private final String INGEST_FILTER_QUERY = "select lid,pe,ts,extremum,dur from ingestfilter where lid=':lid' and ingest = 'T' order by pe asc,ts_rank asc,ts asc,dur asc,extremum asc";
 
-	private String SHEF_PE_QUERY = "select name||' '|| eng_unit from shefpe where pe=':pe'";
+	private final String SHEF_PE_QUERY = "select name||' '|| eng_unit from shefpe where pe=':pe'";
 
 	private static final String SHEF_PE_GENERIC_UNITS = "Generic Units";
 
@@ -111,7 +111,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get an instance of this singleton object
-	 * 
+	 *
 	 * @return instance of this class
 	 */
 	public static synchronized TimeSeriesDataManager getInstance() {
@@ -123,7 +123,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get TimeSeriesData from the DB
-	 * 
+	 *
 	 * @return Object[]
 	 */
 	public Object[] getTimeSeriesData() {
@@ -143,7 +143,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get TimeSeriesStationData from the DB
-	 * 
+	 *
 	 * @return map
 	 */
 	public Map<String, String> getTimeSeriesStationData() {
@@ -152,7 +152,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the station list data sorted by lid.
-	 * 
+	 *
 	 * @param sortByName
 	 *            boolean
 	 * @return map
@@ -210,7 +210,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the site's PE data for graphical display
-	 * 
+	 *
 	 * @param lid
 	 *            The lid to query for
 	 * @return ArrayList of Object[] of data
@@ -224,7 +224,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the site's PE data for tabular display
-	 * 
+	 *
 	 * @param lid
 	 *            The lid to query for
 	 * @return List of SiteInfo objects
@@ -257,7 +257,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Checks the record count in the Location and Stnclass tables.
-	 * 
+	 *
 	 * @return true if same count, otherwise false
 	 * @throws VizException
 	 */
@@ -297,7 +297,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the shef pe data from IHFS.
-	 * 
+	 *
 	 * @param pe
 	 *            The PE value
 	 * @return The units of the data
@@ -318,7 +318,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Query the table.
-	 * 
+	 *
 	 * @param tablename
 	 *            The table to query
 	 * @param lid
@@ -356,7 +356,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Query the Riverstat table for the flood/action stage/flow.
-	 * 
+	 *
 	 * @param lid
 	 *            The Location Id
 	 * @return The list of flood stage values
@@ -372,7 +372,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Query the floodcat table for the flood stage.
-	 * 
+	 *
 	 * @param lid
 	 *            The Location Id
 	 * @return The flood stage value as a String
@@ -391,7 +391,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the Station name and river name.
-	 * 
+	 *
 	 * @param lid
 	 *            Location Id of the station
 	 * @return List of Object[] containing the data
@@ -433,7 +433,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Gets a unique list of basis times.
-	 * 
+	 *
 	 * @param table
 	 *            The table to query
 	 * @param lid
@@ -471,7 +471,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Query for the data records
-	 * 
+	 *
 	 * @param tablename
 	 *            The table to query
 	 * @param lid
@@ -569,7 +569,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the record count of the table.
-	 * 
+	 *
 	 * @param table
 	 *            The table to query
 	 * @param where
@@ -607,7 +607,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Delete the record.
-	 * 
+	 *
 	 * @param tablename
 	 *            The tablename to query
 	 * @param where
@@ -634,7 +634,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Delete a list of items.
-	 * 
+	 *
 	 * @param queryList
 	 *            list of queries
 	 * @throws VizException
@@ -651,7 +651,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Add a data record.
-	 * 
+	 *
 	 * @param tablename
 	 *            The tablename to query
 	 * @param dr
@@ -735,7 +735,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Update sql.
-	 * 
+	 *
 	 * @param sql
 	 *            The sql string
 	 * @return int
@@ -759,7 +759,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Insert rejected data record.
-	 * 
+	 *
 	 * @param dr
 	 *            The data record
 	 * @return int
@@ -817,7 +817,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Insert a list of items into the rejected table
-	 * 
+	 *
 	 * @param recordList
 	 *            List of DataRecord objects
 	 * @return
@@ -914,9 +914,10 @@ public class TimeSeriesDataManager extends HydroDataManager {
 		}
 		List<Object[]> sqlResult;
 		try {
-			sqlResult = (ArrayList<Object[]>) (DirectDbQuery.executeQuery(sql.toString(), HydroConstants.IHFS, QueryLanguage.SQL));
-			if (sqlResult !=null && sqlResult.size()>0 && sqlResult.get(0)[0]!=null)
-				return sqlResult.get(0)[0];
+			sqlResult = (DirectDbQuery.executeQuery(sql.toString(), HydroConstants.IHFS, QueryLanguage.SQL));
+			if (sqlResult !=null && sqlResult.size()>0 && sqlResult.get(0)[0]!=null) {
+                return sqlResult.get(0)[0];
+            }
 		} catch (VizException e) {
 			e.printStackTrace();
 			return null;
@@ -924,35 +925,35 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 		return null;
 	}
-	
+
 	public int insertRejectedData(List<ForecastData> deleteList) throws VizException {
 		StringBuilder sb = new StringBuilder();
 
 		Date currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
 		for (ForecastData dr : deleteList) {
-			
+
 			int probability=-1;
 			int revision=0;
 			if (dr.getTs().toUpperCase().startsWith("F") || dr.getTs().toUpperCase().startsWith("C")) {
 				probability=0;
 				revision=1;
 			}
-			
+
 			Date productTime=dr.getProductTime();
 			if (productTime==null) {
 				productTime=(Date)getDataFromDB(dr,"producttime");
 			}
-			
+
 			String productID=(String)getDataFromDB(dr,"product_id");
 			if (productID==null) {
 				productID=dr.getProductID();
 			}
-			
+
 			Integer qualityCode=(Integer)getDataFromDB(dr,"quality_code");
 			if (qualityCode==null) {
 				qualityCode=new Integer(dr.getQualityCode());
 			}
-			
+
 			sb.append("insert into rejecteddata(lid, pe, dur, ts, extremum, ");
 			sb.append("probability, validtime, basistime, postingtime, value, ");
 			sb.append("revision, shef_qual_code, product_id, producttime, quality_code, ");
@@ -1017,7 +1018,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Deletes a list of Observations.
-	 * 
+	 *
 	 * @param deleteList
 	 *            List of Observations to delete.
 	 * @return The number of rows modified
@@ -1038,7 +1039,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 		    sql.append("and ts = '"+data.getTs().toUpperCase()+"' ");
 		    sql.append("and extremum = '" + data.getExtremum().toUpperCase()
 					+ "' ");
-			
+
 			if (data.getValidTime() != null) {
 				sql.append("and validtime = '"
 						+ dbFormat.format(data.getValidTime()) + "'");
@@ -1067,7 +1068,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Inserts a list of Observations.
-	 * 
+	 *
 	 * @param insertList
 	 *            List of Observations to insert.
 	 * @return The number of rows modified
@@ -1137,7 +1138,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Edits a list of Observations.
-	 * 
+	 *
 	 * @param editList
 	 *            List of Observations to edit.
 	 * @return The number of rows modified
@@ -1219,7 +1220,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the product's productId and productTime.
-	 * 
+	 *
 	 * @param where
 	 *            The where statement
 	 * @param table
@@ -1261,7 +1262,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the list of forecast data.
-	 * 
+	 *
 	 * @param where
 	 *            The where statement
 	 * @param table
@@ -1329,7 +1330,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Insert/Update the forecast tables.
-	 * 
+	 *
 	 * @param dataObj
 	 *            The persistent data object to insert/update
 	 * @return The number of objects inserted/updated
@@ -1345,7 +1346,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the Use Latest Forecast flag from riverstat table.
-	 * 
+	 *
 	 * @param lid
 	 *            The location id
 	 * @return The use latestes forecast flag, or null if nothing in db
@@ -1367,7 +1368,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Convert Timestamp object to java.util.Date object.
-	 * 
+	 *
 	 * @param timestamp
 	 *            The Timestamp to convert
 	 * @return The Date object
@@ -1380,7 +1381,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 	/**
 	 * Get the station display map.
-	 * 
+	 *
 	 * @return The map of station displays
 	 */
 	public Map<String, String> getStationDisplayMap() {

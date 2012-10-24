@@ -25,8 +25,12 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/28/08        1585          MW Fegan       Initial Creation.
+#    10/09/12        DR 13901      D. Friedman    Add doWithinTime
 ##############################################################################
 import sys
+import Queue
+import threading
+import traceback
 import types
 
 import InputOutput as IO
@@ -104,3 +108,31 @@ def convListToDict(list):
         temp.append(val)
         retVal.append(temp)
     return dict(retVal)
+
+def doWithinTime(target_function, description='complete the operation', 
+        max_tries = 3, max_try_time = 10.0, args=(), kwargs={}):
+    q = Queue.Queue()
+    def threadFunc(q, target_function, args, kwargs):
+        try:
+            r = (True, target_function(*args, **kwargs))
+        except:
+            traceback.print_exc()
+            r = (False, sys.exc_info()[1])
+        q.put(r)
+    exc = None
+    for i in range(0, max_tries):
+        t = threading.Thread(target=threadFunc, args=(q, target_function, args, kwargs))
+        t.daemon = True
+        t.start()
+        try:
+            r, val = q.get(True, max_try_time)
+            if r:
+                return val
+            else:
+                exc = val
+                break
+        except Queue.Empty, e:
+            continue
+    reason = exc is None and " within the expected time" or (": " + str(exc))
+    raise StandardError("Failed to %s%s" % (description, reason))
+

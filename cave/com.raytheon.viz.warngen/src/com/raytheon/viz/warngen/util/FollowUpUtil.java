@@ -1,22 +1,3 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
 package com.raytheon.viz.warngen.util;
 
 import java.util.ArrayList;
@@ -34,6 +15,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.GisUtil.Direction;
+import com.raytheon.viz.warngen.text.ICommonPatterns;
 
 /**
  * This utility will provide methods for determining what followup products are
@@ -45,6 +27,7 @@ import com.raytheon.viz.warngen.gis.GisUtil.Direction;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008	#1284			bwoodle	Initial creation
+ * Oct 18, 2012 15332           jsanchez Fixed refactor bugs.
  * 
  * </pre>
  * 
@@ -64,8 +47,9 @@ public class FollowUpUtil {
      * This method checks whether a particular followup should be available
      * given a Warning Record, a vtec Action, and a template configuration
      */
-    public static boolean checkApplicable(String site, WarngenConfiguration config,
-            AbstractWarningRecord record, WarningAction action) {
+    public static boolean checkApplicable(String site,
+            WarngenConfiguration config, AbstractWarningRecord record,
+            WarningAction action) {
 
         // Current Time
         Calendar cal = Calendar.getInstance();
@@ -91,14 +75,16 @@ public class FollowUpUtil {
                     rval = true;
                 }
             }
-            if (action == WarningAction.COR && checkCorApplicable(site, config, record)) {
+            if (action == WarningAction.COR
+                    && checkCorApplicable(site, config, record)) {
                 rval = true;
             }
         }
         return rval;
     }
-    
-    private static boolean checkCorApplicable(String site, WarngenConfiguration config, AbstractWarningRecord warnRec) {
+
+    private static boolean checkCorApplicable(String site,
+            WarngenConfiguration config, AbstractWarningRecord warnRec) {
         boolean allowsCONProduct = false;
         boolean allowsCORProduct = false;
         for (String s : config.getFollowUps()) {
@@ -113,29 +99,31 @@ public class FollowUpUtil {
         if (allowsCORProduct == false) {
             return false;
         }
-        
+
         CurrentWarnings cw = CurrentWarnings.getInstance(site);
-        List<AbstractWarningRecord> correctableWarnings = cw.getCorrectableWarnings(warnRec);
-        
+        List<AbstractWarningRecord> correctableWarnings = cw
+                .getCorrectableWarnings(warnRec);
+
         boolean wasContinued = false;
         for (AbstractWarningRecord w : correctableWarnings) {
             if (WarningAction.valueOf(w.getAct()) == WarningAction.CON) {
                 wasContinued = true;
             }
         }
-        
+
         // Adding a COR option for continuation follow ups
-        if (correctableWarnings.isEmpty() == false && ((allowsCONProduct && wasContinued) 
-                || (allowsCONProduct == false && wasContinued == false))) {
+        if (correctableWarnings.isEmpty() == false
+                && ((allowsCONProduct && wasContinued) || (allowsCONProduct == false && wasContinued == false))) {
             return true;
         }
-        
+
         return false;
     }
 
     /**
-     * Returns the raw message of the record but removes 
-     * the first wmoid and the pil (the first two lines of the warning)
+     * Returns the raw message of the record but removes the first wmoid and the
+     * pil (the first two lines of the warning)
+     * 
      * @param record
      * @return
      */
@@ -169,47 +157,41 @@ public class FollowUpUtil {
 
         return originalMessage;
     }
-    
+
     /**
      * Returns a list of the canceled areas from the original text
+     * 
      * @param originalText
      * @return
      */
-    public static ArrayList<AffectedAreas> canceledAreasFromText(String originalText) {        
-        boolean ugcdone = false;
+    public static ArrayList<AffectedAreas> canceledAreasFromText(
+            String originalText) {
         boolean namedone = false;
         boolean insideHeadline = false;
-        String ugcLine = "";
+        String ugcLine = getUgcLineCanFromText(originalText);
         String namesLine = "";
         String headline = "";
+        Pattern listOfAreaNamePtrn = Pattern
+                .compile(ICommonPatterns.listOfAreaName);
         for (String line : originalText.trim().split("\n")) {
             if (line.contains("TEST") || line.trim().length() == 0) {
                 continue;
             }
-            
-            Matcher m = WarningTextHandler.ugcPtrn.matcher(line);
-            if (!ugcdone && m.find()) {
-                ugcLine += m.group();
-                continue;
-            } else if (ugcLine.length() > 0) {
-                ugcdone = true;
-            }
-            
-            m = WarningTextHandler.listOfAreaNamePtrn.matcher(line);
+            Matcher m = listOfAreaNamePtrn.matcher(line);
             if (!namedone && m.find()) {
                 namesLine += m.group();
                 continue;
             } else if (namesLine.length() > 0) {
                 namedone = true;
             }
-            
+
             if (line.startsWith("...")) {
                 headline += line.substring(3);
                 insideHeadline = true;
             } else if (insideHeadline) {
-                
+
                 if (line.trim().endsWith("...")) {
-                    headline += line.substring(0,line.length() - 3);
+                    headline += line.substring(0, line.length() - 3);
                     insideHeadline = false;
                     break;
                 }
@@ -219,9 +201,9 @@ public class FollowUpUtil {
         String[] ugcs = ugcLine.split("-");
         String[] names = namesLine.split("-");
         String[] areas = headline.split("\\.\\.\\.");
-        
+
         ArrayList<AffectedAreas> al = new ArrayList<AffectedAreas>();
-        
+
         String stateAbbreviation = null;
         String areaNotation = null;
         String areasNotation = null;
@@ -232,7 +214,6 @@ public class FollowUpUtil {
             AffectedAreas affectedArea = new AffectedAreas();
             String ugc = ugcs[i].trim();
             if (ugc.length() == 6) {
-                stateAbbreviation = ugc.substring(0,2);
                 if (ugc.charAt(2) == 'Z') {
                     areaNotation = "ZONE";
                     areasNotation = "ZONES";
@@ -241,17 +222,19 @@ public class FollowUpUtil {
                     areasNotation = "COUNTIES";
                 }
             }
-            
+
             fips = ugc.substring(ugc.length() - 3);
-            
+
             if (i < names.length) {
-                name = names[i].substring(0, names[i].length()-3);
+                name = names[i].substring(0, names[i].length() - 3);
+                stateAbbreviation = names[i].substring(names[i].length() - 2);
             }
-            
+
             if (name != null) {
                 for (String area : areas) {
                     if (area.contains(name)) {
-                        EnumSet<Direction> set = EnumSet.noneOf(Direction.class);
+                        EnumSet<Direction> set = EnumSet
+                                .noneOf(Direction.class);
                         for (Direction direction : Direction.values()) {
                             if (area.contains(direction.name())) {
                                 set.add(direction);
@@ -262,7 +245,7 @@ public class FollowUpUtil {
                     }
                 }
             }
-            
+
             affectedArea.setFips(fips);
             affectedArea.setStateabbr(stateAbbreviation);
             affectedArea.setAreaNotation(areaNotation);
@@ -274,11 +257,12 @@ public class FollowUpUtil {
 
         return al;
     }
-    
+
     public static String getUgcLineCanFromText(String originalText) {
         String ugcLine = "";
-        for (String line : originalText.trim().split("\n")) {            
-            Matcher m = WarningTextHandler.ugcPtrn.matcher(line);
+        Pattern ugcPtrn = Pattern.compile(ICommonPatterns.ugc);
+        for (String line : originalText.replaceAll("\r", "").trim().split("\n")) {
+            Matcher m = ugcPtrn.matcher(line);
             if (m.find()) {
                 ugcLine += line;
                 continue;
@@ -286,7 +270,7 @@ public class FollowUpUtil {
                 break;
             }
         }
-        
+
         return ugcLine;
     }
 

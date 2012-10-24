@@ -45,7 +45,7 @@ public class NsharpHodoPaneDisplay extends NsharpAbstractPaneDisplay {
     
     public NsharpHodoPaneDisplay() {
 		super();
-		// TODO Auto-generated constructor stub
+		//System.out.println("NsharpHodoPaneDisplay() called "+ this.toString());
 	}
 
 	public NsharpHodoPaneDisplay(PixelExtent pixelExtent, int paneNumber,

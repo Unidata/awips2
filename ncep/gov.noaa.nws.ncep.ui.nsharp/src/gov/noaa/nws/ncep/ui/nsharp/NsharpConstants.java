@@ -63,12 +63,12 @@ public class NsharpConstants {
     public static final double MAX_PRESSURE = 1050;
     public static final double MIN_PRESSURE = 100;
     // horizontal pressure line that will be drawn.
-    public static final double[] PRESSURE_MAIN_LEVELS = { MAX_PRESSURE, 1000, 850,
-            700, 500,  300, 200,150, MIN_PRESSURE };
-    public static final double[] PRESSURE_MARK_LEVELS = { MAX_PRESSURE, 1000, 950, 900, 850, 800,
-        750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200, 150,
-        MIN_PRESSURE };
-    public static final double[] PRESSURE_NUMBERING_LEVELS = { 1000, 850,
+    public static final Integer[] PRESSURE_MAIN_LEVELS = { 1000, 850,
+            700, 500,  300, 200,150};
+    public static final int[] PRESSURE_MARK_LEVELS = { 1000, 950, 900, 850, 800,
+        750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200, 150
+      };
+    public static final int[] PRESSURE_NUMBERING_LEVELS = { 1000, 850,
         700, 500,  300, 200, 150 };
 
     //Icing pressure level 1000, 900,800,700,600, 500,400,  300
@@ -182,6 +182,7 @@ public class NsharpConstants {
 
     public  static RGB color_red = new RGB(255,0,0);//red
     public  static RGB color_green = new RGB(0,255,0);//green
+    public  static RGB color_lawngreen = new RGB(119,255,0);//green
     public  static RGB color_yellow_green = new RGB(154,205,50);//green
 	public  static RGB color_yellow = new RGB(255,255,0);//yellow
 	public  static RGB color_yellow_DK = new RGB(238,238,0);//yellow
@@ -194,6 +195,7 @@ public class NsharpConstants {
 	public  static RGB color_white = new RGB(255,250,250);//white
 	public  static RGB color_black = new RGB(0,0,0);//black
 	public  static RGB color_orange = new RGB(255,122, 66);//orange
+	public  static RGB color_darkorange = new RGB(255,140, 0);//orange
 	public  static RGB color_babypink = new RGB(249,207, 221);//
 	public  static RGB color_deeppink = new RGB(255,20, 147);//
 	public  static RGB color_hotpink = new RGB(255,105, 180);//
@@ -457,7 +459,8 @@ public class NsharpConstants {
     public static final float HODO_CENTER_X_ = HODO_X_ORIG + (float)(5.00/12.00) * HODO_WIDTH;
     public static final float HODO_CENTER_Y_ = HODO_Y_ORIG + (float)(1.00/2.00) * HODO_HEIGHT;
     public static final int HODO_COORDINATE_X1 = -50;
-    public static final int HODO_COORDINATE_Y1 = 75;
+    public static final int HODO_COORDINATE_X1_STD = -90;
+     public static final int HODO_COORDINATE_Y1 = 75;
     public static final int HODO_COORDINATE_X2 = 70;
     public static final int HODO_COORDINATE_Y2 = -95;
     
@@ -529,12 +532,12 @@ public class NsharpConstants {
     public static final int SRWINDVTRS_X_END = SRWINDVTRS_X_ORIG+INSET_WIDTH;
     public static final int SRWINDVTRS_Y_END = SRWINDVTRS_Y_ORIG+INSET_HEIGHT;
     
-    public static final String PANE_LEGACY_CFG_STR = "Legacy Configuration (obsoleting)";
+    //public static final String PANE_LEGACY_CFG_STR = "Legacy Configuration (obsoleting)";
     public static final String PANE_DEF_CFG_1_STR = "Default Configuration 1";
     public static final String PANE_DEF_CFG_2_STR = "Default Configuration 2";
     public static final String PANE_SPCWS_CFG_STR = "SPC Wide Screen Configuration";
     public static final String PANE_SIMPLE_D2D_CFG_STR = "D2D Skewt Standard Screen Configuration";
-    public static final String[] PANE_CONFIGURATION_NAME = {PANE_DEF_CFG_1_STR, PANE_DEF_CFG_2_STR,PANE_SPCWS_CFG_STR,PANE_SIMPLE_D2D_CFG_STR, PANE_LEGACY_CFG_STR};
+    public static final String[] PANE_CONFIGURATION_NAME = {PANE_DEF_CFG_1_STR, PANE_DEF_CFG_2_STR,PANE_SPCWS_CFG_STR,PANE_SIMPLE_D2D_CFG_STR};//, PANE_LEGACY_CFG_STR};
      
     //pane width and height ratio to full canvas size
     //  pane default configuration 1  
@@ -641,6 +644,10 @@ public class NsharpConstants {
 	public static int GRAPH_TURB = 2; 
 	public static int MAX_GRAPH_MODE = 3;
 	
+	public static int  SKEWT_EDIT_MODE_EDITPOINT = 0;
+	public static int  SKEWT_EDIT_MODE_MOVELINE = 1;
+	public static int  SKEWT_EDIT_MODE_MODIFYRANGE = 2;
+	
 	public static String getNlistFile() {
 		return NcPathManager.getInstance().getStaticFile( 
 				  NcPathConstants.NSHARP_NLIST_FILE ).getAbsolutePath();
@@ -651,31 +658,33 @@ public class NsharpConstants {
     }
 	
 	//Line configuration. Line name listing order in this array should be in order with constant defined below it.
-	public static String[] lineNameArray= {"Temperature", "Dew Point", "Parcel","Virtual Temp","Wetbulb","Wind Barb","Overlay 1", "Overlay 2", "Compare 1", "Compare 2","Compare 3","Compare 4","Compare 5","Compare 6","Compare 7","Compare 8","Compare 9","Compare 10",
+	public static String[] lineNameArray= {"Temperature", "Dew Point", "Parcel","Parcel Ascent","DCAPE","Virtual Temp","Wetbulb","Wind Barb","Overlay 1", "Overlay 2", "Compare 1", "Compare 2","Compare 3","Compare 4","Compare 5","Compare 6","Compare 7","Compare 8","Compare 9","Compare 10",
 											"Icing RH", "Icing Temp", "Icing EPI", "Turbulence Ln", "Turbulence WindShear"};
 	public static int LINE_TEMP = 0;
-	public static int LINE_DEWP = 1;
-	public static int LINE_PARCEL = 2;
-	public static int LINE_VIRTUAL_TEMP =3;
-	public static int LINE_WETBULB = 4;
-	public static int LINE_WIND_BARB = 5;
-	public static int LINE_OVERLAY1 = 6;
-	public static int LINE_OVERLAY2= 7;
-	public static int LINE_COMP1 = 8;
-	public static int LINE_COMP2 = 9;
-	public static int LINE_COMP3 = 10;
-	public static int LINE_COMP4 = 11;
-	public static int LINE_COMP5 = 12;
-	public static int LINE_COMP6 = 13;
-	public static int LINE_COMP7 = 14;
-	public static int LINE_COMP8 = 15;
-	public static int LINE_COMP9 = 16;
-	public static int LINE_COMP10 = 17;
-	public static int LINE_ICING_RH = 18;
-	public static int LINE_ICING_TEMP= 19;
-	public static int LINE_ICING_EPI=20;
-	public static int LINE_TURBULENCE_LN = 21;
-	public static int LINE_TURBULENCE_WS = 22;
+	public static int LINE_DEWP = LINE_TEMP+1;
+	public static int LINE_PARCEL = LINE_DEWP+1;
+	public static int LINE_PARCEL_ASCENT = LINE_PARCEL+1;
+	public static int LINE_DCAPE =LINE_PARCEL_ASCENT+1;
+	public static int LINE_VIRTUAL_TEMP =LINE_DCAPE+1;
+	public static int LINE_WETBULB = LINE_VIRTUAL_TEMP+1;
+	public static int LINE_WIND_BARB = LINE_WETBULB+1;
+	public static int LINE_OVERLAY1 = LINE_WIND_BARB+1;
+	public static int LINE_OVERLAY2= LINE_OVERLAY1+1;
+	public static int LINE_COMP1 = LINE_OVERLAY2+1;
+	public static int LINE_COMP2 = LINE_COMP1+1;
+	public static int LINE_COMP3 = LINE_COMP2+1;
+	public static int LINE_COMP4 = LINE_COMP3+1;
+	public static int LINE_COMP5 = LINE_COMP4+1;
+	public static int LINE_COMP6 = LINE_COMP5+1;
+	public static int LINE_COMP7 = LINE_COMP6+1;
+	public static int LINE_COMP8 = LINE_COMP7+1;
+	public static int LINE_COMP9 = LINE_COMP8+1;
+	public static int LINE_COMP10 = LINE_COMP9+1;
+	public static int LINE_ICING_RH = LINE_COMP10+1;
+	public static int LINE_ICING_TEMP= LINE_ICING_RH+1;
+	public static int LINE_ICING_EPI= LINE_ICING_TEMP+1;
+	public static int LINE_TURBULENCE_LN = LINE_ICING_EPI+1;
+	public static int LINE_TURBULENCE_WS = LINE_TURBULENCE_LN+1;
 	
 	//defaultLineProperty should be listed in sync with lineNameArray for each line
 	public static NsharpLineProperty[] defaultLineProperty = 
@@ -683,6 +692,8 @@ public class NsharpConstants {
 		new NsharpLineProperty(LineStyle.SOLID, 2,color_red ),
 		new NsharpLineProperty(LineStyle.SOLID, 2,color_green ),
 		new NsharpLineProperty(LineStyle.SHORT_DASHED, 1,color_white ),
+		new NsharpLineProperty(LineStyle.DOTS, 1,color_darkorange ),
+		new NsharpLineProperty(LineStyle.DOTS, 2,color_white ),
 		new NsharpLineProperty(LineStyle.SHORT_DASHED, 2,color_red ),
 		new NsharpLineProperty(LineStyle.SOLID, 1,wetBulbColor ),
 		new NsharpLineProperty(LineStyle.SOLID, 1,color_yellow ),
@@ -733,6 +744,8 @@ public class NsharpConstants {
 	public enum State {
 		CURRENT, ACTIVE, INACTIVE,NOTAVAIL ,OVERLAY, AVAIL//was , DISABLED
 	}
-	
+	public enum SPCGraph {
+		EBS, STP, SHIP, WINTER, FIRE, HAIL, SARS
+	}
 	
 }

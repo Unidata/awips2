@@ -122,6 +122,13 @@ def capeFunc(usetv, p_dat, tve_dat, p0, th0, sh0, ptop = None):
     p0 = np.copy(p0)
     th0 = np.copy(th0)
     sh0 = np.copy(sh0)
+
+    p_dat[np.isnan(p_dat)] = 1e37
+    tve_dat[np.isnan(tve_dat)] = 1e37
+    p0[np.isnan(p0)] = 1e37
+    th0[np.isnan(th0)] = 1e37
+    sh0[np.isnan(sh0)] = 1e37
+
     p_dat.resize((nz, nx * ny,))
     tve_dat.resize((nz, nx * ny,))
     p0.resize((p0.size,))

@@ -58,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * AWIPS2 DR Work
  * 07/25/2012          953 jkorman     Modified file "search" to return LocalizationFile
  * instead of File so references are deleted in all locations.
+ * 09/20/2012   1196       rferrel   Setup fileName now in return value for
+ *                                    use with close callback.
  * 
  * </pre>
  * 
@@ -74,8 +76,6 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
     private Composite shellComp;
 
-    private static AlarmAlertSaveLoadDlg saveLoadDlg = null;
-
     private static String fileName = "";
 
     private SaveOrLoad saveLoad;
@@ -91,7 +91,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
      */
     protected AlarmAlertSaveLoadDlg(Shell parentShell, SaveOrLoad saveLoad) {
         super(parentShell, SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.TITLE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         if (saveLoad == SaveOrLoad.SAVE) {
             setText("Save Lists As...");
         } else {
@@ -148,7 +148,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         lists.setLayoutData(gd);
         LocalizationContext lc = AlarmAlertFunctions.initUserLocalization();
-        
+
         // Get a list of localization files!
         LocalizationFile[] fList = PathManagerFactory.getPathManager()
                 .listFiles(lc, "alarms", new String[] { "xml" }, false, true);
@@ -191,7 +191,12 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
         loadButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 // Set the filename to be returned through getFileName()
-                fileName = lists.getSelection()[0];
+                if (lists.getSelectionCount() > 0) {
+                    fileName = lists.getSelection()[0];
+                } else {
+                    fileName = "";
+                }
+                setReturnValue(fileName);
                 shell.close();
             }
         });
@@ -285,6 +290,7 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 // Set the filename to be returned through getFileName()
                 fileName = textBox.getText();
+                setReturnValue(fileName);
                 shell.close();
             }
         });
@@ -310,13 +316,5 @@ public class AlarmAlertSaveLoadDlg extends CaveSWTDialog {
 
     public String getFileName() {
         return fileName;
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        saveLoadDlg = new AlarmAlertSaveLoadDlg(new Shell(), SaveOrLoad.LOAD);
-        saveLoadDlg.open();
     }
 }
