@@ -86,9 +86,9 @@ public class TopoDatabaseManager {
 
     private static Map<String, TopoDatabase> topoDbMap = new HashMap<String, TopoDatabase>();
 
-    private IFPServerConfig config;
+    private final IFPServerConfig config;
 
-    private IDataStore dataStore;
+    private final IDataStore dataStore;
 
     public static void initializeTopoDatabase(String siteID)
             throws GfeException {
@@ -116,7 +116,7 @@ public class TopoDatabaseManager {
         // get GridParmInfo configuration
         GridLocation gloc = config.dbDomain();
 
-        File hdf5File = GfeUtil.getHDF5File(GridDatabase.gfeBaseDataDir,
+        File hdf5File = GfeUtil.getHdf5TopoFile(GridDatabase.gfeBaseDataDir,
                 getTopoDbId(siteID));
         dataStore = DataStoreFactory.getDataStore(hdf5File);
 
@@ -239,7 +239,7 @@ public class TopoDatabaseManager {
         for (int i = 0; i < heights.length; i++) {
             if (!Float.isNaN(heights[i])) {
                 heights[i] = (float) cvt.convert(heights[i]);
-                if (!allowValuesBelowZero && heights[i] < 0) {
+                if (!allowValuesBelowZero && (heights[i] < 0)) {
                     heights[i] = 0.0f;
                 }
             }
@@ -391,7 +391,7 @@ public class TopoDatabaseManager {
             dataStore.addDataRecord(output);
             StorageStatus status = dataStore.store(StoreOp.REPLACE);
             StorageException[] exceptions = status.getExceptions();
-            if (exceptions != null && exceptions.length > 0) {
+            if ((exceptions != null) && (exceptions.length > 0)) {
                 statusHandler
                         .handle(Priority.PROBLEM,
                                 "Storage exceptions occurred during hdf5 save. "

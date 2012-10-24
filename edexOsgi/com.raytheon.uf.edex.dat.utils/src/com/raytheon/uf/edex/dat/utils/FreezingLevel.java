@@ -19,7 +19,9 @@ package com.raytheon.uf.edex.dat.utils;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -68,6 +70,9 @@ public class FreezingLevel {
 
     private int eighteenCount = 0;
 
+    // reference time
+    Calendar refTime = null;
+
     public FreezingLevel(String modelName) {
 
         this.modelName = modelName;
@@ -76,14 +81,18 @@ public class FreezingLevel {
         sixCount = 0;
         twelveCount = 0;
         eighteenCount = 0;
+        refTime = Calendar.getInstance();
+        // only for get data for hour 00z,06z,12z, or 18z
+        int adjustedHour = (refTime.get(Calendar.HOUR_OF_DAY) / 6) * 6;
+        refTime.set(Calendar.HOUR_OF_DAY, adjustedHour);
 
         // populates what ever is missing, sets prevalent forecast hour
         for (Entry<String, Integer> entry : getGHLevelMap().entrySet()) {
-            populateRecord(modelName, entry.getKey());
+            populateRecord(modelName, entry.getKey(), refTime.getTime());
         }
 
         for (Entry<String, Integer> entry : getTLevelMap().entrySet()) {
-            populateRecord(modelName, entry.getKey());
+            populateRecord(modelName, entry.getKey(), refTime.getTime());
         }
     }
 
@@ -122,40 +131,41 @@ public class FreezingLevel {
             Integer jtopLevel = null;
             Integer ktopLevel = null;
 
-			System.out
-					.println("********** Starting Freezing Level Calculations *****************");
-			for (Integer level : ghValues.keySet()) {
+            System.out
+                    .println("********** Starting Freezing Level Calculations *****************");
+            for (Integer level : ghValues.keySet()) {
 
-				Double tValue = tValues.get(level);
-				Double ghValue = ghValues.get(level);
-				System.out.println("GH Value: "+ghValue+" TValue: "+tValue);
+                Double tValue = tValues.get(level);
+                Double ghValue = ghValues.get(level);
+                System.out.println("GH Value: " + ghValue + " TValue: "
+                        + tValue);
 
-				if (ghValue != null && ghValue > -9000) {
-					if (tValue != null && tValue > 273.16) {
+                if (ghValue != null && ghValue > -9000) {
+                    if (tValue != null && tValue > 273.16) {
 
-						fLevel = (ghValues.get(ktopLevel) - ((ghValues
-								.get(ktopLevel) - ghValue) * ((273.16 - tValues
-								.get(jtopLevel)
-								/ (tValue - tValues.get(jtopLevel)))))) * .00328;
-						System.out.println("Formula:");
-						System.out.println("(" + ghValues.get(ktopLevel)
-								+ " - ((" + ghValues.get(ktopLevel) + " - "
-								+ ghValue + ") * ((273.16 - "
-								+ tValues.get(jtopLevel) + " / (" + tValue
-								+ " - " + tValues.get(jtopLevel)
-								+ "))))) * .00328)");
-						System.out.println("*** FreezingLevel = " + fLevel);
-						freezingMap.put(coor, fLevel.floatValue());
-						break;
-					} else {
-						jtopLevel = level;
-						ktopLevel = level;
-					}
-				}
-			}
-			System.out
-					.println("********** Finished Freezing Level Calculations *****************");
-		}
+                        fLevel = (ghValues.get(ktopLevel) - ((ghValues
+                                .get(ktopLevel) - ghValue) * ((273.16 - tValues
+                                .get(jtopLevel)) / (tValue - tValues
+                                .get(jtopLevel))))) * .00328;
+                        System.out.println("Formula:");
+                        System.out.println("(" + ghValues.get(ktopLevel)
+                                + " - ((" + ghValues.get(ktopLevel) + " - "
+                                + ghValue + ") * ((273.16 - "
+                                + tValues.get(jtopLevel) + ") / (" + tValue
+                                + " - " + tValues.get(jtopLevel)
+                                + ")))) * .00328");
+                        System.out.println("*** FreezingLevel = " + fLevel);
+                        freezingMap.put(coor, fLevel.floatValue());
+                        break;
+                    } else {
+                        jtopLevel = level;
+                        ktopLevel = level;
+                    }
+                }
+            }
+            System.out
+                    .println("********** Finished Freezing Level Calculations *****************");
+        }
 
         return freezingMap;
     }
@@ -235,12 +245,13 @@ public class FreezingLevel {
      * @param param
      * @return
      */
-    private GridRecord populateRecord(String model, String param) {
+    private GridRecord populateRecord(String model, String param, Date refTime) {
         int interval = 1440;
+
         SCANModelParameterXML paramXML = new SCANModelParameterXML();
         paramXML.setModelName(model);
         paramXML.setParameterName(param);
-        String sql = getSQL(interval, model, param);
+        String sql = getSQL(interval, model, param, refTime);
         GridRecord modelRec = DATUtils.getMostRecentGridRecord(interval, sql,
                 paramXML);
 
@@ -327,9 +338,12 @@ public class FreezingLevel {
      * 
      * @return
      */
-    private String getSQL(int interval, String model, String param) {
+    private String getSQL(int interval, String model, String param, Date refTime) {
         String paramName = null;
         String level = null;
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
+
+        String refTimeStr = sdt.format(refTime);
         if (param.startsWith("GH")) {
             paramName = "GH";
             level = param.substring(2, param.length());
@@ -344,7 +358,7 @@ public class FreezingLevel {
                 + "\' and grid_info.datasetId = \'"
                 + model
                 + "\' and level.masterlevel_name = 'MB' and level.levelonevalue = '"
-                + level + "\'" + " order by grid.forecasttime desc limit 1";
+                + level + "\' and reftime=\'" + refTimeStr + "\' order by grid.reftime desc, grid.forecasttime desc limit 1";
         return sql;
     }
 }

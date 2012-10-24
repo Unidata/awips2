@@ -86,6 +86,7 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
     public static final float INVALID_DATA = NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA;
 	protected Coordinate cursorCor;
 	protected int charHeight = NsharpConstants.CHAR_HEIGHT_;
+	protected double charWidth;
     protected PaintProperties paintProps;
 	
 	public NsharpAbstractPaneResource(AbstractResourceData resourceData,
@@ -115,6 +116,7 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 			font12=null;
 		} 
 		this.target.dispose();
+		target = null;
 	}
 
 
@@ -133,7 +135,9 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 		}
 		*/
 		//System.out.println("currentZoomLevel="+currentZoomLevel+" paintProps's zoomLevel="+zoomLevel);
-		if((zoomLevel != currentZoomLevel) && zoomLevel<=1.0f ){
+		if(zoomLevel > 1.0f)
+			zoomLevel = 1.0f;
+		if((zoomLevel != currentZoomLevel)  ){
 			currentZoomLevel = zoomLevel;
 			handleZooming();
 			
@@ -279,6 +283,8 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 
 	public void setRscHandler(NsharpResourceHandler rscHandler) {
 		this.rscHandler = rscHandler;
+		if(descriptor != null)
+			descriptor.setRscHandler(rscHandler);
 	}
 
 	public void setNsharpNative(NsharpNative nsharpNative) {
@@ -308,8 +314,9 @@ public class NsharpAbstractPaneResource extends AbstractVizResource<AbstractReso
 		DrawableString str =new DrawableString("CHINCHEN",NsharpConstants.color_black);
 		str.font = font;
 		double vertRatio = paintProps.getView().getExtent().getHeight() / paintProps.getCanvasBounds().height;
+		double horizRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
 		charHeight = (int) (target.getStringsBounds(str).getHeight() * vertRatio);
-		
+		charWidth = target.getStringsBounds(str).getWidth() * horizRatio /8;
 		//System.out.println(descriptor.getPaneNumber()+": font10 char height ="+charHeight+ " vertRatio="+vertRatio);	
 	}
 }

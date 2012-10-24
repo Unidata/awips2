@@ -47,6 +47,8 @@ import com.raytheon.uf.viz.localization.filetreeview.FileTreeEntryData;
 
 public class LocalizationPerspectiveAdapter {
 
+    public static final String NEW_ID = "new";
+
     /**
      * Given the selected tree data items, add context menu items specific to
      * your type. Default implementation does nothing

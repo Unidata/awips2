@@ -65,8 +65,11 @@ public class NsharpPerspectiveListener implements IPerspectiveListener4{
 	@Override
 	public void perspectiveActivated(IWorkbenchPage page,
 			IPerspectiveDescriptor perspective) {
-		if(perspective.getId().equals(myPerspectiveId))
-			rscHandler.repopulateSndgData();
+		if(perspective.getId().equals(myPerspectiveId)){
+			//rscHandler.repopulateSndgData();
+			//rscHandler.resetRsc();
+			System.out.println("perspectiveActivated rscHandler="+rscHandler.toString()+" perspective.getId()="+perspective.getId() + " myPerspectiveId="+myPerspectiveId);
+		}
 	}
 
 	@Override

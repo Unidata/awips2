@@ -23,6 +23,7 @@ package com.raytheon.viz.texteditor.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -46,7 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
@@ -64,6 +64,7 @@ import com.raytheon.viz.texteditor.msgs.IAfosIdSelectionCallback;
 import com.raytheon.viz.texteditor.msgs.IWmoIdSelectionCallback;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Dialog that allows the user to edit the AWIPS header block.
@@ -72,8 +73,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 9/13/07      368         lvenable    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
  * 10/18/2007   482         grichard    Implemented build 9 features.
@@ -91,7 +92,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 05/30/2012   15046       D.Friedman  Always set addressee field to ALL.
  * 06/19/2012   14975       D.Friedman  Run callback when dialog is dismissed.
  * 07/26/2012   15171       rferrel     Disable editor's send and clear AFOS PIL fields when
- *                                      invalid product Id and user want to edit it anyway,
+ *                                      invalid product Id and user want to edit it anyway.
+ * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
  * </pre>
  * 
  * @author lvenable
@@ -104,12 +106,12 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
     /**
      * WMO data type and area indicator text field.
      */
-    private Text wmoTtaaiiTF;
+    private StyledText wmoTtaaiiTF;
 
     /**
      * International location indicator text field.
      */
-    private Text ccccTF;
+    private StyledText ccccTF;
 
     /**
      * Combo box Type of message/indicator group.
@@ -124,23 +126,23 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
     /**
      * AFOS site ID text field.
      */
-    private Text wsfoIdTF;
+    private StyledText wsfoIdTF;
 
     /**
      * Product category text field.
      */
-    private Text prodCatTF;
+    private StyledText prodCatTF;
 
     /**
      * Product designator text field.
      */
-    private Text prodDesignatorTF;
+    private StyledText prodDesignatorTF;
 
     /**
      * Address text field. Defines the site where a text product or message is
      * sent.
      */
-    private Text addresseeTF;
+    private StyledText addresseeTF;
 
     /**
      * Zeros button. Puts "000" into the addressee text field. Zeros indicates
@@ -247,7 +249,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the WMO ID text field.
         GridData gd = new GridData(55, SWT.DEFAULT);
-        wmoTtaaiiTF = new Text(wmoIdComp, SWT.BORDER);
+        wmoTtaaiiTF = new StyledText(wmoIdComp, SWT.BORDER);
         wmoTtaaiiTF.setTextLimit(6);
         wmoTtaaiiTF.setLayoutData(gd);
 
@@ -264,7 +266,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the international location indicator text field.
         gd = new GridData(45, SWT.DEFAULT);
-        ccccTF = new Text(wmoIdComp, SWT.BORDER);
+        ccccTF = new StyledText(wmoIdComp, SWT.BORDER);
         ccccTF.setTextLimit(4);
         ccccTF.setLayoutData(gd);
         if (textProd != null && textProd.getSite() != null) {
@@ -377,7 +379,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the WSFO ID text field.
         GridData gd = new GridData(45, SWT.DEFAULT);
-        wsfoIdTF = new Text(afosIdComp, SWT.BORDER);
+        wsfoIdTF = new StyledText(afosIdComp, SWT.BORDER);
         wsfoIdTF.setTextLimit(3);
         wsfoIdTF.setLayoutData(gd);
 
@@ -386,7 +388,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the Product category text field.
         gd = new GridData(45, SWT.DEFAULT);
-        prodCatTF = new Text(afosIdComp, SWT.BORDER);
+        prodCatTF = new StyledText(afosIdComp, SWT.BORDER);
         prodCatTF.setTextLimit(3);
         prodCatTF.setLayoutData(gd);
 
@@ -395,7 +397,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the product designator text field.
         gd = new GridData(45, SWT.DEFAULT);
-        prodDesignatorTF = new Text(afosIdComp, SWT.BORDER);
+        prodDesignatorTF = new StyledText(afosIdComp, SWT.BORDER);
         prodDesignatorTF.setTextLimit(3);
         prodDesignatorTF.setLayoutData(gd);
         prodDesignatorTF.addFocusListener(new FocusListener() {
@@ -409,7 +411,13 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     while (sb.length() < 3) {
                         sb.append(' ');
                     }
-                    prodDesignatorTF.setText(sb.toString());
+
+                    // Only trigger the modification listener when there is a
+                    // real change.
+                    String value = sb.toString();
+                    if (!value.equals(prodDesignatorTF.getText())) {
+                        prodDesignatorTF.setText(value);
+                    }
                 }
             }
 
@@ -460,7 +468,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         addresseeComp.setLayout(rowLayout);
 
         RowData rd = new RowData(45, SWT.DEFAULT);
-        addresseeTF = new Text(addresseeComp, SWT.BORDER);
+        addresseeTF = new StyledText(addresseeComp, SWT.BORDER);
         addresseeTF.setTextLimit(4);
         addresseeTF.setLayoutData(rd);
         // Set the "default" addressee to "ALL".
@@ -471,8 +479,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         // text field.
         addresseeTF.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent event) {
-                if (addresseeTF.getCaretPosition() == addresseeTF
-                        .getTextLimit()) {
+                if (addresseeTF.getCaretOffset() == addresseeTF.getTextLimit()) {
                     wmoTtaaiiTF.setFocus();
                 }
 
@@ -564,13 +571,17 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 } else {
                     lookupWmoIDs();
 
-                    if (prodDesignatorTF.getCaretPosition() == prodDesignatorTF
-                            .getTextLimit()) {
-                        addresseeTF.setFocus();
+                    if (!isDisposed()) {
+                        if (prodDesignatorTF.getCaretOffset() == prodDesignatorTF
+                                .getTextLimit()) {
+                            addresseeTF.setFocus();
+                        }
                     }
                 }
 
-                checkEnableEnter();
+                if (!isDisposed()) {
+                    checkEnableEnter();
+                }
             }
         });
     }
@@ -755,8 +766,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
                             AfosIdSelectionDialog dlg = new AfosIdSelectionDialog(
                                     shell, this, afosIds);
-                            dlg.setBlockOnOpen(true);
+                            dlg.setCloseCallback(new ICloseCallback() {
+
+                                @Override
+                                public void dialogClosed(Object returnValue) {
+                                    lookupAllowed = true;
+                                }
+                            });
+                            dlg.setBlockOnOpen(false);
                             dlg.open();
+                            return;
                         } else if (list.size() == 1) {
                             setAfosId(list.get(0).getAfosid());
                         } else {
@@ -820,8 +839,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
                             WmoIdSelectionDialog dlg = new WmoIdSelectionDialog(
                                     shell, this, ttaaiiIds, ccccIds);
-                            dlg.setBlockOnOpen(true);
+                            dlg.setBlockOnOpen(false);
+                            dlg.setCloseCallback(new ICloseCallback() {
+
+                                @Override
+                                public void dialogClosed(Object returnValue) {
+                                    lookupAllowed = true;
+                                }
+                            });
                             dlg.open();
+                            return;
                         } else if (list.size() == 1) {
                             AfosToAwips id = list.get(0);
                             setWmoId(id.getWmottaaii(), id.getWmocccc());
@@ -839,7 +866,6 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 statusHandler.handle(Priority.PROBLEM,
                         "Error occurred looking up WMO IDs", e);
             }
-
             lookupAllowed = true;
         }
     }
@@ -889,8 +915,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         enterBtn.setEnabled(enable);
     }
 
-    private void textFieldKeyListener(final Text tf, final Text previousTF,
-            final Text nextTF) {
+    private void textFieldKeyListener(final StyledText tf,
+            final StyledText previousTF, final StyledText nextTF) {
         tf.addKeyListener(new KeyAdapter() {
 
             @Override
@@ -898,7 +924,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 char c = e.character;
 
                 if (Character.isLetterOrDigit(c) || Character.isSpaceChar(c)) {
-                    int pos = tf.getCaretPosition();
+                    int pos = tf.getCaretOffset();
                     String text = tf.getText();
 
                     if (text.length() > pos) {
@@ -909,16 +935,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     }
                 } else if (e.keyCode == SWT.ARROW_UP) {
                     previousTF.setFocus();
-                    previousTF.setSelection(0);
+                    previousTF.selectAll();
                 } else if (e.keyCode == SWT.ARROW_DOWN) {
                     nextTF.setFocus();
-                    nextTF.setSelection(0);
+                    nextTF.selectAll();
                 }
             }
         });
     }
 
-    private void textFieldVerifyListener(final Text tf) {
+    private void textFieldVerifyListener(final StyledText tf) {
         tf.addVerifyListener(new VerifyListener() {
             @Override
             public void verifyText(VerifyEvent e) {
@@ -944,8 +970,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         });
     }
 
-    private void textFieldModifyListener(final Text tf, final Text nextTF,
-            final boolean callAfosLookup) {
+    private void textFieldModifyListener(final StyledText tf,
+            final StyledText nextTF, final boolean callAfosLookup) {
         tf.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent event) {
                 if (tf.getCharCount() == tf.getTextLimit()) {
@@ -956,12 +982,14 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     }
                 }
 
-                if (tf.getCaretPosition() == tf.getTextLimit()) {
-                    nextTF.setFocus();
-                    nextTF.setSelection(0);
-                }
+                if (!isDisposed()) {
+                    if (tf.getCaretOffset() == tf.getTextLimit()) {
+                        nextTF.setFocus();
+                        nextTF.selectAll();
+                    }
 
-                checkEnableEnter();
+                    checkEnableEnter();
+                }
             }
         });
     }

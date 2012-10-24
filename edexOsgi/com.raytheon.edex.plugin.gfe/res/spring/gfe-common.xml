@@ -12,6 +12,7 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord" />
 		<property name="initializer"
 			value="com.raytheon.edex.plugin.gfe.GfePluginInitializer" />
+        <property name="compression" value="LZF"/>
 	</bean>
 	
 	<bean id="gfeDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">

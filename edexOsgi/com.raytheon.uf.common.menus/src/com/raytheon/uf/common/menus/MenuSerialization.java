@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBException;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonBundleMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonCommandContribution;
+import com.raytheon.uf.common.menus.xml.CommonDynamicMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuItem;
 import com.raytheon.uf.common.menus.xml.CommonMenuContribution;
@@ -42,7 +43,7 @@ import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 
 /**
  * 
- * TODO Add Description
+ * The list of serializable classes associated with menu and menu items.
  * 
  * <pre>
  * 
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.menus.xml.VariableSubstitution;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2011            bsteffen     Initial creation
+ * Jul 31, 2012 #875       rferrel     Added CommonDynamicMenuContribution.
  * 
  * </pre>
  * 
@@ -64,24 +66,24 @@ public class MenuSerialization {
     public static synchronized JAXBContext getJaxbContext()
             throws JAXBException {
         if (context == null) {
-            context = JAXBContext
-                    .newInstance(MenuTemplateFile.class,
-                            CommonAbstractMenuContribution.class,
-                            CommonMenuContribution.class,
-                            CommonToolbarSubmenuContribution.class,
-                            CommonBundleMenuContribution.class,
-                            CommonCommandContribution.class,
-                            CommonIncludeMenuContribution.class,
-                            CommonIncludeMenuItem.class,
-                            CommonMenuContributionFile.class,
-                            CommonPlaceholderMenuContribution.class,
-                            CommonSatBundleMenuContribution.class,
-                            CommonSeparatorMenuContribution.class,
-                            CommonSubmenuContribution.class,
-                            CommonTitleContribution.class,
-                            CommonTitleImgContribution.class,
-                            CommonToolBarContribution.class,
-                            VariableSubstitution.class);
+            context = JAXBContext.newInstance(MenuTemplateFile.class,
+                    CommonAbstractMenuContribution.class,
+                    CommonMenuContribution.class,
+                    CommonToolbarSubmenuContribution.class,
+                    CommonBundleMenuContribution.class,
+                    CommonCommandContribution.class,
+                    CommonIncludeMenuContribution.class,
+                    CommonIncludeMenuItem.class,
+                    CommonMenuContributionFile.class,
+                    CommonPlaceholderMenuContribution.class,
+                    CommonSatBundleMenuContribution.class,
+                    CommonSeparatorMenuContribution.class,
+                    CommonSubmenuContribution.class,
+                    CommonTitleContribution.class,
+                    CommonTitleImgContribution.class,
+                    CommonToolBarContribution.class,
+                    VariableSubstitution.class,
+                    CommonDynamicMenuContribution.class);
 
         }
         return context;
