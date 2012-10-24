@@ -38,7 +38,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataplugin.gfe.StatusConstants;
 import com.raytheon.uf.common.dataplugin.gfe.reference.GroupID;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -46,20 +45,20 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.ui.AccessMgr;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
- * TODO Add Description ListTypeDialog.java Mar 11, 2008
+ * Dialog to perform a save or delete of an Edit Area Group.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 11, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Code clean part of non-blocking dialog.
  * 
  * </pre>
  * 
@@ -68,7 +67,8 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  */
 
 public class SaveDeleteEditAreaGroupDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SaveDeleteEditAreaGroupDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SaveDeleteEditAreaGroupDialog.class);
 
     private IReferenceSetManager refSetManager;
 
@@ -160,8 +160,8 @@ public class SaveDeleteEditAreaGroupDialog extends CaveJFACEDialog {
         groupList = new List(leftGroup, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         groupList.setLayoutData(layoutData);
-        groupList.setItems(this.groupNames
-                .toArray(new String[groupNames.size()]));
+        groupList
+                .setItems(this.groupNames.toArray(new String[groupNames.size()]));
         groupList.select(0);
         groupList.deselectAll();
         groupList.addSelectionListener(new SelectionAdapter() {
@@ -271,7 +271,7 @@ public class SaveDeleteEditAreaGroupDialog extends CaveJFACEDialog {
         String groupName = identifer.getText();
         String[] areas = areaListbox.getSelection();
         statusHandler.handle(Priority.DEBUG, "Save Edit Area Group: "
-                        + groupName + " sel:" + areas);
+                + groupName + " sel:" + areas);
 
         if (!groupName.isEmpty() && !groupName.equals("Misc")
                 && !protectedGroupNames.contains(groupName)) {
@@ -298,8 +298,8 @@ public class SaveDeleteEditAreaGroupDialog extends CaveJFACEDialog {
                 java.util.List<String> areas = refSetManager
                         .getGroupData(groupName);
 
-                statusHandler.handle(Priority.DEBUG,
-                        "Delete Edit Area Group: " + groupName);
+                statusHandler.handle(Priority.DEBUG, "Delete Edit Area Group: "
+                        + groupName);
                 refSetManager.deleteGroup(groupName);
 
                 // Delete areas within the group if desired
