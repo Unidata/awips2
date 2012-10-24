@@ -56,6 +56,7 @@
          <packagereq type="default">awips2-data.gfe</packagereq>
          <packagereq type="default">awips2-aviation-shared</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -74,13 +75,11 @@
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-python-pygtk</packagereq>
          <packagereq type="default">awips2-python-pycairo</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
+         <packagereq type="default">awips2-data.gfe</packagereq>
       </packagelist>
    </group>
-
+   
    <group>
       <id>awips2-wes2bridge</id>
       <name>AWIPS II Wes2Bridge</name>
@@ -117,6 +116,7 @@
          <packagereq type="default">awips2-data.hdf5-gfe.climo</packagereq>
          <packagereq type="default">awips2-aviation-shared</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -152,7 +152,6 @@
          <packagereq type="default">awips2-psql</packagereq>
          <packagereq type="default">awips2-cave</packagereq>
          <packagereq type="default">awips2-cave-etc</packagereq>
-         <packagereq type="default">awips2-cave-viz-alertviz-localization</packagereq>
          <packagereq type="default">awips2-cave-viz-avnfps</packagereq>
          <packagereq type="default">awips2-cave-viz-common-core</packagereq>
          <packagereq type="default">awips2-cave-viz-core</packagereq>
@@ -185,14 +184,15 @@
          <packagereq type="default">awips2-cave-viz-nwsauth</packagereq>
          <packagereq type="default">awips2-cave-viz-thinclient</packagereq>
          <packagereq type="default">awips2-cave-viz-npp</packagereq>
-         <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
          <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
+         <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
          <packagereq type="default">awips2-gfesuite-client</packagereq>
 
          <packagereq type="default">awips2-alertviz</packagereq>
          <packagereq type="default">awips2-cli</packagereq>
          <packagereq type="default">awips2-notification</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -211,10 +211,6 @@
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-python-pygtk</packagereq>
          <packagereq type="default">awips2-python-pycairo</packagereq>
-         <packagereq type="default">awips2-python-jimporter</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
@@ -261,6 +257,7 @@
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-aviation-shared</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -279,9 +276,6 @@
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-python-pygtk</packagereq>
          <packagereq type="default">awips2-python-pycairo</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
          <packagereq type="default">awips2-data.gfe</packagereq>
       </packagelist>
@@ -311,6 +305,7 @@
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
          <packagereq type="default">awips2-data.hdf5-gfe.climo</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -327,9 +322,6 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
@@ -353,6 +345,7 @@
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-pypies</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -369,9 +362,6 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
@@ -390,6 +380,7 @@
          <packagereq type="default">awips2-qpid-server</packagereq>
          <packagereq type="default">awips2-qpid-server-store</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -406,9 +397,6 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
@@ -427,6 +415,7 @@
          <packagereq type="default">awips2-ldm</packagereq>
          <packagereq type="default">awips2-cli</packagereq>
 
+         <packagereq type="default">awips2-python-cherrypy</packagereq>
          <packagereq type="default">awips2-python-dynamicserialize</packagereq>
          <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -443,9 +432,6 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
-         <packagereq type="default">netcdf</packagereq>
-         <packagereq type="default">netcdf-devel</packagereq>
-         <packagereq type="default">netcdf-AWIPS</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
@@ -466,6 +452,7 @@
 		 <packagereq type="default">awips2-notification</packagereq>
 		 <packagereq type="default">awips2-tools</packagereq>
 
+		 <packagereq type="default">awips2-python-cherrypy</packagereq>
 		 <packagereq type="default">awips2-python-dynamicserialize</packagereq>
 		 <packagereq type="default">awips2-python-h5py</packagereq>
 		 <packagereq type="default">awips2-python-matplotlib</packagereq>
@@ -483,14 +470,10 @@
 		 <packagereq type="default">awips2-python-ufpy</packagereq>
 		 <packagereq type="default">awips2-python-werkzeug</packagereq>
 		 <packagereq type="default">awips2-python-pygtk</packagereq>
-		 <packagereq type="default">awips2-python-pycairo</packagereq>
-		 <packagereq type="default">netcdf</packagereq>
-		 <packagereq type="default">netcdf-devel</packagereq>
-		 <packagereq type="default">netcdf-AWIPS</packagereq>
+         <packagereq type="default">awips2-python-pycairo</packagereq>
 
 		 <packagereq type="default">awips2-cave</packagereq>
 		 <packagereq type="default">awips2-cave-etc</packagereq>
-		 <packagereq type="default">awips2-cave-viz-alertviz-localization</packagereq>
 		 <packagereq type="default">awips2-cave-viz-avnfps</packagereq>
 		 <packagereq type="default">awips2-cave-viz-common-core</packagereq>
 		 <packagereq type="default">awips2-cave-viz-core</packagereq>
@@ -524,7 +507,6 @@
 		 <packagereq type="default">awips2-cave-viz-thinclient</packagereq>
 		 <packagereq type="default">awips2-cave-viz-npp</packagereq>
 		 <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
-		 <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
 		 <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>

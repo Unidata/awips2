@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.geospatial.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -29,7 +31,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * This class uses the WorldWrapChecker to correct wrapping of geometries that
@@ -76,7 +81,7 @@ public class WorldWrapCorrector {
         if (checker.needsChecking() == false) {
             geoms.add(geom);
         } else {
-            wrapCorrect(geom, geoms, checker.getInverseCentralMeridian());
+            wrapCorrect(geom, geoms);
         }
         return geom.getFactory().createGeometryCollection(
                 geoms.toArray(new Geometry[geoms.size()]));
@@ -90,11 +95,10 @@ public class WorldWrapCorrector {
      * @param g
      * @param geomList
      */
-    private void wrapCorrect(Geometry g, List<Geometry> geomList,
-            double inverseCentralMeridian) {
+    private void wrapCorrect(Geometry g, List<Geometry> geomList) {
         if (g instanceof GeometryCollection) {
             for (int n = 0; n < g.getNumGeometries(); ++n) {
-                wrapCorrect(g.getGeometryN(n), geomList, inverseCentralMeridian);
+                wrapCorrect(g.getGeometryN(n), geomList);
             }
         } else if (g.isEmpty() == false) {
             // Algorithm:
@@ -108,85 +112,131 @@ public class WorldWrapCorrector {
             // we split it up into sections by intersecting with a 360 deg
             // inverse central meridian. We then normalize the points for each
             // section back to -180 to 180
-            if (checker.needsChecking()) {
-                List<Geometry> geoms = new ArrayList<Geometry>();
-                if (g instanceof Polygon) {
-                    GeometryFactory gf = g.getFactory();
-                    Polygon p = (Polygon) g;
-                    LineString extRing = p.getExteriorRing();
-                    Polygon extPolygon = gf
-                            .createPolygon(gf.createLinearRing(extRing
-                                    .getCoordinates()), null);
-                    double[] offsets = flattenGeometry(extPolygon);
-                    List<Geometry> extRings = new ArrayList<Geometry>();
-                    correct(extRings, extPolygon, inverseCentralMeridian,
-                            offsets[0], offsets[1]);
-                    List<Geometry> intRings = new ArrayList<Geometry>(
-                            p.getNumInteriorRing());
-                    for (int n = 0; n < p.getNumInteriorRing(); ++n) {
-                        Polygon intRing = gf.createPolygon(gf
-                                .createLinearRing(p.getInteriorRingN(n)
-                                        .getCoordinates()), null);
-                        offsets = flattenGeometry(intRing);
-                        correct(intRings, intRing, inverseCentralMeridian,
-                                offsets[0], offsets[1]);
-                    }
-                    for (Geometry ext : extRings) {
-                        for (int n1 = 0; n1 < ext.getNumGeometries(); ++n1) {
-                            Geometry geom = ext.getGeometryN(n1);
-                            for (Geometry intRing : intRings) {
-                                for (int n2 = 0; n2 < intRing
-                                        .getNumGeometries(); ++n2) {
-                                    geom = geom.difference(intRing
-                                            .getGeometryN(n2));
-                                }
-                            }
-                            geoms.add(geom);
+            List<Geometry> geoms = new ArrayList<Geometry>();
+            if (g instanceof Polygon) {
+                GeometryFactory gf = g.getFactory();
+                Polygon p = (Polygon) g;
+                LineString extRing = p.getExteriorRing();
+                Polygon extPolygon = gf.createPolygon(
+                        gf.createLinearRing(extRing.getCoordinates()), null);
+                // World wrap correct exterior ring and extract polygons
+                double[] offsets = flattenGeometry(extPolygon);
+                List<Geometry> extRings = new ArrayList<Geometry>();
+                correct(extRings, extPolygon, offsets);
+                List<Polygon> polygons = new ArrayList<Polygon>();
+                for (Geometry geom : extRings) {
+                    extractPolygons(polygons, geom);
+                }
+
+                // World wrap correct each interior ring
+                List<Geometry> intRings = new ArrayList<Geometry>(
+                        p.getNumInteriorRing());
+                for (int n = 0; n < p.getNumInteriorRing(); ++n) {
+                    Polygon intRing = gf.createPolygon(gf.createLinearRing(p
+                            .getInteriorRingN(n).getCoordinates()), null);
+                    offsets = flattenGeometry(intRing);
+                    correct(intRings, intRing, offsets);
+                }
+
+                // Extract polygons and "preprare" them for intersections
+                List<Polygon> interiorPolygons = new LinkedList<Polygon>();
+                for (Geometry geom : intRings) {
+                    extractPolygons(interiorPolygons, geom);
+                }
+                List<PreparedGeometry> preparedInteriorPolygons = new LinkedList<PreparedGeometry>();
+                for (Polygon intPoly : interiorPolygons) {
+                    preparedInteriorPolygons.add(PreparedGeometryFactory
+                            .prepare(intPoly));
+                }
+
+                // Final polygon list (may create multipolygon out of)
+                List<Polygon> finalPolys = new ArrayList<Polygon>(
+                        polygons.size());
+                for (Polygon polygon : polygons) {
+                    // For each polygon, check if it intersects any interior
+                    // polygons. If so, add them to interior ring list so we
+                    // can reconstruct with them in place
+                    List<LinearRing> interiorRings = new ArrayList<LinearRing>();
+                    Iterator<PreparedGeometry> preparedIntPolys = preparedInteriorPolygons
+                            .iterator();
+                    while (preparedIntPolys.hasNext()) {
+                        PreparedGeometry prepIntPoly = preparedIntPolys.next();
+                        boolean intersects = prepIntPoly.intersects(polygon);
+                        if (intersects) {
+                            preparedIntPolys.remove();
+                            interiorRings.add(gf
+                                    .createLinearRing(((Polygon) prepIntPoly
+                                            .getGeometry()).getExteriorRing()
+                                            .getCoordinates()));
                         }
                     }
+
+                    if (interiorRings.size() > 0) {
+                        // add holes to polygon
+                        polygon = gf.createPolygon(gf.createLinearRing(polygon
+                                .getExteriorRing().getCoordinates()),
+                                interiorRings.toArray(new LinearRing[0]));
+                    }
+                    finalPolys.add(polygon);
+                }
+
+                if (finalPolys.size() > 1) {
+                    // More than one polygon resulting, create MultiPolygon
+                    geoms.add(gf.createMultiPolygon(finalPolys
+                            .toArray(new Polygon[0])));
                 } else {
-                    double[] offsets = flattenGeometry(g);
-                    double minOffset = offsets[0];
-                    double maxOffset = offsets[1];
-                    correct(geoms, g, inverseCentralMeridian, minOffset,
-                            maxOffset);
+                    // 1 or 0 polygons, just add to list
+                    for (Polygon polygon : finalPolys) {
+                        geoms.add(polygon);
+                    }
                 }
-                for (Geometry geom : geoms) {
-                    rollGeometry(geom);
-                }
-                geomList.addAll(geoms);
             } else {
-                geomList.add(g);
+                double[] offsets = flattenGeometry(g);
+                correct(geoms, g, offsets);
             }
+            for (Geometry geom : geoms) {
+                rollGeometry(geom);
+            }
+            geomList.addAll(geoms);
+        } else {
+            geomList.add(g);
         }
     }
 
     private void correct(List<Geometry> geoms, Geometry flattenedGeom,
-            double inverseCentralMeridian, double minOffset, double maxOffset) {
-        GeometryFactory gf = flattenedGeom.getFactory();
-        double delta = 0.00001;
-        double start = inverseCentralMeridian + minOffset - 360;
-        double end = inverseCentralMeridian + maxOffset + 360;
-        double minY = -90, maxY = 90;
+            double[] offsets) {
+        if (offsets == null) {
+            // no offsets to apply, add and return
+            geoms.add(flattenedGeom);
+            return;
+        } else if (flattenedGeom.isValid()) {
+            // Only apply world wrap correcting to valid geometries, otherwise
+            // throw them out since we can't guarantee integrity
+            GeometryFactory gf = flattenedGeom.getFactory();
+            double delta = 0.00001;
+            double start = checker.getLowInverseCentralMeridian() + offsets[0];
+            double end = checker.getHighInverseCentralMeridian() + offsets[1];
+            double minY = -90, maxY = 90;
 
-        while (start < end) {
-            double useStart = start;
-            double useEnd = start + 360;
-            double minX = useStart + delta;
-            double maxX = (useEnd) - delta;
+            while (start < end) {
+                double useStart = start;
+                double useEnd = start + 360;
+                double minX = useStart + delta;
+                double maxX = (useEnd) - delta;
 
-            Geometry section = gf.createPolygon(
-                    gf.createLinearRing(new Coordinate[] {
-                            new Coordinate(minX, maxY),
-                            new Coordinate(maxX, maxY),
-                            new Coordinate(maxX, minY),
-                            new Coordinate(minX, minY),
-                            new Coordinate(minX, maxY) }), null);
-            section = section.intersection(flattenedGeom);
-            if (section.isEmpty() == false) {
-                geoms.add(section);
+                Geometry section = gf.createPolygon(
+                        gf.createLinearRing(new Coordinate[] {
+                                new Coordinate(minX, maxY),
+                                new Coordinate(maxX, maxY),
+                                new Coordinate(maxX, minY),
+                                new Coordinate(minX, minY),
+                                new Coordinate(minX, maxY) }), null);
+                section = section.intersection(flattenedGeom);
+                if (section.isEmpty() == false) {
+                    geoms.add(section);
+                }
+                start += 360.0;
             }
-            start += 360.0;
         }
     }
 
@@ -198,7 +248,7 @@ public class WorldWrapCorrector {
      */
     private void rollGeometry(Geometry geom) {
         for (Coordinate c : geom.getCoordinates()) {
-            while (c.x <= -180.0) {
+            while (c.x < -180.0) {
                 c.x += 360.0;
             }
             while (c.x > 180.0) {
@@ -214,8 +264,10 @@ public class WorldWrapCorrector {
      * continuous between -180/180
      * 
      * @param geom
+     * @return null if geometry does not need to be corrected
      */
     private double[] flattenGeometry(Geometry geom) {
+        boolean handle = false;
         double currOffset = 0.0;
         double minOffset = 0.0, maxOffset = 0.0;
         Coordinate[] coords = geom.getCoordinates();
@@ -234,9 +286,12 @@ public class WorldWrapCorrector {
                 low = false;
             } else if (b.x - a.x > 180.0) {
                 low = true;
+            } else if (checker.check(a.x, b.x)) {
+                handle = true;
             }
 
             if (low != null) {
+                handle = true;
                 // we wrap either low end or high
                 if (low) {
                     currOffset -= 360;
@@ -253,7 +308,16 @@ public class WorldWrapCorrector {
                 }
             }
         }
-        return new double[] { minOffset, maxOffset };
+        return handle ? new double[] { minOffset, maxOffset } : null;
     }
 
+    private static void extractPolygons(List<Polygon> polygons, Geometry geom) {
+        if (geom instanceof Polygon) {
+            polygons.add((Polygon) geom);
+        } else if (geom instanceof GeometryCollection) {
+            for (int n = 0; n < geom.getNumGeometries(); ++n) {
+                extractPolygons(polygons, geom.getGeometryN(n));
+            }
+        }
+    }
 }

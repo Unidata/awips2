@@ -4,4 +4,9 @@
 		<key>modelInfo.modelName</key>
 		<order>0</order>
 	</pathKey>
+    <pathKey>
+        <key>modelInfo.level.masterLevel.name</key>
+        <order>0</order>
+    </pathKey>
 </pathKeySet>
+

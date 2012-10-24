@@ -4,7 +4,9 @@
          Modified  Phil Kurimski         09-23-2011  OB 11.0.8-8 
          Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1 
          Modified  Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
-         Modified  Phil Kurimski         04-27-2012  -->
+         Modified  Phil Kurimski         04-27-2012
+         Modified  Qinglu Lin            10-04-2012 DR 15426. Added damic to <lockedGroupsOnFollowup> tag.
+-->
 
 <warngenConfig>
 
@@ -57,7 +59,7 @@
         Added Flash Flood Emergency Headline
  	Changed the CTA Bullet names for easier parsing in the vm file 
         Added the Primary Cause to CAN and EXP sections for correct headlines -->
-<lockedGroupsOnFollowup>dam,ic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>dam,ic,damic</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>

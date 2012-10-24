@@ -61,7 +61,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 	private IWireframeShape srWindGRscShape = null;
 	private IWireframeShape srWindMRscShape = null;	
 	private IWireframeShape psblWatchTypeBkgShape = null;
-	private RGB wwTypeColor;
+	private RGB wwTypeColor=NsharpConstants.color_gold;
 	private NsharpGenericPaneBackground thetaEHeightBackground;
 	private NsharpGenericPaneBackground srWindsBackground;
 	private NsharpGenericPaneBackground stormSlinkyBackground;
@@ -209,11 +209,11 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
     			target.drawWireframeShape(thetaEPressureRRscShape, NsharpConstants.color_red, commonLinewidth, LineStyle.SOLID,font12);
     			target.clearClippingPlane();
     			//plot possibleWatchType
-    			if(psblWatchTypeBkgShape==null){
-    				WGraphics WGc = psblWatchTypeBackground.getWorld();
-    				createBkgPsblWatchShape(WGc);
-    			}
-    			
+    			// Chin: Note: 
+    			// To fix an initial watch type not correct issue: TTR6191.
+    			// always create it when painting.
+    			WGraphics WGc = psblWatchTypeBackground.getWorld();
+    			createBkgPsblWatchShape(WGc); 
     			extent = new PixelExtent(psblWatchTypeBackground.getRectangle());
     			target.setupClippingPlane(extent);
     			target.drawWireframeShape(psblWatchTypeBkgShape, wwTypeColor, commonLinewidth, LineStyle.SOLID,font12);
@@ -223,6 +223,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 
     		} 
     		else if(currentInsetPage == 2){
+    			decideWWType(); // for used by other panel to get wwtpye color
     			//plot ThetaE-Height 
     			extent = new PixelExtent(thetaEHeightBackground.getRectangle());
     			target.setupClippingPlane(extent);
@@ -301,16 +302,6 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 			createRscThetaEHeightShape(WGc);
 			WGc=  srWindsBackground.getWorld();	
 			createRscSrWindShape(WGc);
-			
-			// Chin: Note: delay create possible watch type to when first time paintInterl() called.
-			// To fix an initial watch type not correct issue: TTR6191.
-			//WGc = bkRsc.getPsblWatchTypeBackground().getWorld();
-			//createBkgPsblWatchShape(WGc); 
-			if(psblWatchTypeBkgShape != null){
-				psblWatchTypeBkgShape.dispose();
-				psblWatchTypeBkgShape = null;
-			}
-			
 		}
 	}
 	/*
@@ -373,34 +364,16 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 		target.drawLine(world.getViewXmin() , dispY+10,  0.0, world.getViewXmax(),dispY+10, 0.0, wwTypeColor,
 				commonLinewidth);
 	}*/
-
-	public void createBkgPsblWatchShape(WGraphics world){
+	private String decideWWType(){
 		String wwtypeStr;
-		
-    	double dispX, dispY;
-    	//int width = getCapability(OutlineCapability.class).getOutlineWidth();
-        /* ----- Plot Label ----- */
-        dispX = world.getViewXmin()+ 100 *xRatio;
-    	dispY =  world.getViewYmin()+15* yRatio;
-    	//System.out.println("createBkgPsblWatchShape called w="+insetWidth+ " h="+insetHeight+" psbWatchXOrig="+psbWatchXOrig+ " psbWatchYOrig=" + psbWatchYOrig+ " dispX="+dispX+" dispY="+dispY);
-		
-    	if(psblWatchTypeBkgShape!=null){
-			psblWatchTypeBkgShape.dispose();
-			psblWatchTypeBkgShape = null;
-    	}
-    	psblWatchTypeBkgShape = target.createWireframeShape(false,descriptor );
-    	psblWatchTypeBkgShape.allocate(4);
-    	double [] lblXy = { dispX, dispY};
-		psblWatchTypeBkgShape.addLabel("Psbl Watch Type", lblXy);
-        double [] lblXy1 = {dispX, dispY+75*yRatio};
-        if(soundingLys == null){
+		if(soundingLys == null){
 			wwtypeStr = "NONE";
 			wwTypeColor = NsharpConstants.color_gold;
 		}
         else {
         	int wwtype = nsharpNative.nsharpLib.cave_ww_type();
         	
-        	//System.out.println("ww type="+ wwtype);
+        	//System.out.println("inset ww type="+ wwtype);
         	//See nsharpNative.nsharpLib.cave_ww_type() for returned wwtype definitions
         	switch(wwtype){
         	case 1: 
@@ -429,6 +402,30 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
         		break;
         	}
         }
+		return wwtypeStr;
+	}
+
+	public void createBkgPsblWatchShape(WGraphics world){
+		String wwtypeStr;
+		
+    	double dispX, dispY;
+    	//int width = getCapability(OutlineCapability.class).getOutlineWidth();
+        /* ----- Plot Label ----- */
+        dispX = world.getViewXmin()+ 100 *xRatio;
+    	dispY =  world.getViewYmin()+15* yRatio;
+    	//System.out.println("createBkgPsblWatchShape called dew = " +soundingLys.get(0).getDewpoint());
+		
+    	if(psblWatchTypeBkgShape!=null){
+			psblWatchTypeBkgShape.dispose();
+			psblWatchTypeBkgShape = null;
+    	}
+    	psblWatchTypeBkgShape = target.createWireframeShape(false,descriptor );
+    	psblWatchTypeBkgShape.allocate(4);
+    	double [] lblXy = { dispX, dispY};
+		psblWatchTypeBkgShape.addLabel("Psbl Watch Type", lblXy);
+        double [] lblXy1 = {dispX, dispY+75*yRatio};
+        wwtypeStr = decideWWType();
+        
         psblWatchTypeBkgShape.addLabel(wwtypeStr, lblXy1);
 		double [][] lines = {{world.getViewXmin(), dispY+30 *yRatio},{world.getViewXmax(), dispY+30 *yRatio}};
 		psblWatchTypeBkgShape.addLineSegment(lines);
@@ -1086,6 +1083,11 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 
 	public NsharpGenericPaneBackground getPsblWatchTypeBackground() {
 		return psblWatchTypeBackground;
+	}
+
+
+	public RGB getWwTypeColor() {
+		return wwTypeColor;
 	}
 
 
