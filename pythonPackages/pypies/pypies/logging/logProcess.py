@@ -55,7 +55,8 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
     
     import StatsThread            
     statsThread = StatsThread.StatsThread(logCfg)    
-    statsThread.start()        
+    statsThread.start()
+    SECTION_KEYS = StatsThread.SECTION_KEYS
 
     def handle(self):
         """
@@ -64,24 +65,42 @@ class LogRecordStreamHandler(SocketServer.StreamRequestHandler):
         according to whatever policy is configured locally.
         """
         while True:
-            chunk = self.connection.recv(4)
-            if len(chunk) < 4:
-                break
-            slen = struct.unpack(">L", chunk)[0]
-            chunk = self.connection.recv(slen)
-            while len(chunk) < slen:
-                chunk = chunk + self.connection.recv(slen - len(chunk))
-            obj = self.unPickle(chunk)
-            msg = obj['msg']
-            if type(msg) is str:
-                record = logging.makeLogRecord(obj)
-                self.handleLogRecord(record)
-            else:
-                self.statsThread.addRecord(msg)                   
-                if msg['time'] > LOG_THRESHOLD:                    
-                    obj['msg'] = 'Processed ' + msg['request'] + ' on ' + msg['file'] + ' in ' + ('%.3f' % msg['time']) + ' seconds'
+            try:
+                chunk = self.connection.recv(4)
+                if len(chunk) < 4:
+                    break
+                slen = struct.unpack(">L", chunk)[0]
+                chunk = self.connection.recv(slen)
+                while len(chunk) < slen:
+                    chunk = chunk + self.connection.recv(slen - len(chunk))
+                obj = self.unPickle(chunk)
+                msg = obj['msg']
+                if type(msg) is str:
                     record = logging.makeLogRecord(obj)
                     self.handleLogRecord(record)
+                else:
+                    self.statsThread.addRecord(msg)
+                    timeDict = msg['time']                   
+                    if timeDict['total'] > LOG_THRESHOLD:                    
+                        #obj['msg'] = 'Processed ' + msg['request'] + ' on ' + msg['file'] + ' in ' + ('%.3f' % msg['time']['total']) + ' seconds'
+                        logMsg = 'Processed ' + msg['request'] + ' on ' + msg['file'] + '. Timing entries in seconds: '
+                        addComma=False
+                        for SECTION in self.SECTION_KEYS:
+                            timeKey=SECTION.strip()
+                            if timeDict.has_key(timeKey):
+                                if addComma:
+                                    logMsg += ','
+                                else:
+                                    addComma = True
+                                logMsg += ' ' + timeKey + ' ' + ('%.3f' % timeDict[timeKey])
+                                
+                        obj['msg'] = logMsg
+                        record = logging.makeLogRecord(obj)
+                        self.handleLogRecord(record)
+            except Exception, e:
+                import sys, traceback, string
+                t, v, tb = sys.exc_info()
+                print string.join(traceback.format_exception(t, v, tb))     
                 
 
     def unPickle(self, data):

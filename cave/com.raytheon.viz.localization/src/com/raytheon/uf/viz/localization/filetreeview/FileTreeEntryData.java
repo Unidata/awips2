@@ -53,14 +53,21 @@ public class FileTreeEntryData {
 
     private String path;
 
-    public FileTreeEntryData(PathData pathData, String path) {
-        this(pathData, path, true);
-    }
+    private boolean root;
 
-    public FileTreeEntryData(PathData pathData, String path, boolean directory) {
+    public FileTreeEntryData(PathData pathData, String path, boolean root) {
         this.pathData = pathData;
         this.path = path;
         this.name = LocalizationUtil.extractName(path);
+        this.root = root;
+    }
+
+    public FileTreeEntryData(PathData pathData, String path) {
+        this(pathData, path, false);
+    }
+
+    public boolean isRoot() {
+        return root;
     }
 
     public PathData getPathData() {
@@ -96,7 +103,8 @@ public class FileTreeEntryData {
     }
 
     public boolean isDirectory() {
-        return resource instanceof IFolder;
+        return resource instanceof IFolder
+                && getClass() == FileTreeEntryData.class;
     }
 
     /*

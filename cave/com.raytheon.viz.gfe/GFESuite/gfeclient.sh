@@ -81,8 +81,10 @@ else
         export SWITCHES="${SWITCHES} -no_shader"
 fi
 
+COMPONENT_ARGS="-component gfeclient"
 export LD_PRELOAD=libpython.so
-/awips2/cave/cave ${SWITCHES} -nosplash -component gfeclient "$@"
+lookupINI ${COMPONENT_ARGS}
+/awips2/cave/cave ${SWITCHES} ${CAVE_INI_ARG} -nosplash ${COMPONENT_ARGS} "$@"
 
 if [ -n "$xvfb" ]
 then

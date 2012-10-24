@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 08/17/2012	655			B. Hebbard	Added paintProps as parameter to IDisplayable draw (2)
  * 
  * </pre>
  * 
@@ -147,6 +148,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
    			waitCursor= null;
    		}
    	}
+   	/*
 	private static void createMapEditor(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 
@@ -176,7 +178,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
 			ve.printStackTrace();
 		}
-	}
+	}*/
 	private static void createMapEditorTest(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 

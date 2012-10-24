@@ -99,6 +99,7 @@ public class PythonMapScript extends PythonScript {
      * @throws JepException
      *             if Jep chokes on the scripted code.
      */
+    @Override
     public Object execute(String methodName, String instanceName,
             Map<String, Object> argmap) throws JepException {
 
@@ -149,7 +150,7 @@ public class PythonMapScript extends PythonScript {
      * @throws JepException
      *             if Jepp chokes on the expression.
      */
-    public boolean eval(String pythonExpr) throws JepException {
+    public boolean evaluate(String pythonExpr) throws JepException {
         return jep.eval(pythonExpr);
     }
 }
