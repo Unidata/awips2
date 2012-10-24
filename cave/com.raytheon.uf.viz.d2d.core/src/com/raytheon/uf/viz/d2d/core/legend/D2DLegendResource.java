@@ -579,11 +579,13 @@ public class D2DLegendResource extends
             String name = selectedResource.getResource().getName();
             if (name != null && name.isEmpty() == false) {
                 menuManager.add(new DummyAction(name));
-                TMB_ACTION.setSelectedRsc(selectedResource);
-                TMB_ACTION.setContainer(getResourceContainer());
-                menuManager.add(TMB_ACTION);
-                menuManager.add(new Separator());
             }
+            TMB_ACTION.setSelectedRsc(selectedResource);
+            TMB_ACTION.setContainer(getResourceContainer());
+            if (TMB_ACTION.isHidden() == false) {
+                menuManager.add(TMB_ACTION);
+            }
+            menuManager.add(new Separator());
             super.fillContextMenu(menuManager, selectedResource);
         }
     }

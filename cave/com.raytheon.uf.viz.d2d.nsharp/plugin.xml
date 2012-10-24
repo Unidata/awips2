@@ -5,7 +5,7 @@
          point="com.raytheon.uf.viz.core.descriptor">
       <descriptor
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor"
-            editor="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
+            editor="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
             name="com.raytheon.uf.viz.d2d.nsharp.D2DNSharpDescriptor">
       </descriptor>
    </extension>
@@ -15,10 +15,10 @@
            <view 
             category="com.raytheon.viz.ui"
             allowMultiple="false"
-            restorable="true"
+            restorable="false"
             class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
             id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
-            name="D2D NSHARP"/>
+            name="NSHARP(D2D)"/>
    </extension> 
 
 <extension point="org.eclipse.ui.perspectiveExtensions">
@@ -39,7 +39,7 @@
          commandId="com.raytheon.viz.ui.actions.saveScreen">
          <activeWhen>
          	<with variable="activeEditorId">
-       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"/>
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
     		</with>
          </activeWhen>
    </handler>
@@ -48,10 +48,36 @@
          commandId="com.raytheon.viz.ui.actions.printScreenAction">
 		 <activeWhen>
          	<with variable="activeEditorId">
-       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"/>
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
     		</with>
          </activeWhen>
    </handler>
+   <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.tools.nav.PanTool">
+        <!-- This will always disable the PanTool -->
+         <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+    		</with>
+         </activeWhen>
+         <enabledWhen>
+         	<not>
+	         	<with variable="activeEditorId">
+	       			<equals value="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"/>
+	    		</with>
+    		</not>
+         </enabledWhen>
+  </handler>
+</extension>
+<extension
+  point="com.raytheon.uf.viz.core.classContext">
+  <classContext
+     class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow">
+      <contextId
+            id="com.raytheon.viz.ui.loopContext">
+      </contextId>
+  </classContext>
 </extension>
       
 </plugin>

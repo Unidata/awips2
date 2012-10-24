@@ -10,6 +10,18 @@ import java.util.List;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.viz.core.graphing.xy.XYData;
 
+/**
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??					   ??		     Initial creation
+ * Oct 2, 2012  DR 15259   M.Porricelli  Interpolate below 850MB                                     
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
 public class InterpUtils {
 
     /**
@@ -55,6 +67,10 @@ public class InterpUtils {
         double maxYAxisVal = ((Number) dataList.get(0).getY()).doubleValue();
         double minYAxisVal = ((Number) dataList.get(dataList.size() - 1).getY())
                 .doubleValue();
+        // Allow interpolation below 850 when this is lowest level
+        if (maxYAxisVal == 850.0){
+        	maxYAxisVal = 1000.0;
+        }
 
         if (maxYAxisVal < minYAxisVal) {
             double tmp = maxYAxisVal;
@@ -204,8 +220,18 @@ public class InterpUtils {
         // bilinear interpolation
         float val = 0;
         float missing = 1;
-        for (int x1 : new int[] { (int) Math.ceil(x), (int) Math.floor(x) }) {
-            for (int y1 : new int[] { (int) Math.ceil(y), (int) Math.floor(y) }) {
+        int[] xr = { (int) Math.ceil(x), (int) Math.floor(x) };
+        int[] yr = { (int) Math.ceil(y), (int) Math.floor(y) };
+        // this occurs when x == (int) x
+        if (xr[0] == xr[1]) {
+            xr = new int[] { xr[0] };
+        }
+        // this occurs when y == (int) y
+        if (yr[0] == yr[1]) {
+            yr = new int[] { yr[0] };
+        }
+        for (int x1 : xr) {
+            for (int y1 : yr) {
                 float val11 = -999999;
                 if (y1 < area.getMinY() || y1 >= area.getMaxY()) {
                     val11 = -999999;

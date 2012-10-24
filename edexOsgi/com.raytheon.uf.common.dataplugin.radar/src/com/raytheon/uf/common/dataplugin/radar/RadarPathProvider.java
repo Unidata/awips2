@@ -20,8 +20,6 @@
 
 package com.raytheon.uf.common.dataplugin.radar;
 
-import java.util.Date;
-
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 
@@ -78,12 +76,7 @@ public class RadarPathProvider extends DefaultPathProvider {
         sb.append(pluginName);
         sb.append("-");
         sb.append(pdo.getIcao());
-        Date refTime = pdo.getDataTime().getRefTime();
-        String refTimeString = null;
-        synchronized (fileNameFormat) {
-            refTimeString = fileNameFormat.format(refTime);
-        }
-        sb.append(refTimeString);
+        sb.append(fileNameFormat.get().format(pdo.getDataTime().getRefTime()));
         sb.append(".h5");
 
         return sb.toString();

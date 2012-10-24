@@ -19,6 +19,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpShapeAndLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
@@ -77,7 +78,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 	//private int hodoYOrig = NsharpConstants.HODO_Y_ORIG;
 	//private int hodoXEnd = NsharpConstants.HODO_X_END;
 	//private int hodoYEnd = NsharpConstants.HODO_Y_ORIG+  NsharpConstants.HODO_HEIGHT;
-	private Coordinate hodoHouseC = new Coordinate(NsharpConstants.HODO_CENTER_X_, NsharpConstants.HODO_CENTER_Y_);
+	//private Coordinate hodoHouseC = new Coordinate(NsharpConstants.HODO_CENTER_X_, NsharpConstants.HODO_CENTER_Y_);
 	private float xRatio=1;
 	private float yRatio=1;
 	public NsharpHodoPaneResource(AbstractResourceData resourceData,
@@ -384,9 +385,9 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			//target.drawLine(c.x, c.y- radiusUnit/2, 0.0,c.x, c.y + radiusUnit/2, 0.0, color,
 			//		markerWidth);
 			textStr = String.format("DP= %.0f/%.0f",dpwdir.getValue(), dpwspd.getValue());
-			target.drawString(font10, textStr, c.x, c.y+10*zoomLevel*yRatio, 0.0,
+			target.drawString(font10, textStr, c.x, c.y, 0.0,
 					TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-					VerticalAlignment.BOTTOM, null);
+					VerticalAlignment.TOP, null);
 
 			c = WxMath.uvComp(upwspd.getValue(),upwdir.getValue());
 			c= world.map(c);			
@@ -396,15 +397,16 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			//target.drawLine(c.x, c.y- radiusUnit/2, 0.0,c.x, c.y + radiusUnit/2, 0.0, color,
 			//		markerWidth);
 			textStr = String.format("UP= %.0f/%.0f",upwdir.getValue(), upwspd.getValue());
-			target.drawString(font10, textStr, c.x, c.y+10*zoomLevel*yRatio, 0.0,
+			target.drawString(font10, textStr, c.x, c.y, 0.0,
 					TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-					VerticalAlignment.BOTTOM, null);
+					VerticalAlignment.TOP, null);
 		}
 		//plot Bunkers Vector,by default plot them
 		if(((graphConfigProperty != null ) && graphConfigProperty.isSmvBunkersR())||(graphConfigProperty == null)){
 			FloatByReference bwdir= new FloatByReference(-999);
 			FloatByReference bwspd= new FloatByReference(-999);
 			nsharpNative.nsharpLib.bunkers_storm_motion(value1, value2, bwdir, bwspd);
+			//System.out.println("bunkers_storm_motion hodo windspd="+  bwspd.getValue()+ " dir="+bwdir.getValue());
 			c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
 			c= world.map(c);
 			RGB color = NsharpConstants.color_firebrick;
@@ -436,15 +438,19 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 					VerticalAlignment.BOTTOM, null);
 		}
 
-		//plot current storm motion vector (mouse click) marker				
-		target.drawCircle(hodoHouseC.x, hodoHouseC.y, 0, radiusUnit,
+		//plot current storm motion vector (mouse click) marker		
+		//Coordinate hodoStmCenter = rscHandler.getHodoStmCenter();
+		//System.out.println("rscHandler hodo windspd="+ rscHandler.getSmWindSpd()+ " dir="+rscHandler.getSmWindDir());
+		Coordinate hodoStmCenter = WxMath.uvComp(rscHandler.getSmWindSpd(),rscHandler.getSmWindDir());
+		hodoStmCenter= world.map(hodoStmCenter);
+		target.drawCircle(hodoStmCenter.x, hodoStmCenter.y, 0, radiusUnit,
 				NsharpConstants.color_white, markerWidth);
-		target.drawLine(hodoHouseC.x - radiusUnit, hodoHouseC.y, 0.0,hodoHouseC.x + radiusUnit, hodoHouseC.y, 0.0, NsharpConstants.color_white,
+		target.drawLine(hodoStmCenter.x - radiusUnit, hodoStmCenter.y, 0.0,hodoStmCenter.x + radiusUnit, hodoStmCenter.y, 0.0, NsharpConstants.color_white,
 				markerWidth);
-		target.drawLine(hodoHouseC.x, hodoHouseC.y- radiusUnit, 0.0,hodoHouseC.x, hodoHouseC.y + radiusUnit, 0.0, NsharpConstants.color_white,
+		target.drawLine(hodoStmCenter.x, hodoStmCenter.y- radiusUnit, 0.0,hodoStmCenter.x, hodoStmCenter.y + radiusUnit, 0.0, NsharpConstants.color_white,
 				markerWidth);
 		textStr = String.format("%.0f/%.0f",rscHandler.getSmWindDir(), rscHandler.getSmWindSpd());
-		target.drawString(font10, textStr, hodoHouseC.x,hodoHouseC.y+radiusUnit*2, 0.0,
+		target.drawString(font10, textStr, hodoStmCenter.x,hodoStmCenter.y+radiusUnit*2, 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.CENTER,
 				VerticalAlignment.TOP, null);
 
@@ -461,11 +467,11 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			float top_dir = nsharpNative.nsharpLib.iwdir(topPF.getValue());
 			c = WxMath.uvComp(bot_spd,bot_dir); 
 			c= world.map(c);
-			target.drawLine(hodoHouseC.x, hodoHouseC.y, 0.0,c.x, c.y, 0.0, NsharpConstants.color_skyblue,
+			target.drawLine(hodoStmCenter.x, hodoStmCenter.y, 0.0,c.x, c.y, 0.0, NsharpConstants.color_skyblue,
 					markerWidth);
 			c = WxMath.uvComp(top_spd,top_dir); 
 			c= world.map(c);
-			target.drawLine(hodoHouseC.x, hodoHouseC.y, 0.0,c.x, c.y, 0.0, NsharpConstants.color_skyblue,
+			target.drawLine(hodoStmCenter.x, hodoStmCenter.y, 0.0,c.x, c.y, 0.0, NsharpConstants.color_skyblue,
 					markerWidth);
 		}
 	}
@@ -485,12 +491,12 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		target.drawString(fixedFont, sWindDirection+ "  "+ sWindSpeed, dispX, dispY, 0.0,
 				TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 				VerticalAlignment.BOTTOM, null);
-		//plot critical angel
+		//plot critical angle
 		float ca = nsharpNative.nsharpLib.cave_criticalAngel();
 		if(ca != -9999){
 			ymax = ext.getMaxY();
 			dispY = ymax - 20 * zoomLevel;
-			String textStr = String.format("Critical Angel = %.0f",ca);
+			String textStr = String.format("Critical Angle = %.0f",ca);
 			target.drawString(fixedFont, textStr, dispX,dispY, 0.0,
 					TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
 					VerticalAlignment.BOTTOM, null);
@@ -655,10 +661,10 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 	public NsharpHodoPaneBackground getHodoBackground() {
 		return hodoBackground;
 	}
-	public void setHodoHouseC(Coordinate hodoHouseC) {
-		this.hodoHouseC = hodoHouseC;
+	//public void setHodoHouseC(Coordinate hodoHouseC) {
+	//	this.hodoHouseC = hodoHouseC;
 		
-	}
+	//}
 	@Override
 	public void handleResize() {
 		
@@ -666,7 +672,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		this.resize=false;
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
-		//System.out.println("skewtPane: handleResize");
+		//System.out.println("hodoPane: handleResize");
    	 	float prevHeight = hodoHeight;
 		float prevWidth = hodoWidth;
 		//hodoXOrig = (int) (ext.getMinX());
@@ -679,16 +685,12 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		yRatio = yRatio* hodoHeight/prevHeight;
 		hodoBackground.handleResize(ext);
 		world = hodoBackground.computeWorld();
-		Coordinate c;
-		FloatByReference value1= new FloatByReference(-999);
-		FloatByReference value2= new FloatByReference(-999);
-		FloatByReference bwdir= new FloatByReference(-999);
-		FloatByReference bwspd= new FloatByReference(-999);
-		nsharpNative.nsharpLib.bunkers_storm_motion(value1, value2, bwdir, bwspd);
-		c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
-		hodoHouseC= world.map(c);
 		createRscHodoWindShapeAll();
 		
 	}
-
+	@Override
+	public void setGraphConfigProperty(NsharpGraphProperty graphConfigProperty) {
+		super.setGraphConfigProperty(graphConfigProperty);
+		hodoBackground.setPaneConfigurationName(paneConfigurationName);
+	}
 }

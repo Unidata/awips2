@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.points;bundle-version="1.0.0",
  com.raytheon.uf.viz.d2d.nsharp;bundle-version="1.0.0",
  gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
- com.raytheon.uf.common.message;bundle-version="1.12.1174"
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.viz.core.graphing;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.catalog,

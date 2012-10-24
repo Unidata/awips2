@@ -6,7 +6,9 @@
           Modified Phil Kurimski         01-26-2012  OB 12.1.1-1
           Modified Phil Kurimski         02-29-2012  OB 12.2.1-3 
           Modified Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
-          Modified Phil Kurimski         04-27-2012  -->
+          Modified Phil Kurimski         04-27-2012
+          Modified Qinglu Lin            10-04-2012 DR 15426. Added damic to <lockedGroupsOnFollowup> tag.
+-->          
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -66,7 +68,7 @@
 <!-- Customized several sections in bullet section including:
         Added Flash Flood Emergency Headline
  	Changed the CTA Bullet names for easier parsing in the vm file -->
-<lockedGroupsOnFollowup>dam,ic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>dam,ic,damic</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>

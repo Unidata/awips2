@@ -22,18 +22,15 @@
 # You must include the following line
 from Maps import * 
 
-# Example of adding a new map background.  This one is called "WYCounties"
-# on the GFE maps menu, uses the uscounty shapefile, is filtered to include
+# Example of adding a group of edit areas.  This one is called "WYCounties"
+# on the GFE Edit Areas menu, uses the County table, is filtered to include
 # just the Wyoming counties.  Edit areas are automatically generated"
-# and named WY_countyName. The clip region is expanded from the default
-# by 2 degrees in the north and east directions
-WYcounties = ShapeFile(MAPDIR)
-WYcounties.filename(CountyMapName) 
-WYcounties.filter(lambda x : x['STATE'] == "WY") 
+# and named WY_countyName.
+WYcounties = ShapeTable('County')
+WYcounties.filter(lambda x : x['state'] == "WY") 
 WYcounties.name = 'WYCounties' 
-WYcounties.editAreaName = ['STATE','COUNTYNAME'] 
+WYcounties.editAreaName = ['state','countyname'] 
 WYcounties.groupName = 'WYCounties' 
-WYcounties.expandDomain = (2, 2, 0, 0)
 maps.append(WYcounties) 
 
 
