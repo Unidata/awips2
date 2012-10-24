@@ -6,7 +6,6 @@
 
 
 	<bean id="dqcPreprocService" class="com.raytheon.uf.edex.ohd.pproc.DqcPreProcSrv" />
-	<bean id="mpeRucFreezingLevel" class="com.raytheon.uf.edex.ohd.pproc.MpeRUCFreezingLevel" />
 
 	<camelContext id="dqcPreproc-context"
 		xmlns="http://camel.apache.org/schema/spring"
@@ -24,14 +23,6 @@
 			<from uri="jms-generic:queue:dqcPreprocScheduledWork" />
             <doTry>
     			<bean ref="dqcPreprocService" method="runDQCPreproc" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:dqcPreprocessor?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
-                </doCatch>
-            </doTry>
-            
-            <doTry>
-    			<bean ref="mpeRucFreezingLevel" method="processMpeRuc" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:dqcPreprocessor?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>

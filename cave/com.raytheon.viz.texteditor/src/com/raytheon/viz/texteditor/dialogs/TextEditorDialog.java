@@ -158,7 +158,6 @@ import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.CommandHistory;
 import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.dialogs.WarnGenConfirmationDlg.SessionDelegate;
 import com.raytheon.viz.texteditor.fax.dialogs.FaxMessageDlg;
 import com.raytheon.viz.texteditor.fax.dialogs.LdadFaxSitesDlg;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
@@ -180,6 +179,7 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
@@ -288,6 +288,14 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10Sep2012   15103	    M.Gamazaychikov	DR15103 -do not clear AFOS command from the text box 
  * 						when obs are updated and refactored executeCommand
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
+ * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
+ * 25SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 26SEP2012   1196         lvenable    Refactor dialogs to prevent blocking.
+ * 27SEP2012   1196         rferrel     Changes for non-blocking ScriptOutputDlg.
+ * 27SEP2012   15424        S.Naples    Set focus on AFOS command text field after executing retrieval of product.
+ * 09Oct2012   14889	    M.Gamazaychikov	Add call to checkAndWrapPreviousLine
+ * 12OCT2012   15418        D.Friedman  Do not store product when sending in operational mode.
+ *                                      Do not use changed BBB from OUPResponse.
  * </pre>
  * 
  * @author lvenable
@@ -337,6 +345,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * When auto wrapping the last line that needs to be wrapped.
      */
     private int endWrapLine = -1;
+
+    /**
+     * Last line was wrapped backwards
+     */
+    private boolean isPreviousLineWrapped = false;
 
     private static final String PARAGRAPH_DELIMITERS = "*$.-/^#";
 
@@ -1106,6 +1119,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private MouseListener updateObsListener = null;
 
+    /** Text character wrap dialog */
+    private TextCharWrapDlg textCharWrapDlg;
+
+    /** LDAD fax sites dialog */
+    private LdadFaxSitesDlg ldadFaxSitesDlg;
+
+    /** Fax all message dialog */
+    private FaxMessageDlg faxAllMsgDlg;
+
+    /** Fax message dialog */
+    private FaxMessageDlg faxMsgDlg;
+
     private enum HeaderEditSession {
         CLOSE_ON_EXIT, IN_EDITOR
     }
@@ -1115,16 +1140,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     static {
         AUTOSAVE_DATE_FORMAT.setTimeZone(TimeZone
                 .getTimeZone(TimeTools.ZULU_TIMEZONE));
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     */
-    public TextEditorDialog(Shell parent) {
-        this(parent, "Text Display", false, null, "0", false, false, 0);
     }
 
     /**
@@ -1345,34 +1360,47 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         faxAllItem = new MenuItem(fileMenu, SWT.NONE);
-        faxAllItem.setText("Fax All");
+        faxAllItem.setText("Fax All...");
         faxAllItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FaxMessageDlg faxMsgDlg = new FaxMessageDlg(shell);
-                faxMsgDlg.setInitialText(textEditor.getText());
-                faxMsgDlg.open();
+
+                if (faxAllMsgDlg == null || faxAllMsgDlg.isDisposed()) {
+                    faxAllMsgDlg = new FaxMessageDlg(shell);
+                    faxAllMsgDlg.setInitialText(textEditor.getText());
+                    faxAllMsgDlg.open();
+                } else {
+                    faxAllMsgDlg.bringToTop();
+                }
             }
         });
 
         faxSelectionItem = new MenuItem(fileMenu, SWT.NONE);
-        faxSelectionItem.setText("Fax Selection");
+        faxSelectionItem.setText("Fax Selection...");
         faxSelectionItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FaxMessageDlg faxMsgDlg = new FaxMessageDlg(shell);
-                faxMsgDlg.setInitialText(textEditor.getSelectionText());
-                faxMsgDlg.open();
+                if (faxMsgDlg == null || faxMsgDlg.isDisposed()) {
+                    faxMsgDlg = new FaxMessageDlg(shell);
+                    faxMsgDlg.setInitialText(textEditor.getSelectionText());
+                    faxMsgDlg.open();
+                } else {
+                    faxMsgDlg.bringToTop();
+                }
             }
         });
 
         configAutoFaxItem = new MenuItem(fileMenu, SWT.NONE);
-        configAutoFaxItem.setText("Configure Auto Fax");
+        configAutoFaxItem.setText("Configure Auto Fax...");
         configAutoFaxItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LdadFaxSitesDlg ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
-                ldadFaxSitesDlg.open();
+                if (ldadFaxSitesDlg == null || ldadFaxSitesDlg.isDisposed()) {
+                    ldadFaxSitesDlg = new LdadFaxSitesDlg(shell);
+                    ldadFaxSitesDlg.open();
+                } else {
+                    ldadFaxSitesDlg.bringToTop();
+                }
             }
         });
 
@@ -1447,14 +1475,21 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             public void widgetSelected(SelectionEvent event) {
                 RemoteSiteRequestDlg requestDlg = new RemoteSiteRequestDlg(
                         shell);
-                if (lastRemoteRetrievalRequest != null)
+                if (lastRemoteRetrievalRequest != null) {
                     requestDlg.setRequest(lastRemoteRetrievalRequest);
-                RemoteRetrievalRequest req = (RemoteRetrievalRequest) requestDlg
-                        .open();
-                if (req != null) {
-                    lastRemoteRetrievalRequest = req;
-                    sendRemoteRetrievalRequest(req);
                 }
+                requestDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        RemoteRetrievalRequest req = (RemoteRetrievalRequest) returnValue;
+                        if (req != null) {
+                            lastRemoteRetrievalRequest = req;
+                            sendRemoteRetrievalRequest(req);
+                        }
+                    }
+                });
+                requestDlg.open();
             }
         });
 
@@ -1466,7 +1501,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 EditSessionRecoveryDialog recoveryDlg = new EditSessionRecoveryDialog(
                         TextEditorDialog.this.getParent(),
                         TextEditorDialog.this);
-                recoveryDlg.setBlockOnOpen(true);
+                recoveryDlg.setBlockOnOpen(false);
                 recoveryDlg.open();
             }
         });
@@ -1648,11 +1683,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         searchItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-
-                searchReplaceDlg = new SearchReplaceDlg(shell, textEditor,
-                        inEditMode);
-                searchReplaceDlg.open();
-                searchReplaceDlg = null;
+                if (searchReplaceDlg == null || searchReplaceDlg.isDisposed()) {
+                    searchReplaceDlg = new SearchReplaceDlg(shell, textEditor,
+                            inEditMode);
+                    searchReplaceDlg.open();
+                } else {
+                    searchReplaceDlg.bringToTop();
+                }
             }
         });
 
@@ -2613,15 +2650,24 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void createTextCharWrapDialog(final int rangeStart,
             final int rangeEnd) {
         // Create the text character wrap dialog.
-        TextCharWrapDlg textCharWrapDlg = new TextCharWrapDlg(shell, this,
-                otherCharWrapCol, rangeStart, rangeEnd);
-        Boolean rv = (Boolean) textCharWrapDlg.open();
-        // If the user cancels the text character wrap dialog then
-        // take no action.
-        // Otherwise, use character wrap count to set the wrap-around.
-        if (rv == true) {
-            recompileRegex();
-            wordWrapEnabled = true;
+        if (textCharWrapDlg == null || textCharWrapDlg.isDisposed()) {
+            textCharWrapDlg = new TextCharWrapDlg(shell, this,
+                    otherCharWrapCol, rangeStart, rangeEnd);
+
+            textCharWrapDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if ((Boolean) returnValue == true) {
+                        recompileRegex();
+                        wordWrapEnabled = true;
+                    }
+                }
+            });
+
+            textCharWrapDlg.open();
+        } else {
+            textCharWrapDlg.bringToTop();
         }
     }
 
@@ -2883,8 +2929,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 executeCommand(CommandFactory.getAfosCommand(afosCmdTF
                         .getText()));
 
-                // Highlight the text contained in the Afos Command Field.
-                afosCmdTF.selectAll();
+                // Place cursor back in the Afos Command Field.
+                afosCmdTF.setFocus();
             }
         });
 
@@ -4302,7 +4348,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Display the AFOS Browser dialog.
      */
     private void displayAfosBrowser() {
-        if (afosBrowser == null) {
+        if (afosBrowser == null || afosBrowser.isDisposed() == true) {
             afosBrowser = new AfosBrowserDlg(shell, shell.getText(), this,
                     token);
             afosBrowser.open();
@@ -4400,22 +4446,36 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
                         "Problem Detected by QC", qcCheck.getErrorMessage(),
                         "Do you really want to Send?\n", mode);
-                wgcd.open(new SessionDelegate() {
+                wgcd.setCloseCallback(new ICloseCallback() {
+
                     @Override
-                    public void dialogDismissed(Object dialogResult) {
-                        if (Boolean.TRUE.equals(dialogResult))
-                            finishSendProduct1(resend, title, mode,
+                    public void dialogClosed(Object returnValue) {
+                        if (Boolean.TRUE.equals(returnValue))
+                            finishSendProduct(resend, title, mode,
                                     productMessage, modeMessage);
+
                     }
                 });
+                wgcd.open();
 
                 return;
             }
         }
-        finishSendProduct1(resend, title, mode, productMessage, modeMessage);
+        finishSendProduct(resend, title, mode, productMessage, modeMessage);
     }
 
-    private void finishSendProduct1(final boolean resend, String title,
+    /**
+     * This finishes preparing to send a product as part of normal compleation
+     * of sendProduct or as part of the call back when there is a problem with
+     * the WarnGen being sent.
+     * 
+     * @param resend
+     * @param title
+     * @param mode
+     * @param productMessage
+     * @param modeMessage
+     */
+    private void finishSendProduct(final boolean resend, String title,
             CAVEMode mode, StringBuilder productMessage,
             StringBuilder modeMessage) {
         Pattern p = Pattern.compile(".\\%[s].");
@@ -4450,20 +4510,30 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell, title,
                 productMessage.toString(), modeMessage.toString(), mode);
-        wgcd.open(new SessionDelegate() {
+        wgcd.setCloseCallback(new ICloseCallback() {
+
             @Override
-            public void dialogDismissed(Object dialogResult) {
-                if (Boolean.TRUE.equals(dialogResult))
-                    finishSendProduct2(resend, result);
+            public void dialogClosed(Object returnValue) {
+                if (Boolean.TRUE.equals(returnValue)) {
+                    warngenCloseCallback(resend, result);
+                }
             }
         });
+        wgcd.open();
     }
 
-    private void finishSendProduct2(boolean resend, boolean result) {
+    /**
+     * This is used by finishedSendProduct as the call back to the warnGen
+     * confirmaiton Dialog.
+     * 
+     * @param resend
+     * @param result
+     */
+    private void warngenCloseCallback(boolean resend, boolean isOperational) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
-        if (result) {
+        if (isOperational) {
             removeOptionalFields();
 
             try {
@@ -4474,7 +4544,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
+                if ((inEditMode || resend) && saveEditedProduct(false, resend, true)) {
                     inEditMode = false;
                 }
 
@@ -4520,7 +4590,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText()));
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
+                if ((inEditMode || resend) && saveEditedProduct(false, resend, false)) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -4601,7 +4671,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             userInformation("This product MUST be edited in GFE! \n Please exit and return to GFE. \n Action Aborted!");
             return;
         }
-        boolean successful = saveEditedProduct(false, false);
+        boolean successful = saveEditedProduct(false, false, false);
         if (successful) {
             // reset the editor status flags
             dirty = false;
@@ -4625,7 +4695,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return true is the save was successful
      */
     synchronized private boolean saveEditedProduct(boolean isAutoSave,
-            boolean resend) {
+            boolean resend, boolean isOperationalSend) {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
         if (product != null
@@ -4742,7 +4812,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
          */
         if (isAutoSave) {
             autoSave.saveProduct(storedProduct);
-        } else if (resend) {
+        } else if (isOperationalSend || resend) {
             // OUPRequest will update the StdTextProduct table.
             successful = true;
         } else {
@@ -5245,9 +5315,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     public String getAddressee() {
         return addressee;
     }
-    
+
     public void executeCommand(ICommand command) {
-    	executeCommand(command, false);
+        executeCommand(command, false);
     }
 
     public void executeCommand(ICommand command, boolean isObsUpdated) {
@@ -5355,11 +5425,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             w, siteNode);
                 }
                 /*
-                 * DR15103 - do not clear AFOS command from the text box
-                 * when obs are updated
+                 * DR15103 - do not clear AFOS command from the text box when
+                 * obs are updated
                  */
-                if ( !isObsUpdated ) {
-                	clearAfosCmdTF();
+                if (!isObsUpdated) {
+                    clearAfosCmdTF();
                 }
                 clearWmoTF();
                 clearAwipsIdTF();
@@ -5642,38 +5712,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     && !scriptsShowOutputItem.isDisposed()) {
                 scriptsShowOutputItem.setSelection(true);
             }
-            // create the script output window
-            if (scriptOutput == null) {
-                scriptOutput = new ScriptOutputDlg(shell, token);
-            }
+
             // update the script editor window
             if (scriptEditor != null) {
                 scriptEditor.setScriptOutputState(true);
             }
-            // open the script output window
-            scriptOutput.open();
-            // update the menu following close
-            if (scriptsShowOutputItem != null
-                    && !scriptsShowOutputItem.isDisposed()) {
-                scriptsShowOutputItem.setSelection(false);
+
+            // create the script output window
+            if (scriptOutput == null || !scriptOutput.isDisposed()) {
+                scriptOutput = new ScriptOutputDlg(shell, token);
+                // open the script output window
+                scriptOutput.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        // update the menu following close
+                        if (scriptsShowOutputItem != null
+                                && !scriptsShowOutputItem.isDisposed()) {
+                            scriptsShowOutputItem.setSelection(false);
+                        }
+                        // update script editor window
+                        if (scriptEditor != null) {
+                            scriptEditor.setScriptOutputState(false);
+                        }
+                        scriptOutput = null;
+                    }
+                });
+                scriptOutput.open();
+            } else {
+                scriptOutput.bringToTop();
             }
-            // update script editor window
-            if (scriptEditor != null) {
-                scriptEditor.setScriptOutputState(false);
-            }
-            scriptOutput = null;
         } else {
             if (scriptOutput != null) {
                 scriptOutput.close();
+            } else {
+                if (scriptsShowOutputItem != null
+                        && !scriptsShowOutputItem.isDisposed()) {
+                    scriptsShowOutputItem.setSelection(false);
+                }
+                if (scriptEditor != null) {
+                    scriptEditor.setScriptOutputState(false);
+                }
             }
-            if (scriptsShowOutputItem != null
-                    && !scriptsShowOutputItem.isDisposed()) {
-                scriptsShowOutputItem.setSelection(false);
-            }
-            if (scriptEditor != null) {
-                scriptEditor.setScriptOutputState(false);
-            }
-            scriptOutput = null;
         }
     }
 
@@ -6337,7 +6417,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         public void run() {
                             if (!shell.isDisposed()) {
                                 if (autoSave == AutoSaveTask.this) {
-                                    saveEditedProduct(true, false);
+                                    saveEditedProduct(true, false, false);
                                 }
                             }
                         }
@@ -6469,11 +6549,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         @Override
         public void run() {
-        	/*
-        	 * DR15103 - set the flag to 'true' before executing 
-        	 * AFOS command so the AFOS command box is not cleared 
-        	 * when obs are updated
-        	 */       	
+            /*
+             * DR15103 - set the flag to 'true' before executing AFOS command so
+             * the AFOS command box is not cleared when obs are updated
+             */
             executeCommand(command, true);
         }
 
@@ -6604,12 +6683,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     statusHandler.handle(p, response.getMessage());
                 } else {
                     // no failure
-                    String newBBB = response.getChangedBBB();
-                    if (newBBB != null) {
-                        statusHandler.handle(Priority.EVENTA,
-                                "MhsServer changed BBB field to " + newBBB);
-                        getStdTextProduct().setBbbid(newBBB);
-                    }
+                    // As of DR 15418, nothing is done with response.getChangedBBB()
                 }
 
                 Thread.interrupted();
@@ -6740,6 +6814,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // performingWrap = true;
         int lineNumber = textEditor.getLineAtOffset(start);
         endWrapLine = textEditor.getLineAtOffset(end);
+        /*
+         * DR14889 - resetting isPreviousLineWrapped
+         */
+        isPreviousLineWrapped = false;
         rewrapInternal(lineNumber);
 
         // The rest of this method is adjusting the view of the display.
@@ -6973,6 +7051,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
             }
         }
+        
+        /*
+         * DR14889 - add call to checkAndWrapPreviousLine
+         */
+        checkAndWrapPreviousLine(lineNumber);
 
         checkAndWrapNextLine(lineNumber);
     }
@@ -7067,11 +7150,54 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             // split at the column, no whitespace
             wrapAtPositionOrLock(lineStartOffset + charWrapCol, padding);
         }
-
+        
+        /*
+         * DR14889 - add call to checkAndWrapPreviousLine
+         */
+        checkAndWrapPreviousLine(lineNumber);
+        
         checkAndWrapNextLine(lineNumber);
     }
 
-    /**
+    /** checks if the previous line is part of the same paragraph and continues
+     * wrapping if it is
+     * @param line
+     */
+    private void checkAndWrapPreviousLine(int line) {
+    	 // if there is a previous line
+    	if ( isPreviousLineWrapped ){
+    		return;
+    	}
+        if (line - 1 > 0) {
+            // if the previous line does not start a new paragraph
+            if (!isParagraphStart(line - 1)) {
+                // if the previous line is not empty ( marks the end of a paragraph
+                // )
+                if (!textEditor.getLine(line - 1).trim().isEmpty()) {
+                    // rewrap the previous line
+                	isPreviousLineWrapped = true;
+                    rewrapInternal(line - 1);
+                } else if (line - 1 < endWrapLine) {
+                    // See if another paragraph needs to be wrapped.
+                    int nextLine = line - 1;
+                    while (nextLine <= endWrapLine
+                            && textEditor.getLine(nextLine).trim().isEmpty()) {
+                        --nextLine;
+                    }
+                    if (nextLine <= endWrapLine) {
+                    	isPreviousLineWrapped = true;
+                        rewrapInternal(nextLine);
+                    }
+                }
+            } else if (line - 1 <= endWrapLine) {
+            	isPreviousLineWrapped = true;
+                rewrapInternal(line - 1);
+            }
+        }
+		
+	}
+
+	/**
      * checks if the paragraph starting at the line passed in uses two space
      * padding for subsequent lines
      * 

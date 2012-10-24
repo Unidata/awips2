@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2010            lvenable     Initial creation
+ * 26Sep2012    1196       lvenable     Prevent dialog from blocking.
  * 
  * </pre>
  * 
@@ -63,7 +64,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 // TODO - need to replace CaveSWTDialogStub with CaveSWTDialog
 
 public class FaxMessageDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(FaxMessageDlg.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FaxMessageDlg.class);
+
     private Text faxNumberTF;
 
     private Text recipientTF;
@@ -79,7 +82,7 @@ public class FaxMessageDlg extends CaveSWTDialog {
     }
 
     public FaxMessageDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Fax Message");
     }
 
@@ -284,8 +287,7 @@ public class FaxMessageDlg extends CaveSWTDialog {
             try {
                 Object retval = ThriftClient.sendRequest(faxReq);
                 if (retval instanceof String && !"Success".equals(retval)) {
-                    statusHandler.handle(Priority.SIGNIFICANT,
- (String) retval);
+                    statusHandler.handle(Priority.SIGNIFICANT, (String) retval);
                 }
             } catch (VizException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,

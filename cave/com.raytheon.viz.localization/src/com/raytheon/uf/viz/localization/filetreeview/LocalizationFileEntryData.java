@@ -49,7 +49,7 @@ public class LocalizationFileEntryData extends FileTreeEntryData {
      * @param name
      */
     public LocalizationFileEntryData(PathData pathData, LocalizationFile file) {
-        super(pathData, file.getName(), false);
+        super(pathData, file.getName());
         this.file = file;
     }
 

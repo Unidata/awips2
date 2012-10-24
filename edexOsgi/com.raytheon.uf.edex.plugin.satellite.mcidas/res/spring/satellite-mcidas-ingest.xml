@@ -17,13 +17,6 @@
 	</bean>
 
 	<bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder">
-		<property name="dao" ref="satelliteMcidasDao" />
-	</bean>
-	
-	<!-- sat plugin has one but we don't want to be dep on the satellite-ingest beans... -->
-	<bean id="satelliteMcidasDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao"
-		depends-on="satelliteRegistered">
-		<constructor-arg ref="satellitePluginName" />
 	</bean>
 	
 	<bean id="satMcidasDistRegistry" factory-bean="distributionSrv"

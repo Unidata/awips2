@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     uses the font.
  * Feb 03, 2012 14317      mhuang      Make alarm display window wider
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
+ * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow. Added DO_NOT_BLOCK.
  * 
  * </pre>
  * 
@@ -105,7 +106,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
             java.util.List<StdTextProduct> prodList,
             ACCUMULATE_STATE accum_state) {
         super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.INDEPENDENT_SHELL);
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("Alarm Display Window");
         prods = prodList;
         if (prods == null) {
