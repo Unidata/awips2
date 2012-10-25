@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ----------  --------------  --------------------------
  * Feb 26, 2008             Eric Babin      Initial Creation
  * Jun  4, 2008    #1161    Ron Anderson    Reworked
+ * Oct 25, 2012 #1287       rferrel         Code clean for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class GridsInterpolateDialog extends CaveJFACEDialog {
-    private static final int MAX_INTERVAL = 24;
+    private final int MAX_INTERVAL = 24;
 
     private Composite top;
 
