@@ -33,6 +33,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.UIFormat;
 import com.raytheon.viz.gfe.core.UIFormat.FilterType;
@@ -49,6 +52,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 22, 2008           Eric Babin  Initial Creation
  *  Dec 02, 2009     #945  randerso    reworked
+ *  Oct 25, 2012 #1287     rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -57,10 +61,12 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  */
 
 public class HiddenWeatherElementDialog extends CaveJFACEDialog {
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SaveDeleteSelectTRDialog.class);
 
-    public static final int UNLOAD = IDialogConstants.CLIENT_ID + 1;
+    private final int UNLOAD = IDialogConstants.CLIENT_ID + 1;
 
-    public static final int MAKE_VISIBLE = IDialogConstants.CLIENT_ID + 2;
+    private final int MAKE_VISIBLE = IDialogConstants.CLIENT_ID + 2;
 
     private Composite top;
 
@@ -164,16 +170,28 @@ public class HiddenWeatherElementDialog extends CaveJFACEDialog {
     }
 
     protected void unload() {
-        // LogStream.logUse("UnloadHidden:", self.__lbox.getSelections())
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            StringBuilder sb = new StringBuilder("UnloadHidden: ");
+            for (String s : this.lbox.getSelection()) {
+                sb.append(s).append("\n");
+            }
+            statusHandler.debug(sb.toString());
+        }
         ParmID[] unload = parmIDsFromUINames(this.lbox.getSelection());
         Parm[] unloadParms = dataManager.getParmManager().getParms(unload);
         dataManager.getParmManager().deleteParm(unloadParms);
     }
 
     protected void makeVisible() {
-        // LogStream.logUse("MakeVisibleHidden:", self.__lbox.getSelections())
-        List<ParmID> visParmIDs = new ArrayList<ParmID>(Arrays
-                .asList(dataManager.getParmManager().getParmIDs(
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            StringBuilder sb = new StringBuilder("MakeVisibleHidden: ");
+            for (String s : this.lbox.getSelection()) {
+                sb.append(s).append("\n");
+            }
+            statusHandler.debug(sb.toString());
+        }
+        List<ParmID> visParmIDs = new ArrayList<ParmID>(
+                Arrays.asList(dataManager.getParmManager().getParmIDs(
                         dataManager.getParmManager().getDisplayedParms())));
         ParmID[] load = parmIDsFromUINames(this.lbox.getSelection());
         for (int i = 0; i < load.length; i++) {
