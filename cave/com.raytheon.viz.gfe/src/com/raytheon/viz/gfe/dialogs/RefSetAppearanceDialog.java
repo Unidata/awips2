@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2009            randerso     Initial creation
+ * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -53,9 +54,9 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  */
 
 public class RefSetAppearanceDialog extends CaveJFACEDialog {
-    private static final int APPLY_ID = IDialogConstants.CLIENT_ID;
+    private final int APPLY_ID = IDialogConstants.CLIENT_ID;
 
-    private static final String APPLY_LABEL = "Apply";
+    private final String APPLY_LABEL = "Apply";
 
     private ColorWheelComp colorWheel;
 
