@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.EditActionsDialog;
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2007            njensen     Initial creation	
  * Aug 05, 2010 6112       mpduff      One, and only one, dialog open
+ * Oct 25, 2012 1287       rferrel     Changes for non-blocking EditActionsDialog.
  * 
  * </pre>
  * 
@@ -61,11 +62,13 @@ public class ShowEditActionsDialog extends AbstractHandler {
 
         // If the dialog doesn't exist, create one, otherwise call its open
         // method
-        if (dialog == null || dialog.getShell() == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new EditActionsDialog(shell);
             dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        dialog.open();
 
         return null;
     }
