@@ -67,6 +67,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -2115,45 +2116,56 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
-        FloatDataRecord[] scalarData = new FloatDataRecord[times.size()];
-        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
-                times);
+        FloatDataRecord[] scalarData = null;
+        Map<IDataStore, Pair<List<TimeRange>, String[]>> dsAndGroups = getDataStoreAndGroups(
+                parmId, times);
 
         try {
-            // overall index into scalar data
-            int scalarDataIndex = 0;
-            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
-                IDataRecord[] rawData = entry.getKey().retrieveGroups(
-                        entry.getValue(), Request.ALL);
+            Map<TimeRange, FloatDataRecord> records = new HashMap<TimeRange, FloatDataRecord>(
+                    (int) (1.25 * times.size()) + 1);
 
-                for (IDataRecord rec : rawData) {
-                    if (scalarDataIndex < scalarData.length) {
-                        if (rec instanceof FloatDataRecord) {
-                            scalarData[scalarDataIndex++] = (FloatDataRecord) rec;
-                        } else if (gridConfig == null) {
-                            throw new IllegalArgumentException(
-                                    "Data array for "
-                                            + parmId.getParmName()
-                                            + " "
-                                            + parmId.getParmLevel()
-                                            + " is not a float array, but database "
-                                            + toString()
-                                            + " does not contain a grid configuration.");
-                        } else {
-                            // Convert to a FloatDataRecord for internal use
-                            ParmStorageInfo psi = parmStorageInfo.get(parmId
-                                    .getCompositeName());
-                            scalarData[scalarDataIndex++] = storageToFloat(rec,
-                                    psi);
-                        }
+            // loop over the dataStores and their respective groups to pull all
+            // data, stored into records to reorder requests by times
+            for (Map.Entry<IDataStore, Pair<List<TimeRange>, String[]>> entry : dsAndGroups
+                    .entrySet()) {
+                Pair<List<TimeRange>, String[]> pair = entry.getValue();
+                String[] groups = pair.getSecond();
+
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
+                        Request.ALL);
+
+                if (rawData.length != groups.length) {
+                    throw new IllegalArgumentException(
+                            "Invalid number of dataSets returned expected 1 per group, received: "
+                                    + ((double) rawData.length / groups.length));
+                }
+
+                int count = 0;
+                for (TimeRange timeRange : pair.getFirst()) {
+                    IDataRecord rec = rawData[count++];
+
+                    if (rec instanceof FloatDataRecord) {
+                        records.put(timeRange, (FloatDataRecord) rec);
+                    } else if (gridConfig == null) {
+                        throw new IllegalArgumentException("Data array for "
+                                + parmId.getParmName() + " "
+                                + parmId.getParmLevel()
+                                + " is not a float array, but database "
+                                + toString()
+                                + " does not contain a grid configuration.");
+                    } else {
+                        // Convert to a FloatDataRecord for internal use
+                        ParmStorageInfo psi = parmStorageInfo.get(parmId
+                                .getCompositeName());
+                        records.put(timeRange, storageToFloat(rec, psi));
                     }
                 }
             }
 
-            if (scalarDataIndex != scalarData.length) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 1 per group, received: "
-                                + (scalarDataIndex / scalarData.length));
+            scalarData = new FloatDataRecord[times.size()];
+            int count = 0;
+            for (TimeRange timeRange : times) {
+                scalarData[count++] = records.get(timeRange);
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
@@ -2166,29 +2178,40 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public FloatDataRecord[][] retrieveVectorFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
-        FloatDataRecord[][] vectorData = new FloatDataRecord[times.size()][2];
-        Map<IDataStore, String[]> dsAndGroups = getDataStoreAndGroups(parmId,
-                times);
+        FloatDataRecord[][] vectorData = null;
+        Map<IDataStore, Pair<List<TimeRange>, String[]>> dsAndGroups = getDataStoreAndGroups(
+                parmId, times);
 
         try {
-            // overall index into vector data
-            int vectorDataIndex = 0;
-            // iterate over dataStore and their respective groups for the
-            // requested parm/time ranges
-            for (Map.Entry<IDataStore, String[]> entry : dsAndGroups.entrySet()) {
-                IDataRecord[] rawData = entry.getKey().retrieveGroups(
-                        entry.getValue(), Request.ALL);
+            Map<TimeRange, FloatDataRecord[]> records = new HashMap<TimeRange, FloatDataRecord[]>(
+                    (int) (1.25 * times.size()) + 1);
 
-                // iterate over the data retrieved from this dataStore for the
-                // groups
-                for (int i = 0; i < rawData.length; i += 2, vectorDataIndex++) {
+            // loop over the dataStores and their respective groups to pull all
+            // data, stored into records to reorder requests by times
+            for (Map.Entry<IDataStore, Pair<List<TimeRange>, String[]>> entry : dsAndGroups
+                    .entrySet()) {
+                Pair<List<TimeRange>, String[]> pair = entry.getValue();
+                String[] groups = pair.getSecond();
+
+                IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
+                        Request.ALL);
+
+                if (rawData.length != groups.length * 2) {
+                    throw new IllegalArgumentException(
+                            "Invalid number of dataSets returned expected  per group, received: "
+                                    + ((double) rawData.length / groups.length));
+                }
+
+                // iterate over the data from this dataStore adding it records
+                int count = 0;
+                for (TimeRange timeRange : pair.getFirst()) {
                     IDataRecord magRec = null;
                     IDataRecord dirRec = null;
 
                     // Should be vector data and each group should have had a
                     // Dir and Mag dataset
-                    for (int j = 0; j < 2; j++) {
-                        IDataRecord rec = rawData[i + j];
+                    for (int i = 0; i < 2; i++) {
+                        IDataRecord rec = rawData[count * 2 + i];
                         if ("Mag".equals(rec.getName())) {
                             magRec = rec;
                         } else if ("Dir".equals(rec.getName())) {
@@ -2200,10 +2223,12 @@ public class IFPGridDatabase extends GridDatabase {
                         }
                     }
 
+                    FloatDataRecord[] recs = new FloatDataRecord[2];
+
                     if (magRec.getClass() == dirRec.getClass()) {
                         if (magRec instanceof FloatDataRecord) {
-                            vectorData[vectorDataIndex][0] = (FloatDataRecord) magRec;
-                            vectorData[vectorDataIndex][1] = (FloatDataRecord) dirRec;
+                            recs[0] = (FloatDataRecord) magRec;
+                            recs[1] = (FloatDataRecord) dirRec;
                         } else if (gridConfig == null) {
                             throw new IllegalArgumentException(
                                     "Data array for "
@@ -2224,11 +2249,12 @@ public class IFPGridDatabase extends GridDatabase {
                                     VECTOR_DIR_DATA_OFFSET,
                                     VECTOR_DIR_DATA_MULTIPLIER,
                                     magStorageInfo.storageType());
-                            vectorData[vectorDataIndex][0] = storageToFloat(
-                                    magRec, magStorageInfo);
-                            vectorData[vectorDataIndex][1] = storageToFloat(
-                                    dirRec, dirStorageInfo);
+                            recs[0] = storageToFloat(magRec, magStorageInfo);
+                            recs[1] = storageToFloat(dirRec, dirStorageInfo);
                         }
+
+                        records.put(timeRange, recs);
+                        count++;
                     } else {
                         throw new IllegalArgumentException(
                                 "Magnitude and direction grids are not of the same type.");
@@ -2236,10 +2262,10 @@ public class IFPGridDatabase extends GridDatabase {
                 }
             }
 
-            if (vectorDataIndex != vectorData.length) {
-                throw new IllegalArgumentException(
-                        "Invalid number of dataSets returned expected 2 per group, received: "
-                                + (vectorDataIndex / vectorData.length) * 2);
+            vectorData = new FloatDataRecord[times.size()][2];
+            int count = 0;
+            for (TimeRange timeRange : times) {
+                vectorData[count++] = records.get(timeRange);
             }
         } catch (Exception e) {
             throw new GfeException("Unable to get data from HDF5 for ParmID: "
