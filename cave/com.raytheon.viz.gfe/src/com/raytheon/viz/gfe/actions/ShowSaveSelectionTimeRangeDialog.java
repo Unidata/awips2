@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Jan 23, 2008					   Eric Babin Initial Creation
  *  Nov 11, 2008 1213      wdougherty  Use SelectTimeRangeContainer
+ *  Oct 25, 2012 1287      rferrel     Code changes for non-blocking SaveDeleteSelectTRDialog.
  * 
  * </pre>
  * 
@@ -46,6 +47,7 @@ import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
  */
 
 public class ShowSaveSelectionTimeRangeDialog extends AbstractHandler {
+    private SaveDeleteSelectTRDialog dialog;
 
     public ShowSaveSelectionTimeRangeDialog() {
     }
@@ -64,13 +66,16 @@ public class ShowSaveSelectionTimeRangeDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        SaveDeleteSelectTRDialog dialog = new SaveDeleteSelectTRDialog(shell,
-                dataManager, "Save");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new SaveDeleteSelectTRDialog(shell, dataManager, "Save");
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
