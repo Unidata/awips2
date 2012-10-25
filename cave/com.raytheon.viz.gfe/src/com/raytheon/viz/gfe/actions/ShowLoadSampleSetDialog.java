@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.actions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -121,7 +122,7 @@ public class ShowLoadSampleSetDialog extends AbstractHandler {
     private void doDialogClosed(int returnCode) {
         if (returnCode != Window.CANCEL
                 && dialog.getSelectedSampleIdIndexes() != null) {
-            ArrayList<SampleId> sampleIdList = dialog.getSamples();
+            List<SampleId> sampleIdList = dialog.getSamples();
             ISampleSetManager.SampleSetLoadMode mode = null;
             switch (returnCode) {
             case SampleSetDialog.OK:
@@ -145,7 +146,8 @@ public class ShowLoadSampleSetDialog extends AbstractHandler {
                     dm.getSampleSetManager().loadSampleSet(id, mode);
                 } catch (GFEException e) {
                     statusHandler.handle(Priority.ERROR,
-                            "Load failed for mode: " + mode.toString(), e);
+                            "Load failed for mode: " + mode.toString()
+                                    + ", sample id: " + id.toString(), e);
                 }
             }
         }
