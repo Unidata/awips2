@@ -138,8 +138,9 @@ public class GridResourceData extends AbstractRequestableResourceData implements
                 records[i] = (GridRecord) objects[i];
             } else {
                 throw new IllegalArgumentException(
-                        "GridResourceData only supports data stored in grid format, not "
-                                + objects[i].getPluginName() + " data");
+                        "GridResourceData only supports data for the grid plugin, the "
+                                + objects[i].getPluginName()
+                                + " plugin is not supported.");
             }
         }
         sampling = sampling == null ? false : sampling;
