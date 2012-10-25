@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.RefSetAppearanceDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2009      #2948 randerso     Initial creation
+ * Oct 25, 2012 #1287      rferrel     Changes for non-blocking RefSetAppearanceDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.RefSetAppearanceDialog;
  */
 
 public class ShowRefSetAreaAppearance extends AbstractHandler {
+    private RefSetAppearanceDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -54,11 +56,15 @@ public class ShowRefSetAreaAppearance extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        RefSetAppearanceDialog dlg = new RefSetAppearanceDialog(shell);
-        dlg.setBlockOnOpen(false);
-        dlg.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new RefSetAppearanceDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
         return null;
     }
 
