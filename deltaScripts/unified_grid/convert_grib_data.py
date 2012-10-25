@@ -62,12 +62,12 @@ def convertModel(modelName):
     infoMap = loadGridInfo(modelName)
     infoSql = None
     print modelName, "Querying grib database"
-    rows = queryPostgres("select grib.forecasttime, grib.reftime, grib.utilityflags, grib.rangeend,grib.rangestart, grib.inserttime, grib.datauri, gridcoverage.id, grib_models.level_id, grib_models.location_id from grib, grib_models, gridcoverage where grib.modelinfo_id = grib_models.id and grib_models.location_id = gridcoverage.id and grib_models.modelName = '%s' order by grib.forecasttime, grib.reftime" % modelName)
+    rows = queryPostgres("select grib.forecasttime, grib.reftime, grib.utilityflags, grib.rangeend,grib.rangestart, grib.inserttime, grib.datauri, gridcoverage.id, grib_models.level_id, grib_models.location_id from grib, grib_models, gridcoverage, level where grib.modelinfo_id = grib_models.id and grib_models.location_id = gridcoverage.id and grib_models.level_id = level.id and grib_models.modelName = '%s' order by grib.forecasttime, grib.reftime, level.masterlevel_name" % modelName)
     print modelName, "Converting %d records" % len(rows)
     gridSql = None
     lastFile = None
-    gribFiles = hdf5loc + "grib/" + modelName
-    gridFiles = hdf5loc + "grid/" + modelName
+    gribFiles = hdf5loc + "grib/" + modelName + "/"
+    gridFiles = hdf5loc + "grid/" + modelName + "/"
     if not(isdir(hdf5loc + "grid/")):
         mkdir(hdf5loc + "grid/")
     if not(isdir(gridFiles)):
@@ -111,7 +111,7 @@ def convertModel(modelName):
                 newgrp = "/" + gridcoveragename
                 dataset=paramabbrev
             filebase = "/%s-%s-FH-%.3d.h5" % (modelName, gribreftime.split(":")[0].replace(" ", "-"), forecast)
-            hdf5file = gridFiles + filebase
+            hdf5file = gridFiles + masterlevel + filebase
             if lastFile != None and lastFile.filename != hdf5file:
                 #print "Closing", lastFile.filename
                 lastFile.close()
@@ -119,7 +119,9 @@ def convertModel(modelName):
             if lastFile == None:
                 if not(exists(hdf5file)):
                     t0 = time()
-                    move(gribFiles+filebase, gridFiles)
+                    if not(isdir(gridFiles + masterlevel)):
+                        mkdir(gridFiles + masterlevel)
+                    move(gribFiles + masterlevel + filebase, gridFiles + masterlevel)
                     hdfTime -= (time() - t0)
                 #print "Opening", hdf5file
                 lastFile = h5py.File(hdf5file)
