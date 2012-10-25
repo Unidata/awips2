@@ -34,6 +34,7 @@ from zones2cities import *
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    01/08/10             #1209    randerso       Initial Creation.
+#    10/19/12             #1091    dgilling       Support localMaps.py.
 #    
 # 
 #
@@ -133,25 +134,25 @@ def createAreaDictionary(outputDir, mapDict):
         if len(ean):
             try:
                 d = {}
-                if att.containsKey('ZONE') and att.containsKey('STATE'):
-                    d['ugcCode'] = str(att.get('STATE')) + "Z" + str(att.get('ZONE'))
-                elif att.containsKey('ID'):
-                    d['ugcCode'] = str(att.get('ID'))
-                elif att.containsKey('FIPS') and att.containsKey('STATE') and \
-                  att.containsKey('COUNTYNAME'):
-                    d['ugcCode'] = str(att.get('STATE')) + "C" + str(att.get('FIPS'))[-3:]
-                    d['ugcName'] = string.strip(str(att.get('COUNTYNAME')))
+                if att.containsKey('zone') and att.containsKey('state'):
+                    d['ugcCode'] = str(att.get('state')) + "Z" + str(att.get('zone'))
+                elif att.containsKey('id'):
+                    d['ugcCode'] = str(att.get('id'))
+                elif att.containsKey('fips') and att.containsKey('state') and \
+                  att.containsKey('countyname'):
+                    d['ugcCode'] = str(att.get('state')) + "C" + str(att.get('fips'))[-3:]
+                    d['ugcName'] = string.strip(str(att.get('countyname')))
                 else:
                     continue
 
-                if att.containsKey('STATE'):
-                    d["stateAbbr"] = str(att.get('STATE'))
+                if att.containsKey('state'):
+                    d["stateAbbr"] = str(att.get('state'))
 
-                if att.containsKey('NAME'):
-                    d["ugcName"] = string.strip(str(att.get('NAME')))
+                if att.containsKey('name'):
+                    d["ugcName"] = string.strip(str(att.get('name')))
 
-                if att.containsKey('TIME_ZONE'):
-                    tzvalue = getRealTimeZone(str(att.get('TIME_ZONE')))
+                if att.containsKey('time_zone'):
+                    tzvalue = getRealTimeZone(str(att.get('time_zone')))
                     if tzvalue is not None:
                         d["ugcTimeZone"] = tzvalue
 
@@ -315,17 +316,17 @@ def createCityLocation(outputDir, mapDict):
         attList = mapDict[mapname]
         for att in attList:
             #LogStream.logProblem("att:", att)
-            ean = att['NAME']
-            state = att['ST']
-            county_FIP = att['COUNTY_FIP']
+            ean = att['name']
+            state = att['st']
+            county_FIP = att['county_fip']
 
             if len(ean) and len(state) and len(county_FIP):
                 fip = state + 'C' + county_FIP
                 if not citydict.has_key(fip):
                     citydict[fip] = {}
                 try:
-                    latitude = float(string.strip(att['LAT']))
-                    longitude = float(string.strip(att['LON']))
+                    latitude = float(string.strip(att['lat']))
+                    longitude = float(string.strip(att['lon']))
                     citydict[fip][ean.upper()] = (latitude, longitude)
                 except:
                     LogStream.logProblem("Problem creating city location ",
