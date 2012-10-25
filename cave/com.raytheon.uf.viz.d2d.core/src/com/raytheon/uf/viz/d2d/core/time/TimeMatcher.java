@@ -651,21 +651,12 @@ public class TimeMatcher {
         dtd = (rv.intrinsicPeriod * 3) / 2;
         dataFcsts = rv.haveForecasts;
 
-        if (fspatial) {
-            dtf = dt;
-            frameFcsts = dataFcsts;
-        } else {
-            rv = intrinsicPeriod(frameTimes, frameFcsts);
-            dtf = rv.intrinsicPeriod;
-            frameFcsts = rv.haveForecasts;
-        }
+        rv = intrinsicPeriod(frameTimes, frameFcsts);
+        dtf = rv.intrinsicPeriod;
+        frameFcsts = rv.haveForecasts;
 
-        if (dt > ONE_MINUTE_MS && dt <= ELEVEN_MINUTES_MS
-                && dtf > ONE_MINUTE_MS && dtf <= ELEVEN_MINUTES_MS
-                && radarOnRadarYes) {
-            if (dtf < dt) {
-                dt = dtf;
-            }
+        if (fspatial) {
+            frameFcsts = dataFcsts;
         } else if (dtf > dt) {
             dt = dtf;
         }
@@ -683,12 +674,17 @@ public class TimeMatcher {
             dt++;
         }
 
-        if (dt > dtd || frameTimes[ef].getMatchValid() - latest.getTime() > dtd) {
-            // The first check makes sure that dtd is always bigger than dt
-            // since dtd is supposed to add extra padding to the time. The
-            // second check makes it so that if the latest frameTime is past the
-            // latest depictTime by more than dtd than we ignore dtd by setting
-            // it to dt which makes it a no op.
+        if (dt > dtd || dt < dtf
+                || frameTimes[ef].getMatchValid() - latest.getTime() > dtd) {
+            // Three conditions here:
+            // 1) dtd is supposed to provide extra padding compared to dt, so if
+            // dt is bigger then set them equal to avoid reducing the padding.
+            // 2) Clear the extra padding if the acceptable depict time spacing
+            // is not bigger than the frame time spacing
+            // 3) Clear the extra padding if the latest frame time is not within
+            // dtd of the latest depict time
+
+            // setting dtd to dt makes any use of dtd a noop.
             dtd = dt;
         }
 
