@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2007            njensen     Initial creation.	
  * 05Aug2008    #1407       ebabin      Dim delta button for wx/discrete types.
+ * Oct 25, 2012 #1287      rferrel     Code clean up part of non-blocking dialog.
  * </pre>
  * 
  * @author njensen
@@ -67,15 +68,15 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class EditActionsDialog extends CaveJFACEDialog implements
         ISmartToolInventoryChanged {
 
-    private static final String XCOORD_SETTING = "EditActionDialog_Xcoord";
+    private final String XCOORD_SETTING = "EditActionDialog_Xcoord";
 
-    private static final String YCOORD_SETTING = "EditActionDialog_Ycoord";
+    private final String YCOORD_SETTING = "EditActionDialog_Ycoord";
 
-    public static final int PICKUP_ID = 2;
+    private final int PICKUP_ID = 2;
 
-    public static final int DELTA_ID = 3;
+    private final int DELTA_ID = 3;
 
-    private static final int HEIGHT = 330;
+    private final int HEIGHT = 330;
 
     private String title;
 
@@ -135,11 +136,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
         dataManager.getSpatialDisplayManager().addActivatedParmChangedListener(
                 parmChanged);
 
-        // LocalizationContext baseCtx = PathManagerFactory.getPathManager()
-        // .getContext(LocalizationType.CAVE_STATIC,
-        // LocalizationLevel.BASE);
-        // baseLF = GfePyIncludeUtil.getSmartToolsLF(baseCtx);
-        // baseLF.addFileUpdatedObserver(this);
         dataManager.getSmartToolInterface().addListener(this);
     }
 
@@ -147,9 +143,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     public boolean close() {
         dataManager.getSpatialDisplayManager()
                 .removeActivatedParmChangedListener(parmChanged);
-        // if (baseLF != null) {
-        // baseLF.removeFileUpdatedObserver(this);
-        // }
         dataManager.getSmartToolInterface().removeListener(this);
 
         return super.close();
@@ -354,17 +347,13 @@ public class EditActionsDialog extends CaveJFACEDialog implements
 
     }
 
-    // @Override
-    // public void fileUpdated(FileUpdatedMessage message) {
-    // VizApp.runAsync(new Runnable() {
-    // @Override
-    // public void run() {
-    // toolsList.setItems(getSmartTools(parm));
-    // }
-    //
-    // });
-    // }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.dialogs.Dialog#getInitialLocation(org.eclipse.swt.graphics
+     * .Point)
+     */
     @Override
     protected Point getInitialLocation(Point initialSize) {
         Point result = super.getInitialLocation(initialSize);
