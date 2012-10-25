@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.actions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -113,7 +114,7 @@ public class ShowDeleteSampleSetDialog extends AbstractHandler {
     private void doDialogClose(int returnCode) {
         if (returnCode != Window.CANCEL
                 && dialog.getSelectedSampleIdIndexes() != null) {
-            ArrayList<SampleId> sampleIdList = dialog.getSamples();
+            List<SampleId> sampleIdList = dialog.getSamples();
             SampleId id = sampleIdList
                     .get(dialog.getSelectedSampleIdIndexes()[0]);
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
