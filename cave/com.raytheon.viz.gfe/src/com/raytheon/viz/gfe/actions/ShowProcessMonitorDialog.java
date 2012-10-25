@@ -35,6 +35,7 @@ import com.raytheon.viz.gfe.dialogs.ProcessMonitorDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008					Eric Babin Initial Creation
+ * Oct 25, 2012 1287       rferrel     Change for non-blocking ProcessMonitorDialog.
  * 
  * </pre>
  * 
@@ -43,6 +44,7 @@ import com.raytheon.viz.gfe.dialogs.ProcessMonitorDialog;
  */
 
 public class ShowProcessMonitorDialog extends AbstractHandler {
+    private ProcessMonitorDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -53,13 +55,16 @@ public class ShowProcessMonitorDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        ProcessMonitorDialog dialog = new ProcessMonitorDialog(shell);
-
-        dialog.setBlockOnOpen(false);
-        dialog.open();
+            dialog = new ProcessMonitorDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
