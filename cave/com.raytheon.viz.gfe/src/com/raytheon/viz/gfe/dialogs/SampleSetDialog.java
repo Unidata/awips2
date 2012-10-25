@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -73,7 +71,7 @@ public class SampleSetDialog extends CaveJFACEDialog {
 
     private Composite top;
 
-    private ArrayList<SampleId> samples;
+    private java.util.List<SampleId> samples;
 
     private List sampleSetList;
 
@@ -83,11 +81,12 @@ public class SampleSetDialog extends CaveJFACEDialog {
 
     private int[] selectedSamples;
 
-    private int returnCode = OK;
+    private int returnCode = CANCEL;
 
-    private int type = CANCEL;
+    private int type;
 
-    public SampleSetDialog(Shell parent, ArrayList<SampleId> samples, int type) {
+    public SampleSetDialog(Shell parent, java.util.List<SampleId> samples,
+            int type) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.samples = samples;
@@ -222,7 +221,7 @@ public class SampleSetDialog extends CaveJFACEDialog {
         this.sampleName = sampleName;
     }
 
-    public ArrayList<SampleId> getSamples() {
+    public java.util.List<SampleId> getSamples() {
         return samples;
     }
 }
