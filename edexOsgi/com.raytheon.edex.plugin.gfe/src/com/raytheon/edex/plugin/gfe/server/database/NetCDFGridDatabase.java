@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.database;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Database that reads netCDF files like A1
@@ -205,9 +207,13 @@ public class NetCDFGridDatabase extends VGridDatabase {
                         + ": GFE domain does not overlap dataset domain.");
                 this.remap = null;
             } else {
-                this.remap = new RemapGrid(NetCDFUtils.subGridGL(
-                        this.dbId.toString(), this.inputGloc, this.subdomain),
-                        this.outputGloc);
+                GridLocation subGloc = new GridLocation(this.dbId.toString(),
+                        this.inputGloc.getProjection(), new Point(
+                                this.subdomain.width, this.subdomain.height),
+                        new Coordinate(this.subdomain.x, this.subdomain.y),
+                        new Coordinate(this.subdomain.width,
+                                this.subdomain.height), "GMT");
+                this.remap = new RemapGrid(subGloc, this.outputGloc);
             }
             loadParms();
         }
