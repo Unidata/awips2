@@ -70,6 +70,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
@@ -422,14 +423,16 @@ public class GFEDao extends DefaultPluginDao {
         });
 
         // we gain nothing by removing from hdf5
-        Map<File, String[]> fileMap = GfeUtil.getHdf5FilesAndGroups(
-                GridDatabase.gfeBaseDataDir, parmId, times);
-        for (Map.Entry<File, String[]> entry : fileMap.entrySet()) {
+        Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
+                .getHdf5FilesAndGroups(GridDatabase.gfeBaseDataDir, parmId,
+                        times);
+        for (Map.Entry<File, Pair<List<TimeRange>, String[]>> entry : fileMap
+                .entrySet()) {
             File hdf5File = entry.getKey();
             IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
 
             try {
-                String[] groupsToDelete = entry.getValue();
+                String[] groupsToDelete = entry.getValue().getSecond();
                 for (String grp : groupsToDelete) {
                     dataStore.delete(grp);
                 }
@@ -919,7 +922,7 @@ public class GFEDao extends DefaultPluginDao {
                     (Date) obj);
             try {
                 GridDatabase db = GridParmManager.getDb(dbId);
-                if (db != null && !dbInventory.contains(dbId)) {
+                if ((db != null) && !dbInventory.contains(dbId)) {
                     dbInventory.add(dbId);
                 }
             } catch (GfeException e) {
