@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 6, 2008					Eric Babin Initial Creation
+ * Oct 25, 2012 12878      rferrel     Changes for non-blocking ProductScriptsDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.ProductScriptsDialog;
  */
 
 public class ShowProductScriptsDialog extends AbstractHandler {
+    private ProductScriptsDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -59,12 +61,16 @@ public class ShowProductScriptsDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        ProductScriptsDialog dialog = new ProductScriptsDialog(shell, dm);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new ProductScriptsDialog(shell, dm);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
