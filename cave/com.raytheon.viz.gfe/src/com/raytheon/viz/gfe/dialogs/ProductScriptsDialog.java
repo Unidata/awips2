@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008			   Eric Babin   Initial Creation
  * Oct 27, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
+ * Oct 25, 2012 1287       rferrel     Code changes for non-blocking PublishDialog.
  * 
  * </pre>
  * 
@@ -95,6 +96,8 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
     private DatabaseID mutableDB;
 
+    private PublishDialog publishDlg;
+
     public ProductScriptsDialog(Shell parent, DataManager dataManager) {
         super(parent);
         this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -116,9 +119,14 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
     }
 
     private void launchPublishToOfficial() {
-        PublishDialog dialog = new PublishDialog(getParentShell(), dataManager);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+        if (publishDlg == null || publishDlg.getShell() == null
+                || publishDlg.isDisposed()) {
+            publishDlg = new PublishDialog(getParentShell(), dataManager);
+            publishDlg.setBlockOnOpen(false);
+            publishDlg.open();
+        } else {
+            publishDlg.bringToTop();
+        }
     }
 
     @Override

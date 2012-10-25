@@ -76,6 +76,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 	Mar 6, 2008            Eric Babin  Initial Creation
  * Sep 01, 2009      #1370 randerso    Completely reworked
  * Aug 05, 2010 6698       mpduff      Moved Publish work to its own thread.
+ * Oct 25, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -83,12 +84,12 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * @version 1.0
  */
 public class PublishDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PublishDialog.class);
 
-    private static final int MAX_LIST_HEIGHT = 10;
+    private final int MAX_LIST_HEIGHT = 10;
 
-    private static final PythonPreferenceStore prefs = Activator.getDefault()
+    private final PythonPreferenceStore prefs = Activator.getDefault()
             .getPreferenceStore();
 
     private static Boolean IscStateP;
@@ -514,8 +515,6 @@ public class PublishDialog extends CaveJFACEDialog {
     @Override
     protected void okPressed() {
         this.getShell().setEnabled(false);
-        // getButton(IDialogConstants.OK_ID).setEnabled(false);
-        // getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
         publishCB();
     }
 }
