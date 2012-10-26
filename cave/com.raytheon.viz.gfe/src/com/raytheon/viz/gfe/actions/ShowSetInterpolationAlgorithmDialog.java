@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.SetInterpolationAlgorithmDialog;
  * ------------	----------	-----------	--------------------------
  * Feb 27, 2008             Eric Babin  Initial Creation
  * Jun 4, 2008		#1161	randerso	Reworked
+ * Oct 26, 2012 1287        rferrel     Change for non-blocking SetInterpolationAlgorithmDialog.
  * 
  * </pre>
  * 
@@ -43,16 +44,20 @@ import com.raytheon.viz.gfe.dialogs.SetInterpolationAlgorithmDialog;
  * @version 1.0
  */
 public class ShowSetInterpolationAlgorithmDialog extends AbstractHandler {
+    private SetInterpolationAlgorithmDialog dialog;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        SetInterpolationAlgorithmDialog dialog = new SetInterpolationAlgorithmDialog(
-                shell);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new SetInterpolationAlgorithmDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
