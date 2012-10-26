@@ -44,6 +44,8 @@ import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2011            bphillip     Initial creation
+ * Oct 25, 2012 1287       rferrel     Changes for non-blocking SendISCDialog
+ *                                      and ISCRequestReplyDlg.
  * 
  * </pre>
  * 
@@ -52,6 +54,9 @@ import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
  */
 
 public class ISCMenuEnabler extends CompoundContributionItem {
+    private SendISCDialog sendISCDlg;
+
+    private ISCRequestReplyDlg iscRequestDlg;
 
     /*
      * (non-Javadoc)
@@ -61,7 +66,6 @@ public class ISCMenuEnabler extends CompoundContributionItem {
      */
     @Override
     protected IContributionItem[] getContributionItems() {
-
         ActionContributionItem sendIntersiteItem = new ActionContributionItem(
                 new Action("Send Intersite Grids") {
                     public void run() {
@@ -69,10 +73,17 @@ public class ISCMenuEnabler extends CompoundContributionItem {
                                 .getActiveWorkbenchWindow().getShell();
 
                         DataManager dm = DataManager.getCurrentInstance();
-                        if (dm != null) {
-                            SendISCDialog dialog = new SendISCDialog(shell, dm);
-                            dialog.setBlockOnOpen(true);
-                            dialog.open();
+                        if (dm == null) {
+                            return;
+                        }
+
+                        if (sendISCDlg == null || sendISCDlg.getShell() == null
+                                || sendISCDlg.isDisposed()) {
+                            sendISCDlg = new SendISCDialog(shell, dm);
+                            sendISCDlg.setBlockOnOpen(false);
+                            sendISCDlg.open();
+                        } else {
+                            sendISCDlg.bringToTop();
                         }
                     }
 
@@ -108,11 +119,16 @@ public class ISCMenuEnabler extends CompoundContributionItem {
 
                     @Override
                     public void run() {
-                        Shell shell = PlatformUI.getWorkbench()
-                                .getActiveWorkbenchWindow().getShell();
-                        ISCRequestReplyDlg dialog = new ISCRequestReplyDlg(
-                                shell);
-                        dialog.open();
+                        if (iscRequestDlg == null
+                                || iscRequestDlg.getShell() == null
+                                || iscRequestDlg.isDisposed()) {
+                            Shell shell = PlatformUI.getWorkbench()
+                                    .getActiveWorkbenchWindow().getShell();
+                            iscRequestDlg = new ISCRequestReplyDlg(shell);
+                            iscRequestDlg.open();
+                        } else {
+                            iscRequestDlg.bringToTop();
+                        }
                     }
 
                 });
