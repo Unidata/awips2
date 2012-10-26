@@ -1,0 +1,42 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="statsPurge" 
+       class="com.raytheon.uf.edex.stats.StatsPurge" 
+       depends-on="statsRegister"/> 
+    <bean id="statsHandler" 
+       class="com.raytheon.uf.edex.stats.handler.StatsHandler" 
+       depends-on="eventBusThreadCount"/>
+    <bean id="aggregateManager" class="com.raytheon.uf.edex.stats.AggregateManager">
+        <constructor-arg value="${stats.period}"/> 
+        <constructor-arg value="${stats.scanInterval}"/> 
+    </bean>
+
+   	<bean id="edexStatsRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="edexStats-camel"/>
+  	</bean>  
+  	
+    <camelContext id="edexStats-camel"
+            xmlns="http://camel.apache.org/schema/spring"
+            errorHandlerRef="errorHandler"
+            autoStartup="false">
+
+            <route id="statsTableScan">
+              <from uri="timer://scanStats?period=15m" />
+                <doTry>
+                   <bean ref="statsPurge" method="purgeAggregates"/>
+                   <bean ref="aggregateManager" method="scan"/>
+                   <doCatch>
+                           <exception>java.lang.Throwable</exception>
+                           <to uri="log:stats?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                   </doCatch>
+                </doTry>
+            </route>
+    </camelContext>
+
+</beans>
