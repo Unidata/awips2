@@ -1143,4 +1143,13 @@ public class CoreDao extends HibernateDaoSupport {
             return getSessionFactory().getClassMetadata(daoClass);
         }
     }
+
+    public void deleteAll(final List<?> objs) {
+        txTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                getHibernateTemplate().deleteAll(objs);
+            }
+        });
+    }
 }
