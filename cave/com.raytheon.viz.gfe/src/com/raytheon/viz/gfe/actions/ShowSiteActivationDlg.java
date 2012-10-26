@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.dialogs.sbu.SiteActivationDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2011            randerso     Initial creation
+ * Oct 26, 2012 1287       rferrel     Changes for non-blocking SiteActivationDlg.
  * 
  * </pre>
  * 
@@ -45,6 +46,7 @@ import com.raytheon.viz.gfe.dialogs.sbu.SiteActivationDlg;
  */
 
 public class ShowSiteActivationDlg extends AbstractHandler {
+    private SiteActivationDlg dialog;
 
     /*
      * (non-Javadoc)
@@ -55,12 +57,16 @@ public class ShowSiteActivationDlg extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        SiteActivationDlg dialog = new SiteActivationDlg(shell);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new SiteActivationDlg(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }
