@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/20/09      1995       lvenable    Initial port
+ * 10/24/2008   1287        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1
  */
 public class ISCRequestReplyDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ISCRequestReplyDlg.class);
 
     private ListManager domainList;
@@ -78,8 +79,6 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
 
     private Map<String, Map<String, List<Map<String, String>>>> domainDict;
 
-    private Map<String, String> serverDictS2T;
-
     private Map<String, Map<String, String>> serverDictT2S;
 
     private String xml;
@@ -93,7 +92,7 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public ISCRequestReplyDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("ISC Request/Reply");
 
         dataMgr = DataManager.getCurrentInstance();
@@ -228,7 +227,6 @@ public class ISCRequestReplyDlg extends CaveSWTDialog {
         this.weList = (List<String>) response[1];
         Collections.sort(this.weList);
         domainDict = (Map<String, Map<String, List<Map<String, String>>>>) response[2];
-        serverDictS2T = (Map<String, String>) response[3];
         serverDictT2S = (Map<String, Map<String, String>>) response[4];
 
         // output the list of servers and their priority
