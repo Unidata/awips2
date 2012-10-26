@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ----------  ----------- --------------------------
  * 08/20/09      1995       lvenable    Initial creation
  * 09/02/09          #1370  randerso    Make the same as PublishDialog
+ * 10/26/2012   1287        rferrel    Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -73,9 +74,9 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  */
 public class SendISCDialog extends CaveJFACEDialog {
 
-    private static final int MAX_LIST_HEIGHT = 10;
+    private final int MAX_LIST_HEIGHT = 10;
 
-    private static final PythonPreferenceStore prefs = Activator.getDefault()
+    private final PythonPreferenceStore prefs = Activator.getDefault()
             .getPreferenceStore();
 
     private DataManager dataManager;
@@ -282,16 +283,6 @@ public class SendISCDialog extends CaveJFACEDialog {
                     this.availableParms).length > 0) {
                 filtGroupInv.add(group);
             }
-        }
-
-        // Sort the user defined WEList in the GFEConfig file if it
-        // exists
-        String[] weGroupList = prefs.getStringArray("WEList");
-        if (weGroupList != null) {
-            // orderedSort = OrderedSort.OrderedSort(weGroupList);
-            // filtGroupInv.sort(orderedSort.compare);
-            //            
-            // Collections.sort
         }
 
         Menu menu = new Menu(getShell(), SWT.POP_UP);
