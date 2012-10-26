@@ -29,9 +29,11 @@ import org.apache.camel.Header;
 import org.apache.camel.Headers;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Provides logging and deletion services for camel
@@ -111,6 +113,9 @@ public class ProcessUtil {
             }
             sb.append(" (sec)");
         }
+
+        EventBus.getInstance().publish(new ProcessEvent(sb.toString()));
+
         // Make sure we have something to log.
         if (sb.length() > 0) {
             handler.handle(Priority.INFO, sb.toString());
