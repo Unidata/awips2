@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2011            randerso     Initial creation
  * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -102,14 +103,14 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         ghg, wait, imprtGrdMode, imprtMode, exprtbksiteGrdToCSMode, exprtMode, exprtbksiteGrdMode, svcbuMode, exprtGrdMode, no_backup
     }
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ServiceBackupDlg.class);
 
     public static final String NOTIFY_TOPIC = "edex.alerts.gfe";
 
     public static final String ACTIVATION_TOPIC = "edex.alerts.siteActivate";
 
-    private static int REFRESH_ID = IDialogConstants.CLIENT_ID;
+    private int REFRESH_ID = IDialogConstants.CLIENT_ID;
 
     private String site;
 
@@ -776,9 +777,9 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
             break;
         default:
             doRefresh();
-            if(confirmExit()) {
-            	doClean(false);
-            	jobManager.addJob(new SvcbuExitJob(this, this.site));
+            if (confirmExit()) {
+                doClean(false);
+                jobManager.addJob(new SvcbuExitJob(this, this.site));
             }
         }
 
@@ -850,8 +851,8 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     private boolean confirmExit() {
         MessageBox mb = new MessageBox(getShell(), SWT.YES | SWT.NO);
         mb.setText("Exit Service Backup");
-        mb.setMessage("Are you sure you want to remove " + this.failedSite + 
-        		"'s configuration and digital data from your system?");
+        mb.setMessage("Are you sure you want to remove " + this.failedSite
+                + "'s configuration and digital data from your system?");
         int close = mb.open();
         if (close == SWT.YES) {
             return true;
@@ -859,7 +860,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
 
         return false;
     }
-    
+
     @SuppressWarnings("unchecked")
     private void doRefresh() {
 
@@ -1198,7 +1199,8 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                     + UserController.getUserObject().uniqueId());
         }
 
-        if ((!runningAsPrimary) && (!LocalizationManager.getInstance().isNationalCenter())) {
+        if ((!runningAsPrimary)
+                && (!LocalizationManager.getInstance().isNationalCenter())) {
             doExCon.setEnabled(false);
         }
     }
