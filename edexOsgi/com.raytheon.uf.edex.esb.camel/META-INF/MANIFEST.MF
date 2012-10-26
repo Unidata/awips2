@@ -17,6 +17,8 @@ Require-Bundle: org.apache.camel;bundle-version="1.0.0",
  javax.servlet
 Export-Package: com.raytheon.uf.edex.esb.camel,
  com.raytheon.uf.edex.esb.camel.directvm
-Import-Package: com.raytheon.uf.common.message,
+Import-Package: com.raytheon.uf.common.event,
+ com.raytheon.uf.common.message,
  com.raytheon.uf.edex.database.cluster,
+ com.raytheon.uf.edex.event,
  javax.persistence
