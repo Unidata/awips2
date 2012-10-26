@@ -22,12 +22,11 @@ package com.raytheon.viz.gfe;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * Bring up the Service Backup Dialog in stand alone mode as a blocking dialog.
  * 
  * <pre>
  * 
@@ -36,6 +35,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            bphillip     Initial creation
+ * Oct 26, 2012 1287       rferrel     Change to force blocking of ServiceBackupDlg.
  * 
  * </pre>
  * 
@@ -56,6 +56,7 @@ public class ServiceBackupComponent extends AbstractCAVEComponent {
     protected void startInternal(String componentName) throws Exception {
         ServiceBackupDlg svcBuDlg = new ServiceBackupDlg(new Shell(
                 Display.getCurrent()));
+        svcBuDlg.setBlockOnOpen(true);
         svcBuDlg.open();
     }
 
