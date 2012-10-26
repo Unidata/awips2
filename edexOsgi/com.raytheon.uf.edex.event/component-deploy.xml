@@ -1,0 +1,7 @@
+<project basedir="." default="deploy" name="com.raytheon.uf.edex.event">
+    <available file="../build.edex" property="build.dir.location" value="../build.edex"/>
+    <available file="../../../../../build.edex" property="build.dir.location" value="../../../../../build.edex"/>
+	
+	<import file="${build.dir.location}/basebuilds/component_deploy_base.xml" />
+	
+</project>
