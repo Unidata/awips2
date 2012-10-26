@@ -26,7 +26,7 @@ import com.raytheon.viz.gfe.dialogs.sbu.SiteActivationDlg;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * Display Activate Site dialog standalone and blocked.
  * 
  * <pre>
  * 
@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2011            bphillip     Initial creation
+ * Oct 26, 2012 1287       rferrel     Force blocking of SiteActivationDlg.
  * 
  * </pre>
  * 
@@ -55,6 +56,7 @@ public class ActivateSiteComponent extends AbstractCAVEComponent {
     protected void startInternal(String componentName) throws Exception {
         SiteActivationDlg dlg = new SiteActivationDlg(new Shell(
                 Display.getCurrent()));
+        dlg.setBlockOnOpen(true);
         dlg.open();
     }
 
