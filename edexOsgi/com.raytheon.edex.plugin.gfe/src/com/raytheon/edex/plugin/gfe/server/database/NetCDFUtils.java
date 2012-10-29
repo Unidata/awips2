@@ -370,15 +370,4 @@ public class NetCDFUtils {
 
         return rval;
     }
-
-    public static GridLocation subGridGL(String id, GridLocation igloc,
-            Rectangle subd) {
-        // Coordinate nwo = igloc.worldCoordinate(subd.origin());
-        // Coordinate nwe = igloc.worldCoordinate(subd.upperRight());
-        // CartDomain2D<float> swd (nwo, nwe - nwo);
-        // return GridLocation(igloc.projection()->pdata(),
-        // subd.extent() + Point (1, 1), swd);
-
-        return new GridLocation(id, igloc, subd);
-    }
 }

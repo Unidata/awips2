@@ -849,10 +849,10 @@ public class GFEDao extends DefaultPluginDao {
                 if (dTimeList.contains(tr)) {
                     timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
+	    }
 
-                if (!timeList.isEmpty()) {
-                    return timeList;
-                }
+            if (!timeList.isEmpty()) {
+                return timeList;
             }
         } else {
             List<DataTime> results = executeD2DParmQuery(id);
