@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -724,7 +725,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private List<String> getZoneList() {
         List<List<String>> zoneGroupings = zoneSelector.getZoneGroupings();
-        List<String> zoneList = null;
+        List<String> zoneList = Collections.emptyList();
         if (zoneGroupings.size() > 0) {
             zoneList = zoneGroupings.get(0);
         }
