@@ -177,9 +177,9 @@ public class D2DGridDatabase extends VGridDatabase {
                         + ": GFE domain does not overlap dataset domain.");
                 this.remap = null;
             } else {
-                this.remap = new RemapGrid(NetCDFUtils.subGridGL(
-                        dbId.toString(), this.inputLoc, subdomain),
-                        this.outputLoc);
+                GridLocation subGloc = new GridLocation(dbId.toString(),
+                        this.inputLoc, subdomain);
+                this.remap = new RemapGrid(subGloc, this.outputLoc);
             }
 
         }
