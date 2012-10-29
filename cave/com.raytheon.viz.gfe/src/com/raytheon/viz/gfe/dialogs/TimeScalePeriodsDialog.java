@@ -43,6 +43,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2009            randerso     Initial creation
+ * Oct 29, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class TimeScalePeriodsDialog extends CaveJFACEDialog {
             ISelectTimeRangeManager selectTRmgr) {
         super(parent);
 
-        this.setShellStyle(SWT.TITLE | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM);
         this.selectTRmgr = selectTRmgr;
     }
 
