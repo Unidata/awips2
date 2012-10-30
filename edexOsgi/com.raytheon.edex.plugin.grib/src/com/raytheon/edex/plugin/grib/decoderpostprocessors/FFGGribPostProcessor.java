@@ -20,11 +20,15 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
+import java.util.List;
+
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * The FFGGribPostProcessor is a grib post processor implementation to update
@@ -46,27 +50,41 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 public class FFGGribPostProcessor implements IDecoderPostProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
 
         try {
-            GribDao gribDao = (GribDao) PluginFactory.getInstance()
-                    .getPluginDao("grib");
+            GridDao gribDao = (GridDao) PluginFactory.getInstance()
+                    .getPluginDao(GridConstants.GRID);
+            record.setSecondaryId("%");
+            record.setDataURI(null);
             record.constructDataURI();
-            QueryResult result = (QueryResult) gribDao
-                    .executeNativeSql("select max(gridVersion) from awips.grib where datauri like '"
-                            + record.getDataURI().substring(0,
-                                    record.getDataURI().lastIndexOf("/"))
-                            + "%'");
-            int resultCount = result.getResultCount();
-            if (resultCount == 1 && result.getRowColumnValue(0, 0) != null) {
-                int newVersion = ((Integer) result.getRowColumnValue(0, 0)) + 1;
-                record.setGridVersion(newVersion);
+
+            DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+            query.addReturnedField(GridConstants.SECONDARY_ID);
+            query.addQueryParam("dataURI", record.getDataURI(),
+                    QueryOperand.LIKE);
+            List<?> result = gribDao.queryByCriteria(query);
+            int maxVersion = -1;
+            for (Object row : result) {
+                String secondaryId = (String) row;
+                if (secondaryId == null) {
+                    continue;
+                }
+                secondaryId = secondaryId.replace("Version", "");
+                try {
+                    int version = Integer.parseInt(secondaryId);
+                    maxVersion = Math.max(version, maxVersion);
+                } catch (NumberFormatException e) {
+                    ;// Just move on
+                }
             }
+            record.setSecondaryId("Version" + (maxVersion + 1));
+            record.getInfo().setId(null);
             record.setDataURI(null);
             record.constructDataURI();
         } catch (Exception e) {
             throw new GribException("Error decoding FFG grid", e);
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

@@ -28,21 +28,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
 import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.grib.CompositeModel;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.StatusConstants;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -53,11 +50,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * The EnsembleGridAssembler class is part of the ingest process for grib data.
@@ -78,7 +75,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * @version 1
  */
 public class EnsembleGridAssembler implements IDecoderPostProcessor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(EnsembleGridAssembler.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EnsembleGridAssembler.class);
 
     /** The map of the models that come in sections */
     private static Map<String, CompositeModel> thinnedModels;
@@ -125,15 +123,14 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         }
     }
 
-    public GribRecord[] process(GribRecord rec) throws GribException {
-        Map<Integer, GribRecord> newRecords = new HashMap<Integer, GribRecord>();
-        String compositeModel = getCompositeModel(rec.getModelInfo()
-                .getModelName());
+    public GridRecord[] process(GridRecord rec) throws GribException {
+        Map<Integer, GridRecord> newRecords = new HashMap<Integer, GridRecord>();
+        String compositeModel = getCompositeModel(rec.getDatasetId());
         if (compositeModel != null) {
-            GribRecord newRec = null;
+            GridRecord newRec = null;
             String lockName = compositeModel + "_"
-                    + rec.getModelInfo().getParameterAbbreviation() + "_"
-                    + rec.getModelInfo().getLevel().toString();
+                    + rec.getParameter().getAbbreviation() + "_"
+                    + rec.getLevel().toString();
             ClusterTask ct = ClusterLockUtils.lock(CLUSTER_TASK_NAME, lockName,
                     120000, true);
             boolean clearTime = false;
@@ -157,9 +154,9 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                 ClusterLockUtils.unlock(ct, clearTime);
             }
 
-            return new GribRecord[] { rec, newRec };
+            return new GridRecord[] { rec };
         }
-        return new GribRecord[] { rec };
+        return new GridRecord[] { rec };
     }
 
     /**
@@ -191,35 +188,38 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
     }
 
     /**
-     * Processes a single GribRecord
+     * Processes a single GridRecord
      * 
      * @param record
-     *            The GribRecord to process
+     *            The GridRecord to process
      * @param thinned
-     *            The composite model for which the GribRecord is a part of
+     *            The composite model for which the GridRecord is a part of
      * @return The new grib record
      * @throws Exception
      */
-    private GribRecord processGrid(GribRecord record, CompositeModel thinned)
+    private GridRecord processGrid(GridRecord record, CompositeModel thinned)
             throws Exception {
 
-        GribDao dao = (GribDao) PluginFactory.getInstance()
-                .getPluginDao("grib");
-        String modelName = record.getModelInfo().getModelName();
+        GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
+                GridConstants.GRID);
+        String modelName = record.getDatasetId();
+        String oldGrid = record.getLocation().getId().toString();
+        String newGrid = GribSpatialCache.getInstance()
+                .getGridByName(thinned.getGrid()).getId().toString();
         String dataURI = record.getDataURI();
         String assembledDataURI = dataURI.replace(modelName,
-                thinned.getModelName());
+                thinned.getModelName()).replace(oldGrid, newGrid);
 
         List<?> result = dao.queryBySingleCriteria("dataURI", assembledDataURI);
-        GribRecord assembledRecord = null;
+        GridRecord assembledRecord = null;
         if (result.isEmpty()) {
             assembledRecord = createRecord(record, dao, thinned);
         } else {
-            assembledRecord = (GribRecord) result.get(0);
+            assembledRecord = (GridRecord) result.get(0);
             FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(
-                    assembledRecord, 0)[0];
+                    assembledRecord, -1)[0];
             assembledRecord.setMessageData(rec);
-            assembledRecord.setPluginName("grib");
+            assembledRecord.setPluginName(GridConstants.GRID);
         }
 
         mergeData(record, assembledRecord, dao, thinned);
@@ -228,24 +228,24 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
     }
 
     /**
-     * Merges the data from a GribRecord into the composite GribRecord
+     * Merges the data from a GridRecord into the composite GridRecord
      * 
      * @param record
-     *            The GribRecord containing the data to add
+     *            The GridRecord containing the data to add
      * @param assembledRecord
-     *            The composite GribRecord
+     *            The composite GridRecord
      * @param dao
      *            An instance of the grib data access object
      * @param thinned
      *            The composite model definition
-     * @return The composite GribRecord
+     * @return The composite GridRecord
      * @throws Exception
      */
-    private GribRecord mergeData(GribRecord record, GribRecord assembledRecord,
-            GribDao dao, CompositeModel thinned) throws Exception {
+    private GridRecord mergeData(GridRecord record, GridRecord assembledRecord,
+            GridDao dao, CompositeModel thinned) throws Exception {
 
-        String modelName = record.getModelInfo().getModelName();
-        GridCoverage coverage = record.getModelInfo().getLocation();
+        String modelName = record.getDatasetId();
+        GridCoverage coverage = record.getLocation();
 
         long[] sizes = ((FloatDataRecord) assembledRecord.getMessageData())
                 .getSizes();
@@ -292,7 +292,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
      * Creates the composite grib record and stores it to the HDF5 repository
      * 
      * @param record
-     *            The recieved GribRecord used to initialize the composite grid
+     *            The recieved GridRecord used to initialize the composite grid
      *            with
      * @param dao
      *            An instance of the grib data access object
@@ -301,7 +301,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
      * @return The composite record
      * @throws GribException
      */
-    private GribRecord createRecord(GribRecord record, GribDao dao,
+    private GridRecord createRecord(GridRecord record, GridDao dao,
             CompositeModel thinned) throws GribException {
         LatLonGridCoverage coverage = (LatLonGridCoverage) GribSpatialCache
                 .getInstance().getGridByName(thinned.getGrid());
@@ -310,27 +310,19 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         for (int i = 0; i < data.length; i++) {
             data[i] = Util.GRID_FILL_VALUE;
         }
-        GribRecord newRecord = new GribRecord();
-        GribModel newModel = new GribModel(record.getModelInfo());
-        newModel.setGridid(coverage.getName());
-        newModel.setGridNumber(Integer.parseInt(coverage.getName()));
-        newModel.setModelName(thinned.getModelName());
-        newModel.setLocation(coverage);
-        newModel.generateId();
+        GridRecord newRecord = new GridRecord();
 
-        try {
-            newModel = GribModelCache.getInstance().getModel(newModel);
-        } catch (DataAccessLayerException e) {
-            throw new GribException("Unable to get model info from the cache!",
-                    e);
-        }
-        newRecord.setModelInfo(newModel);
+        newRecord.setLocation(coverage);
+        newRecord.setDatasetId(thinned.getModelName());
+        newRecord.setLevel(record.getLevel());
+        newRecord.setParameter(record.getParameter());
+        newRecord.setEnsembleId(record.getEnsembleId());
         newRecord.setMessageData(data);
         newRecord.setDataTime(record.getDataTime());
         newRecord.setDataURI(null);
-        newRecord.setPluginName("grib");
+        newRecord.setPluginName(GridConstants.GRID);
         newRecord.setInsertTime(Calendar.getInstance());
-
+        newRecord.getInfo().setId(null);
         try {
             newRecord.constructDataURI();
         } catch (PluginException e) {
@@ -347,11 +339,11 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                         exceptions[0]);
             }
             dao.persistToDatabase(newRecord);
-            newRecord = (GribRecord) dao.getMetadata(newRecord.getDataURI());
+            newRecord = (GridRecord) dao.getMetadata(newRecord.getDataURI());
             FloatDataRecord rec = (FloatDataRecord) dao.getHDF5Data(newRecord,
-                    0)[0];
+                    -1)[0];
             newRecord.setMessageData(rec);
-            newRecord.setPluginName("grib");
+            newRecord.setPluginName(GridConstants.GRID);
         } catch (PluginException e) {
             throw new GribException("Error storing new record to HDF5", e);
         }
