@@ -27,7 +27,7 @@ import com.raytheon.viz.gfe.dialogs.BrightnessDialog;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
- * TODO Add Description
+ * Action class for dispalying the Change Brightness dialog.
  * 
  * <pre>
  * 
@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2010            wldougher     Initial creation
+ * Oct 30, 2012 1298       rferrel     Changes for non-blocking BrightnessDialog.
  * 
  * </pre>
  * 
@@ -43,6 +44,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  */
 
 public class ChangeBrightnessAction extends AbstractRightClickAction {
+    private BrightnessDialog dialog;
 
     protected Parm parm;
 
@@ -53,10 +55,15 @@ public class ChangeBrightnessAction extends AbstractRightClickAction {
 
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        BrightnessDialog dialog = new BrightnessDialog(shell, parm);
-        dialog.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new BrightnessDialog(shell, parm);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 
 }
