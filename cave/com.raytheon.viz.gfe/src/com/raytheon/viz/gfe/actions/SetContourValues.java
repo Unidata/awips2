@@ -33,7 +33,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
- * TODO Add Description
+ * Right click action to bring up the Contour dialog.
  * 
  * <pre>
  * 
@@ -41,6 +41,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 5, 2009            randerso     Initial creation
+ * Oct 30, 2012 1298       rferrel     Changes for non-blocking SetContourValues.
  * 
  * </pre>
  * 
@@ -49,6 +50,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  */
 
 public class SetContourValues extends AbstractRightClickAction {
+    private ContourDialog dialog;
 
     /**
      * Constructor
@@ -64,11 +66,15 @@ public class SetContourValues extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        ContourDialog contourDialog = new ContourDialog(shell,
-                ((GFEResource) getSelectedRsc()).getParm());
-        contourDialog.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new ContourDialog(shell,
+                    ((GFEResource) getSelectedRsc()).getParm());
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 
     /*
