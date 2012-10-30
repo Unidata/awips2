@@ -21,7 +21,7 @@
 	</bean>
 
 	<bean id="gfeRegistered" factory-bean="pluginRegistry" factory-method="register"
-		depends-on="gribRegistered, textRegistered">
+		depends-on="gridRegistered, textRegistered">
 		<constructor-arg value="gfe" />
 		<constructor-arg ref="gfeProperties" />
 	</bean>

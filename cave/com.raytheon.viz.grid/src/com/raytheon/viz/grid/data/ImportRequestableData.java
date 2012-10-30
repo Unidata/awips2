@@ -24,10 +24,10 @@ import java.util.List;
 
 import javax.media.jai.Interpolation;
 
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -115,8 +115,8 @@ public class ImportRequestableData extends AliasRequestableData {
         }
 
         CoverageUtils covUtil = CoverageUtils.getInstance();
-        GridCoverage sourceGrid = covUtil.getCoverage(sourceRecord.getSource());
-        GridCoverage destGrid = covUtil.getCoverage(this.getSource());
+        GridCoverage sourceGrid = (GridCoverage) sourceRecord.getSpace();
+        GridCoverage destGrid = (GridCoverage) getSpace();
         Interpolation interpolation = Interpolation
                 .getInstance(Interpolation.INTERP_BICUBIC);
         if (rval instanceof FloatDataRecord) {

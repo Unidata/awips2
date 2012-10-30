@@ -14,6 +14,11 @@ import java.util.HashMap;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
@@ -24,11 +29,6 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LatLonGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.MercatorGridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.PolarStereoGridCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 

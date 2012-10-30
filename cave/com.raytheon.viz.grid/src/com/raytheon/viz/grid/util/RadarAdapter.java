@@ -28,9 +28,7 @@ import java.util.Set;
 
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -47,6 +45,11 @@ import com.raytheon.uf.common.derivparam.tree.LevelNode;
 import com.raytheon.uf.common.derivparam.tree.ParameterNode;
 import com.raytheon.uf.common.derivparam.tree.SourceNode;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.Corner;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.StereographicGridCoverage;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -59,14 +62,13 @@ import com.raytheon.uf.viz.core.style.level.Level.LevelType;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.uf.viz.derivparam.tree.OrLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.grid.data.TopoRequestableData;
 import com.raytheon.viz.grid.inv.RadarRequestableLevelNode;
 import com.raytheon.viz.grid.inv.RadarUpdater;
-import com.raytheon.viz.grid.spatial.StereographicCoverage;
 import com.raytheon.viz.radar.util.StationUtils;
 
 /**
@@ -117,11 +119,7 @@ public class RadarAdapter {
 
     private RadarStation configuredRadar = null;
 
-    private ProjectedCRS crs = null;
-
-    private GridGeometry2D gridGeometry = null;
-
-    private StereographicCoverage coverage = null;
+    private GridCoverage coverage = null;
 
     static {
         instance = new RadarAdapter();
@@ -143,37 +141,41 @@ public class RadarAdapter {
                     || !configuredRadar.getRdaId().equals(station.getRdaId())) {
                 configuredRadar = station;
                 RadarUpdater.getInstance().clearCache();
-                crs = RadarUtil
-                        .constructCRS(station.getLat(), station.getLon());
-                gridGeometry = RadarUtil.constructGridGeometry(crs,
-                        (double) GRID_SPACING * GRID_SIZE / 2, GRID_SIZE);
-                coverage = new StereographicCoverage();
+                ProjectedCRS crs = RadarUtil.constructCRS(station.getLat(),
+                        station.getLon());
+                StereographicGridCoverage coverage = new StereographicGridCoverage();
                 coverage.setNx(GRID_SIZE);
                 coverage.setNy(GRID_SIZE);
-                coverage.setCrs(crs);
+                coverage.setDx(GRID_SPACING);
+                coverage.setDy(GRID_SPACING);
+                coverage.setLov(station.getLon());
+                coverage.setLad(station.getLat());
                 coverage.setSpacingUnit("m");
-                coverage.setGridGeometry(gridGeometry);
-
+                coverage.setName(station.getRdaId() + " Generated Coverage");
                 try {
                     MathTransform toLatLon = MapUtil.getTransformToLatLon(crs);
-                    DirectPosition lowerCorner = gridGeometry.getEnvelope()
-                            .getLowerCorner();
-                    DirectPosition upperCorner = gridGeometry.getEnvelope()
-                            .getUpperCorner();
-                    DirectPosition2D lowerCornerLL = new DirectPosition2D();
-                    DirectPosition2D upperCornerLL = new DirectPosition2D();
-                    toLatLon.transform(lowerCorner, lowerCornerLL);
-                    toLatLon.transform(upperCorner, upperCornerLL);
-
-                    // TODO verify upper left vs upper right
-                    coverage.setGeometry(MapUtil.createGeometry(
-                            upperCornerLL.y, upperCornerLL.x, lowerCornerLL.y,
-                            lowerCornerLL.x));
+                    int minExtent = -1 * GRID_SPACING * GRID_SIZE / 2;
+                    DirectPosition2D lowerLeft = new DirectPosition2D(
+                            minExtent, minExtent);
+                    toLatLon.transform(lowerLeft, lowerLeft);
+                    coverage.setFirstGridPointCorner(Corner.LowerLeft);
+                    coverage.setLa1(lowerLeft.getY());
+                    coverage.setLo1(lowerLeft.getX());
                 } catch (Exception e) {
                     // shouldn't occur since parsing well known geometry
                 }
-
-                CoverageUtils.getInstance().setCoverage(RADAR_SOURCE, coverage);
+                try {
+                    coverage.initialize();
+                } catch (GridCoverageException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                    configuredRadar = null;
+                    return status;
+                }
+                this.coverage = GridCoverageLookup.getInstance().getCoverage(
+                        coverage, true);
+                CoverageUtils.getInstance().setCoverage(RADAR_SOURCE,
+                        this.coverage);
 
                 System.out.println("Home RADAR set to "
                         + configuredRadar.getRdaId());
@@ -266,12 +268,9 @@ public class RadarAdapter {
                             if (gridLevelNode == null) {
                                 DerivParamMethod method = new DerivParamMethod();
                                 method.setName("Supplement");
-                                gridLevelNode = new OrLevelNode(
-                                        l,
-                                        desc,
-                                        method,
-                                        RADAR_SOURCE,
-                                        new ArrayList<AbstractRequestableLevelNode>(
+                                gridLevelNode = new OrLevelNode(l, desc,
+                                        method, RADAR_SOURCE,
+                                        new ArrayList<AbstractRequestableNode>(
                                                 productCodes.size()), false);
                                 gridParameterNode.addChildNode(gridLevelNode);
                             }
@@ -326,9 +325,11 @@ public class RadarAdapter {
         topoParam.setParameterUnit("m");
         topoParam.setValue("Topo");
 
-        StaticDataLevelNode topoNode = new StaticDataLevelNode(sfc, topo,
-                new TopoRequestableData(modelNameNode.getValue()),
+        TopoRequestableData topoData = new TopoRequestableData(
                 modelNameNode.getValue());
+        topoData.setSpace(getCoverage());
+        StaticDataLevelNode topoNode = new StaticDataLevelNode(sfc, topo,
+                topoData, modelNameNode.getValue());
         topoNode.setLevel(sfc);
         topoParam.addChildNode(topoNode);
         modelNameNode.addChildNode(topoParam);
@@ -360,10 +361,6 @@ public class RadarAdapter {
         return rval;
     }
 
-    public ProjectedCRS getCrs() {
-        return crs;
-    }
-
     public static int getGridSize() {
         return GRID_SIZE;
     }
@@ -372,11 +369,7 @@ public class RadarAdapter {
         return GRID_SPACING;
     }
 
-    public GridGeometry2D getGridGeometry() {
-        return gridGeometry;
-    }
-
-    public StereographicCoverage getCoverage() {
+    public GridCoverage getCoverage() {
         return coverage;
     }
 
