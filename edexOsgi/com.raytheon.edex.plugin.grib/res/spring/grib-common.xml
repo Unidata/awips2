@@ -10,11 +10,11 @@
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.grib" />
 		<property name="dao" value="com.raytheon.edex.plugin.grib.dao.GribDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.grib.GribRecord" />
-		<property name="initializer"
-			value="com.raytheon.edex.plugin.grib.GribInitializer" />
 		<property name="dependencyFQNs">
 		    <list>
 		       <value>com.raytheon.uf.common.dataplugin.level</value>
+		       <value>com.raytheon.uf.common.parameter</value>
+		       <value>com.raytheon.uf.common.gridcoverage</value>
 		    </list>
 		</property>
 		<property name="pathProvider">
@@ -24,24 +24,9 @@
 	</bean>	
 
 	<bean id="gribRegistered" factory-bean="pluginRegistry" factory-method="register"
-				depends-on="levelRegistered">
+				depends-on="levelRegistered,parameterRegistered,gridcoverageRegistered">
 		<constructor-arg value="grib"/>
 		<constructor-arg ref="gribProperties"/>
 	</bean>	
-	
-	<bean id="gribModelCache"
-		class="com.raytheon.edex.plugin.grib.util.GribModelCache" factory-method="getInstance" />
-
-	<bean id="LatLonDao" class="com.raytheon.edex.plugin.grib.dao.LatLonDao" />
-	<bean id="MercatorDao" class="com.raytheon.edex.plugin.grib.dao.MercatorDao" />
-	<bean id="PolarStereographicDao" class="com.raytheon.edex.plugin.grib.dao.PolarStereoDao" />
-	<bean id="LambertConformalDao" class="com.raytheon.edex.plugin.grib.dao.LambertConformalDao" />		
-	<camelContext id="grib-common-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
-		<route id="purgeGribModelCache">
-			<from uri="jms-generic:topic:purgeGribModelCache" />
-			<bean ref="gribModelCache" method="purgeCache" />
-		</route>  	
-	</camelContext>
 
 </beans>
