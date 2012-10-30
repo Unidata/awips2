@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket//    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009            randerso     Initial creation
+ * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -91,34 +92,33 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class GFEConfigDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEConfigDialog.class);
 
-    private static final String DEFAULT_CONFIG = "gfeConfig";
+    private final String DEFAULT_CONFIG = "gfeConfig";
 
-    private static final String LAST_CONFIG = FileUtil.join("gfe",
-            "lastConfig.txt");
+    private final String LAST_CONFIG = FileUtil.join("gfe", "lastConfig.txt");
 
     // Number of votes for Extra Photos
-    private static final int[][] splashVotes = new int[][] { { 14, 10 },
-            { 15, 8 }, { 16, 7 }, { 17, 5 }, { 18, 5 }, { 19, 8 }, { 20, 5 },
-            { 21, 7 }, { 22, 7 }, { 23, 5 }, { 24, 6 }, { 25, 9 }, { 26, 6 },
-            { 27, 9 }, { 28, 8 } };
+    private final int[][] splashVotes = new int[][] { { 14, 10 }, { 15, 8 },
+            { 16, 7 }, { 17, 5 }, { 18, 5 }, { 19, 8 }, { 20, 5 }, { 21, 7 },
+            { 22, 7 }, { 23, 5 }, { 24, 6 }, { 25, 9 }, { 26, 6 }, { 27, 9 },
+            { 28, 8 } };
 
-    private static final int[][] splashDist = new int[splashVotes.length][2];
+    private final int[][] splashDist = new int[splashVotes.length][2];
 
     // Percentage of time to show a winner
-    private static final double winnerThreshold = .65;
+    private final double winnerThreshold = .65;
 
     // Percentage of time to show an extra photo
-    private static final double extrasThreshold = .30;
+    private final double extrasThreshold = .30;
 
     // The remainder will be developer's choice photos
-    private static final int totalPics = 45;
+    private final int totalPics = 45;
 
-    private static final int totalVotes;
+    private final int totalVotes;
 
-    static {
+    {
         int val = 0;
         for (int i = 0; i < splashVotes.length; i++) {
             val += splashVotes[i][1];
@@ -128,7 +128,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         totalVotes = val;
     }
 
-    private static Set<Integer> usedImages = new HashSet<Integer>(totalPics);
+    private Set<Integer> usedImages = new HashSet<Integer>(totalPics);
 
     private Image image;
 
