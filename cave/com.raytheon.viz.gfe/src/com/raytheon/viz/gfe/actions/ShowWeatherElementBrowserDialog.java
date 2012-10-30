@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.dialogs.WeatherElementBrowserDialog;
  * 02/22/2008              Eric Babin  Initial Creation
  * 04/09/2009   1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
  * 04/30/2009   2282       rjpeter     Moved dialog handling to the dialog.
+ * 10/30/2012   1229       rferrel     Changed for non-blocking WeatherElementBrowserDialog.
  * </pre>
  * 
  * @author ebabin
@@ -45,6 +46,7 @@ import com.raytheon.viz.gfe.dialogs.WeatherElementBrowserDialog;
  */
 
 public class ShowWeatherElementBrowserDialog extends AbstractHandler {
+    private WeatherElementBrowserDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -56,13 +58,18 @@ public class ShowWeatherElementBrowserDialog extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         DataManager dm = DataManager.getCurrentInstance();
-        if (dm != null) {
+        if (dm == null) {
+            return null;
+        }
+
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            WeatherElementBrowserDialog dialog = new WeatherElementBrowserDialog(
-                    shell, dm);
-            dialog.setBlockOnOpen(true);
+            dialog = new WeatherElementBrowserDialog(shell, dm);
+            dialog.setBlockOnOpen(false);
             dialog.open();
+        } else {
+            dialog.bringToTop();
         }
 
         return null;
