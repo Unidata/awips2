@@ -73,9 +73,13 @@
 	    <include>time-common.xml</include>
 	 	<include>grib-common.xml</include>
 	 	<include>grib-ingest.xml</include>
-	 	<include>level-common.xml</include>	 	
+	 	<include>level-common.xml</include>
+	 	<include>grid-common.xml</include>
+	 	<include>gridcoverage-common.xml</include>
+	 	<include>parameter-common.xml</include>	 	
 	 	<include>persist-ingest.xml</include>
 	 	<include>management-common.xml</include>
+	 	<include>database-common.xml</include>
 	 	<include>auth-common.xml</include>
 	 	<!-- ncep excludes until tested -->
 	 	<exclude>ncgrib-common.xml</exclude>
@@ -106,7 +110,9 @@
 		<include>cpgsrv-spring.xml</include>
 	 	<include>persist-ingest.xml</include>
 		<include>binlightning-common.xml</include>
-		<include>grib-common.xml</include>
+		<include>parameter-common.xml</include>
+		<include>gridcoverage-common.xml</include>
+		<include>grid-common.xml</include>
 		<include>radar-common.xml</include>
 		<include>text-common.xml</include>
 		<include>level-common.xml</include>

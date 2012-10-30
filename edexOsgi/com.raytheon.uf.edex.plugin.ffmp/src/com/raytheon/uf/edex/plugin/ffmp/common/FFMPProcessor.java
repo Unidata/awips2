@@ -47,7 +47,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBin;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinEntry;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
@@ -123,7 +123,7 @@ public class FFMPProcessor {
 
     private FFMPRecord ffmpRec = null;
 
-    private GribRecord gribRec = null;
+    private GridRecord gribRec = null;
 
     private float[] gribData = null;
 
@@ -303,7 +303,7 @@ public class FFMPProcessor {
                 recdate = imp.getDataTime().getRefTime();
 
             } else if (type == FFMPSourceConfigurationManager.DATA_TYPE.GRID) {
-                gribRec = (GribRecord) config.getSourceData(
+                gribRec = (GridRecord) config.getSourceData(
                         source.getSourceName()).get(dataKey);
                 gribData = config.getGribData(gribRec);
                 recdate = gribRec.getDataTime().getRefTime();
@@ -521,7 +521,7 @@ public class FFMPProcessor {
 
         try {
 
-            gribRec = (GribRecord) config.getSourceData(source.getSourceName())
+            gribRec = (GridRecord) config.getSourceData(source.getSourceName())
                     .get(dataKey);
             setGridGeometry(gribRec);
             gribData = config.getGribData(gribRec);
@@ -1364,7 +1364,7 @@ public class FFMPProcessor {
     /**
      * Sets up the gridgeometry for FFG
      */
-    public void setGridGeometry(GribRecord rec) {
+    public void setGridGeometry(GridRecord rec) {
         ffgNx = rec.getSpatialObject().getNx();
         ffgNy = rec.getSpatialObject().getNy();
         ffgGeometry = MapUtil.getGridGeometry(rec.getSpatialObject());

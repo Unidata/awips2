@@ -24,7 +24,7 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.style.level.Level;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 
@@ -91,23 +91,8 @@ public class GridLevelTranslator {
 
     }
 
-    public static SingleLevel construct(GribRecord record) {
-        Unit<?> levelUnits = record.getModelInfo().getLevelUnitObject();
-
-        UnitConverter levelConverter = UnitConverter.IDENTITY;
-        if (levelUnits.isCompatible(SI.MILLI(NonSI.BAR))) {
-            levelConverter = levelUnits.getConverterTo(SI.MILLI(NonSI.BAR));
-        }
-
-        float convertedLevel = (float) levelConverter.convert(record
-                .getModelInfo().getLevelOneValue());
-        SingleLevel level = construct(record.getModelInfo().getLevelName());
-        level.setValue(convertedLevel);
-        return level;
-    }
-
-    public static SingleLevel constructMatching(GribRecord record) {
-        return constructMatching(record.getModelInfo().getLevel());
+    public static SingleLevel constructMatching(GridRecord record) {
+        return constructMatching(record.getLevel());
     }
 
     public static SingleLevel constructMatching(

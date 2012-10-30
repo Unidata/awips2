@@ -35,19 +35,19 @@
                     </properties>
                     <resourceData xsi:type="ffgGridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="dataTime.refTime">
                                 <constraint constraintValue="${reftime}" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="gridVersion">
-                                <constraint constraintValue="0" constraintType="EQUALS"/>
+                            <mapping key="info.secondaryId">
+                                <constraint constraintValue="Version0" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="${model}" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>

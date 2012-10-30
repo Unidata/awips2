@@ -8,6 +8,7 @@
 			<key>default</key>
 		</id>
 		<versionsToKeep>2</versionsToKeep>
+		<period>02-00:00:00</period>
 	</rule>
 
 
