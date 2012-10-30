@@ -33,34 +33,34 @@ GridInterface.prototype.getData = function(type){
   var self = this;
   switch(type){
     case "model":
-      var queryArray = {"plugin":"grib"};
-      RequestTestDriver.requestCatalog("modelInfo.modelName",queryArray,60000,function(output){self.processData(type,output);});
+      var queryArray = {"plugin":"grid"};
+      RequestTestDriver.requestCatalog("info.datasetId",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "basetime":
       var model = this.model.options[this.model.selectedIndex].value;
-      var queryArray = {"plugin":"grib","modelInfo.modelName":model};
+      var queryArray = {"plugin":"grid","info.datasetId":model};
       RequestTestDriver.requestCatalog("dataTime",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "parameter":
       var model = this.model.options[this.model.selectedIndex].value;
       var basetime = this.basetime.options[this.basetime.selectedIndex].value;
-      var queryArray = {"plugin":"grib","modelInfo.modelName":model,"dataTime":basetime};
-      RequestTestDriver.requestCatalog("modelInfo.parameterName",queryArray,60000,function(output){self.processData(type,output);});
+      var queryArray = {"plugin":"grid","info.datasetId":model,"dataTime":basetime};
+      RequestTestDriver.requestCatalog("info.parameter.name",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "level":
       var model = this.model.options[this.model.selectedIndex].value;
       var basetime = this.basetime.options[this.basetime.selectedIndex].value;
       var parameter = this.parameter.options[this.parameter.selectedIndex].value;
-      var queryArray = {"plugin":"grib","modelInfo.modelName":model,"dataTime":basetime,"modelInfo.parameterName":parameter};
-      RequestTestDriver.requestCatalog("modelInfo.level.masterLevel.name",queryArray,60000,function(output){self.processData(type,output);});
+      var queryArray = {"plugin":"grid","info.datasetId":model,"dataTime":basetime,"info.parameter.name":parameter};
+      RequestTestDriver.requestCatalog("info.level.masterLevel.name",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "levelone":
       var model = this.model.options[this.model.selectedIndex].value;
       var basetime = this.basetime.options[this.basetime.selectedIndex].value;
       var parameter = this.parameter.options[this.parameter.selectedIndex].value;
       var level = this.level.options[this.level.selectedIndex].value;
-      var queryArray = {"plugin":"grib","modelInfo.modelName":model,"dataTime":basetime,"modelInfo.parameterName":parameter,"modelInfo.level.masterLevel.name":level};
-      RequestTestDriver.requestCatalog("modelInfo.level.levelonevalue",queryArray,60000,function(output){self.processData(type,output);});
+      var queryArray = {"plugin":"grid","info.datasetId":model,"dataTime":basetime,"info.parameter.name":parameter,"info.level.masterLevel.name":level};
+      RequestTestDriver.requestCatalog("info.level.levelonevalue",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "leveltwo":
       var model = this.model.options[this.model.selectedIndex].value;
@@ -68,9 +68,9 @@ GridInterface.prototype.getData = function(type){
       var parameter = this.parameter.options[this.parameter.selectedIndex].value;
       var level = this.level.options[this.level.selectedIndex].value;
       var levelone = this.levelone.options[this.levelone.selectedIndex].value;
-      var queryArray = {"plugin":"grib","modelInfo.modelName":model,"dataTime":basetime,"modelInfo.parameterName":parameter,"modelInfo.level.masterLevel.name":level,
-"modelInfo.level.levelonevalue":levelone};
-      RequestTestDriver.requestCatalog("modelInfo.level.leveltwovalue",queryArray,60000,function(output){self.processData(type,output);});
+      var queryArray = {"plugin":"grid","info.datasetId":model,"dataTime":basetime,"info.parameter.name":parameter,"info.level.masterLevel.name":level,
+"info.level.levelonevalue":levelone};
+      RequestTestDriver.requestCatalog("info.level.leveltwovalue",queryArray,60000,function(output){self.processData(type,output);});
       break;
     case "colormap":
       RequestTestDriver.requestColormaps(60000,function(output){self.processData(type,output);});
@@ -198,14 +198,14 @@ GridInterface.prototype.createScript = function(){
   var engine = document.getElementById("scriptInterface").checked ? "imagejs" : "image";
   if (this.leveltwo.selectedIndex >= 0) { 
      var leveltwo = this.leveltwo.options[this.leveltwo.selectedIndex].value;
-     var queryArray = {"pluginName":"grib","modelInfo.modelName":model,"dataTime":basetime,
-      "modelInfo.parameterName":parameter,"modelInfo.level.masterLevel.name":level,
-      "modelInfo.level.levelonevalue":levelone, "modelInfo.level.leveltwovalue":leveltwo,
+     var queryArray = {"pluginName":"grid","info.datasetId":model,"dataTime":basetime,
+      "info.parameter.name":parameter,"info.level.masterLevel.name":level,
+      "info.level.levelonevalue":levelone, "info.level.leveltwovalue":leveltwo,
       "colormap":colormap,"reproject":reproject,"format":format};
   } else {
-     var queryArray = {"pluginName":"grib","modelInfo.modelName":model,"dataTime":basetime,
-      "modelInfo.parameterName":parameter,"modelInfo.level.masterLevel.name":level,
-      "modelInfo.level.levelonevalue":levelone, "colormap":colormap,"reproject":reproject,"format":format};
+     var queryArray = {"pluginName":"grid","info.datasetId":model,"dataTime":basetime,
+      "info.parameter.name":parameter,"info.level.masterLevel.name":level,
+      "info.level.levelonevalue":levelone, "colormap":colormap,"reproject":reproject,"format":format};
   }
   ScriptTestDriver.createScript(queryArray,count,engine,function(output){self.processScript(output);});
 }

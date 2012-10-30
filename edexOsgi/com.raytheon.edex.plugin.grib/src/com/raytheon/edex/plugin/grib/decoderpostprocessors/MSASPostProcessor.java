@@ -19,13 +19,12 @@
  **/
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.edex.plugin.grib.dao.GribModelDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.parameter.Parameter;
 
 /**
  * TODO Add Description
@@ -67,63 +66,49 @@ public class MSASPostProcessor implements IDecoderPostProcessor {
      * 
      * @see
      * com.raytheon.edex.plugin.grib.decoderpostprocessors.IDecoderPostProcessor
-     * #process(com.raytheon.uf.common.dataplugin.grib.GribRecord)
+     * #process(com.raytheon.uf.common.dataplugin.grib.GridRecord)
      */
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
         boolean modelInfoModified = false;
-        GribModel gribModel = record.getModelInfo();
-        String currentAbbr = gribModel.getParameterAbbreviation();
-        String levelName = gribModel.getLevel().getMasterLevel().getName();
+        String currentAbbr = record.getParameter().getAbbreviation();
+        String levelName = record.getLevel().getMasterLevel().getName();
 
         // Reassign PMSL at the SFC to Altimeter
         if (currentAbbr.equals(PMSL) && levelName.equals(SFC)) {
-            gribModel.setParameterAbbreviation(ALTI_ABBR);
-            gribModel.setParameterName(ALTI_DESC);
+            Parameter param = new Parameter(ALTI_ABBR, ALTI_DESC, record
+                    .getParameter().getUnit());
+            record.setParameter(param);
             modelInfoModified = true;
         }
 
         else if (currentAbbr.equals(PMSL)) {
-            gribModel.setParameterAbbreviation(MSLP_ABBR);
-            gribModel.setParameterName(MSLP_DESC);
+            Parameter param = new Parameter(MSLP_ABBR, MSLP_DESC, record
+                    .getParameter().getUnit());
+            record.setParameter(param);
             modelInfoModified = true;
         }
 
         // Reassigns 3-hr pressure tendency to abbreviation used by MSAS
         else if (currentAbbr.equals(TSLSA)) {
-            gribModel.setParameterAbbreviation(PT3_ABBR);
-            gribModel.setParameterUnit("mb*100");
+            Parameter param = new Parameter(PT3_ABBR, record.getParameter()
+                    .getName(), SI.MILLI(NonSI.BAR).times(100));
+            record.setParameter(param);
             modelInfoModified = true;
         }
 
         if (modelInfoModified) {
-            GribModelDao dao = new GribModelDao();
-            PersistableDataObject obj = dao.queryById(gribModel.getId());
-            if (obj != null) {
-                try{
-                    dao.delete(obj);
-                }catch(Throwable e){
-                    e.printStackTrace();
-                }
-            }
+            record.getInfo().setId(null);
+            record.setDataURI(null);
             try {
-                gribModel.generateId();
-                GribModel cachedModel = GribModelCache.getInstance().getModel(
-                        gribModel);
-                record.setModelInfo(cachedModel);
-                record.setDataURI(null);
-                try {
-                    record.constructDataURI();
-                } catch (Exception e) {
-                    throw new GribException(
-                            "Error creating new dataURI for MSAS data!", e);
-                }
-            } catch (DataAccessLayerException e) {
-                throw new GribException("Error modifying MSAS levels!", e);
+                record.constructDataURI();
+            } catch (Exception e) {
+                throw new GribException(
+                        "Error creating new dataURI for MSAS data!", e);
             }
         }
 
         record.setOverwriteAllowed(true);
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 }

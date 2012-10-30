@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>mesoEta212 mesoEta215 ETA212</modelNames>
-   <referenceModel>mesoEta215</referenceModel>
+   <referenceGrid>215</referenceGrid>
    <nx>175</nx>
    <ny>173</ny>
    <!-- 
