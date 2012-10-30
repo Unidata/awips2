@@ -21,20 +21,20 @@ package com.raytheon.viz.grid.inv;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.tree.AbstractAliasLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
  * 
@@ -58,41 +58,29 @@ public class GatherLevelNode extends AbstractAliasLevelNode {
         super(that);
     }
 
-    public GatherLevelNode(AbstractRequestableLevelNode sourceNode,
+    public GatherLevelNode(AbstractRequestableNode sourceNode,
             DerivParamDesc desc, DerivParamMethod method, String modelName,
             Level level) {
         super(sourceNode, desc, method, modelName, level);
     }
 
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        Map<DataTime, List<AbstractRequestableData>> recordMap = new HashMap<DataTime, List<AbstractRequestableData>>();
-        HashMap<String, RequestConstraint> rcMap = property
-                .getEntryQueryParameters(false);
-        for (Integer pert : GridInventory.getPerts(sourceNode)) {
-            rcMap.put(GridInventory.PERT_QUERY, new RequestConstraint(pert
-                    .toString()));
-            property.setEntryQueryParameters(rcMap, false);
-            cache.clear();
-            for (AbstractRequestableData record : sourceNode.getData(property,
-                    timeOut, cache)) {
-                List<AbstractRequestableData> records = recordMap.get(record
-                        .getDataTime());
-                if (records == null) {
-                    records = new ArrayList<AbstractRequestableData>();
-                    recordMap.put(record.getDataTime(), records);
-                }
-                records.add(record);
+        Map<TimeAndSpace, List<AbstractRequestableData>> availMap = new HashMap<TimeAndSpace, List<AbstractRequestableData>>();
+        for (AbstractRequestableData data : dependencyData.get(sourceNode)) {
+            TimeAndSpace ast = data.getTimeAndSpace();
+            List<AbstractRequestableData> avail = availMap.get(ast);
+            if (avail == null) {
+                avail = new ArrayList<AbstractRequestableData>();
+                availMap.put(ast, avail);
             }
+            avail.add(data);
         }
-        rcMap.remove(GridInventory.PERT_QUERY);
-        property.setEntryQueryParameters(rcMap, false);
-        List<AbstractRequestableData> result = new ArrayList<AbstractRequestableData>(
-                recordMap.size());
-        for (List<AbstractRequestableData> records : recordMap.values()) {
+        Set<AbstractRequestableData> result = new HashSet<AbstractRequestableData>();
+        for (List<AbstractRequestableData> records : availMap.values()) {
             AggregateRequestableData record = new AggregateRequestableData(
                     records);
             modifyRequest(record);

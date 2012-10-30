@@ -63,13 +63,14 @@ import com.raytheon.rcm.mqsrvr.ReplyObj.ConfigReply;
 import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendMessageToRPG;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.LambertConformalGridCoverage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.TransformFactory;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -154,9 +155,10 @@ public class RPGEnvironmentalDataManager {
         }
 
         try {
-            gridDao = PluginFactory.getInstance().getPluginDao("grib");
+            gridDao = PluginFactory.getInstance().getPluginDao(
+                    GridConstants.GRID);
         } catch (PluginException e) {
-            log(Priority.SIGNIFICANT, "Unable to get grib dao", e);
+            log(Priority.SIGNIFICANT, "Unable to get grid dao", e);
         }
 
         rcmClient = new MyRcmClient();
@@ -622,7 +624,7 @@ public class RPGEnvironmentalDataManager {
 
             for (Field field : configuration.fields) {
                 for (Level levelSpec : field.levels) {
-                    List<GribRecord> records = inventory(dataTime, field,
+                    List<GridRecord> records = inventory(dataTime, field,
                             levelSpec);
                     if (records == null) {
                         continue;
@@ -636,9 +638,8 @@ public class RPGEnvironmentalDataManager {
                             levelSpec);
                     // TODO: more efficient matching
                     for (Double level : levelList) {
-                        for (GribRecord rec : records) {
-                            if (rec.getModelInfo().getLevelOneValue()
-                                    .equals(level)) {
+                        for (GridRecord rec : records) {
+                            if (level.equals(rec.getLevel().getLevelonevalue())) {
                                 grids.add(generateGrid(radarID, field,
                                         levelSpec, level, geoInfo.gridDomain,
                                         geoInfo.clipDomain, rec));
@@ -721,7 +722,7 @@ public class RPGEnvironmentalDataManager {
 
         GridComponent generateGrid(String radarID, Field field,
                 Level levelSpec, double level, GridEnvelope2D domain,
-                GridEnvelope2D clip, GribRecord gridRecord) {
+                GridEnvelope2D clip, GridRecord gridRecord) {
 
             int clippedNx = clip.getSpan(0);
             int clippedNy = clip.getSpan(1);
@@ -787,7 +788,7 @@ public class RPGEnvironmentalDataManager {
                     DatabaseQuery q = new DatabaseQuery(gridDao.getDaoClass()
                             .getName());
                     q.addDistinctParameter("dataTime");
-                    q.addQueryParam("modelInfo.modelName",
+                    q.addQueryParam(GridConstants.DATASET_ID,
                             configuration.model.name);
                     q.addOrder("dataTime.refTime", false);
                     q.addOrder("dataTime.fcstTime", false);
@@ -858,7 +859,7 @@ public class RPGEnvironmentalDataManager {
 
                 for (Field field : configuration.fields) {
                     for (Level levelSpec : field.levels) {
-                        List<GribRecord> records = inventory(dt, field,
+                        List<GridRecord> records = inventory(dt, field,
                                 levelSpec);
                         if (records == null) {
                             continue dataTimeLoop;
@@ -866,8 +867,7 @@ public class RPGEnvironmentalDataManager {
 
                         if (gridCoverage == null) {
                             if (records.size() > 0) {
-                                gridCoverage = records.get(0).getModelInfo()
-                                        .getLocation();
+                                gridCoverage = records.get(0).getLocation();
                             }
                         }
 
@@ -878,9 +878,9 @@ public class RPGEnvironmentalDataManager {
                         }
 
                         int nFound = 0;
-                        for (GribRecord gr : records) {
-                            if (desiredLevels.contains(gr.getModelInfo()
-                                    .getLevelOneValue())) {
+                        for (GridRecord gr : records) {
+                            if (desiredLevels.contains(gr.getLevel()
+                                    .getLevelonevalue())) {
                                 ++nFound;
                             }
                         }
@@ -901,17 +901,17 @@ public class RPGEnvironmentalDataManager {
             return null;
         }
 
-        private List<GribRecord> inventory(DataTime dataTime, Field field,
+        private List<GridRecord> inventory(DataTime dataTime, Field field,
                 Level levelSpec) {
             try {
-                TermQuery q = new TermQuery("grib");
-                q.addParameter("modelInfo.modelName", configuration.model.name);
-                q.addParameter("modelInfo.parameterAbbreviation", field.name);
-                q.addParameter("modelInfo.level.masterLevel.name",
-                        levelSpec.name);
+                TermQuery q = new TermQuery(GridConstants.GRID);
+                q.addParameter(GridConstants.DATASET_ID,
+                        configuration.model.name);
+                q.addParameter(GridConstants.PARAMETER_ABBREVIATION, field.name);
+                q.addParameter(GridConstants.MASTER_LEVEL_NAME, levelSpec.name);
                 q.addParameter("dataTime", dataTime.toString());
 
-                return (List<GribRecord>) (List<?>) q.execute();
+                return (List<GridRecord>) (List<?>) q.execute();
             } catch (Exception e) {
                 log(Priority.SIGNIFICANT, String.format(
                         "Unable to get inventory for %s %s %s",
@@ -1057,14 +1057,14 @@ public class RPGEnvironmentalDataManager {
                     }
                     DatabaseQuery q = new DatabaseQuery(gridDao.getDaoClass()
                             .getName());
-                    q.addDistinctParameter("modelInfo.level.levelonevalue");
-                    q.addQueryParam("modelInfo.modelName",
+                    q.addDistinctParameter(GridConstants.LEVEL_ONE);
+                    q.addQueryParam(GridConstants.DATASET_ID,
                             configuration.model.name);
-                    q.addQueryParam("modelInfo.parameterAbbreviation",
+                    q.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                             field.name);
-                    q.addQueryParam("modelInfo.level.masterLevel.name",
+                    q.addQueryParam(GridConstants.MASTER_LEVEL_NAME,
                             levelSpec.name);
-                    q.addOrder("modelInfo.level.levelonevalue", true);
+                    q.addOrder(GridConstants.LEVEL_ONE, true);
                     levels = (List<Double>) gridDao.queryByCriteria(q);
                 } catch (Exception e) {
                     log(Priority.SIGNIFICANT, String.format(
