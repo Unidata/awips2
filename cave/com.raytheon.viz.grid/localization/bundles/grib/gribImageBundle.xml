@@ -40,16 +40,16 @@
                     </properties>
                     <resourceData xsi:type="${resourceData;gridResourceData}" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${param}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.masterLevel.name">
+                            <mapping key="info.level.masterLevel.name">
                             	<constraint constraintValue="${level;SFC}" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>

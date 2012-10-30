@@ -23,14 +23,18 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * GAFF Database access class.
@@ -55,10 +59,10 @@ public class GAFFDB {
     private static final int DEFAULT_QC_VALUE = 1879048191;
 
     private static final String GEOAREA_QUERY = "select area_id from GeoArea where "
-        + "boundary_type = 'BASIN' AND area_id IN (SELECT area_id FROM linesegs)";
+            + "boundary_type = 'BASIN' AND area_id IN (SELECT area_id FROM linesegs)";
 
     private static final String LINESEGS_QUERY = "select hrap_row, hrap_beg_col, "
-        + "hrap_end_col, area from linesegs";
+            + "hrap_end_col, area from linesegs";
 
     private Log log = LogFactory.getLog("GenArealFFG");
 
@@ -159,22 +163,27 @@ public class GAFFDB {
      * @param today
      *            Today's date in database string format
      * @return The database uri, or null if no data
+     * @throws DataAccessLayerException
      */
-    public String getDataURI(String rfc, String duration, String today) {
+    public String getDataURI(String rfc, String duration, String today)
+            throws DataAccessLayerException {
         String uri = null;
 
         // Query for uri
-        String sql = "select datauri from grib where modelinfo_id in "
-                + "(select id from grib_models where modelname = " + "'FFG-"
-                + rfc + "' and " + "parameterabbreviation = 'FFG" + duration
-                + "24hr') " + "and reftime >= '" + today
-                + "' order by gridversion desc";
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
+        query.addReturnedField("dataURI");
+        query.addQueryParam(GridConstants.DATASET_ID, "FFG-" + rfc);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "FFG"
+                + duration + "24hr");
+        query.addQueryParam("dataTime.refTime", today, ">=");
+        query.addOrder(GridConstants.SECONDARY_ID, false);
+
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase("metadata"));
-        Object[] rs = dao.executeSQLQuery(sql);
-        if ((rs != null) && (rs.length > 0)) {
-            if ((rs[0] != null) && (rs[0] instanceof String)) {
-                uri = (String) rs[0];
+        List<?> rs = dao.queryByCriteria(query);
+        if ((rs != null) && (!rs.isEmpty())) {
+            if ((rs.get(0) != null) && (rs.get(0) instanceof String)) {
+                uri = (String) rs.get(0);
             }
         } else {
             uri = null;
@@ -313,12 +322,12 @@ public class GAFFDB {
 
         return rs;
     }
-    
+
     public Object[] getLineSegs(String areaId) {
         CoreDao dao = null;
         dao = new CoreDao(DaoConfig.forDatabase(IHFS));
-        Object[] rs = dao.executeSQLQuery(LINESEGS_QUERY
-                + " where area_Id = '" + areaId + "'");
+        Object[] rs = dao.executeSQLQuery(LINESEGS_QUERY + " where area_Id = '"
+                + areaId + "'");
 
         return rs;
     }

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 
@@ -117,5 +118,95 @@ public class GribPathProvider extends DefaultPathProvider {
 
     public String formatTime(Date date) {
         return fileNameFormat.get().format(date);
+    }
+
+    @Override
+    public String getHDFPath(String pluginName, IPersistable persistable) {
+        return super.getHDFPath(GridConstants.GRID, persistable);
+    }
+
+    @Override
+    public List<String> getKeyNames(String pluginName) {
+        List<String> keys = super.getKeyNames(GridConstants.GRID);
+        List<String> newKeys = new ArrayList<String>(keys.size());
+        for (String key : keys) {
+            if (key.equals(GridConstants.DATASET_ID)) {
+                newKeys.add("modelInfo.modelName");
+            } else {
+                newKeys.add(key);
+            }
+        }
+        return newKeys;
+    }
+
+    public String getGroup(GribRecord record) {
+        StringBuilder datauri = new StringBuilder("/grid/");
+        datauri.append(record.getDataTime().toString().replace(" ", "_"));
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getModelName());
+        // secondaryid
+        datauri.append("/");
+        if (record.getGridVersion() != 0) {
+            datauri.append("Version");
+            datauri.append(record.getGridVersion());
+        } else {
+            datauri.append("null");
+        }
+        datauri.append("/");
+        if (record.getModelInfo().getPerturbationNumber() != null) {
+            switch (record.getModelInfo().getPerturbationNumber()) {
+            case 1:
+                datauri.append("ctl1");
+                break;
+            case 2:
+                datauri.append("ctl2");
+                break;
+            case 3:
+                datauri.append("n1");
+                break;
+            case 4:
+                datauri.append("p1");
+                break;
+            case 5:
+                datauri.append("n2");
+                break;
+            case 6:
+                datauri.append("p2");
+                break;
+            case 7:
+                datauri.append("n3");
+                break;
+            case 8:
+                datauri.append("p3");
+                break;
+            case 9:
+                datauri.append("n4");
+                break;
+            case 10:
+                datauri.append("p4");
+                break;
+            case 11:
+                datauri.append("n5");
+                break;
+            case 12:
+                datauri.append("p5");
+                break;
+            default:
+                datauri.append("null");
+            }
+        } else {
+            datauri.append("null");
+        }
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getLocation().getId());
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getParameterAbbreviation());
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getLevelName());
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getLevelOneValue());
+        datauri.append("/");
+        datauri.append(record.getModelInfo().getLevelTwoValue());
+        return datauri.toString();
     }
 }
