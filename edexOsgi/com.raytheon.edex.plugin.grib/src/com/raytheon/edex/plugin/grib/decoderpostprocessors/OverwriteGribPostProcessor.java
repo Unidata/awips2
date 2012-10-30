@@ -20,11 +20,12 @@
 
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
- * Grib decode post processor implementation for setting the record to allow overwrites
+ * Grib decode post processor implementation for setting the record to allow
+ * overwrites
  * 
  * <pre>
  * 
@@ -42,9 +43,9 @@ import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 public class OverwriteGribPostProcessor implements IDecoderPostProcessor {
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
+    public GridRecord[] process(GridRecord record) throws GribException {
         record.setOverwriteAllowed(true);
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 
 }
