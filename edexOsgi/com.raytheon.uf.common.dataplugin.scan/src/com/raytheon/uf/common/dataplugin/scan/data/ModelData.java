@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -46,7 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 @DynamicSerialize
 public class ModelData implements ISerializableObject {
 
-    private final Map<String, HashMap<String, GribRecord>> gribMap;
+    private final Map<String, HashMap<String, GridRecord>> gribMap;
 
     private transient final Log logger = LogFactory.getLog(getClass());
 
@@ -54,7 +54,7 @@ public class ModelData implements ISerializableObject {
      * Public constructor
      */
     public ModelData() {
-        gribMap = new HashMap<String, HashMap<String, GribRecord>>();
+        gribMap = new HashMap<String, HashMap<String, GridRecord>>();
     }
 
     /**
@@ -80,7 +80,7 @@ public class ModelData implements ISerializableObject {
      * @return
      * @throws Exception
      */
-    private synchronized GribRecord getRecord(String modelName, String prodType)
+    private synchronized GridRecord getRecord(String modelName, String prodType)
             throws Exception {
         return gribMap.get(modelName).get(prodType);
     }
@@ -90,8 +90,8 @@ public class ModelData implements ISerializableObject {
      * 
      * @param gr
      */
-    public synchronized void setGribRecord(String modelName, String prodType,
-            GribRecord gr) {
+    public synchronized void setGridRecord(String modelName, String prodType,
+            GridRecord gr) {
         if (gribMap.get(modelName) != null) {
             if (gribMap.get(modelName).get(prodType) != null) {
                 if (!gribMap.get(modelName).get(prodType).getDataURI()
@@ -103,7 +103,7 @@ public class ModelData implements ISerializableObject {
                 gribMap.get(modelName).put(prodType, gr);
             }
         } else {
-            HashMap<String, GribRecord> modelHash = new HashMap<String, GribRecord>();
+            HashMap<String, GridRecord> modelHash = new HashMap<String, GridRecord>();
             modelHash.put(prodType, gr);
             // add new
             gribMap.put(modelName, modelHash);
@@ -115,7 +115,7 @@ public class ModelData implements ISerializableObject {
      * 
      * @param gr
      */
-    public synchronized GribRecord getGribRecord(String modelName,
+    public synchronized GridRecord getGridRecord(String modelName,
             String prodType) {
         return gribMap.get(modelName).get(prodType);
     }
@@ -160,7 +160,7 @@ public class ModelData implements ISerializableObject {
         double value = -99999.0;
         try {
             Point point = getPoint(modelName, prodType, coor);
-            GribRecord gribRec = getRecord(modelName, prodType);
+            GridRecord gribRec = getRecord(modelName, prodType);
             FloatDataRecord rec = (FloatDataRecord) getRecord(modelName,
                     prodType).getMessageData();
             value = rec.getFloatData()[(gribRec.getSpatialObject().getNx() * point.x)

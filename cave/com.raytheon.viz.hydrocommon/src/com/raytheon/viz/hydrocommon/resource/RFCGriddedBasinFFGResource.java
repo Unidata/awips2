@@ -41,10 +41,10 @@ import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
@@ -116,7 +116,7 @@ public class RFCGriddedBasinFFGResource extends
 
     private Rectangle rfcExtent;
 
-    private GribRecord gr;
+    private GridRecord gr;
 
     private float minArea = 9.0f;
 
@@ -148,7 +148,7 @@ public class RFCGriddedBasinFFGResource extends
     private void loadData() {
         initColorMapParams();
 
-        gridGeometry = gr.getModelInfo().getLocation().getGridGeometry();
+        gridGeometry = gr.getLocation().getGridGeometry();
 
         try {
             data = new float[((float[]) gr.getMessageData()).length];
@@ -161,10 +161,10 @@ public class RFCGriddedBasinFFGResource extends
             HRAP hrap;
             Coordinate org = MapUtil.gridCoordinateToLatLon(
                     new Coordinate(0, 0), PixelOrientation.CENTER,
-                    gr.getSpatialObject());
+                    gr.getLocation());
 
-            int nx = gr.getSpatialObject().getNx();
-            int ny = gr.getSpatialObject().getNy();
+            int nx = gr.getLocation().getNx();
+            int ny = gr.getLocation().getNy();
 
             hrap = HRAP.getInstance();
 

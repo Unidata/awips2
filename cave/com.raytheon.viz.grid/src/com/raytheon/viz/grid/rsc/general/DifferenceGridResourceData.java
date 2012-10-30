@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 
 /**
  * 
- * TODO Add Description
+ * ResourceData for constructing Difference Resources.
  * 
  * <pre>
  * 
