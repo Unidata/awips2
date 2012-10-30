@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 09/12/2012   #1117      dgilling    Revert previous changes, retrieve
  *                                     database list from ParmManager
  *                                     not EDEX.
+ * 10/30/2012   1298       rferrel     Code clean up non-blocking dialog.
  * </pre>
  * 
  * @author ebabin
@@ -109,9 +110,9 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private ParmID[] currentDisplayedParms;
 
-    private static final Point size = new Point(603, 778);
+    private final Point size = new Point(603, 778);
 
-    private static final String IFP = "IFP";
+    private final String IFP = "IFP";
 
     /**
      * Constructor
