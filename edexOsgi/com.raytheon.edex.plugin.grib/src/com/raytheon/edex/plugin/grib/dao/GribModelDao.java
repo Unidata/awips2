@@ -60,7 +60,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 public class GribModelDao extends CoreDao {
 
     private static final IUFStatusHandler handler = UFStatus
-            .getHandler(GridCoverageDao.class);
+            .getHandler(GribModelDao.class);
 
     /**
      * Creates a new GribModelDao
