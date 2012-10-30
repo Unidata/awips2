@@ -28,4 +28,9 @@
 217:217:Convective Gravity wave drag meridional acceleration:m/s^2:CNGWDV
 218:218:Velocity Point Model Surface::LMV
 219:219:Potential Vorticity (Mass-Weighted):m/s:PVMWW
+220:220:Hourly Maximum of Upward Vertical Vorticity in the lowest 400hPa:m/s:MAXUVV
+221:221:Hourly Maximum of Downward Vertical Vorticity in the lowest 400hPa:m/s:MAXDVV
+222:222:U Component of Hourly Maximum 10m Wind Speed:m/s:MAXUW
+223:223:V Component of Hourly Maximum 10m Wind Speed:m/s:MAXVW
+224:224:Ventilation Rate:m^2/s:VRATE
 255:255:Missing

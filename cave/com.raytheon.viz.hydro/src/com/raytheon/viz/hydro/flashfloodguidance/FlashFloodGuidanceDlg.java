@@ -787,7 +787,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
 
         /* Check the FFG mode. */
         if (ffgAreaCbo.getItem(ffgAreaCbo.getSelectionIndex()).equals("RFC")) {
-            ArrayList<Object[]> rs = dman.getGriddedDataList();
+            java.util.List<Object[]> rs = dman.getGriddedDataList();
 
             if ((rs != null) && (rs.size() > 0)) {
                 for (Object[] oa : rs) {
@@ -904,16 +904,21 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                         String fileWfo = xmrg.getName().substring(0, 3);
                         int index = xmrg.getName().indexOf("20");
                         /* Parse the filename for duration and time stamp here. */
-                        String year = xmrg.getName().substring(index, index + 4);
-                        String month = xmrg.getName().substring(index + 4, index + 6);
-                        String day = xmrg.getName().substring(index + 6, index + 8);
-                        String hour = xmrg.getName().substring(index + 8, index + 10);
-                        String durString = xmrg.getName().substring(index + 10, index + 12);
-//                        String year = xmrg.getName().substring(3, 7);
-//                        String month = xmrg.getName().substring(7, 9);
-//                        String day = xmrg.getName().substring(9, 11);
-//                        String hour = xmrg.getName().substring(11, 13);
-//                        String durString = xmrg.getName().substring(13, 15);
+                        String year = xmrg.getName()
+                                .substring(index, index + 4);
+                        String month = xmrg.getName().substring(index + 4,
+                                index + 6);
+                        String day = xmrg.getName().substring(index + 6,
+                                index + 8);
+                        String hour = xmrg.getName().substring(index + 8,
+                                index + 10);
+                        String durString = xmrg.getName().substring(index + 10,
+                                index + 12);
+                        // String year = xmrg.getName().substring(3, 7);
+                        // String month = xmrg.getName().substring(7, 9);
+                        // String day = xmrg.getName().substring(9, 11);
+                        // String hour = xmrg.getName().substring(11, 13);
+                        // String durString = xmrg.getName().substring(13, 15);
 
                         Calendar cal = Calendar.getInstance(TimeZone
                                 .getTimeZone("GMT"));
@@ -1126,7 +1131,8 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         String day = parts[2];
         String date = parts[3];
         String hour = parts[4];
-        duration = Integer.parseInt(durationStr) * FFGConstants.SECONDS_PER_HOUR;
+        duration = Integer.parseInt(durationStr)
+                * FFGConstants.SECONDS_PER_HOUR;
 
         String paramAbr = "FFG" + durationStr + "24hr";
 

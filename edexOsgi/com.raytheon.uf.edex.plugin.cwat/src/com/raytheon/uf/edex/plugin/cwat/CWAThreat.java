@@ -31,7 +31,7 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
@@ -1074,7 +1074,7 @@ public class CWAThreat {
      * @param rec
      * @return
      */
-    private Coordinate getGridCoordinate(Coordinate coor, GribRecord rec) {
+    private Coordinate getGridCoordinate(Coordinate coor, GridRecord rec) {
 
         Coordinate latLonCoor = null;
         ReferencedCoordinate rcoor = new ReferencedCoordinate(coor,

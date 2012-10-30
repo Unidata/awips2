@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.grib;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.raytheon.uf.common.dataplugin.grib.StatusConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,7 +46,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
  * @see com.raytheon.edex.plugin.grib.GribLargeFileChecker
  */
 public class GribLockRelease implements Processor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GribLockRelease.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribLockRelease.class);
 
     @Override
     public void process(Exchange exchange) throws Exception {

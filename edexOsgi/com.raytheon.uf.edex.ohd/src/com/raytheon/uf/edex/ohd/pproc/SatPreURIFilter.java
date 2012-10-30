@@ -55,7 +55,7 @@ public class SatPreURIFilter {
         if (message instanceof DataURINotificationMessage) {
             String uri = "";
             for (String data : message.getDataURIs()) {
-                if (data.startsWith("/grib")) {
+                if (data.startsWith("/grid")) {
                     if (data.contains(AUTOSPE)) {
                         uri = data;
                         break;
