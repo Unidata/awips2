@@ -31,10 +31,9 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.edex.util.UnitConv;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
@@ -69,7 +69,7 @@ public class SatPrecipFileBuilder {
 
     XmrgFile xmfile = null;
 
-    GribRecord gr = null;
+    GridRecord gr = null;
 
     private IDataRecord dataRec;
 
@@ -117,14 +117,14 @@ public class SatPrecipFileBuilder {
 
     public void createSatPre() {
         try {
-            getGribRecord();
+            getGridRecord();
         } catch (PluginException e) {
             e.printStackTrace();
         }
         float[] fa = null;
         fa = new float[((float[]) gr.getMessageData()).length];
         fa = (float[]) gr.getMessageData();
-        String gribUnit = gr.getModelInfo().getParameterUnit();
+        String gribUnit = gr.getParameter().getUnitString();
         UnitConverter cv = null;
         Unit<?> gi = Unit.ONE;
         try {
@@ -187,7 +187,7 @@ public class SatPrecipFileBuilder {
      * @param uri
      * @return
      */
-    public void getGribRecord() throws PluginException {
+    public void getGridRecord() throws PluginException {
         try {
             extent = HRAPCoordinates.getHRAPCoordinates();
         } catch (Exception e) {
@@ -206,10 +206,10 @@ public class SatPrecipFileBuilder {
         int[] minIndex = { minX, minY };
         int[] maxIndex = { minX + width, minY + height };
 
-        gr = new GribRecord(uri);
-        GribDao gd = (GribDao) PluginFactory.getInstance().getPluginDao(
+        gr = new GridRecord(uri);
+        PluginDao gd = PluginFactory.getInstance().getPluginDao(
                 gr.getPluginName());
-        gr = (GribRecord) gd.getMetadata(uri);
+        gr = (GridRecord) gd.getMetadata(uri);
         IDataStore dataStore = gd.getDataStore(gr);
 
         try {

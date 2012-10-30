@@ -11,18 +11,6 @@
   	  <constructor-arg ref="gridDataQueryHandler"/>
    </bean>
   
-  <bean id="getCoverageHandler" class="com.raytheon.edex.plugin.grib.handler.GetCoverageHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-  		<constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest"/>
-  		<constructor-arg ref="getCoverageHandler"/>
-  	</bean>
-  	
-   <bean id="getCoveragesHandler" class="com.raytheon.edex.plugin.grib.handler.GetCoveragesHandler" />
-   <bean factory-bean="handlerRegistry" factory-method="register">
-      <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest"/>
-  	  <constructor-arg ref="getCoveragesHandler"/>
-   </bean>
-  
    <bean id="deleteAllModelDataHandler" class="com.raytheon.edex.plugin.grib.handler.DeleteAllModelDataHandler" />
    <bean factory-bean="handlerRegistry" factory-method="register">
       <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.DeleteAllModelDataRequest"/>

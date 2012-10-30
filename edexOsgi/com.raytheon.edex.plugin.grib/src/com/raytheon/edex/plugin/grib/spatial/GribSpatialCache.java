@@ -21,52 +21,51 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
-import com.raytheon.edex.plugin.grib.dao.GribModelDao;
-import com.raytheon.edex.plugin.grib.dao.GridCoverageDao;
-import com.raytheon.edex.plugin.grib.dao.IGridCoverageDao;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.util.GribModelLookup;
+import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGrid;
-import com.raytheon.uf.common.dataplugin.grib.subgrid.SubGridDef;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.gridcoverage.Corner;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
+import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Cache used for holding GridCoverage objects. Since creating geometries and
- * CRS objects are expensive operations, this cache is used to store
- * GridCoverages as they are produced.
+ * Cache used for holding GridCoverage objects. This cache is responsible for
+ * managing the grids and subgrids stored on the filesystem for grib data. The
+ * functions in this class have some overlap with the GridCoverageLookup,
+ * methods in this class have some extra functionality for trying to resolve
+ * grids off the filesystem.
  * 
  * <pre>
  * 
@@ -75,7 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
- * Jul 25, 2012 977         rjpeter     Add ability for sub grids to have a defined center point.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -84,17 +83,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class GribSpatialCache {
 
     /** The logger */
-    protected Log logger = LogFactory.getLog(getClass());
+    protected transient Log logger = LogFactory.getLog(getClass());
 
     /** The singleton instance */
-    private static GribSpatialCache instance = new GribSpatialCache();
-
-    /**
-     * Map containing the GridCoverages<br>
-     * The key for this map is the id field of the GridCoverage object stored as
-     * the value of the map
-     */
-    private final Map<Integer, GridCoverage> spatialMap;
+    private static GribSpatialCache instance;
 
     /**
      * Map containing the GridCoverages<br>
@@ -102,24 +94,46 @@ public class GribSpatialCache {
      * as the value of the map. This is only used internally for lookup of a
      * coverage by name aka gridId.
      */
-    private final Map<String, GridCoverage> spatialNameMap;
+    private Map<String, GridCoverage> spatialNameMap;
 
     /**
-     * Map containing the subGrid coverage based on a model name.
+     * Maps a GridCoverage id to a set of grid names. The id should come from a
+     * coverage in the database but the names are not necessarily in the
+     * database. If a grid file spatially matches a grid in the database it will
+     * not be added to the db to avoid confusion, this map can be used to look
+     * up those names.
      */
-    private final Map<String, Integer> subGridCoverageMap;
+    private Map<Integer, Set<String>> gridNameMap;
 
     /**
-     * Map containing the subGrid definition based on a model name.
+     * Map containing the subGrid coverage based on a subGridKey
      */
-    private final Map<String, SubGrid> definedSubGridMap;
+    private Map<String, GridCoverage> subGridCoverageMap;
+
+    /**
+     * Map containing the subGrid based on a the subGridKey
+     */
+    private Map<String, SubGrid> definedSubGridMap;
+
+    /**
+     * Map containing the subGrid definition based on a model name and the base
+     * coverage name
+     */
+    private Map<String, SubGridDef> subGridDefMap;
+
+    private FileDataList fileDataList;
+
+    private long fileScanTime = 0;
 
     /**
      * Gets the singleton instance of GribSpatialCache
      * 
      * @return The singleton instance of the GribSpatialCache
      */
-    public static GribSpatialCache getInstance() {
+    public static synchronized GribSpatialCache getInstance() {
+        if (instance == null) {
+            instance = new GribSpatialCache();
+        }
         return instance;
     }
 
@@ -127,485 +141,242 @@ public class GribSpatialCache {
      * Creates a new GribSpatialCache
      */
     private GribSpatialCache() {
-        spatialMap = new HashMap<Integer, GridCoverage>();
+        gridNameMap = new HashMap<Integer, Set<String>>();
         spatialNameMap = new HashMap<String, GridCoverage>();
         definedSubGridMap = new HashMap<String, SubGrid>();
-        subGridCoverageMap = new HashMap<String, Integer>();
-        initializeGrids();
+        subGridCoverageMap = new HashMap<String, GridCoverage>();
+        subGridDefMap = new HashMap<String, SubGridDef>();
+        scanFiles();
     }
 
     /**
-     * Retrieves a grid from the map. If the grid does not exist, null is
-     * returned
+     * Retrieves a grid from the map. If the grid does not exist, the
+     * localization files are scanned for newly defined grids, if it still
+     * doesn't exist null is returned
      * 
-     * @param id
-     *            The id of the GridCoverage to retrieve
+     * @param coverage
+     *            a grid coverage
      * @return The GridCoverage object, null if not present
      * @throws GribException
      * @throws DataAccessLayerException
      */
-    public GridCoverage getGrid(final GridCoverage coverage)
-            throws GribException {
-        GridCoverage retVal = spatialMap.get(coverage.getId());
-
-        if (retVal == null) {
-            /*
-             * Coverage not found in cache, but the values provided in the GDS
-             * may be slightly different than those for the grid in the cache.
-             * Check the database to be sure.
-             */
-            try {
-                retVal = ((IGridCoverageDao) EDEXUtil.getESBComponent(coverage
-                        .getProjectionType().replaceAll(" ", "") + "Dao"))
-                        .checkGrid(coverage);
-            } catch (DataAccessLayerException e) {
-                throw new GribException("Error querying for grib coverage!", e);
-            }
-
-            if (retVal != null) {
-                spatialMap.put(coverage.getId(), retVal);
-                spatialNameMap.put(coverage.getName(), retVal);
-            }
-
+    public GridCoverage getGrid(GridCoverage coverage) {
+        GridCoverage rval = GridCoverageLookup.getInstance().getCoverage(
+                coverage, false);
+        if (rval == null) {
+            scanFiles();
+            rval = GridCoverageLookup.getInstance()
+                    .getCoverage(coverage, false);
         }
-
-        return retVal;
+        return rval;
     }
 
-    public GridCoverage getGrid(final int id) {
-        return spatialMap.get(id);
-    }
-
-    public GridCoverage getGrid(final String modelName) {
-        GridCoverage rval = null;
-
+    /**
+     * For a grib model name return all GridCoverages that are defined in the
+     * gribModels file for that model. For models which use subgrids this will
+     * return the subgridded coverages. For models that are not defined or
+     * models that do not specify a specific grid this will return an empty
+     * list.
+     * 
+     * @param modelName
+     * @return
+     */
+    public List<GridCoverage> getGridsForModel(String modelName) {
+        List<GridCoverage> rval = new ArrayList<GridCoverage>();
         if (modelName != null) {
-            if (subGridCoverageMap.containsKey(modelName)) {
-                rval = spatialMap.get(subGridCoverageMap.get(modelName));
-            } else {
-                GridModel model = GribModelLookup.getInstance().getModelByName(
-                        modelName);
-                if (model != null) {
-                    rval = spatialNameMap.get(model.getGrid().toString());
-                }
-            }
-        }
-
-        return rval;
-    }
-
-    public GridCoverage getGridByName(final String name) {
-        return spatialNameMap.get(name);
-    }
-
-    /**
-     * Puts a grid into the GribSpatialCache.
-     * 
-     * @param grid
-     *            The grid to store
-     * @param persistToDb
-     *            True if this GridCoverage object is to be persisted to the
-     *            database
-     * @throws GribException
-     *             If problems occur while initializing the grid
-     */
-    public void putGrid(final GridCoverage grid, final boolean initializeGrid,
-            final boolean persistToDb) throws GribException {
-        if (initializeGrid) {
-            /*
-             * Prepare the grid to be stored into the cache. Initializes the
-             * geometry and crs objects and generates the id field
-             */
-            grid.initialize();
-            if (grid.getName() == null) {
-                grid.generateName();
-            }
-        }
-
-        // Persist to the database if desired
-        if (persistToDb) {
-            new CoreDao(DaoConfig.DEFAULT).saveOrUpdate(grid);
-        }
-
-        spatialMap.put(grid.getId(), grid);
-        spatialNameMap.put(grid.getName(), grid);
-    }
-
-    public SubGrid getSubGrid(final String modelName) {
-        return definedSubGridMap.get(modelName);
-    }
-
-    public GridCoverage getSubGridCoverage(final String modelName) {
-        GridCoverage rval = null;
-
-        if (subGridCoverageMap.containsKey(modelName)) {
-            rval = spatialMap.get(subGridCoverageMap.get(modelName));
-        }
-
-        return rval;
-    }
-
-    /**
-     * Initializes the predefined set of grids. The grids are stored in xml
-     * format in the utility folder so the localization service has access to
-     * them.<br>
-     * GridCoverage are created from the xml via JaxB and placed in the cache
-     */
-    private void initializeGrids() {
-        ClusterTask ct = null;
-
-        do {
-            ct = ClusterLockUtils.lock("grib", "spatialCache", 120000, true);
-        } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
-
-        try {
-            // pull all the coverage from the database
-            GridCoverageDao dao = new GridCoverageDao();
-            FileDataList previousFdl = getPreviousFileDataList();
-            FileDataList currentFdl = generateFileDataList();
-
-            if (isDefintionChanged(previousFdl, currentFdl)) {
-                processBaseGridsChanged(dao, currentFdl);
-                saveFileDataList(currentFdl);
-            } else {
-                List<? extends GridCoverage> baseCoverages = dao
-                        .loadBaseGrids();
-
-                if ((baseCoverages != null) && (baseCoverages.size() > 0)) {
-                    for (Object obj : baseCoverages) {
-                        try {
-                            putGrid((GridCoverage) obj, false, false);
-                        } catch (Exception e) {
-                            // Log error but do not throw exception, technically
-                            // is
-                            // only from initialize which isn't being called
-                            logger.error(
-                                    "Unable to load grid coverage into cache "
-                                            + obj, e);
-                        }
+            GridModel model = GribModelLookup.getInstance().getModelByName(
+                    modelName);
+            if (model != null) {
+                for (String coverageName : model.getAllGrids()) {
+                    GridCoverage coverage = getGridByName(coverageName);
+                    if (coverage != null) {
+                        rval.add(coverage);
                     }
-                } else {
-                    // database wiped/plugin re-initialized need to repopulate
-                    processBaseGridsChanged(dao, currentFdl);
-                    saveFileDataList(currentFdl);
                 }
             }
-
-            processUnknownGrids(dao);
-            processSubGrids(dao, currentFdl);
-        } finally {
-            ClusterLockUtils.unlock(ct, false);
         }
+        for (int i = 0; i < rval.size(); i++) {
+            GridCoverage subGrid = getSubGridCoverage(modelName, rval.get(i));
+            if (subGrid != null) {
+                rval.remove(i);
+                rval.add(i, subGrid);
+            }
+        }
+
+        return rval;
     }
 
     /**
-     * A non subgridded definition has been added, deleted, or changed.
-     * Changed/delete both delete all records, models, and coverage defintion.
-     * Then Change/Add put in a new coverage definition.
+     * Get a grib by name, first all grid files are searched to find one with a
+     * matching name, if none is found the database is checked. The returned
+     * coverage may not have the name you are looking for but it will be
+     * spatially equivalent to that named grid.
      * 
-     * TODO: Post process Unknown definitions to see if they are now known. If
-     * now known delete definitions of unknown.
-     * 
-     * @param dao
-     * @param currentFdl
+     * @param name
+     * @return
      */
-    private void processBaseGridsChanged(final GridCoverageDao dao,
-            final FileDataList currentFdl) {
-        List<? extends GridCoverage> baseCoverages = dao.loadBaseGrids();
-        Map<String, GridCoverage> fileCoverageMap = loadGridDefinitionsFromDisk(currentFdl);
-
-        // update needs to delete all hdf5 same as delete, so update is
-        // a delete and then an add to simplify logic and handle primary
-        // key changes.
-        List<GridCoverage> coveragesToDelete = new LinkedList<GridCoverage>();
-        HashSet<String> validDbCoverageNames = new HashSet<String>(
-                (int) (baseCoverages.size() * 1.25) + 1);
-
-        Iterator<? extends GridCoverage> iter = baseCoverages.iterator();
-        while (iter.hasNext()) {
-            GridCoverage dbCov = iter.next();
-            GridCoverage fileCoverage = fileCoverageMap.get(dbCov.getName());
-            if (!dbCov.equals(fileCoverage)) {
-                // coverage not in flat file or coverage has changed,
-                // delete coverage old coverage
-                coveragesToDelete.add(dbCov);
-                iter.remove();
-            } else {
-                // current coverage still valid
-                validDbCoverageNames.add(dbCov.getName());
-            }
+    public GridCoverage getGridByName(String name) {
+        GridCoverage coverage = spatialNameMap.get(name);
+        if (coverage == null) {
+            // rescan and hopefully the coverage shows up
+            scanFiles();
+            coverage = spatialNameMap.get(name);
         }
-
-        // delete grids, models, coverages, and hdf5 for namesToDelete.
-        for (GridCoverage cov : coveragesToDelete) {
-            logger.info("GridCoverage " + cov.getName()
-                    + " has changed.  Deleting out of date data");
-            if (!dao.deleteCoverageAssociatedData(cov, true)) {
-                logger.warn("Failed to delete GridCoverage " + cov.getName()
-                        + ".  Manual intervention required.");
-            } else {
-                logger.info("GridCoverage successfully deleted");
-            }
-        }
-
-        // remove the valid db coverages from the map
-        fileCoverageMap.keySet().removeAll(validDbCoverageNames);
-
-        // add new grids in bulk
-        for (GridCoverage cov : fileCoverageMap.values()) {
-            try {
-                putGrid(cov, true, false);
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to initialize grid definition " + cov.getName(),
-                        e);
-            }
-        }
-
-        // bulk persist the spatial maps
-        if (spatialMap.size() > 0) {
-            dao.persistAll(spatialMap.values());
-        }
-
-        for (GridCoverage cov : baseCoverages) {
-            try {
-                putGrid(cov, false, false);
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to initialize grid definition " + cov.getName(),
-                        e);
-            }
-        }
+        return coverage;
     }
 
     /**
-     * A non subGridd definition has been added, deleted, or changed.
-     * Changed/delete both delete all records, models, and coverage defintion.
-     * Then Change/Add put in a new coverage definition, and also delete any
-     * data associated with base model definition.
+     * This method provides a way to get the names from the definiton files for
+     * looking up a grib model. It will return all the names of any coverages
+     * defined in the grid definition files that are spatially equivalent to the
+     * passed in coverage. This is useful when there are multiple grid
+     * definition files with the same spatial attributes but different names or
+     * for cases where the name in the definition file does not match what is
+     * currently in the db.
      * 
-     * @param dao
-     * @param currentFdl
+     * @param coverage
+     * @return
      */
-    private void processSubGrids(final GridCoverageDao dao,
-            final FileDataList currentFdl) {
-        List<? extends GridCoverage> oldSubGridCoverages = dao.loadSubGrids();
-        Map<String, GridCoverage> fileSubGridCoverageMap = loadSubGridDefinitionsFromDisk(currentFdl);
-
-        // update needs to delete all hdf5 same as delete, so update is
-        // a delete and then an add to simplify logic and handle primary
-        // key changes.
-        List<GridCoverage> coveragesToDelete = new LinkedList<GridCoverage>();
-        HashSet<String> validDbCoverageNames = new HashSet<String>(
-                (int) (oldSubGridCoverages.size() * 1.25) + 1);
-
-        Iterator<? extends GridCoverage> iter = oldSubGridCoverages.iterator();
-        while (iter.hasNext()) {
-            GridCoverage dbCov = iter.next();
-            GridCoverage fileCoverage = fileSubGridCoverageMap.get(dbCov
-                    .getName());
-            if (!dbCov.equals(fileCoverage)) {
-                // coverage not in flat file or coverage has changed,
-                // delete coverage
-                coveragesToDelete.add(dbCov);
-                iter.remove();
-            } else {
-                // current coverage still valid
-                validDbCoverageNames.add(dbCov.getName());
+    public Set<String> getGribCoverageNames(GridCoverage coverage) {
+        Set<String> rval = gridNameMap.get(coverage.getId());
+        if (rval == null) {
+            scanFiles();
+            rval = gridNameMap.get(coverage.getId());
+            if (rval == null) {
+                rval = Collections.emptySet();
             }
         }
-
-        // delete grids, models, coverages, and hdf5 for namesToDelete.
-        for (GridCoverage cov : coveragesToDelete) {
-            logger.info("Model "
-                    + cov.getSubGridModel()
-                    + " has changed subGrid definition, deleting out of date data");
-            if (!dao.deleteCoverageAssociatedData(cov, true)) {
-                logger.warn("Failed to delete GridCoverage " + cov.getName()
-                        + ".  Manual intervention required.");
-            } else {
-                logger.info("GridModel successfully deleted");
-            }
-        }
-
-        // remove the valid db coverages from the map
-        fileSubGridCoverageMap.keySet().removeAll(validDbCoverageNames);
-
-        // need to delete model information for new adds, as old grid may not
-        // have been subgridded
-        GribModelDao modelDao = new GribModelDao();
-        for (GridCoverage cov : fileSubGridCoverageMap.values()) {
-            logger.info("Model "
-                    + cov.getSubGridModel()
-                    + " has changed subGrid definition, deleting out of date data");
-            // look up parent
-            if (modelDao.deleteModelAndAssociatedData(cov.getSubGridModel()) < 0) {
-                logger.warn("Failed to delete SubGrid Model "
-                        + cov.getSubGridModel()
-                        + ".  Manual intervention required.");
-            } else {
-                logger.info("GridModel successfully deleted");
-            }
-        }
-
-        // add new grids, persisting individually
-        for (GridCoverage cov : fileSubGridCoverageMap.values()) {
-            try {
-                putGrid(cov, true, true);
-                subGridCoverageMap.put(cov.getSubGridModel(), cov.getId());
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to initialize grid definition " + cov.getName(),
-                        e);
-            }
-        }
-
-        // put database grids into map
-        for (GridCoverage cov : oldSubGridCoverages) {
-            try {
-                putGrid(cov, true, true);
-                subGridCoverageMap.put(cov.getSubGridModel(), cov.getId());
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to initialize grid definition " + cov.getName(),
-                        e);
-            }
-        }
+        return rval;
     }
 
-    private void processUnknownGrids(final GridCoverageDao dao) {
-        List<? extends GridCoverage> unknownGrids = dao.loadUnknownGrids();
-        for (GridCoverage cov : unknownGrids) {
-            try {
-                GridCoverage dbCov = getGrid(cov);
-                if (!cov.getName().equals(dbCov.getName())) {
-                    logger.info("Unknown grid " + cov.getName()
-                            + " is now mapped by " + dbCov.getName()
-                            + ".  Deleting unknown grid");
-                    dao.deleteCoverageAssociatedData(cov, true);
+    /**
+     * For a given modelName and coverage this will return the SubGrid used for
+     * slicing data if there is a subGrid file for this model. If this model
+     * does not require subgridding this method will return null.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return
+     */
+    public SubGrid getSubGrid(String modelName, GridCoverage coverage) {
+        SubGrid subGrid = definedSubGridMap
+                .get(subGridKey(modelName, coverage));
+        if (subGrid == null) {
+            if (loadSubGrid(modelName, coverage)) {
+                subGrid = definedSubGridMap
+                        .get(subGridKey(modelName, coverage));
+            }
+        }
+        return subGrid;
+    }
+
+    /**
+     * For a given modelName and coverage this will return the sub-GridCoverage
+     * which should be used for this data. If this model does not require
+     * subgridding this method will return null.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return
+     */
+    public GridCoverage getSubGridCoverage(String modelName,
+            GridCoverage coverage) {
+        GridCoverage subGrid = subGridCoverageMap.get(subGridKey(modelName,
+                coverage));
+        if (subGrid == null) {
+            if (loadSubGrid(modelName, coverage)) {
+                subGrid = subGridCoverageMap
+                        .get(subGridKey(modelName, coverage));
+            }
+        }
+        return subGrid;
+    }
+
+    /**
+     * If a sub grid area is defined for this model than this will process that
+     * defintion and piopulate the subGridCoverageMap and definedSubGridMap.
+     * 
+     * @param modelName
+     * @param coverage
+     * @return true if this model is subgridded, false otherwise
+     */
+    private boolean loadSubGrid(String modelName, GridCoverage coverage) {
+        SubGridDef subGridDef = subGridDefMap.get(modelName);
+        if (subGridDef != null) {
+            String referenceGrid = subGridDef.getReferenceGrid();
+            if (referenceGrid == null) {
+                referenceGrid = GribModelLookup.getInstance()
+                        .getModelByName(subGridDef.getReferenceModel())
+                        .getGrid();
+                if (referenceGrid == null) {
+                    logger.error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
+                            + subGridDef.getReferenceModel() + "]");
+                    return false;
                 }
-            } catch (Exception e) {
-                logger.error("Erro occurred scanning unknown grids", e);
-            }
-        }
-    }
-
-    private Map<String, GridCoverage> loadSubGridDefinitionsFromDisk(
-            final FileDataList currentFdl) {
-        GribModelLookup gribModelLUT = GribModelLookup.getInstance();
-        List<FileData> subGridDefs = currentFdl.getSubGridFileList();
-        Map<String, GridCoverage> subGrids = null;
-
-        if ((subGridDefs != null) && (subGridDefs.size() > 0)) {
-            subGrids = new HashMap<String, GridCoverage>(subGridDefs.size() * 3);
-
-            Coordinate defaultCenterPoint = null;
-
-            try {
-                defaultCenterPoint = getDefaultSubGridCenterPoint();
-            } catch (Exception e) {
-                logger.error(
-                        "Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
-                        e);
-                return new HashMap<String, GridCoverage>(0);
             }
 
-            for (FileData fd : subGridDefs) {
+            GridCoverage referenceCoverage = getGridByName(referenceGrid
+                    .toString());
+            if (referenceCoverage == null) {
+                logger.error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
+                        + referenceGrid + "]");
+                return false;
+            }
+
+            Coordinate subGridCenterLatLon = new Coordinate(
+                    subGridDef.getCenterLongitude(),
+                    subGridDef.getCenterLatitude());
+
+            Coordinate subGridCenterGridCoord = MapUtil.latLonToGridCoordinate(
+                    subGridCenterLatLon, PixelOrientation.CENTER,
+                    referenceCoverage);
+
+            double xCenterPoint = subGridCenterGridCoord.x;
+            double yCenterPoint = subGridCenterGridCoord.y;
+
+            double xDistance = subGridDef.getNx() / 2;
+            double yDistance = subGridDef.getNy() / 2;
+            Coordinate lowerLeftPosition = new Coordinate(xCenterPoint
+                    - xDistance, yCenterPoint + yDistance);
+            Coordinate upperRightPosition = new Coordinate(xCenterPoint
+                    + xDistance, yCenterPoint - yDistance);
+
+            lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
+                    lowerLeftPosition, PixelOrientation.CENTER,
+                    referenceCoverage);
+            upperRightPosition = MapUtil.gridCoordinateToLatLon(
+                    upperRightPosition, PixelOrientation.CENTER,
+                    referenceCoverage);
+
+            SubGrid subGrid = new SubGrid();
+            subGrid.setLowerLeftLon(lowerLeftPosition.x);
+            subGrid.setLowerLeftLat(lowerLeftPosition.y);
+            subGrid.setUpperRightLon(upperRightPosition.x);
+            subGrid.setUpperRightLat(upperRightPosition.y);
+
+            // verify numbers in -180 -> 180 range
+            subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid
+                    .getLowerLeftLon()));
+            subGrid.setUpperRightLon(MapUtil.correctLon(subGrid
+                    .getUpperRightLon()));
+
+            GridCoverage subGridCoverage = coverage.trim(subGrid);
+
+            if (subGridCoverage != null) {
                 try {
-                    SubGridDef subGridDef = loadSubGridDef(fd.getFilePath(),
-                            defaultCenterPoint);
-
-                    if (subGridDef != null) {
-                        String referenceModel = subGridDef.getReferenceModel();
-
-                        GridCoverage gridCoverage = getGrid(referenceModel);
-
-                        if (gridCoverage != null) {
-                            Coordinate subGridCenterLatLon = new Coordinate(
-                                    subGridDef.getCenterLongitude(),
-                                    subGridDef.getCenterLatitude());
-
-                            Coordinate subGridCenterGridCoord = MapUtil
-                                    .latLonToGridCoordinate(
-                                            subGridCenterLatLon,
-                                            PixelOrientation.CENTER,
-                                            gridCoverage);
-
-                            double xCenterPoint = subGridCenterGridCoord.x;
-                            double yCenterPoint = subGridCenterGridCoord.y;
-
-                            double xDistance = subGridDef.getNx() / 2;
-                            double yDistance = subGridDef.getNy() / 2;
-                            Coordinate lowerLeftPosition = new Coordinate(
-                                    xCenterPoint - xDistance, yCenterPoint
-                                            + yDistance);
-                            Coordinate upperRightPosition = new Coordinate(
-                                    xCenterPoint + xDistance, yCenterPoint
-                                            - yDistance);
-
-                            lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
-                                    lowerLeftPosition, PixelOrientation.CENTER,
-                                    gridCoverage);
-                            upperRightPosition = MapUtil
-                                    .gridCoordinateToLatLon(upperRightPosition,
-                                            PixelOrientation.CENTER,
-                                            gridCoverage);
-
-                            subGridDef.setLowerLeftLon(lowerLeftPosition.x);
-                            subGridDef.setLowerLeftLat(lowerLeftPosition.y);
-                            subGridDef.setUpperRightLon(upperRightPosition.x);
-                            subGridDef.setUpperRightLat(upperRightPosition.y);
-
-                            // verify numbers in -180 -> 180 range
-                            subGridDef.setLowerLeftLon(MapUtil
-                                    .correctLon(subGridDef.getLowerLeftLon()));
-                            subGridDef.setUpperRightLon(MapUtil
-                                    .correctLon(subGridDef.getUpperRightLon()));
-
-                            // do a reverse lookup of the model name to get its
-                            // associated grid id
-
-                            for (String modelName : subGridDef.getModelNames()) {
-                                GridModel model = gribModelLUT
-                                        .getModelByName(modelName);
-                                if (model != null) {
-                                    GridCoverage baseCoverage = spatialNameMap
-                                            .get(model.getGrid().toString());
-
-                                    if (baseCoverage != null) {
-                                        SubGrid subGrid = new SubGrid();
-                                        subGrid.setModelName(modelName);
-                                        GridCoverage subGridCoverage = baseCoverage
-                                                .trim(subGridDef, subGrid);
-                                        if (subGridCoverage != null) {
-                                            subGrids.put(
-                                                    subGridCoverage.getName(),
-                                                    subGridCoverage);
-                                            definedSubGridMap.put(modelName,
-                                                    subGrid);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            logger.error("Failed to generate sub grid for "
-                                    + fd.getFilePath()
-                                    + ".  Unable to determine coverage for referenceModel ["
-                                    + referenceModel + "]");
-                        }
-                    }
+                    subGridCoverage = insert(subGridCoverage);
                 } catch (Exception e) {
-                    // Log error but do not throw exception
-                    logger.error(
-                            "Failed processing sub grid file: "
-                                    + fd.getFilePath(), e);
+                    logger.error(e.getLocalizedMessage(), e);
+                    return false;
                 }
+                subGridCoverageMap.put(subGridKey(modelName, coverage),
+                        subGridCoverage);
+                definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
             }
+            return true;
         } else {
-            subGrids = new HashMap<String, GridCoverage>(0);
+            return false;
         }
-
-        return subGrids;
     }
 
     /**
@@ -622,9 +393,10 @@ public class GribSpatialCache {
 
         if (f.length() > 0) {
             try {
-                rval = (SubGridDef) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(f);
-                if ((rval.getReferenceModel() == null)
+                JAXBManager manager = new JAXBManager(SubGridDef.class);
+                rval = (SubGridDef) manager.jaxbUnmarshalFromXmlFile(f);
+                if ((rval.getReferenceModel() == null && rval
+                        .getReferenceGrid() == null)
                         || (rval.getModelNames() == null)
                         || (rval.getModelNames().size() == 0)) {
                     // sub grid didn't have required definitions
@@ -632,11 +404,17 @@ public class GribSpatialCache {
                 } else {
                     if ((rval.getCenterLatitude() == null)
                             || (rval.getCenterLongitude() == null)) {
-                        rval.setCenterLatitude(defaultCenter.y);
-                        rval.setCenterLongitude(defaultCenter.x);
+                        if (defaultCenter == null) {
+                            rval = null;
+                        } else {
+                            rval.setCenterLatitude(defaultCenter.y);
+                            rval.setCenterLongitude(defaultCenter.x);
+                        }
                     }
                 }
             } catch (SerializationException e) {
+                logger.error("Failed reading sub grid file: " + filePath, e);
+            } catch (JAXBException e) {
                 logger.error("Failed reading sub grid file: " + filePath, e);
             }
         }
@@ -644,16 +422,109 @@ public class GribSpatialCache {
         return rval;
     }
 
-    private static boolean isDefintionChanged(final FileDataList previousFdl,
-            final FileDataList currentFdl) {
-        boolean rval = true;
-        if (currentFdl != null) {
-            rval = !currentFdl.equals(previousFdl);
-        } else {
-            rval = previousFdl != null;
-        }
+    private String subGridKey(String modelName, GridCoverage coverage) {
+        return modelName + "&" + coverage.getId();
+    }
 
-        return rval;
+    /**
+     * scan the grib grid definition for changes, when force is false this will
+     * only scan if we have not scanne din the last 60 seconds.
+     * 
+     * @param force
+     * @return
+     */
+    private synchronized void scanFiles() {
+        if (fileScanTime + 60000 > System.currentTimeMillis()) {
+            return;
+        }
+        FileDataList currentFDL = generateFileDataList();
+        fileScanTime = System.currentTimeMillis();
+        if (!currentFDL.equals(this.fileDataList)) {
+            initializeGrids(currentFDL);
+            return;
+        } else {
+            return;
+        }
+    }
+
+    private void initializeGrids(FileDataList fdl) {
+        logger.info("Initializing grib grid coverages");
+        long startTime = System.currentTimeMillis();
+        ClusterTask ct = null;
+        Map<Integer, Set<String>> gridNameMap = new HashMap<Integer, Set<String>>();
+        Map<String, GridCoverage> spatialNameMap = new HashMap<String, GridCoverage>();
+        Map<String, SubGridDef> subGridDefMap = new HashMap<String, SubGridDef>();
+        do {
+            ct = ClusterLockUtils.lock("grib", "spatialCache", 120000, true);
+        } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+
+        try {
+            for (FileData fd : fdl.getCoverageFileList()) {
+                try {
+                    GridCoverage grid = (GridCoverage) SerializationUtil
+                            .jaxbUnmarshalFromXmlFile(fd.getFilePath());
+                    String name = grid.getName();
+                    grid = insert(grid);
+                    spatialNameMap.put(name, grid);
+                    Set<String> names = gridNameMap.get(grid.getId());
+                    if (names == null) {
+                        names = new HashSet<String>();
+                        gridNameMap.put(grid.getId(), names);
+                    }
+                    names.add(name);
+                } catch (Exception e) {
+                    // Log error but do not throw exception
+                    logger.error(
+                            "Unable to read default grids file: "
+                                    + fd.getFilePath(), e);
+                }
+            }
+            Coordinate defaultCenterPoint = null;
+
+            try {
+                defaultCenterPoint = getDefaultSubGridCenterPoint();
+            } catch (Exception e) {
+                logger.error(
+                        "Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
+                        e);
+            }
+            for (FileData fd : fdl.getSubGridFileList()) {
+                try {
+                    SubGridDef subGridDef = loadSubGridDef(fd.getFilePath(),
+                            defaultCenterPoint);
+                    if (subGridDef == null) {
+                        continue;
+                    }
+                    for (String modelName : subGridDef.getModelNames()) {
+                        subGridDefMap.put(modelName, subGridDef);
+                    }
+                } catch (Exception e) {
+                    // Log error but do not throw exception
+                    logger.error(
+                            "Unable to read default grids file: "
+                                    + fd.getFilePath(), e);
+                }
+            }
+            this.gridNameMap = gridNameMap;
+            this.spatialNameMap = spatialNameMap;
+            this.subGridDefMap = subGridDefMap;
+            this.subGridCoverageMap.clear();
+            this.definedSubGridMap.clear();
+            this.fileDataList = fdl;
+        } finally {
+            ClusterLockUtils.unlock(ct, false);
+        }
+        long endTime = System.currentTimeMillis();
+        logger.info("Grib grid coverages initialized: " + (endTime - startTime)
+                + "ms");
+    }
+
+    private GridCoverage insert(GridCoverage coverage)
+            throws GridCoverageException {
+        coverage.initialize();
+        GridCoverageLookup gcl = GridCoverageLookup.getInstance();
+        GridCoverage dbCoverage = gcl.getCoverage(coverage, true);
+        return dbCoverage;
     }
 
     private FileDataList generateFileDataList() {
@@ -670,92 +541,6 @@ public class GribSpatialCache {
                 new String[] { "xml" }, true, true));
 
         return fileList;
-    }
-
-    private FileDataList getPreviousFileDataList() {
-        IPathManager pm = PathManagerFactory.getPathManager();
-        File previousFileData = pm.getFile(pm.getContext(
-                LocalizationType.EDEX_STATIC, LocalizationLevel.CONFIGURED),
-                "/grib/gridDefFileListing.xml");
-        FileDataList rval = null;
-
-        if (previousFileData.exists() && (previousFileData.length() > 0)) {
-            try {
-                Object obj = SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(previousFileData);
-                if (obj instanceof FileDataList) {
-                    rval = (FileDataList) obj;
-                } else {
-                    logger.error("Error occurred deserializing "
-                            + previousFileData.getAbsolutePath()
-                            + ", expected type " + FileDataList.class
-                            + " received " + obj.getClass());
-                }
-            } catch (Exception e) {
-                logger.error(
-                        "Error occurred deserializing "
-                                + previousFileData.getAbsolutePath(), e);
-            }
-        }
-        return rval;
-    }
-
-    private Map<String, GridCoverage> loadGridDefinitionsFromDisk(
-            final FileDataList currentFdl) {
-        List<FileData> coverageFiles = currentFdl.getCoverageFileList();
-        Map<String, GridCoverage> fileCoverageMap = new HashMap<String, GridCoverage>(
-                (int) (coverageFiles.size() * 1.25) + 1);
-
-        /*
-         * Iterate over file list. Unmarshal to GridCoverage object
-         */
-        for (FileData fd : coverageFiles) {
-            try {
-                GridCoverage grid = (GridCoverage) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(fd.getFilePath());
-                GridCoverage previousGrid = fileCoverageMap.put(grid.getName(),
-                        grid);
-                if (previousGrid != null) {
-                    for (FileData fd2 : coverageFiles) {
-                        GridCoverage grid2 = (GridCoverage) SerializationUtil
-                                .jaxbUnmarshalFromXmlFile(fd2.getFilePath());
-                        if (grid.getName().equals(grid2.getName())) {
-                            logger.error("Grid " + grid.getName()
-                                    + " has already been defined.  "
-                                    + fd.getFilePath() + " and "
-                                    + fd2.getFilePath()
-                                    + " have same name.  Using "
-                                    + fd2.getFilePath());
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                // Log error but do not throw exception
-                logger.error(
-                        "Unable to read default grids file: "
-                                + fd.getFilePath(), e);
-            }
-        }
-
-        return fileCoverageMap;
-    }
-
-    private void saveFileDataList(final FileDataList fdl) {
-        try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationFile lf = pm.getLocalizationFile(
-                    pm.getContext(LocalizationType.EDEX_STATIC,
-                            LocalizationLevel.CONFIGURED),
-                    "/grib/gridDefFileListing.xml");
-            SerializationUtil.jaxbMarshalToXmlFile(fdl, lf.getFile()
-                    .getAbsolutePath());
-            lf.save();
-        } catch (Exception e) {
-            logger.error(
-                    "Failed to save coverage file data list, coverages may be reloaded on next restart",
-                    e);
-        }
     }
 
     public static void reinitialize() {
@@ -806,4 +591,27 @@ public class GribSpatialCache {
 
         return defaultCenterPoint;
     }
+
+    public static Corner determineFirstGridPointCorner(int scanMode) {
+        if ((scanMode & 128) > 0) {
+            // -i
+            if ((scanMode & 64) > 0) {
+                // +j
+                return Corner.LowerRight;
+            } else {
+                // -j
+                return Corner.UpperRight;
+            }
+        } else {
+            // +i
+            if ((scanMode & 64) > 0) {
+                // +j
+                return Corner.LowerLeft;
+            } else {
+                // -j
+                return Corner.UpperLeft;
+            }
+        }
+    }
+
 }
