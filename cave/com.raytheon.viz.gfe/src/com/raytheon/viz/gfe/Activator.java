@@ -34,6 +34,20 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
 
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Oct 30, 2012 1298       rferrel     Must be a blocking dialog.
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
  */
 public class Activator extends AbstractUIPlugin implements BundleActivator {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -101,17 +115,22 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     public PythonPreferenceStore getPreferenceStore() {
         synchronized (this) {
             if (pythonPrefs == null) {
-                if (cfgDlg == null) {
+                if (cfgDlg == null || cfgDlg.getShell() == null
+                        || cfgDlg.isDisposed()) {
                     cfgDlg = new GFEConfigDialog(
                             new Shell(Display.getDefault()));
+                    // Must keep as a blocking dialog for eclipse plugins to
+                    // work properly.
+                    cfgDlg.setBlockOnOpen(true);
+                    cfgDlg.open();
+                } else {
+                    cfgDlg.bringToTop();
                 }
-                cfgDlg.setBlockOnOpen(true);
-                cfgDlg.open();
-                String config = cfgDlg.getConfig();
 
                 // this is necessary because we sometimes get in here
                 // recursively and only want to do this once
                 if (pythonPrefs == null) {
+                    String config = cfgDlg.getConfig();
                     pythonPrefs = new PythonPreferenceStore(config);
                     statusHandler.handle(Priority.EVENTA,
                             "GFE started with configuration: " + config);
