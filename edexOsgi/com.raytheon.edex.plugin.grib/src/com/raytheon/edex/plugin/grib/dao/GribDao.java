@@ -261,6 +261,23 @@ public class GribDao extends PluginDao {
     }
 
     @Override
+    public IDataStore getDataStore(IPersistable obj) {
+        String persistDir = PLUGIN_HDF5_DIR.replace("grib", "grid")
+                + pathProvider.getHDFPath(this.pluginName, obj)
+                + File.separator;
+        String archive = pathProvider.getHDFFileName(this.pluginName, obj);
+
+        File persistFile = new File(persistDir, archive);
+        /* connect to the data store and retrieve the data */
+        return DataStoreFactory.getDataStore(persistFile);
+    }
+
+    @Override
+    protected String getHDF5Path(String productKey) {
+        return super.getHDF5Path(productKey).replace("grib", "grid");
+    }
+
+    @Override
     public List<IDataRecord[]> getHDF5Data(List<PluginDataObject> objects,
             int tileSet) throws PluginException {
 
@@ -284,23 +301,11 @@ public class GribDao extends PluginDao {
                     } else {
                         /* connect to the data store and retrieve the data */
 
-                        record = new IDataRecord[4];
+                        record = new IDataRecord[1];
 
-                        record[0] = dataStore.retrieve(obj.getDataURI(),
-                                "Data", Request.ALL);
-
-                        if (obj.isLocalSectionUsed()) {
-                            record[1] = dataStore.retrieve(obj.getDataURI(),
-                                    LOCAL_SECTION, Request.ALL);
-                        }
-                        if (obj.isHybridGrid()) {
-                            record[2] = dataStore.retrieve(obj.getDataURI(),
-                                    HYBRID_LEVELS, Request.ALL);
-                        }
-                        if (obj.isThinnedGrid()) {
-                            record[3] = dataStore.retrieve(obj.getDataURI(),
-                                    THINNED_PTS, Request.ALL);
-                        }
+                        record[0] = dataStore.retrieve(GribPathProvider
+                                .getInstance().getGroup(obj), "Data",
+                                Request.ALL);
 
                         retVal.add(record);
                     }
