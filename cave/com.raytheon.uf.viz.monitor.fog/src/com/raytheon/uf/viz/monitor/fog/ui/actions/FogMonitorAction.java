@@ -47,12 +47,13 @@ public class FogMonitorAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-   
+
         System.out.println("Activating/Action for FOG...");
         FogMonitor fog = FogMonitor.getInstance();
-        
-		if (fog.zoneDialog == null || fog.zoneDialog.isDisposed()) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+
+        if (fog.getZoneDialog() == null || fog.getZoneDialog().isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
             fog.launchDialog("zone", shell);
         }
         return null;
