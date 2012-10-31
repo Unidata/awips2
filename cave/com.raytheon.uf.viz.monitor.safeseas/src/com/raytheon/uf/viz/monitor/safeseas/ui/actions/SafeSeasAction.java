@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
  * Nov 30, 2009 3424       zhao/Slav/wkwock launch safeseas from SafeseasMonitor.getInstance() 
  * Dec 30, 2009 3424       zhao        Launch SS monitor and SS zone/station table dialog separately here 
  * Feb 26, 2010 4282       zhao        Changed to follow the same dialog launch mechanism as in FOG
+ * Nov 15, 2012 1297       skorolev    Cleaned code
  * 
  * </pre>
  * 
@@ -50,13 +51,15 @@ public class SafeSeasAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-    	System.out.println("Activating/Action for Safeseas...");
-        
-    	SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();
-    	if ( monitor.zoneDialog == null || monitor.zoneDialog.isDisposed()) {
-    		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-    		monitor.launchDialog("zone", shell);
-    	}
+        System.out.println("Activating/Action for Safeseas...");
+
+        SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();
+        if (monitor.getZoneDialog() == null
+                || monitor.getZoneDialog().isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            monitor.launchDialog("zone", shell);
+        }
         return null;
     }
 
