@@ -51,7 +51,7 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      */
     protected PurgeRuleSet configXml;
 
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    private final ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
 
     /** Singleton instance of this class */
     private static FFMPRetentionTimeManager instance = new FFMPRetentionTimeManager();
@@ -166,12 +166,12 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @return
      */
     public long getRetentionTime() {
+        PurgeRule rule = configXml.getDefaultRule();
 
-        for (PurgeRule rule : configXml.getRules()) {
-            if (rule.getId().getPluginName().equals("ffmp")) {
-                return rule.getPeriodInMillis();
-            }
+        if (rule != null) {
+            return rule.getPeriodInMillis();
         }
+
         return 0l;
     }
 
@@ -181,11 +181,13 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @param time
      */
     public void setRetentionTime(String time) {
-        for (PurgeRule rule : configXml.getRules()) {
-            if (rule.getId().getPluginName().equals("ffmp")) {
-                rule.setPeriod(time);
-            }
+        PurgeRule rule = configXml.getDefaultRule();
+        if (rule == null) {
+            rule = new PurgeRule();
+            configXml.setDefaultRule(rule);
         }
+
+        rule.setPeriod(time);
 
         saveConfigXml();
     }
