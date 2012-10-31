@@ -111,8 +111,8 @@ public class DatabaseArchiver implements IPluginArchiver {
             DataArchiveConfig conf) {
         PluginProperties props = PluginRegistry.getInstance()
                 .getRegisteredObject(pluginName);
-        if (props != null && props.getRecord() != null
-                && props.getDao() != null) {
+        if ((props != null) && (props.getRecord() != null)
+                && (props.getDao() != null)) {
             Class<?> recordClass = props.getRecord();
             if (recordClass != null) {
                 try {
@@ -174,19 +174,19 @@ public class DatabaseArchiver implements IPluginArchiver {
                 archiveFormatter = pluginArchiveFormatters.get("default");
             }
 
-            while (startTime != null && endTime != null) {
+            while ((startTime != null) && (endTime != null)) {
                 Map<String, List<PersistableDataObject>> pdosToSave = archiveFormatter
                         .getPdosByFile(pluginName, dao, pdoMap, startTime,
                                 endTime);
 
-                if (pdosToSave != null && !pdosToSave.isEmpty()) {
+                if ((pdosToSave != null) && !pdosToSave.isEmpty()) {
                     recordCount += savePdoMap(pluginName, archivePath,
                             pdosToSave, conf.getCompressionEnabled());
                     for (Map.Entry<String, List<PersistableDataObject>> entry : pdosToSave
                             .entrySet()) {
                         List<PersistableDataObject> pdoList = entry.getValue();
-                        if (pdoList != null && !pdoList.isEmpty()
-                                && pdoList.get(0) instanceof IPersistable) {
+                        if ((pdoList != null) && !pdoList.isEmpty()
+                                && (pdoList.get(0) instanceof IPersistable)) {
                             datastoreFilesToArchive.add(entry.getKey());
                         }
                     }
@@ -196,7 +196,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                 endTime = determineEndTime(startTime, runTime);
             }
 
-            if (pdoMap != null && !pdoMap.isEmpty()) {
+            if ((pdoMap != null) && !pdoMap.isEmpty()) {
                 recordCount += savePdoMap(pluginName, archivePath, pdoMap,
                         conf.getCompressionEnabled());
                 // don't forget to archive the HDF5 for the records that weren't
@@ -204,8 +204,8 @@ public class DatabaseArchiver implements IPluginArchiver {
                 for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
                         .entrySet()) {
                     List<PersistableDataObject> pdoList = entry.getValue();
-                    if (pdoList != null && !pdoList.isEmpty()
-                            && pdoList.get(0) instanceof IPersistable) {
+                    if ((pdoList != null) && !pdoList.isEmpty()
+                            && (pdoList.get(0) instanceof IPersistable)) {
                         datastoreFilesToArchive.add(entry.getKey());
                     }
                 }
@@ -217,7 +217,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                 PluginProperties props = PluginRegistry.getInstance()
                         .getRegisteredObject(pluginName);
 
-                if (props != null && props.getCompression() != null) {
+                if ((props != null) && (props.getCompression() != null)) {
                     if (compRequired.equals(Compression.valueOf(props
                             .getCompression()))) {
                         // if plugin is already compressed to the correct level,
@@ -378,7 +378,7 @@ public class DatabaseArchiver implements IPluginArchiver {
         Calendar startTime = null;
 
         // get previous run time
-        if (extraInfo != null && !extraInfo.isEmpty()) {
+        if ((extraInfo != null) && !extraInfo.isEmpty()) {
             try {
                 Date prevDate = DATE_FORMAT.parse(extraInfo);
 
@@ -404,7 +404,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             }
         } else {
             // startTime has never been set lookup earliest start time
-            Date minInsert = dao.getMinInsertTime("");
+            Date minInsert = dao.getMinInsertTime(null);
             if (minInsert != null) {
                 startTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 startTime.setTimeInMillis(minInsert.getTime());
