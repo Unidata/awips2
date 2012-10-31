@@ -68,9 +68,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
             configManager.saveConfigData();
 
             /**
-             * DR#11279:
-             * re-initialize threshold manager and the monitor 
-             * using new monitor area configuration
+             * DR#11279: re-initialize threshold manager and the monitor using
+             * new monitor area configuration
              */
             SnowThresholdMgr.reInitialize();
             SnowMonitor.reInitialize();
@@ -81,7 +80,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                             + "\n\nIf SNOW is running anywhere within "
                             + "the office, please clear it.\n");
 
-            if ( configManager.getAddedZones().size() > 0 || addedZones.size() > 0 ) {
+            if (configManager.getAddedZones().size() > 0
+                    || addedZones.size() > 0) {
                 String message2 = "New zones have been added, and their monitoring thresholds "
                         + "have been set to default values; would you like to modify "
                         + "their threshold values now?";
