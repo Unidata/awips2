@@ -584,8 +584,20 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 && !criteria.getCreatingEntityNames().isEmpty()) {
             creatingEntity = criteria.getCreatingEntityNames().get(0);
         }
-        return ColorMapParameterFactory.build(data.getScalarData().array(),
-                parameter, parameterUnits, level, creatingEntity);
+        ColorMapParameters newParameters = ColorMapParameterFactory.build(data
+                .getScalarData().array(), parameter, parameterUnits, level,
+                creatingEntity);
+        ColorMapParameters oldParameters = this.getCapability(
+                ColorMapCapability.class).getColorMapParameters();
+        if (oldParameters != null
+                && oldParameters.getDataMin() <= newParameters.getDataMin()
+                && oldParameters.getDataMax() >= newParameters.getDataMax()) {
+            // if the oldParameters have a larger range than the new parameters,
+            // reuse the old parameters. This is useful when the resource is
+            // sharing capabilities, for example in an FFGVizGroupResource.
+            newParameters = oldParameters;
+        }
+        return newParameters;
     }
 
     /**
