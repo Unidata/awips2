@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.viz.monitor.snow.ui.actions;
 
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -42,22 +40,32 @@ import com.raytheon.uf.viz.monitor.snow.SnowMonitor;
  * Nov 30, 2009 3424       zhao/wkwock/slav zhao/wkwock/slav Automatically updates snow display. Display station data.
  * Dec 18, 2009 3424       zhao        Launch snow monitor and snow zone/station table dialog separately here 
  * Feb 26, 2010 4282       zhao        changed to follow the same launch mechanism in FOG
+ * Nov.15, 2012 1297       skorolev    Cleaned code
+ * 
  * </pre>
  * 
  * @author grichard
  * @version 1.0
  */
 
-public class SnowAction extends AbstractHandler { 
+public class SnowAction extends AbstractHandler {
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         System.out.println("Activating/Action for SNOW...");
-        
+
         SnowMonitor snow = SnowMonitor.getInstance();
-        if ( snow.zoneDialog == null || snow.zoneDialog.isDisposed()) {
-        	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        	snow.launchDialog("zone", shell);
+        if (snow.getZoneDialog() == null || snow.getZoneDialog().isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            snow.launchDialog("zone", shell);
         }
         return null;
     }

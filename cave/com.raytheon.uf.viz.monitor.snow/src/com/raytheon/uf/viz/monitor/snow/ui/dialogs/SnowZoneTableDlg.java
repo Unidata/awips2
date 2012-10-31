@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.monitor.snow.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -28,6 +29,7 @@ import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -49,6 +51,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 2,  2009 3424       zhao/wkwock/slav Fix display SNOW 2nd time problem.
  * Dec 18, 2009 3424       zhao        use ObMultiHrsReports for obs data archive
  * July 20,2010 4891       skorolev    added code to fireDialogShutdown
+ * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
  * 
  * </pre>
  * 
@@ -57,14 +60,12 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  */
 
 public class SnowZoneTableDlg extends ZoneTableDlg {
-    // private ZoneTableComp zoneTableComp;
 
     private SnowMonDispThreshDlg snowThreshDlg;
 
     /**
-     * Constructor (Dec 16, 2009, zhao)
-     * 
      * @param parent
+     * @param obData
      */
     public SnowZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SNOW);
@@ -79,6 +80,39 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
         super(parent, CommonConfig.AppName.SNOW);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#initiateProdArray()
+     */
+    @Override
+    public void initiateProdArray() {
+        varName = config.getSnowZoneStnTableColVarNames()[colIndex];
+        // Fill product array
+        prodArray = new ArrayList<String>();
+        String[] varprefs = { "VAR_", "BLIZ_", "FRZ_", "HSW_" };
+        for (DisplayVarName var : DisplayVarName.values()) {
+            String dispVarName = var.name();
+            if (colIndex == 1 && dispVarName.startsWith(varprefs[1])) {
+                prodArray.add(dispVarName);
+            } else if (colIndex == 2 && dispVarName.startsWith(varprefs[2])) {
+                prodArray.add(dispVarName);
+            } else if (colIndex == 3 && dispVarName.startsWith(varprefs[3])) {
+                prodArray.add(dispVarName);
+            } else if (dispVarName.startsWith(varprefs[0])
+                    && dispVarName.equals(varprefs[0] + varName.name())) {
+                prodArray.add(dispVarName);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#configThreshAction()
+     */
     @Override
     protected void configThreshAction() {
         if (snowThreshDlg == null) {
@@ -89,6 +123,13 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.listeners.IMonitorListener#notify(com.raytheon
+     * .uf.viz.monitor.events.IMonitorEvent)
+     */
     @Override
     public void notify(IMonitorEvent me) {
         if (zoneTable.isDisposed()) {
@@ -97,7 +138,7 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
 
         if (me.getSource() instanceof SnowMonitor) {
             SnowMonitor monitor = (SnowMonitor) me.getSource();
-			Date date = monitor.getDialogTime();
+            Date date = monitor.getDialogTime();
             if (date != null) {
                 if (!isLinkedToFrame()) {
                     date = monitor.getObData().getLatestNominalTime();
@@ -107,64 +148,108 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * addMonitorControlListener(com.raytheon.uf.viz.monitor.IMonitor)
+     */
     @Override
     public void addMonitorControlListener(IMonitor monitor) {
         getMonitorControlListeners().add(monitor);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * fireConfigUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent)
+     */
     @Override
     public void fireConfigUpdate(IMonitorConfigurationEvent imce) {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * fireDialogShutdown
+     * (com.raytheon.uf.viz.monitor.listeners.IMonitorListener)
+     */
     @Override
     public void fireDialogShutdown(IMonitorListener iml) {
-        // Display.getDefault().asyncExec(new Runnable() {
-        // public void run() {
-        // Iterator<IMonitor> iter = getMonitorControlListeners()
-        // .iterator();
-        // while (iter.hasNext()) {
-        // ((SnowMonitor) iter.next()).closeDialog();
-        // }
-        // }
-        // });
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#fireKillMonitor
+     * ()
+     */
     @Override
     public void fireKillMonitor() {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * fireThresholdUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent)
+     */
     @Override
     public void fireThresholdUpdate(IMonitorThresholdEvent imte) {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * getMonitorControlListeners()
+     */
     @Override
-    public ArrayList<IMonitor> getMonitorControlListeners() {
+    public List<IMonitor> getMonitorControlListeners() {
         return controlListeners;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * removeMonitorContorlListener(com.raytheon.uf.viz.monitor.IMonitor)
+     */
     @Override
     public void removeMonitorContorlListener(IMonitor monitor) {
         getMonitorControlListeners().remove(monitor);
-
     }
 
-	@Override
-	protected MonitorConfigurationManager getConfigMgr() {
-		return SnowMonitorConfigurationManager.getInstance();
-	}
-	
-	@Override
-	protected void handleLinkToFrame() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
+     */
+    @Override
+    protected MonitorConfigurationManager getConfigMgr() {
+        return SnowMonitorConfigurationManager.getInstance();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
+     */
+    @Override
+    protected void handleLinkToFrame() {
         linkedToFrame = linkToFrameChk.getSelection();
         SnowMonitor.getInstance().fireMonitorEvent(this.getClass().getName());
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -174,20 +259,30 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void shellDisposeAction() {
-        // shell.addDisposeListener(new DisposeListener() {
-        // @Override
-        // public void widgetDisposed(DisposeEvent e) {
-        // System.out.println("Fog monitor dialog DISPOSED");
-        // unregisterDialogFromMonitor();
-        // }
-        // });
+        // Not used
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * setZoneSortColumnAndDirection()
      */
-    protected void unregisterDialogFromMonitor() {
-        fireDialogShutdown(this);
+    @Override
+    protected void setZoneSortColumnAndDirection() {
+        if (zoneTblData != null) {
+            zoneSortColumn = zoneTblData.getSortColumn();
+            zoneSortDirection = zoneTblData.getSortDirection();
+        }
+        return;
+    }
+
+    @Override
+    protected void setStnSortColumnAndDirection() {
+        if (stnTblData != null) {
+            stnSortColumn = stnTblData.getSortColumn();
+            stnSortDirection = stnTblData.getSortDirection();
+        }
     }
 
 }
