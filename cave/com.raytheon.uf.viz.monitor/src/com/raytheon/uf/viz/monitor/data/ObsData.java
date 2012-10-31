@@ -19,65 +19,69 @@
  **/
 package com.raytheon.uf.viz.monitor.data;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* Keeper of the obsData.  It is stored in a keyed structure 
-* Area > Station > Date > ObReport
-* 
-* <pre>
-* 
-* SOFTWARE HISTORY
-* 
-* Date         Ticket#     Engineer    Description
-* ------------ ----------  ----------- --------------------------
-* 12/07/09                  dhladky    Initial Creation.
-* 
-* </pre>
-* 
-* @author dhladky
-* 
-*/
+ * Keeper of the obsData. It is stored in a keyed structure Area > Station >
+ * Date > ObReport
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 12/07/09                  dhladky    Initial Creation.
+ * Nov 11, 2012 1297        skorolev    Changed ArrayList to List
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * 
+ */
 
 public class ObsData {
-    
+
     public ConcurrentHashMap<String, AreaContainer> tableData = null;
-    
+
     /**
      * public construct
      */
     public ObsData() {
         tableData = new ConcurrentHashMap<String, AreaContainer>();
     }
-  
+
     /**
      * Add an area
+     * 
      * @param stations
      * @param areaId
      */
-    public void addArea(String areaId, ArrayList<String> stations) {
+    public void addArea(String areaId, List<String> stations) {
         AreaContainer ac = new AreaContainer(stations, areaId);
         tableData.put(areaId, ac);
     }
-    
+
     /**
      * Gets the Area Container
+     * 
      * @param areaId
      * @return
      */
     public AreaContainer getArea(String areaId) {
         AreaContainer ac = null;
-        
+
         if (tableData.containsKey(areaId)) {
             ac = tableData.get(areaId);
         }
-        
+
         return ac;
     }
-    
+
     /**
      * remove the area
+     * 
      * @param areaId
      */
     public void removeArea(String areaId) {
@@ -85,9 +89,10 @@ public class ObsData {
             tableData.remove(areaId);
         }
     }
-    
+
     /**
      * Gets the container
+     * 
      * @return
      */
     public ConcurrentHashMap<String, AreaContainer> getContainer() {

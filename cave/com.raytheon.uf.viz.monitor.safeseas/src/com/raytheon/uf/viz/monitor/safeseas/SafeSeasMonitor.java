@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.graphics.RGB;
@@ -38,8 +39,9 @@ import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
-import com.raytheon.uf.common.monitor.data.ObConst.ChosenAppKey;
-import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
@@ -78,6 +80,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Dec 30, 2009 3424       zhao        use ObMultiHrsReports for obs data archive over time
  * July 20,2010 4891       skorolev    Added resource listener
  * May 15, 2012 14510      zhao        Modified processing at startup
+ * Oct 26, 2012 1280       skorolev    Clean code and made changes for non-blocking dialog
+ * Oct 30, 2012 1297       skorolev    Changed HashMap to Map
  * 
  * </pre>
  * 
@@ -87,24 +91,27 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 
 public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SafeSeasMonitor.class);
+
     /** Singleton instance of this class */
     private static SafeSeasMonitor monitor = null;
 
     /** zone table dialog **/
-    public SSZoneTableDlg zoneDialog = null;
+    private SSZoneTableDlg zoneDialog;
 
-    /**
-     * monitoring area config dialog
-     */
-    SSMonitoringAreaConfigDlg areaDialog = null;
+    /** monitoring area config dialog **/
+    private SSMonitoringAreaConfigDlg areaDialog = null;
 
+    /** configuration manager **/
     private SSMonitorConfigurationManager safeseasConfig = null;
 
     /**
      * This object contains all observation data necessary for the table dialogs
      * and trending plots
      */
-	private ObMultiHrsReports obData;
+    private ObMultiHrsReports obData;
 
     /** table data for the zone table **/
     private final TableData zoneTableData = new TableData(
@@ -114,116 +121,157 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private final TableData stationTableData = new TableData(
             CommonConfig.AppName.SAFESEAS);
 
-    /** All SafeSeas plugins start with this */
-	private static String OBS = "fssobs";
+    /** All SafeSeas datauri start with this */
+    private final String OBS = "fssobs";
 
     /** regex wild card filter */
-    protected static String wildCard = "[\\w\\(\\)-_:.]+";
+    private final String wildCard = "[\\w\\(\\)-_:.]+";
 
-    /** The application key */
-    ChosenAppKey chosenAppKey = ChosenAppKey.SAFESEAS;
+    /** List of SAFESEAS resource listeners **/
+    private final List<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
 
-    private final ArrayList<ISSResourceListener> safeSeasResources = new ArrayList<ISSResourceListener>();
+    /** Time which Zone/County dialog shows. **/
+    private Date dialogTime = null;
 
-    /**
-     * Time which Zone/County dialog shows.
-     */
-    public Date dialogTime = null;
+    /** list of coordinates for each zone **/
+    private Map<String, Geometry> zoneGeometries = null;
 
-	/** list of coordinates for each zone **/
-	public HashMap<String, Geometry> zoneGeometries = null;
-
-	/** data holder for FOG data **/
-	public HashMap<Date, HashMap<String, FOG_THREAT>> algorithmData = null;
+    /** data holder for FOG data **/
+    private Map<Date, Map<String, FOG_THREAT>> algorithmData = null;
 
     /** Adjacent areas for current cwa **/
     private Geometry geoAdjAreas;
 
-    /** Array of fogAlg listeners **/
-    private final ArrayList<ISSResourceListener> fogResources = new ArrayList<ISSResourceListener>();
+    /** List of fogAlg listeners **/
+    private final List<ISSResourceListener> fogResources = new ArrayList<ISSResourceListener>();
+
+    /** Pattern for SAFESEAS **/
+    private final Pattern ssPattern = Pattern
+            .compile(URIFilter.uriSeperator + OBS + URIFilter.uriSeperator
+                    + wildCard + URIFilter.uriSeperator + wildCard
+                    + URIFilter.uriSeperator + cwa + URIFilter.uriSeperator
+                    + wildCard + URIFilter.uriSeperator + wildCard
+                    + URIFilter.uriSeperator + wildCard
+                    + URIFilter.uriSeperator + "ss");
 
     /**
      * Private constructor, singleton
      */
     private SafeSeasMonitor() {
-		pluginPatterns.add(ssPattern);
+        pluginPatterns.add(ssPattern);
         readTableConfig(MonitorThresholdConfiguration.SAFESEAS_THRESHOLD_CONFIG);
-		initObserver("fssobs", this);
+        initObserver(OBS, this);
     }
 
+    /**
+     * @return instance of monitor
+     */
     public static synchronized SafeSeasMonitor getInstance() {
         if (monitor == null) {
             monitor = new SafeSeasMonitor();
-			// Pre-populate dialog with an observation (METAR) for KOMA
-			monitor.createDataStructures();
+            // Pre-populate dialog with an observation (METAR) for KOMA
+            monitor.createDataStructures();
             monitor.getAdjAreas();
-			monitor.processProductAtStartup("ss");
-			monitor.fireMonitorEvent(monitor);
+            monitor.processProductAtStartup("ss");
+            monitor.fireMonitorEvent(monitor);
         }
         return monitor;
     }
 
+    // TODO: Provide the changes in EDEX URIFilters when area configuration file
+    // has been changed.
     /**
-     * DR#11279:
-     * When monitor area configuration is changed, 
-     * this module is called to re-initialize monitor
-     * using new monitor area configuration 
+     * DR#11279: When monitor area configuration is changed, this module is
+     * called to re-initialize monitor using new monitor area configuration
      */
     public static void reInitialize() {
-    	if ( monitor != null ) {
-    		monitor = null;
-    		monitor = new SafeSeasMonitor();
-    	}
-    }
-    
-	/**
-	 * Creates the maps
-	 */
-	private void createDataStructures() {
-		// [Jan 21, 2010, zhao]
-		obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
-		obData.setThresholdMgr(SSThresholdMgr.getInstance());
-
-		algorithmData = new HashMap<Date, HashMap<String, FOG_THREAT>>();
-	}
-
-    public void launchDialog(String type, Shell shell) {
-
-        if (type.equals("zone")) {
-            if (zoneDialog == null) {
-                zoneDialog = new SSZoneTableDlg(shell, obData);
-                addMonitorListener(zoneDialog);
-                zoneDialog.addMonitorControlListener(this);
-            }
-            zoneDialog.open();
-            fireMonitorEvent(zoneDialog.getClass().getName());
-        } else if (type.equals("area")) {
-            areaDialog = new SSMonitoringAreaConfigDlg(shell,
-                    "Safe Seas Monitor Area Configuration");
-            areaDialog.open();
+        if (monitor != null) {
+            monitor = null;
+            monitor = new SafeSeasMonitor();
         }
     }
 
+    /**
+     * Creates the maps
+     */
+    private void createDataStructures() {
+        obData = new ObMultiHrsReports(CommonConfig.AppName.SAFESEAS);
+        obData.setThresholdMgr(SSThresholdMgr.getInstance());
+        algorithmData = new HashMap<Date, Map<String, FOG_THREAT>>();
+    }
+
+    /**
+     * Launch SAFESEAS Zone Dialog
+     * 
+     * @param type
+     * @param shell
+     */
+    public void launchDialog(String type, Shell shell) {
+
+        if (type.equals("zone")) {
+            if (zoneDialog == null || zoneDialog.getShell() == null
+                    || zoneDialog.isDisposed()) {
+                zoneDialog = new SSZoneTableDlg(shell, obData);
+                addMonitorListener(zoneDialog);
+                zoneDialog.addMonitorControlListener(this);
+                fireMonitorEvent(zoneDialog.getClass().getName());
+                zoneDialog.open();
+            } else {
+                zoneDialog.bringToTop();
+            }
+        } else if (type.equals("area")) {
+            if (areaDialog == null) {
+                areaDialog = new SSMonitoringAreaConfigDlg(shell,
+                        "Safe Seas Monitor Area Configuration");
+                areaDialog.open();
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#filterNotifyMessage(com.raytheon
+     * .uf.viz.core.notification.NotificationMessage)
+     */
     @Override
     public boolean filterNotifyMessage(NotificationMessage alertMessage) {
-
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#processNotifyMessage(com.raytheon
+     * .uf.viz.core.notification.NotificationMessage)
+     */
     @Override
     public void processNotifyMessage(NotificationMessage filtered) {
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#processProductMessage(com.raytheon
+     * .uf.viz.core.alerts.AlertMessage)
+     */
     @Override
     public void processProductMessage(final AlertMessage filtered) {
-		if (ssPattern.matcher(filtered.dataURI).matches()) {
-            // System.out.println("Found match: " + ssPattern + " URI: "
-            // + filtered.dataURI);
-                processURI(filtered.dataURI, filtered);
-            }
+        if (ssPattern.matcher(filtered.dataURI).matches()) {
+            processURI(filtered.dataURI, filtered);
+        }
     }
 
+    /**
+     * Adds data to station table
+     * 
+     * @param trd
+     * @param stationID
+     */
     public void addToStationDataTable(TableRowData trd, String stationID) {
         int numberCell = trd.getNumberOfCellData();
         TableRowData stationRowData = new TableRowData(numberCell + 1);
@@ -233,7 +281,6 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         for (int i = 0; i < numberCell; i++) {
             stationRowData.setTableCellData(i + 1, trd.getTableCellData(i));
         }
-
         stationTableData.addReplaceDataRow(stationRowData);
     }
 
@@ -245,22 +292,28 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      *            -- the xml configuration filename
      */
     public void readTableConfig(String file) {
-        HashMap<String, ArrayList<String>> zones = new HashMap<String, ArrayList<String>>();
+        Map<String, List<String>> zones = new HashMap<String, List<String>>();
         // create zones and station list
         try {
             SSMonitorConfigurationManager areaConfig = getMonitorAreaConfig();
             for (String zone : areaConfig.getAreaList()) {
-                ArrayList<String> stations = areaConfig.getAreaStations(zone);
+                List<String> stations = areaConfig.getAreaStations(zone);
                 zones.put(zone, stations);
             }
         } catch (Exception e) {
-            System.out.println("SafeSeas failed to load configuration..."
-                    + this.getClass().getName());
+            statusHandler.handle(Priority.CRITICAL,
+                    "SafeSeas failed to load configuration..."
+                            + this.getClass().getName(), e);
         }
         MonitoringArea.setPlatformMap(zones);
     }
 
-    public SSMonitorConfigurationManager getMonitorAreaConfig() {
+    /**
+     * Gets configuration manager
+     * 
+     * @return safeseasConfig
+     */
+    private SSMonitorConfigurationManager getMonitorAreaConfig() {
         if (safeseasConfig == null) {
             LocalizationManager mgr = LocalizationManager.getInstance();
             String siteScope = mgr.getCurrentSite();
@@ -271,104 +324,144 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         return safeseasConfig;
     }
 
-	private Pattern ssPattern = Pattern
-			.compile(URIFilter.uriSeperator + OBS + URIFilter.uriSeperator
-					+ wildCard + URIFilter.uriSeperator + wildCard
-					+ URIFilter.uriSeperator + cwa + URIFilter.uriSeperator
-					+ wildCard + URIFilter.uriSeperator + wildCard
-					+ URIFilter.uriSeperator + wildCard
-					+ URIFilter.uriSeperator + "ss");
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.Monitor#initObserver(java.lang.String,
+     * com.raytheon.uf.viz.monitor.Monitor)
+     */
     @Override
     public void initObserver(String pluginName, Monitor monitor) {
         ProductAlertObserver.addObserver(pluginName, this);
-
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#thresholdUpdate(com.raytheon.uf
+     * .viz.monitor.events.IMonitorThresholdEvent)
+     */
     @Override
     public void thresholdUpdate(IMonitorThresholdEvent me) {
         fireMonitorEvent(zoneDialog.getClass().getName());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#configUpdate(com.raytheon.uf.viz
+     * .monitor.events.IMonitorConfigurationEvent)
+     */
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
-
+        // Not used
     }
 
     /**
-     * Kill this monitor by nullifying the monitor's private instance variable.
+     * Kills this monitor by nullifying the monitor's private instance variable.
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ObsMonitor#nullifyMonitor()
      */
     @Override
     public void nullifyMonitor() {
-        // /**
-        // * Before making the monitor null, remove observers
-        // */
-        // for (String p : pluginName) {
-        // if (!pluginName.equals("")) {
-        // stopObserver(p, this);
-        // }
-        // }
         monitor.removeMonitorListener(zoneDialog);
         monitor.fogResources.removeAll(getMonitorListeners());
-        stopObserver("fssobs", this);
+        stopObserver(OBS, this);
         monitor = null;
     }
 
+    /**
+     * @return zoneTableData
+     */
     public TableData getZoneTableData() {
         return zoneTableData;
     }
 
+    /**
+     * @return stationTableData
+     */
     public TableData getStationTableData() {
         return stationTableData;
     }
 
+    /**
+     * Gets data
+     * 
+     * @return obData
+     */
     public ObMultiHrsReports getObData() {
         return obData;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#process(com.raytheon.uf.viz.monitor
+     * .data.ObReport)
+     */
     @Override
-    protected void process(ObReport result)
-            throws Exception {
-
-        // ProcessSafeSeasReport safeSeas = new ProcessSafeSeasReport(result);
-        // safeSeas.processSafeSeasReport();
-        // add data to obData
+    protected void process(ObReport result) throws Exception {
         obData.addReport(result);
         fireMonitorEvent(this);
     }
 
     /**
-     * SSResource sets the dialogTime
+     * SSResource updates the dialogTime
      * 
      * @param dialogTime
      */
     public void updateDialogTime(Date dialogTime) {
-            this.dialogTime = dialogTime;
-            fireMonitorEvent(zoneDialog.getClass().getName());
+        this.dialogTime = dialogTime;
+        fireMonitorEvent(zoneDialog.getClass().getName());
     }
 
+    /**
+     * @return dialogTime
+     */
     public Date getDialogTime() {
         return dialogTime;
     }
 
+    /**
+     * Sets the dialogTime
+     * 
+     * @param dialogTime
+     */
     public void setDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
     }
 
+    /**
+     * Add recourse listener
+     * 
+     * @param issr
+     */
     public void addSSResourceListener(ISSResourceListener issr) {
         safeSeasResources.add(issr);
     }
 
+    /**
+     * Remove recourse listener
+     * 
+     * @param issr
+     */
     public void removeSSResourceListener(ISSResourceListener issr) {
         safeSeasResources.remove(issr);
     }
 
+    /**
+     * Close dialog
+     */
     public void closeDialog() {
         if (zoneDialog != null) {
             monitor.nullifyMonitor();
 
             zoneDialog.removeMonitorContorlListener(this);
-            zoneDialog.shellDisposeDialog();
+            zoneDialog.close();
             zoneDialog = null;
         }
         if (areaDialog != null) {
@@ -378,124 +471,130 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     }
 
     /**
-     * Order the dates
      * 
      * @param type
      * @return
+     * 
+     *         (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.IMonitor#getTimeOrderedKeys(com.raytheon.
+     *      uf.viz.monitor.IMonitor, java.lang.String)
      */
+    @Override
     public ArrayList<Date> getTimeOrderedKeys(IMonitor monitor, String type) {
+        // Not used
         return null;
     }
 
     /**
-     * Get most recent time
+     * Gets area geometries
      * 
-     * @param type
-     * @return
+     * @return zoneGeometries
      */
-    public DataTime getMostRecent(IMonitor monitor, String type) {
-        return null;
+    public Map<String, Geometry> getMonitoringAreaGeometries() {
+        if (zoneGeometries == null) {
+            ArrayList<String> zones = getMonitorAreaConfig().getAreaList();
+            zoneGeometries = new HashMap<String, Geometry>();
+            for (String zone : zones) {
+                try {
+                    zoneGeometries.put(zone,
+                            MonitorAreaUtils.getZoneGeometry(zone));
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error get Monitoring Area Config", e);
+                }
+            }
+        }
+        return zoneGeometries;
     }
 
-	public HashMap<String, Geometry> getMonitoringAreaGeometries() {
-		if (zoneGeometries == null) {
-			ArrayList<String> zones = getMonitorAreaConfig().getAreaList();
-			zoneGeometries = new HashMap<String, Geometry>();
-			for (String zone : zones) {
-				try {
-					zoneGeometries.put(zone,
-							MonitorAreaUtils.getZoneGeometry(zone));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return zoneGeometries;
-	}
+    /**
+     * Gets threats
+     * 
+     * @param refTime
+     * @param zoneThreats
+     */
+    public void setAlgorithmData(Date refTime,
+            Map<String, FOG_THREAT> zoneThreats) {
+        if (algorithmData.containsKey(refTime)) {
+            algorithmData.remove(refTime);
+        }
+        algorithmData.put(refTime, zoneThreats);
+    }
 
-	public void setAlgorithmData(Date refTime,
-			HashMap<String, FOG_THREAT> zoneThreats) {
-		if (algorithmData.containsKey(refTime)) {
-			algorithmData.remove(refTime);
-		}
-		algorithmData.put(refTime, zoneThreats);
-	}
+    /**
+     * Gets the algorithm threat by time
+     * 
+     * @param time
+     * @return algData
+     */
+    public Map<String, FOG_THREAT> getAlgorithmData(Date time) {
 
-	/**
-	 * Gets the algorithm threat
-	 * 
-	 * @param zone
-	 * @return
-	 */
-	public HashMap<String, FOG_THREAT> getAlgorithmData(Date time) {
+        Map<String, FOG_THREAT> algData = new HashMap<String, FOG_THREAT>();
 
-		HashMap<String, FOG_THREAT> algData = new HashMap<String, FOG_THREAT>();
+        if ((algorithmData != null) && algorithmData.containsKey(time)) {
+            algData = algorithmData.get(time);
+        } else {
+            // by default is nothing in the Fog column
+            for (String zone : MonitoringArea.getPlatformMap().keySet()) {
+                algData.put(zone, FOG_THREAT.GRAY);
+            }
+        }
+        return algData;
+    }
 
-		if ((algorithmData != null) && algorithmData.containsKey(time)) {
-			algData = algorithmData.get(time);
-		} else {
-			// default nothing in Fog column
-			for (String zone : MonitoringArea.getPlatformMap().keySet()) {
-				algData.put(zone, FOG_THREAT.GRAY);
-			}
-		}
-		return algData;
-	}
+    /**
+     * Gets Fog threat types.
+     * 
+     * @param fogAlgThreats
+     * @return types
+     */
+    public Map<String, CellType> getAlgCellTypes(
+            Map<String, FOG_THREAT> fogAlgThreats) {
+        Map<String, CellType> types = new HashMap<String, CellType>();
+        for (String zone : fogAlgThreats.keySet()) {
+            CellType type = getAlgorithmCellType(fogAlgThreats.get(zone));
+            types.put(zone, type);
+        }
+        return types;
+    }
 
-	public HashMap<String, CellType> getAlgCellTypes(
-			HashMap<String, FOG_THREAT> fogAlgThreats) {
-		HashMap<String, CellType> types = new HashMap<String, CellType>();
-		for (String zone : fogAlgThreats.keySet()) {
-			CellType type = getAlgorithmCellType(fogAlgThreats.get(zone));
-			types.put(zone, type);
-		}
-		return types;
-	}
+    /**
+     * Gets cell threat type
+     * 
+     * @param fog_THREAT
+     * @return type
+     */
+    private CellType getAlgorithmCellType(FOG_THREAT fog_THREAT) {
+        CellType type = CellType.NotDetermined;
+        if (fog_THREAT == FogRecord.FOG_THREAT.GREEN) {
+            type = CellType.G;
+        } else if (fog_THREAT == FogRecord.FOG_THREAT.YELLOW) {
+            type = CellType.Y;
+        } else if (fog_THREAT == FogRecord.FOG_THREAT.RED) {
+            type = CellType.R;
+        }
+        return type;
+    }
 
-	private CellType getAlgorithmCellType(FOG_THREAT fog_THREAT) {
-		CellType type = CellType.NotDetermined;
-		if (fog_THREAT == FogRecord.FOG_THREAT.GREEN) {
-			type = CellType.G;
-		} else if (fog_THREAT == FogRecord.FOG_THREAT.YELLOW) {
-			type = CellType.Y;
-		} else if (fog_THREAT == FogRecord.FOG_THREAT.RED) {
-			type = CellType.R;
-		}
-		return type;
-	}
+    /**
+     * Gets zone dialog
+     * 
+     * @return zoneDialog
+     */
+    public ZoneTableDlg getDialog() {
+        return zoneDialog;
+    }
 
-	/**
-	 * Get most recent time
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public DataTime getMostRecent() {
-		DataTime time = null;
-		Set<Date> ds = this.algorithmData.keySet();
-		DataTime[] times = new DataTime[ds.size()];
-		int i = 0;
-		for (Date d : ds) {
-			times[i] = new DataTime(d);
-			i++;
-		}
-		java.util.Arrays.sort(times);
-		if (times.length > 0) {
-			time = times[times.length - 1]; // most recent
-		}
-
-		return time;
-	}
-
-	public ZoneTableDlg getDialog() {
-		return zoneDialog;
-	}
-
+    /**
+     * Gets adjacent areas
+     */
     public void getAdjAreas() {
         this.setGeoAdjAreas(AdjacentWfoMgr.getAdjacentAreas(cwa));
     }
 
     /**
+     * Sets geometry of adjacent areas
+     * 
      * @param geoAdjAreas
      *            the geoAdjAreas to set
      */
@@ -504,6 +603,8 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     }
 
     /**
+     * Gets geometry of adjacent areas
+     * 
      * @return the geoAdjAreas
      */
     public Geometry getGeoAdjAreas() {
@@ -511,6 +612,8 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     }
 
     /*
+     * Updates data of Fog monitor
+     * 
      * (non-Javadoc)
      * 
      * @see
@@ -531,9 +634,25 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
 
     }
 
-	@Override
-	protected void processAtStartup(ObReport report) {
-		obData.addReport(report);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ObsMonitor#processAtStartup(com.raytheon.
+     * uf.viz.monitor.data.ObReport)
+     */
+    @Override
+    protected void processAtStartup(ObReport report) {
+        obData.addReport(report);
+    }
+
+    /**
+     * Gets SAFESEAS zone table dialog
+     * 
+     * @return
+     */
+    public SSZoneTableDlg getZoneDialog() {
+        return zoneDialog;
+    }
 
 }
