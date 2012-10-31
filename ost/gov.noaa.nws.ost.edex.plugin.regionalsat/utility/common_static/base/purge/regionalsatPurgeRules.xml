@@ -1,164 +1,118 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<key>creatingEntity</key>
+	<key>physicalElement</key>
+	<defaultRule>
 		<versionsToKeep>24</versionsToKeep>
-	</rule>
+	</defaultRule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=HRPT;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=HRPT;physicalElement=Imager Channel 4-5 IR</key>
-		</id>
-		<versionsToKeep>48</versionsToKeep>
-	</rule>
-		<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=HRPT;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=HRPT;physicalElement=Imager 3 Channel Diff</key>
-		</id>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=HRPT;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=MTSAT;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>HRPT</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=MTSAT;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=MTSAT;physicalElement=Imager Channel 4-5 IR</key>
-		</id>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=GVAR;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>MTSAT</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=GVAR;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=GVAR;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=GVAR;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=DMSP;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>GVAR</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=DMSP;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>DMSP</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY1C;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>DMSP</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY1C;physicalElement=Imager Channel 4-5 IR</key>
-		</id>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY1C;physicalElement=Imager 3 Channel Diff</key>
-		</id>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY1C;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY3C;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>FY1C</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY3C;physicalElement=Imager Channel 4-5 IR</key>
-		</id>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY3C;physicalElement=Imager 3 Channel Diff</key>
-		</id>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager Channel 4-5 IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>creatingEntity=FY3C;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager 3 Channel Diff</keyValue>
 		<versionsToKeep>48</versionsToKeep>
-	</rule>	
+	</rule>
+	<rule>
+		<keyValue>FY3C</keyValue>
+		<keyValue>Imager Visible</keyValue>
+		<versionsToKeep>48</versionsToKeep>
+	</rule>
 </purgeRuleSet>
