@@ -30,4 +30,5 @@ Export-Package: com.raytheon.uf.common.gridcoverage,
  com.raytheon.uf.common.gridcoverage.lookup,
  com.raytheon.uf.common.gridcoverage.request,
  com.raytheon.uf.common.gridcoverage.subgrid
-Require-Bundle: org.geotools;bundle-version="2.6.4"
+Require-Bundle: org.geotools;bundle-version="2.6.4",
+ com.raytheon.uf.common.serialization

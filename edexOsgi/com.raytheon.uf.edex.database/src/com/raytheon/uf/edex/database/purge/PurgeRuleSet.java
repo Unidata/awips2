@@ -20,7 +20,7 @@
 
 package com.raytheon.uf.edex.database.purge;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -63,7 +63,7 @@ public class PurgeRuleSet implements ISerializableObject {
      * List of purge rules for/from the XML.
      */
     @XmlElements({ @XmlElement(name = "rule", type = PurgeRule.class) })
-    private ArrayList<PurgeRule> rules;
+    private List<PurgeRule> rules;
 
     private PurgeRuleTree purgeTree = null;
 
@@ -88,11 +88,11 @@ public class PurgeRuleSet implements ISerializableObject {
      * 
      * @return
      */
-    public ArrayList<PurgeRule> getRules() {
-        return rules;
+    public List<PurgeRule> getRules() {
+        return (rules == null) ? Collections.<PurgeRule> emptyList() : rules;
     }
 
-    public void setRules(ArrayList<PurgeRule> rules) {
+    public void setRules(List<PurgeRule> rules) {
         this.rules = rules;
     }
 

@@ -1,16 +1,13 @@
 package gov.noaa.nws.ncep.gempak.parameters.core.contourinterval;
 
 
-import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.CINT;
-
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *<pre>
@@ -30,6 +27,7 @@ import static org.junit.Assert.*;
 
 public class CINTTest {
 	
+    private static final double ALLOWABLE_DOUBLE_DELTA = 0.0001;
 	private static int testCaseNumber;
 	private List<Double> testList;
 	private List<Double> testList2;
@@ -47,10 +45,14 @@ public class CINTTest {
 		    testList = new ArrayList<Double>(Arrays.asList(0.5, 9.0));
 		    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
 		    assertEquals(keySetList,testList);
-		    assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL).doubleValue(), 10);
-		    assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL).doubleValue(), 0.5);
-		    assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL).doubleValue(), 9);
-		    assertEquals(cint.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL), 0);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 0.5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 9, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(
+                cint.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL).intValue(), 0);
 		    System.out.println("=====================Test-Case "+testCaseNumber+"a ========================");
 		    System.out.println("The input string = " + cint.getUserInputString());
 			System.out.println("Is the contour data string parsed correctly? " + cint.isCINTStringParsed());
@@ -67,10 +69,14 @@ public class CINTTest {
                     20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0));
 		    keySetList = cint2.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
 		    assertEquals(testList2,keySetList);
-		    assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL).doubleValue(), 10);
-		    assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL).doubleValue(), -57);
-		    assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL).doubleValue(), 86);		    
-			assertEquals(cint2.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL), 4);
+        assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), -57, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 86, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL)
+                .intValue(), 4);
 			System.out.println("=====================Test-Case "+testCaseNumber+"b ========================");
 			System.out.println("The input string = " + cint2.getUserInputString());
 		    System.out.println("Is the contour data string parsed correctly? " + cint2.isCINTStringParsed());
@@ -158,9 +164,12 @@ public class CINTTest {
 	/*Test for valid contour string of the form contourInterval/minContourValue/ */
 	public void testContourIntervalWithMinValueOnly(){
 		CINT cint = new CINT("-0.345/0/");
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),-0.345);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),0);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);	
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), -0.345, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 0, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
 		
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("The input string = " + cint.getUserInputString());
@@ -177,9 +186,12 @@ public class CINTTest {
 	/*Test for valid contour data string of the form contourInterval//maxContourValue */
 	public void testContourIntervalWithMaxValueOnly(){
 		CINT cint = new CINT("15//30");
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),15);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),30);	
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 15, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 30, ALLOWABLE_DOUBLE_DELTA);
 	
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("Is the contour data string parsed correctly? " + cint.isCINTStringParsed());
@@ -196,9 +208,12 @@ public class CINTTest {
 		
 		CINT cint = new CINT("-0.5/");
 		assertEquals(cint.isCINTStringParsed(),true);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),-0.5);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), -0.5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
 		
 	    System.out.println("=====================Test-Case "+testCaseNumber+"a ========================");
 	    System.out.println("The input string = " + cint.getUserInputString());
@@ -209,9 +224,12 @@ public class CINTTest {
 
 		CINT cint2 = new CINT("-.89//");
 		assertEquals(cint2.isCINTStringParsed(),true);
-		assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL),-0.89);
-		assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), -0.89, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
 		
 	    System.out.println("=====================Test-Case "+testCaseNumber+"b ========================");
 	    System.out.println("The input string = " + cint2.getUserInputString());
@@ -229,9 +247,12 @@ public class CINTTest {
 	/*Test for valid contour data string of the form /minContourValue/maxContourValue */
 	public void testContourIntervalWithNoContourIntervalAndWithMinMaxValueOnly(){
 		CINT cint = new CINT("/10/30");
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),30);	
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 30, ALLOWABLE_DOUBLE_DELTA);
 	
 		System.out.println("=====================Test-Case "+testCaseNumber+" ========================");
 		System.out.println("The input string = " + cint.getUserInputString());
@@ -249,9 +270,12 @@ public class CINTTest {
 	/*Test for valid contour data string of the form /minContourValue/maxContourValue */
 	public void testContourIntervalWithMinValSameAsMaxValAndNoContourIntervalSpecified(){
 		CINT cint = new CINT("/10/10");
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),10);	
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
 	    testList = new ArrayList<Double>(Arrays.asList(10.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
 	    assertEquals(keySetList,testList);
@@ -312,9 +336,12 @@ public class CINTTest {
 		
 		CINT cint = new CINT("20/10/70/30/40/500");
 		assertEquals(cint.isCINTStringParsed(), true);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),20);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),70);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 20, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 70, ALLOWABLE_DOUBLE_DELTA);
 		//
 		testList = new ArrayList<Double>(Arrays.asList(10.0, 30.0, 50.0, 60.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
@@ -338,9 +365,12 @@ public class CINTTest {
 	public void testNonNumericContourIntervalString(){
 		CINT cint = new CINT("-def/abc/%^&/30/40");
 		assertEquals(cint.isCINTStringParsed(), false);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
 		
 		System.out.println("=====================Test-Case "+testCaseNumber+"========================");	
 		System.out.println("The input string      = "+cint.getUserInputString());
@@ -359,9 +389,12 @@ public class CINTTest {
 		
 		CINT cint = new CINT("5.10.60.9");
 		assertEquals(cint.isCINTStringParsed(), false);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),Double.NaN);		
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), Double.NaN, ALLOWABLE_DOUBLE_DELTA);
     	
 		System.out.println("=====================Test-Case "+testCaseNumber+"========================");
 		System.out.println("The input string      = "+cint.getUserInputString());
@@ -379,9 +412,12 @@ public class CINTTest {
 	public void testMinMaxValuesInterchangedContourIntervalString(){
 		CINT cint = new CINT("-5/20/5");
 		assertEquals(cint.isCINTStringParsed(), true);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),-5);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),20);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), -5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 20, ALLOWABLE_DOUBLE_DELTA);
 		
 	    testList = new ArrayList<Double>(Arrays.asList(5.0, 10.0, 15.0, 20.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
@@ -398,9 +434,12 @@ public class CINTTest {
 		
 		CINT cint2 = new CINT("5/20/5");
 		assertEquals(cint2.isCINTStringParsed(), true);
-		assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),20);		
+        assertEquals(cint2.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint2.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 20, ALLOWABLE_DOUBLE_DELTA);
 	    testList = new ArrayList<Double>(Arrays.asList(5.0, 10.0, 15.0, 20.0));
 //	    assertEquals(cint2.getContourValuesList(),testList);	
 		
@@ -492,9 +531,12 @@ public class CINTTest {
 	public void testSingleLabelledContourIntervalString(){
 		CINT cint = new CINT("5=good/5/5");
 		assertEquals(cint.isCINTStringParsed(), true);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),0);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),5);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),5);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 0, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 5, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 5, ALLOWABLE_DOUBLE_DELTA);
 		
 	    testList = new ArrayList<Double>(Arrays.asList(5.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
@@ -540,10 +582,14 @@ public class CINTTest {
 		CINT cint = new CINT("1/2/10/3 > 4/2/18");
 		
 		assertEquals(cint.isCINTStringParsed(), true);
-		assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL),1);
-		assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL),2);
-		assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL),10);
-		assertEquals(cint.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL),3);
+        assertEquals(cint.getContourInterval(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 1, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMinContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 2, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getMaxContourValue(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 10, ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(cint.getNumPaddingDigits(CINT.FIRST_ZOOM_LEVEL)
+                .doubleValue(), 3, ALLOWABLE_DOUBLE_DELTA);
 		
 	    testList = new ArrayList<Double>(Arrays.asList(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.FIRST_ZOOM_LEVEL);
@@ -591,8 +637,11 @@ public class CINTTest {
 	 	testList = new ArrayList<Double>(Arrays.asList(60.0,80.0));
 	    keySetList = cint.getContourValuesListAsDouble(CINT.THIRD_ZOOM_LEVEL);
 	    assertEquals(testList,keySetList);
-	    assertEquals(0.00009999, cint.getContourInterval(CINT.FOURTH_ZOOM_LEVEL));
-	    assertEquals(0.0000001, cint.getContourInterval(CINT.FIFTH_ZOOM_LEVEL));
+        assertEquals(0.00009999, cint
+                .getContourInterval(CINT.FOURTH_ZOOM_LEVEL).doubleValue(),
+                ALLOWABLE_DOUBLE_DELTA);
+        assertEquals(0.0000001, cint.getContourInterval(CINT.FIFTH_ZOOM_LEVEL)
+                .doubleValue(), ALLOWABLE_DOUBLE_DELTA);
 //	 	testList = new ArrayList<Double>(Arrays.asList(0.00009999));
 //	    keySetList = cint.getContourValuesListAsDouble(CINT.FOURTH_ZOOM_LEVEL);
 //	    assertEquals(testList,keySetList);

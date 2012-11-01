@@ -162,35 +162,6 @@ public final class Util {
     }
 
     /**
-     * Obtains the value of the specified field from the object.
-     * 
-     * @param object
-     *            the object containing the field
-     * @param classObj
-     *            the class of the object
-     * @param name
-     *            the name of the field
-     * 
-     * @return the value of the field
-     * 
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     */
-    @SuppressWarnings("unchecked")
-    public static Object getFieldValue(Object object, Class classObj,
-            String name) throws NoSuchMethodException,
-            InvocationTargetException, IllegalAccessException {
-        Object obj = null;
-        StringBuffer getter = new StringBuffer("get").append(
-                name.substring(0, 1).toUpperCase()).append(name.substring(1));
-        Method worker = classObj.getMethod(getter.toString(), (Class[]) null);
-        obj = worker.invoke(object, (Object[]) null);
-        return obj;
-
-    }
-
-    /**
      * Invokes the setter for the specified field on an object.
      * <P>
      * The {@code objClass} argument could be eliminated by calling
@@ -971,8 +942,7 @@ public final class Util {
      * 
      * @return the converted object
      */
-    @SuppressWarnings("unchecked")
-    public static Object getObjForStr(String string, Class aClass) {
+    public static Object getObjForStr(String string, Class<?> aClass) {
 
         Object retValue = null;
 

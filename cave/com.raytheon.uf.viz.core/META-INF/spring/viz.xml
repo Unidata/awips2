@@ -34,4 +34,5 @@
    </bean>  -->
 
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+   
 </beans>
