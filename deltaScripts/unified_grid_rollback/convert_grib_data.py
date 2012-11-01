@@ -87,8 +87,6 @@ def convertModel(modelName):
             secondaryId = "Version" + version
         ensembleId = convertPert(pert)
         newdatauri = "/grid/" + datatime + "/" + modelName + "/" + secondaryId + "/" + ensembleId + "/" + gridcoverageid + "/" + paramabbrev + "/" + masterlevel + "/" + levelone + "/" + leveltwo
-        if paramabbrev.startswith("static") and gribforecasttime != 0:
-            continue
         hdfTime -= time()
         try:
             forecast = int(gribforecasttime)/3600
@@ -96,26 +94,26 @@ def convertModel(modelName):
             newgrp = newdatauri
             dataset="Data"
             if paramabbrev.startswith("static"):
-                forecast = 0
-                prevgrp = "/"
-                newgrp = "/" + gridcoveragename
+                prevgrp = "/"+ gridcoverageid
+                newgrp = "/" 
                 dataset=paramabbrev
-            filebase = "/%s-%s-FH-%.3d.h5" % (modelName, gribreftime.split(":")[0].replace(" ", "-"), forecast)
-            hdf5file = gribFiles + masterlevel + filebase
-            if lastFile != None and lastFile.filename != hdf5file:
-                #print "Closing", lastFile.filename
-                lastFile.close()
-                lastFile = None
-            if lastFile == None:
-                if not(exists(hdf5file)):
-                    t0 = time()
-                    if not(isdir(gribFiles + masterlevel)):
-                        mkdir(gribFiles + masterlevel)
-                    move(gridFiles + masterlevel + filebase, gribFiles)
-                    hdfTime -= (time() - t0)
-                #print "Opening", hdf5file
-                lastFile = h5py.File(hdf5file)
-            copyH5(lastFile, newgrp, prevgrp, dataset)
+            if not(paramabbrev.startswith("static")) or forecast == 0:
+                filebase = "/%s-%s-FH-%.3d.h5" % (modelName, gribreftime.split(":")[0].replace(" ", "-"), forecast)
+                hdf5file = gribFiles + masterlevel + filebase
+                if lastFile != None and lastFile.filename != hdf5file:
+                    #print "Closing", lastFile.filename
+                    lastFile.close()
+                    lastFile = None
+                if lastFile == None:
+                    if not(exists(hdf5file)):
+                        t0 = time()
+                        if not(isdir(gribFiles + masterlevel)):
+                            mkdir(gribFiles + masterlevel)
+                        move(gridFiles + masterlevel + filebase, gribFiles + masterlevel)
+                        hdfTime -= (time() - t0)
+                    #print "Opening", hdf5file
+                    lastFile = h5py.File(hdf5file)
+                copyH5(lastFile, newgrp, prevgrp, dataset)
         except:
             print modelName, "Error", gribdatauri
             print sys.exc_info()[1]
