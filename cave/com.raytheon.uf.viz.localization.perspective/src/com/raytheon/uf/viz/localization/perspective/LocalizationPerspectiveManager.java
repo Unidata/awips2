@@ -155,6 +155,7 @@ public class LocalizationPerspectiveManager extends
                     Priority.PROBLEM,
                     "Error setting up python interpreter: "
                             + t.getLocalizedMessage(), t);
+            t.printStackTrace();
         }
     }
 

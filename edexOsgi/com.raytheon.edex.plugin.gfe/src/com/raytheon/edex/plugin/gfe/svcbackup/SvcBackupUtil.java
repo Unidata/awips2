@@ -31,6 +31,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfePrivilegedRequest;
+import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
+import com.raytheon.uf.common.plugin.nwsauth.roles.IRoleStorage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -38,8 +41,7 @@ import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRole;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
@@ -51,8 +53,9 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 9, 2009            bphillip     Initial creation
- * Sep 19,2011   10955    rferrel      make sure process destroy is called.
+ * Oct 09, 2009            bphillip    Initial creation
+ * Sep 19, 2011 10955      rferrel     make sure process destroy is called.
+ * Jun 12, 2012 00609      djohnson    Use EDEXUtil for EDEX_HOME.
  * 
  * </pre>
  * 
@@ -63,9 +66,11 @@ public class SvcBackupUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SvcBackupUtil.class);
 
-    public static String OPERATION_FAIL = "Failure";
+    private static final String LOCALIZATION = "Localization";
 
-    public static String OPERATION_SUCCESS = "Success";
+    public static final String OPERATION_FAIL = "Failure";
+
+    public static final String OPERATION_SUCCESS = "Success";
 
     /** The logger instance */
     protected static transient Log logger = LogFactory
@@ -181,7 +186,7 @@ public class SvcBackupUtil {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(
-                    System.getProperty("edex.home")
+                    EDEXUtil.EDEX_HOME
                             + "/../GFESuite/ServiceBackup/configuration/svcbu.properties");
             svcbuProperties.load(fis);
         } catch (Exception e) {
@@ -235,21 +240,25 @@ public class SvcBackupUtil {
                 "LOCK_DIR")
                 + File.separator;
         lockDir = lockDir.replace("${GFESUITE_HOME}",
-                System.getProperty("edex.home") + "/../GFESuite"
+                EDEXUtil.EDEX_HOME + "/../GFESuite"
                         + File.separator);
 
         return lockDir;
     }
 
-    public static AuthorizationResponse authorizeWithLocalization(IUser user) {
+    public static AuthorizationResponse authorizeWithLocalization(
+IUser user,
+            AbstractGfePrivilegedRequest request)
+            throws AuthorizationException {
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
         IRoleStorage roles = manager.getRoleStorage();
-        String roleId = "com.raytheon.localization.site/common_static/gfe";
-        IRole role = roles.lookupRole(roleId);
-        if (role != null && role.validForUser(user)) {
+        String roleId = request.getRoleId();
+        if (roles
+                .isAuthorized(roleId, user.uniqueId().toString(), LOCALIZATION)) {
             return new AuthorizationResponse(true);
         }
-        return new AuthorizationResponse(false, "User, " + user.uniqueId()
+
+        return new AuthorizationResponse(false, "User, " + user
                 + ", is not authorized to perform request needing role: "
                 + roleId);
     }

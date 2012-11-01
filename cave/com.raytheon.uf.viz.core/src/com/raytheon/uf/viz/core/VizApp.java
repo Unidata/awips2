@@ -48,13 +48,20 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    Date          Ticket#     Engineer    Description
  *    ------------	----------	-----------	--------------------------
  *    7/1/06                    chammack    Initial Creation.
+ *    Sep 12, 2012  1167        djohnson    Add datadelivery servers.
  * 
  * </pre>
  * 
  * @author chammack
  * 
  */
-public class VizApp {
+public final class VizApp {
+
+    /**
+     * Disabled constructor.
+     */
+    private VizApp() {
+    }
 
     private static final String USER_FLAG = "-u";
 
@@ -65,6 +72,12 @@ public class VizApp {
     private static String jmsServer;
 
     private static String pypiesServer;
+
+    private static String dataDeliveryServer;
+
+    private static String dataDeliveryLcmServer;
+
+    private static String dataDeliveryQueryServer;
 
     private static String serverDataDir;
 
@@ -242,6 +255,50 @@ public class VizApp {
 
     public static void setPypiesServer(String pypiesServer) {
         VizApp.pypiesServer = pypiesServer;
+    }
+
+    /**
+     * @return the dataDeliveryServer
+     */
+    public static String getDataDeliveryServer() {
+        return dataDeliveryServer;
+    }
+
+    /**
+     * @param dataDeliveryServer
+     *            the dataDeliveryServer to set
+     */
+    public static void setDataDeliveryServer(String dataDeliveryServer) {
+        VizApp.dataDeliveryServer = dataDeliveryServer;
+    }
+    /**
+     * @return the dataDeliveryLcmServer
+     */
+    public static String getDataDeliveryLcmServer() {
+        return dataDeliveryLcmServer;
+    }
+
+    /**
+     * @param dataDeliveryLcmServer
+     *            the dataDeliveryLcmServer to set
+     */
+    public static void setDataDeliveryLcmServer(String dataDeliveryLcmServer) {
+        VizApp.dataDeliveryLcmServer = dataDeliveryLcmServer;
+    }
+
+    /**
+     * @return the dataDeliveryQueryServer
+     */
+    public static String getDataDeliveryQueryServer() {
+        return dataDeliveryQueryServer;
+    }
+
+    /**
+     * @param dataDeliveryQueryServer
+     *            the dataDeliveryQueryServer to set
+     */
+    public static void setDataDeliveryQueryServer(String dataDeliveryQueryServer) {
+        VizApp.dataDeliveryQueryServer = dataDeliveryQueryServer;
     }
 
     public static String getServerDataDir() {

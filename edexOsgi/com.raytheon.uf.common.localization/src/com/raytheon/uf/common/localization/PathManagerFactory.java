@@ -49,7 +49,7 @@ public class PathManagerFactory {
 
     private static final String EDEX_ADAPTER_CLASS = "com.raytheon.edex.utility.EDEXLocalizationAdapter";
 
-    private static IPathManager pathManager;
+    static IPathManager pathManager;
 
     private static ILocalizationAdapter adapter;
 

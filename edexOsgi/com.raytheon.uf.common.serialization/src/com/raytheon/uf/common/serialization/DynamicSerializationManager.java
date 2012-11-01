@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -41,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.xml.datatype.Duration;
+import javax.xml.namespace.QName;
 
 import net.sf.cglib.beans.BeanMap;
 
@@ -67,9 +71,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 import com.raytheon.uf.common.serialization.thrift.ThriftSerializationContext;
 import com.raytheon.uf.common.serialization.thrift.ThriftSerializationContextBuilder;
 import com.raytheon.uf.common.util.ByteArrayOutputStreamPool;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Dynamic Serialization Manager provides a serialization capability that runs
@@ -77,9 +85,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 13, 2008	#1448		chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 13, 2008 #1448       chammack    Initial creation
+ * Mar 27, 2012 #428        dgilling    Add support for built-in
+ *                                      classes used by data delivery's
+ *                                      registry service.
+ * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
  * Oct 08, 2012 #1251       dgilling    Ensure type registered with
  *                                      serialization adapter is encoded
  *                                      in serialization stream.
@@ -113,6 +125,7 @@ public class DynamicSerializationManager {
         // TODO: Can the registration of adapters that require dependencies be
         // moved to a separate plugin somehow?
         registerAdapter(GregorianCalendar.class, new CalendarSerializer());
+        registerAdapter(XMLGregorianCalendarImpl.class, new BuiltInTypeSupport.XMLGregorianCalendarSerializer());
         registerAdapter(Date.class, new DateSerializer());
         registerAdapter(Timestamp.class, new TimestampSerializer());
         registerAdapter(java.sql.Date.class,
@@ -121,12 +134,20 @@ public class DynamicSerializationManager {
         registerAdapter(Coordinate.class, new CoordAdapter());
         registerAdapter(BigDecimal.class,
                 new BuiltInTypeSupport.BigDecimalSerializer());
+        registerAdapter(BigInteger.class,
+                new BuiltInTypeSupport.BigIntegerSerializer());
         registerAdapter(Geometry.class, new GeometryTypeAdapter());
+        registerAdapter(Polygon.class, new GeometryTypeAdapter());
+        registerAdapter(MultiPolygon.class, new GeometryTypeAdapter());
+        registerAdapter(Point.class, new GeometryTypeAdapter());
         registerAdapter(Envelope.class, new JTSEnvelopeAdapter());
         registerAdapter(GridGeometry2D.class, new GridGeometry2DAdapter());
         registerAdapter(GeneralGridGeometry.class, new GridGeometryAdapter());
         registerAdapter(EnumSet.class, new EnumSetAdapter());
         registerAdapter(StackTraceElement.class, new StackTraceElementAdapter());
+        registerAdapter(Duration.class, new BuiltInTypeSupport.DurationSerializer());
+        registerAdapter(QName.class, new BuiltInTypeSupport.QNameSerializer());
+        registerAdapter(Throwable.class, new BuiltInTypeSupport.ThrowableSerializer());
         // These two are OBE by BufferAdapter and should be deleted sometime
         registerAdapter(ByteBuffer.class, new ByteBufferAdapter());
         registerAdapter(FloatBuffer.class, new FloatBufferAdapter());
@@ -256,7 +277,7 @@ public class DynamicSerializationManager {
             throws SerializationException {
         return ((ThriftSerializationContext) ctx).deserializeMessage();
     }
-
+    
     public static <T> void registerAdapter(Class<? extends T> clazz,
             ISerializationTypeAdapter<T> adapter) {
         SerializationMetadata md = new SerializationMetadata();
@@ -269,7 +290,7 @@ public class DynamicSerializationManager {
         }
         serializedAttributes.put(md.adapterStructName, md);
     }
-
+    
     /**
      * Inspect a class and return the metadata for the object
      * 
@@ -281,6 +302,7 @@ public class DynamicSerializationManager {
      *            the class
      * @return the metadata
      */
+    @SuppressWarnings("rawtypes")
     public static SerializationMetadata inspect(Class<?> c) {
 
         // Check for base types
@@ -370,17 +392,30 @@ public class DynamicSerializationManager {
                     if (annotation != null) {
                         String fieldName = field.getName();
 
-                        attribs.serializedAttributes.add(field.getName());
+                        attribs.serializedAttributes.add(fieldName);
+
+                        // Can be specified at field or class level
+                        Class<? extends ISerializationTypeAdapter> fieldAdapter = null;
                         if (serializeAdapterTag == null) {
-                            serializeAdapterTag = field.getType()
+                            // Adapter specified at field level
+                            if (annotation.value() != ISerializationTypeAdapter.class) {
+                                fieldAdapter = annotation.value();
+                            } else {
+                                // Adapter specified at class level
+                                serializeAdapterTag = field
+                                        .getType()
                                     .getAnnotation(
                                             DynamicSerializeTypeAdapter.class);
+                                if (serializeAdapterTag != null) {
+                                    fieldAdapter = serializeAdapterTag
+                                            .factory();
+                                }
+                            }
                         }
-                        if (serializeAdapterTag != null) {
+                        if (fieldAdapter != null) {
                             try {
                                 attribs.attributesWithFactories.put(fieldName,
-                                        serializeAdapterTag.factory()
-                                                .newInstance());
+                                        fieldAdapter.newInstance());
                             } catch (Exception e) {
                                 throw new RuntimeException(
                                         "Factory could not be instantiated", e);

@@ -2,11 +2,14 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="junit-4.3.1.jar" sourcepath="org.junitsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="hamcrest-api-1.0.jar" sourcepath="org.junitsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="hamcrest-library-1.0.jar" sourcepath="org.junitsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jmock-2.0.0.jar" sourcepath="org.junitsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jmock-junit3-2.0.0.jar" sourcepath="org.junitsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jmock-junit4-2.0.0.jar" sourcepath="org.junitsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="cglib-nodep-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="javassist-3.16.1-GA.jar"/>
+	<classpathentry exported="true" kind="lib" path="mockito-all-1.9.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="objenesis-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="powermock-mockito-1.4.12-full.jar"/>
+	<classpathentry exported="true" kind="lib" path="junit-4.10.jar" sourcepath="junit-4.10-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
