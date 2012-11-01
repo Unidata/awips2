@@ -90,7 +90,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Jul 30, 2007            njensen     Refactored.
  * Feb 12, 2008            chammack    Removed base configuration
  * Mar 26, 2008            njensen     Added rename() and getFileContents().
- * May 19, 2007     #1127  randerso   Implemented error handling
+ * May 19, 2007     #1127  randerso    Implemented error handling
+ * Sep 12, 2012 1167       djohnson    Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -225,6 +226,10 @@ public class LocalizationManager implements IPropertyChangeListener {
                 VizApp.setHttpServer(resp.getHttpServer());
                 VizApp.setJmsServer(resp.getJmsServer());
                 VizApp.setPypiesServer(resp.getPypiesServer());
+                VizApp.setDataDeliveryServer(resp.getDataDeliveryServer());
+                VizApp.setDataDeliveryLcmServer(resp.getDataDeliveryLcmServer());
+                VizApp.setDataDeliveryQueryServer(resp
+                        .getDataDeliveryQueryServer());
                 VizApp.setServerDataDir(resp.getServerDataDir());
             } catch (VizException e) {
                 statusHandler.handle(UFStatus.Priority.SIGNIFICANT,

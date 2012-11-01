@@ -19,7 +19,6 @@
  */
 package com.raytheon.uf.edex.database.purge;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class PurgeRuleTree {
     public PurgeRuleTree(PurgeRuleSet ruleSet) {
         root = new PurgeNode();
         root.setRule(ruleSet.getDefaultRule());
-        ArrayList<PurgeRule> rules = ruleSet.getRules();
+        List<PurgeRule> rules = ruleSet.getRules();
         if (rules != null) {
             for (PurgeRule rule : rules) {
                 PurgeNode curNode = root;

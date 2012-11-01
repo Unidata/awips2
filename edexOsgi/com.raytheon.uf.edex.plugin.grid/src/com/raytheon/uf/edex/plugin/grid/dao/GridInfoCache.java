@@ -55,7 +55,7 @@ public class GridInfoCache {
         return instance;
     }
 
-    private CoreDao dao;
+    private final CoreDao dao;
 
     // A weak hashmap of soft references is used as a SoftSet.
     private Map<GridInfoRecord, SoftReference<GridInfoRecord>> cache = null;
@@ -77,9 +77,10 @@ public class GridInfoCache {
                 // secondaryId. In general these cases should be rare and small.
                 // So we handle it by caching everything returned and then
                 // double checking the cache.
-                List<PersistableDataObject> dbList = dao.queryByExample(record);
+                List<PersistableDataObject<Integer>> dbList = dao
+                        .queryByExample(record);
                 if (dbList != null && !dbList.isEmpty()) {
-                    for (PersistableDataObject pdo : dbList) {
+                    for (PersistableDataObject<Integer> pdo : dbList) {
                         GridInfoRecord gir = (GridInfoRecord) pdo;
                         cache.put(gir, new SoftReference<GridInfoRecord>(gir));
                     }
