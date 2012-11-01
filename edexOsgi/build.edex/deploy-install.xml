@@ -42,6 +42,17 @@
 				<antcall target="deploy.localization" />
 			</then>
 		</if>
+
+		<if>
+		    <and>
+		        <isset property="wa.enabled" />
+		        <!-- TODO: A way to make this pathing lookup better? -->
+			    <available file="${wa.root.directory}/edexOsgi/build.edex/wa-build.xml" type="file" />
+		    </and>
+		    <then>
+		        <ant antfile="${wa.root.directory}/edexOsgi/build.edex/wa-build.xml" inheritall="true" inheritrefs="true"/>
+		    </then>
+		</if>
 	</target>
 	
 	<!-- public -->
