@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.text.dao;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.textdb.dao.StdTextProductDao;
@@ -95,14 +96,14 @@ public class TextDao extends DefaultPluginDao {
     }
 
     @Override
-    public Date getMinInsertTime(String[][] productKeys)
+    public Date getMinInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         StdTextProductDao dao = new StdTextProductDao(true);
         DatabaseQuery query = new DatabaseQuery(dao.getDaoClass());
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
