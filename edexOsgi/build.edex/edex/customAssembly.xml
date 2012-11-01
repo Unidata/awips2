@@ -20,15 +20,15 @@
 	<!-- The generated pattern is that plugins/features are gathered into the   -->
 	<!-- folder ${target.folder}/${projectName}                                 -->
 	<!-- =====================================================================  -->
-    <target name="gather.bin.parts">
-        <ant antfile="${builder}/../deploy-common/external-rules.xml"
-        inheritAll="false">
-            <property name="plugin._directory"
-                value="${projectLocation}" />
-            <property name="deployment._root"
-                value="${target.folder}/.." />
-        </ant>
-    </target>
+	<target name="gather.bin.parts">		
+		<ant antfile="${builder}/../deploy-common/external-rules.xml"
+		inheritAll="false">
+			<property name="plugin._directory"
+				value="${projectLocation}" />
+			<property name="deployment._root" 
+				value="${target.folder}/.." />
+		</ant>
+	</target>
 	
 	<!-- ===================================================================== -->
 	<!-- Called after invoking the gather.bin.parts targets for all plugins    -->

@@ -732,6 +732,8 @@ public interface IGraphicsTarget extends IImagingExtension {
     public IView getView();
 
     /**
+
+    /**
      * Use drawStrings(DrawableString parameters)
      */
     @Deprecated

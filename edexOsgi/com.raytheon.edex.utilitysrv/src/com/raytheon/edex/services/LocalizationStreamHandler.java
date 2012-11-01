@@ -37,6 +37,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.stream.AbstractLocalizationStreamRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest;
+import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
@@ -270,7 +271,8 @@ public class LocalizationStreamHandler
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            AbstractLocalizationStreamRequest request) {
+            AbstractLocalizationStreamRequest request)
+            throws AuthorizationException {
         if (request instanceof LocalizationStreamGetRequest) {
             // All gets are authorized
             return new AuthorizationResponse(true);
