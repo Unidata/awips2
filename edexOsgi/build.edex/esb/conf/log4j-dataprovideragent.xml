@@ -1,0 +1,75 @@
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd"> 
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+   <!-- general application log --> 
+   <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
+      <param name="Threshold" value="INFO" /> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <!-- used by c3p0 -->
+   <logger name="com.mchange">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.jgroup">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.quartz">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.hibernate">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   
+   <!--  <logger name="com.raytheon.uf.edex.datadelivery.provideragent" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="ProviderAgent"/>
+   </logger>-->
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="console"/>
+      <!--
+      <appender-ref ref="ThreadBasedLog"/>
+       --> 
+    </root> 
+</log4j:configuration> 

@@ -134,7 +134,6 @@
 					</otherwise>
 				</choice>
 			</split>
-			
 		</route>
 
 		<route id="gribIngestAlert">

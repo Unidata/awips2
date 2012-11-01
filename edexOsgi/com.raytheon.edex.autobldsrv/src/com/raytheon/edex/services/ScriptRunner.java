@@ -45,6 +45,7 @@ import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -182,8 +183,9 @@ public class ScriptRunner {
                     PluginDataObject[] pdos = (PluginDataObject[]) event;
                     for (PluginDataObject pdo : pdos) {
                         try {
-                            String prodID = (String) Util.getFieldValue(pdo,
-                                    pdo.getClass(), "productId");
+                            String prodID = ReflectionUtil.getter(String.class,
+                                    pdo,
+                                    "productId");
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Processing trigger: " + prodID
                                         + ", class = "
@@ -198,8 +200,8 @@ public class ScriptRunner {
                 } else if (event instanceof PluginDataObject) {
                     PluginDataObject pdo = (PluginDataObject) event;
                     try {
-                        String prodID = (String) Util.getFieldValue(pdo,
-                                pdo.getClass(), "productId");
+                        String prodID = ReflectionUtil.getter(String.class,
+                                pdo, "productId");
                         if (logger.isDebugEnabled()) {
                             logger.debug("Processing trigger: " + prodID
                                     + ", class = "
