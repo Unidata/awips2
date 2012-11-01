@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2009            mschenke     Initial creation
+ * Sep 14, 2012 1169       djohnson     Moved to com.raytheon.uf.common.serialization
  * 
  * </pre>
  * 

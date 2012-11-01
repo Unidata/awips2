@@ -60,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "grid_info")
 @SequenceGenerator(name = "GRIDINFO_GENERATOR", sequenceName = "gridinfo_seq", allocationSize = 1)
 @DynamicSerialize
-public class GridInfoRecord extends PersistableDataObject {
+public class GridInfoRecord extends PersistableDataObject<Integer> {
 
     private static final long serialVersionUID = 1L;
 

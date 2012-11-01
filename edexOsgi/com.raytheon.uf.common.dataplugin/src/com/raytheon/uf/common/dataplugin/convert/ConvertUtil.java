@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.common.dataplugin.convert;
 
+import java.lang.reflect.Field;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 
@@ -86,7 +92,58 @@ public class ConvertUtil {
         if (value.equals("null")) {
             return null;
         }
+        if (desiredClass.equals(Calendar.class)) {
+            try {
+                // see if string is in ISO 8601
+                return DatatypeConverter.parseDateTime(value);
+            } catch (Exception e) {
+                // let convertUtils try
+            }
+        }
+        if (desiredClass.equals(Date.class)) {
+            try {
+                // see if string is in ISO 8601
+                return DatatypeConverter.parseDateTime(value).getTime();
+            } catch (Exception e) {
+                // let convertUtils try
+            }
+        }
         return ConvertUtils.convert(value, desiredClass);
+    }
+
+    public static String toString(Object obj) {
+        return ConvertUtils.convert(obj);
+    }
+
+    public static Object convertAsType(String value, Class<?> entity,
+            String fieldName) throws SecurityException, NoSuchFieldException {
+        Field field = getField(fieldName, entity);
+        return convertObject(value, field.getType());
+    }
+
+    public static Object convertAsType(String value, Class<?> entity,
+            String[] fieldPath) throws SecurityException, NoSuchFieldException {
+        Field f = getField(fieldPath[0], entity);
+        for (int i = 1; i < fieldPath.length; ++i) {
+            f = getField(fieldPath[i], f.getType());
+        }
+        return convertObject(value, f.getType());
+    }
+
+    protected static Field getField(String fieldName, Class<?> c)
+            throws SecurityException, NoSuchFieldException {
+        Field rval;
+        try {
+            rval = c.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            Class<?> parent = c.getSuperclass();
+            if (parent.isInstance(Object.class)) {
+                throw e;
+            } else {
+                rval = getField(fieldName, c.getSuperclass());
+            }
+        }
+        return rval;
     }
 
 }
