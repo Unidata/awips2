@@ -147,11 +147,15 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.collaboration.feature"
+         id="com.raytheon.uf.viz.datadelivery.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.kml.export.feature"
+         id="com.raytheon.uf.viz.useradmin.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
 
    <requires>
