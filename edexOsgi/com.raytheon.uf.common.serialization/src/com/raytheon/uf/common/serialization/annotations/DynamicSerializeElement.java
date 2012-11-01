@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
+
 /**
  * An annotation that indicates that a class should have this element
  * serialized.
@@ -32,11 +34,15 @@ import java.lang.annotation.Target;
  * The annotation should be added to the field itself. The assumption is made
  * that setters and getters are available for this property.
  * 
+ * If the {@link #value()} specifies an {@link ISerializationTypeAdapter}, the
+ * factory will be used to serialize/deserialize the value.
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Aug 7, 2008				chammack	Initial creation
+ * Aug 07, 2008             chammack    Initial creation
+ * Sep 28, 2012 1195        djohnson    Add value() to specify a type adapter.
  * 
  * </pre>
  * 
@@ -48,4 +54,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Documented
 public @interface DynamicSerializeElement {
+    @SuppressWarnings("rawtypes")
+    Class<? extends ISerializationTypeAdapter> value() default ISerializationTypeAdapter.class;
 }

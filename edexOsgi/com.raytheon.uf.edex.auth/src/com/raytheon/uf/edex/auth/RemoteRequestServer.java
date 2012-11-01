@@ -97,7 +97,7 @@ public class RemoteRequestServer {
                 // check handler if user has authorization
                 AuthorizationResponse authResp = privHandler.authorized(user,
                         privReq);
-                if (authResp != null && !authResp.isAuthorized()) {
+                if (authResp != null && !authResp.isAuthorized() && authResp.getResponseMessage() != null) {
                     return ResponseFactory.constructNotAuthorized(privReq,
                             authResp.getResponseMessage());
                 }
