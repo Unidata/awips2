@@ -1,18 +1,23 @@
 package gov.noaa.nws.ncep.gempak.parameters.inline;
 
-import gov.noaa.nws.ncep.gempak.parameters.inline.LineDataStringParser;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 /**
- * *<pre>
+ * *
+ * 
+ * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#     Engineer     Description
  * ------------ ---------- ----------- --------------------------
  * 30-Oct-2009    186       Archana.S   Initial Creation 
+ * 25-Aug-2012    743       djohnson    Upgrade to JUnit 4.10.
  * </pre>
+ * 
  * @author Archana.S
- * @version 1 
+ * @version 1
  */
 
 
@@ -27,9 +32,12 @@ private static Integer testCaseNumber=1;
 		System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.5);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),2);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertDoubleComparison(ldsp1.getInstanceOfLineBuilder()
+                    .getPointsFilter().doubleValue(), 0.5);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 2);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
 	    	System.out.println("List of line patterns: "       +ldsp1.getInstanceOfLineBuilder().getLinePatternsList());
@@ -43,7 +51,15 @@ private static Integer testCaseNumber=1;
 	
 	}
 	
-	@Test
+    /**
+     * @param pointsFilter
+     * @param d
+     */
+    private static void assertDoubleComparison(Double pointsFilter, double d) {
+        Assert.assertEquals(d, pointsFilter.doubleValue(), 0.01);
+    }
+
+    @Test
 	public void testValidLineDataStringWithOnlyLineColorInput(){
 		
 		System.out.println("------------------Test-case "+ testCaseNumber +"a----------------");
@@ -52,9 +68,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertDoubleComparison(ldsp1.getInstanceOfLineBuilder()
+                    .getPointsFilter().doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"a? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -72,8 +91,10 @@ private static Integer testCaseNumber=1;
 
 	    if(ldsp2.isLineDataParsed()){
 	    	assertEquals(ldsp2.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp2.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp2.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp2.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp2.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp2.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"b? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors: "         +ldsp2.getInstanceOfLineBuilder().getLineColorsList());
@@ -90,8 +111,10 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp3 = new LineDataStringParser("5");
 	    if(ldsp3.isLineDataParsed()){
 	    	assertEquals(ldsp3.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp3.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp3.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp3.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp3.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp3.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"c? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors: "         +ldsp3.getInstanceOfLineBuilder().getLineColorsList());
@@ -113,9 +136,12 @@ private static Integer testCaseNumber=1;
    		    LineDataStringParser ldsp1 = new LineDataStringParser("3;2;16/0.67654");
    		    
    		    if(ldsp1.isLineDataParsed()){
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.67654);
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.67654);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
     	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
     	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
     	    	System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -136,9 +162,12 @@ private static Integer testCaseNumber=1;
    		    LineDataStringParser ldsp1 = new LineDataStringParser("3/0.67654");
    		    
    		    if(ldsp1.isLineDataParsed()){
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.67654);
-    	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.67654);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
     	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
     	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
     	    	System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -158,9 +187,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("7/0.5/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.5);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.5);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -180,9 +212,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser(".7");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.7);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.7);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -202,9 +237,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("1.0/TRUE");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),1.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 1.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -226,9 +264,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("7/7");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -248,9 +289,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("8;9;10/2;4/3/2/2");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),2);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 2);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -270,9 +314,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -292,9 +339,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser();
 		
 		if(!ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -314,9 +364,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("");
 		
 		if(!ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -336,9 +389,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("     ");
 		
 		if(!ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -358,9 +414,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("132;240;255/4;4;4/5;5;5/3");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -380,9 +439,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("/4;10/6/1/1/0.65789/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
 			System.out.println("List of line patterns: "       +ldsp1.getInstanceOfLineBuilder().getLinePatternsList());
@@ -401,9 +463,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("144;110//6/1/1/0.65789/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -423,9 +488,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10/8;9//1/1/0.9999/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.9999);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.9999);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -445,9 +513,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10/8;9/6;7//1/0.65789/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -467,9 +538,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10/8;9/6;7/2//0.65789/true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -489,9 +563,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10/8;9/6;7/2/2//true");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),2);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 2);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -511,9 +588,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10/8;9/6;7/2/1/0.65789/");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -533,9 +613,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("4;10//6;7///0.65789/");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.65789);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.65789);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -555,9 +638,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("240;234/28;36/6/1/1/0.4477");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.4477);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.4477);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -577,9 +663,12 @@ private static Integer testCaseNumber=1;
 		LineDataStringParser ldsp1 = new LineDataStringParser("2/4/6/1/1/3.65789");
 		
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-			assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),1);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 1);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("List of line colors: "         +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -602,9 +691,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -626,9 +718,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.7);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),2);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.7);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 2);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -650,9 +745,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(!ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -674,9 +772,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(!ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -698,9 +799,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.6);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),2);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.6);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 2);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -722,9 +826,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),false);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.0);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.0);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -746,9 +853,12 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isSmallContourFlagSuppressed(),true);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter(),0.5);
-	    	assertEquals(ldsp1.getInstanceOfLineBuilder().getLineSmoothingLevel(),0);	
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isSmallContourFlagSuppressed(), true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder().getPointsFilter()
+                    .doubleValue(), 0.5);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .getLineSmoothingLevel().intValue(), 0);
 	    	System.out.println("The input string : "           +ldsp1.getLineDataString());
 	    	System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 	    	System.out.println("List of line colors:  "        +ldsp1.getInstanceOfLineBuilder().getLineColorsList());
@@ -771,7 +881,8 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isBreakInLineForLabel(),false);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isBreakInLineForLabel(), false);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"? "+ldsp1.isLineDataParsed());
 			System.out.println("Is there a break in the line for the label: "          +ldsp1.getInstanceOfLineBuilder().isBreakInLineForLabel());
@@ -788,7 +899,8 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isBreakInLineForLabel(),true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isBreakInLineForLabel(), true);
 			System.out.println("The input string : "           +ldsp1.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"a? "+ldsp1.isLineDataParsed());
 			System.out.println("Is there a break in the line for the label: "      +ldsp1.getInstanceOfLineBuilder().isBreakInLineForLabel());
@@ -798,7 +910,8 @@ private static Integer testCaseNumber=1;
 		
 
 		if(ldsp1.isLineDataParsed()){
-			assertEquals(ldsp1.getInstanceOfLineBuilder().isBreakInLineForLabel(),true);
+            assertEquals(ldsp1.getInstanceOfLineBuilder()
+                    .isBreakInLineForLabel(), true);
 			System.out.println("The input string : "                            +ldsp2.getLineDataString());
 			System.out.println("Is line data parsed in test-case "+testCaseNumber+"b? "+ldsp1.isLineDataParsed());
 	    	System.out.println("Is there a break in the line for the label: "   +ldsp2.getInstanceOfLineBuilder().isBreakInLineForLabel());
