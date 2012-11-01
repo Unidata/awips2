@@ -90,35 +90,42 @@ public class ProcessUtil {
 
         StringBuilder sb = new StringBuilder(128);
 
+        ProcessEvent processEvent = new ProcessEvent();
         String pluginName = getHeaderProperty(headers, "pluginName");
         if (pluginName != null) {
             sb.append(pluginName);
+            processEvent.setPluginName(pluginName);
         }
 
         String fileName = getHeaderProperty(headers, "ingestFileName");
         if (fileName != null) {
             sb.append(":: ");
             sb.append(fileName);
+            processEvent.setFileName(fileName);
         }
 
         Long dequeueTime = getHeaderProperty(headers, "dequeueTime");
         DecimalFormat df = FORMAT.get();
         if (dequeueTime != null) {
-            double elapsed = (curTime - dequeueTime) / 1000.0;
+            double elapsedMilliseconds = curTime - dequeueTime;
+            double elapsed = (elapsedMilliseconds) / 1000.0;
             sb.append(" processed in: ");
             sb.append(df.format(elapsed));
             sb.append(" (sec)");
+            processEvent.setProcessingTimeMilliseconds(elapsedMilliseconds);
         }
 
         Long enqueueTime = getHeaderProperty(headers, "enqueueTime");
         if (enqueueTime != null) {
-            double latency = (curTime - enqueueTime) / 1000.0;
+            double latencyMilliseconds = curTime - enqueueTime;
+            double latency = (latencyMilliseconds) / 1000.0;
             sb.append(" Latency: ");
             sb.append(df.format(latency));
             sb.append(" (sec)");
+            processEvent.setProcessingLatencyMilliseconds(latencyMilliseconds);
         }
 
-        EventBus.getInstance().publish(new ProcessEvent(sb.toString()));
+        EventBus.getInstance().publish(processEvent);
 
         // Make sure we have something to log.
         if (sb.length() > 0) {
