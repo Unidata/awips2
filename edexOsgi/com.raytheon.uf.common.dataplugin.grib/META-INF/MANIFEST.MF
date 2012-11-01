@@ -26,5 +26,6 @@ Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.gridcoverage.exception,
  com.raytheon.uf.common.parameter
 Export-Package: com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.grib.request
+ com.raytheon.uf.common.dataplugin.grib.request,
+ com.raytheon.uf.common.dataplugin.grib.subgrid
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
