@@ -119,7 +119,7 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         }
     }
 
-    private String getSiteName() {
+    protected String getSiteName() {
         String site = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("SITENAME");
 
@@ -176,12 +176,7 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
     @Override
     public File getPath(LocalizationContext context, String fileName) {
 
-        String baseDir = null;
-
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-
-        String utilityDir = new File(env.getEnvValue("UTILITYDIR"))
-                .getAbsolutePath();
+        File utilityDir = getUtilityDir();
 
         if (context.getLocalizationLevel() == LocalizationLevel.UNKNOWN) {
             throw new IllegalArgumentException(
@@ -191,11 +186,11 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
             // TODO: Check for invalid type / level combinations
             // Change the above condition and add invalid type / level checking
             // if needed
-        } else {
-            baseDir = utilityDir + File.separator + context.toPath();
         }
 
-        return new File(baseDir + File.separator + fileName);
+        File baseDir = new File(utilityDir, context.toPath());
+
+        return new File(baseDir, fileName);
     }
 
     /*
@@ -210,6 +205,17 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
                 LocalizationType.EDEX_STATIC, LocalizationType.COMMON_STATIC };
 
         return type;
+    }
+
+    /**
+     * Get the file reference to the utility directory.
+     * 
+     * @return the file reference to the utility directory
+     */
+    protected File getUtilityDir() {
+        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
+
+        return new File(env.getEnvValue("UTILITYDIR"));
     }
 
     /**
