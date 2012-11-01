@@ -2,5 +2,4 @@ com.raytheon.uf.edex.database.cluster.ClusterTask
 com.raytheon.uf.edex.database.cluster.ClusterTaskPK
 com.raytheon.uf.edex.database.plugin.PluginVersion
 com.raytheon.uf.edex.database.purge.PurgeRule
-com.raytheon.uf.edex.database.purge.PurgeRulePK
 com.raytheon.uf.edex.database.purge.PurgeRuleSet
