@@ -753,7 +753,7 @@ public class D2DGridDatabase extends VGridDatabase {
             String abbrev = d2dRecord.getParameter().getAbbreviation();
             String group, dataset;
             if (GridPathProvider.STATIC_PARAMETERS.contains(abbrev)) {
-                group = "/";
+                group = "/" + d2dRecord.getLocation().getId();
                 dataset = abbrev;
             } else {
                 group = d2dRecord.getDataURI();
