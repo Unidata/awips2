@@ -225,15 +225,25 @@ public class WorldWrapCorrector {
             // throw them out since we can't guarantee integrity
             GeometryFactory gf = flattenedGeom.getFactory();
             double delta = 0.00001;
-            double start = checker.getLowInverseCentralMeridian() + offsets[0];
-            double end = checker.getHighInverseCentralMeridian() + offsets[1];
+            // Because Geometries are within bounds -180-180, ensure our initial
+            // start/end range will fully cover it
+            double lowInverseCentral = checker.getLowInverseCentralMeridian();
+            if (lowInverseCentral > -180.0) {
+                lowInverseCentral -= 360.0;
+            }
+            double highInverseCentral = checker.getHighInverseCentralMeridian();
+            if (highInverseCentral < 180.0) {
+                highInverseCentral += 360.0;
+            }
+            double start = lowInverseCentral + offsets[0];
+            double end = highInverseCentral + offsets[1];
             double minY = -90, maxY = 90;
 
             while (start < end) {
                 double useStart = start;
                 double useEnd = start + 360;
                 double minX = useStart + delta;
-                double maxX = (useEnd) - delta;
+                double maxX = useEnd - delta;
 
                 Geometry section = gf.createPolygon(
                         gf.createLinearRing(new Coordinate[] {
@@ -246,7 +256,7 @@ public class WorldWrapCorrector {
                 if (section.isEmpty() == false) {
                     geoms.add(section);
                 }
-                start += 360.0;
+                start = useEnd;
             }
         }
     }
