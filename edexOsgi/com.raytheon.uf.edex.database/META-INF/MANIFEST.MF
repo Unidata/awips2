@@ -28,6 +28,7 @@ Export-Package: com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.plugin,
  com.raytheon.uf.edex.database.purge,
  com.raytheon.uf.edex.database.query,
+ com.raytheon.uf.edex.database.spatial,
  com.raytheon.uf.edex.database.status,
  com.raytheon.uf.edex.database.tasks
 Import-Package: com.raytheon.uf.common.message,
