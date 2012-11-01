@@ -132,6 +132,14 @@ public class GribPathProvider extends DefaultPathProvider {
         for (String key : keys) {
             if (key.equals(GridConstants.DATASET_ID)) {
                 newKeys.add("modelInfo.modelName");
+            } else if (key.equals(GridConstants.MASTER_LEVEL_NAME)) {
+                newKeys.add("modelInfo.level.masterLevel.name");
+            } else if (key.equals(GridConstants.PARAMETER_ABBREVIATION)) {
+                newKeys.add("modelInfo.parameterAbbreviation");
+            } else if (key.equals(GridConstants.LEVEL_ONE)) {
+                newKeys.add("modelInfo.level.levelonevalue");
+            } else if (key.equals(GridConstants.LEVEL_TWO)) {
+                newKeys.add("modelInfo.level.leveltwovalue");
             } else {
                 newKeys.add(key);
             }
