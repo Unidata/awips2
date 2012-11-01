@@ -25,7 +25,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Event for file ingest statistics (processing time and processing latency.)
  * 
  * <pre>
  * 
@@ -46,11 +46,21 @@ public class ProcessEvent extends Event {
     private static final long serialVersionUID = 1L;
 
     @DynamicSerializeElement
-    private final String message;
+    private String message;
 
-    public ProcessEvent(String message) {
-        super();
-        this.message = message;
+    @DynamicSerializeElement
+    private String pluginName;
+
+    @DynamicSerializeElement
+    private String fileName;
+
+    @DynamicSerializeElement
+    private double processingTimeMilliseconds;
+
+    @DynamicSerializeElement
+    private double processingLatencyMilliseconds;
+
+    public ProcessEvent() {
     }
 
     @Override
@@ -63,6 +73,75 @@ public class ProcessEvent extends Event {
      */
     public String getMessage() {
         return message;
+    }
+
+    /**
+     * @param message
+     *            the message to set
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     * @return the pluginName
+     */
+    public String getPluginName() {
+        return pluginName;
+    }
+
+    /**
+     * @param pluginName
+     *            the pluginName to set
+     */
+    public void setPluginName(String pluginName) {
+        this.pluginName = pluginName;
+    }
+
+    /**
+     * @return the fileName
+     */
+    public String getFileName() {
+        return fileName;
+    }
+
+    /**
+     * @param fileName
+     *            the fileName to set
+     */
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    /**
+     * @return the processingTimeMilliseconds
+     */
+    public double getProcessingTimeMilliseconds() {
+        return processingTimeMilliseconds;
+    }
+
+    /**
+     * @param processingTimeMilliseconds
+     *            the processingTimeMilliseconds to set
+     */
+    public void setProcessingTimeMilliseconds(double processingTimeMilliseconds) {
+        this.processingTimeMilliseconds = processingTimeMilliseconds;
+    }
+
+    /**
+     * @return the processingLatencyMilliseconds
+     */
+    public double getProcessingLatencyMilliseconds() {
+        return processingLatencyMilliseconds;
+    }
+
+    /**
+     * @param processingLatencyMilliseconds
+     *            the processingLatencyMilliseconds to set
+     */
+    public void setProcessingLatencyMilliseconds(
+            double processingLatencyMilliseconds) {
+        this.processingLatencyMilliseconds = processingLatencyMilliseconds;
     }
 
 }
