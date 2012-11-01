@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="opensaml-2.5.1.jar" sourcepath="/common/bphillip/DataDelivery_FILES/COTS/opensaml-2.5.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="esapi-2.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="joda-time-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="openws-1.4.2-1.jar"/>
+	<classpathentry exported="true" kind="lib" path="serializer-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="wss4j-1.6.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="xalan-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="xercesImpl-2.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="xml-apis-1.3.04.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmlsec-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="xmltooling-1.3.2-1.jar" sourcepath="/common/bphillip/DataDelivery_FILES/COTS/xmlTooling/xmltooling-1.3.2-sources.jar_FILES"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
