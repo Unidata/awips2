@@ -2,9 +2,8 @@
     <!-- Event Type should be fully qualified name of stat event -->
         <eventType>com.raytheon.uf.common.event.ProcessEvent</eventType>
         <groupBy>
-                <attribute name="plugin"/>
-                <attribute name="owner"/>
+                <attribute name="pluginName"/>
         </groupBy>
-        <aggregate field="numFailed"/>
-        <aggregate field="numComplete"/>
+        <aggregate field="processingTimeMilliseconds"/>
+        <aggregate field="processingLatencyMilliseconds"/>
 </statsConfig>
