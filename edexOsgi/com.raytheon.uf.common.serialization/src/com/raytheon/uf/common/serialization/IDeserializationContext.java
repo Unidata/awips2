@@ -24,9 +24,10 @@ package com.raytheon.uf.common.serialization;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date	        Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * Aug 12, 2008				chammack	Initial creation
+ * Aug 12, 2008             chammack    Initial creation
+ * Sep 14, 2012 1169        djohnson    Added readObject().
  * 
  * </pre>
  * 
@@ -41,7 +42,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract boolean readBool() throws SerializationException;
+    boolean readBool() throws SerializationException;
 
     /**
      * Read a byte
@@ -49,7 +50,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract byte readByte() throws SerializationException;
+    byte readByte() throws SerializationException;
 
     /**
      * Read a short
@@ -57,7 +58,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract short readI16() throws SerializationException;
+    short readI16() throws SerializationException;
 
     /**
      * Read an int
@@ -65,7 +66,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract int readI32() throws SerializationException;
+    int readI32() throws SerializationException;
 
     /**
      * Read a long
@@ -73,7 +74,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract long readI64() throws SerializationException;
+    long readI64() throws SerializationException;
 
     /**
      * Read a double
@@ -81,7 +82,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract double readDouble() throws SerializationException;
+    double readDouble() throws SerializationException;
 
     /**
      * Read a double array
@@ -89,7 +90,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract double[] readDoubleArray() throws SerializationException;
+    double[] readDoubleArray() throws SerializationException;
 
     /**
      * Read a float
@@ -97,7 +98,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract float readFloat() throws SerializationException;
+    float readFloat() throws SerializationException;
 
     /**
      * Read a string
@@ -105,7 +106,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract String readString() throws SerializationException;
+    String readString() throws SerializationException;
 
     /**
      * Read a binary blob
@@ -113,7 +114,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract byte[] readBinary() throws SerializationException;
+    byte[] readBinary() throws SerializationException;
 
     /**
      * Read a float array
@@ -121,7 +122,7 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract float[] readFloatArray() throws SerializationException;
+    float[] readFloatArray() throws SerializationException;
 
     /**
      * Read a message header
@@ -129,13 +130,21 @@ public interface IDeserializationContext {
      * @return
      * @throws SerializationException
      */
-    public abstract String readMessageStart() throws SerializationException;
+    String readMessageStart() throws SerializationException;
 
     /**
      * Read a message footer
      * 
      * @throws SerializationException
      */
-    public abstract void readMessageEnd() throws SerializationException;
+    void readMessageEnd() throws SerializationException;
 
+    /**
+     * Read an object.
+     * 
+     * @return the read object
+     * 
+     * @throws SerializationException
+     */
+    Object readObject() throws SerializationException;
 }

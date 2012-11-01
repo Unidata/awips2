@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
-import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * TODO Add Description
@@ -41,31 +39,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class CheckPermissionsRequest extends AbstractGfeRequest {
-
-    @DynamicSerializeElement
-    private IUser user;
+public class CheckPermissionsRequest extends AbstractGfePrivilegedRequest {
 
     public CheckPermissionsRequest() {
-    }
-
-    public CheckPermissionsRequest(IUser user) {
-        this.user = user;
-    }
-
-    /**
-     * @return the user
-     */
-    public IUser getUser() {
-        return user;
-    }
-
-    /**
-     * @param user
-     *            the user to set
-     */
-    public void setUser(IUser user) {
-        this.user = user;
     }
 
 }
