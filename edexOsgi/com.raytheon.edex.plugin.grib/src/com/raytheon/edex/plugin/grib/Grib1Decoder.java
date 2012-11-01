@@ -90,6 +90,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 3/11/10      4758        bphillip    Initial Creation
+ * 6/12/12      0609        djohnson    Use EDEXUtil for EDEX_HOME.
  * 
  * </pre>
  * 

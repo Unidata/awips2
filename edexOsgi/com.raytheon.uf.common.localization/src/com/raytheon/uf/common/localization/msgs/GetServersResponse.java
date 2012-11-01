@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
+ * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -53,6 +54,15 @@ public class GetServersResponse implements ISerializableObject {
 
     @DynamicSerializeElement
     private String serverDataDir;
+
+    @DynamicSerializeElement
+    private String dataDeliveryServer;
+
+    @DynamicSerializeElement
+    private String dataDeliveryLcmServer;
+
+    @DynamicSerializeElement
+    private String dataDeliveryQueryServer;
 
     public String getHttpServer() {
         return httpServer;
@@ -86,4 +96,48 @@ public class GetServersResponse implements ISerializableObject {
         this.serverDataDir = serverDataDir;
     }
 
+    /**
+     * @param dataDeliveryServer
+     *            the dataDeliveryServer to set
+     */
+    public void setDataDeliveryServer(String dataDeliveryServer) {
+        this.dataDeliveryServer = dataDeliveryServer;
+    }
+
+    /**
+     * @return the dataDeliveryServer
+     */
+    public String getDataDeliveryServer() {
+        return dataDeliveryServer;
+    }
+
+    /**
+     * @return the dataDeliveryLcmServer
+     */
+    public String getDataDeliveryLcmServer() {
+        return dataDeliveryLcmServer;
+    }
+
+    /**
+     * @param dataDeliveryLcmServer
+     *            the dataDeliveryLcmServer to set
+     */
+    public void setDataDeliveryLcmServer(String dataDeliveryLcmServer) {
+        this.dataDeliveryLcmServer = dataDeliveryLcmServer;
+    }
+
+    /**
+     * @return the dataDeliveryQueryServer
+     */
+    public String getDataDeliveryQueryServer() {
+        return dataDeliveryQueryServer;
+    }
+
+    /**
+     * @param dataDeliveryQueryServer
+     *            the dataDeliveryQueryServer to set
+     */
+    public void setDataDeliveryQueryServer(String dataDeliveryQueryServer) {
+        this.dataDeliveryQueryServer = dataDeliveryQueryServer;
+    }
 }

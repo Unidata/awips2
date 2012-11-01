@@ -19,12 +19,15 @@
  **/
 package test.edex.transform.shef;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+
+import org.junit.Test;
 
 import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 
@@ -86,7 +89,7 @@ public class TestM2SOptions {
             }
         }
 
-        assertEquals(40, options.getPCReset("KOMA"));
+        assertEquals(40, options.getPCReset("KOMA").intValue());
         assertFalse(options.checkName("KSAT"));
         assertTrue(options.isOptZeroAuto1HourPrecip());
         assertFalse(options.isOptTypeSrcV());

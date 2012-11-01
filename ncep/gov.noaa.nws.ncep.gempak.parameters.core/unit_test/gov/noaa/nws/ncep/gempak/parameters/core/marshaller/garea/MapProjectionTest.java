@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.MapProjection;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -16,14 +15,14 @@ public class MapProjectionTest {
 		MapProjection map_obj = new MapProjection("LCC");
 		assertEquals(map_obj.isProjectionStringValid(),true);
 		Integer[] margins = map_obj.getProjectionMargins();
-	    assertEquals(margins[0],0);
-	    assertEquals(margins[1],3);
-	    assertEquals(margins[2],0);
-	    assertEquals(margins[3],0);
+        assertEquals(margins[0].intValue(), 0);
+        assertEquals(margins[1].intValue(), 3);
+        assertEquals(margins[2].intValue(), 0);
+        assertEquals(margins[3].intValue(), 0);
 	    Float[] angles = map_obj.getProjectionAngles();
-	    assertEquals(angles[0],0);
-	    assertEquals(angles[1],0);
-	    assertEquals(angles[2],0);	    
+        assertEquals(angles[0].intValue(), 0);
+        assertEquals(angles[1].intValue(), 0);
+        assertEquals(angles[2].intValue(), 0);
 
 	}
 

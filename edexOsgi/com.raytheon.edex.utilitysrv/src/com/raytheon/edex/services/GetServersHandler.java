@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
+ * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -55,10 +56,19 @@ public class GetServersHandler implements IRequestHandler<GetServersRequest> {
         String httpServer = System.getProperty("http.server");
         String jmsServer = System.getProperty("jms.server");
         String pypiesServer = System.getProperty("pypies.server");
+        String dataDeliveryServer = System
+                .getProperty("datadelivery.server");
+        String dataDeliveryLcmServer = System
+                .getProperty("datadelivery.lcm.server");
+        String dataDeliveryQueryServer = System
+                .getProperty("datadelivery.query.server");
 
         logger.info("http.server=" + httpServer);
         logger.info("jms.server=" + jmsServer);
         logger.info("pypies.server=" + pypiesServer);
+        logger.info("datadelivery.server=" + dataDeliveryServer);
+        logger.info("datadelivery.lcm.server=" + dataDeliveryLcmServer);
+        logger.info("datadelivery.query.server=" + dataDeliveryQueryServer);
 
         String hdf5DataDir = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("HDF5DIR");
@@ -66,6 +76,9 @@ public class GetServersHandler implements IRequestHandler<GetServersRequest> {
         response.setHttpServer(httpServer);
         response.setJmsServer(jmsServer);
         response.setPypiesServer(pypiesServer);
+        response.setDataDeliveryServer(dataDeliveryServer);
+        response.setDataDeliveryLcmServer(dataDeliveryLcmServer);
+        response.setDataDeliveryQueryServer(dataDeliveryQueryServer);
         response.setServerDataDir(hdf5DataDir);
         return response;
     }
