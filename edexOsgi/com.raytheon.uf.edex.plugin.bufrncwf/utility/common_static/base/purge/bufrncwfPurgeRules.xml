@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>bufrncwf</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<defaultRule>
 		<versionsToKeep>288</versionsToKeep>
-	</rule>
+	</defaultRule>
 </purgeRuleSet>
