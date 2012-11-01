@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -483,8 +484,6 @@ public abstract class PluginDao extends CoreDao {
      */
     public void purgeExpiredData() throws PluginException {
         try {
-            PluginDao pluginDao = PluginFactory.getInstance().getPluginDao(
-                    pluginName);
             PurgeRuleSet ruleSet = getPurgeRulesForPlugin(pluginName);
 
             if (ruleSet == null) {
@@ -500,14 +499,14 @@ public abstract class PluginDao extends CoreDao {
 
             if ((ruleKeys != null) && !ruleKeys.isEmpty()) {
                 // Iterate through keys, fully purge each key set
-                String[][] distinctKeys = getDistinctProductKeys(ruleSet
+                String[][] distinctKeys = getDistinctProductKeyValues(ruleSet
                         .getKeys());
                 for (String[] key : distinctKeys) {
-                    totalItems += purgeExpiredKey(pluginDao, ruleSet, key);
+                    totalItems += purgeExpiredKey(ruleSet, key);
                 }
             } else {
                 // no rule keys defined, can only apply default rule
-                totalItems += purgeExpiredKey(pluginDao, ruleSet, null);
+                totalItems += purgeExpiredKey(ruleSet, null);
             }
 
             StringBuilder messageBuffer = new StringBuilder();
@@ -527,14 +526,13 @@ public abstract class PluginDao extends CoreDao {
      * Takes the purgeKeys, looks up the associated purge rule, and applies it
      * to the data matched by purgeKeys.
      * 
-     * @param pluginDao
      * @param ruleSet
      * @param purgeKeys
      * @return Number of records purged
      * @throws DataAccessLayerException
      */
-    protected int purgeExpiredKey(PluginDao pluginDao, PurgeRuleSet ruleSet,
-            String[] purgeKeys) throws DataAccessLayerException {
+    protected int purgeExpiredKey(PurgeRuleSet ruleSet, String[] purgeKeys)
+            throws DataAccessLayerException {
         PurgeRule rule = ruleSet.getRuleForKeys(purgeKeys);
 
         if (rule == null) {
@@ -555,31 +553,28 @@ public abstract class PluginDao extends CoreDao {
         /*
          * This section applies the purge rule
          */
-        String[][] productKeys = null;
+        Map<String, String> productKeys = null;
         if (purgeKeys != null) {
-            productKeys = new String[purgeKeys.length][];
+            productKeys = new LinkedHashMap<String, String>(purgeKeys.length);
             Iterator<String> iter = ruleSet.getKeys().iterator();
-            int index = 0;
             for (String purgeKey : purgeKeys) {
-                productKeys[index] = new String[2];
-                productKeys[index][0] = iter.next();
-                productKeys[index++][1] = purgeKey;
+                productKeys.put(iter.next(), purgeKey);
             }
         }
 
-        List<Date> refTimesForKey = pluginDao
-                .getRefTimesForCriteria(productKeys);
+        List<Date> refTimesForKey = getRefTimesForCriteria(productKeys);
         String productKeyString = null;
         if (productKeys != null) {
             StringBuilder productKeyBuilder = new StringBuilder();
-            for (String[] pKey : productKeys) {
-                productKeyBuilder.append(Arrays.toString(pKey));
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                productKeyBuilder.append('[').append(pair.getKey()).append('=')
+                        .append(pair.getValue()).append(']');
             }
             productKeyString = productKeyBuilder.toString();
         }
 
         if (rule.isModTimeToWaitSpecified()) {
-            Date maxInsertTime = pluginDao.getMaxInsertTime(productKeys);
+            Date maxInsertTime = getMaxInsertTime(productKeys);
             if (maxInsertTime != null) {
                 long lastInsertTime = maxInsertTime.getTime();
                 long currentTime = System.currentTimeMillis();
@@ -602,7 +597,7 @@ public abstract class PluginDao extends CoreDao {
         Date periodCutoffTime = new Date();
         if (rule.isPeriodSpecified()) {
             if (rule.isPeriodBasedOnLatestTime()) {
-                Date maxRefTime = pluginDao.getMaxRefTime(productKeys);
+                Date maxRefTime = getMaxRefTime(productKeys);
                 if (maxRefTime == null) {
                     PurgeLogger.logInfo("No data available to purge",
                             pluginName);
@@ -749,7 +744,7 @@ public abstract class PluginDao extends CoreDao {
         for (Date deleteDate : timesPurgedByRule) {
 
             // Delete the data in the database
-            int itemsDeletedForTime = pluginDao.purgeDataByRefTime(deleteDate,
+            int itemsDeletedForTime = purgeDataByRefTime(deleteDate,
                     productKeys);
 
             itemsDeletedForKey += itemsDeletedForTime;
@@ -846,16 +841,19 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
-     * Gets a list of the distinct product keys for this plugin
+     * Gets a list of the distinct product key values for this plugin.
      * 
-     * @return The list of distinct product keys for this plugin
+     * @param the
+     *            keys to look up values for.
+     * @return 2 dimensional array of distinct values for the given keys. First
+     *         dimension is the row of data, second dimension actual values.
      * @throws DataAccessLayerException
      *             If errors occur while querying for the data
      */
     @SuppressWarnings("unchecked")
-    public String[][] getDistinctProductKeys(List<String> keys)
+    public String[][] getDistinctProductKeyValues(List<String> keys)
             throws DataAccessLayerException {
-        String[][] distinctKeys = null;
+        String[][] distinctValues = null;
         if ((keys != null) && !keys.isEmpty()) {
             DatabaseQuery query = new DatabaseQuery(this.daoClass);
             for (int i = 0; i < keys.size(); i++) {
@@ -867,31 +865,31 @@ public abstract class PluginDao extends CoreDao {
             }
             if (keys.size() == 1) {
                 List<?> results = this.queryByCriteria(query);
-                distinctKeys = new String[results.size()][];
+                distinctValues = new String[results.size()][];
                 int index = 0;
                 for (Object obj : results) {
-                    distinctKeys[index] = new String[1];
-                    distinctKeys[index++][0] = String.valueOf(obj);
+                    distinctValues[index] = new String[1];
+                    distinctValues[index++][0] = String.valueOf(obj);
                 }
             } else {
                 List<Object[]> results = (List<Object[]>) this
                         .queryByCriteria(query);
-                distinctKeys = new String[results.size()][];
+                distinctValues = new String[results.size()][];
                 int rIndex = 0;
 
                 for (Object[] result : results) {
-                    distinctKeys[rIndex] = new String[result.length];
+                    distinctValues[rIndex] = new String[result.length];
                     int cIndex = 0;
 
                     for (Object obj : result) {
-                        distinctKeys[rIndex][cIndex++] = String.valueOf(obj);
+                        distinctValues[rIndex][cIndex++] = String.valueOf(obj);
                     }
 
                     rIndex++;
                 }
             }
         }
-        return distinctKeys;
+        return distinctValues;
     }
 
     /**
@@ -915,19 +913,19 @@ public abstract class PluginDao extends CoreDao {
      * Gets all distinct reference times for the given productKey
      * 
      * @param productKeys
-     *            The product keys to get the list of reference times for.
+     *            The product key/values to get the list of reference times for.
      *            Should be in key value pairs.
      * @return A list of distinct reference times for the given productKey
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    public List<Date> getRefTimesForCriteria(String[][] productKeys)
+    public List<Date> getRefTimesForCriteria(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -946,12 +944,13 @@ public abstract class PluginDao extends CoreDao {
      *            The reftime to delete data for. A null will purge all data for
      *            the productKeys.
      * @param productKeys
-     *            The keys to use as a constraint for deletions
+     *            The product key/values to use as a constraint for deletions.
+     *            Should be in key value pairs.
      * @return
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    public int purgeDataByRefTime(Date refTime, String[][] productKeys)
+    public int purgeDataByRefTime(Date refTime, Map<String, String> productKeys)
             throws DataAccessLayerException {
 
         int results = 0;
@@ -961,9 +960,9 @@ public abstract class PluginDao extends CoreDao {
             dataQuery.addQueryParam(PURGE_VERSION_FIELD, refTime);
         }
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                dataQuery.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                dataQuery.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -992,7 +991,7 @@ public abstract class PluginDao extends CoreDao {
             List<String> pathKeys = pathProvider.getKeyNames(this.pluginName);
             boolean pathKeysEmpty = (pathKeys == null) || pathKeys.isEmpty();
             boolean productKeysEmpty = (productKeys == null)
-                    || (productKeys.length == 0);
+                    || (productKeys.isEmpty());
 
             // determine if hdf5 purge can be optimized
             if (!pathKeysEmpty) {
@@ -1000,22 +999,20 @@ public abstract class PluginDao extends CoreDao {
                     // Purging on higher magnitude that path, only need to track
                     // file
                     optimizedPurge = true;
-                } else if (pathKeys.size() < productKeys.length) {
+                } else if (pathKeys.size() < productKeys.size()) {
                     // there are more purge keys than path keys, cannot optimize
                     // hdf5 purge
                     optimizedPurge = false;
                 } else {
                     // need to compare each key to check for optimized purge,
-                    // all
-                    // productKeys must be a pathKey for optimized purge, both
-                    // key lists should be small 3 or less, no need to optimize
-                    // list
-                    // look ups
+                    // all productKeys must be a pathKey for optimized purge,
+                    // both key lists should be small 3 or less, no need to
+                    // optimize list look ups
                     optimizedPurge = true;
-                    for (String[] productKey : productKeys) {
+                    for (String productKey : productKeys.keySet()) {
                         boolean keyMatch = false;
                         for (String pathKey : pathKeys) {
-                            if (pathKey.equals(productKey[0])) {
+                            if (pathKey.equals(productKey)) {
                                 keyMatch = true;
                                 break;
                             }
@@ -1139,14 +1136,14 @@ public abstract class PluginDao extends CoreDao {
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMaxRefTime(String[][] productKeys)
+    public Date getMaxRefTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         query.addDistinctParameter(PURGE_VERSION_FIELD);
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -1171,14 +1168,14 @@ public abstract class PluginDao extends CoreDao {
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMaxInsertTime(String[][] productKeys)
+    public Date getMaxInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         // doing distinct is wasted with a ordered max
         // query.addDistinctParameter("insertTime");
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -1205,15 +1202,15 @@ public abstract class PluginDao extends CoreDao {
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMinInsertTime(String[][] productKeys)
+    public Date getMinInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         // doing distinct is wasted with a ordered max
         // query.addDistinctParameter("insertTime");
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -1240,14 +1237,14 @@ public abstract class PluginDao extends CoreDao {
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMinRefTime(String[][] productKeys)
+    public Date getMinRefTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         query.addDistinctParameter(PURGE_VERSION_FIELD);
 
-        if ((productKeys != null) && (productKeys.length > 0)) {
-            for (String[] key : productKeys) {
-                query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
             }
         }
 
@@ -1367,16 +1364,15 @@ public abstract class PluginDao extends CoreDao {
         File defaultRule = PathManagerFactory.getPathManager().getStaticFile(
                 "purge/defaultPurgeRules.xml");
         if (defaultRule == null) {
-            PurgeLogger.logError("Default purge rule not defined!!", "EDEX");
-            statusHandler
-                    .error("Default purge rule not defined!!  Data will not be purged for plugins which do not specify purge rules!");
+            PurgeLogger
+                    .logError(
+                            "Default purge rule not defined!! Data will not be purged for plugins which do not specify purge rules!",
+                            "EDEX");
             return null;
         }
         try {
             PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
                     .jaxbUnmarshalFromXmlFile(defaultRule);
-            System.out.println("Default file has default rule: "
-                    + (purgeRules.getDefaultRule() != null));
             return purgeRules.getDefaultRule();
         } catch (SerializationException e) {
             PurgeLogger.logError("Error deserializing default purge rule!",
