@@ -38,6 +38,7 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
+import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -67,6 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Sep 07, 2012 1102        djohnson    Add missing JAXB annotations.
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
  * 
  * </pre>
@@ -111,11 +114,13 @@ public abstract class GridCoverage extends PersistableDataObject implements
     /** Geometry object holding the corner points of the grid */
     @Column(name = "the_geom", columnDefinition = "geometry")
     @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     protected Geometry geometry;
 
     /** The CRS as a WKT String */
     @Column(name = "crs", length = 2047)
+    @XmlElement
     @DynamicSerializeElement
     protected String crsWKT;
 
@@ -208,7 +213,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
 
     @Override
     public String toString() {
-        if (id == 0) {
+        if (id == null) {
             return "Coverage Information Not Specified yet";
         } else {
             return Integer.toString(id);
@@ -266,10 +271,12 @@ public abstract class GridCoverage extends PersistableDataObject implements
      */
     public abstract GridCoverage trim(SubGrid subGrid);
 
+    @Override
     public Geometry getGeometry() {
         return geometry;
     }
 
+    @Override
     public CoordinateReferenceSystem getCrs() {
         if (crs == null) {
             try {
@@ -428,6 +435,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
         this.firstGridPointCorner = firstGridPointCorner;
     }
 
+    @Override
     public Integer getNx() {
         return nx;
     }
@@ -436,6 +444,7 @@ public abstract class GridCoverage extends PersistableDataObject implements
         this.nx = nx;
     }
 
+    @Override
     public Integer getNy() {
         return ny;
     }
@@ -582,6 +591,14 @@ public abstract class GridCoverage extends PersistableDataObject implements
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
             double minLat = getLowerLeftLat() - dy / 2;
+            // This commented out if block can probably be removed. It was added
+            // for WA 5 Data Delivery, but nobody can remember exactly why.
+            // Commented out 11/01/2012, if you are in this file messing with
+            // something at some reasonable point in the future (especially if
+            // Michael J. Fox is with you), then feel free to delete it.
+            // if (ny * dy < 180) {
+            // minLat = MapUtil.correctLat(getLowerLeftLat()) - dy / 2;
+            // }
             double maxLat = minLat + dy * ny;
             double minLon = getLowerLeftLon() - dx / 2;
             if (dx * nx <= 360) {

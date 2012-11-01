@@ -30,10 +30,10 @@ if [ $TOTAL_MEM -gt 4 ]; then
 fi
 
 # Default Services to start
-SERVICES=('ingest' 'ingestGrib' 'request')
+SERVICES=('ingest' 'ingestGrib' 'request' 'datadelivery')
 
 if [ $HIGH_MEM == "on" ]; then
-    SERVICES=('ingest' 'ingestGrib' 'ingestDat' 'request')
+    SERVICES=('ingest' 'ingestGrib' 'ingestDat' 'request' 'datadelivery')
 fi 
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")

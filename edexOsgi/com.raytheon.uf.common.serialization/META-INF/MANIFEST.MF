@@ -11,7 +11,8 @@ Require-Bundle: com.facebook.thrift,
  javax.persistence,
  org.geotools,
  javax.measure;resolution:=optional,
- com.raytheon.uf.common.util
+ com.raytheon.uf.common.util,
+ org.apache.commons.codec;bundle-version="1.4.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.adapters,

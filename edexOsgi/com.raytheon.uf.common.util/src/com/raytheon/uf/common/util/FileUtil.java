@@ -49,7 +49,7 @@ import java.util.zip.GZIPOutputStream;
  *                                      return false when unable to
  *                                      obtain directory listing.
  * Sep 16, 2008 1250       jelkins     Added join function
- * - AWIPS2 Baseline Repository --------
+ * Jun 28, 2012 0819       djohnson    Add write method.
  * Jul 06, 2012        798 jkorman     Added more robust {@link #copyFile}. Added methods
  *                                     to create temporary directories and files.
  * 
@@ -618,6 +618,24 @@ public class FileUtil {
      */
     public static boolean isValidFilename(String fileName) {
         return VALID_FILENAME.matcher(fileName).matches();
+    }
+    
+    /**
+     * Write the contents of an input stream to a file.
+     * 
+     * @param is
+     *            the input stream to read from
+     * @param file
+     *            the file to write to
+     * @throws IOException
+     */
+    public static void write(InputStream is, File file) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        int read = 0;
+        while ((read = is.read()) != -1) {
+            os.write(read);
+        }
     }
 
     /**

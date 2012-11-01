@@ -33,6 +33,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 
@@ -539,14 +540,13 @@ public class SacXMLDecoder
 	public String toString()
 	{
 		StringWriter stringWriter = new StringWriter();
-		XMLOutputter outputter = new XMLOutputter();
+		Format format = Format.getPrettyFormat();
+		format = format.setIndent("	");
+		XMLOutputter outputter = new XMLOutputter(format);
 		String returnValue = null;
 		
 		try
 		{
-			outputter.setTextTrim( true );
-			outputter.setIndent( "	" );
-			outputter.setNewlines( true );
 			outputter.output( _doc, stringWriter );
 			returnValue = stringWriter.toString();
 		}
