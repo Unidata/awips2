@@ -1086,7 +1086,7 @@ public abstract class PluginDao extends CoreDao {
                     .entrySet()) {
                 try {
                     IDataStore ds = DataStoreFactory.getDataStore(new File(
-                            hdf5Entry.getKey()));
+                            PLUGIN_HDF5_DIR + hdf5Entry.getKey()));
                     List<String> uris = hdf5Entry.getValue();
                     if (uris == null) {
                         ds.deleteFiles(null);
