@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<parameterAliasList namespace="GrADS">
+<aliasList namespace="GrADS">
 	<!-- Parameters defined for surface level -->
 	<alias base="CAPE">capesfc</alias>
 	<alias base="CIn">cinsfc</alias>
@@ -104,4 +104,4 @@
 	<!-- Parameters defined at 500mb -->
 	<alias base="AV">absv500mb</alias>
 	<alias base="WGH">no5wavh500mb</alias>
-</parameterAliasList>
+</aliasList>

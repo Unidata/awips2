@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<parameterAliasList namespace="grib">
+<aliasList namespace="grib">
 	<alias base="WGH">5WAVH</alias>
 	<alias base="AV">ABSV</alias>
 	<alias base="CRAIN">CRAIN</alias>
@@ -101,4 +101,4 @@
 	<alias base="WD">WDIR</alias>
 	<alias base="WS">WIND</alias>
 	<alias base="WGS">WGS</alias>
-</parameterAliasList>
+</aliasList>
