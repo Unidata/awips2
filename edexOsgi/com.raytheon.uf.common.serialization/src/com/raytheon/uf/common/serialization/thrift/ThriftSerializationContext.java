@@ -58,13 +58,14 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 12, 2008	#1448		chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Aug 12, 2008 #1448       chammack    Initial creation
  * Jun 17, 2010 #5091       njensen     Optimized primitive arrays
  * Mar 01, 2011             njensen     Restructured deserializeArray()
  * Sep 14, 2012 #1169       djohnson    Add ability to write another object into the stream directly.
  * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
+ * Nov 02, 2012 1310        djohnson    No more field level adapters.
  * 
  * </pre>
  * 
@@ -717,10 +718,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
         field.name = keyStr;
         protocol.writeFieldBegin(field);
 
-        if (adapter != null) {
-            // If there is an adapter, use it to serialize
-            adapter.serialize(this, val);
-        } else if (type != TType.VOID) {
+        if (type != TType.VOID) {
             // Otherwise, as long as it's not void, use basic type serialization
             serializeType(val, valClass, type);
         }
@@ -849,9 +847,6 @@ public class ThriftSerializationContext extends BaseSerializationContext {
             FastClass fc, BeanMap bm) throws TException, SerializationException {
 
         TField field = protocol.readFieldBegin();
-        // System.out.println(field.type);
-        ISerializationTypeAdapter factory = md.attributesWithFactories
-                .get(field.name);
         Object obj = null;
 
         if (field.type == TType.STOP) {
@@ -859,12 +854,8 @@ public class ThriftSerializationContext extends BaseSerializationContext {
         }
 
         if (field.type != TType.VOID) {
-             if (factory != null) {
-                 obj = factory.deserialize(this);
-             } else {
-                 obj = deserializeType(field.type, o.getClass(), fc, field.name,
+            obj = deserializeType(field.type, o.getClass(), fc, field.name,
                     EnclosureType.FIELD);
-            }
             if (field.type == TType.STRING) {
                 Class<?> fieldClass = findFieldClass(o.getClass(), field.name);
                 if (fieldClass != null && fieldClass.isEnum()) {
