@@ -60,6 +60,8 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.dataplugin.level.mapping.MultipleLevelMappingException;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
@@ -79,6 +81,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
  * Grib decoder implementation for decoding grib version 1 files.
@@ -250,11 +253,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 parameterName = param.getDescription();
                 parameterAbbreviation = param.getName();
                 parameterUnit = param.getUnit();
-                Parameter baseParameter = ParameterMapper.getInstance()
-                        .lookupParameter("grib", parameterAbbreviation);
-                if (baseParameter != null) {
-                    parameterAbbreviation = baseParameter.getAbbreviation();
-                }
+
             } catch (NotSupportedException e) {
                 throw new GribException("Error getting grib 1 parameter", e);
             }
@@ -263,11 +262,6 @@ public class Grib1Decoder extends AbstractDecoder {
             parameterUnit = parameter.getUnit();
             if (parameter.getD2dAbbrev() == null) {
                 parameterAbbreviation = parameter.getAbbreviation();
-                Parameter baseParameter = ParameterMapper.getInstance()
-                        .lookupParameter("grib", parameterAbbreviation);
-                if (baseParameter != null) {
-                    parameterAbbreviation = baseParameter.getAbbreviation();
-                }
             } else {
                 parameterAbbreviation = parameter.getD2dAbbrev();
             }
@@ -482,6 +476,13 @@ public class Grib1Decoder extends AbstractDecoder {
             parameterAbbreviation = newAbbr;
         }
         parameterAbbreviation = parameterAbbreviation.replaceAll("_", "-");
+        try {
+            parameterAbbreviation = ParameterMapper.getInstance()
+                    .lookupBaseName("grib", parameterAbbreviation);
+        } catch (MultipleMappingException e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            parameterAbbreviation = e.getArbitraryMapping();
+        }
 
         retVal.setPluginName("grid");
         Parameter param = new Parameter(parameterAbbreviation, parameterName,
@@ -909,16 +910,8 @@ public class Grib1Decoder extends AbstractDecoder {
      */
     private String createModelName(int centerId, int subcenterId, int process,
             GridCoverage grid) {
-        GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
+        return GribModelLookup.getInstance().getModelName(centerId,
                 subcenterId, grid, process);
-        if (gridModel == null || gridModel.getName() == null) {
-            return "UnknownModel:" + String.valueOf(centerId) + ":"
-                    + String.valueOf(subcenterId) + ":"
-                    + String.valueOf(process) + ":"
-                    + String.valueOf(grid.getId());
-        } else {
-            return gridModel.getName();
-        }
     }
 
     /**
@@ -1269,11 +1262,13 @@ public class Grib1Decoder extends AbstractDecoder {
             levelTwoValue = Level.getInvalidLevelValue();
         }
         try {
-            Level level = LevelFactory.getInstance().getLevel(levelName,
+            return LevelMapper.getInstance().lookupLevel(levelName, "grib",
                     levelOneValue, levelTwoValue, levelUnit);
-            return level;
         } catch (CommunicationException e) {
             throw new GribException("Error requesting levels", e);
+        } catch (MultipleLevelMappingException e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            return e.getArbitraryLevelMapping();
         }
     }
 
