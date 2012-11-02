@@ -9,7 +9,6 @@ Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: registered, ext, global
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.datastorage.records,
  com.raytheon.uf.common.geospatial,
@@ -28,6 +27,12 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.opengis.metadata.spatial
 Export-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.grid.dataset,
+ com.raytheon.uf.common.dataplugin.grid.mapping,
  com.raytheon.uf.common.dataplugin.grid.request,
  com.raytheon.uf.common.dataplugin.grid.units,
  com.raytheon.uf.common.dataplugin.grid.util
+Require-Bundle: com.raytheon.uf.common.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.parameter;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataquery;bundle-version="1.0.0"
