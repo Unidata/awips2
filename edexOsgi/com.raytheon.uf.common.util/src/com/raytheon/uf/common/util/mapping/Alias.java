@@ -17,41 +17,61 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.level.xml;
+package com.raytheon.uf.common.util.mapping;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
- * LevelAliasList
+ * Alias definition, base should be a well defined name and alias is an
+ * alternative name that can be used to describe the same thing.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
+ * Mar 22, 2012            bsteffen     Initial creation
+ * 
  * </pre>
  * 
- * @author rjpeter
+ * @author bsteffen
  * @version 1.0
  */
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class LevelAliasList implements ISerializableObject {
-    @XmlElement(name = "level")
-    private LevelAlias[] levels;
+public class Alias {
 
-    public LevelAlias[] getLevels() {
-        return levels;
+    @XmlAttribute
+    private String base;
+
+    @XmlValue
+    private String alias;
+
+    public Alias() {
     }
 
-    public void setLevels(LevelAlias[] levels) {
-        this.levels = levels;
+    public Alias(String base, String alias) {
+        this.base = base;
+        this.alias = alias;
+    }
+
+    public String getBase() {
+        return base;
+    }
+
+    public void setBase(String base) {
+        this.base = base;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
 }
