@@ -34,13 +34,20 @@ import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoSet;
+import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 public class GribModelLookup {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribModelLookup.class);
 
     /** The logger */
     protected transient Log logger = LogFactory.getLog(getClass());
@@ -87,8 +94,10 @@ public class GribModelLookup {
 
     public GridModel getModel(int center, int subcenter, GridCoverage grid,
             int process) {
-        GridModel model = models.get(toKey(center, subcenter, grid.getName(),
-                process));
+        GridModel model = null;
+        if (grid.getName() != null) {
+            models.get(toKey(center, subcenter, grid.getName(), process));
+        }
         if (model == null) {
             for (String gribGridName : GribSpatialCache.getInstance()
                     .getGribCoverageNames(grid)) {
@@ -121,6 +130,45 @@ public class GribModelLookup {
 
     public Set<String> getModelNames() {
         return modelsByName.keySet();
+    }
+
+    public String getModelName(int center, int subcenter, GridCoverage grid,
+            int process) {
+        GridModel model = getModel(center, subcenter, grid, process);
+        if (model == null || model.getName() == null) {
+            String cenSubProc = "GribModel:" + String.valueOf(center) + ":"
+                    + String.valueOf(subcenter) + ":" + String.valueOf(process);
+            String cenSubProcLoc = null;
+            DatasetIdMapper mapper = DatasetIdMapper.getInstance();
+            try {
+                if (grid.getName() != null) {
+                    cenSubProcLoc = cenSubProc + ":" + grid.getName();
+                    String name = mapper.lookupBaseName(cenSubProcLoc, "grib");
+                    if (!name.equals(cenSubProcLoc)) {
+                        return name;
+                    }
+                }
+                for (String gribGridName : GribSpatialCache.getInstance()
+                        .getGribCoverageNames(grid)) {
+                    cenSubProcLoc = cenSubProc + ":" + gribGridName;
+                    String name = mapper.lookupBaseName(cenSubProcLoc, "grib");
+                    if (!name.equals(cenSubProcLoc)) {
+                        return name;
+                    }
+                }
+                String name = mapper.lookupBaseName(cenSubProc, "grib");
+                if (!name.equals(cenSubProcLoc)) {
+                    return name;
+                }
+                return cenSubProcLoc;
+            } catch (MultipleMappingException e) {
+                statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+
+                return e.getArbitraryMapping();
+            }
+        } else {
+            return model.getName();
+        }
     }
 
     private void initModelList() throws GribException {

@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<parameterAliasList namespace="GEMPAK">
+<aliasList namespace="GEMPAK">
 	<alias base="WGH">HGHT5</alias>
 	<alias base="AV">AVOR</alias>
 	<alias base="CRAIN">WXTR</alias>
@@ -113,4 +113,4 @@
 	<alias base="WD">DRCT</alias>
 	<alias base="WS">SPED</alias>
 	<alias base="WGS">GUST</alias>
-</parameterAliasList>
+</aliasList>

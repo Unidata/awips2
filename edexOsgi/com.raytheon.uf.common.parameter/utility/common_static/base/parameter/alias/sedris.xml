@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<parameterAliasList namespace="sedris">
+<aliasList namespace="sedris">
     <!-- http://www.sedris.org/ -->
 	<alias base="AV">WIND_ABSOLUTE_VORTICITY</alias>
 	<alias base="CFRZR">FREEZING_RAIN_PRESENT</alias>
@@ -82,4 +82,4 @@
 	<alias base="WD">WIND_DIRECTION</alias>
 	<alias base="WS">WIND_SPEED</alias>
 	<alias base="WGS">WIND_GUST_SPEED</alias>
-</parameterAliasList>
+</aliasList>
