@@ -16,6 +16,17 @@ convert_grib_data.py can take a significant amount of time, as much as 2 hours.
 If you don't need your data and you want to upgrade faster you can purge all grib data.
 If there is no grib data to convert there is no need to run convert_grib_data.py.
 
+After convert_grib_data.py has run, it may not convert all models(perhaps skipping
+alaskan, hawaiin, or other models.) If this is the case there will be data left over
+in /awips2/edex/data/hdf5/grib. This data can be used if you need to convert additional
+models or if a rollback is necessary. The system is not set up to purge this data, so
+after a successful upgrade when new data is arriving this directory will need to be deleted.
+
+The format of the data in /awips2/edex/data/hdf5/topo/modelStaticTopo.h5 has changed. When the
+ingestGrib edex is started it will attempt to regenerate this file. This is a very time and
+memory intensive process. To save time when upgrading an operational system it is recommended
+that you copy a modelStaticTopo.h5 file from a testbed or other system that has already generated it.
+
 The update_saved_display.sh script can be used if there are any saved displays that are
 saved outside of localization.
 

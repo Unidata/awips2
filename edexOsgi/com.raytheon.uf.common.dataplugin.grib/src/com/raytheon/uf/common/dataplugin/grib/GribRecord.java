@@ -51,7 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Record class for the grib plugin.
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -71,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@Deprecated
 public class GribRecord extends PersistablePluginDataObject implements
         IPersistable, ISpatialEnabled, IPrecomputedRange {
 
