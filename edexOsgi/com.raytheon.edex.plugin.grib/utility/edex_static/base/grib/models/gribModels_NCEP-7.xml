@@ -951,7 +951,7 @@
 		<name>GlobalWave</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
-		<grid>011</grid>
+		<grid>11</grid>
 		<process>
 			<id>11</id>
 		</process>
