@@ -40,6 +40,8 @@
 #												  updated path.
 #    09/28/10        6980          bkowal         Updated LD_LIBRARY_PATH to
 #                                                 include path to python lib.
+#    11/02/12        1236          dgilling       Add --forcepractice flag to 
+#                                                 bypass test mode check.
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
@@ -55,21 +57,35 @@ source ${RUN_FROM_DIR}/setup.env
 export LD_LIBRARY_PATH=${BASE_AWIPS_DIR}/src/lib:${PYTHON_INSTALL}/lib
 export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
 
-TESTCHECK="${TCMP_HOME}/bin/getTestMode"
-if [ -x ${TESTCHECK} ]; then
-    ${TESTCHECK}
-    status=${?}
-    if [ $status -eq 11 ]; then
-        export OPERATIONAL_MODE="TRUE"
-    elif [ $status -eq 12 ]; then
-        export OPERATIONAL_MODE="FALSE"
-    elif [ $status -eq 15 ]; then
-        export OPERATIONAL_MODE="TRUE"
+forcePractice="FALSE"
+declare -a parsedArgs
+for flag in $@; do
+    if [ $flag == "--forcepractice" ]; then
+        forcePractice="TRUE"
+    else
+        parsedArgs=("${parsedArgs[@]}" $flag)
+    fi
+done
+
+if [ $forcePractice != "TRUE" ]; then
+    TESTCHECK="${TCMP_HOME}/bin/getTestMode"
+    if [ -x ${TESTCHECK} ]; then
+        ${TESTCHECK}
+        status=${?}
+        if [ $status -eq 11 ]; then
+            export OPERATIONAL_MODE="TRUE"
+        elif [ $status -eq 12 ]; then
+            export OPERATIONAL_MODE="FALSE"
+        elif [ $status -eq 15 ]; then
+            export OPERATIONAL_MODE="TRUE"
+        else
+            export OPERATIONAL_MODE="TRUE"
+        fi
     else
         export OPERATIONAL_MODE="TRUE"
     fi
 else
-    export OPERATIONAL_MODE="TRUE"
+    export OPERATIONAL_MODE="FALSE"
 fi
 
 # execute the textdb Python module
@@ -77,5 +93,5 @@ _PYTHON="${PYTHON_INSTALL}/bin/python"
 _MODULE="${RUN_FROM_DIR}/src/textdb/TextDB.py"
 
 # quoting of '$@' is used to prevent command line interpretation 
-$_PYTHON $_MODULE "$@"
+$_PYTHON $_MODULE "${parsedArgs[@]}"
 
