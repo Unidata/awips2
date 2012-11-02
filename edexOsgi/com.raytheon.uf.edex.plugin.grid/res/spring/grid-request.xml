@@ -12,5 +12,11 @@
 		<constructor-arg ref="gridTreeHandler" />
 	</bean>
 
-
+	<bean id="deleteAllDataHandler"
+		class="com.raytheon.uf.edex.plugin.grid.handler.DeleteAllGridDataHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.grid.request.DeleteAllGridDataRequest" />
+		<constructor-arg ref="deleteAllDataHandler" />
+	</bean>
 </beans>
