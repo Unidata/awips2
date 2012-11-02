@@ -17,52 +17,34 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.level.xml;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
+package com.raytheon.uf.common.parameter.lookup;
 
 /**
- * Level
+ * Exception is thrown when ParameterLookup cannot execute IServerRequest using
+ * the RequestRouter. This is a RuntimeException because code that uses the
+ * ParameterLookup cannot reasonably be expected to recover from connection
+ * failure.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
+ * Oct 1, 2012            bsteffen     Initial creation
+ * 
  * </pre>
  * 
- * @author rjpeter
+ * @author bsteffen
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-public class LevelAlias implements ISerializableObject {
-    @XmlAttribute(required = true)
-    private String name;
 
-    @XmlElement(name = "alias")
-    private String[] aliases;
+public class ParameterLookupException extends RuntimeException {
 
-    public String getName() {
-        return name;
+    private static final long serialVersionUID = -3401893094682026053L;
+
+    public ParameterLookupException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String[] getAliases() {
-        return aliases;
-    }
-
-    public void setAliases(String[] aliases) {
-        this.aliases = aliases;
-    }
 }
