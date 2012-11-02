@@ -42,14 +42,11 @@ import com.raytheon.uf.common.dataplugin.level.request.GetLevelByIdRequest;
 import com.raytheon.uf.common.dataplugin.level.request.GetLevelRequest;
 import com.raytheon.uf.common.dataplugin.level.request.GetMasterLevelRequest;
 import com.raytheon.uf.common.dataplugin.level.request.ILevelRetrievalAdapter;
-import com.raytheon.uf.common.dataplugin.level.xml.LevelAlias;
-import com.raytheon.uf.common.dataplugin.level.xml.LevelAliasList;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -94,9 +91,6 @@ public class LevelFactory {
     // level id String to its full level
     private Map<String, Level> levelCacheByIdAsString = new HashMap<String, Level>();
 
-    // lists all aliases and their associated master level name
-    private Map<String, String> levelAliasMap = new HashMap<String, String>();
-
     private ILevelRetrievalAdapter retrievalAdapter = null;
 
     private boolean hasRequestedAllLevels = false;
@@ -123,7 +117,6 @@ public class LevelFactory {
             e.printStackTrace();
         }
 
-        loadLevelAliases();
         try {
             loadAllMasterLevels();
         } catch (CommunicationException e) {
@@ -228,11 +221,6 @@ public class LevelFactory {
             throws CommunicationException {
         MasterLevel rval = null;
         String levelName = level.getName();
-
-        // check aliasing
-        if (levelAliasMap.containsKey(levelName)) {
-            levelName = levelAliasMap.get(levelName);
-        }
 
         if (!hasRequestedAllMasterLevels) {
             loadAllMasterLevels();
@@ -364,59 +352,6 @@ public class LevelFactory {
         levelCache.put(levelToCache, levelToCache);
         levelCacheById.put(levelToCache.getId(), levelToCache);
         levelCacheByIdAsString.put("" + levelToCache.getId(), levelToCache);
-    }
-
-    private void loadLevelAliases() {
-        Map<String, String> aliasMap = new HashMap<String, String>();
-
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        Map<LocalizationLevel, LocalizationFile> tieredMap = pathMgr
-                .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
-                        LEVEL_FILENAME);
-
-        LocalizationLevel[] levels = pathMgr.getAvailableLevels();
-        for (LocalizationLevel level : levels) {
-            LocalizationFile file = tieredMap.get(level);
-            if (file != null) {
-                loadLevelAliasFile(file.getFile(), aliasMap);
-            }
-        }
-
-        // set to master file
-        levelAliasMap = aliasMap;
-    }
-
-    private void loadLevelAliasFile(File file, Map<String, String> aliasMap) {
-        if ((file != null) && file.exists()) {
-            LevelAliasList defList = null;
-
-            // use jaxb to deserialize file
-            try {
-                Object xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile(file
-                        .getAbsolutePath());
-
-                if (xmlObj instanceof LevelAliasList) {
-                    defList = (LevelAliasList) xmlObj;
-                } else {
-                    logger.error("Malformed alias file, expected ["
-                            + LevelAliasList.class.getName() + "], received ["
-                            + xmlObj.getClass().getName() + "]");
-                }
-            } catch (Exception e) {
-                logger.error("Caught exception parsing level alias file", e);
-            }
-
-            if ((defList != null) && (defList.getLevels() != null)) {
-                for (LevelAlias level : defList.getLevels()) {
-                    String[] aliases = level.getAliases();
-                    if (aliases != null) {
-                        for (String alias : aliases) {
-                            aliasMap.put(alias, level.getName());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void loadAllLevels() throws CommunicationException {
