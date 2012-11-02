@@ -54,6 +54,7 @@ from com.raytheon.uf.common.gridcoverage.lookup import GridCoverageLookup
 from com.raytheon.uf.common.gridcoverage import Corner 
 from com.raytheon.edex.plugin.grib.util import GribModelLookup
 
+from com.raytheon.uf.common.dataplugin.level.mapping import LevelMapper
 from com.raytheon.uf.common.dataplugin.level import Level
 from com.raytheon.uf.common.dataplugin.level import LevelFactory
 
@@ -534,9 +535,6 @@ class GribDecoder():
                         parameterAbbreviation = parameter.getD2dAbbrev()
                     else:
                         parameterAbbreviation = parameter.getAbbreviation()
-                        baseParameter = ParameterMapper.getInstance().lookupParameter("grib", parameterAbbreviation)
-                        if baseParameter != None:
-                            parameterAbbreviation = baseParameter.getAbbreviation();
                     parameterUnit = parameter.getUnit()
                 else:
                     LogStream.logEvent("No parameter information for center[" + str(centerID) + "], subcenter[" +
@@ -677,6 +675,8 @@ class GribDecoder():
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
+                
+            parameterAbbreviation = ParameterMapper.getInstance().lookupBaseName(parameterAbbreviation, "grib");
             # Constructing the GribModel object
             pdsFields['centerid'] = centerID
             pdsFields['subcenterid'] = subcenterID
@@ -687,7 +687,7 @@ class GribDecoder():
             pdsFields['parameterUnit'] = parameterUnit
 
             # Constructing the Level object
-            level = LevelFactory.getInstance().getLevel(levelName, levelOneValue, levelTwoValue, levelUnit)
+            level = LevelMapper.getInstance().lookupLevel(levelName, 'grib', levelOneValue, levelTwoValue, levelUnit)
             pdsFields['level'] = level
 
             
@@ -1269,12 +1269,11 @@ class GribDecoder():
         return gridModel
     
     def _createModelName(self, pdsSectionValues, grid):
-        gridModel = self._getGridModel(pdsSectionValues, grid)
-        if gridModel is None:
-            name = "UnknownModel:" + str(pdsSectionValues['centerid']) + ":" + str(pdsSectionValues['subcenterid']) + ":" + str(pdsSectionValues['genprocess']) + ":" + str(grid.getId())
-        else:
-            name = gridModel.getName()
-        return name
+        center = pdsSectionValues['centerid']
+        subcenter = pdsSectionValues['subcenterid']
+
+        process = pdsSectionValues['genprocess']
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process)
         
     def _checkForecastFlag(self, pdsSectionValues, grid, dataTime):
         gridModel = self._getGridModel(pdsSectionValues, grid)
