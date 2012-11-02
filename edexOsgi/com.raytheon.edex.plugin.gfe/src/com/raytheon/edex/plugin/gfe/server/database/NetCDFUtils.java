@@ -353,10 +353,12 @@ public class NetCDFUtils {
             yindex.add(igc.y);
         }
 
-        int xmin = Collections.min(xindex) - 1;
-        int xmax = Collections.max(xindex) + 1;
-        int ymin = Collections.min(yindex) - 1;
-        int ymax = Collections.max(yindex) + 1;
+        // find min/max plus a little extra for so interpolation doesn't have
+        // edge effects
+        int xmin = Collections.min(xindex) - 2;
+        int xmax = Collections.max(xindex) + 2;
+        int ymin = Collections.min(yindex) - 2;
+        int ymax = Collections.max(yindex) + 2;
 
         xmin = Math.max(0, xmin);
         ymin = Math.max(0, ymin);
