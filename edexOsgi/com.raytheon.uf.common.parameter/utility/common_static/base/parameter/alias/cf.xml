@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<parameterAliasList namespace="cf">
+<aliasList namespace="cf">
     <!-- http://cf-pcmdi.llnl.gov/ -->
 	<alias base="AV">atmosphere_absolute_vorticity</alias>
 	<alias base="CDCON">convective_cloud_area_fraction</alias>
@@ -72,4 +72,4 @@
 	<alias base="WD">wind_from_direction</alias>
 	<alias base="WS">wind_speed</alias>
 	<alias base="WGS">wind_speed_of_gust</alias>
-</parameterAliasList>
+</aliasList>
