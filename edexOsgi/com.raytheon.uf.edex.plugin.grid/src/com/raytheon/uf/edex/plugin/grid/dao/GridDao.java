@@ -49,12 +49,12 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.parameter.ParameterLookup;
 
 /**
  * Data access object for accessing Grid records from the database
@@ -247,8 +247,8 @@ public class GridDao extends PluginDao {
         } else if (parameter.getName().equals("Missing")) {
             result = false;
         } else {
-            Parameter dbParameter = ParameterLookup.getInstance()
-                    .lookupParameter(parameter, true);
+            Parameter dbParameter = ParameterLookup.getInstance().getParameter(
+                    parameter, true);
             if (!parameter.equals(dbParameter)) {
                 // This check is for debugging purposes
                 // if (!parameter.getName().equals(dbParameter.getName())) {
