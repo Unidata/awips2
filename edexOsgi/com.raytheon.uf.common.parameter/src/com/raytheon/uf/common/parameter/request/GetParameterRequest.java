@@ -17,71 +17,67 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.level.xml;
+package com.raytheon.uf.common.parameter.request;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Group definition
+ * Request to lookup a parameter that has the same abbreviation as the provided
+ * parameter, also provides option for creating the parameter in the database if
+ * it does not already exist.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
+ * Mar 26, 2012            bsteffen     Initial creation
+ * 
  * </pre>
  * 
- * @author rjpeter
+ * @author bsteffen
  * @version 1.0
  */
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlType(namespace = "group")
-public class Group implements ISerializableObject {
-    @DynamicSerializeElement
-    @XmlAttribute
-    private String id;
+public class GetParameterRequest implements IServerRequest {
 
     @DynamicSerializeElement
-    @XmlAttribute
-    private String description;
+    private Parameter parameter;
 
     @DynamicSerializeElement
-    @XmlElement(name = "level")
-    private Level[] levels;
+    private boolean create = false;
 
-    public String getId() {
-        return id;
+    public GetParameterRequest() {
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public GetParameterRequest(Parameter parameter) {
+        this.parameter = parameter;
+        this.create = false;
     }
 
-    public Level[] getLevels() {
-        return levels;
+    public GetParameterRequest(Parameter parameter, boolean create) {
+        this.parameter = parameter;
+        this.create = create;
     }
 
-    public void setLevels(Level[] levels) {
-        this.levels = levels;
+    public Parameter getParameter() {
+        return parameter;
     }
 
-    public String getDescription() {
-        return description;
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public boolean getCreate() {
+        return create;
     }
+
+    public void setCreate(boolean create) {
+        this.create = create;
+    }
+
 }
