@@ -38,22 +38,22 @@ import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
  * factory will be used to serialize/deserialize the value.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 07, 2008             chammack    Initial creation
- * Sep 28, 2012 1195        djohnson    Add value() to specify a type adapter.
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 07, 2008            chammack    Initial creation
+ * Sep 28, 2012 1195       djohnson    Add value() to specify a type adapter.
+ * Nov 02, 2012 1302       djohnson    No more field level adapters.
  * 
  * </pre>
  * 
- * @author chammack
+ * @author dgilling
  * @version 1.0
  */
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Documented
 public @interface DynamicSerializeElement {
-    @SuppressWarnings("rawtypes")
-    Class<? extends ISerializationTypeAdapter> value() default ISerializationTypeAdapter.class;
 }
