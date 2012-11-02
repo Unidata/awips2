@@ -75,9 +75,6 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Dynamic Serialization Manager provides a serialization capability that runs
@@ -95,6 +92,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Oct 08, 2012 #1251       dgilling    Ensure type registered with
  *                                      serialization adapter is encoded
  *                                      in serialization stream.
+ * Nov 02, 2012 1310        djohnson    Remove field level adapters, they
+ *                                      break python serialization.
  * 
  * </pre>
  * 
@@ -125,7 +124,8 @@ public class DynamicSerializationManager {
         // TODO: Can the registration of adapters that require dependencies be
         // moved to a separate plugin somehow?
         registerAdapter(GregorianCalendar.class, new CalendarSerializer());
-        registerAdapter(XMLGregorianCalendarImpl.class, new BuiltInTypeSupport.XMLGregorianCalendarSerializer());
+        registerAdapter(XMLGregorianCalendarImpl.class,
+                new BuiltInTypeSupport.XMLGregorianCalendarSerializer());
         registerAdapter(Date.class, new DateSerializer());
         registerAdapter(Timestamp.class, new TimestampSerializer());
         registerAdapter(java.sql.Date.class,
@@ -137,17 +137,16 @@ public class DynamicSerializationManager {
         registerAdapter(BigInteger.class,
                 new BuiltInTypeSupport.BigIntegerSerializer());
         registerAdapter(Geometry.class, new GeometryTypeAdapter());
-        registerAdapter(Polygon.class, new GeometryTypeAdapter());
-        registerAdapter(MultiPolygon.class, new GeometryTypeAdapter());
-        registerAdapter(Point.class, new GeometryTypeAdapter());
         registerAdapter(Envelope.class, new JTSEnvelopeAdapter());
         registerAdapter(GridGeometry2D.class, new GridGeometry2DAdapter());
         registerAdapter(GeneralGridGeometry.class, new GridGeometryAdapter());
         registerAdapter(EnumSet.class, new EnumSetAdapter());
         registerAdapter(StackTraceElement.class, new StackTraceElementAdapter());
-        registerAdapter(Duration.class, new BuiltInTypeSupport.DurationSerializer());
+        registerAdapter(Duration.class,
+                new BuiltInTypeSupport.DurationSerializer());
         registerAdapter(QName.class, new BuiltInTypeSupport.QNameSerializer());
-        registerAdapter(Throwable.class, new BuiltInTypeSupport.ThrowableSerializer());
+        registerAdapter(Throwable.class,
+                new BuiltInTypeSupport.ThrowableSerializer());
         // These two are OBE by BufferAdapter and should be deleted sometime
         registerAdapter(ByteBuffer.class, new ByteBufferAdapter());
         registerAdapter(FloatBuffer.class, new FloatBufferAdapter());
@@ -277,7 +276,7 @@ public class DynamicSerializationManager {
             throws SerializationException {
         return ((ThriftSerializationContext) ctx).deserializeMessage();
     }
-    
+
     public static <T> void registerAdapter(Class<? extends T> clazz,
             ISerializationTypeAdapter<T> adapter) {
         SerializationMetadata md = new SerializationMetadata();
@@ -290,7 +289,7 @@ public class DynamicSerializationManager {
         }
         serializedAttributes.put(md.adapterStructName, md);
     }
-    
+
     /**
      * Inspect a class and return the metadata for the object
      * 
@@ -302,7 +301,6 @@ public class DynamicSerializationManager {
      *            the class
      * @return the metadata
      */
-    @SuppressWarnings("rawtypes")
     public static SerializationMetadata inspect(Class<?> c) {
 
         // Check for base types
@@ -392,30 +390,17 @@ public class DynamicSerializationManager {
                     if (annotation != null) {
                         String fieldName = field.getName();
 
-                        attribs.serializedAttributes.add(fieldName);
-
-                        // Can be specified at field or class level
-                        Class<? extends ISerializationTypeAdapter> fieldAdapter = null;
+                        attribs.serializedAttributes.add(field.getName());
                         if (serializeAdapterTag == null) {
-                            // Adapter specified at field level
-                            if (annotation.value() != ISerializationTypeAdapter.class) {
-                                fieldAdapter = annotation.value();
-                            } else {
-                                // Adapter specified at class level
-                                serializeAdapterTag = field
-                                        .getType()
+                            serializeAdapterTag = field.getType()
                                     .getAnnotation(
                                             DynamicSerializeTypeAdapter.class);
-                                if (serializeAdapterTag != null) {
-                                    fieldAdapter = serializeAdapterTag
-                                            .factory();
-                                }
-                            }
                         }
-                        if (fieldAdapter != null) {
+                        if (serializeAdapterTag != null) {
                             try {
                                 attribs.attributesWithFactories.put(fieldName,
-                                        fieldAdapter.newInstance());
+                                        serializeAdapterTag.factory()
+                                                .newInstance());
                             } catch (Exception e) {
                                 throw new RuntimeException(
                                         "Factory could not be instantiated", e);
@@ -514,5 +499,4 @@ public class DynamicSerializationManager {
         return sm;
 
     }
-
 }
