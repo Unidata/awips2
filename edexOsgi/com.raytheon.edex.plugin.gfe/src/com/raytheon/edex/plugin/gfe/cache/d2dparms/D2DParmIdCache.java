@@ -58,7 +58,9 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 1/08/09      1674       bphillip    Initial creation
+ * 01/08/09     1674       bphillip    Initial creation
+ * 11/05/12     #1310      dgilling    Modify cache to listen to plugin
+ *                                     purged topic.
  * </pre>
  * 
  * @author bphillip
@@ -391,5 +393,12 @@ public class D2DParmIdCache {
             }
         }
         return size;
+    }
+
+    public void pluginPurged(String pluginName)
+            throws GfeConfigurationException, PluginException {
+        if (pluginName.equals("grid")) {
+            buildCache(null);
+        }
     }
 }
