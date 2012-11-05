@@ -20,6 +20,7 @@
 
 package com.raytheon.uf.edex.database.purge;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class PurgeRuleSet implements ISerializableObject {
     @XmlElements({ @XmlElement(name = "key", type = String.class) })
     private List<String> keys;
 
-    @XmlElement
-    private PurgeRule defaultRule;
+    @XmlElements({ @XmlElement(name = "defaultRule", type = PurgeRule.class) })
+    private List<PurgeRule> defaultRules;
 
     /**
      * List of purge rules for/from the XML.
@@ -75,12 +76,22 @@ public class PurgeRuleSet implements ISerializableObject {
      * 
      * @return
      */
-    public PurgeRule getDefaultRule() {
-        return defaultRule;
+    public List<PurgeRule> getDefaultRules() {
+        return defaultRules;
     }
 
+    public void setDefaultRules(List<PurgeRule> defaultRules) {
+        this.defaultRules = defaultRules;
+    }
+
+    /**
+     * Sets the default rule list to the passed rule.
+     * 
+     * @param defaultRule
+     */
     public void setDefaultRule(PurgeRule defaultRule) {
-        this.defaultRule = defaultRule;
+        this.defaultRules = new ArrayList<PurgeRule>(1);
+        this.defaultRules.add(defaultRule);
     }
 
     /**
@@ -110,18 +121,18 @@ public class PurgeRuleSet implements ISerializableObject {
     }
 
     /**
-     * Returns the purge rule associated with the passed key values.
+     * Returns the purge rules associated with the passed key values.
      * 
      * @param keyValues
      *            The values associated with the plugin purge keys to check for
-     *            a purge rule for.
+     *            purge rules for.
      * @return
      */
-    public PurgeRule getRuleForKeys(String[] keyValues) {
+    public List<PurgeRule> getRuleForKeys(String[] keyValues) {
         if (purgeTree == null) {
             purgeTree = new PurgeRuleTree(this);
         }
 
-        return purgeTree.getRuleForKeys(keyValues);
+        return purgeTree.getRulesForKeys(keyValues);
     }
 }
