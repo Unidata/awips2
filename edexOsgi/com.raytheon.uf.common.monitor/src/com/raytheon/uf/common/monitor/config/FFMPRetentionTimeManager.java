@@ -22,6 +22,7 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -166,10 +167,10 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @return
      */
     public long getRetentionTime() {
-        PurgeRule rule = configXml.getDefaultRule();
+        List<PurgeRule> rules = configXml.getDefaultRules();
 
-        if (rule != null) {
-            return rule.getPeriodInMillis();
+        if ((rules != null) && !rules.isEmpty()) {
+            return rules.get(0).getPeriodInMillis();
         }
 
         return 0l;
@@ -181,10 +182,14 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @param time
      */
     public void setRetentionTime(String time) {
-        PurgeRule rule = configXml.getDefaultRule();
-        if (rule == null) {
+        List<PurgeRule> rules = configXml.getDefaultRules();
+        PurgeRule rule = null;
+
+        if ((rules == null) || rules.isEmpty()) {
             rule = new PurgeRule();
             configXml.setDefaultRule(rule);
+        } else {
+            rule = rules.get(0);
         }
 
         rule.setPeriod(time);
