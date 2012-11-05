@@ -30,7 +30,7 @@ import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 
 /**
- * Path provider for storing grib data to HDF5
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -45,6 +45,7 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
  * @author bphillip
  * @version 1
  */
+@Deprecated
 public class GribPathProvider extends DefaultPathProvider {
 
     private static final DecimalFormat forecastHourFormat = new DecimalFormat(
