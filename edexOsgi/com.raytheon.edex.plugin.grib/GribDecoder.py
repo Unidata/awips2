@@ -810,6 +810,10 @@ class GribDecoder():
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
 
+            if dx == 65.535:
+                dx = abs(lo1-lo2)/nx
+            if dy == 65.535:
+                dy = abs(la1-la2)/ny
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
             coverage.setNy(Integer(ny))
