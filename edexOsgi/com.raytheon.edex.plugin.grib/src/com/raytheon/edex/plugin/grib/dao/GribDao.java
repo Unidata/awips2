@@ -79,6 +79,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 4/7/09       1994        bphillip    Initial Creation
  * 5/31/12      #674        dgilling    Re-factor so all purge methods
  *                                      call updateCaches().
+ * 11/05/12     #1310       dgilling    Remove code from updateCatches()
+ *                                      that sent notification to D2DParmIdCache.
  * 
  * </pre>
  * 
@@ -96,8 +98,6 @@ public class GribDao extends PluginDao {
     private static final String HYBRID_LEVELS = "hybridLevels";
 
     private static final String THINNED_PTS = "thinnedPts";
-
-    private static final String REBUILD_CACHE_TOPIC = "jms-generic:topic:rebuildD2DCache";
 
     private static final String PURGE_MODEL_CACHE_TOPIC = "jms-generic:topic:purgeGribModelCache";
 
@@ -149,32 +149,17 @@ public class GribDao extends PluginDao {
      * @throws PluginException
      */
     private void updateCaches() throws PluginException {
-        Exception rethrow = null;
-
         try {
             List<Integer> orphanedIds = purgeGribModelOrphans();
             EDEXUtil.getMessageProducer().sendAsyncUri(PURGE_MODEL_CACHE_TOPIC,
                     orphanedIds);
         } catch (DataAccessLayerException e) {
             statusHandler.error("Error purging orphaned grib model entries", e);
-            rethrow = e;
+            throw new PluginException("Error updating GribModelCache", e);
         } catch (EdexException e1) {
             statusHandler.error(
                     "Error sending message to purge grib model topic", e1);
-            rethrow = e1;
-        }
-        try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(REBUILD_CACHE_TOPIC,
-                    null);
-        } catch (EdexException e) {
-            statusHandler.error(
-                    "Error sending message to rebuild D2D Cache topic", e);
-            rethrow = e;
-        }
-
-        if (rethrow != null) {
-            throw new PluginException(
-                    "Error updating GribModelCache or D2DParmIDCache", rethrow);
+            throw new PluginException("Error updating GribModelCache", e1);
         }
     }
 
