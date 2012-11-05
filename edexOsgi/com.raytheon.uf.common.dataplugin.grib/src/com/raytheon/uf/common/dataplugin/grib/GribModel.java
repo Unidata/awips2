@@ -49,8 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Class encapsulating parameter, level, and spatial information of the grib
- * record.
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -70,6 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@Deprecated
 public class GribModel extends PersistableDataObject {
 
     private static final long serialVersionUID = 4417959632479879335L;
