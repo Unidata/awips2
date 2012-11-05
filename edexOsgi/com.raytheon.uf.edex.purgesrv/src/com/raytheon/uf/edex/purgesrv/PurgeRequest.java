@@ -74,17 +74,19 @@ public class PurgeRequest {
             for (String plugin : plugins) {
                 PurgeRuleSet rules = PluginDao.getPurgeRulesForPlugin(plugin);
 
-                PurgeRule defRule = rules.getDefaultRule();
+                List<PurgeRule> defRules = rules.getDefaultRules();
                 List<PurgeRule> ruleList = rules.getRules();
                 List<String> purgeKeys = rules.getKeys();
-                if ((defRule == null)
+                if ((defRules == null)
                         && ((ruleList == null) || ruleList.isEmpty())) {
                     retVal.add(plugin);
                     retVal.add("No Rules Specified. Using default.");
                 } else {
-                    if (defRule != null) {
-                        retVal.add(plugin);
-                        retVal.add(defRule.getRuleDescription(purgeKeys));
+                    if (defRules != null) {
+                        for (PurgeRule rule : defRules) {
+                            retVal.add(plugin);
+                            retVal.add(rule.getRuleDescription(purgeKeys));
+                        }
                     }
                     if (ruleList != null) {
                         for (PurgeRule rule : ruleList) {
