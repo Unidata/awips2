@@ -68,7 +68,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
- * Data access object for accessing Grib records from the database
+ * Deprecated, use grid
  * 
  * <pre>
  * 
@@ -85,6 +85,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * @author bphillip
  * @version 1
  */
+@Deprecated
 public class GribDao extends PluginDao {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
