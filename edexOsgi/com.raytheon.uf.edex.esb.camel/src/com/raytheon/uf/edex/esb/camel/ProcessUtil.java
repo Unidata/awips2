@@ -55,22 +55,29 @@ public class ProcessUtil {
     protected static final IUFStatusHandler handler = UFStatus
             .getNamedHandler("Ingest");
 
-    protected transient final static DecimalFormat FORMAT;
-    static {
-        FORMAT = new DecimalFormat();
-        FORMAT.setMaximumFractionDigits(4);
-        FORMAT.setMinimumFractionDigits(4);
-    }
+    protected transient final static ThreadLocal<DecimalFormat> FORMAT = new ThreadLocal<DecimalFormat>() {
+
+        @Override
+        protected DecimalFormat initialValue() {
+            DecimalFormat rval = new DecimalFormat();
+            rval.setMaximumFractionDigits(4);
+            rval.setMinimumFractionDigits(4);
+            return rval;
+        }
+
+    };
 
     public void delete(@Header(value = "ingestFileName") String path) {
         File f = new File(path);
-        if (f.exists())
+        if (f.exists()) {
             f.delete();
+        }
     }
 
     public void deleteFile(File f) {
-        if (f.exists())
+        if (f.exists()) {
             f.delete();
+        }
     }
 
     /**
@@ -95,12 +102,11 @@ public class ProcessUtil {
         }
 
         Long dequeueTime = getHeaderProperty(headers, "dequeueTime");
+        DecimalFormat df = FORMAT.get();
         if (dequeueTime != null) {
             double elapsed = (curTime - dequeueTime) / 1000.0;
             sb.append(" processed in: ");
-            synchronized (FORMAT) {
-                sb.append(FORMAT.format(elapsed));
-            }
+            sb.append(df.format(elapsed));
             sb.append(" (sec)");
         }
 
@@ -108,9 +114,7 @@ public class ProcessUtil {
         if (enqueueTime != null) {
             double latency = (curTime - enqueueTime) / 1000.0;
             sb.append(" Latency: ");
-            synchronized (FORMAT) {
-                sb.append(FORMAT.format(latency));
-            }
+            sb.append(df.format(latency));
             sb.append(" (sec)");
         }
 
