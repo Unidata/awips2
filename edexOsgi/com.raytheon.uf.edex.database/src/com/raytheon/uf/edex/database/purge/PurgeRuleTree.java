@@ -19,6 +19,7 @@
  */
 package com.raytheon.uf.edex.database.purge;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class PurgeRuleTree {
 
     public PurgeRuleTree(PurgeRuleSet ruleSet) {
         root = new PurgeNode();
-        root.setRule(ruleSet.getDefaultRule());
+        root.setRules(ruleSet.getDefaultRules());
         List<PurgeRule> rules = ruleSet.getRules();
         if (rules != null) {
             for (PurgeRule rule : rules) {
@@ -66,21 +67,21 @@ public class PurgeRuleTree {
                     }
 
                     // set the rule on the leaf node defined by key values
-                    curNode.setRule(rule);
+                    curNode.addRule(rule);
                 }
             }
         }
     }
 
     /**
-     * Returns the purge rule associated with the given key value list.
+     * Returns the purge rules associated with the given key value list.
      * 
      * @param keyValues
      * @return
      */
-    public PurgeRule getRuleForKeys(String[] keyValues) {
+    public List<PurgeRule> getRulesForKeys(String[] keyValues) {
         // default rule is initial closest rule
-        PurgeRule closestRule = root.getRule();
+        List<PurgeRule> closestRules = root.getRules();
         PurgeNode currentNode = root;
 
         if ((keyValues != null) && (keyValues.length > 0)) {
@@ -91,12 +92,12 @@ public class PurgeRuleTree {
 
                 // descend node
                 if (currentNode != null) {
-                    // check node for rule
-                    PurgeRule rule = currentNode.getRule();
+                    // check node for rules
+                    List<PurgeRule> rules = currentNode.getRules();
 
-                    if (rule != null) {
-                        // current closest rule
-                        closestRule = rule;
+                    if ((rules != null) && !rules.isEmpty()) {
+                        // current closest rules
+                        closestRules = rules;
                     }
                 } else {
                     break;
@@ -104,20 +105,29 @@ public class PurgeRuleTree {
             }
         }
 
-        return closestRule;
+        return closestRules;
     }
 
     private class PurgeNode {
-        private PurgeRule rule;
+        // most nodes only have 1 rule
+        private List<PurgeRule> rules = null;
 
         private final Map<String, PurgeNode> childNodes = new HashMap<String, PurgeNode>();
 
-        public void setRule(PurgeRule rule) {
-            this.rule = rule;
+        public void addRule(PurgeRule rule) {
+            if (rules == null) {
+                rules = new ArrayList<PurgeRule>(1);
+            }
+
+            rules.add(rule);
         }
 
-        public PurgeRule getRule() {
-            return rule;
+        public void setRules(List<PurgeRule> rules) {
+            this.rules = rules;
+        }
+
+        public List<PurgeRule> getRules() {
+            return rules;
         }
 
         public Map<String, PurgeNode> getChildNodes() {
