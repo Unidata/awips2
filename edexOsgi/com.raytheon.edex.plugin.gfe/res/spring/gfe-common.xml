@@ -83,5 +83,16 @@
 			<from uri="jms-generic:topic:rebuildD2DCache" />
 			<bean ref="d2dParmIdCache" method="buildCache" />
 		</route>
+		
+		<route id="rebuildD2DCacheAfterPurge">
+			<from uri="jms-generic:topic:pluginPurged" />
+			<doTry>
+				<bean ref="d2dParmIdCache" method="pluginPurged" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
 	</camelContext>
 </beans>
