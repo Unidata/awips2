@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.grid.request.DeleteAllGridDataRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
@@ -48,6 +49,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 public class DeleteAllGridDataHandler implements
         IRequestHandler<DeleteAllGridDataRequest> {
 
+    private static final String PLUGIN_PURGED_TOPIC = "jms-generic:topic:pluginPurged";
+
     /*
      * (non-Javadoc)
      * 
@@ -66,6 +69,8 @@ public class DeleteAllGridDataHandler implements
         for (Date time : times) {
             recsDeleted += dao.purgeDataByRefTime(time, productKeys);
         }
+
+        EDEXUtil.getMessageProducer().sendAsyncUri(PLUGIN_PURGED_TOPIC, "grid");
 
         return recsDeleted;
     }
