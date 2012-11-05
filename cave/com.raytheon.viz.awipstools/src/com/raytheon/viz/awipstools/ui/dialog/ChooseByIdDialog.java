@@ -680,8 +680,10 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
                     break;
                 } else if (cmp > 0) {
                     pointStationIdTextFields.remove(pointText);
+
                     if (isBaseline) {
                         pointText.setEnabled(false);
+                        pointText.setText("");
                     } else {
                         group.dispose();
                         doPack = true;
