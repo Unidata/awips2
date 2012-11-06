@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -134,8 +133,6 @@ public class GridUpdater implements IAlertObserver {
     private Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<GridMapKey, Set<UpdateValue>>();
 
     public GridUpdater(GridInventory inventory) {
-        // TODO remove following line once Util removes static block
-        Util.getCurrentMemory();
         this.inventory = inventory;
     }
 
