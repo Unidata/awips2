@@ -19,18 +19,6 @@
 		<property name="database" value="metadata" />
 	</bean>
 
-	<bean id="gridcoverageConverterRegistered" class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil"
-		factory-method="registerConverter" depends-on="gridcoverageRegistered">
-		<constructor-arg>
-			<bean
-				class="com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter" />
-		</constructor-arg>
-		<constructor-arg>
-			<value>com.raytheon.uf.common.gridcoverage.GridCoverage
-			</value>
-		</constructor-arg>
-	</bean>
-
 	<bean id="gridcoveragelookup"
 		class="com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup"
 		factory-method="getInstance"
