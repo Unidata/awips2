@@ -45,7 +45,6 @@
 	</bean>
 
 	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
-	<bean id="ncgribTestProcessor" class="com.raytheon.edex.plugin.grib.NcgribTestProcessor" />
 
 	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter">
 		<constructor-arg value="${edex.home}/data/tmp/"/>
@@ -68,21 +67,10 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="ncgribTestFileEndpoint" uri="file:${edex.home}/data/sbn/ncgribTest?noop=true&amp;idempotent=false" />
 		
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
 	 			<bean ref="fileToString" />
-	 			<setHeader headerName="pluginName">
-	 				<constant>grid</constant> 
-				</setHeader>
-				<to uri="ingest-grib:queue:Ingest.Grib" />
-		</route>
-				
-		<route id="ncgribTestFileConsumerRoute">
-	 		<from ref="ncgribTestFileEndpoint" />
-	 			<bean ref="fileToString" />
-	 			<bean ref="ncgribTestProcessor" />
 	 			<setHeader headerName="pluginName">
 	 				<constant>grid</constant> 
 				</setHeader>
