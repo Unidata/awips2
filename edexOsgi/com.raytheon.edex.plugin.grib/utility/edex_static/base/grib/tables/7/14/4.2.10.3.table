@@ -1,4 +1,4 @@
-# Product Discipline 0: Oceanographic products, Parameter Category 3: Surface Properties
+# Product Discipline 10: Oceanographic products, Parameter Category 3: Surface Properties
 #192-254 Reserved for local use
 192:192:Probabilistic Storm Surge height w/10% chance of being exceeded:%:TPCSG
 193:193:Extra Tropical Storm Surge:m:ETSRG
@@ -19,4 +19,5 @@
 247:247:Probabilistic Storm Surge height w/70% chance of being exceeded:%:TPCSG_70
 248:248:Probabilistic Storm Surge height w/80% chance of being exceeded:%:TPCSG_80
 249:249:Probabilistic Storm Surge height w/90% chance of being exceeded:%:TPCSG_90
+250:250:Extra Tropical Storm Surge Combined Surge and Tide:m:ETCWL
 255:255:Missing
