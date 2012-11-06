@@ -22,10 +22,6 @@ package com.raytheon.viz.grid;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter;
-
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -53,8 +49,6 @@ public class Activator extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        ConvertUtil.registerConverter(new GridCoverageConverter(),
-                GridCoverage.class);
     }
 
     /*
