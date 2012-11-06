@@ -460,21 +460,45 @@ public abstract class PluginDao extends CoreDao {
      *             If problems occur while interacting with the data stores
      */
     public void purgeAllData() throws PluginException {
+        purgeAllData(null);
+    }
+
+    /**
+     * Purges all data associated with the productKeys and owning plugin
+     * 
+     * @throws PluginException
+     *             If problems occur while interacting with the data stores
+     */
+    public void purgeAllData(Map<String, String> productsKeys)
+            throws PluginException {
+        boolean purgeHdf5Data = false;
+        try {
+            // Determine if this plugin uses HDF5 to store data
+            purgeHdf5Data = (PluginFactory.getInstance()
+                    .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
+        } catch (Exception e) {
+            PurgeLogger.logError(
+                    "Unabled to determine if plugin has HDF5 data to purge",
+                    this.pluginName, e);
+        }
+
         try {
             List<Date> allRefTimes = getRefTimes();
             Map<String, List<String>> filesToDelete = new HashMap<String, List<String>>();
             for (Date d : allRefTimes) {
-                this.purgeDataByRefTime(d, null, true, false, filesToDelete);
+                this.purgeDataByRefTime(d, productsKeys, purgeHdf5Data, false,
+                        filesToDelete);
             }
-            for (String file : filesToDelete.keySet()) {
-                try {
-                    IDataStore ds = DataStoreFactory
-                            .getDataStore(new File(file));
-                    ds.deleteFiles(null);
-                } catch (Exception e) {
-                    PurgeLogger.logError(
-                            "Error occurred purging file: " + file,
-                            this.pluginName, e);
+            if (purgeHdf5Data) {
+                for (String file : filesToDelete.keySet()) {
+                    try {
+                        IDataStore ds = DataStoreFactory.getDataStore(new File(
+                                file));
+                        ds.deleteFiles(null);
+                    } catch (Exception e) {
+                        PurgeLogger.logError("Error occurred purging file: "
+                                + file, this.pluginName, e);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -1072,7 +1096,9 @@ public abstract class PluginDao extends CoreDao {
     /**
      * Purges data from the database for this plugin with the given reference
      * time matching the given productKeys. If refTime is null, will purge all
-     * data associated with the productKeys.
+     * data associated with the productKeys. Hdf5 must be purged separately as
+     * most hdf5 files can't be purged with a single reference time. Use the
+     * passed map to track what needs to be done with hdf5.
      * 
      * @param refTime
      *            The reftime to delete data for. A null will purge all data for
