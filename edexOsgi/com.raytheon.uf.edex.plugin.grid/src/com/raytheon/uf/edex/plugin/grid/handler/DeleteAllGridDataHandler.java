@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.grid.handler;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.grid.request.DeleteAllGridDataRequest;
@@ -59,19 +57,14 @@ public class DeleteAllGridDataHandler implements
      * (com.raytheon.uf.common.serialization.comm.IServerRequest)
      */
     @Override
-    public Integer handleRequest(DeleteAllGridDataRequest request)
+    public Boolean handleRequest(DeleteAllGridDataRequest request)
             throws Exception {
         Map<String, String> productKeys = new HashMap<String, String>();
         productKeys.put("info.datasetId", request.getModelName());
         GridDao dao = new GridDao();
-        List<Date> times = dao.getRefTimesForCriteria(productKeys);
-        int recsDeleted = 0;
-        for (Date time : times) {
-            recsDeleted += dao.purgeDataByRefTime(time, productKeys);
-        }
+        dao.purgeAllData(productKeys);
 
         EDEXUtil.getMessageProducer().sendAsyncUri(PLUGIN_PURGED_TOPIC, "grid");
-
-        return recsDeleted;
+        return Boolean.TRUE;
     }
 }
