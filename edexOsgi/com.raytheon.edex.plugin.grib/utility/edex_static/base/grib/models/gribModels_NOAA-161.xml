@@ -22,6 +22,17 @@
 		</process>
 		<paramInfo>glerl</paramInfo>
 	</model>
+
+	<model>
+		<name>GLERL</name>
+		<center>161</center>
+		<subcenter>1</subcenter>
+		<grid>176</grid>
+		<process>
+			<id>99</id>
+		</process>
+		<paramInfo>glerl</paramInfo>
+	</model>
 	
 	<!-- END SUBCENTER 1 -->
 
