@@ -38,9 +38,9 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.edex.plugin.binlightning.dao.BinLightningDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
-import com.raytheon.uf.common.dataplugin.binlightning.dao.BinLightningDao;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
