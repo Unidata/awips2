@@ -1,0 +1,12 @@
+# Product Discipline 0: Meteorological products, Parameter Category 14: Trace Gases
+#192-254 Reserved for local use
+192:192:Ozone Mixing Ratio:kg/kg:O3MR
+193:193:Ozone Concentration (PPB):PPB:OZCON
+194:194:Categorical Ozone Concentration::OZCAT
+195:195:Ozone vertical diffusion:kg/kg/s:VDFOZ
+196:196:Ozone production:kg/kg/s:POZ
+197:197:Ozone tendency:kg/kg/s:TOZ
+198:198:Ozone production from temperature term:kg/kg/s:POZT
+199:199:Ozone production from col ozone term:kg/kg/s:POZO
+255:255:Missing
+

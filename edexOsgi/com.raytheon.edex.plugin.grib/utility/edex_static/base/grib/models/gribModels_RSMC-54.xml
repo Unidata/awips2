@@ -22,8 +22,8 @@
 		</process>
 		<paramInfo>localMPE</paramInfo>
 	</model>
-	
-		<model>
+
+	<model>
 		<name>CanadianModel</name>
 		<center>54</center>
 		<subcenter>0</subcenter>
@@ -35,5 +35,133 @@
 	</model>
 
 	<!-- END SUBCENTER 0 -->
+	<model>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
 
+	<model>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>362181001</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>362181002</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>374</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>362181001</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>362181002</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>cmcP6</name>
+		<center>53</center>
+		<subcenter>0</subcenter>
+		<grid>602151001</grid>
+		<process>
+			<id>47</id>
+		</process>
+	</model>
+
+	<model>
+		<name>CMCQLM</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>-90045000</grid>
+		<process>
+			<id>70</id>
+		</process>
+	</model>
 </gribModelSet>
