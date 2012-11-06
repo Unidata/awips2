@@ -105,6 +105,6 @@
 224:224:Convective precipitation (nearest grid point):kg/m2:ACPCPN
 225:225:Freezing Rain:kg/m2:FRZR
 226:226:Predominant Weather:Numeric:(See note 3):PWTHER
-227:217:Frozen Rain:kg/m2:FROZR
+227:227:Frozen Rain:kg/m2:FROZR
 241:241:Total Snow:kg/m2:TSNOW
 255:255:Missing
