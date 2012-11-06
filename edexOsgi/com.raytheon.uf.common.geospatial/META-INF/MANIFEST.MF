@@ -14,11 +14,12 @@ Require-Bundle: org.geotools;bundle-version="2.5.2";visibility:=reexport,
  org.apache.commons.beanutils;bundle-version="1.8.3",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataquery;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.geospatial.interpolation,
  com.raytheon.uf.common.geospatial.interpolation.data,
  com.raytheon.uf.common.geospatial.request,
  com.raytheon.uf.common.geospatial.spi,
  com.raytheon.uf.common.geospatial.util
-Import-Package: com.raytheon.uf.common.status
