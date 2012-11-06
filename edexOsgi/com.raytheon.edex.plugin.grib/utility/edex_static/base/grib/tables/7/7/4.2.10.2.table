@@ -1,0 +1,7 @@
+# Product Discipline 10: Oceanographic products, Parameter Category 2: Ice
+#192-254 Reserved for local use
+192:192:Ocean Mixed Layer U Velocity:m/s:OMLU
+193:193:Ocean Mixed Layer V Velocity:m/s:OMLV
+194:194:Barotropic U velocity:m/s:UBARO
+195:195:Barotropic V velocity:m/s:VBARO
+255:255:Missing
