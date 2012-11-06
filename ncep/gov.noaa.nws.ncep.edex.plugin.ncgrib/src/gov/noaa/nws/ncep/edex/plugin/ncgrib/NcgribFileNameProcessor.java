@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.grib;
+package gov.noaa.nws.ncep.edex.plugin.ncgrib;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ import org.apache.camel.Processor;
 
 /**
  * 
- * Test processor for ncep grib files, this processor has lots of hard coded
+ * Processor for ncep grib files, this processor has lots of hard coded
  * assumptions about file naming that need to be more generic based off ncep
  * file names.
  * 
@@ -44,7 +44,7 @@ import org.apache.camel.Processor;
  * @author bsteffen
  * @version 1.0
  */
-public class NcgribTestProcessor implements Processor {
+public class NcgribFileNameProcessor implements Processor {
 
     // grab all known ensemble ids
     private static final Pattern ENSEMBLE_ID_PATTERN = Pattern
@@ -90,23 +90,25 @@ public class NcgribTestProcessor implements Processor {
                 matcher.find();
                 secondaryid = matcher.group(1);
                 datasetid = "GHM";
-                if (nameTokens[2] == "gribn3") {
+                if (nameTokens[2].equalsIgnoreCase("gribn3")) {
                     datasetid = "GHMNEST";
-                } else if (nameTokens[2] == "grib6th") {
+                } else if (nameTokens[2].equalsIgnoreCase("grib6th")) {
                     datasetid = "GHM6TH";
-                } else if (nameTokens[2] == "hwrfprs_n") {
+                } else if (nameTokens[2].equalsIgnoreCase("hwrfprs_n")) {
                     datasetid = "HWRFNEST";
-                } else if (nameTokens[2] == "hwrfprs_p") {
+                } else if (nameTokens[2].equalsIgnoreCase("hwrfprs_p")) {
                     datasetid = "HWRF";
                 }
             }
         }
+        datasetid = GridLookupFileName.getInstance().getModelName(flName);
         if (datasetid != null) {
             exchange.getIn().setHeader("datasetid", datasetid);
         }
-        if (secondaryid != null) {
-            exchange.getIn().setHeader("secondaryid", secondaryid);
+        if (secondaryid == null) {
+            secondaryid = nameTokens[0];
         }
+        exchange.getIn().setHeader("secondaryid", secondaryid);
         if (ensembleid != null) {
             exchange.getIn().setHeader("ensembleid", ensembleid);
         }
