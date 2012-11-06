@@ -51,26 +51,17 @@ import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 import java.util.zip.ZipEntry;
 
-import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
-import com.raytheon.uf.common.dataplugin.convert.UnitConverter;
-import com.raytheon.uf.common.geospatial.util.JtsGeometryConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.util.CalendarConverter;
-import com.raytheon.uf.common.time.util.DataTimeConverter;
-import com.raytheon.uf.common.time.util.DateConverter;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.vividsolutions.jts.geom.Geometry;
+import com.raytheon.uf.common.util.ConvertUtil;
 
 /**
  * Contains utility methods for use in common.
@@ -120,17 +111,6 @@ public final class Util {
     public static final String EOL = System.getProperty("line.separator");
 
     public static final float GRID_FILL_VALUE = -999999;
-
-    // TODO remove this static block
-    // this registration should occur in spring and edex is set up to
-    // do this but CAVE isn't yet
-    static {
-        ConvertUtils.register(new DataTimeConverter(), DataTime.class);
-        ConvertUtils.register(new CalendarConverter(), Calendar.class);
-        ConvertUtils.register(new UnitConverter(), Unit.class);
-        ConvertUtils.register(new DateConverter(), Date.class);
-        ConvertUtils.register(new JtsGeometryConverter(), Geometry.class);
-    }
 
     private Util() {
         // No Instantiation
