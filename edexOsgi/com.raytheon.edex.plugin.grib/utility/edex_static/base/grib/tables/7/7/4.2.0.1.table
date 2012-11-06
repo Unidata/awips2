@@ -1,3 +1,7 @@
+ # Product Discipline 0: Meteorological products, Parameter Category 1: Moisture
 33:33:Prob of Total Precipitation above normal:%:PPAN
 34:34:Prob of Total Precipitation below normal:%:PPBN
 37:37:Prob of Total Precipitation near normal:%:PPNN
+#192-254 Reserved for local use
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW
+255:255:Missing

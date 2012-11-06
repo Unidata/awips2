@@ -1,5 +1,7 @@
 #Code:table:4.5: Fixed surface types and units
 #192-254 Reserved for local use
+192:192:Level at Specified Pressure Difference from Ground to Level:Pa:PDLY:LYRBL
+193:193:Eta Level:Eta value:ELYR:ETA
 200:200:Entire Atmosphere::EATM:EA
 201:201:Entire Ocean::EOCN
 204:204:Highest Tropospheric Freezing Level::HTFL
