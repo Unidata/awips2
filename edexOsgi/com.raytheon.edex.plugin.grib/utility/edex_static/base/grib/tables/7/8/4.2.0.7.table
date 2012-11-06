@@ -7,5 +7,6 @@
 196:196:Ultra Violet Index:J/m^2:UVI
 197:197:Updraft Helicity:m^2/s^2:UPHL
 198:198:Leaf Area Index::LAI
+199:199:Hourly Maximum of Updraft Helicity over Layer 2km to 5 km AGL:m^2/s^2:MXUPHL
 255:255:Missing
 

@@ -32,6 +32,6 @@
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
     <latin>20.0</latin>
-    <la2>18.0778</la2>
-    <lo2>-161.517</lo2>
+    <la2>23.082</la2>
+    <lo2>-153.969</lo2>
 </mercatorGridCoverage>
