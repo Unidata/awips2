@@ -34,4 +34,5 @@
 223:223:Total precipitation (nearest grid point):mm:APCPN
 224:224:Convective precipitation (nearest grid point):mm:ACPCPN
 225:225:Freezing Rain:mm:FRZR
+242:242:Relative Humidity with Respect to Precipitable Water:%:RHPW
 255:255:Missing
