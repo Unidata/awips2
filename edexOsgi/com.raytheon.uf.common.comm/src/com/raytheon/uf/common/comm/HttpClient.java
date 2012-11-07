@@ -113,6 +113,8 @@ public class HttpClient {
 
     private boolean gzipRequests = false;
 
+    private boolean handlingGzipResponses = false;
+
     /** number of requests currently in process by the application per host */
     private final Map<String, AtomicInteger> currentRequestsCount = new ConcurrentHashMap<String, AtomicInteger>();
 
@@ -159,51 +161,37 @@ public class HttpClient {
      * Enables gzip capabilities by advertising gzip is an accepted response
      * encoding and decompressing responses if they arrived gzipped. This should
      * only ever be called once per runtime.
+     * 
+     * @param acceptGzip
+     *            whether or not to handle gzip responses
      */
-    public void enableGzipResponseHandling() {
-        // Add gzip compression handlers
+    public void setGzipResponseHandling(boolean acceptGzip) {
+        if (acceptGzip && !handlingGzipResponses) {
+            // Add gzip compression handlers
 
-        // advertise we accept gzip
-        ((AbstractHttpClient) client)
-                .addRequestInterceptor(new HttpRequestInterceptor() {
-
-                    public void process(final HttpRequest request,
-                            final HttpContext context) throws HttpException,
-                            IOException {
-                        if (!request.containsHeader("Accept-Encoding")) {
-                            request.addHeader("Accept-Encoding", "gzip");
-                        }
-                    }
-
-                });
-
-        // handle gzip contents
-        ((AbstractHttpClient) client)
-                .addResponseInterceptor(new HttpResponseInterceptor() {
-
-                    public void process(final HttpResponse response,
-                            final HttpContext context) throws HttpException,
-                            IOException {
-                        HttpEntity entity = response.getEntity();
-                        Header ceheader = entity.getContentEncoding();
-                        if (ceheader != null) {
-                            HeaderElement[] codecs = ceheader.getElements();
-                            for (int i = 0; i < codecs.length; i++) {
-                                if (codecs[i].getName()
-                                        .equalsIgnoreCase("gzip")) {
-                                    response.setEntity(new GzipDecompressingEntity(
-                                            response.getEntity()));
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                });
+            // advertise we accept gzip
+            ((AbstractHttpClient) client)
+                    .addRequestInterceptor(new GzipRequestInterceptor());
+            // handle gzip contents
+            ((AbstractHttpClient) client)
+                    .addResponseInterceptor(new GzipResponseInterceptor());
+        } else if (!acceptGzip && handlingGzipResponses) {
+            ((AbstractHttpClient) client)
+                    .removeRequestInterceptorByClass(GzipRequestInterceptor.class);
+            ((AbstractHttpClient) client)
+                    .removeResponseInterceptorByClass(GzipResponseInterceptor.class);
+        }
+        handlingGzipResponses = acceptGzip;
     }
 
-    public void enableRequestCompression() {
-        gzipRequests = true;
+    /**
+     * Sets whether or not to compress the outgoing requests to reduce bandwidth
+     * sent by the client.
+     * 
+     * @param compress
+     */
+    public void setCompressRequests(boolean compress) {
+        gzipRequests = compress;
     }
 
     public static synchronized HttpClient getInstance() {
@@ -649,6 +637,47 @@ public class HttpClient {
                         baos.close();
                     } catch (IOException e) {
                         // ignore
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Adds Accept-Encoding: gzip to every outgoing request
+     */
+    private static class GzipRequestInterceptor implements
+            HttpRequestInterceptor {
+
+        @Override
+        public void process(HttpRequest request, HttpContext context)
+                throws HttpException, IOException {
+            if (!request.containsHeader("Accept-Encoding")) {
+                request.addHeader("Accept-Encoding", "gzip");
+            }
+        }
+
+    }
+
+    /**
+     * Decompresses any responses that arrive with Content-Encoding: gzip
+     */
+    private static class GzipResponseInterceptor implements
+            HttpResponseInterceptor {
+
+        @Override
+        public void process(HttpResponse response, HttpContext context)
+                throws HttpException, IOException {
+            HttpEntity entity = response.getEntity();
+            Header ceheader = entity.getContentEncoding();
+            if (ceheader != null) {
+                HeaderElement[] codecs = ceheader.getElements();
+                for (HeaderElement codec : codecs) {
+                    if (codec.getName().equalsIgnoreCase("gzip")) {
+                        response.setEntity(new GzipDecompressingEntity(response
+                                .getEntity()));
+                        return;
                     }
                 }
             }

@@ -33,6 +33,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for Aviation Plug-in
@@ -79,11 +80,16 @@ public class AviationAction extends AbstractHandler {
                 .getShell();
         if (aviationDlg == null || aviationDlg.getShell().isDisposed()) {
             aviationDlg = new AviationDialog(shell);
+            aviationDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    aviationDlg = null;
+                }
+            });
             aviationDlg.open();
-            aviationDlg = null;
         } else {
-            aviationDlg.setVisible(true);
-            aviationDlg.setFocus();
+            aviationDlg.bringToTop();
         }
 
         return null;

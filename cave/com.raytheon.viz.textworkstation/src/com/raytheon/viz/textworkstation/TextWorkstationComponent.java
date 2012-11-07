@@ -4,8 +4,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -28,7 +27,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  **/
 
 /**
- * TODO Add Description
+ * This class used to made a stand alone Text workstation.
+ * 
  * 
  * <pre>
  * 
@@ -38,6 +38,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
  * Oct 02, 2012 1229       rferrel     Make a blocking dialog.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                      TextWorkstationDlg.
  * 
  * </pre>
  * 
@@ -45,7 +47,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class TextWorkstationComponent extends AbstractCAVEComponent {
+public class TextWorkstationComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -58,8 +60,9 @@ public class TextWorkstationComponent extends AbstractCAVEComponent {
     protected void startInternal(String componentName) throws Exception {
         SerializationUtil.getJaxbContext();
         TextWorkstationDlg textWorkstationDlg = new TextWorkstationDlg(
-                new Shell(Display.getCurrent()), CAVE.NONE);
+                new Shell(Display.getCurrent()));
         textWorkstationDlg.open();
+        blockUntilClosed(textWorkstationDlg);
     }
 
     /*

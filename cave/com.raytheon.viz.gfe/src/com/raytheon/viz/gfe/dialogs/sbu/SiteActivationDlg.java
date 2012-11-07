@@ -56,7 +56,6 @@ import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.viz.gfe.core.internal.IFPClient;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -69,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2011            randerso     Initial creation
+ * Oct 26, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -79,7 +79,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class SiteActivationDlg extends CaveJFACEDialog implements
         INotificationObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(IFPClient.class);
+            .getHandler(SiteActivationDlg.class);
 
     private SimpleDateFormat dateFormat;
 

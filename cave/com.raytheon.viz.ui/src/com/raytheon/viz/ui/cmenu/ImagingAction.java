@@ -32,6 +32,7 @@ import com.raytheon.viz.ui.dialogs.ImagingDialog;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Nov 22, 2006             chammack    Initial Creation.
+ * Oct 17, 2012 1229        rferrel     Changes for non-blocking ImagingDialog.
  * 
  * </pre>
  * 
@@ -39,6 +40,7 @@ import com.raytheon.viz.ui.dialogs.ImagingDialog;
  * @version 1
  */
 public class ImagingAction extends AbstractRightClickAction {
+    private ImagingDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -47,10 +49,14 @@ public class ImagingAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
-        ImagingDialog id = new ImagingDialog(VizWorkbenchManager.getInstance()
-                .getCurrentWindow().getShell(), rsc);
-        id.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
+            dialog = new ImagingDialog(VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getShell(), rsc);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
     }
 
     /*

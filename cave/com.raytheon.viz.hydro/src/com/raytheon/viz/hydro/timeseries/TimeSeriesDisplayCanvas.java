@@ -125,6 +125,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 24 April 2012 14669   wkwock       Handle invalid color name
  * 08 May   2012 14958   wkwock       Fix overcrowded TS list
  * 30 May   2012 14967   wkwock       Fix incorrect product time
+ * 06 Nov   2012 15399   wkwock       Fix refine the plot algorithm and sampling algorithm
+ * 06 Nov   2012 15459   lbousaidi    update data when page/up or page/down is pressed without having
+ * 									  to click in graph button again. 
  * @author lvenable
  * @version 1.0
  * 
@@ -423,8 +426,10 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.ARROW_UP) {
+                    newRequest=true;
                     dialog.pageUpAction();
                 } else if (e.keyCode == SWT.ARROW_DOWN) {
+                    newRequest=true;
                     dialog.pageDownAction();
                 }
             }
@@ -1274,8 +1279,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     swapPoints(rubberBandX1, rubberBandX2, rubberBandY1,
                             rubberBandY2);
                 }
-                Date xMin = pixel2x(gd, rubberBandX1);
-                Date xMax = pixel2x(gd, rubberBandX2);
+                Date xMin = pixel2x(gd, rubberBandX1-GRAPHBORDER_LEFT);
+                Date xMax = pixel2x(gd, rubberBandX2-GRAPHBORDER_LEFT);
 
                 gd.setXMin(xMin);
                 gd.setXMax(xMax);
@@ -1587,7 +1592,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      */
     private String buildPointString(int x, int y) {
         StringBuilder sb = new StringBuilder();
-        Date xValue = pixel2x(graphData, x);
+        Date xValue = pixel2x(graphData, x-GRAPHBORDER_LEFT);
         SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm'Z'");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
         sb.append(format.format(xValue));
@@ -2066,7 +2071,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             getAgain = false;
         } else if (traceSelected && dialog.isInsert()) {
             insertedPoint = new TimeSeriesPoint();
-            insertedPoint.setX(pixel2x(graphData, e.x));
+            insertedPoint.setX(pixel2x(graphData, e.x-GRAPHBORDER_LEFT));
             insertedPoint.setY(pixel2y(graphData, e.y));
             ForecastData data = createPoint(
                     graphData.getTraceData(selectedTraceId), insertedPoint);

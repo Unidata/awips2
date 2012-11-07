@@ -35,8 +35,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
@@ -46,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Dialog displaying the monitoring criteria controls. The dialog has a tab
@@ -59,6 +58,9 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
  * 16 Mar 2011  8599       rferrel     Create msgStatusComp then load tabs.
  * 27 Sep 2011  10958      rferrel     Display more details when handling
  *                                     ConfigurationException.
+ * 12 Oct 2012  1229       rferrel     Convert to subclass of CaveSWTDialog
+ *                                      and made non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -66,16 +68,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
  * @version 1.0
  * 
  */
-public class MonitoringCriteriaDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
+public class MonitoringCriteriaDlg extends CaveSWTDialog {
 
     /**
      * Composite containing message status controls.
@@ -108,6 +101,8 @@ public class MonitoringCriteriaDlg extends Dialog {
      */
     private DefaultRuleData defaultRuleData;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -115,20 +110,12 @@ public class MonitoringCriteriaDlg extends Dialog {
      *            Parent shell.
      */
     public MonitoringCriteriaDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS Monitoring Criteria");
     }
 
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("AvnFPS Monitoring Criteria");
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 3;
@@ -138,17 +125,6 @@ public class MonitoringCriteriaDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -329,11 +305,15 @@ public class MonitoringCriteriaDlg extends Dialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Monitoring Criteria Help";
-                String helpText = "This dialog is used to define and configure TAF monitoring\nrules.\n\nTo load current configuration, enter site id and press\n<Enter> or use the \"Load\" button. Site id XXXX loads\ndefault rules.\n\nSelect a tab for the monitoring module you wish to modify\nthe rules. The top list displays current rules: severity\nlevels (colors) and associated messages. The list is sorted\nwith respect to the severity level.\n\nTo view detailed rule description, select an item on this\nlist. All rule parameters will be displayed in the \"Rule\nEditor\" window. You may modify editable parameters. Press \n\"Replace\" when finished. To remove a rule from the list,\npress \"Remove\". To add a new rule, first select one of\nthe available methods, then modify rule parameters as\ndesired. You must enter a message. Press \"Add\" to add the\nrule to the list.\n\nNOTE: \n1. argument types and values are not verified by the\n   editor.\n2. if an argument is a list, the separators are commas.\n   \nPress 'Save' when finished.\n\nTo restore default rules for a TAF Site and a currently\nselected monitoring module, use the \"Delete\" button.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Monitoring Criteria Help";
+
+                    String helpText = "This dialog is used to define and configure TAF monitoring\nrules.\n\nTo load current configuration, enter site id and press\n<Enter> or use the \"Load\" button. Site id XXXX loads\ndefault rules.\n\nSelect a tab for the monitoring module you wish to modify\nthe rules. The top list displays current rules: severity\nlevels (colors) and associated messages. The list is sorted\nwith respect to the severity level.\n\nTo view detailed rule description, select an item on this\nlist. All rule parameters will be displayed in the \"Rule\nEditor\" window. You may modify editable parameters. Press \n\"Replace\" when finished. To remove a rule from the list,\npress \"Remove\". To add a new rule, first select one of\nthe available methods, then modify rule parameters as\ndesired. You must enter a message. Press \"Add\" to add the\nrule to the list.\n\nNOTE: \n1. argument types and values are not verified by the\n   editor.\n2. if an argument is a list, the separators are commas.\n   \nPress 'Save' when finished.\n\nTo restore default rules for a TAF Site and a currently\nselected monitoring module, use the \"Delete\" button.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
