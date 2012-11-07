@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.viz.plugin.nwsauth;
 
+import java.util.List;
+
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
+import com.raytheon.uf.common.auth.user.IPermission;
+import com.raytheon.uf.common.auth.user.IRole;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.plugin.nwsauth.user.User;
 import com.raytheon.uf.viz.core.auth.IUserManager;
@@ -43,7 +47,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 
 public class NwsUserManager implements IUserManager {
 
-    private NwsNotAuthHandler notAuthHandler = new NwsNotAuthHandler();
+    private final NwsNotAuthHandler notAuthHandler = new NwsNotAuthHandler();
 
     /*
      * (non-Javadoc)
@@ -78,4 +82,21 @@ public class NwsUserManager implements IUserManager {
     public void updateUserObject(IUser user, IAuthenticationData authData) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IPermission> getPermissions(String application) {
+        // TODO: Should this pass through to EDEX to get this stuff?
+        return FileManager.getInstance().getPermissions(application);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IRole> getRoles(String application) {
+        // TODO: Should this pass through to EDEX to get this stuff?
+        return FileManager.getInstance().getRoles(application);
+    }
 }

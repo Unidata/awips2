@@ -3,6 +3,7 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -11,7 +12,6 @@ import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.PrivilegedUtilityRequestMessage;
 import com.raytheon.uf.common.localization.msgs.UtilityResponseMessage;
-import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
