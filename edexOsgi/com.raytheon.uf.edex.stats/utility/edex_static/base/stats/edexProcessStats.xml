@@ -4,6 +4,6 @@
         <groupBy>
                 <attribute name="pluginName"/>
         </groupBy>
-        <aggregate field="processingTimeMilliseconds"/>
-        <aggregate field="processingLatencyMilliseconds"/>
+        <aggregate field="processingTime" unit="ms"/>
+        <aggregate field="processingLatency" unit="ms"/>
 </statsConfig>
