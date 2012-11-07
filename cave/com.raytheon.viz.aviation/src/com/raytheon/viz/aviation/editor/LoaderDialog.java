@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 7/26/2010    6693        rferrel     Apply now checks for Delay.
  * 9/9/2010     5468        rferrel     Check for no TAF loaded for a site
  * 10/1/2010    4345        rferrel     Made products display the same as AWIPS I
+ * 10/04/2012   1229        rferrel     Made non-blocking.
  * 
  * </pre>
  * 
@@ -141,7 +142,8 @@ public class LoaderDialog extends CaveSWTDialog {
      *            Parent Shell.
      */
     public LoaderDialog(Shell parent, TafViewerEditorDlg tveDlg) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Loader");
 
         this.tveDlg = tveDlg;

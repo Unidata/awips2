@@ -20,7 +20,11 @@
 package com.raytheon.viz.ui.personalities.awips;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
 
@@ -38,7 +42,6 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
-import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.pypies.PyPiesDataStoreFactory;
 import com.raytheon.uf.common.pypies.PypiesProperties;
@@ -49,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
+import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.application.component.IStandaloneComponent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
@@ -77,6 +81,11 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                      and CAVE immediately exits
  *                                      if connection cannot be made to
  *                                      localization server.
+ * May 31, 2012   #674     dgilling     Allow SimulatedTime to be set from
+ *                                      the command line.
+ * Oct 02, 2012   #1236    dgilling     Allow SimulatedTime to be set from
+ *                                      the command line even if practice
+ *                                      mode is off.
  * 
  * </pre>
  * 
@@ -105,10 +114,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     @SuppressWarnings("restriction")
     @Override
     public final Object startComponent(String componentName) throws Exception {
-        UnitRegistrar.registerUnits();
-        CAVEMode.performStartupDuties();
-
-        long t0 = System.currentTimeMillis();
         // This is a workaround to receive status messages because without the
         // PlatformUI initialized Eclipse throws out the status
         // messages. Once PlatformUI has started, the status handler
@@ -126,6 +131,11 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                     }
 
                 });
+
+        UnitRegistrar.registerUnits();
+        CAVEMode.performStartupDuties();
+
+        long t0 = System.currentTimeMillis();
 
         Display display = null;
         int modes = getRuntimeModes();
@@ -192,9 +202,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         System.out.println("Localization time: " + (t1 - t0) + "ms");
 
         try {
-            if (CAVEMode.getMode() == CAVEMode.PRACTICE) {
-                restoreUserTime();
-            }
+            initializeSimulatedTime();
 
             if (cave) {
                 workbenchAdvisor = getWorkbenchAdvisor();
@@ -274,14 +282,34 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     /**
      * Restore the prior state of SimulatedTime
      */
-    private void restoreUserTime() {
-        // Get the last saved time from the localization settings
-
-        // If CorePlugin.getDefault() == null, assume running from a unit test
+    private void initializeSimulatedTime() {
         long timeValue = 0;
         boolean isFrozen = false;
-        if (CAVEMode.getMode() == CAVEMode.PRACTICE
-                && CorePlugin.getDefault() != null) {
+
+        // If CorePlugin.getDefault() == null, assume running from a unit test
+        if (CorePlugin.getDefault() != null) {
+            String dateString = ProgramArguments.getInstance().getString(
+                    "-time");
+            if (dateString != null && !dateString.isEmpty()) {
+                try {
+                    DateFormat dateParser = new SimpleDateFormat(
+                            "yyyyMMdd_HHmm");
+                    dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
+                    Date newSimTime = dateParser.parse(dateString);
+                    timeValue = newSimTime.getTime();
+                } catch (ParseException e) {
+                    statusHandler
+                            .handle(Priority.WARN,
+                                    "Invalid argument specified for command-line parameter '-time'.",
+                                    e);
+                }
+            }
+        }
+
+        // if we're in practice mode and the user did not specify a DRT value on
+        // the CLI, restore their previous time setting
+        if ((CAVEMode.getMode() == CAVEMode.PRACTICE) && (timeValue == 0)) {
+            // Get the last saved time from the localization settings
             timeValue = CorePlugin.getDefault().getPreferenceStore()
                     .getLong(PreferenceConstants.P_LAST_USER_TIME);
 
@@ -321,14 +349,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
      * Initializes the DataStoreFactory for the component.
      */
     protected void initializeDataStoreFactory() {
-        // TODO: Test changing maxConnections per host
         PypiesProperties pypiesProps = new PypiesProperties();
         pypiesProps.setAddress(VizApp.getPypiesServer());
-        int connections = HttpClient.getInstance().getMaxConnectionsPerHost();
-        if (connections <= 0) {
-            connections = 3;
-        }
-        pypiesProps.setMaxConnections(connections);
         DataStoreFactory.getInstance().setUnderlyingFactory(
                 new PyPiesDataStoreFactory(pypiesProps));
     }

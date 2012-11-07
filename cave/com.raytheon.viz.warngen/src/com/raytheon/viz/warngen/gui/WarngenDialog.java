@@ -125,6 +125,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Sep 27, 2012 #1196       rferrel     Refactored to use non-blocking dialogs
  *  Oct 03, 2012 DR 15426    Qinglu Lin  Unlock WarnGen GUI for COR, implemented in corSelected();
  *                                       but lock immediate cause, implemented in individual template.
+ *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
+ *                                       and in updateListSelected().
  * 
  * </pre>
  * 
@@ -1169,6 +1171,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.getStormTrackState().trackVisible = false;
         }
         warngenLayer.resetInitialFrame();
+        warngenLayer.setWarningAction(null);
         instructionsLabel.setText("Instructions:");
         warngenLayer.issueRefresh();
     }
@@ -1566,6 +1569,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             totalSegments = 0;
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
+            warngenLayer.setWarningAction(action);
             if (action == WarningAction.CON) {
                 oldWarning = conSelected(data);
             } else if (action == WarningAction.COR) {

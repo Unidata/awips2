@@ -79,7 +79,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -134,6 +133,8 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.msgs.IAviationObserver;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the TAF Viewer and Editor dialog.
@@ -214,6 +215,14 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * 11/29/2011   11612       rferrel     Added getViewerTabList.
  * 20JUL2012    14570       gzhang/zhao Highlight correct time groups in TAF Viewer
  * 08AGU2012    15613       zhao        Modified highlightTAF()
+ * 04OCT2012    1229        rferrel     Changes for non-blocking LoaderDialog.
+ * 09OCT2012    1229        rferrel     Changes for non-blocking QcDialog.
+ * 09OCT2012    1229        rferrel     Changes for non-blocking SendDialog.
+ * 11OCT2012    1229        rferrel     Converted to a subclass of CaveSWTDialog and
+ * 12OCT2012    1229        rferrel     Changes for non-blocking FindReplaceDlg.
+ *                                       made non-blocking.
+ * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
+ * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 
  * </pre>
  * 
@@ -221,12 +230,12 @@ import com.raytheon.viz.texteditor.msgs.IAviationObserver;
  * @version 1.0
  * 
  */
-public class TafViewerEditorDlg extends Dialog implements ITafSettable,
+public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         IEditActions {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafViewerEditorDlg.class);
 
-    private static final String SPLIT_REGEX = "=+[\\s\n]*|\n{2,}|\n$";
+    private final String SPLIT_REGEX = "=+[\\s\n]*|\n{2,}|\n$";
 
     /**
      * The number of editor tabs
@@ -248,11 +257,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     private String getCommonPythonDir() {
         return PATH_MANAGER.getFile(baseCommonCtx, "python").getPath();
     }
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
 
     /**
      * The display control.
@@ -449,6 +453,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     private boolean pythonModifiedTAF = false;
 
+    private FindReplaceDlg findDlg;
+
     /**
      * TAF editor enumeration
      */
@@ -515,21 +521,30 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
     private PythonScript parsePythonScript;
 
+    private LoaderDialog loadDlg;
+
+    private QcDialog qcDlg;
+
+    private SendDialog sendDlg;
+
+    private HelpUsageDlg usageDlg;
+
+    private HelpUsageDlg keyBindingUsageDlg;
+
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent Shell.
-     * @param disposeOnExit
-     *            Flag to indicate whether to dispose dialog on exit.
      */
-    public TafViewerEditorDlg(Shell parent, boolean disposeOnExit,
-            List<String> stationList) {
-        super(parent, 0);
+    public TafViewerEditorDlg(Shell parent, List<String> stationList,
+            int caveStyle) {
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS, caveStyle
+                | CAVE.DO_NOT_BLOCK);
 
         this.stationList = stationList;
 
-        init();
+        setText("AvnFPS TAF Editor");
     }
 
     /**
@@ -541,34 +556,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         clipboard = new Clipboard(display);
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-
-        boolean transientDialog = configMgr
-                .getDataAsBoolean(ResourceTag.TransientDialogs);
-
-        /*
-         * Check the transient dialog setting. If the transient dialog is true
-         * then the parent dialog cannot be display on top of this dialog. If
-         * the transient is false the parent dialog can be displayed on top of
-         * this dialog.
-         */
-        if (transientDialog == true) {
-            // Parent dialog cannot be displayed on top of this dialog.
-            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE
-                    | SWT.MODELESS);
-        } else {
-            // Parent dialog can be displayed on top of this dialog.
-            shell = new Shell(parent.getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE
-                    | SWT.MODELESS);
-
-            parent.addDisposeListener(new DisposeListener() {
-                @Override
-                public void widgetDisposed(DisposeEvent e) {
-                    disposeDialog();
-                }
-            });
-        }
-
-        shell.setText("AvnFPS TAF Editor");
 
         shell.addShellListener(new ShellAdapter() {
             @Override
@@ -586,7 +573,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 // }
 
                 // Block the disposal of this dialog.
-                shell.setVisible(false);
+                hideDialog();
                 event.doit = false;
             }
         });
@@ -630,8 +617,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         // Initialize all of the controls and layouts
         initializeComponents();
 
-        shell.pack();
-
         /*
          * NOTE:
          * 
@@ -662,6 +647,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void updateSettings(TafSettings setting, String stationName) {
+        checkDlg();
+
         String previousStationName = this.stationName;
         this.stationName = stationName;
 
@@ -780,6 +767,9 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
 
     @Override
     public void clearAll() {
+        if (shell == null) {
+            return;
+        }
         // Clear all tab items within all editor tabs on the tab folder.
         tabFolder.setSelection(editorTab);
 
@@ -880,8 +870,31 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void showDialog() {
+
+        checkDlg();
+
         if (shell.isVisible() == false) {
-            shell.setVisible(true);
+            setVisible(true);
+        }
+
+        if (mustCreate(qcDlg) == false) {
+            qcDlg.bringToTop();
+        }
+
+        if (mustCreate(sendDlg) == false) {
+            sendDlg.bringToTop();
+        }
+
+        if (mustCreate(findDlg) == false) {
+            findDlg.bringToTop();
+        }
+
+        if (mustCreate(keyBindingUsageDlg) == false) {
+            keyBindingUsageDlg.bringToTop();
+        }
+
+        if (mustCreate(usageDlg) == false) {
+            usageDlg.bringToTop();
         }
 
         shell.setActive();
@@ -893,12 +906,34 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     @Override
     public void hideDialog() {
 
-        // if (disposeOnExit == true) {
-        // return;
-        // }
-
         if (shell.isVisible() == true) {
-            shell.setVisible(false);
+            setVisible(false);
+        }
+        if (mustCreate(qcDlg) == false) {
+            qcDlg.hide();
+        }
+        if (mustCreate(sendDlg) == false) {
+            sendDlg.hide();
+        }
+
+        if (mustCreate(findDlg) == false) {
+            findDlg.hide();
+        }
+
+        if (mustCreate(keyBindingUsageDlg) == false) {
+            keyBindingUsageDlg.hide();
+        }
+
+        if (mustCreate(usageDlg) == false) {
+            usageDlg.hide();
+        }
+    }
+
+    private void setVisible(boolean state) {
+        shell.setVisible(state);
+        if (loadDlg != null && loadDlg.getShell() != null
+                && !loadDlg.isDisposed()) {
+            loadDlg.getShell().setVisible(state);
         }
     }
 
@@ -916,8 +951,17 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             fltCatFontColor.dispose();
             fltCatFontColor = null;
         }
-        shell.dispose();
-        clipboard.dispose();
+
+        close();
+
+        if (clipboard != null) {
+            clipboard.dispose();
+        }
+    }
+
+    @Override
+    protected void initializeComponents(Shell shell) {
+        init();
     }
 
     /**
@@ -1107,7 +1151,6 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         closeMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // shell.dispose();
                 hideDialog();
             }
         });
@@ -1250,9 +1293,13 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         findMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FindReplaceDlg findDlg = new FindReplaceDlg(shell,
-                        editorTafTabComp.getTextEditorControl());
-                findDlg.open();
+                if (mustCreate(findDlg)) {
+                    findDlg = new FindReplaceDlg(shell, editorTafTabComp
+                            .getTextEditorControl());
+                    findDlg.open();
+                } else {
+                    findDlg.bringToTop();
+                }
             }
         });
 
@@ -1304,53 +1351,57 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         keyBindingMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "Ctrl-u               Undo changes.\n"
-                        + "Ctrl-r               Redo changes.\n"
-                        + "Insert               Toggles insert/overwrite mode.\n"
-                        + "Any-Key              Insert normal printing characters.\n"
-                        + "Button1              Sets the insert point, clear the selection, set focus.\n"
-                        + "Ctrl-Button1         Set the insert point without affecting the selection.\n"
-                        + "Button1-Motion       Sweep out a selection from the insert point.\n"
-                        + "Double-Button1       Select the word under the mouse.\n"
-                        + "Triple-Button1       Select the line under the mouse.\n"
-                        + "Shift-Button1        Adjust the end of selection closest to the mouse.\n"
-                        + "Shift-Button1-Motion Continue to adjust the selection.\n"
-                        + "Button2              Paste the selection, or set the scrolling anchor.\n"
-                        + "Button2-Motion       Scroll the window.\n"
-                        + "Left or Ctrl-b       Move the cursor left one character. Clear selection.\n"
-                        + "Shift-Left           Move the cursor and extend the selection.\n"
-                        + "Ctrl-Left            Move the cursor by words. Clear the selection.\n"
-                        + "Ctrl-Shift-Left      Move the cursor by words. Extend the selection.\n"
-                        + "Right or Ctrl-f      Right bindings are analogous to Left bindings.\n"
-                        + "Alt-b or Alt         Same as Ctrl-Left, Ctrl-Right.\n"
-                        + "Up or Ctrl-p         Move the cursor up one line. Clear the selection.\n"
-                        + "Ctrl-Up              Move the cursor by paragraph which are group of lines separated by a blank line.\n"
-                        + "Ctrl-Shift-Up        Move the cursor by paragraph. Extend selection.\n"
-                        + "Down or Ctrl-n       All Down bindings are analogous to Up bindings.\n"
-                        + "PgUp, PgDn           Move the cursor by one screen. Clear the selection.\n"
-                        + "Shift-PgUp,          Move the cursor by one screen. Extend the selection.\n"
-                        + "Shift-PgDn\n"
-                        + "Home or Ctrl-a       Move the cursor to line start. Clear the selection.\n"
-                        + "Shift-Home           Move the cursor to line start. Extend the selection.\n"
-                        + "End or Ctrl-e        Move the cursor to line end. Clear the selection.\n"
-                        + "Shift-End            Move the cursor to line end. Extend the selection.\n"
-                        + "Ctrl-Home            Move the cursor to the beginning of text. Clear the selection.\n"
-                        + "Ctrl-End             Move the cursor to the beginning of text. Extend the selection.\n"
-                        + "Ctrl-/               Select everything in the text widget.\n"
-                        + "Ctrl-\\               Clear the selection.\n"
-                        + "Delete               Delete the selection, if any. Otherwise delete the character to the right of the cursor.\n"
-                        + "Backspace or Ctrl-h Delete the selection, if any. Otherwise delete the character to the left of the cursor.\n"
-                        + "Ctrl-d              Delete character to the right of the cursor.\n"
-                        + "Alt-d               Delete word to the right of the cursor.\n"
-                        + "Ctrl-k              Delete from cursor to the end of the line. If you are at the end of the line, delete the newline\n"
-                        + "                    character.\n"
-                        + "Ctrl-o              Insert a newline but do not advance the cursor.\n"
-                        + "Alt-Delete          Delete the word to the left of the cursor.\n"
-                        + "Ctrl-t              Transpose the characters on either side of the cursor.";
-                String description = "Key Bindings";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(keyBindingUsageDlg)) {
+                    String description = "Key Bindings";
+                    String helpText = "Ctrl-u               Undo changes.\n"
+                            + "Ctrl-r               Redo changes.\n"
+                            + "Insert               Toggles insert/overwrite mode.\n"
+                            + "Any-Key              Insert normal printing characters.\n"
+                            + "Button1              Sets the insert point, clear the selection, set focus.\n"
+                            + "Ctrl-Button1         Set the insert point without affecting the selection.\n"
+                            + "Button1-Motion       Sweep out a selection from the insert point.\n"
+                            + "Double-Button1       Select the word under the mouse.\n"
+                            + "Triple-Button1       Select the line under the mouse.\n"
+                            + "Shift-Button1        Adjust the end of selection closest to the mouse.\n"
+                            + "Shift-Button1-Motion Continue to adjust the selection.\n"
+                            + "Button2              Paste the selection, or set the scrolling anchor.\n"
+                            + "Button2-Motion       Scroll the window.\n"
+                            + "Left or Ctrl-b       Move the cursor left one character. Clear selection.\n"
+                            + "Shift-Left           Move the cursor and extend the selection.\n"
+                            + "Ctrl-Left            Move the cursor by words. Clear the selection.\n"
+                            + "Ctrl-Shift-Left      Move the cursor by words. Extend the selection.\n"
+                            + "Right or Ctrl-f      Right bindings are analogous to Left bindings.\n"
+                            + "Alt-b or Alt         Same as Ctrl-Left, Ctrl-Right.\n"
+                            + "Up or Ctrl-p         Move the cursor up one line. Clear the selection.\n"
+                            + "Ctrl-Up              Move the cursor by paragraph which are group of lines separated by a blank line.\n"
+                            + "Ctrl-Shift-Up        Move the cursor by paragraph. Extend selection.\n"
+                            + "Down or Ctrl-n       All Down bindings are analogous to Up bindings.\n"
+                            + "PgUp, PgDn           Move the cursor by one screen. Clear the selection.\n"
+                            + "Shift-PgUp,          Move the cursor by one screen. Extend the selection.\n"
+                            + "Shift-PgDn\n"
+                            + "Home or Ctrl-a       Move the cursor to line start. Clear the selection.\n"
+                            + "Shift-Home           Move the cursor to line start. Extend the selection.\n"
+                            + "End or Ctrl-e        Move the cursor to line end. Clear the selection.\n"
+                            + "Shift-End            Move the cursor to line end. Extend the selection.\n"
+                            + "Ctrl-Home            Move the cursor to the beginning of text. Clear the selection.\n"
+                            + "Ctrl-End             Move the cursor to the beginning of text. Extend the selection.\n"
+                            + "Ctrl-/               Select everything in the text widget.\n"
+                            + "Ctrl-\\               Clear the selection.\n"
+                            + "Delete               Delete the selection, if any. Otherwise delete the character to the right of the cursor.\n"
+                            + "Backspace or Ctrl-h Delete the selection, if any. Otherwise delete the character to the left of the cursor.\n"
+                            + "Ctrl-d              Delete character to the right of the cursor.\n"
+                            + "Alt-d               Delete word to the right of the cursor.\n"
+                            + "Ctrl-k              Delete from cursor to the end of the line. If you are at the end of the line, delete the newline\n"
+                            + "                    character.\n"
+                            + "Ctrl-o              Insert a newline but do not advance the cursor.\n"
+                            + "Alt-Delete          Delete the word to the left of the cursor.\n"
+                            + "Ctrl-t              Transpose the characters on either side of the cursor.";
+                    keyBindingUsageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    keyBindingUsageDlg.open();
+                } else {
+                    keyBindingUsageDlg.bringToTop();
+                }
             }
         });
 
@@ -1360,101 +1411,104 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "This is a text editor specialized for composing and checking TAFs.\n"
-                        + "\n"
-                        + "The dialog consists of two areas. The top part is for viewing and\n"
-                        + "editing TAFs, the bottom part displays guidance data.\n"
-                        + "\n"
-                        + "The text editor consists of 4 independent pages. Each one displays WMO\n"
-                        + "header. The 'Rtn', ..., 'Cor' toggles change forecast type. Use\n"
-                        + "'Clear' button to clear the text window.  The 'Tools' combo box\n"
-                        + "displays list of site-specific utilities to modify the forecast.\n"
-                        + "\n"
-                        + "Menus:\n"
-                        + "    Most of the items are relevant when the 'Editor' tab is selected. \n"
-                        + "    File:\n"
-                        + "    Print         - call print dialog\n"
-                        + "    Clear Errors  - clears error tags set by the formatting \n"
-                        + "                    (quality check) action. Can be used to force \n"
-                        + "                    transmission of forecasts that did not pass\n"
-                        + "                    the Syntax check.  It also reverses colors in\n"
-                        + "                    the editor window to normal after forecast is\n"
-                        + "                    sent\n"
-                        + "    Update Times  - updates issue and valid times\n"
-                        + "    Save As       - allows to save edited forecast to a file. \n"
-                        + "    Restore From  - use to restore forecast from a backup file\n"
-                        + "    Store in DB   - use to store forecast in AWIPS text database\n"
-                        + "    Close         - closes the editor window\n"
-                        + "\n"
-                        + "    Options: \n"
-                        + "    Auto Save     - toggles auto-save feature\n"
-                        + "    Auto Print    - toggles automatic printout of sent forecasts\n"
-                        + "    Update Times on Format - if selected, the issue and valid times in \n"
-                        + "                    the forecast are updated before quality control\n"
-                        + "                    checks\n"
-                        + "    Send in Collective - Toggles collective versus split bulletin\n"
-                        + "                    transmission. Intended for OCONUS sites only.\n"
-                        + "\n"
-                        + "    Edit:\n"
-                        + "    Provides the usual editing functions (i.e. Cut, Copy, Paste, \n"
-                        + "    and Find/Replace)\n"
-                        + "\n"
-                        + "TAF editor area:\n"
-                        + "\n"
-                        + "Buttons:\n"
-                        + "    Load: invokes forecast selection dialog. Bulletin (or product) \n"
-                        + "        is selected from 'Bulletins' menu. To load bulletin from \n"
-                        + "        previously saved file, set the 'From file' toggle.\n"
-                        + "        Otherwise the forecasts will be loaded depending on \n"
-                        + "        the 'Load Order' selecton:\n"
-                        + "        Latest: first an attempt is made to access the most \n"
-                        + "            recent previous forecast. If one cannot be found,\n"
-                        + "            a template file is loaded.\n"
-                        + "        Merge:  loads previous forecast, then appends template.\n"
-                        + "            The intent is to allow phrases such as\n"
-                        + "            AMD NOT SKED AFT D1HHZ.\n"
-                        + "        Template: loads forecasts from template file.\n"
-                        + "        'Forecast Type' selection is used to initialize WMO\n"
-                        + "        header (DDHHMM and BBB) fields. These fields will be \n"
-                        + "        updated when forecast is sent. \n"
-                        + "\n"
-                        + "    Syntax: Performs syntax check and assures proper indentation \n"
-                        + "        and maximum line length. If Syntax Check fails the forecast, \n"
-                        + "        the problem areas will be highlighted. The color \n"
-                        + "        corresponds to the severity of the problem. Red means \n"
-                        + "        the forecast could not be parsed sucessfully. Orange \n"
-                        + "        means error according to NWSI 10-813. Green is a warning.\n"
-                        + "\n"
-                        + "    QC: Performs selected quality control checks\n"
-                        + "\n"
-                        + "    Send:   Splits the bulletin into separate files, one per site, \n"
-                        + "        which are written to directory 'xmit/pending'. \n"
-                        + "        The transmission program running on the data server is \n"
-                        + "        responsible for actual transmission.\n"
-                        + "        The program will check whether a regular forecast is \n"
-                        + "        sent within the transmission time window. If not, an \n"
-                        + "        error dialog is displayed.\n"
-                        + "\n"
-                        + "    Save:   Stores bulletin as a work TAF in a file\n"
-                        + "\n"
-                        + "    Restore: Restores bulletin from the work file\n"
-                        + "\n"
-                        + "Toggles:\n"
-                        + "    Insert        - toggles insert/overwrite mode\n"
-                        + "    Wrap          - if selected, the line is folded when its length\n"
-                        + "                    exceedes window width. Has no effect on \n"
-                        + "                    the final format.\n"
-                        + "\n"
-                        + "Viewer area:\n"
-                        + "    Use 'Site ID' combo box to view site data from the list of \n"
-                        + "    currently monitored sites. \n"
-                        + "    Select page in the notebook for a specific data source. The list \n"
-                        + "    of data sources is configurable. A set of display options is \n"
-                        + "    available, depending on the data source.";
-                String description = "Usage";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Usage";
+                    String helpText = "This is a text editor specialized for composing and checking TAFs.\n"
+                            + "\n"
+                            + "The dialog consists of two areas. The top part is for viewing and\n"
+                            + "editing TAFs, the bottom part displays guidance data.\n"
+                            + "\n"
+                            + "The text editor consists of 4 independent pages. Each one displays WMO\n"
+                            + "header. The 'Rtn', ..., 'Cor' toggles change forecast type. Use\n"
+                            + "'Clear' button to clear the text window.  The 'Tools' combo box\n"
+                            + "displays list of site-specific utilities to modify the forecast.\n"
+                            + "\n"
+                            + "Menus:\n"
+                            + "    Most of the items are relevant when the 'Editor' tab is selected. \n"
+                            + "    File:\n"
+                            + "    Print         - call print dialog\n"
+                            + "    Clear Errors  - clears error tags set by the formatting \n"
+                            + "                    (quality check) action. Can be used to force \n"
+                            + "                    transmission of forecasts that did not pass\n"
+                            + "                    the Syntax check.  It also reverses colors in\n"
+                            + "                    the editor window to normal after forecast is\n"
+                            + "                    sent\n"
+                            + "    Update Times  - updates issue and valid times\n"
+                            + "    Save As       - allows to save edited forecast to a file. \n"
+                            + "    Restore From  - use to restore forecast from a backup file\n"
+                            + "    Store in DB   - use to store forecast in AWIPS text database\n"
+                            + "    Close         - closes the editor window\n"
+                            + "\n"
+                            + "    Options: \n"
+                            + "    Auto Save     - toggles auto-save feature\n"
+                            + "    Auto Print    - toggles automatic printout of sent forecasts\n"
+                            + "    Update Times on Format - if selected, the issue and valid times in \n"
+                            + "                    the forecast are updated before quality control\n"
+                            + "                    checks\n"
+                            + "    Send in Collective - Toggles collective versus split bulletin\n"
+                            + "                    transmission. Intended for OCONUS sites only.\n"
+                            + "\n"
+                            + "    Edit:\n"
+                            + "    Provides the usual editing functions (i.e. Cut, Copy, Paste, \n"
+                            + "    and Find/Replace)\n"
+                            + "\n"
+                            + "TAF editor area:\n"
+                            + "\n"
+                            + "Buttons:\n"
+                            + "    Load: invokes forecast selection dialog. Bulletin (or product) \n"
+                            + "        is selected from 'Bulletins' menu. To load bulletin from \n"
+                            + "        previously saved file, set the 'From file' toggle.\n"
+                            + "        Otherwise the forecasts will be loaded depending on \n"
+                            + "        the 'Load Order' selecton:\n"
+                            + "        Latest: first an attempt is made to access the most \n"
+                            + "            recent previous forecast. If one cannot be found,\n"
+                            + "            a template file is loaded.\n"
+                            + "        Merge:  loads previous forecast, then appends template.\n"
+                            + "            The intent is to allow phrases such as\n"
+                            + "            AMD NOT SKED AFT D1HHZ.\n"
+                            + "        Template: loads forecasts from template file.\n"
+                            + "        'Forecast Type' selection is used to initialize WMO\n"
+                            + "        header (DDHHMM and BBB) fields. These fields will be \n"
+                            + "        updated when forecast is sent. \n"
+                            + "\n"
+                            + "    Syntax: Performs syntax check and assures proper indentation \n"
+                            + "        and maximum line length. If Syntax Check fails the forecast, \n"
+                            + "        the problem areas will be highlighted. The color \n"
+                            + "        corresponds to the severity of the problem. Red means \n"
+                            + "        the forecast could not be parsed sucessfully. Orange \n"
+                            + "        means error according to NWSI 10-813. Green is a warning.\n"
+                            + "\n"
+                            + "    QC: Performs selected quality control checks\n"
+                            + "\n"
+                            + "    Send:   Splits the bulletin into separate files, one per site, \n"
+                            + "        which are written to directory 'xmit/pending'. \n"
+                            + "        The transmission program running on the data server is \n"
+                            + "        responsible for actual transmission.\n"
+                            + "        The program will check whether a regular forecast is \n"
+                            + "        sent within the transmission time window. If not, an \n"
+                            + "        error dialog is displayed.\n"
+                            + "\n"
+                            + "    Save:   Stores bulletin as a work TAF in a file\n"
+                            + "\n"
+                            + "    Restore: Restores bulletin from the work file\n"
+                            + "\n"
+                            + "Toggles:\n"
+                            + "    Insert        - toggles insert/overwrite mode\n"
+                            + "    Wrap          - if selected, the line is folded when its length\n"
+                            + "                    exceedes window width. Has no effect on \n"
+                            + "                    the final format.\n"
+                            + "\n"
+                            + "Viewer area:\n"
+                            + "    Use 'Site ID' combo box to view site data from the list of \n"
+                            + "    currently monitored sites. \n"
+                            + "    Select page in the notebook for a specific data source. The list \n"
+                            + "    of data sources is configurable. A set of display options is \n"
+                            + "    available, depending on the data source.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -1654,9 +1708,12 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LoaderDialog loadDlg = new LoaderDialog(shell,
-                        TafViewerEditorDlg.this);
-                loadDlg.open();
+                if (mustCreate(loadDlg)) {
+                    loadDlg = new LoaderDialog(shell, TafViewerEditorDlg.this);
+                    loadDlg.open();
+                } else {
+                    loadDlg.bringToTop();
+                }
             }
         });
 
@@ -1752,14 +1809,26 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                         printForecast(editorTafTabComp.getTextEditorControl()
                                 .getText());
                     }
-                    SendDialog sendDlg = new SendDialog(shell,
-                            editorTafTabComp, msgStatComp, sendCollectMI
-                                    .getSelection());
-                    sendDlg.open();
-                    // sendDlg sets the "taf sent" field only
-                    if (editorTafTabComp.isTafSent()) {
-                        editorTafTabComp.updateTafSent(true);
+
+                    if (mustCreate(sendDlg)) {
+                        sendDlg = new SendDialog(shell, editorTafTabComp,
+                                msgStatComp, sendCollectMI.getSelection());
+                        sendDlg.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // sendDlg sets the "taf sent" field only
+                                if (editorTafTabComp.isTafSent()) {
+                                    editorTafTabComp.updateTafSent(true);
+                                }
+                                sendDlg = null;
+                            }
+                        });
+                        sendDlg.open();
+                    } else {
+                        sendDlg.bringToTop();
                     }
+
                 } else {
                     putMessageToForecaster("Cannot send forecast: Press Syntax before transmission");
                 }
@@ -2491,6 +2560,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     @Override
     public void populateViewerStation(String theStation) {
+        checkDlg();
         siteIdCbo.select(siteIdCbo.indexOf(theStation));
     }
 
@@ -2684,7 +2754,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     private boolean checkSyntaxInEditor(boolean doLogMessage) {
         // Get the content of the Taf Editor.
         // Assume editorTafTabComp is for the active tab.
-        String in = (editorTafTabComp.getTextEditorControl().getText());
+    	// DR15477: trim blank lines before Syntax Checking
+        String in = (editorTafTabComp.getTextEditorControl().getText().trim());
         // Declare variables for processing the editor's contents.
         boolean errorInTaf = false;
         int idx1 = 0;
@@ -3265,33 +3336,40 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             }
         }
 
-        String tafText = editorTafTabComp.getTextEditorControl().getText();
-        List<String> sitesInTaf = getSitesInTaf(tafText);
-        HashMap<String, HashMap<String, String>> qcMap = null;
-
         if (doQcDialog) {
-            QcDialog qcDlg = new QcDialog(shell, savedQcItems);
-            Object o = qcDlg.open();
-            if (o == null) {
-                return;
-            }
-            HashMap<String, String> qcItems = (HashMap<String, String>) o;
-            qcMap = new HashMap<String, HashMap<String, String>>();
-            for (String site : sitesInTaf) {
-                qcMap.put(site, qcItems);
+            if (mustCreate(qcDlg)) {
+                qcDlg = new QcDialog(shell, savedQcItems);
+                qcDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        String tafText = editorTafTabComp
+                                .getTextEditorControl().getText();
+                        List<String> sitesInTaf = getSitesInTaf(tafText);
+                        if (returnValue instanceof HashMap<?, ?>) {
+                            HashMap<String, String> qcItems = (HashMap<String, String>) returnValue;
+                            HashMap<String, HashMap<String, String>> qcMap = new HashMap<String, HashMap<String, String>>();
+                            for (String site : sitesInTaf) {
+                                qcMap.put(site, qcItems);
+                            }
+                            qcCheck(qcMap);
+                        }
+                    }
+                });
+                qcDlg.open();
+            } else {
+                qcDlg.bringToTop();
             }
         } else {
+            String tafText = editorTafTabComp.getTextEditorControl().getText();
+            List<String> sitesInTaf = getSitesInTaf(tafText);
+            HashMap<String, HashMap<String, String>> qcMap = null;
             qcMap = new HashMap<String, HashMap<String, String>>();
 
             for (String site : sitesInTaf) {
                 qcMap.put(site, null);
             }
-        }
-        try {
-            setWaitCursor(true);
             qcCheck(qcMap);
-        } finally {
-            setWaitCursor(false);
         }
     }
 
@@ -3301,6 +3379,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
     @SuppressWarnings("unchecked")
     private void qcCheck(HashMap<String, HashMap<String, String>> qcMap) {
         try {
+            setWaitCursor(true);
             ITafSiteConfig config = TafSiteConfigFactory.getInstance();
             ArrayList<Object> tafs = new ArrayList<Object>();
             HashMap<String, Object> siteInfo = new HashMap<String, Object>();
@@ -3538,6 +3617,8 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
             setMessageStatusError("An Error occured while performing the QC check.");
         } catch (IOException e) {
             setMessageStatusError("An Error occured while performing the QC check.");
+        } finally {
+            setWaitCursor(false);
         }
     }
 
@@ -3646,7 +3727,7 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 sb.append(TafUtil.safeFormatTaf(t, showHeaders));
                 sb.append("\n");
             }
-        }//System.out.println("TEMPO "+sb.toString().indexOf("TEMPO")+"/"+sb.toString().indexOf("\n",72));
+        }// System.out.println("TEMPO "+sb.toString().indexOf("TEMPO")+"/"+sb.toString().indexOf("\n",72));
 
         tafViewerStTxt.setText(sb.toString());
         hightlightTAF();
@@ -3675,10 +3756,10 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
         }
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
-        String taf = tafViewerStTxt.getText();	
+        String taf = tafViewerStTxt.getText();
         int offset = taf.indexOf("TAF");
-        if ( showHeadersChk.getSelection() ) { 
-        	offset = taf.indexOf("TAF", offset + 3);
+        if (showHeadersChk.getSelection()) {
+            offset = taf.indexOf("TAF", offset + 3);
         }
         try {
             int end = taf.indexOf("TAF", offset + 3);
@@ -3686,90 +3767,109 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
                 taf = taf.substring(offset, end);
             } else {
                 taf = taf.substring(offset);
-            }			
+            }
         } catch (IndexOutOfBoundsException ex) {
             // Assume no TAF in the viewer
             return;
         }
-        
-        Map<String,String> alertTimeMap=TafMonitorDlg.getCurrentAlertTimeMap(stationName);// DR 14570
+
+        Map<String, String> alertTimeMap = TafMonitorDlg
+                .getCurrentAlertTimeMap(stationName);// DR 14570
 
         // 20120712 for TEMPO
         String TEMPO_TXT = "TEMPO";
 
-        if(taf.contains(TEMPO_TXT)){
+        if (taf.contains(TEMPO_TXT)) {
 
-        	Map<String,String[]> tempoMap = TafMonitorDlg.getCurrentTempoMap(stationName);//20120711	
-        	if(tempoMap != null){
-        		int tempoStart = taf.indexOf(TEMPO_TXT);
-        		int tempoEnd =  taf.indexOf(TafUtil.LINE_BREAK, tempoStart);//end of the TEMPO line
+            Map<String, String[]> tempoMap = TafMonitorDlg
+                    .getCurrentTempoMap(stationName);// 20120711
+            if (tempoMap != null) {
+                int tempoStart = taf.indexOf(TEMPO_TXT);
+                int tempoEnd = taf.indexOf(TafUtil.LINE_BREAK, tempoStart);// end
+                                                                           // of
+                                                                           // the
+                                                                           // TEMPO
+                                                                           // line
 
-        		StringBuilder str = new StringBuilder(" ");
+                StringBuilder str = new StringBuilder(" ");
 
-        		for (String alertKey : tempoMap.keySet()) {
-        			//System.out.println("2___alertKey: "+ alertKey);      	
-        			for (String value : tempoMap.get(alertKey)) {
-        				//System.out.println("3___value: "+ value);             	
-        				str.setLength(1);
-        				str.append(value);
-        				int len = str.length();
-        				str.append(" ");	
+                for (String alertKey : tempoMap.keySet()) {
+                    // System.out.println("2___alertKey: "+ alertKey);
+                    for (String value : tempoMap.get(alertKey)) {
+                        // System.out.println("3___value: "+ value);
+                        str.setLength(1);
+                        str.append(value);
+                        int len = str.length();
+                        str.append(" ");
 
-        				int startIndex = taf.indexOf(str.toString(),tempoStart);// for tempo only
+                        int startIndex = taf
+                                .indexOf(str.toString(), tempoStart);// for
+                                                                     // tempo
+                                                                     // only
 
-        				if (startIndex < 0) {
-        					str.setLength(len);
-        					str.append("\n");
-        					startIndex = taf.indexOf(str.toString());
-        				}
-        				if (startIndex >= 0 /*within tempo line*/&& startIndex<tempoEnd) {
-        					StyleRange sr = new StyleRange(offset + startIndex + 1,
-        							len - 1, null, configMgr.getViwerAlertColor());
+                        if (startIndex < 0) {
+                            str.setLength(len);
+                            str.append("\n");
+                            startIndex = taf.indexOf(str.toString());
+                        }
+                        if (startIndex >= 0 /* within tempo line */
+                                && startIndex < tempoEnd) {
+                            StyleRange sr = new StyleRange(offset + startIndex
+                                    + 1, len - 1, null,
+                                    configMgr.getViwerAlertColor());
 
-        					tafViewerStTxt.setStyleRange(sr);
-        				}
-        			}
-        		}
-        	}
+                            tafViewerStTxt.setStyleRange(sr);
+                        }
+                    }
+                }
+            }
         }// END 20120712 for TEMPO
-
 
         StringBuilder str = new StringBuilder(" ");
         for (String alertKey : alertMap.keySet()) {
-        	for (String value : alertMap.get(alertKey)) {
-        		str.setLength(1);
-        		str.append(value);
-        		int len = str.length();
-        		str.append(" ");		
-        		String time = alertTimeMap.get(alertKey);// DR 14570
-        		int idx=taf.indexOf(time);// DR 14570
-        		int startIndex = taf.indexOf(str.toString(),idx);// DR 14570: highlight after the correct time group
-        		int endIndex = taf.indexOf(TafUtil.LINE_BREAK, idx);// DR 14570: a line ends with a line_break
-        		if (startIndex < 0) {
-        			str.setLength(len);
-        			str.append("\n");
-        			startIndex = taf.indexOf(str.toString());
-            		if (startIndex < 0) {
-            			str.setLength(len);
-            			str.append("=");
-            			startIndex = taf.indexOf(str.toString());
-            		}
-        		}
+            for (String value : alertMap.get(alertKey)) {
+                str.setLength(1);
+                str.append(value);
+                int len = str.length();
+                str.append(" ");
+                String time = alertTimeMap.get(alertKey);// DR 14570
+                int idx = taf.indexOf(time);// DR 14570
+                int startIndex = taf.indexOf(str.toString(), idx);// DR 14570:
+                                                                  // highlight
+                                                                  // after the
+                                                                  // correct
+                                                                  // time group
+                int endIndex = taf.indexOf(TafUtil.LINE_BREAK, idx);// DR 14570:
+                                                                    // a line
+                                                                    // ends with
+                                                                    // a
+                                                                    // line_break
+                if (startIndex < 0) {
+                    str.setLength(len);
+                    str.append("\n");
+                    startIndex = taf.indexOf(str.toString());
+                    if (startIndex < 0) {
+                        str.setLength(len);
+                        str.append("=");
+                        startIndex = taf.indexOf(str.toString());
+                    }
+                }
 
-        		if (startIndex >= 0 /*within the same line*/&& startIndex < endIndex) {
-        			StyleRange sr = new StyleRange(offset + startIndex + 1,
-        					len - 1, null, configMgr.getViwerAlertColor());
+                if (startIndex >= 0 /* within the same line */
+                        && startIndex < endIndex) {
+                    StyleRange sr = new StyleRange(offset + startIndex + 1,
+                            len - 1, null, configMgr.getViwerAlertColor());
 
-        			tafViewerStTxt.setStyleRange(sr);
-        		} else {
-        			// Should not get here. The first TAF in the viewer and the
-        			// values in the alertMap should both be from the latest
-        			// TAF. This indicates a program bug.
-        			System.out.println("highlightTAF unable to find: \""
-        					+ str.toString() + "\" in the first TAF");
-        		}
+                    tafViewerStTxt.setStyleRange(sr);
+                } else {
+                    // Should not get here. The first TAF in the viewer and the
+                    // values in the alertMap should both be from the latest
+                    // TAF. This indicates a program bug.
+                    System.out.println("highlightTAF unable to find: \""
+                            + str.toString() + "\" in the first TAF");
+                }
 
-        	}
+            }
         }
     }
 
@@ -4164,6 +4264,18 @@ public class TafViewerEditorDlg extends Dialog implements ITafSettable,
      */
     private void clearSyntaxErrorLevel() {
         syntaxErrorLevel = 0;
+    }
+
+    /**
+     * This dialog is created but not immediately displayed thus components have
+     * not been created. Some of the ITafSettable methods attempt to access
+     * components prior to showing the dialog. This check must be done to force
+     * the compoents creation.
+     */
+    private final void checkDlg() {
+        if (shell == null) {
+            open();
+        }
     }
 
     /**
