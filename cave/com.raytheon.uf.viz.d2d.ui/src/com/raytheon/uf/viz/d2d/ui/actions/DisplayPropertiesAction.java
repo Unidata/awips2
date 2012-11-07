@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            bgonzale     Initial creation
+ * Oct 15, 2012 1229       rferrel     Changes for non-blocking DisplayPropertiesDialog.
  * 
  * </pre>
  * 
@@ -57,13 +58,12 @@ public class DisplayPropertiesAction extends AbstractTool {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         super.execute(arg0);
 
-        if (dialog == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             dialog = new DisplayPropertiesDialog(VizWorkbenchManager
                     .getInstance().getCurrentWindow().getShell());
             dialog.open();
-            dialog = null;
         } else {
-            dialog.open();
+            dialog.bringToTop();
         }
 
         return null;

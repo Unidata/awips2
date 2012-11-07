@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.procedures.AlterBundleChangeEvent;
+import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -39,6 +41,7 @@ import com.raytheon.uf.viz.core.rsc.IPointsToolContainer;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointUtilities;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
@@ -46,8 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * This class generates the alternate bundle's contributions for points and
- * lines.
+ * This class generates the alter bundle's contributions for points and lines.
  * 
  * <pre>
  * 
@@ -57,6 +59,7 @@ import com.vividsolutions.jts.geom.LineString;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Aug 08, 2012 #875       rferrel     Generate menu entries for points.
+ * Oct 03, 2012 #1248      rferrel     Added listener for when points change.
  * 
  * 
  * </pre>
@@ -65,7 +68,7 @@ import com.vividsolutions.jts.geom.LineString;
  * @version 1.0
  */
 
-public class ToolsAlterBundleContributor implements IAlterBundleContributor {
+public class ToolsAlterBundleContributor extends AlterBundleContributorAdapter {
 
     private static final String POINTS_PREFIX = "Point-";
 
@@ -74,6 +77,8 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
     private static final String POINTS_KEY = "point";
 
     private static final String LINES_KEY = "line";
+
+    private IPointChangedListener pointChangedListener;
 
     /*
      * (non-Javadoc)
@@ -85,37 +90,8 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
     @Override
     public Map<String, String[]> getAlterables() {
         Map<String, String[]> alterables = new HashMap<String, String[]>();
-        ToolsDataManager tdm = ToolsDataManager.getInstance();
-        PointsDataManager pdm = PointsDataManager.getInstance();
-        Collection<String> blNames = tdm.getBaselineNames();
-        String[] lines = new String[blNames.size()];
-        int i = 0;
-        for (String line : blNames) {
-            lines[i] = LINES_PREFIX + line;
-            ++i;
-        }
-        Arrays.sort(lines);
-
-        Collection<String> pNames = pdm.getPointNames();
-        String[] points = new String[pNames.size()];
-        i = 0;
-        for (String point : pNames) {
-            points[i] = POINTS_PREFIX + point;
-            ++i;
-        }
-        Arrays.sort(points);
-
-        List<String> pointsList = new ArrayList<String>();
-        pointsList.add(ProcedureDlg.ORIGINAL);
-        pointsList.add(ProcedureDlg.CURRENT);
-        pointsList.add(IAlterBundleContributor.MI_SEPARATOR);
-        pointsList.addAll(createChildrenList(pdm, null));
-        String[] pointsValues = pointsList.toArray(new String[0]);
-
-        String[] linesValues = new String[lines.length + 2];
-        linesValues[0] = ProcedureDlg.ORIGINAL;
-        linesValues[1] = ProcedureDlg.CURRENT;
-        System.arraycopy(lines, 0, linesValues, 2, lines.length);
+        String[] linesValues = createLineArray();
+        String[] pointsValues = createPointArray();
 
         alterables.put(LINES_KEY, linesValues);
         alterables.put(POINTS_KEY, pointsValues);
@@ -147,6 +123,39 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
             }
         }
         return childrenList;
+    }
+
+    private String[] createLineArray() {
+        ToolsDataManager tdm = ToolsDataManager.getInstance();
+        Collection<String> blNames = tdm.getBaselineNames();
+        String[] lines = new String[blNames.size()];
+        int i = 0;
+        for (String line : blNames) {
+            lines[i] = LINES_PREFIX + line;
+            ++i;
+        }
+
+        Arrays.sort(lines);
+        String[] linesValues = new String[lines.length + 2];
+        linesValues[0] = ProcedureDlg.ORIGINAL;
+        linesValues[1] = ProcedureDlg.CURRENT;
+        System.arraycopy(lines, 0, linesValues, 2, lines.length);
+        return linesValues;
+    }
+
+    /**
+     * @return pointsValues
+     */
+    private String[] createPointArray() {
+        PointsDataManager pdm = PointsDataManager.getInstance();
+
+        List<String> pointsList = new ArrayList<String>();
+        pointsList.add(ProcedureDlg.ORIGINAL);
+        pointsList.add(ProcedureDlg.CURRENT);
+        pointsList.add(IAlterBundleContributor.MI_SEPARATOR);
+        pointsList.addAll(createChildrenList(pdm, null));
+        String[] pointsValues = pointsList.toArray(new String[0]);
+        return pointsValues;
     }
 
     /*
@@ -183,6 +192,9 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
     }
 
+    /**
+     * @param list
+     */
     private void replaceWithCurrentPoints(ResourceList list) {
         for (ResourcePair rp : list) {
             AbstractResourceData rData = rp.getResourceData();
@@ -196,6 +208,9 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
     }
 
+    /**
+     * @param b
+     */
     private void replaceWithCurrentLines(Bundle b) {
         for (AbstractRenderableDisplay display : b.getDisplays()) {
             IDescriptor desc = display.getDescriptor();
@@ -219,6 +234,10 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
     }
 
+    /**
+     * @param list
+     * @param selectedString
+     */
     private void alterResourceList(ResourceList list, String selectedString) {
         for (ResourcePair rp : list) {
             AbstractResourceData rData = rp.getResourceData();
@@ -256,6 +275,10 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
     }
 
+    /**
+     * @param container
+     * @param selectedString
+     */
     private void alterContainer(IBaseLinesContainer container,
             String selectedString) {
         LineString line = ToolsDataManager.getInstance().getBaseline(
@@ -264,4 +287,65 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         container.setBaseLineString(line);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
+     * getAlterables(java.lang.String)
+     */
+    @Override
+    public String[] getAlterables(String key) {
+        if (key == POINTS_KEY) {
+            return createPointArray();
+        } else if (key == LINES_KEY) {
+            return createLineArray();
+        }
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
+     * listenerSetup()
+     */
+    @Override
+    public void listenerSetup() {
+        if (pointChangedListener == null) {
+            pointChangedListener = new IPointChangedListener() {
+
+                @Override
+                public void pointChanged() {
+                    notifyBundleListeners();
+                }
+            };
+            PointsDataManager.getInstance().addPointsChangedListener(
+                    pointChangedListener);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter#
+     * listenerShutdown()
+     */
+    @Override
+    public void listenerShutdown() {
+        if (pointChangedListener != null) {
+            PointsDataManager.getInstance().removePointsChangedListener(
+                    pointChangedListener);
+            pointChangedListener = null;
+        }
+    }
+
+    /**
+     * Received notification of changes to points notify anyone interested in
+     * the change.
+     */
+    private void notifyBundleListeners() {
+        AlterBundleChangeEvent event = new AlterBundleChangeEvent(
+                new String[] { POINTS_KEY });
+        fireAlterBundleChangeListener(event);
+    }
 }

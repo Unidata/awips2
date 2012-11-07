@@ -99,11 +99,8 @@ public class KmlColormappedImageExtension extends
 
     private static class Generator extends KmlGroundOverlayGenerator {
 
-        private final DrawableImage[] images;
-
         public Generator(float alpha, DrawableImage[] images) {
-            super(alpha);
-            this.images = images;
+            super(alpha, images);
         }
 
         @Override

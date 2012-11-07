@@ -36,6 +36,23 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * A dialog to display the forecast(s) details.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Oct 10, 2012 1229       rferrel     Made dialog non-blocking
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class TransmissionViewerDlg extends CaveSWTDialog {
 
     /**
@@ -55,7 +72,8 @@ public class TransmissionViewerDlg extends CaveSWTDialog {
     public TransmissionViewerDlg(Shell parentShell, String tafText,
             String tafInfo) {
         super(parentShell, SWT.SHELL_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText(tafInfo);
 
         this.tafText = tafText;

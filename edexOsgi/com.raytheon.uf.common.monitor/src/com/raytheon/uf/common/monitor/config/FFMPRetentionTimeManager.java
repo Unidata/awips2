@@ -22,6 +22,7 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
@@ -51,7 +52,7 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      */
     protected PurgeRuleSet configXml;
 
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    private final ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
 
     /** Singleton instance of this class */
     private static FFMPRetentionTimeManager instance = new FFMPRetentionTimeManager();
@@ -166,12 +167,12 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @return
      */
     public long getRetentionTime() {
+        List<PurgeRule> rules = configXml.getDefaultRules();
 
-        for (PurgeRule rule : configXml.getRules()) {
-            if (rule.getId().getPluginName().equals("ffmp")) {
-                return rule.getPeriodInMillis();
-            }
+        if ((rules != null) && !rules.isEmpty()) {
+            return rules.get(0).getPeriodInMillis();
         }
+
         return 0l;
     }
 
@@ -181,11 +182,17 @@ public class FFMPRetentionTimeManager implements ILocalizationFileObserver {
      * @param time
      */
     public void setRetentionTime(String time) {
-        for (PurgeRule rule : configXml.getRules()) {
-            if (rule.getId().getPluginName().equals("ffmp")) {
-                rule.setPeriod(time);
-            }
+        List<PurgeRule> rules = configXml.getDefaultRules();
+        PurgeRule rule = null;
+
+        if ((rules == null) || rules.isEmpty()) {
+            rule = new PurgeRule();
+            configXml.setDefaultRule(rule);
+        } else {
+            rule = rules.get(0);
         }
+
+        rule.setPeriod(time);
 
         saveConfigXml();
     }
