@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.kml.export.graphics.ext;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -34,7 +33,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
@@ -121,11 +119,8 @@ public class KmlMosaicImageExtension extends
 
         private final ColorMapParameters parameters;
 
-        private final DrawableImage[] images;
-
         public Generator(float alpha, KmlMosaicImage image) {
-            super(alpha);
-            this.images = image.getImagesToMosaic();
+            super(alpha, image.getImagesToMosaic());
             this.parameters = image.getColorMapParameters();
             this.mosaicComparator = image.getMosaicComparator();
         }

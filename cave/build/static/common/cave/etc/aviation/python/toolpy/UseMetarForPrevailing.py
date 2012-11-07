@@ -76,7 +76,10 @@
 #       	Status:           TEST
 #       	Title:             AvnFPS: TAF No Significant Weather (NSW) not QC'd correctly
 #       
-#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Nov 02, 2012    15476         zhao           Retrieve latest METAR record from database
+##
 import logging, time
 import Avn, AvnLib, AvnParser, TafDecoder
 
@@ -104,7 +107,8 @@ def updateTafs(bbb, fcsts):
             
             AvnLib.adjustTimes(bbb, taf)
             evtime=taf['vtime']['str'][5:]
-            metar = MetarData.retrieve(ident)[0]
+# For DR15476: use 'maxSize=0' to indicate that the latest record is to be retrieved
+            metar = MetarData.retrieve(ident,0)[0]
             AvnLib.updateTafWithMetar(taf['group'][0]['prev'], metar.dcd)
             lines = AvnLib.makeTafFromPeriods(ident, bbb, taf['group'],
                                               tafDuration=tafDuration,

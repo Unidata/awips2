@@ -1411,9 +1411,12 @@ class FWS_Overrides:
 
         for element, defaultFlag in self._weInfoHiddenList():
             if defaultFlag:
-                self._periodElementDict["Today"].append(element)
-                self._periodElementDict["Tonight"].append(element)
-                self._periodElementDict["Tomorrow"].append(element)
+                if len(self._periodElementDict["Today"]) != 0:
+                    self._periodElementDict["Today"].append(element)
+                if len(self._periodElementDict["Tonight"]) != 0:
+                    self._periodElementDict["Tonight"].append(element)
+                if len(self._periodElementDict["Tomorrow"]) != 0:
+                    self._periodElementDict["Tomorrow"].append(element)
             self._periodAllElementDict["Today"].append(element)
             self._periodAllElementDict["Tonight"].append(element)
             self._periodAllElementDict["Tomorrow"].append(element)

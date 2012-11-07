@@ -80,6 +80,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Aug 13, 2008	#1448		chammack	Initial creation
+ * Oct 08, 2012 #1251       dgilling    Ensure type registered with
+ *                                      serialization adapter is encoded
+ *                                      in serialization stream.
  * 
  * </pre>
  * 
@@ -311,11 +314,10 @@ public class DynamicSerializationManager {
         if (attribs.serializationFactory == null) {
             Class<?> superClazz = c.getSuperclass();
             while (superClazz != null && attribs.serializationFactory == null) {
-                SerializationMetadata superMd = serializedAttributes
-                        .get(superClazz.getName());
+                SerializationMetadata superMd = inspect(superClazz);
                 if (superMd != null && superMd.serializationFactory != null) {
                     attribs.serializationFactory = superMd.serializationFactory;
-                    attribs.adapterStructName = c.getName();
+                    attribs.adapterStructName = superMd.adapterStructName;
                 }
                 superClazz = superClazz.getSuperclass();
             }

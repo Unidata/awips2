@@ -32,6 +32,10 @@ import SmartInitParams
 from numpy import *
 pytime = time
 
+import RollBackImporter
+rollbackImporter = RollBackImporter.RollBackImporter()
+    
+
 #--------------------------------------------------------------------------
 # Main program that calls model-specific algorithms to generate ifp grids.
 #--------------------------------------------------------------------------
@@ -1289,9 +1293,6 @@ def runFromJava(dbName, model, validTime):
     SmartInitParams.params['dbName'] = dbName
     SmartInitParams.params['validTime'] = validTime
     
-    if sys.modules.has_key(model):
-        sys.modules.__delitem__(model)
-    
     mod = __import__(model)
     mod.main()
-    
+    rollbackImporter.rollback()
