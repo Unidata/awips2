@@ -54,7 +54,7 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 public class PluginFactory {
 
     /** The instance of the PluginFactory class */
-    private static PluginFactory instance;
+    private static final PluginFactory instance = new PluginFactory();
 
     /**
      * Gets the singleton instance of the PluginFactory
@@ -64,10 +64,7 @@ public class PluginFactory {
      *             If errors occur during instantiation of the singleton
      *             instance
      */
-    public static synchronized PluginFactory getInstance() {
-        if (instance == null) {
-            instance = new PluginFactory();
-        }
+    public static PluginFactory getInstance() {
         return instance;
     }
 

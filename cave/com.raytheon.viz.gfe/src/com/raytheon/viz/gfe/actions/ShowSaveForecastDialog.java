@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.dialogs.WESaveDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 27, 2008					Eric Babin Initial Creation
  *  Apr 17, 2008 875       bphillip    Added interaction with server
+ *  Oct 26, 2012 1287      rferrel     Changes for non-blocking WESaveDialog.
  * 
  * </pre>
  * 
@@ -45,6 +46,7 @@ import com.raytheon.viz.gfe.dialogs.WESaveDialog;
  */
 
 public class ShowSaveForecastDialog extends AbstractHandler {
+    private WESaveDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -60,13 +62,17 @@ public class ShowSaveForecastDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        WESaveDialog dialog = new WESaveDialog(shell, dm);
+            WESaveDialog dialog = new WESaveDialog(shell, dm);
 
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

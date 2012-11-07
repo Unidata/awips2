@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
  * 6/19/2008    937        grichard    Implemented 'replace all'.
+ * 10/11/2012   1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -119,7 +120,8 @@ public class FindReplaceDlg extends CaveSWTDialog {
      *            Text editor containing the text to be searched.
      */
     public FindReplaceDlg(Shell parent, StyledText textEditor) {
-        super(parent, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.NONE, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Find and Replace");
 
         this.textEditor = textEditor;

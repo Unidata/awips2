@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -47,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -72,7 +71,7 @@ public class SampleSetDialog extends CaveJFACEDialog {
 
     private Composite top;
 
-    private ArrayList<SampleId> samples;
+    private java.util.List<SampleId> samples;
 
     private List sampleSetList;
 
@@ -82,13 +81,14 @@ public class SampleSetDialog extends CaveJFACEDialog {
 
     private int[] selectedSamples;
 
-    private int returnCode = OK;
+    private int returnCode = CANCEL;
 
-    private int type = 1;
+    private int type;
 
-    public SampleSetDialog(Shell parent, ArrayList<SampleId> samples, int type) {
+    public SampleSetDialog(Shell parent, java.util.List<SampleId> samples,
+            int type) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.samples = samples;
         this.type = type;
     }
@@ -221,4 +221,7 @@ public class SampleSetDialog extends CaveJFACEDialog {
         this.sampleName = sampleName;
     }
 
+    public java.util.List<SampleId> getSamples() {
+        return samples;
+    }
 }

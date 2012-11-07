@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * AWIPS2 DR Work
  * 08/15/2012         1053 jkorman     Added capability to save/restore user
  * print settings.
+ * 10/12/2012         1229 rferrel    Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -107,10 +108,11 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 
 public class PrintDialog extends CaveSWTDialog {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(PrintDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PrintDialog.class);
 
-    private static final String SETTINGS_FILENAME = "printSettings";
-    
+    private final String SETTINGS_FILENAME = "printSettings";
+
     private ArrayList<PrinterData> printerDataStore = null;
 
     private PrinterData printToFileData = null;
@@ -130,13 +132,12 @@ public class PrintDialog extends CaveSWTDialog {
     private Button colorRadioButton = null;
 
     private Button grayscaleRadioButton = null;
-    
+
     /* Orientation */
     private Button landscapeRadioButton = null;
 
     private Button portraitRadioButton = null;
 
-    
     /* Remaining Settings */
     private Spinner scaleSpinner = null;
 
@@ -189,7 +190,7 @@ public class PrintDialog extends CaveSWTDialog {
     }
 
     public PrintDialog(Shell shell) {
-        super(shell, SWT.DIALOG_TRIM);
+        super(shell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         this.setText("Print");
     }
 
@@ -315,7 +316,7 @@ public class PrintDialog extends CaveSWTDialog {
         button.setText("Color");
         button.setSelection(true);
         colorRadioButton = button;
-        
+
         button = new Button(group, SWT.RADIO);
         button.setText("Grayscale");
         this.grayscaleRadioButton = button;
@@ -329,7 +330,7 @@ public class PrintDialog extends CaveSWTDialog {
         button.setText("Portrait");
         button.setSelection(true);
         portraitRadioButton = button;
-        
+
         button = new Button(group, SWT.RADIO);
         button.setText("Landscape");
         this.landscapeRadioButton = button;
@@ -502,20 +503,20 @@ public class PrintDialog extends CaveSWTDialog {
     }
 
     private void selectDestinationFile(String fileName) {
-        
+
         FileDialog fileDialog = new FileDialog(this.shell, SWT.SAVE);
-        
-        if(fileName != null) {
+
+        if (fileName != null) {
             int n = fileName.lastIndexOf(File.separator);
             String path = null;
-            if(n > 0) {
-                path = fileName.substring(0,n);
-                fileName = fileName.substring(n+1);
+            if (n > 0) {
+                path = fileName.substring(0, n);
+                fileName = fileName.substring(n + 1);
             }
             fileDialog.setFileName(fileName);
             fileDialog.setFilterPath(path);
         }
-        
+
         fileDialog.open();
 
         String filterPath = fileDialog.getFilterPath();
@@ -710,8 +711,8 @@ public class PrintDialog extends CaveSWTDialog {
         }
 
         if (printerSettings.invert) {
-            // Only invert gray pixels, not colored pixels, awt doesn't not have a
-            // good filter for this.
+            // Only invert gray pixels, not colored pixels, awt doesn't not have
+            // a good filter for this.
             for (int x = 0; x < bi.getWidth(); x += 1) {
                 for (int y = 0; y < bi.getHeight(); y += 1) {
                     Color color = new Color(bi.getRGB(x, y));
@@ -721,7 +722,7 @@ public class PrintDialog extends CaveSWTDialog {
                                 255 - color.getGreen(), 255 - color.getBlue());
                         bi.setRGB(x, y, color.getRGB());
                     }
-                    
+
                 }
             }
         }
@@ -887,15 +888,16 @@ public class PrintDialog extends CaveSWTDialog {
 
         settings.setInvertBlackWhite(invertCheckbox.getSelection());
         settings.setPrintGrayScale(grayscaleRadioButton.getSelection());
-        settings.setOrientation(PRINT_ORIENTATION.getPrintOrientation(landscapeRadioButton.getSelection()));
+        settings.setOrientation(PRINT_ORIENTATION
+                .getPrintOrientation(landscapeRadioButton.getSelection()));
 
         settings.setCopies(copiesSpinner.getSelection());
         settings.setScale(scaleSpinner.getSelection());
-        
+
         settings.setDensity(densityCombo.getSelectionIndex());
         settings.setMag(magnificationCombo.getSelectionIndex());
-        
-        if(printerRadioButton.getSelection()) {
+
+        if (printerRadioButton.getSelection()) {
             int idx = selectedPrinterCombo.getSelectionIndex();
             settings.setPrinterUsed(selectedPrinterCombo.getItem(idx));
             settings.setUsePrinterFile(false);
@@ -905,9 +907,10 @@ public class PrintDialog extends CaveSWTDialog {
         }
 
         LocalizationContext ctx = initUserLocalization();
-        
+
         // Get a list of localization files!
-        LocalizationFile f = PathManagerFactory.getPathManager().getLocalizationFile(ctx, SETTINGS_FILENAME);        
+        LocalizationFile f = PathManagerFactory.getPathManager()
+                .getLocalizationFile(ctx, SETTINGS_FILENAME);
         OutputStream strm = null;
         try {
             strm = f.openOutputStream();
@@ -917,11 +920,12 @@ public class PrintDialog extends CaveSWTDialog {
         } catch (Exception e) {
             statusHandler.error("Could not save user print settings", e);
         } finally {
-            if(f != null) {
+            if (f != null) {
                 try {
                     strm.close();
-                } catch(IOException ioe) {
-                    statusHandler.error("Could not close user print settings", ioe);
+                } catch (IOException ioe) {
+                    statusHandler.error("Could not close user print settings",
+                            ioe);
                 }
             }
         }
@@ -933,71 +937,79 @@ public class PrintDialog extends CaveSWTDialog {
     private void readFromConfig() {
 
         LocalizationContext ctx = initUserLocalization();
-        
+
         // Get a list of localization files!
-        LocalizationFile f = PathManagerFactory.getPathManager().getLocalizationFile(ctx, SETTINGS_FILENAME);        
+        LocalizationFile f = PathManagerFactory.getPathManager()
+                .getLocalizationFile(ctx, SETTINGS_FILENAME);
         // If its not there, no previous settings have been saved. Just exit.
-        if(f.exists()) {
+        if (f.exists()) {
             UserPrintSettings settings = null;
             try {
-                
-                settings = (UserPrintSettings) JAXB.unmarshal(f.openInputStream(),UserPrintSettings.class); 
+
+                settings = (UserPrintSettings) JAXB.unmarshal(
+                        f.openInputStream(), UserPrintSettings.class);
 
             } catch (Exception e) {
-                statusHandler.error("Could not read user print settings-using defaults", e);
+                statusHandler.error(
+                        "Could not read user print settings-using defaults", e);
             }
-            if(settings != null) {
+            if (settings != null) {
                 invertCheckbox.setSelection(settings.getInvertBlackWhite());
                 grayscaleRadioButton.setSelection(settings.isPrintGrayScale());
-                colorRadioButton.setSelection(!grayscaleRadioButton.getSelection());
+                colorRadioButton.setSelection(!grayscaleRadioButton
+                        .getSelection());
 
-                landscapeRadioButton.setSelection(settings.getOrientation().isPrintLandscape());
-                portraitRadioButton.setSelection(!landscapeRadioButton.getSelection());
-                
+                landscapeRadioButton.setSelection(settings.getOrientation()
+                        .isPrintLandscape());
+                portraitRadioButton.setSelection(!landscapeRadioButton
+                        .getSelection());
+
                 Integer n = settings.getCopies();
-                if(n != null) {
-                    if(n >= copiesSpinner.getMinimum() && n <= copiesSpinner.getMaximum()) {
+                if (n != null) {
+                    if (n >= copiesSpinner.getMinimum()
+                            && n <= copiesSpinner.getMaximum()) {
                         copiesSpinner.setSelection(n);
                     }
                 }
-                
+
                 n = settings.getScale();
-                if(n != null) {
-                    if(n >= scaleSpinner.getMinimum() && n <= scaleSpinner.getMaximum()) {
+                if (n != null) {
+                    if (n >= scaleSpinner.getMinimum()
+                            && n <= scaleSpinner.getMaximum()) {
                         scaleSpinner.setSelection(settings.getScale());
                     }
                 }
                 n = settings.getDensity();
-                if(n != null) {
-                    if((n >= 0) && (n < densityCombo.getItemCount())) {
+                if (n != null) {
+                    if ((n >= 0) && (n < densityCombo.getItemCount())) {
                         densityCombo.select(n);
                     }
                 }
                 n = settings.getMag();
-                if(n != null) {
-                    if((n >= 0) && (n < magnificationCombo.getItemCount())) {
+                if (n != null) {
+                    if ((n >= 0) && (n < magnificationCombo.getItemCount())) {
                         magnificationCombo.select(n);
                     }
                 }
-                
+
                 String s = settings.getPrinterFile();
-                if(s != null) {
+                if (s != null) {
                     destinationFileText.setText(s);
                     destinationFileText.setToolTipText(s);
                     destinationFileText.setEnabled(true);
                     browseButton.setEnabled(true);
                 }
-                
+
                 s = settings.getPrinterUsed();
-                if(s != null) {
+                if (s != null) {
                     int idx = -1;
-                    for(int i = 0;i < selectedPrinterCombo.getItemCount(); i++) {
-                        if(s.equals(selectedPrinterCombo.getItem(i))) {
+                    for (int i = 0; i < selectedPrinterCombo.getItemCount(); i++) {
+                        if (s.equals(selectedPrinterCombo.getItem(i))) {
                             idx = i;
                             break;
                         }
                     }
-                    if(idx > -1) {
+                    if (idx > -1) {
                         selectedPrinterCombo.select(idx);
                     }
                 }
@@ -1006,9 +1018,7 @@ public class PrintDialog extends CaveSWTDialog {
             }
         }
     }
-    
-    
-    
+
     /**
      * initialize the localization for user with the save/load functions
      * 
