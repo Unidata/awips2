@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.edex.plugin.mesowest;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.apache.commons.logging;bundle-version="1.0.4",
- com.raytheon.uf.common.monitor;bundle-version="1.11.17"
+ com.raytheon.uf.common.monitor;bundle-version="1.11.17",
+ org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor,
  com.raytheon.uf.viz.monitor.data,

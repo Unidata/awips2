@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="gt-postgis-2.6.4.jar" sourcepath="gt-postgis-2.6.4-sources.zip"/>
-	<classpathentry exported="true" kind="lib" path="common-2.2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-beanutils-1.7.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-codec-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-collections-3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-dbcp-1.2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-jxpath-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-lang-2.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="commons-pool-1.5.3.jar"/>
+	<classpathentry kind="lib" path="common-2.2.1.jar"/>
+	<classpathentry kind="lib" path="commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="lib" path="commons-codec-1.2.jar"/>
+	<classpathentry kind="lib" path="commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="commons-jxpath-1.2.jar"/>
+	<classpathentry kind="lib" path="commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="commons-pool-1.5.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="ecore-2.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="geoapi-2.3-M1.jar"/>
 	<classpathentry exported="true" kind="lib" path="geoapi-pending-2.3-M1.jar"/>
@@ -31,12 +31,9 @@
 	<classpathentry exported="true" kind="lib" path="gt-main-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-metadata-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-metadata-2.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-render-2.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="gt-shapefile-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-shapefile-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xml-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-core-2.6.4.jar"/>
@@ -45,13 +42,13 @@
 	<classpathentry exported="true" kind="lib" path="gt-xsd-gml3-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-kml-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-sld-2.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="jts-1.10.jar"/>
-	<classpathentry exported="true" kind="lib" path="picocontainer-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="xercesImpl-2.7.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="xml-apis-1.0.b2.jar"/>
-	<classpathentry exported="true" kind="lib" path="xml-apis-xerces-2.7.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="xsd-2.2.2.jar"/>
+	<classpathentry kind="lib" path="picocontainer-1.2.jar"/>
+	<classpathentry kind="lib" path="xercesImpl-2.7.1.jar"/>
+	<classpathentry kind="lib" path="xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="xml-apis-xerces-2.7.1.jar"/>
+	<classpathentry kind="lib" path="xsd-2.2.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

@@ -29,11 +29,10 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfePrivilegedRequest;
-import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
-import com.raytheon.uf.common.plugin.nwsauth.roles.IRoleStorage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
+import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
