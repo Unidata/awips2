@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.auth;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -29,6 +32,8 @@ import org.eclipse.core.runtime.Platform;
 import com.raytheon.uf.common.auth.resp.UserNotAuthenticated;
 import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
+import com.raytheon.uf.common.auth.user.IPermission;
+import com.raytheon.uf.common.auth.user.IRole;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -45,6 +50,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            mschenke     Initial creation
+ * Nov 06, 2012 1302       djohnson     Add ability to retrieve the {@link IUserManager}.
  * 
  * </pre>
  * 
@@ -53,12 +59,12 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  */
 
 public class UserController {
-    private static transient IUFStatusHandler statusHandler = UFStatus
+    private static IUFStatusHandler statusHandler = UFStatus
             .getHandler(UserController.class, "CAVE");
 
     private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.userManager";
 
-    private static IUserManager manager = null;
+    private static IUserManager manager;
 
     static {
         IExtensionRegistry registry = Platform.getExtensionRegistry();
@@ -124,9 +130,23 @@ public class UserController {
                     };
                 }
 
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                public List<IPermission> getPermissions(String application) {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public List<IRole> getRoles(String application) {
+                    return Collections.emptyList();
+                }
+
             };
         }
     }
+
 
     public static IUser getUserObject() {
         return manager.getUserObject();
@@ -140,4 +160,10 @@ public class UserController {
         return manager.getNotAuthHandler();
     }
 
+    /**
+     * @return the manager
+     */
+    public static IUserManager getManager() {
+        return manager;
+    }
 }
