@@ -4,7 +4,7 @@
 		<property file="${basedir}/edex/common.properties" />
 		<property file="${basedir}/edex/developer.properties" />
 		<condition property="wa.enabled">
-			<not><equals arg1="${wa.root.directory}" arg2="" /></not>
+			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
 		</condition>
 	
 		<!-- Determine where we are. -->
@@ -52,20 +52,26 @@
  					</then>
  				</if>
  				
- 				<!-- add the associated wa directory if it exists. -->
- 				<if><isset property="wa.enabled" />
+ 				<!-- Loop through the WA directories, if they exist. -->
+ 				<if>
+ 					<isset property="wa.enabled" />
  					<then>
-						<var name="wa.base.directory"
-							value="${wa.root.directory}/${variable.name}" /> 						
+ 						<for list="${wa.to.deploy}" param="wa"
+ 						delimiter="${path.separator}">
+ 							<sequential>
+								<var name="wa.base.directory"
+									value="@{wa}/${variable.name}" /> 						
  						
- 						<if>
- 							<available file="${wa.base.directory}" 
- 								type="dir" />	
- 							<then>
- 	 							<var name="basedirectories"
- 	 								value="${wa.base.directory};${basedirectories}" /> 							
- 							</then>
- 						</if>
+ 								<if>
+ 									<available file="${wa.base.directory}" 
+ 										type="dir" />	
+ 									<then>
+ 	 									<var name="basedirectories"
+ 	 										value="${wa.base.directory};${basedirectories}" /> 							
+ 									</then>
+ 								</if>
+ 							</sequential>
+ 						</for>
  					</then>
  				</if>
  			</sequential>
