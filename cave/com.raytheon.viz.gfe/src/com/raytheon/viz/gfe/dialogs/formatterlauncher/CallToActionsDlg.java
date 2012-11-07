@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.gfe.StatusConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -52,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12 JAN 2010  DR3463      RT           Initial creation
+ * 07 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -60,9 +60,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  */
 public class CallToActionsDlg extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(CallToActionsDlg.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CallToActionsDlg.class);
 
-    private static String psplitRE = "\n\\s*?(?:\n\\s*?)+";
+    private final String psplitRE = "\n\\s*?(?:\n\\s*?)+";
 
     /**
      * Composite containing the Product Editor controls.
@@ -86,7 +87,7 @@ public class CallToActionsDlg extends CaveJFACEDialog {
             String[] CtaText, ProductEditorComp productEditorComp) {
         super(parent);
 
-        this.setShellStyle(SWT.RESIZE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
         this.callToActionType = callToActionType;
         this.txt = CtaText;
         this.productEditorComp = productEditorComp;
