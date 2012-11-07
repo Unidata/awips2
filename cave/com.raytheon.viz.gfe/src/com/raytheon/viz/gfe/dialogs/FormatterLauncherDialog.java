@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Sep 16, 2010 6831       ryu         Show same product for different areas on a sub-menu
  * Nov 22, 2011 8781       mli		   remove Processor menu
  * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
+ * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
  * 
  * </pre>
  * 
@@ -98,27 +99,22 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 public class FormatterLauncherDialog extends CaveJFACEDialog implements
         IProductTab {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FormatterLauncherDialog.class);
 
-    private static final String BASELINE = "Baseline";
+    private final String BASELINE = "Baseline";
 
-    private static final String CIVIL_EMERGENCY = "CivilEmergency";
+    private final String CIVIL_EMERGENCY = "CivilEmergency";
 
-    private static final String HAZARD = "Hazard";
+    private final String HAZARD = "Hazard";
 
-    private static final String BASELINE_HAZARD = BASELINE + HAZARD;
+    private final String BASELINE_HAZARD = BASELINE + HAZARD;
 
-    private static final String REGION = "Region";
+    private final String REGION = "Region";
 
-    private static final String OTHERS = "";
+    private final String OTHERS = "";
 
-    private static final String PRODUCT_EDITOR = "Product Editor";
-
-    /**
-     * Return object when the shell is disposed.
-     */
-    private Boolean returnObj = null;
+    private final String PRODUCT_EDITOR = "Product Editor";
 
     /**
      * Tab folder containing the product tabs.
@@ -207,6 +203,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
     private String selectedDataSource = null;
 
+    private boolean doClose = false;
+
     /**
      * Constructor.
      * 
@@ -273,7 +271,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
         createProductsMenu(menuBar);
         createDataSourceMenu(menuBar);
-//        createProcessorMenu(menuBar);
         createIssuedByMenu(menuBar);
         createHelpMenu(menuBar);
 
@@ -380,66 +377,11 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                 public void widgetSelected(SelectionEvent event) {
                 }
             });
-            //
-            // // Set selected data source to official database name
-            // try {
-            // ServerResponse<java.util.List<DatabaseID>> sr = DataManager
-            // .getCurrentInstance().getClient().getOfficialDBName();
-            // selectedDataSource = sr.getPayload().get(0).toString();
-            // } catch (GFEServerException e) {
-            // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-            // StatusConstants.CATEGORY_GFE,
-            // StatusConstants.SUBCATEGORY_TEXTFORMATTER,
-            // "Unable to determine official db", e);
-            // }
         } else {
             selectedDataSource = DataManager.getCurrentInstance()
                     .getParmManager().getMutableDatabase().toString();
         }
     }
-
-    /**
-     * Create the Processor menu.
-     * 
-     * @param menuBar
-     *            Menu bar.
-     */
-    /*
-    private void createProcessorMenu(Menu menuBar) {
-        // -------------------------------------
-        // Create the Processor menu
-        // -------------------------------------
-        MenuItem processorMenuItem = new MenuItem(menuBar, SWT.CASCADE);
-        processorMenuItem.setText("&Processor");
-
-        // Create the Processor menu item with a Products "dropdown" menu
-        Menu processorMenu = new Menu(menuBar);
-        processorMenuItem.setMenu(processorMenu);
-
-        // ------------------------------------------------------
-        // Create all the items in the Processor dropdown menu
-        // ------------------------------------------------------
-
-        // Server menu item
-        MenuItem serverMI = new MenuItem(processorMenu, SWT.RADIO);
-        serverMI.setText("Server");
-        serverMI.setSelection(true);
-        serverMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-            }
-        });
-
-        // Local menu item
-        MenuItem localMI = new MenuItem(processorMenu, SWT.RADIO);
-        localMI.setText("Local");
-        localMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-            }
-        });
-    }
-    */
 
     /**
      * Create the Issued By menu.
@@ -932,9 +874,13 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         return null;
     }
 
-    public void createHideButton() {
+    /**
+     * Have the Hide button act like an OK button so it will call the close
+     * method when selected.
+     */
+    private void createHideButton() {
         Composite bar = (Composite) super.createButtonBar(top);
-        createButton(bar, IDialogConstants.CLIENT_ID, "Hide", false);
+        createButton(bar, IDialogConstants.OK_ID, "Hide", false);
     }
 
     /**
@@ -976,31 +922,34 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     }
 
     private void showViewMessagesDialog() {
-        viewMessageDialog = new ViewMessagesDialog(getParentShell());
-
-        viewMessageDialog.open();
+        if (viewMessageDialog == null || viewMessageDialog.getShell() == null
+                || viewMessageDialog.isDisposed()) {
+            viewMessageDialog = new ViewMessagesDialog(getParentShell());
+            viewMessageDialog.setBlockOnOpen(false);
+            viewMessageDialog.open();
+        } else {
+            viewMessageDialog.setMessageItems();
+            viewMessageDialog.bringToTop();
+        }
     }
 
-    public void dispose() {
+    private void dispose() {
         textProductMgr.dispose();
     }
 
-    class ViewMessagesDialog extends org.eclipse.swt.widgets.Dialog {
+    class ViewMessagesDialog extends CaveJFACEDialog {
 
         private List messageList;
 
-        private Shell shell;
-
-        private Display display;
-
         public ViewMessagesDialog(Shell parentShell) {
             super(parentShell);
+            setShellStyle(SWT.DIALOG_TRIM);
+        }
 
-            display = getParent().getDisplay();
-            shell = new Shell(getParent(), SWT.DIALOG_TRIM);
-
+        @Override
+        protected void configureShell(Shell shell) {
+            super.configureShell(shell);
             shell.setText("View Messages");
-
             // Create the main layout for the shell.
             GridLayout mainLayout = new GridLayout(1, false);
             mainLayout.marginHeight = 2;
@@ -1016,31 +965,15 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
             gd.heightHint = 320;
             gd.widthHint = 475;
             messageList.setLayoutData(gd);
-
+            setMessageItems();
         }
 
-        public void setMessageItems(String[] messageItems) {
-            messageList.removeAll();
-            messageList.setItems(messageItems);
-
-        }
-
-        public Object open() {
+        public void setMessageItems() {
             String[] messages = new String[statusMessages.size()];
             statusMessages.toArray(messages);
+
             messageList.removeAll();
             messageList.setItems(messages);
-
-            shell.pack();
-
-            shell.open();
-            while (!shell.isDisposed()) {
-                if (!display.readAndDispatch()) {
-                    display.sleep();
-                }
-            }
-
-            return returnObj;
         }
     }
 
@@ -1093,18 +1026,42 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         return source;
     }
 
-    @Override
-    public boolean close() {
-        // make clicking the x in the upper right corner just hide the dialog
-        // instead of closing it
-        getShell().setVisible(false);
-        return false;
+    /**
+     * Perform a real close of the dialog instead of just hiding it.
+     * 
+     * @return
+     */
+    public boolean closeDialog() {
+        doClose = true;
+        return close();
     }
 
+    /**
+     * This hides the fromat launcher dialog and any dialogs it creates.
+     */
+    public void hideDialog() {
+        if (viewMessageDialog != null) {
+            viewMessageDialog.hide();
+        }
+        hide();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#close()
+     */
     @Override
-    protected void finalize() throws Throwable {
-        dispose();
-        super.finalize();
+    public boolean close() {
+        if (doClose) {
+            dispose();
+            return super.close();
+        }
+
+        // make clicking the x in the upper right corner just hide the dialog
+        // instead of closing it
+        hideDialog();
+        return false;
     }
 
     public void closeFormatters() {

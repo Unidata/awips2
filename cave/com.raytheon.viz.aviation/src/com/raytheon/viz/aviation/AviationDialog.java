@@ -63,6 +63,7 @@ import com.raytheon.viz.avnconfig.AvnConfigFileUtil;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Aviation Dialog class that displays the start up menu for AvnFPS.
@@ -92,6 +93,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      for both stand alone and from Cave.
  * 8/31/2011    10837       rferrel     Added checks to see if the avnImage
  *                                      file exists.
+ * 10/02/2012   1229        rferrel     Made dialog non-blocking.
+ * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
  * 
  * </pre>
  * 
@@ -161,7 +164,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     public static boolean USERTRANSMIT = true;
 
     /**
-     * List control containing forcaster names.
+     * List control containing forecaster names.
      */
     private List forecasterList;
 
@@ -171,14 +174,13 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private final AtomicInteger dlgCount = new AtomicInteger(0);
 
     /**
-     * Constructor.
+     * Create a non-blocking dialog.
      * 
      * @param parent
-     *            Parent Shell.
      */
     public AviationDialog(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.INDEPENDENT_SHELL);
+                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Menu");
 
         ForecastModel.getInstance().setBackupRestartUtility(this);
@@ -339,7 +341,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                     loadTafSiteConfig();
                     displayTafMonitorDialog();
                 } else {
-                    tafMonitorDlg.showDialog();
+                    tafMonitorDlg.bringToTop();
                 }
             }
         });
@@ -355,8 +357,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.setVisible(false);
-                if (climateMenuDlg == null
-                        || climateMenuDlg.getShell().isDisposed()) {
+                if (climateMenuDlg == null || climateMenuDlg.getShell() == null
+                        || climateMenuDlg.isDisposed()) {
                     // Create an array of message types
                     StatusMessageType[] msgTypes = new StatusMessageType[4];
                     msgTypes[0] = StatusMessageType.Metar;
@@ -367,13 +369,19 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
                     // Create the climate menu dialog.
                     dlgCount.incrementAndGet();
                     climateMenuDlg = new ClimateMenuDlg(shell, msgTypes, null);
+                    climateMenuDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            climateMenuDlg = null;
+                            if (dlgCount.decrementAndGet() == 0) {
+                                shell.dispose();
+                            }
+                        }
+                    });
                     climateMenuDlg.open();
-                    climateMenuDlg = null;
-                    if (dlgCount.decrementAndGet() == 0) {
-                        shell.dispose();
-                    }
                 } else {
-                    climateMenuDlg.showDialog();
+                    climateMenuDlg.bringToTop();
                 }
             }
         });
@@ -562,7 +570,12 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     @Override
     public void restartTafMonitor() {
+        // This prevents tafMonitorDlg from closing this shell when closing the
+        // TaMonitorDlg prior to the restart.
+        dlgCount.incrementAndGet();
         if (tafMonitorDlg.closeDisplay() == false) {
+            // adjust the count.
+            dlgCount.decrementAndGet();
             return;
         }
 
@@ -595,7 +608,12 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         }
 
         if (!emptyStationList) {
+            // This prevents tafMonitorDlg from closing this shell when closing
+            // the TaMonitorDlg prior to the restart.
+            dlgCount.incrementAndGet();
             if (tafMonitorDlg.closeDisplay() == false) {
+                // adjust the count.
+                dlgCount.decrementAndGet();
                 return;
             }
 
@@ -629,25 +647,28 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             }
             for (String product : productDisplayList) {
                 statusHandler.handle(Priority.PROBLEM,
-						"Error no stations configured for " + product);
+                        "Error no stations configured for " + product);
             }
         } else {
-            tafMonitorDlg = new TafMonitorDlg(shell, stationList,
-                    productDisplayList);
-            tafMonitorDlg.open();
-            tafMonitorDlg = null;
+            if (tafMonitorDlg == null || tafMonitorDlg.getShell() == null
+                    || tafMonitorDlg.isDisposed()) {
+                tafMonitorDlg = new TafMonitorDlg(shell, stationList,
+                        productDisplayList);
+                tafMonitorDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        tafMonitorDlg = null;
+                        if (dlgCount.decrementAndGet() == 0
+                                && !productDisplayList.isEmpty()) {
+                            shell.dispose();
+                        }
+                    }
+                });
+                tafMonitorDlg.open();
+            } else {
+                tafMonitorDlg.bringToTop();
+            }
         }
-
-        if (dlgCount.decrementAndGet() == 0 && !productDisplayList.isEmpty()) {
-            shell.dispose();
-        }
-    }
-
-    public void setFocus() {
-        shell.setFocus();
-    }
-
-    public void setVisible(boolean visible) {
-        shell.setVisible(visible);
     }
 }

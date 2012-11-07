@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Sep 13, 2007             chammack    Initial Creation.
+ *    Oct 16, 2012 1229        rferrel     Change to use ProcedureDlg.displayDialog.
  * 
  * </pre>
  * 
@@ -57,10 +58,8 @@ public class AddAWIPSProcedure extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Procedure procedure = new Procedure();
-        ProcedureDlg dlg = ProcedureDlg.getOrCreateDialog(null, procedure,
+        ProcedureDlg.displayDialog(null, procedure,
                 HandlerUtil.getActiveShell(event));
-        dlg.open();
-
         return null;
     }
 

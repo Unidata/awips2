@@ -48,8 +48,8 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Apr 27, 2010             mschenke    refactor for common perspective switching
  * Jul 7, 2011      #9897   ryu         close formatters on perspective close/reset
  * Aug 20,2012      #1077   randerso    Added support for bgColor setting
+ * Oct 23, 2012  #1287      rferrel     Changes for non-blocking FormattrLauncherDialog.
  * </pre>
  * 
  * @author randerso
@@ -247,9 +248,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 SmartToolJob.shutdown();
             }
         }).start();
-        if (FormatterlauncherAction.getFormatterLauncher() != null) {
-            FormatterlauncherAction.getFormatterLauncher().closeFormatters();
-        }
+        FormatterlauncherAction.closeDialog();
     }
 
     @Override
@@ -258,10 +257,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         if (IWorkbenchPage.CHANGE_RESET.equals(VizPerspectiveListener
                 .getInstance().getPerspectiveChangeId(
                         GFEPerspective.ID_PERSPECTIVE))) {
-            if (FormatterlauncherAction.getFormatterLauncher() != null) {
-                FormatterlauncherAction.getFormatterLauncher()
-                        .closeFormatters();
-            }
+            FormatterlauncherAction.closeFormatters();
         }
     }
 
