@@ -39,7 +39,7 @@
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="3.9u" id="3.9u">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
+        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_3.9_micron_IR</dataURI>
         <substitute key="element" value="Imager 3.9 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
@@ -51,7 +51,7 @@
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml" 
                 menuText="11u-3.9u" id="11-3.9u">
-        <substitute key="timeMatchMode" value="${blendedTimeMatchMode;ALL_IMAGES}"/>
+        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_3.9_micron_IR</dataURI>
         <substitute key="element" value="satDif11u3_9uIR"/>
         <substitute key="colormap" value="Sat/VIS/CA (Low Light Vis)"/>
     </contribute>

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>radar</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<defaultRule>
 		<period>01-00:00:00</period>
-	</rule>
+	</defaultRule>
 </purgeRuleSet>

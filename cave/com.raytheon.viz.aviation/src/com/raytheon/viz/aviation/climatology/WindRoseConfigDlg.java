@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation 
  * 18 JUN 2008  1119       lvenable    Updated dialog to reflect user changes.
+ * 04 OCT 2012  1229       rferrel     Made non-blocking.
  * 
  * </pre>
  * 
@@ -162,7 +163,8 @@ public class WindRoseConfigDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public WindRoseConfigDlg(Shell parent, WindRoseConfigData windRoseConfigData) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("Config");
 
         this.windRoseConfigData = windRoseConfigData;
