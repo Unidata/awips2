@@ -19,4 +19,7 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  org.springframework;bundle-version="2.5.6",
  com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- org.apache.commons.collections;bundle-version="3.2.0"
+ org.apache.commons.collections;bundle-version="3.2.0",
+ org.junit,
+ javax.measure
+Import-Package: javax.measure.unit
