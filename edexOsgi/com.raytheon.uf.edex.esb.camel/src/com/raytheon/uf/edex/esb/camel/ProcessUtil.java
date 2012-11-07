@@ -107,22 +107,22 @@ public class ProcessUtil {
         Long dequeueTime = getHeaderProperty(headers, "dequeueTime");
         DecimalFormat df = FORMAT.get();
         if (dequeueTime != null) {
-            double elapsedMilliseconds = curTime - dequeueTime;
+            long elapsedMilliseconds = curTime - dequeueTime;
             double elapsed = (elapsedMilliseconds) / 1000.0;
             sb.append(" processed in: ");
             sb.append(df.format(elapsed));
             sb.append(" (sec)");
-            processEvent.setProcessingTimeMilliseconds(elapsedMilliseconds);
+            processEvent.setProcessingTime(elapsedMilliseconds);
         }
 
         Long enqueueTime = getHeaderProperty(headers, "enqueueTime");
         if (enqueueTime != null) {
-            double latencyMilliseconds = curTime - enqueueTime;
+            long latencyMilliseconds = curTime - enqueueTime;
             double latency = (latencyMilliseconds) / 1000.0;
             sb.append(" Latency: ");
             sb.append(df.format(latency));
             sb.append(" (sec)");
-            processEvent.setProcessingLatencyMilliseconds(latencyMilliseconds);
+            processEvent.setProcessingLatency(latencyMilliseconds);
         }
 
         EventBus.getInstance().publish(processEvent);
