@@ -140,6 +140,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 31 AUG 2012 15178       mli         Add autoWrite and autoStore capability
  * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition
  * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
+ *                                     Changes for non-blocking FindReplaceDlg.
  * 
  * </pre>
  * 
@@ -151,6 +152,8 @@ public class ProductEditorComp extends Composite implements
         INotificationObserver {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductEditorComp.class);
+
+    private FindReplaceDlg findAndReplaceDlg;
 
     private final String EMPTY = "";
 
@@ -2461,9 +2464,14 @@ public class ProductEditorComp extends Composite implements
      *            dialog.
      */
     private void displayFindReplaceDialog(boolean findAndReplace) {
-        FindReplaceDlg findAndReplaceDlg = new FindReplaceDlg(
-                parent.getShell(), findAndReplace, textComp);
-        findAndReplaceDlg.open();
+        if (findAndReplaceDlg == null || findAndReplaceDlg.getShell() == null
+                || findAndReplaceDlg.isDisposed()) {
+            findAndReplaceDlg = new FindReplaceDlg(parent.getShell(),
+                    findAndReplace, textComp);
+            findAndReplaceDlg.open();
+        } else {
+            findAndReplaceDlg.bringToTop();
+        }
     }
 
     private void CTAHazCB(int callToActionType) {
