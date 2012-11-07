@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.aviation.climatology.MetarDisplayDialog;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This is a component class for launching the Climate's MetarDisplayDialog.
@@ -39,6 +39,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                      MetarDisplayDialog.
  * 
  * </pre>
  * 
@@ -46,7 +48,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class MetarComponent extends AbstractCAVEComponent {
+public class MetarComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -62,6 +64,7 @@ public class MetarComponent extends AbstractCAVEComponent {
         MetarDisplayDialog metarDialog = new MetarDisplayDialog(new Shell(
                 Display.getCurrent()), siteList, StatusMessageType.Metar, null);
         metarDialog.open();
+        blockUntilClosed(metarDialog);
     }
 
     /*

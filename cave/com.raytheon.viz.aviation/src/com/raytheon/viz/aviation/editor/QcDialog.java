@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 1/17/2011    7782        rferrel     Dialog now has open return null or
  *                                      the desired check list; removed the use
  *                                      of sites to be like OB9.2.X.
+ * 10/09/2012   1229        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -89,7 +90,8 @@ public class QcDialog extends CaveSWTDialog {
      *            - parent composite
      */
     public QcDialog(Shell parent, Map<String, String> items) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS QC");
 
         this.items = items;
@@ -217,7 +219,7 @@ public class QcDialog extends CaveSWTDialog {
                     qcItems.put("impact", "0");
                 }
                 setReturnValue(qcItems);
-                shell.dispose();
+                close();
             }
         });
 
@@ -229,7 +231,7 @@ public class QcDialog extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(null);
-                shell.dispose();
+                close();
             }
         });
     }

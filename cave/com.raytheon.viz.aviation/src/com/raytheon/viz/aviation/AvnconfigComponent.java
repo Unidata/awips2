@@ -22,7 +22,7 @@ package com.raytheon.viz.aviation;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This class is a run configuration component to launch the AvnFPS monitor.
@@ -34,14 +34,15 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
- * 
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                      AvnconfigDlg.
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
 
-public class AvnconfigComponent extends AbstractCAVEComponent {
+public class AvnconfigComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -55,6 +56,7 @@ public class AvnconfigComponent extends AbstractCAVEComponent {
         AvnconfigDlg avnfspSetupDlg = new AvnconfigDlg(new Shell(
                 Display.getCurrent()));
         avnfspSetupDlg.open();
+        blockUntilClosed(avnfspSetupDlg);
     }
 
     /*
