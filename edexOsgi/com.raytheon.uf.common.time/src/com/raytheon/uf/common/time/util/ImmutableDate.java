@@ -23,8 +23,6 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import net.jcip.annotations.Immutable;
-
 import com.raytheon.uf.common.serialization.IDeserializationContext;
 import com.raytheon.uf.common.serialization.ISerializationContext;
 import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
@@ -34,7 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 import com.raytheon.uf.common.time.SimulatedTime;
 
 /**
- * An {@link Immutable} version of {@link Date}.
+ * An immutable version of {@link Date}.
  * 
  * <pre>
  * 
@@ -51,7 +49,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * @version 1.0
  */
 @XmlJavaTypeAdapter(value=ImmutableDateAdapter.class) 
-@Immutable 
+// @Immutable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = ImmutableDate.class)
 public final class ImmutableDate extends Date implements
