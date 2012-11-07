@@ -19,6 +19,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jsanchez     Initial creation
+ * Nov 5, 2012  #1305     bgonzale     Added log level Event logging.
  * 
  * </pre>
  * 
@@ -47,6 +48,29 @@ public class LogHandler {
     @Subscribe
     @AllowConcurrentEvents
     public void eventListener(Event event) {
-        logger.info(event.toString());
+        switch (event.getLogLevel()) {
+        case DEBUG:
+            logger.debug(event.toString());
+            break;
+        case INFO:
+            logger.info(event.toString());
+            break;
+        case WARN:
+            logger.warn(event.toString());
+            break;
+        case ERROR:
+            logger.error(event.toString());
+            break;
+        case FATAL:
+            logger.fatal(event.toString());
+            break;
+        case TRACE:
+            logger.trace(event.toString());
+            break;
+        default:
+            // ALL
+            // logger.(event.toString());
+            break;
+        }
     }
 }
