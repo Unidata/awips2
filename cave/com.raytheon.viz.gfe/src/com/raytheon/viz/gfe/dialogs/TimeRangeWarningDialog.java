@@ -40,6 +40,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Dec 1, 2009	1426		ryu		    Initial creation
+ * Nov 7, 2012  1298        rferrel     Part of non-blocking made dialog modal.
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class TimeRangeWarningDialog extends CaveJFACEDialog {
     public TimeRangeWarningDialog(Shell parentShell) {
         super(parentShell);
         this.title = "Time Range Warning";
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
     }
 
     /*
