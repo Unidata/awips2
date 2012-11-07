@@ -28,7 +28,6 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -144,15 +143,6 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     private SelectUserIdDlg userIdDlg;
 
     /**
-     * Create a non-blocking dialog
-     * 
-     * @param parent
-     */
-    public TextWorkstationDlg(Shell parent) {
-        this(parent, CAVE.DO_NOT_BLOCK);
-    }
-
-    /**
      * Create dialog specifying NONE for blocking and DO_NOT_BLOCK for
      * non-blocking dialog.
      * 
@@ -160,10 +150,11 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
      * @param block
      *            - CAVE.DO_NOT_BLOCK or CAVE.NONE
      */
-    public TextWorkstationDlg(Shell parent, int block) {
+    public TextWorkstationDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL | block);
-        Assert.isTrue(block == CAVE.DO_NOT_BLOCK || block == CAVE.NONE);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
+                        | CAVE.DO_NOT_BLOCK);
+
         setText("Text Workstation");
 
         TextDisplayModel.getInstance().setTextAviation(

@@ -37,6 +37,23 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.aviation.AviationDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * This is a dialog changing the values for the AvnFPS resources.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Oct 10, 2012 1229       rferrel     Make dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
 public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
 
     private ScrolledComposite scrolledComp;
@@ -52,7 +69,8 @@ public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
     private ResourceEditorHelpDlg helpDlg;
 
     public ResourceEditorDlg(Shell parent) {
-        super(parent, SWT.SHELL_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.SHELL_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Resource Editor");
     }
 
@@ -144,13 +162,11 @@ public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (helpDlg == null) {
+                if (mustCreate(helpDlg)) {
                     helpDlg = new ResourceEditorHelpDlg(shell);
                     helpDlg.open();
-
-                    helpDlg = null;
                 } else {
-                    helpDlg.showDialog();
+                    helpDlg.bringToTop();
                 }
             }
         });
@@ -197,9 +213,5 @@ public class ResourceEditorDlg extends CaveSWTDialog implements IResize {
         scrolledComp.layout();
         scrolledComp.setMinSize(resourceComp.computeSize(SWT.DEFAULT,
                 SWT.DEFAULT));
-    }
-
-    public void showDialog() {
-        shell.setFocus();
     }
 }

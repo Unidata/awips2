@@ -73,6 +73,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the main Climate Data dialog.
@@ -91,6 +92,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 18, 2011 #8681      rferrel      Corrected checkSite to prevent exception.
  * May 24, 2011 #9075      rferrel      Changed getObsHistoryFromInv() to scan
  *                                      ish-inventory.txt only one time.
+ * Oct 04, 2012 #1229      rferrel      Made non-blocking.
+ * Oct 04, 2012 #1229      rferrel      Changes for non-blocking ClimateHistoryDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking GenScriptsDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking NCDCInvHistDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking CigVisDistributionDlg.
+ * Oct 08, 2012 #1229      rferrel      Changes for non-blocking WindRosePlotDlg.
+ * Oct 09, 2012 #1229      rferrel      Changes for non-blocking MetarDisplayDialog.
+ * Oct 09, 2012 #1229      rferrel      Changes for non-blocking CigVisTrendDlg.
+ * Oct 15, 2012 #1229      rferrel      Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -98,10 +108,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ClimateDataMenuDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ClimateDataMenuDlg.class);
 
-    private static final Pattern SP_PAT = Pattern.compile("\\s+");
+    private final Pattern SP_PAT = Pattern.compile("\\s+");
 
     /**
      * Text font.
@@ -222,6 +233,8 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
 
     private int waitCnt = 0;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -229,7 +242,8 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public ClimateDataMenuDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Climate Data Menu");
     }
 
@@ -247,6 +261,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         darkBlueBgColor.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the data, controls, and layouts
@@ -381,11 +402,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         metarsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (metarDlg == null) {
+                if (metarDlg == null || metarDlg.getShell() == null
+                        || metarDlg.isDisposed()) {
                     metarDlg = new MetarDisplayDialog(shell, siteList,
                             StatusMessageType.Metar, null);
                     metarDlg.open();
-                    metarDlg = null;
+                } else {
+                    metarDlg.bringToTop();
                 }
             }
         });
@@ -396,11 +419,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         windRoseMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (windRose == null || windRose.isDisposed()) {
+                if (windRose == null || windRose.getShell() == null
+                        || windRose.isDisposed()) {
                     windRose = new WindRosePlotDlg(shell, siteList,
                             StatusMessageType.WindRose, null);
                     windRose.open();
-                    windRose = null;
+                } else {
+                    windRose.bringToTop();
                 }
             }
         });
@@ -411,11 +436,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         cigVisDistMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisDist == null) {
+                if (cigVisDist == null || cigVisDist.getShell() == null
+                        || cigVisDist.isDisposed()) {
                     cigVisDist = new CigVisDistributionDlg(shell, siteList,
                             StatusMessageType.CigVis, null);
                     cigVisDist.open();
-                    cigVisDist = null;
+                } else {
+                    cigVisDist.bringToTop();
                 }
             }
         });
@@ -426,11 +453,13 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         cigVisTrendMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisTrend == null) {
+                if (cigVisTrend == null || cigVisTrend.getShell() == null
+                        || cigVisTrend.isDisposed()) {
                     cigVisTrend = new CigVisTrendDlg(shell, siteList,
                             StatusMessageType.CigVisTrend, null);
                     cigVisTrend.open();
-                    cigVisTrend = null;
+                } else {
+                    cigVisTrend.bringToTop();
                 }
             }
         });
@@ -475,11 +504,15 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "CLimate Data Update Dialog Help";
-                String helpText = "This dialog is used to create and append climatology data files.\n\nMenu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow observations history:  Opens a graphical display showing the current\n\t\t\t\t\tinventory of climate data available.\n\tUpdate NCDC \"ish\" files:    Opens a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\tCreate: Generate new climate data files, regardless of whether a file for\n\t\t\tthat site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info list:\n\tList of IDs and years of data available for each selected site\n\nMonitor area:\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:\n\tAfter sites are selected, click this to start the creation\n\t\tor append process\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\tProcess Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate Data:\n\tTemporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created files to its permanent location. \n\tClicking this will also generate new station climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the Monitor area to a file";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "CLimate Data Update Dialog Help";
+
+                    String helpText = "This dialog is used to create and append climatology data files.\n\nMenu Bar\nFile:\n\tQuit:   Close the dialog immediately\n\nCommands:\n\tShow observations history:  Opens a graphical display showing the current\n\t\t\t\t\tinventory of climate data available.\n\tUpdate NCDC \"ish\" files:    Opens a dialog allowing the user to generate\n\t\t\t\t\tautomated scripts for downloading the Integrated\n\t\t\t\t\tSurface Hourly (ISH) Database.\n\nTools:\n\tPulldown menu consist of the AvnFPS Climate Tools that read the HDF5 climate\n\t\tfiles.\n\nOptions:\n\tAppend: Add new data to existing climate data file\n\tCreate: Generate new climate data files, regardless of whether a file for\n\t\t\tthat site already exists\n\nFields:\n\tSITE ID:    Site ID of the site currently selected, or \n\t\t\ta user entered site ID if creating a new data file\n\tMETAR AFOS ID:  The AFOS ID used to retrieve location's METAR product for\n\t\t\tuse in AvnFPS's climate Cig/Vis Trend tool.\n\nIdents:\n\tList of current site IDs.\n\nSite info list:\n\tList of IDs and years of data available for each selected site\n\nMonitor area:\n\tArea where all informative messages are displayed.\n\nButtons:\n\n\tAssess Data:\n\tAfter sites are selected, click this to start the creation\n\t\tor append process\n\n\tGenerate Scripts:\n\tGenerate download scripts to retrieve data files from NCDC\n\n\tProcess Data:\n\tIncorporate NCDC data into HDF5 file(s).\n\n\tValidate Data:\n\tTemporarily move newly changed/created files to a location\n\t\tso that AvnFPS climate tools can examine the new climate\n\t\tfile.\n\n\tCommit:\n\tMove newly changed/created files to its permanent location. \n\tClicking this will also generate new station climate qc \n\t\tfiles (files that end in .nc in the data/climate directory)\n\n\tReject:\n\tReject the newly created files in favor of the original file(s),\n\t\tif available. This action deletes newly created files.\n\n\tSave Log:\n\tSave all output in the Monitor area to a file";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -842,10 +875,12 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
             return;
         }
 
-        if (climateHistoryDlg == null) {
+        if (climateHistoryDlg == null || climateHistoryDlg.getShell() == null
+                || climateHistoryDlg.isDisposed()) {
             climateHistoryDlg = new ClimateHistoryDlg(shell, data);
             climateHistoryDlg.open();
-            climateHistoryDlg = null;
+        } else {
+            climateHistoryDlg.bringToTop();
         }
     }
 
@@ -853,10 +888,12 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      * Display the NCDC inventory/history dialog.
      */
     private void displayNCDCInventoryHistoryDialog() {
-        if (invHistoryDlg == null) {
+        if (invHistoryDlg == null || invHistoryDlg.getShell() == null
+                || invHistoryDlg.isDisposed()) {
             invHistoryDlg = new NCDCInvHistDlg(shell);
             invHistoryDlg.open();
-            invHistoryDlg = null;
+        } else {
+            invHistoryDlg.bringToTop();
         }
     }
 
@@ -864,12 +901,20 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
      * Display the generate scripts dialog.
      */
     private void displayGenerateScriptDialog() {
-        if (generateScriptsDlg == null) {
+        if (generateScriptsDlg == null || generateScriptsDlg.getShell() == null
+                || generateScriptsDlg.isDisposed()) {
             ClimateDataManager.getInstance().assessStationsMap(this);
-            generateScriptsDlg = new GenScriptsDlg(shell);
-            Boolean bool = (Boolean) generateScriptsDlg.open("data");
-            generateScriptsDlg = null;
-            genScriptsBtn.setEnabled(bool);
+            generateScriptsDlg = new GenScriptsDlg(shell, "data");
+            generateScriptsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    genScriptsBtn.setEnabled((Boolean) returnValue);
+                }
+            });
+            generateScriptsDlg.open();
+        } else {
+            generateScriptsDlg.bringToTop();
         }
     }
 
@@ -881,11 +926,11 @@ public class ClimateDataMenuDlg extends CaveSWTDialog {
                 identList.add(siteList.get(i));
             }
         } catch (IOException e) {
-			statusHandler.handle(Priority.PROBLEM, e.getMessage());
+            statusHandler.handle(Priority.PROBLEM, e.getMessage());
         } catch (ConfigurationException e) {
-			statusHandler.handle(Priority.PROBLEM, e.toString());
+            statusHandler.handle(Priority.PROBLEM, e.toString());
         } catch (LocalizationOpFailedException e) {
-			statusHandler.handle(Priority.PROBLEM, e.getMessage());
+            statusHandler.handle(Priority.PROBLEM, e.getMessage());
         }
     }
 

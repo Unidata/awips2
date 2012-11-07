@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.HistoryListDlg;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Sep 13, 2007             chammack    Initial Creation.
+ *    Oct 16, 2012 1229        rferrel     Changes for non-blocking HistoryListDlg.
  * 
  * </pre>
  * 
@@ -45,6 +46,8 @@ import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.HistoryListDlg;
  * @version 1
  */
 public class ShowHistoryList extends AbstractHandler {
+
+    private HistoryListDlg dialog;
 
     /*
      * (non-Javadoc)
@@ -55,9 +58,12 @@ public class ShowHistoryList extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        HistoryListDlg dlg = new HistoryListDlg(
-                HandlerUtil.getActiveShell(event));
-        dlg.open();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            dialog = new HistoryListDlg(HandlerUtil.getActiveShell(event));
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

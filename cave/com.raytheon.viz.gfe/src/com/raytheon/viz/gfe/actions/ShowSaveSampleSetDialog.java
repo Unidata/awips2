@@ -26,7 +26,6 @@ import java.util.Comparator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -34,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action to show save sample set dialog.
@@ -43,6 +43,7 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SampleSetDialog.
  * 
  * </pre>
  * 
@@ -51,54 +52,62 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  */
 
 public class ShowSaveSampleSetDialog extends AbstractHandler {
+    private SampleSetDialog dialog;
+
+    private ISampleSetManager sampleMgr;
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+            sampleMgr = DataManager.getCurrentInstance().getSampleSetManager();
 
-        ISampleSetManager sampleMgr = DataManager.getCurrentInstance()
-                .getSampleSetManager();
+            ArrayList<SampleId> sampleIdList = sampleMgr.getInventoryAsList();
+            Collections.sort(sampleIdList, new Comparator<SampleId>() {
 
-        ArrayList<SampleId> sampleIdList = sampleMgr.getInventoryAsList();
-        Collections.sort(sampleIdList, new Comparator<SampleId>() {
+                @Override
+                public int compare(SampleId o1, SampleId o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
 
-            @Override
-            public int compare(SampleId o1, SampleId o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
+            });
 
-        });
+            dialog = new SampleSetDialog(shell, sampleIdList,
+                    SampleSetDialog.SAVE);
 
-        SampleSetDialog dialog = new SampleSetDialog(shell, sampleIdList,
-                SampleSetDialog.SAVE);
+            dialog.setBlockOnOpen(false);
+            dialog.setCloseCallback(new ICloseCallback() {
 
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-
-        if (dialog.getReturnCode() != Window.CANCEL
-                && dialog.getSelectedSampleIdIndexes() != null) {
-
-            if (dialog.getReturnCode() == SampleSetDialog.OK) {
-                if (dialog.getType() == SampleSetDialog.LOAD) {
-                } else if (dialog.getType() == SampleSetDialog.SAVE) {
-                    if (dialog.getSampleName() != null) {
-                        sampleMgr.saveActiveSampleSet(new SampleId(dialog
-                                .getSampleName()));
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int returnCode = (Integer) returnValue;
+                        doDialogClose(returnCode);
                     }
+                    dialog = null;
                 }
-                if (dialog.getType() == SampleSetDialog.DELETE) {
-                }
-            } else if (dialog.getReturnCode() == SampleSetDialog.REMOVE) {
-            } else if (dialog.getReturnCode() == SampleSetDialog.REPLACE) {
-            }
+            });
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
         return null;
+    }
+
+    private void doDialogClose(int returnCode) {
+        if ((returnCode == SampleSetDialog.OK)
+                && (dialog.getSelectedSampleIdIndexes() != null)
+                && (dialog.getSampleName() != null)) {
+            sampleMgr.saveActiveSampleSet(new SampleId(dialog.getSampleName()));
+        }
     }
 }

@@ -60,8 +60,8 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.avnconfig.OpenSaveDlg.DialogType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * A simple text Editor dialog allowing the user to modify a localized file.
@@ -75,6 +75,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *  7 DEC 2010  7621       rferrel     Modified constructor to take a
  *                                     LocalizedFile and added preOpen() to
  *                                     open the LocalizedFile.
+ * 11 OCT 2012  1229       rferrel     Changes for non-blocking FindReplaceDlg.
+ * 15 OCT 2012  1229       rferrel     Made dialog non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -141,6 +144,12 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
 
     private String template;
 
+    private FindReplaceDlg findDlg;
+
+    private OpenDlg openDlg;
+
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -160,7 +169,8 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
      *            When not null a localized file to load into the editor.
      */
     public TextEditorSetupDlg(Shell parent, LocalizationFile lFile) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Text Editor");
 
         this.template = null;
@@ -323,8 +333,12 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 // Use the AvnFPS Find/Replace dialog
-                FindReplaceDlg findDlg = new FindReplaceDlg(shell, editorStTxt);
-                findDlg.open();
+                if (mustCreate(findDlg)) {
+                    findDlg = new FindReplaceDlg(shell, editorStTxt);
+                    findDlg.open();
+                } else {
+                    findDlg.bringToTop();
+                }
             }
         });
 
@@ -383,33 +397,36 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "Text Editor Help";
-                String helpText = "This is a generic text editor. Edit any text file via the file\n";
-                helpText += "selection dialog that is invoked by pressing the 'Open' button.\n";
-                helpText += "\n";
-                helpText += "Menu items:\n";
-                helpText += "   File:\n";
-                helpText += "        Print invokes print dialog\n";
-                helpText += "   Edit:\n";
-                helpText += "        provides the usual editing functions (i.e. Cut, Copy, Paste,\n";
-                helpText += "        and Find/Replace). The menu can be also invoked by pressing\n";
-                helpText += "        right mouse button within the text window area.\n";
-                helpText += "\n";
-                helpText += "Buttons:\n";
-                helpText += "   Clear: clears text window.\n";
-                helpText += "   Open:  invokes file selection dialog\n";
-                helpText += "   Save:  saves content of the text window\n";
-                helpText += "   Save as:  invokes file selection dialog\n";
-                helpText += "\n";
-                helpText += "Toggles:\n";
-                helpText += "   Insert: toggles insert/overwrite mode\n";
-                helpText += "   Wrap:   toggles word wrap\n";
-                helpText += "\n";
-                helpText += "The currently loaded (if any) file name is displayed in a label above the\n";
-                helpText += "text window.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Text Editor Help";
+                    String helpText = "This is a generic text editor. Edit any text file via the file\n"
+                            + "selection dialog that is invoked by pressing the 'Open' button.\n"
+                            + "\n"
+                            + "Menu items:\n"
+                            + "   File:\n"
+                            + "        Print invokes print dialog\n"
+                            + "   Edit:\n"
+                            + "        provides the usual editing functions (i.e. Cut, Copy, Paste,\n"
+                            + "        and Find/Replace). The menu can be also invoked by pressing\n"
+                            + "        right mouse button within the text window area.\n"
+                            + "\n"
+                            + "Buttons:\n"
+                            + "   Clear: clears text window.\n"
+                            + "   Open:  invokes file selection dialog\n"
+                            + "   Save:  saves content of the text window\n"
+                            + "   Save as:  invokes file selection dialog\n"
+                            + "\n"
+                            + "Toggles:\n"
+                            + "   Insert: toggles insert/overwrite mode\n"
+                            + "   Wrap:   toggles word wrap\n"
+                            + "\n"
+                            + "The currently loaded (if any) file name is displayed in a label above the\n"
+                            + "text window.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -509,7 +526,6 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         Button saveAsBtn = new Button(buttonComp, SWT.PUSH);
         saveAsBtn.setText("Save As");
         saveAsBtn.setToolTipText("Save file with new name");
-        // saveAsBtn.setEnabled(false);
         saveAsBtn.setLayoutData(gd);
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -799,8 +815,6 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         path = path.substring(1, path.lastIndexOf('/'));
 
         dlg.setFilterPath(path);
-        // dlg.setFilterNames(FILTER_NAMES);
-        // dlg.setFilterExtensions(FILTER_EXTS);
         String fn = dlg.open();
         if (fn != null) {
             try {
@@ -839,9 +853,23 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
      * Show the 'Open' file dialog.
      */
     private void openFile() {
-        OpenSaveDlg dlg = new OpenSaveDlg(shell, DialogType.OPEN);
-        dlg.open();
-        openFile(dlg.getSelectedFile());
+        if (mustCreate(openDlg)) {
+            openDlg = new OpenDlg(shell);
+            openDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    LocalizationFile selectedFile = null;
+                    if (returnValue instanceof LocalizationFile) {
+                        selectedFile = (LocalizationFile) returnValue;
+                    }
+                    openFile(selectedFile);
+                }
+            });
+            openDlg.open();
+        } else {
+            openDlg.bringToTop();
+        }
     }
 
     /**
@@ -880,41 +908,4 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
             }
         }
     }
-
-    // private void openFile() {
-    // FileDialog dlg = new FileDialog(shell, SWT.OPEN);
-    // IPathManager pm = PathManagerFactory.getPathManager();
-    // String path = pm.getFile(
-    // pm.getContext(LocalizationType.CAVE_STATIC,
-    // LocalizationLevel.BASE), "aviation").getAbsolutePath();
-    // dlg.setFilterPath(path);
-    // String fn = dlg.open();
-    // StringBuilder contents = new StringBuilder();
-    //
-    // if (fn != null) {
-    // try {
-    // BufferedReader input = new BufferedReader(new FileReader(
-    // new File(fn)));
-    // String line = null;
-    //
-    // while ((line = input.readLine()) != null) {
-    // contents.append(line);
-    // contents.append(System.getProperty("line.separator"));
-    // }
-    //
-    // editorStTxt.setText(contents.toString());
-    //
-    // input.close();
-    // msgStatusComp.setMessageText("File " + fn
-    // + " opened successfully.", new RGB(0, 255, 0));
-    // } catch (FileNotFoundException e) {
-    // msgStatusComp.setMessageText("File " + fn + " not found.",
-    // new RGB(255, 0, 0));
-    // } catch (IOException e) {
-    // msgStatusComp.setMessageText(
-    // "An error occured while opening file " + fn, new RGB(
-    // 255, 0, 0));
-    // }
-    // }
-    // }
 }

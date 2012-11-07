@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.actions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -35,10 +36,9 @@ import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for launching delete samples dialog.
@@ -49,6 +49,7 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Mar 7, 2008					Eric Babin Initial Creation
  *  22JUL2008   #1275.      Eric Babin  Remove inadvertent dispose on parent shell.
+ * Oct 24, 2012 #1287      rferrel     Changes for non-blocking SampleSetDialog.
  * 
  * </pre>
  * 
@@ -57,7 +58,10 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  */
 
 public class ShowDeleteSampleSetDialog extends AbstractHandler {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ShowDeleteSampleSetDialog.class);
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ShowDeleteSampleSetDialog.class);
+
+    private SampleSetDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -68,44 +72,65 @@ public class ShowDeleteSampleSetDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        ArrayList<SampleId> sampleIdList = DataManager.getCurrentInstance()
-                .getSampleSetManager().getInventoryAsList();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            ArrayList<SampleId> sampleIdList = DataManager.getCurrentInstance()
+                    .getSampleSetManager().getInventoryAsList();
 
-        Collections.sort(sampleIdList, new Comparator<SampleId>() {
+            Collections.sort(sampleIdList, new Comparator<SampleId>() {
 
-            @Override
-            public int compare(SampleId o1, SampleId o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
+                @Override
+                public int compare(SampleId o1, SampleId o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
 
-        });
+            });
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        SampleSetDialog dialog = new SampleSetDialog(shell, sampleIdList,
-                SampleSetDialog.DELETE);
+            dialog = new SampleSetDialog(shell, sampleIdList,
+                    SampleSetDialog.DELETE);
 
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-        if (dialog.getReturnCode() != Window.CANCEL
+            dialog.setBlockOnOpen(false);
+            dialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int returnCode = (Integer) returnValue;
+                        doDialogClose(returnCode);
+                    }
+                    dialog = null;
+                }
+            });
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
+
+        return null;
+    }
+
+    private void doDialogClose(int returnCode) {
+        if (returnCode != Window.CANCEL
                 && dialog.getSelectedSampleIdIndexes() != null) {
+            List<SampleId> sampleIdList = dialog.getSamples();
             SampleId id = sampleIdList
                     .get(dialog.getSelectedSampleIdIndexes()[0]);
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
             if (MessageDialog.openConfirm(shell, "Delete sample set",
                     "Delete selected sample set?")) {
                 if (DataManager.getCurrentInstance().getSampleSetManager()
                         .deleteSampleSet(id)) {
                     statusHandler.handle(Priority.EVENTA, id.getName()
-                                    + ", Sample set deleted successfully");
+                            + ", Sample set deleted successfully");
                 } else {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error deleting sample set, " + id.getName());
                 }
             }
         }
-
-        return null;
     }
 }

@@ -35,6 +35,25 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * Display help text for the ResourceEditor dialog within the AvnFPS
+ * TAFMonitor dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ************ ********** *********** No previous software history.
+ * Oct 11, 2012 1229       jkorman     Make dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author 
+ * @version 1.0
+ */
+
 public class ResourceEditorHelpDlg extends CaveSWTDialog {
     /**
      * Main composite for the controls.
@@ -48,9 +67,14 @@ public class ResourceEditorHelpDlg extends CaveSWTDialog {
 
     private Cursor textCursor;
 
+    /**
+     * Construct the ResourceEditor help dialog. 
+     * @param parentShell The shell containing this dialog.
+     */
     public ResourceEditorHelpDlg(Shell parentShell) {
         super(parentShell, SWT.SHELL_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Help");
     }
 
