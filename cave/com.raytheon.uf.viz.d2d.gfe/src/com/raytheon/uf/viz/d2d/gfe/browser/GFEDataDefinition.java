@@ -30,8 +30,6 @@ import java.util.Set;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
@@ -44,7 +42,7 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
 
 /**
  * 
- * TODO Add Description
+ * Request GFE data from the product browser
  * 
  * <pre>
  * 
@@ -114,8 +112,8 @@ public class GFEDataDefinition extends
      */
     @Override
     public List<String> buildProductList(List<String> historyList) {
-        String[] parameters = getParmIds(getProductParameters(new String[0],
-                null));
+        String[] parameters = queryData(GFEUtil.PARM_ID,
+                getProductParameters(new String[0], null));
         List<String> result = new ArrayList<String>();
         for (String orderString : order) {
             if (orderString == order[0]) {
@@ -137,8 +135,8 @@ public class GFEDataDefinition extends
         if (!isEnabled()) {
             return null;
         }
-        String[] parameters = getParmIds(getProductParameters(new String[0],
-                null));
+        String[] parameters = queryData(GFEUtil.PARM_ID,
+                getProductParameters(new String[0], null));
 
         if (parameters != null) {
             if (parameters.length > 0) {
@@ -153,24 +151,9 @@ public class GFEDataDefinition extends
     }
 
     @Override
-    public List<ProductBrowserLabel> populateData(String[] selection) {
-        List<ProductBrowserLabel> parameters = null;
-        boolean product = false;
-        String param = order[selection.length];
-
-        if (selection.length == order.length - 1) {
-            product = true;
-        }
-
-        String[] temp = getParmIds(getProductParameters(selection, null));
-        parameters = formatData(param, temp);
-        if (parameters != null) {
-            for (ProductBrowserLabel label : parameters) {
-                label.setProduct(product);
-                label.setDefinition(this);
-            }
-        }
-        return parameters;
+    protected String[] queryData(String param,
+            HashMap<String, RequestConstraint> queryList) {
+        return super.queryData(GFEUtil.PARM_ID, queryList);
     }
 
     @Override
@@ -203,15 +186,6 @@ public class GFEDataDefinition extends
                 labels);
         Collections.sort(finalLabels);
         return finalLabels;
-    }
-
-    private String[] getParmIds(Map<String, RequestConstraint> queryList) {
-        String param = GFEUtil.PARM_ID;
-        try {
-            return CatalogQuery.performQuery(param, queryList);
-        } catch (VizException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
