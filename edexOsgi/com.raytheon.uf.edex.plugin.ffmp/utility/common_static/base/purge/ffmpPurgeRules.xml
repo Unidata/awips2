@@ -4,12 +4,8 @@ period tag is where you change the time:
 ex. 01-00:00:00 is one day or 24 hours of retention
 ex. 00-12:00:00 is 12 hours
 -->
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>ffmp</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<defaultRule>
 		<period>01-00:00:00</period>
-	</rule>
+	</defaultRule>
 </purgeRuleSet>

@@ -22,7 +22,7 @@ package com.raytheon.viz.aviation;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
 
 /**
  * This class starts AviationDialog as a stand alone component with runtime mode
@@ -35,6 +35,9 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * Oct 08, 2012 1229       rferrel     Make a blocking dialog.
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking
+ *                                      AviationDialog.
  * 
  * </pre>
  * 
@@ -42,7 +45,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class AviationComponent extends AbstractCAVEComponent {
+public class AviationComponent extends AbstractCAVEDialogComponent {
 
     /*
      * (non-Javadoc)
@@ -56,6 +59,7 @@ public class AviationComponent extends AbstractCAVEComponent {
         AviationDialog aviationDlg = new AviationDialog(new Shell(
                 Display.getCurrent()));
         aviationDlg.open();
+        blockUntilClosed(aviationDlg);
     }
 
     /*

@@ -60,6 +60,8 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
  * 14 MAY 2012  14715      rferrel     Use EDEX to perform requests.
+ * 10 OCT 2012  1229       rferrel     Make dialog non-blocking.
+ * 10 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -68,26 +70,6 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 
  */
 public class TransmissionQueueDlg extends CaveSWTDialog {
-    private static String helpText = "This dialog is used to manage transmission and transmission log files.\n\n"
-            + "The top area manages the forecast files written by the forecast editor.\n"
-            + "The 'Files' scrolled list window lists files in one of 'pending', 'sent'\n"
-            + "and 'bad' directories. The time is when the file was written. The file\n"
-            + "name is \n"
-            + "    xxx-CCCCNNNXXX-yymmddHHMM-BBB\n"
-            + "where xxx is the forecaster number. The transmission program \n"
-            + "avnxmitserv uses NNN to determine the transmission window for regular\n"
-            + "forecasts.\n\n"
-            + "The bottom area is used to view transmission log files.  There is one\n"
-            + "file for each day of the week. By default, log files for the current day\n"
-            + "are shown.\n\nButtons:\n"
-            + "   Refresh:    refreshes both the directory list and log file windows.\n"
-            + "   View:       allows to view selected transmission file(s)\n"
-            + "   Remove:     deletes transmission files\n"
-            + "   Retransmit: forces the transmission program to send selected files.\n"
-            + "               If the file is in the 'bad' or 'sent' directory, it is \n"
-            + "               moved back to 'pending'. The transmission time (the last\n"
-            + "               part of the file name) is updated to the current time.\n"
-            + "   Help:       displays this window";
 
     /**
      * Pending radio button.
@@ -149,6 +131,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      */
     private IStatusSettable msgStatComp;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -157,7 +141,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      */
     public TransmissionQueueDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
+                        | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Transmission Queue");
     }
 
@@ -298,10 +283,35 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "Help";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "Help";
+
+                    String helpText = "This dialog is used to manage transmission and transmission log files.\n\n"
+                            + "The top area manages the forecast files written by the forecast editor.\n"
+                            + "The 'Files' scrolled list window lists files in one of 'pending', 'sent'\n"
+                            + "and 'bad' directories. The time is when the file was written. The file\n"
+                            + "name is \n"
+                            + "    xxx-CCCCNNNXXX-yymmddHHMM-BBB\n"
+                            + "where xxx is the forecaster number. The transmission program \n"
+                            + "avnxmitserv uses NNN to determine the transmission window for regular\n"
+                            + "forecasts.\n\n"
+                            + "The bottom area is used to view transmission log files.  There is one\n"
+                            + "file for each day of the week. By default, log files for the current day\n"
+                            + "are shown.\n\nButtons:\n"
+                            + "   Refresh:    refreshes both the directory list and log file windows.\n"
+                            + "   View:       allows to view selected transmission file(s)\n"
+                            + "   Remove:     deletes transmission files\n"
+                            + "   Retransmit: forces the transmission program to send selected files.\n"
+                            + "               If the file is in the 'bad' or 'sent' directory, it is \n"
+                            + "               moved back to 'pending'. The transmission time (the last\n"
+                            + "               part of the file name) is updated to the current time.\n"
+                            + "   Help:       displays this window";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -387,6 +397,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
                 tafInfo = "Viewing multiple forecasts";
             }
 
+            // Allow multiple instances of this dialog.
             TransmissionViewerDlg tvd = new TransmissionViewerDlg(shell,
                     tafText, tafInfo);
             tvd.open();

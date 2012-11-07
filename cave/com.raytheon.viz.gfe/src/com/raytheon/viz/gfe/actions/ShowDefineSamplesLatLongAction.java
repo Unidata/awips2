@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.DefineSamplesViaLatLongDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 15, 2008           Eric Babin  Initial Creation
  *  Apr 9, 2009  1288      rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ *  Oct 24, 2012 1287      rferrel     Changes for non-blocking DefineSamplesViaLatLongDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.DefineSamplesViaLatLongDialog;
  */
 
 public class ShowDefineSamplesLatLongAction extends AbstractHandler {
+    private DefineSamplesViaLatLongDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -54,13 +56,16 @@ public class ShowDefineSamplesLatLongAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        DefineSamplesViaLatLongDialog dialog = new DefineSamplesViaLatLongDialog(
-                shell);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new DefineSamplesViaLatLongDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

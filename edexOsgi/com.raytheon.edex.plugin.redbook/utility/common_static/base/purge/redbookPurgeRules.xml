@@ -1,1648 +1,943 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<key>wmoTTAAii</key>
+	<defaultRule>
 		<versionsToKeep>2</versionsToKeep>
-	</rule>
+	</defaultRule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PAWO82</key>
-		</id>
+		<keyValue>PAWO82</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PAWO83</key>
-		</id>
+		<keyValue>PAWO83</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PAW883</key>
-		</id>
+		<keyValue>PAW883</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PDKI59</key>
-		</id>
+		<keyValue>PDKI59</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEI745</key>
-		</id>
+		<keyValue>PEI745</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIC43</key>
-		</id>
+		<keyValue>PEIC43</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIC61</key>
-		</id>
+		<keyValue>PEIC61</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEID44</key>
-		</id>
+		<keyValue>PEID44</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIE41</key>
-		</id>
+		<keyValue>PEIE41</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIE62</key>
-		</id>
+		<keyValue>PEIE62</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIG63</key>
-		</id>
+		<keyValue>PEIG63</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEII42</key>
-		</id>
+		<keyValue>PEII42</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEII64</key>
-		</id>
+		<keyValue>PEII64</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIO46</key>
-		</id>
+		<keyValue>PEIO46</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEWA31</key>
-		</id>
+		<keyValue>PEWA31</keyValue>
 		<versionsToKeep>14</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEWA32</key>
-		</id>
+		<keyValue>PEWA32</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEWA33</key>
-		</id>
+		<keyValue>PEWA33</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEWA34</key>
-		</id>
+		<keyValue>PEWA34</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGIC42</key>
-		</id>
+		<keyValue>PGIC42</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGIE43</key>
-		</id>
+		<keyValue>PGIE43</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWA31</key>
-		</id>
+		<keyValue>PGWA31</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWA32</key>
-		</id>
+		<keyValue>PGWA32</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWA39</key>
-		</id>
+		<keyValue>PGWA39</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJMB44</key>
-		</id>
+		<keyValue>PJMB44</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJMB45</key>
-		</id>
+		<keyValue>PJMB45</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWE46</key>
-		</id>
+		<keyValue>PGWE46</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWI47</key>
-		</id>
+		<keyValue>PGWI47</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHZO50</key>
-		</id>
+		<keyValue>PHZO50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PLQI51</key>
-		</id>
+		<keyValue>PLQI51</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PNWA68</key>
-		</id>
+		<keyValue>PNWA68</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=POWA31</key>
-		</id>
+		<keyValue>POWA31</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPHK01</key>
-		</id>
+		<keyValue>PPHK01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPHM01</key>
-		</id>
+		<keyValue>PPHM01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPHO01</key>
-		</id>
+		<keyValue>PPHO01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPIC01</key>
-		</id>
+		<keyValue>PPIC01</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPIE01</key>
-		</id>
+		<keyValue>PPIE01</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPIG01</key>
-		</id>
+		<keyValue>PPIG01</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPII01</key>
-		</id>
+		<keyValue>PPII01</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPAA89</key>
-		</id>
+		<keyValue>PPAA89</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPZO50</key>
-		</id>
+		<keyValue>PPZO50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PRWA51</key>
-		</id>
+		<keyValue>PRWA51</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIC94</key>
-		</id>
+		<keyValue>PTIC94</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIE94</key>
-		</id>
+		<keyValue>PTIE94</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIO52</key>
-		</id>
+		<keyValue>PTIO52</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIO53</key>
-		</id>
+		<keyValue>PTIO53</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWA31</key>
-		</id>
+		<keyValue>PTWA31</keyValue>
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWA32</key>
-		</id>
+		<keyValue>PTWA32</keyValue>
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWA94</key>
-		</id>
+		<keyValue>PTWA94</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWO33</key>
-		</id>
+		<keyValue>PTWO33</keyValue>
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWO34</key>
-		</id>
+		<keyValue>PTWO34</keyValue>
 		<versionsToKeep>3</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTWA93</key>
-		</id>
+		<keyValue>PTWA93</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PXVA01</key>
-		</id>
+		<keyValue>PXVA01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PXWA50</key>
-		</id>
+		<keyValue>PXWA50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA20</key>
-		</id>
+		<keyValue>PYMA20</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA25</key>
-		</id>
+		<keyValue>PYMA25</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA30</key>
-		</id>
+		<keyValue>PYMA30</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA50</key>
-		</id>
+		<keyValue>PYMA50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA70</key>
-		</id>
+		<keyValue>PYMA70</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYMA85</key>
-		</id>
+		<keyValue>PYMA85</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWA31</key>
-		</id>
+		<keyValue>PYWA31</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWA32</key>
-		</id>
+		<keyValue>PYWA32</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWK43</key>
-		</id>
+		<keyValue>PYWK43</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWK62</key>
-		</id>
+		<keyValue>PYWK62</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWM44</key>
-		</id>
+		<keyValue>PYWM44</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWO45</key>
-		</id>
+		<keyValue>PYWO45</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PZKY51</key>
-		</id>
+		<keyValue>PZKY51</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIY47</key>
-		</id>
+		<keyValue>PEIY47</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIY51</key>
-		</id>
+		<keyValue>PTIY51</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHBV50</key>
-		</id>
+		<keyValue>PHBV50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIB40</key>
-		</id>
+		<keyValue>PEIB40</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIE40</key>
-		</id>
+		<keyValue>PEIE40</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIF40</key>
-		</id>
+		<keyValue>PEIF40</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYAA98</key>
-		</id>
+		<keyValue>PYAA98</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHZM50</key>
-		</id>
+		<keyValue>PHZM50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHZQ50</key>
-		</id>
+		<keyValue>PHZQ50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPZM50</key>
-		</id>
+		<keyValue>PPZM50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPKK01</key>
-		</id>
+		<keyValue>PPKK01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPKM01</key>
-		</id>
+		<keyValue>PPKM01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPKO01</key>
-		</id>
+		<keyValue>PPKO01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPKQ01</key>
-		</id>
+		<keyValue>PPKQ01</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYBA98</key>
-		</id>
+		<keyValue>PYBA98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPBA89</key>
-		</id>
+		<keyValue>PPBA89</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWIA98</key>
-		</id>
+		<keyValue>PWIA98</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWIE98</key>
-		</id>
+		<keyValue>PWIE98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNT98</key>
-		</id>
+		<keyValue>PTNT98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWIA97</key>
-		</id>
+		<keyValue>PWIA97</keyValue>
 		<versionsToKeep>8</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWIE97</key>
-		</id>
+		<keyValue>PWIE97</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PMNV88</key>
-		</id>
+		<keyValue>PMNV88</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPZQ50</key>
-		</id>
+		<keyValue>PPZQ50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIY50</key>
-		</id>
+		<keyValue>PEIY50</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIY98</key>
-		</id>
+		<keyValue>PTIY98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYIY88</key>
-		</id>
+		<keyValue>PYIY88</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYIA88</key>
-		</id>
+		<keyValue>PYIA88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIK98</key>
-		</id>
+		<keyValue>PEIK98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAS90</key>
-		</id>
+		<keyValue>PTAS90</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAS95</key>
-		</id>
+		<keyValue>PTAS95</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAS00</key>
-		</id>
+		<keyValue>PTAS00</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIY97</key>
-		</id>
+		<keyValue>PEIY97</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIY97</key>
-		</id>
+		<keyValue>PTIY97</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYIY97</key>
-		</id>
+		<keyValue>PYIY97</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIY96</key>
-		</id>
+		<keyValue>PEIY96</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIY96</key>
-		</id>
+		<keyValue>PTIY96</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYIY96</key>
-		</id>
+		<keyValue>PYIY96</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAT90</key>
-		</id>
+		<keyValue>PTAT90</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAT95</key>
-		</id>
+		<keyValue>PTAT95</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTAT00</key>
-		</id>
+		<keyValue>PTAT00</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBF98</key>
-		</id>
+		<keyValue>PEBF98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBG98</key>
-		</id>
+		<keyValue>PEBG98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBH98</key>
-		</id>
+		<keyValue>PEBH98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBI88</key>
-		</id>
+		<keyValue>PEBI88</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBI98</key>
-		</id>
+		<keyValue>PEBI98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBJ88</key>
-		</id>
+		<keyValue>PEBJ88</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBJ98</key>
-		</id>
+		<keyValue>PEBJ98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEBK98</key>
-		</id>
+		<keyValue>PEBK98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYNA98</key>
-		</id>
+		<keyValue>PYNA98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWAA85</key>
-		</id>
+		<keyValue>PWAA85</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWAA20</key>
-		</id>
+		<keyValue>PWAA20</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWAA00</key>
-		</id>
+		<keyValue>PWAA00</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWAA65</key>
-		</id>
+		<keyValue>PWAA65</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWBA88</key>
-		</id>
+		<keyValue>PWBA88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWDA00</key>
-		</id>
+		<keyValue>PWDA00</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWDA65</key>
-		</id>
+		<keyValue>PWDA65</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWEA88</key>
-		</id>
+		<keyValue>PWEA88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWEC88</key>
-		</id>
+		<keyValue>PWEC88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWEE88</key>
-		</id>
+		<keyValue>PWEE88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWEG88</key>
-		</id>
+		<keyValue>PWEG88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYAA89</key>
-		</id>
+		<keyValue>PYAA89</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJAA88</key>
-		</id>
+		<keyValue>PJAA88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJAI88</key>
-		</id>
+		<keyValue>PJAI88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPAE89</key>
-		</id>
+		<keyValue>PPAE89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPAI89</key>
-		</id>
+		<keyValue>PPAI89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPAM89</key>
-		</id>
+		<keyValue>PPAM89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYBA89</key>
-		</id>
+		<keyValue>PYBA89</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJBA88</key>
-		</id>
+		<keyValue>PJBA88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PJBI88</key>
-		</id>
+		<keyValue>PJBI88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPBE89</key>
-		</id>
+		<keyValue>PPBE89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPBI89</key>
-		</id>
+		<keyValue>PPBI89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPBM89</key>
-		</id>
+		<keyValue>PPBM89</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNE88</key>
-		</id>
+		<keyValue>PGNE88</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNE98</key>
-		</id>
+		<keyValue>PGNE98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPTG98</key>
-		</id>
+		<keyValue>PPTG98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PPTR98</key>
-		</id>
+		<keyValue>PPTR98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWQ46</key>
-		</id>
+		<keyValue>PYWQ46</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PYWS98</key>
-		</id>
+		<keyValue>PYWS98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIV98</key>
-		</id>
+		<keyValue>PEIV98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW01</key>
-		</id>
+		<keyValue>PEIW01</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW02</key>
-		</id>
+		<keyValue>PEIW02</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW03</key>
-		</id>
+		<keyValue>PEIW03</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW04</key>
-		</id>
+		<keyValue>PEIW04</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW05</key>
-		</id>
+		<keyValue>PEIW05</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW06</key>
-		</id>
+		<keyValue>PEIW06</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW07</key>
-		</id>
+		<keyValue>PEIW07</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW08</key>
-		</id>
+		<keyValue>PEIW08</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW09</key>
-		</id>
+		<keyValue>PEIW09</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW10</key>
-		</id>
+		<keyValue>PEIW10</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW11</key>
-		</id>
+		<keyValue>PEIW11</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW12</key>
-		</id>
+		<keyValue>PEIW12</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PEIW13</key>
-		</id>
+		<keyValue>PEIW13</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIV98</key>
-		</id>
+		<keyValue>PTIV98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW01</key>
-		</id>
+		<keyValue>PTIW01</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW02</key>
-		</id>
+		<keyValue>PTIW02</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW03</key>
-		</id>
+		<keyValue>PTIW03</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW04</key>
-		</id>
+		<keyValue>PTIW04</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW05</key>
-		</id>
+		<keyValue>PTIW05</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW06</key>
-		</id>
+		<keyValue>PTIW06</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW07</key>
-		</id>
+		<keyValue>PTIW07</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW08</key>
-		</id>
+		<keyValue>PTIW08</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW09</key>
-		</id>
+		<keyValue>PTIW09</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW10</key>
-		</id>
+		<keyValue>PTIW10</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW11</key>
-		</id>
+		<keyValue>PTIW11</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW12</key>
-		</id>
+		<keyValue>PTIW12</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTIW13</key>
-		</id>
+		<keyValue>PTIW13</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PMWE98</key>
-		</id>
+		<keyValue>PMWE98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PMWI98</key>
-		</id>
+		<keyValue>PMWI98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PETT00</key>
-		</id>
+		<keyValue>PETT00</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTTU98</key>
-		</id>
+		<keyValue>PTTU98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHTT50</key>
-		</id>
+		<keyValue>PHTT50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHTT51</key>
-		</id>
+		<keyValue>PHTT51</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENE00</key>
-		</id>
+		<keyValue>PENE00</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PWNE00</key>
-		</id>
+		<keyValue>PWNE00</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNE00</key>
-		</id>
+		<keyValue>PGNE00</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNI00</key>
-		</id>
+		<keyValue>PGNI00</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PHNT50</key>
-		</id>
+		<keyValue>PHNT50</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNK98</key>
-		</id>
+		<keyValue>PTNK98</keyValue>
 		<versionsToKeep>9</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNQ98</key>
-		</id>
+		<keyValue>PTNQ98</keyValue>
 		<versionsToKeep>9</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNR98</key>
-		</id>
+		<keyValue>PTNR98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PZNK00</key>
-		</id>
+		<keyValue>PZNK00</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGWK48</key>
-		</id>
+		<keyValue>PGWK48</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNM98</key>
-		</id>
+		<keyValue>PTNM98</keyValue>
 		<versionsToKeep>9</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNO98</key>
-		</id>
+		<keyValue>PTNO98</keyValue>
 		<versionsToKeep>9</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNS98</key>
-		</id>
+		<keyValue>PTNS98</keyValue>
 		<versionsToKeep>9</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENJ88</key>
-		</id>
+		<keyValue>PENJ88</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNA00</key>
-		</id>
+		<keyValue>PGNA00</keyValue>
 		<versionsToKeep>100</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBB04</key>
-		</id>
+		<keyValue>PSBB04</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBB08</key>
-		</id>
+		<keyValue>PSBB08</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBB12</key>
-		</id>
+		<keyValue>PSBB12</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBB25</key>
-		</id>
+		<keyValue>PSBB25</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBC04</key>
-		</id>
+		<keyValue>PSBC04</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBC08</key>
-		</id>
+		<keyValue>PSBC08</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBC12</key>
-		</id>
+		<keyValue>PSBC12</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBC25</key>
-		</id>
+		<keyValue>PSBC25</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBD04</key>
-		</id>
+		<keyValue>PSBD04</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBD08</key>
-		</id>
+		<keyValue>PSBD08</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBD12</key>
-		</id>
+		<keyValue>PSBD12</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSBD25</key>
-		</id>
+		<keyValue>PSBD25</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PSAO72</key>
-		</id>
+		<keyValue>PSAO72</keyValue>
 		<versionsToKeep>6</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV01</key>
-		</id>
+		<keyValue>PENV01</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV02</key>
-		</id>
+		<keyValue>PENV02</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV03</key>
-		</id>
+		<keyValue>PENV03</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV04</key>
-		</id>
+		<keyValue>PENV04</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV05</key>
-		</id>
+		<keyValue>PENV05</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV06</key>
-		</id>
+		<keyValue>PENV06</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV07</key>
-		</id>
+		<keyValue>PENV07</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV08</key>
-		</id>
+		<keyValue>PENV08</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV09</key>
-		</id>
+		<keyValue>PENV09</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV10</key>
-		</id>
+		<keyValue>PENV10</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV11</key>
-		</id>
+		<keyValue>PENV11</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV12</key>
-		</id>
+		<keyValue>PENV12</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PENV13</key>
-		</id>
+		<keyValue>PENV13</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV01</key>
-		</id>
+		<keyValue>PTNV01</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV02</key>
-		</id>
+		<keyValue>PTNV02</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV03</key>
-		</id>
+		<keyValue>PTNV03</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV04</key>
-		</id>
+		<keyValue>PTNV04</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV05</key>
-		</id>
+		<keyValue>PTNV05</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV06</key>
-		</id>
+		<keyValue>PTNV06</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV07</key>
-		</id>
+		<keyValue>PTNV07</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV08</key>
-		</id>
+		<keyValue>PTNV08</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV09</key>
-		</id>
+		<keyValue>PTNV09</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV10</key>
-		</id>
+		<keyValue>PTNV10</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV11</key>
-		</id>
+		<keyValue>PTNV11</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV12</key>
-		</id>
+		<keyValue>PTNV12</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PTNV13</key>
-		</id>
+		<keyValue>PTNV13</keyValue>
 		<versionsToKeep>1</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNM98</key>
-		</id>
+		<keyValue>PGNM98</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>redbook</pluginName>
-			<key>wmoTTAAii=PGNO98</key>
-		</id>
+		<keyValue>PGNO98</keyValue>
 		<versionsToKeep>2</versionsToKeep>
 	</rule>
 </purgeRuleSet>

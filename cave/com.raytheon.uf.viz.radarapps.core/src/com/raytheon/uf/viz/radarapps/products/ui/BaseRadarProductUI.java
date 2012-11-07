@@ -70,6 +70,8 @@ import com.raytheon.rcm.products.RadarProduct;
 import com.raytheon.rcm.products.RadarProduct.Param;
 import com.raytheon.rcm.products.Usage;
 import com.raytheon.rcm.request.Request;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.radarapps.core.RadarApps;
@@ -95,6 +97,7 @@ import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
  *                                      converted to abstract class making the
  *                                      needed methods abstract.
  * Jul 31, 2012 #875       rferrel     Points now group in menu items.
+ * Oct 04, 2012 #1248      rferrel     Added Point change listener.
  * 
  * </pre>
  * 
@@ -1176,7 +1179,7 @@ public abstract class BaseRadarProductUI {
             });
             geomCombo = c;
         } else {
-            MenuButton mb = new MenuButton(r2);
+            final MenuButton mb = new MenuButton(r2);
             mb.addSelectionListener(new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent e) {
                     MenuItem item = (MenuItem) e.data;
@@ -1186,9 +1189,43 @@ public abstract class BaseRadarProductUI {
             mb.setMinimumSize(SWT.DEFAULT, SWT.DEFAULT);
 
             Menu menu = new Menu(mb);
-            createMenuItems(menu, null);
+            MenuItem firstItem = createMenuItems(menu, null);
             mb.setMenu(menu);
+            mb.setSelectedItem(firstItem);
+
+            final IPointChangedListener pointChangeListener = new IPointChangedListener() {
+
+                @Override
+                public void pointChanged() {
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            String name = mb.getSelectedItem().getText();
+                            Menu menu = new Menu(mb);
+                            MenuItem firstItem = createMenuItems(menu, null);
+                            mb.setMenu(menu);
+                            mb.setSelectedItem(name);
+                            if (mb.getSelectedItem() == null) {
+                                mb.setSelectedItem(firstItem);
+                                onGeomSelected(firstItem.getText());
+                            }
+                        }
+                    });
+                }
+            };
+
+            PointsDataManager.getInstance().addPointsChangedListener(
+                    pointChangeListener);
             geomCombo = mb;
+            mb.addDisposeListener(new DisposeListener() {
+
+                @Override
+                public void widgetDisposed(DisposeEvent e) {
+                    PointsDataManager.getInstance()
+                            .removePointsChangedListener(pointChangeListener);
+                }
+            });
         }
 
         azRanLabel = new Label(r2, SWT.LEFT);
@@ -1220,10 +1257,11 @@ public abstract class BaseRadarProductUI {
         setupRow(r, r2, b);
     }
 
-    private void createMenuItems(Menu menu, IPointNode root) {
+    private MenuItem createMenuItems(Menu menu, IPointNode root) {
         MenuItem item = null;
-        for (IPointNode node : PointsDataManager.getInstance().getChildren(
-                root)) {
+        MenuItem firstItem = null;
+        for (IPointNode node : PointsDataManager.getInstance()
+                .getChildren(root)) {
             if (node.isGroup()) {
                 if (PointsDataManager.getInstance().getChildren(node).size() == 0) {
                     continue;
@@ -1231,13 +1269,20 @@ public abstract class BaseRadarProductUI {
                 Menu childMenu = new Menu(menu);
                 item = new MenuItem(menu, SWT.CASCADE);
                 item.setMenu(childMenu);
-                createMenuItems(childMenu, node);
+                MenuItem it = createMenuItems(childMenu, node);
+                if (firstItem == null) {
+                    firstItem = it;
+                }
             } else {
                 item = new MenuItem(menu, SWT.PUSH);
+                if (firstItem == null) {
+                    firstItem = item;
+                }
             }
             item.setText(node.getName());
             item.setData(node);
         }
+        return firstItem;
     }
 
     protected void onLoadBaselines() {
@@ -2003,7 +2048,14 @@ public abstract class BaseRadarProductUI {
                 }
             } else {
                 MenuButton mb = (MenuButton) geomCombo;
+
+                // Check to see if desired point still exists.
+                MenuItem item = mb.getSelectedItem();
                 mb.setSelectedItem(desiredGeom);
+                if (mb.getSelectedItem() == null) {
+                    mb.setSelectedItem(item);
+                    onGeomSelected(item.getText());
+                }
             }
 
         }

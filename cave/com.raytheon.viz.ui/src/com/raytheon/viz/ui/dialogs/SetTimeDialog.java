@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Dec 03,2007  461        bphillip    Added action functionality
  * May 21, 2008 1122       ebabin      Updated to use new StatusBarDisplay.
  * 09JUL2008    1234        ebabin      Updates for color, and display issues.
+ * Oct 17, 2012 1229       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -108,16 +109,18 @@ public class SetTimeDialog extends CaveSWTDialog {
 
     private static SetTimeDialog instance;
 
-    public static synchronized SetTimeDialog getInstance() {
-        if (instance == null) {
+    /**
+     * This allows only one instance of this dialog to be displayed.
+     */
+    public static synchronized void openDialog() {
+        if (instance == null || instance.getShell() == null
+                || instance.isDisposed()) {
             instance = new SetTimeDialog(VizWorkbenchManager.getInstance()
                     .getCurrentWindow().getShell());
+            instance.open();
+        } else {
+            instance.bringToTop();
         }
-        return instance;
-    }
-
-    public SetTimeDialog(Shell parent) {
-        this(parent, "Set Time");
     }
 
     /**
@@ -128,19 +131,39 @@ public class SetTimeDialog extends CaveSWTDialog {
      * @param title
      *            Window title.
      */
-    public SetTimeDialog(Shell parent, String title) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
-        if (title == null) {
-            title = "Set Time";
-        }
-        setText(title);
+    private SetTimeDialog(Shell parent) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
+        setText("Set Time");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected synchronized void disposed() {
+        instance = null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, true);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createTopRadioButtons();
