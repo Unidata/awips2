@@ -32,6 +32,7 @@ import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -116,8 +117,6 @@ public class LocalizationInitializer {
         VizApp.setJmsServer(resp.getJmsServer());
         VizApp.setPypiesServer(resp.getPypiesServer());
         VizApp.setServerDataDir(resp.getServerDataDir());
-        VizApp.setDataDeliveryServer(resp.getDataDeliveryServer());
-        VizApp.setDataDeliveryLcmServer(resp.getDataDeliveryLcmServer());
-        VizApp.setDataDeliveryQueryServer(resp.getDataDeliveryQueryServer());
+        VizServers.getInstance().setServerLocations(resp.getServerLocations());
     }
 }
