@@ -19,11 +19,14 @@
  **/
 package com.raytheon.uf.edex.stats.xml;
 
+import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -50,6 +53,11 @@ public class Aggregate {
     @DynamicSerializeElement
     private String field;
 
+    @XmlAttribute
+    @XmlJavaTypeAdapter(value = UnitAdapter.class)
+    @DynamicSerializeElement
+    private Unit<?> unit = Unit.ONE;
+
     /** the name of the statistic function */
     @XmlElement(name = "function")
     @DynamicSerializeElement
@@ -61,6 +69,21 @@ public class Aggregate {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    /**
+     * @return the unit
+     */
+    public Unit<?> getUnit() {
+        return unit;
+    }
+
+    /**
+     * @param unit
+     *            the unit to set
+     */
+    public void setUnit(Unit<?> unit) {
+        this.unit = unit;
     }
 
     public Item[] getFunctions() {
