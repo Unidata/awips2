@@ -21,16 +21,16 @@ package com.raytheon.edex.services;
 
 import java.io.File;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
-import com.raytheon.uf.common.plugin.nwsauth.roles.IRoleStorage;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
+import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 
 /**
  * Abstract privileged request handler for localization requests
