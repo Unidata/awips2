@@ -40,6 +40,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 3, 2008				njensen	Initial creation
+ * Nov 7, 2012  1298        rferrel     Part of non-blocking made dialog modal.
  * 
  * </pre>
  * 
@@ -64,7 +65,7 @@ public class EmptyEditAreaWarningDialog extends CaveJFACEDialog {
     public EmptyEditAreaWarningDialog(Shell parentShell) {
         super(parentShell);
         this.title = "Empty Edit Area Warning";
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
     }
 
     /*
