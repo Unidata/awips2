@@ -95,6 +95,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * ------------ ---------- ----------- --------------------------
  * 21 APR 2008  ###        lvenable    Initial creation
  * 07 JUL 2011  9293       rferrel     Hook to allow checking of includeAllZones
+ * 07 Nov 2012  1298       rferrel     Changes for non-blocking ClearZoneGroupsDialog.
  * 
  * </pre>
  * 
@@ -104,8 +105,10 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  */
 public class ZoneCombinerComp extends Composite implements
         ILocalizationFileObserver, IZoneCombiner {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
+
+    private ClearZoneGroupsDialog examClearDlg;
 
     /**
      * Parent composite.
@@ -192,8 +195,8 @@ public class ZoneCombinerComp extends Composite implements
 
     private List<RGB> colorMap = new ArrayList<RGB>();
 
-    private static final String COLOR_MAP_FILE = FileUtil.join("gfe",
-            "combinations", "Combinations_ColorMap");
+    private final String COLOR_MAP_FILE = FileUtil.join("gfe", "combinations",
+            "Combinations_ColorMap");
 
     Matcher matcher;
 
@@ -487,9 +490,15 @@ public class ZoneCombinerComp extends Composite implements
     }
 
     private void openClearDialog() {
-        ClearZoneGroupsDialog examClearDlg = new ClearZoneGroupsDialog(
-                parent.getShell(), zoneSelector, getCombinationsFileName());
-        examClearDlg.open();
+        if (examClearDlg == null || examClearDlg.getShell() == null
+                || examClearDlg.isDisposed()) {
+            examClearDlg = new ClearZoneGroupsDialog(parent.getShell(),
+                    zoneSelector, getCombinationsFileName());
+            examClearDlg.setBlockOnOpen(false);
+            examClearDlg.open();
+        } else {
+            examClearDlg.bringToTop();
+        }
 
     }
 
