@@ -107,18 +107,6 @@ public class GridResourceData extends AbstractRequestableResourceData implements
         setAlertParser(new GribDataCubeAlertMessageParser());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#update(java
-     * .lang.Object)
-     */
-    @Override
-    public void update(Object updateData) {
-        super.update(updateData);
-    }
-
     @Override
     public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {

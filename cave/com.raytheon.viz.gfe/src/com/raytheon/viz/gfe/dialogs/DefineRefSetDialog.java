@@ -90,6 +90,9 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2008		       Eric Babin  Initial Creation
  * Jul 15, 2008            njensen     Hooked into backend/fixes
+ * Oct 24, 2012 1287       rferrel     Code clean up for non-blocking dialog.
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteRefDialog.
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SaveDeleteEditAreaGroupDialog.
  * 
  * </pre>
  * 
@@ -101,18 +104,18 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
         IReferenceSetChangedListener, IReferenceSetIDChangedListener,
         IReferenceSetInvChangedListener, IDisplayedParmListChangedListener,
         IEditAreaGroupInvChangedListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefineRefSetDialog.class);
 
-    private static final int NUM_ITEMS = 13;
+    private final int NUM_ITEMS = 13;
 
-    private static final int CLEAR_QUERY_ID = IDialogConstants.CLIENT_ID + 1;
+    private final int CLEAR_QUERY_ID = IDialogConstants.CLIENT_ID + 1;
 
-    private static final int RECALL_QUERY_ID = IDialogConstants.CLIENT_ID + 2;
+    private final int RECALL_QUERY_ID = IDialogConstants.CLIENT_ID + 2;
 
-    private static final int UNDO_EDIT_AREA_ID = IDialogConstants.CLIENT_ID + 3;
+    private final int UNDO_EDIT_AREA_ID = IDialogConstants.CLIENT_ID + 3;
 
-    private static final int CONVERT_TO_LOCATION_ID = IDialogConstants.CLIENT_ID + 4;
+    private final int CONVERT_TO_LOCATION_ID = IDialogConstants.CLIENT_ID + 4;
 
     private Composite top;
 
@@ -154,10 +157,6 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
             { "3", "" }, { "-", "" }, { "0", "" }, { ".", "" },
             { "BS", "BackSpace" }, { "", "" }, { "SP", "Space" }, };
 
-    // private java.util.List<String> gList;
-
-    // private HashMap<String, java.util.List<String>> editAreaMap;
-
     private IReferenceSetManager refSetMgr;
 
     private IParmManager parmManager;
@@ -166,9 +165,17 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private String[] initialGroups;
 
+    private SaveDeleteRefDialog deleteDlg;
+
+    private SaveDeleteRefDialog saveDlg;
+
+    private SaveDeleteEditAreaGroupDialog deleteGroupDlg;
+
+    private SaveDeleteEditAreaGroupDialog saveGroupDlg;
+
     public DefineRefSetDialog(Shell parent, DataManager dataManager) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
         this.refSetMgr = this.dataManager.getRefManager();
         this.parmManager = this.dataManager.getParmManager();
@@ -1002,34 +1009,53 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
 
     private void saveAreaCB() {
 
-        SaveDeleteRefDialog dialog = new SaveDeleteRefDialog(getShell(),
-                this.refSetMgr, "Save");
-
-        dialog.open();
-
+        if (saveDlg == null || saveDlg.getShell() == null
+                || saveDlg.isDisposed()) {
+            saveDlg = new SaveDeleteRefDialog(getShell(), this.refSetMgr,
+                    "Save");
+            saveDlg.setBlockOnOpen(false);
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
+        }
     }
 
     private void deleteAreaCB() {
 
-        SaveDeleteRefDialog dialog = new SaveDeleteRefDialog(this.getShell(),
-                refSetMgr, "Delete");
-        dialog.open();
-
+        if (deleteDlg == null || deleteDlg.getShell() == null
+                || deleteDlg.isDisposed()) {
+            deleteDlg = new SaveDeleteRefDialog(this.getShell(), refSetMgr,
+                    "Delete");
+            deleteDlg.setBlockOnOpen(false);
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
+        }
     }
 
     private void saveGroupCB() {
-        SaveDeleteEditAreaGroupDialog dialog = new SaveDeleteEditAreaGroupDialog(
-                getShell(), this.refSetMgr, "Save");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+        if (deleteGroupDlg == null || deleteGroupDlg.getShell() == null
+                || deleteGroupDlg.isDisposed()) {
+            deleteGroupDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
+                    this.refSetMgr, "Save");
+            deleteGroupDlg.setBlockOnOpen(false);
+            deleteGroupDlg.open();
+        } else {
+            deleteGroupDlg.bringToTop();
+        }
     }
 
     private void deleteGroupCB() {
 
-        SaveDeleteEditAreaGroupDialog dialog = new SaveDeleteEditAreaGroupDialog(
-                getShell(), this.refSetMgr, "Delete");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+        if (saveGroupDlg == null || saveGroupDlg.getShell() == null
+                || saveGroupDlg.isDisposed()) {
+            saveGroupDlg = new SaveDeleteEditAreaGroupDialog(getShell(),
+                    this.refSetMgr, "Delete");
+            saveGroupDlg.setBlockOnOpen(false);
+            saveGroupDlg.open();
+        } else {
+            saveGroupDlg.bringToTop();
+        }
     }
 
     private void addToQueryField(String s) {

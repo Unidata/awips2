@@ -30,13 +30,14 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.HiddenWeatherElementDialog;
 
 /**
- * TODO Add Description ShowHiddenWeatherElementDialog.java Feb 27, 2008
+ * Action class to dispaly the Hidden Weather Dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Feb 27, 2008					Eric Babin Initial Creation
+ * Oct 25, 2012 1287       rferrel     Changes for non-blocking HiddenWeatherElementDialog.
  * 
  * </pre>
  * 
@@ -45,6 +46,7 @@ import com.raytheon.viz.gfe.dialogs.HiddenWeatherElementDialog;
  */
 
 public class ShowHiddenWeatherElementDialog extends AbstractHandler {
+    private HiddenWeatherElementDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -61,18 +63,24 @@ public class ShowHiddenWeatherElementDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
 
-        if (dataManager.getParmManager().getUndisplayedParms().length > 0) {
-            HiddenWeatherElementDialog dialog = new HiddenWeatherElementDialog(
-                    shell, dataManager);
-            dialog.setBlockOnOpen(true);
-            dialog.open();
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
+            if (dataManager.getParmManager().getUndisplayedParms().length > 0) {
+                dialog = new HiddenWeatherElementDialog(shell, dataManager);
+                dialog.setBlockOnOpen(false);
+                dialog.open();
+
+            } else {
+                dialog = null;
+                MessageDialog.openInformation(null,
+                        "No Hidden Weather Elements",
+                        "No Hidden Weather Elements found.");
+            }
         } else {
-            MessageDialog.openInformation(null, "No Hidden Weather Elements",
-                    "No Hidden Weather Elements found.");
+            dialog.bringToTop();
         }
 
         return null;

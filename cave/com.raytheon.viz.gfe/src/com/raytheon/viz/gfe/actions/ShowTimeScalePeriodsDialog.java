@@ -30,7 +30,7 @@ import com.raytheon.viz.gfe.core.ISelectTimeRangeManager;
 import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
 
 /**
- * TODO Add Description
+ * Action class to display the Time Scale Periods dialog.
  * 
  * <pre>
  * 
@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2009            randerso     Initial creation
+ * Oct 29, 2012 1287       rferrel     Changes for non-blocking TimeScalePeriodsDialog.
  * 
  * </pre>
  * 
@@ -46,6 +47,7 @@ import com.raytheon.viz.gfe.dialogs.TimeScalePeriodsDialog;
  */
 
 public class ShowTimeScalePeriodsDialog extends AbstractHandler {
+    private TimeScalePeriodsDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -61,16 +63,20 @@ public class ShowTimeScalePeriodsDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
 
-        ISelectTimeRangeManager selectTRmgr = dataManager
-                .getSelectTimeRangeManager();
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        TimeScalePeriodsDialog dialog = new TimeScalePeriodsDialog(shell,
-                selectTRmgr);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            ISelectTimeRangeManager selectTRmgr = dataManager
+                    .getSelectTimeRangeManager();
+
+            dialog = new TimeScalePeriodsDialog(shell, selectTRmgr);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

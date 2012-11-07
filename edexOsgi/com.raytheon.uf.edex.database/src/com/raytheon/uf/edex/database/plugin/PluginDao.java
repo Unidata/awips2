@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +69,6 @@ import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
-import com.raytheon.uf.edex.database.purge.PurgeRulePK;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -444,13 +444,20 @@ public abstract class PluginDao extends CoreDao {
     public void purgeAllData() throws PluginException {
         try {
             List<Date> allRefTimes = getRefTimes();
-            Set<Date> roundedRefTimes = new HashSet<Date>();
+            Map<String, List<String>> filesToDelete = new HashMap<String, List<String>>();
             for (Date d : allRefTimes) {
-                this.purgeDataByRefTime(d, "");
-                roundedRefTimes.add(roundDateToHour(d));
+                this.purgeDataByRefTime(d, null, true, false, filesToDelete);
             }
-            for (Date d : roundedRefTimes) {
-                this.purgeHDF5DataByRefTime(d, "");
+            for (String file : filesToDelete.keySet()) {
+                try {
+                    IDataStore ds = DataStoreFactory
+                            .getDataStore(new File(file));
+                    ds.deleteFiles(null);
+                } catch (Exception e) {
+                    PurgeLogger.logError(
+                            "Error occurred purging file: " + file,
+                            this.pluginName, e);
+                }
             }
         } catch (Exception e) {
             throw new PluginException("Error purging all data for "
@@ -466,366 +473,31 @@ public abstract class PluginDao extends CoreDao {
      */
     public void purgeExpiredData() throws PluginException {
         try {
-            PluginDao pluginDao = PluginFactory.getInstance().getPluginDao(
-                    pluginName);
-            List<PurgeRule> ruleList = new ArrayList<PurgeRule>();
-            ruleList.addAll(getPurgeRulesForPlugin(pluginName));
+            PurgeRuleSet ruleSet = getPurgeRulesForPlugin(pluginName);
 
-            /*
-             * This section generates default rules for data not addressed by
-             * the rule set accompanying this plugin. This prevents orphaned
-             * data.
-             */
-            Set<String> keysWithoutRules = new HashSet<String>();
+            if (ruleSet == null) {
+                PurgeLogger.logInfo(
+                        "No valid purge rules found. Skipping purge.",
+                        pluginName);
+                return;
+            }
 
             // Query the database to get all possible product keys for this data
-            // and assume they have no rules associated with them
-            keysWithoutRules.addAll(getDistinctProductKeys());
-            Set<String> keysWithRules = new HashSet<String>();
-            PurgeRule pluginDefaultRule = null;
-
-            // Get the default rule for this plugin if it specifies one.
-            for (PurgeRule rule : ruleList) {
-                if (rule.getId().getKey().equals("default")) {
-                    pluginDefaultRule = rule;
-                    continue;
-                }
-                keysWithRules.add(rule.getId().getKey());
-            }
-
-            // If this plugin does not specify a default rule, the system
-            // default will be used
-            if (pluginDefaultRule == null) {
-                pluginDefaultRule = loadDefaultPurgeRule();
-                if (pluginDefaultRule == null) {
-                    PurgeLogger.logError("Unable to purge plugin", pluginName);
-                }
-            } else {
-                ruleList.remove(pluginDefaultRule);
-            }
-
-            // Remove the keys we have determined to have rules associated with
-            // them
-            keysWithoutRules.removeAll(keysWithRules);
-
-            // If keys remain without rules, we iterate over them and assign the
-            // default rule
-            if (!keysWithoutRules.isEmpty()) {
-                PurgeLogger.logWarn("Data exists with no purge rule.",
-                        pluginName);
-                for (String keyNeedingRule : keysWithoutRules) {
-                    PurgeLogger.logWarn(
-                            "Generated default purge rule for key: "
-                                    + keyNeedingRule, pluginName);
-                    PurgeRule newRule = (PurgeRule) pluginDefaultRule.clone();
-                    newRule.getId().setPluginName(pluginName);
-                    newRule.getId().setKey(keyNeedingRule);
-                    ruleList.add(newRule);
-                }
-            }
-
-            // If no purge rules are specified for this plugin, we assign the
-            // default rule so data for this plugin is still purged
-            if (ruleList.isEmpty()) {
-                PurgeLogger.logWarn("No purge rules specified.  Using default",
-                        pluginName);
-                pluginDefaultRule.getId().setPluginName(pluginName);
-                pluginDefaultRule.getId().setKey("");
-                ruleList.add(pluginDefaultRule);
-            }
-
-            // Map containing the times to retain for each rule
-            Map<PurgeRulePK, Set<Date>> timesToKeep = new HashMap<PurgeRulePK, Set<Date>>();
-
-            // Map containing the times to purge for each rule
-            Map<PurgeRulePK, Set<Date>> timesToPurge = new HashMap<PurgeRulePK, Set<Date>>();
-
-            // Iterate through the rules and determine the times to purge
-            for (PurgeRule rule : ruleList) {
-
-                // If this rule is not valid, we cannot apply it
-                if (!isRuleValid(rule)) {
-                    PurgeLogger.logWarn("Ignoring Invalid Rule: " + rule,
-                            this.pluginName);
-                    continue;
-                }
-
-                // Holds the times kept by this rule
-                List<Date> timesKeptByRule = new ArrayList<Date>();
-
-                Set<Date> roundedTimes = new HashSet<Date>();
-
-                // Holds the times to be purged by this rule
-                List<Date> timesPurgedByRule = new ArrayList<Date>();
-
-                PurgeRulePK rulePK = rule.getId();
-                if (!timesToKeep.containsKey(rulePK)) {
-                    timesToKeep.put(rulePK, new HashSet<Date>());
-                }
-                if (!timesToPurge.containsKey(rulePK)) {
-                    timesToPurge.put(rulePK, new HashSet<Date>());
-                }
-
-                String key = rulePK.getKey();
-
-                /*
-                 * This section applies the purge rule
-                 */
-
-                List<Date> refTimesForKey = pluginDao
-                        .getRefTimesForCriteria(key);
-
-                if (rule.isModTimeToWaitSpecified()) {
-                    Date maxInsertTime = pluginDao.getMaxInsertTime(key);
-                    if (maxInsertTime != null) {
-                        long lastInsertTime = maxInsertTime.getTime();
-                        long currentTime = System.currentTimeMillis();
-                        if ((currentTime - lastInsertTime) < rule
-                                .getModTimeToWaitInMillis()) {
-                            PurgeLogger
-                                    .logInfo(
-                                            "For key, "
-                                                    + key
-                                                    + ", the most recent version is less than "
-                                                    + rule.getModTimeToWaitDescription()
-                                                    + " old. Increasing versions to keep for this key.",
-                                            pluginName);
-                            rule.setVersionsToKeep(rule.getVersionsToKeep() + 1);
-                        }
-                    }
-                }
-
-                // Calculate the period cutoff time if necessary
-                Date periodCutoffTime = new Date();
-                if (rule.isPeriodSpecified()) {
-                    if (rule.isPeriodBasedOnLatestTime()) {
-                        Date maxRefTime = pluginDao.getMaxRefTime(key);
-                        if (maxRefTime == null) {
-                            PurgeLogger.logInfo("No data available to purge",
-                                    pluginName);
-                            continue;
-                        } else {
-                            periodCutoffTime = new Date(maxRefTime.getTime()
-                                    - rule.getPeriodInMillis());
-                        }
-                    } else {
-                        periodCutoffTime = new Date(System.currentTimeMillis()
-                                - rule.getPeriodInMillis());
-                    }
-                }
-
-                // Filter the keepers by the delta time specified
-                if (rule.isDeltaSpecified()) {
-                    for (Date refTime : refTimesForKey) {
-                        Date timeToCompare = rule.getRoundedDate(refTime)[1];
-                        long delta = rule.getDeltaTimeInMillis();
-                        long dateTimeAsLong = timeToCompare.getTime();
-
-                        if (rule.isDeltaTimeMultiple()) {
-                            if (dateTimeAsLong % delta == 0) {
-                                // If the versions to keep is zero we keep it if
-                                // it does not exceed the period specified, if
-                                // any
-                                if (rule.getVersionsToKeep() == 0) {
-                                    if (rule.isPeriodSpecified()
-                                            && refTime.before(periodCutoffTime)) {
-                                        timesPurgedByRule.add(refTime);
-
-                                    } else {
-                                        timesKeptByRule.add(refTime);
-                                    }
-                                }
-
-                                // If the versions to keep is not zero and
-                                // adding this will not exceed the specified
-                                // number of versions to keep and it does not
-                                // exceed the period specified, the time is kept
-                                else if (rule.getVersionsToKeep() > 0) {
-                                    if (rule.isRoundSpecified()) {
-                                        if (roundedTimes.size() < rule
-                                                .getVersionsToKeep()) {
-                                            roundedTimes.add(timeToCompare);
-                                            timesKeptByRule.add(refTime);
-                                        } else {
-                                            timesPurgedByRule.add(refTime);
-                                        }
-                                    } else {
-                                        if (timesKeptByRule.size() < rule
-                                                .getVersionsToKeep()) {
-                                            if (rule.isPeriodSpecified()
-                                                    && refTime
-                                                            .before(periodCutoffTime)) {
-                                                timesPurgedByRule.add(refTime);
-                                            } else {
-                                                timesKeptByRule.add(refTime);
-                                            }
-                                        }
-                                    }
-
-                                }
-                            } else {
-                                timesPurgedByRule.add(refTime);
-                            }
-                        }
-                    }
-                }
-
-                /*
-                 * If a versions to keep is specified, determine the versions to
-                 * keep. If a delta is specified for this rule, then the
-                 * versions have already been calculated based on the delta
-                 * time. This section is used only if a delta time is not used
-                 */
-                else if (!rule.isDeltaSpecified()
-                        && rule.isVersionsToKeepSpecified()) {
-                    Date currentRefTime = null;
-                    for (int i = 0; i < refTimesForKey.size(); i++) {
-                        currentRefTime = refTimesForKey.get(i);
-                        if (i < rule.getVersionsToKeep()) {
-                            if (rule.isPeriodSpecified()
-                                    && currentRefTime.before(periodCutoffTime)) {
-                                timesPurgedByRule.add(currentRefTime);
-                            } else {
-                                timesKeptByRule.add(currentRefTime);
-                            }
-                            timesKeptByRule.add(currentRefTime);
-                        } else {
-                            timesPurgedByRule.add(currentRefTime);
-                        }
-
-                    }
-                }
-
-                /*
-                 * This rule only specifies a time cutoff
-                 */
-                else if (!rule.isDeltaSpecified()
-                        && !rule.isVersionsToKeepSpecified()
-                        && rule.isPeriodSpecified()) {
-                    for (Date currentRefTime : refTimesForKey) {
-                        if (currentRefTime.before(periodCutoffTime)) {
-                            timesPurgedByRule.add(currentRefTime);
-                        } else {
-                            timesKeptByRule.add(currentRefTime);
-                        }
-                    }
-                }
-
-                /*
-                 * This rule has been so poorly written that it does nothing
-                 */
-                else {
-                    PurgeLogger
-                            .logInfo(
-                                    "Purge rule does not specify a delta, period, or versions to keep.",
-                                    pluginName);
-                }
-
-                /*
-                 * If log only is specified, log the results but purge nothing
-                 */
-                if (rule.isLogOnly()) {
-                    PurgeLogger.logInfo("Rule is configured to log only",
-                            pluginName);
-                    PurgeLogger.logInfo(
-                            "These version would be removed by the rule:",
-                            pluginName);
-                    Collections.sort(timesPurgedByRule);
-                    Collections.sort(timesKeptByRule);
-                    for (Date d : timesPurgedByRule) {
-                        PurgeLogger.logInfo(d.toString(), pluginName);
-                    }
-                    PurgeLogger
-                            .logInfo(
-                                    "These versions would have been retained by the rule:",
-                                    pluginName);
-                    for (Date d : timesKeptByRule) {
-                        PurgeLogger.logInfo(d.toString(), pluginName);
-                    }
-
-                } else {
-                    timesToKeep.get(rulePK).addAll(timesKeptByRule);
-                    timesToPurge.get(rulePK).addAll(timesPurgedByRule);
-                }
-
-                // We must remove the keep times from the purge list. This
-                // ensures that if the time passes at least one rule, then it
-                // will be retained
-                timesToPurge.get(rulePK).removeAll(timesToKeep.get(rulePK));
-            }
-
-            // Counter for recording the number of items purged for a given time
-            int itemsDeletedForTime = 0;
-
-            // The total number of items purged
+            List<String> ruleKeys = ruleSet.getKeys();
             int totalItems = 0;
 
-            for (PurgeRulePK purgeKey : timesToPurge.keySet()) {
-                String key = purgeKey.getKey();
-
-                int itemsDeletedForKey = 0;
-                for (Date deleteDate : timesToPurge.get(purgeKey)) {
-
-                    // Delete the data in the database
-                    itemsDeletedForTime = pluginDao.purgeDataByRefTime(
-                            deleteDate, key);
-
-                    totalItems += itemsDeletedForTime;
-                    itemsDeletedForKey += itemsDeletedForTime;
+            if ((ruleKeys != null) && !ruleKeys.isEmpty()) {
+                // Iterate through keys, fully purge each key set
+                String[][] distinctKeys = getDistinctProductKeyValues(ruleSet
+                        .getKeys());
+                for (String[] key : distinctKeys) {
+                    totalItems += purgeExpiredKey(ruleSet, key);
                 }
-                if (itemsDeletedForKey > 0) {
-                    StringBuilder messageBuffer = new StringBuilder();
-                    messageBuffer.append("Purged ").append(itemsDeletedForKey)
-                            .append(" item");
-                    if (itemsDeletedForKey != 1) {
-                        messageBuffer.append("s");
-                    }
-                    if (key.equals("default")) {
-                        messageBuffer.append(" for default key");
-                    } else if (!key.isEmpty()) {
-                        messageBuffer.append(" for key ").append(key);
-                    }
-                    PurgeLogger.logInfo(messageBuffer.toString(), pluginName);
-                }
-                boolean purgeHDF5Data = false;
-                try {
-                    // Determine if this plugin uses HDF5 to store data
-                    purgeHDF5Data = (PluginFactory.getInstance()
-                            .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
-                } catch (Exception e) {
-                    throw new DataAccessLayerException(
-                            "Error instantiating plugin record class!", e);
-                }
-                if (purgeHDF5Data) {
-
-                    /*
-                     * If this plugin stores data in HDF5, we must round the
-                     * times to hour granularity since the files are named to
-                     * the hour. Rounding the time allows us to delete files
-                     * instead of deleting individual records from the HDF5
-                     * file.
-                     */
-                    Set<Date> roundedTimesToPurge = new HashSet<Date>();
-                    Set<Date> roundedTimesToKeep = new HashSet<Date>();
-
-                    for (Date dateToRound : timesToKeep.get(purgeKey)) {
-                        roundedTimesToKeep.add(roundDateToHour(dateToRound));
-                    }
-                    for (Date dateToRound : timesToPurge.get(purgeKey)) {
-                        roundedTimesToPurge.add(roundDateToHour(dateToRound));
-                    }
-
-                    // Make sure not files are erroneously purged
-                    roundedTimesToPurge.removeAll(roundedTimesToKeep);
-
-                    // Delete the HDF5 files that are no longer referenced
-                    for (Date deleteDate : roundedTimesToPurge) {
-                        this.purgeHDF5DataByRefTime(deleteDate,
-                                purgeKey.getKey());
-                    }
-                }
-
+            } else {
+                // no rule keys defined, can only apply default rule
+                totalItems += purgeExpiredKey(ruleSet, null);
             }
+
             StringBuilder messageBuffer = new StringBuilder();
             messageBuffer.append("Purged ").append(totalItems).append(" item");
             if (totalItems != 1) {
@@ -834,35 +506,394 @@ public abstract class PluginDao extends CoreDao {
             messageBuffer.append(" total.");
 
             PurgeLogger.logInfo(messageBuffer.toString(), pluginName);
+        } catch (EdexException e) {
+            throw new PluginException("Error applying purge rule!!", e);
+        }
+    }
 
-            // Debug output to see which times were retained
-            if (PurgeLogger.isDebugEnabled()) {
-                for (PurgeRulePK purgeKey : timesToKeep.keySet()) {
-                    List<Date> keepers = new ArrayList<Date>();
-                    keepers.addAll(timesToKeep.get(purgeKey));
-                    if (!keepers.isEmpty()) {
-                        StringBuilder builder = new StringBuilder();
-                        Collections.sort(keepers);
-                        builder.append("The following times were retained");
-                        if (purgeKey.getKey().isEmpty()) {
-                            builder.append(":");
-                        } else {
-                            builder.append(" for key ")
-                                    .append(purgeKey.getKey()).append(":");
-                        }
+    /**
+     * Takes the purgeKeys, looks up the associated purge rule, and applies it
+     * to the data matched by purgeKeys.
+     * 
+     * @param ruleSet
+     * @param purgeKeys
+     * @return Number of records purged
+     * @throws DataAccessLayerException
+     */
+    protected int purgeExpiredKey(PurgeRuleSet ruleSet, String[] purgeKeys)
+            throws DataAccessLayerException {
+        List<PurgeRule> rules = ruleSet.getRuleForKeys(purgeKeys);
 
-                        for (Date keepDate : keepers) {
-                            builder.append("[").append(keepDate).append("]")
-                                    .append(" ");
-                        }
-                        PurgeLogger.logDebug(builder.toString(), pluginName);
+        if (rules == null) {
+            PurgeLogger.logWarn(
+                    "No rules found for purgeKeys: "
+                            + Arrays.toString(purgeKeys), pluginName);
+            return 0;
+        }
+
+        /*
+         * This section applies the purge rule
+         */
+        Map<String, String> productKeys = null;
+        if (purgeKeys != null) {
+            productKeys = new LinkedHashMap<String, String>(purgeKeys.length);
+            Iterator<String> iter = ruleSet.getKeys().iterator();
+            for (String purgeKey : purgeKeys) {
+                productKeys.put(iter.next(), purgeKey);
+            }
+        }
+
+        List<Date> refTimesForKey = getRefTimesForCriteria(productKeys);
+        String productKeyString = null;
+        if (productKeys != null) {
+            StringBuilder productKeyBuilder = new StringBuilder();
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                productKeyBuilder.append('[').append(pair.getKey()).append('=')
+                        .append(pair.getValue()).append(']');
+            }
+            productKeyString = productKeyBuilder.toString();
+        }
+
+        Set<Date> timesKept = new HashSet<Date>();
+        Set<Date> timesPurged = new HashSet<Date>();
+
+        for (PurgeRule rule : rules) {
+            // Holds the times kept by this rule
+            List<Date> timesKeptByRule = new ArrayList<Date>();
+
+            Set<Date> roundedTimes = new HashSet<Date>();
+
+            // Holds the times to be purged by this rule
+            List<Date> timesPurgedByRule = new ArrayList<Date>();
+
+            if (rule.isModTimeToWaitSpecified()) {
+                Date maxInsertTime = getMaxInsertTime(productKeys);
+                if (maxInsertTime != null) {
+                    long lastInsertTime = maxInsertTime.getTime();
+                    long currentTime = System.currentTimeMillis();
+                    if ((currentTime - lastInsertTime) < rule
+                            .getModTimeToWaitInMillis()) {
+                        PurgeLogger
+                                .logInfo(
+                                        "For procuct key, "
+                                                + productKeyString
+                                                + ", the most recent version is less than "
+                                                + rule.getModTimeToWaitDescription()
+                                                + " old. Increasing versions to keep for this key.",
+                                        pluginName);
+                        rule.setVersionsToKeep(rule.getVersionsToKeep() + 1);
                     }
                 }
             }
 
-        } catch (EdexException e) {
-            throw new PluginException("Error applying purge rule!!", e);
+            // Calculate the period cutoff time if necessary
+            Date periodCutoffTime = new Date();
+            if (rule.isPeriodSpecified()) {
+                if (rule.isPeriodBasedOnLatestTime()) {
+                    Date maxRefTime = getMaxRefTime(productKeys);
+                    if (maxRefTime == null) {
+                        PurgeLogger.logInfo("No data available to purge",
+                                pluginName);
+                        return 0;
+                    } else {
+                        periodCutoffTime = new Date(maxRefTime.getTime()
+                                - rule.getPeriodInMillis());
+                    }
+                } else {
+                    periodCutoffTime = new Date(System.currentTimeMillis()
+                            - rule.getPeriodInMillis());
+                }
+            }
+
+            // Filter the keepers by the delta time specified
+            if (rule.isDeltaSpecified()) {
+                for (Date refTime : refTimesForKey) {
+                    Date timeToCompare = rule.getRoundedDate(refTime)[1];
+                    long delta = rule.getDeltaTimeInMillis();
+                    long dateTimeAsLong = timeToCompare.getTime();
+
+                    if (rule.isDeltaTimeMultiple()) {
+                        if (dateTimeAsLong % delta == 0) {
+                            // If the versions to keep is zero we keep it if
+                            // it does not exceed the period specified, if
+                            // any
+                            if (rule.getVersionsToKeep() == 0) {
+                                if (rule.isPeriodSpecified()
+                                        && refTime.before(periodCutoffTime)) {
+                                    timesPurgedByRule.add(refTime);
+
+                                } else {
+                                    timesKeptByRule.add(refTime);
+                                }
+                            }
+
+                            // If the versions to keep is not zero and
+                            // adding this will not exceed the specified
+                            // number of versions to keep and it does not
+                            // exceed the period specified, the time is kept
+                            else if (rule.getVersionsToKeep() > 0) {
+                                if (rule.isRoundSpecified()) {
+                                    if (roundedTimes.size() < rule
+                                            .getVersionsToKeep()) {
+                                        roundedTimes.add(timeToCompare);
+                                        timesKeptByRule.add(refTime);
+                                    } else {
+                                        timesPurgedByRule.add(refTime);
+                                    }
+                                } else {
+                                    if (timesKeptByRule.size() < rule
+                                            .getVersionsToKeep()) {
+                                        if (rule.isPeriodSpecified()
+                                                && refTime
+                                                        .before(periodCutoffTime)) {
+                                            timesPurgedByRule.add(refTime);
+                                        } else {
+                                            timesKeptByRule.add(refTime);
+                                        }
+                                    }
+                                }
+
+                            }
+                        } else {
+                            timesPurgedByRule.add(refTime);
+                        }
+                    }
+                }
+            }
+
+            /*
+             * If a versions to keep is specified, determine the versions to
+             * keep. If a delta is specified for this rule, then the versions
+             * have already been calculated based on the delta time. This
+             * section is used only if a delta time is not used
+             */
+            else if (!rule.isDeltaSpecified()
+                    && rule.isVersionsToKeepSpecified()) {
+                Date currentRefTime = null;
+                for (int i = 0; i < refTimesForKey.size(); i++) {
+                    currentRefTime = refTimesForKey.get(i);
+                    if (i < rule.getVersionsToKeep()) {
+                        if (rule.isPeriodSpecified()
+                                && currentRefTime.before(periodCutoffTime)) {
+                            timesPurgedByRule.add(currentRefTime);
+                        } else {
+                            timesKeptByRule.add(currentRefTime);
+                        }
+                        timesKeptByRule.add(currentRefTime);
+                    } else {
+                        timesPurgedByRule.add(currentRefTime);
+                    }
+
+                }
+                /*
+                 * This rule only specifies a time cutoff
+                 */
+            } else if (!rule.isDeltaSpecified()
+                    && !rule.isVersionsToKeepSpecified()
+                    && rule.isPeriodSpecified()) {
+                for (Date currentRefTime : refTimesForKey) {
+                    if (currentRefTime.before(periodCutoffTime)) {
+                        timesPurgedByRule.add(currentRefTime);
+                    } else {
+                        timesKeptByRule.add(currentRefTime);
+                    }
+                }
+                /*
+                 * This rule has been so poorly written that it does nothing
+                 */
+            } else {
+                PurgeLogger
+                        .logInfo(
+                                "Purge rule does not specify a delta, period, or versions to keep.",
+                                pluginName);
+            }
+
+            /*
+             * If log only is specified, log the results but purge nothing
+             */
+            if (rule.isLogOnly()) {
+                PurgeLogger.logInfo("Rule is configured to log only",
+                        pluginName);
+                PurgeLogger.logInfo(
+                        "These version would be removed by the rule:",
+                        pluginName);
+                Collections.sort(timesPurgedByRule);
+                Collections.sort(timesKeptByRule);
+                for (Date d : timesPurgedByRule) {
+                    PurgeLogger.logInfo(d.toString(), pluginName);
+                }
+                PurgeLogger.logInfo(
+                        "These versions would have been retained by the rule:",
+                        pluginName);
+                for (Date d : timesKeptByRule) {
+                    PurgeLogger.logInfo(d.toString(), pluginName);
+                }
+            } else {
+                timesKept.addAll(timesKeptByRule);
+                timesPurged.addAll(timesPurgedByRule);
+            }
         }
+
+        // We must remove the keep times from the purge list. This
+        // ensures that if the time passes at least one time constraint,
+        // then it will be retained
+        timesPurged.removeAll(timesKept);
+
+        int itemsDeletedForKey = 0;
+        List<Date> orderedTimesPurged = new ArrayList<Date>(timesPurged);
+        Collections.sort(orderedTimesPurged);
+
+        // flags to control how hdf5 is purged and what needs to be returned
+        // from the database purge to properly purge hdf5. If purging and
+        // trackToUri is false, hdf5PurgeDates is used to determine if the
+        // underlying hdf5 data can be kept. This is optimized based on data
+        // being stored in hourly chunks.
+        // TODO: Update to allow files to not be in hourly granularity
+        boolean purgeHdf5Data = false;
+        boolean trackToUri = false;
+        Set<Date> hdf5PurgeDates = new HashSet<Date>();
+
+        try {
+            // Determine if this plugin uses HDF5 to store data
+            purgeHdf5Data = (PluginFactory.getInstance()
+                    .getPluginRecordClass(pluginName).newInstance() instanceof IPersistable);
+
+            // determine if hdf5 purge can be optimized
+            if (purgeHdf5Data) {
+                // check how the path keys line up to purge keys
+                List<String> pathKeys = pathProvider
+                        .getKeyNames(this.pluginName);
+                boolean pathKeysEmpty = (pathKeys == null)
+                        || pathKeys.isEmpty();
+                boolean productKeysEmpty = (productKeys == null)
+                        || (productKeys.isEmpty());
+
+                // determine if hdf5 purge can be optimized
+                if (!pathKeysEmpty) {
+                    if (productKeysEmpty) {
+                        // Purging on higher magnitude that path, only need to
+                        // track file
+                        trackToUri = false;
+                    } else if (pathKeys.size() < productKeys.size()) {
+                        // there are more purge keys than path keys, cannot
+                        // optimize hdf5 purge
+                        trackToUri = true;
+                    } else {
+                        // need to compare each key to check for optimized
+                        // purge,
+                        // all productKeys must be a pathKey for optimized
+                        // purge,
+                        // both key lists should be small 3 or less, no need to
+                        // optimize list look ups
+                        trackToUri = false;
+                        for (String productKey : productKeys.keySet()) {
+                            boolean keyMatch = false;
+                            for (String pathKey : pathKeys) {
+                                if (pathKey.equals(productKey)) {
+                                    keyMatch = true;
+                                    break;
+                                }
+                            }
+
+                            if (!keyMatch) {
+                                trackToUri = true;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    // if purge is same level as path, optimize
+                    trackToUri = !productKeysEmpty;
+                }
+
+                // we can optimize purge, sort dates by hour to determine files
+                // to drop
+                if (!trackToUri) {
+                    Set<Date> roundedTimesKept = new HashSet<Date>();
+
+                    for (Date dateToRound : timesKept) {
+                        roundedTimesKept.add(roundDateToHour(dateToRound));
+                    }
+                    for (Date dateToRound : timesPurged) {
+                        Date roundedDate = roundDateToHour(dateToRound);
+                        if (!roundedTimesKept.contains(roundedDate)) {
+                            hdf5PurgeDates.add(dateToRound);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            PurgeLogger.logError(
+                    "Unabled to determine if plugin has HDF5 data to purge",
+                    this.pluginName, e);
+        }
+
+        Map<String, List<String>> hdf5FileToUriMap = new HashMap<String, List<String>>();
+        for (Date deleteDate : orderedTimesPurged) {
+            boolean purgeHdf5ForRefTime = purgeHdf5Data;
+            // if we aren't tracking by uri, check hdf5 date map
+            if (purgeHdf5ForRefTime && !trackToUri) {
+                purgeHdf5ForRefTime = hdf5PurgeDates.contains(deleteDate);
+            }
+
+            // Delete the data in the database
+            int itemsDeletedForTime = purgeDataByRefTime(deleteDate,
+                    productKeys, purgeHdf5ForRefTime, trackToUri,
+                    hdf5FileToUriMap);
+
+            itemsDeletedForKey += itemsDeletedForTime;
+        }
+
+        if (purgeHdf5Data) {
+            for (Map.Entry<String, List<String>> hdf5Entry : hdf5FileToUriMap
+                    .entrySet()) {
+                try {
+                    IDataStore ds = DataStoreFactory.getDataStore(new File(
+                            hdf5Entry.getKey()));
+                    List<String> uris = hdf5Entry.getValue();
+                    if (uris == null) {
+                        ds.deleteFiles(null);
+                    } else {
+                        ds.delete(uris.toArray(new String[uris.size()]));
+                    }
+                } catch (Exception e) {
+                    PurgeLogger.logError("Error occurred purging file: "
+                            + hdf5Entry.getKey(), this.pluginName, e);
+                }
+            }
+        }
+
+        if (itemsDeletedForKey > 0) {
+            StringBuilder messageBuffer = new StringBuilder();
+            messageBuffer.append("Purged ").append(itemsDeletedForKey)
+                    .append(" item");
+            if (itemsDeletedForKey != 1) {
+                messageBuffer.append("s");
+            }
+            messageBuffer.append(" for key ").append(productKeyString);
+            PurgeLogger.logInfo(messageBuffer.toString(), pluginName);
+        }
+
+        // Debug output to see which times were retained
+        if (PurgeLogger.isDebugEnabled()) {
+            if (!timesPurged.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                List<Date> orderedTimesKept = new ArrayList<Date>(timesKept);
+                Collections.sort(orderedTimesPurged);
+                Collections.sort(orderedTimesKept);
+                builder.append("The following times were retained");
+                builder.append(" for key ").append(productKeyString)
+                        .append(":");
+
+                for (Date keepDate : orderedTimesKept) {
+                    builder.append("[").append(keepDate).append("]")
+                            .append(" ");
+                }
+                PurgeLogger.logDebug(builder.toString(), pluginName);
+            }
+        }
+
+        return itemsDeletedForKey;
     }
 
     /**
@@ -926,47 +957,55 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
-     * Gets a list of the distinct product keys for this plugin
+     * Gets a list of the distinct product key values for this plugin.
      * 
-     * @return The list of distinct product keys for this plugin
+     * @param the
+     *            keys to look up values for.
+     * @return 2 dimensional array of distinct values for the given keys. First
+     *         dimension is the row of data, second dimension actual values.
      * @throws DataAccessLayerException
      *             If errors occur while querying for the data
      */
     @SuppressWarnings("unchecked")
-    public Set<String> getDistinctProductKeys() throws DataAccessLayerException {
-        Set<String> distinctKeys = new HashSet<String>();
-        List<String> keyFields = this.pathProvider.getKeyNames(pluginName);
-        if (!keyFields.isEmpty()) {
+    public String[][] getDistinctProductKeyValues(List<String> keys)
+            throws DataAccessLayerException {
+        String[][] distinctValues = null;
+        if ((keys != null) && !keys.isEmpty()) {
             DatabaseQuery query = new DatabaseQuery(this.daoClass);
-            for (int i = 0; i < keyFields.size(); i++) {
+            for (int i = 0; i < keys.size(); i++) {
                 if (i == 0) {
-                    query.addDistinctParameter(keyFields.get(i));
+                    query.addDistinctParameter(keys.get(i));
                 } else {
-                    query.addReturnedField(keyFields.get(i));
+                    query.addReturnedField(keys.get(i));
                 }
             }
-            if (keyFields.size() == 1) {
+            if (keys.size() == 1) {
                 List<?> results = this.queryByCriteria(query);
-                for (int i = 0; i < results.size(); i++) {
-                    distinctKeys.add(keyFields.get(0) + "="
-                            + results.get(i).toString());
+                distinctValues = new String[results.size()][];
+                int index = 0;
+                for (Object obj : results) {
+                    distinctValues[index] = new String[1];
+                    distinctValues[index++][0] = String.valueOf(obj);
                 }
             } else {
                 List<Object[]> results = (List<Object[]>) this
                         .queryByCriteria(query);
+                distinctValues = new String[results.size()][];
+                int rIndex = 0;
+
                 for (Object[] result : results) {
-                    StringBuilder newKey = new StringBuilder();
-                    for (int i = 0; i < result.length; i++) {
-                        newKey.append(keyFields.get(i) + "=" + result[i]);
-                        if (i != result.length - 1) {
-                            newKey.append(";");
-                        }
+                    distinctValues[rIndex] = new String[result.length];
+                    int cIndex = 0;
+
+                    for (Object obj : result) {
+                        distinctValues[rIndex][cIndex++] = String.valueOf(obj);
                     }
-                    distinctKeys.add(newKey.toString());
+
+                    rIndex++;
                 }
             }
         }
-        return distinctKeys;
+        return distinctValues;
     }
 
     /**
@@ -989,19 +1028,23 @@ public abstract class PluginDao extends CoreDao {
     /**
      * Gets all distinct reference times for the given productKey
      * 
-     * @param productKey
-     *            The product key to get the list of reference times for
+     * @param productKeys
+     *            The product key/values to get the list of reference times for.
+     *            Should be in key value pairs.
      * @return A list of distinct reference times for the given productKey
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    public List<Date> getRefTimesForCriteria(String productKey)
+    public List<Date> getRefTimesForCriteria(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addDistinctParameter(PURGE_VERSION_FIELD);
         query.addOrder(PURGE_VERSION_FIELD, false);
         List<Date> times = (List<Date>) this.queryByCriteria(query);
@@ -1010,25 +1053,48 @@ public abstract class PluginDao extends CoreDao {
 
     /**
      * Purges data from the database for this plugin with the given reference
-     * time matching the given productKy
+     * time matching the given productKeys. If refTime is null, will purge all
+     * data associated with the productKeys.
      * 
      * @param refTime
-     *            The reftime to delete data for
-     * @param productKey
-     *            The key to use as a constraint for deletions
-     * @return
+     *            The reftime to delete data for. A null will purge all data for
+     *            the productKeys.
+     * @param productKeys
+     *            The product key/values to use as a constraint for deletions.
+     *            Should be in key value pairs.
+     * @param trackHdf5
+     *            If true will use trackToUri to populate hdf5FileToUriPurged
+     *            map.
+     * @param trackToUri
+     *            If true will track each URI that needs to be deleted from
+     *            HDF5, if false will only track the hdf5 files that need to be
+     *            deleted.
+     * @param hdf5FileToUriPurged
+     *            Map to be populated by purgeDataByRefTime of all the hdf5
+     *            files that need to be updated. If trackToUri is true, each
+     *            file will have the exact data URI's to be removed from each
+     *            file. If trackToUri is false, the map will have a null entry
+     *            for the list and only track the files.
+     * @return Number of rows deleted from database.
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    public int purgeDataByRefTime(Date refTime, String productKey)
+    public int purgeDataByRefTime(Date refTime,
+            Map<String, String> productKeys, boolean trackHdf5,
+            boolean trackToUri, Map<String, List<String>> hdf5FileToUriPurged)
             throws DataAccessLayerException {
 
         int results = 0;
         DatabaseQuery dataQuery = new DatabaseQuery(this.daoClass);
-        dataQuery.addQueryParam(PURGE_VERSION_FIELD, refTime);
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            dataQuery.addQueryParam(key[0], key[1]);
+
+        if (refTime != null) {
+            dataQuery.addQueryParam(PURGE_VERSION_FIELD, refTime);
+        }
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                dataQuery.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
 
         List<Integer> idList = null;
@@ -1036,6 +1102,11 @@ public abstract class PluginDao extends CoreDao {
 
         dataQuery.addReturnedField("id");
         dataQuery.setMaxResults(500);
+
+        // fields for hdf5 purge
+        String previousFile = null;
+        StringBuilder pathBuilder = new StringBuilder();
+
         do {
             idList = (List<Integer>) this.queryByCriteria(dataQuery);
             if (!idList.isEmpty()) {
@@ -1044,6 +1115,41 @@ public abstract class PluginDao extends CoreDao {
                 List<PluginDataObject> pdos = (List<PluginDataObject>) this
                         .queryByCriteria(idQuery);
                 this.delete(pdos);
+
+                if (trackHdf5 && (hdf5FileToUriPurged != null)) {
+                    for (PluginDataObject pdo : pdos) {
+                        pathBuilder.setLength(0);
+                        IPersistable persist = (IPersistable) pdo;
+                        pathBuilder
+                                .append(PLUGIN_HDF5_DIR)
+                                .append(pathProvider.getHDFPath(
+                                        this.pluginName, persist))
+                                .append(File.separatorChar)
+                                .append(pathProvider.getHDFFileName(
+                                        this.pluginName, persist));
+                        String file = pathBuilder.toString();
+
+                        if (trackToUri) {
+                            List<String> uriList = hdf5FileToUriPurged
+                                    .get(file);
+                            if (uriList == null) {
+                                // sizing to 50 as most data types have numerous
+                                // entries in a file
+                                uriList = new ArrayList<String>(50);
+                                hdf5FileToUriPurged.put(file, uriList);
+                            }
+                            uriList.add(file);
+                        } else {
+                            // only need to track file, tracking last file
+                            // instead of constantly indexing hashMap
+                            if (!file.equals(previousFile)) {
+                                hdf5FileToUriPurged.put(file, null);
+                                previousFile = file;
+                            }
+                        }
+                    }
+                }
+
                 results += pdos.size();
             }
 
@@ -1060,7 +1166,7 @@ public abstract class PluginDao extends CoreDao {
      * @param productKey
      *            The key to delete
      */
-    public void purgeHDF5DataByRefTime(Date refTime, String productKey)
+    protected void purgeHDF5DataByRefTime(Date refTime, String productKey)
             throws DataAccessLayerException {
         IDataStore dataStore = DataStoreFactory.getDataStore(new File(this
                 .getHDF5Path(productKey)));
@@ -1077,21 +1183,25 @@ public abstract class PluginDao extends CoreDao {
      * Gets the maximum reference time contained in the database for the given
      * key. The key corresponds to the productKey field in the data object.
      * 
-     * @param productKey
-     *            The key for which to get the maximum reference time
+     * @param productKeys
+     *            The product keys to get the maximum reference time for. Should
+     *            be in key value pairs.
      * @return Null if this key was not found, else the maximum reference time
      * @throws DataAccessLayerException
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMaxRefTime(String productKey)
+    public Date getMaxRefTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         query.addDistinctParameter(PURGE_VERSION_FIELD);
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addOrder(PURGE_VERSION_FIELD, false);
         query.setMaxResults(1);
         List<Date> result = (List<Date>) this.queryByCriteria(query);
@@ -1113,15 +1223,17 @@ public abstract class PluginDao extends CoreDao {
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMaxInsertTime(String productKey)
+    public Date getMaxInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         // doing distinct is wasted with a ordered max
         // query.addDistinctParameter("insertTime");
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addReturnedField("insertTime");
         query.addOrder("insertTime", false);
         query.setMaxResults(1);
@@ -1134,25 +1246,29 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
-     * Gets the minimum insert time contained in the database for the given key.
-     * The key corresponds to the productKey field in the data object.
+     * Gets the minimum insert time contained in the database for the given
+     * keys. The keys corresponds to the productKey fields in the data object.
      * 
-     * @param productKey
-     *            The key for which to get the minimum reference time
-     * @return Null if this key was not found, else the minimum reference time
+     * @param productKeys
+     *            The product keys to get the minimum insert time for. Should be
+     *            in key value pairs.
+     * @return Null if this key was not found, else the minimum insert time
      * @throws DataAccessLayerException
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMinInsertTime(String productKey)
+    public Date getMinInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         // doing distinct is wasted with a ordered max
         // query.addDistinctParameter("insertTime");
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addReturnedField("insertTime");
         query.addOrder("insertTime", true);
         query.setMaxResults(1);
@@ -1168,21 +1284,25 @@ public abstract class PluginDao extends CoreDao {
      * Gets the minimum reference time contained in the database for the given
      * key. The key corresponds to the productKey field in the data object.
      * 
-     * @param productKey
-     *            The key for which to get the minimum reference time
+     * @param productKeys
+     *            The product keys to get the minimum reference times for.
+     *            Should be in key value pairs.
      * @return Null if this key was not found, else the minimum reference time
      * @throws DataAccessLayerException
      *             If errors occur while querying the database
      */
     @SuppressWarnings("unchecked")
-    public Date getMinRefTime(String productKey)
+    public Date getMinRefTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
         query.addDistinctParameter(PURGE_VERSION_FIELD);
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addOrder(PURGE_VERSION_FIELD, true);
         query.setMaxResults(1);
         List<Date> result = (List<Date>) this.queryByCriteria(query);
@@ -1234,27 +1354,6 @@ public abstract class PluginDao extends CoreDao {
         return pathBuilder.toString();
     }
 
-    /**
-     * Checks to see if a rule is valid. A rule is valid if the keys used in
-     * this rule are listed in the pathKey.xml file for this plugin.
-     * 
-     * @param rule
-     *            The rule to check
-     * @return True if the rule is valid. False if the rule is invalid
-     */
-    private boolean isRuleValid(PurgeRule rule) {
-        boolean retVal = true;
-        List<String[]> keyParams = getProductKeyParameters(rule.getId()
-                .getKey());
-        List<String> keyNames = this.pathProvider.getKeyNames(pluginName);
-        for (String[] param : keyParams) {
-            if (!keyNames.contains(param[0])) {
-                retVal = false;
-            }
-        }
-        return retVal;
-    }
-
     private Date roundDateToHour(Date dateToRound) {
         return new Date(dateToRound.getTime() - dateToRound.getTime() % 3600000);
     }
@@ -1274,7 +1373,7 @@ public abstract class PluginDao extends CoreDao {
         });
     }
 
-    public static List<PurgeRule> getPurgeRulesForPlugin(String pluginName) {
+    public static PurgeRuleSet getPurgeRulesForPlugin(String pluginName) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         Map<LocalizationLevel, LocalizationFile> tieredFile = pathMgr
                 .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
@@ -1291,33 +1390,45 @@ public abstract class PluginDao extends CoreDao {
         }
 
         if (rulesFile != null) {
-            try {
-                PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(rulesFile);
-                return purgeRules.getRules();
-            } catch (SerializationException e) {
-                PurgeLogger
-                        .logError(
-                                "Error deserializing purge rules! Data will not be purged. Please define rules.",
-                                pluginName);
+            // allow zero length file to disable purge for this plugin
+            if (rulesFile.length() > 0) {
+                try {
+                    PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
+                            .jaxbUnmarshalFromXmlFile(rulesFile);
+
+                    // ensure there's a default rule
+                    if (purgeRules.getDefaultRules() == null) {
+                        purgeRules.setDefaultRules(loadDefaultPurgeRules());
+                    }
+                    return purgeRules;
+                } catch (SerializationException e) {
+                    PurgeLogger
+                            .logError(
+                                    "Error deserializing purge rules! Data will not be purged. Please define rules.",
+                                    pluginName, e);
+                }
             }
+        } else if (!"default".equals(pluginName)) {
+            // no purge rule for this plugin, check base purge rule
+            return getPurgeRulesForPlugin("default");
         }
-        return Collections.emptyList();
+        return null;
     }
 
-    public static PurgeRule loadDefaultPurgeRule() {
+    public static List<PurgeRule> loadDefaultPurgeRules() {
         File defaultRule = PathManagerFactory.getPathManager().getStaticFile(
                 "purge/defaultPurgeRules.xml");
         if (defaultRule == null) {
-            PurgeLogger.logError("Default purge rule not defined!!", "EDEX");
-            statusHandler
-                    .error("Default purge rule not defined!!  Data will not be purged for plugins which do not specify purge rules!");
+            PurgeLogger
+                    .logError(
+                            "Default purge rule not defined!! Data will not be purged for plugins which do not specify purge rules!",
+                            "EDEX");
             return null;
         }
         try {
             PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
                     .jaxbUnmarshalFromXmlFile(defaultRule);
-            return purgeRules.getRules().get(0);
+            return purgeRules.getDefaultRules();
         } catch (SerializationException e) {
             PurgeLogger.logError("Error deserializing default purge rule!",
                     "DEFAULT");
@@ -1403,8 +1514,7 @@ public abstract class PluginDao extends CoreDao {
                 byte[] data = SerializationUtil.transformToThrift(entry
                         .getValue());
 
-                // debug transform back for object inspection
-                Object obj = SerializationUtil.transformFromThrift(data);
+                SerializationUtil.transformFromThrift(data);
 
                 // save list to disk (in gz format?)
                 FileUtil.bytes2File(data, file, true);

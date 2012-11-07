@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Feb 26, 2008					Eric Babin Initial Creation
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
     public CreateFromScratchDialog(Shell parent) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
 
     }
 
@@ -130,8 +131,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
             intervalLabel = new Label(top, SWT.NONE);
             data = new GridData(30, SWT.DEFAULT);
             intervalLabel.setLayoutData(data);
-            intervalLabel.setText(Integer
-                    .toString(intervalScale.getSelection()));
+            intervalLabel
+                    .setText(Integer.toString(intervalScale.getSelection()));
 
         }
 
@@ -157,8 +158,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
             durationLabel = new Label(top, SWT.NONE);
             data = new GridData(30, SWT.DEFAULT);
             durationLabel.setLayoutData(data);
-            durationLabel.setText(Integer
-                    .toString(durationScale.getSelection()));
+            durationLabel
+                    .setText(Integer.toString(durationScale.getSelection()));
         }
     }
 
@@ -167,8 +168,8 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
 
         if (displayDuration) {
             durationScale.setSelection(intervalScale.getSelection());
-            durationLabel.setText(Integer
-                    .toString(durationScale.getSelection()));
+            durationLabel
+                    .setText(Integer.toString(durationScale.getSelection()));
         }
     }
 
@@ -272,7 +273,9 @@ public class CreateFromScratchDialog extends CaveJFACEDialog {
                 createDuration = durationScale.getSelection();
             }
 
-            DataManager.getCurrentInstance().getParmOp()
+            DataManager
+                    .getCurrentInstance()
+                    .getParmOp()
                     .createFromScratchSelected(mode, createInterval * 3600,
                             createDuration * 3600);
 
