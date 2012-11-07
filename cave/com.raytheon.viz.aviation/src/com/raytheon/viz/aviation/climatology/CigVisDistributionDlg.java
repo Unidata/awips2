@@ -86,6 +86,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 3/31/2011    8774       rferrel     killProcess when doing a disposed
  * 4/4/2011     8896       rferrel     Made timeout configurable
  * 4/14/2011    8861       rferrel     Use SaveImageDlg class
+ * 04/08/2012   1229       rferrel     Made dialog non-blocking.
+ * 10/15/2012   1229       rferrel      Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -95,7 +97,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class CigVisDistributionDlg extends CaveSWTDialog implements
         PyProcessListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CigVisDistributionDlg.class);
 
     /**
@@ -205,6 +207,8 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
      */
     private SaveImageDlg siDlg;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -220,7 +224,7 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
     public CigVisDistributionDlg(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - Ceiling/Visibility Distribution");
 
         this.icaos = icaos;
@@ -383,11 +387,15 @@ public class CigVisDistributionDlg extends CaveSWTDialog implements
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Ceiling and Visibility Display Help";
-                String helpText = "This application displays ceiling and visiblity distribution for\nselected time range.\n\nThe distribution is plotted in a form of stacked histogram. \nPlot Type \n    By Month    - the X axis is month. The category frequency is \n                  calculated for a selected range of hours.\n    By Hour     - the X axis is hour of day. The category frequency \n                  is calculated for a selected range of months.\n    By Wind Dir - the X axis is 16 point wind direction. The category \n                  frequency is calculated for a selected range of \n                  months and hours.\n\nAuto Redraw \n    Forces screen redraw every time a new sites selected or date/time \n    widgets are modified.\n\nElement\n    Visibility - only visibility thresholds are checked to determine \n                 flight category\n    Ceiling -    only ceiling thresholds are checked to determine \n                 flight category\n    Joint -      both ceiling and visibility thresholds are checked \n                 to determine flight category\n\ny-axis scale\n    Sets maximum value for the vertical axis. If 'auto' toggle is set,\n    the value is computed. Behaves sensibly if selected value is too \n    low.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Ceiling and Visibility Display Help";
+
+                    String helpText = "This application displays ceiling and visiblity distribution for\nselected time range.\n\nThe distribution is plotted in a form of stacked histogram. \nPlot Type \n    By Month    - the X axis is month. The category frequency is \n                  calculated for a selected range of hours.\n    By Hour     - the X axis is hour of day. The category frequency \n                  is calculated for a selected range of months.\n    By Wind Dir - the X axis is 16 point wind direction. The category \n                  frequency is calculated for a selected range of \n                  months and hours.\n\nAuto Redraw \n    Forces screen redraw every time a new sites selected or date/time \n    widgets are modified.\n\nElement\n    Visibility - only visibility thresholds are checked to determine \n                 flight category\n    Ceiling -    only ceiling thresholds are checked to determine \n                 flight category\n    Joint -      both ceiling and visibility thresholds are checked \n                 to determine flight category\n\ny-axis scale\n    Sets maximum value for the vertical axis. If 'auto' toggle is set,\n    the value is computed. Behaves sensibly if selected value is too \n    low.";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }

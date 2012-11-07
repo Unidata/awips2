@@ -21,7 +21,7 @@
 package com.raytheon.uf.edex.database.purge;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,8 +33,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * A container class used for unmarshalling purge rules. The purge rules are
- * stored in xml files in the edex_static/base/purge directory. The rules are
- * unmarshalled into this object before being persisted to the database.
+ * stored in xml files in the common_static/base/purge directory. The rules are
+ * then organized into a tree for easy look up of closest matching rule.
  * 
  * <pre>
  * 
@@ -52,14 +52,45 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 @XmlRootElement(name = "purgeRuleSet")
 @XmlAccessorType(XmlAccessType.NONE)
 public class PurgeRuleSet implements ISerializableObject {
+
+    @XmlElements({ @XmlElement(name = "key", type = String.class) })
+    private List<String> keys;
+
+    @XmlElements({ @XmlElement(name = "defaultRule", type = PurgeRule.class) })
+    private List<PurgeRule> defaultRules;
+
     /**
      * List of purge rules for/from the XML.
      */
     @XmlElements({ @XmlElement(name = "rule", type = PurgeRule.class) })
     private ArrayList<PurgeRule> rules;
 
+    private PurgeRuleTree purgeTree = null;
+
     public PurgeRuleSet() {
-        rules = new ArrayList<PurgeRule>();
+    }
+
+    /**
+     * Returns the default rule.
+     * 
+     * @return
+     */
+    public List<PurgeRule> getDefaultRules() {
+        return defaultRules;
+    }
+
+    public void setDefaultRules(final List<PurgeRule> defaultRules) {
+        this.defaultRules = defaultRules;
+    }
+
+    /**
+     * Sets the default rule list to the passed rule.
+     * 
+     * @param defaultRule
+     */
+    public void setDefaultRule(final PurgeRule defaultRule) {
+        this.defaultRules = new ArrayList<PurgeRule>(1);
+        this.defaultRules.add(defaultRule);
     }
 
     /**
@@ -71,32 +102,36 @@ public class PurgeRuleSet implements ISerializableObject {
         return rules;
     }
 
-    /**
-     * Set the list of purge rules.
-     * 
-     * @param models
-     */
-    public void setModels(ArrayList<PurgeRule> rules) {
+    public void setRules(final ArrayList<PurgeRule> rules) {
         this.rules = rules;
     }
 
     /**
-     * Add a purge rule to this set
+     * Returns the list of purge keys.
      * 
-     * @param rule
-     *            The rule to add
+     * @return
      */
-    public void addRule(PurgeRule rule) {
-        this.rules.add(rule);
+    public List<String> getKeys() {
+        return keys;
+    }
+
+    public void setKeys(final List<String> keys) {
+        this.keys = keys;
     }
 
     /**
-     * Adds purge rules to this set
+     * Returns the purge rules associated with the passed key values.
      * 
-     * @param rules
-     *            The rules to add
+     * @param keyValues
+     *            The values associated with the plugin purge keys to check for
+     *            purge rules for.
+     * @return
      */
-    public void addRules(Collection<PurgeRule> rules) {
-        this.rules.addAll(rules);
+    public List<PurgeRule> getRuleForKeys(final String[] keyValues) {
+        if (purgeTree == null) {
+            purgeTree = new PurgeRuleTree(this);
+        }
+
+        return purgeTree.getRulesForKeys(keyValues);
     }
 }

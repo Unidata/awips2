@@ -54,7 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.SpinScale;
 
 /**
- * TODO Add Description
+ * Dialog for performing selected time range save or delete.
  * 
  * <pre>
  * 
@@ -63,6 +63,7 @@ import com.raytheon.viz.ui.widgets.SpinScale;
  * ------------ ---------- ----------- --------------------------
  * Dec 7, 2009            randerso     Initial creation
  * Aug 1, 2012   #965     dgilling     Change location of SelectTimeRange.
+ * Oct 25, 2012  #1287     rferrel     Code cleanup part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -338,8 +339,6 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
                 } else {
                     mode = Mode.ZULU;
                 }
-                // LogStream.logUse("Save",id, self.__modeVar.get(),
-                // self.__startScale.get(), self.__stopScale.get())
                 dataManager.getSelectTimeRangeManager().save(id,
                         startScale.getSelection(), stopScale.getSelection(),
                         mode);
@@ -361,10 +360,6 @@ public class SaveDeleteSelectTRDialog extends CaveJFACEDialog {
         }
 
         if (!protectedIds.contains(id[0]) && ids.contains(id[0])) {
-            // verify = self.__accessMgr.verifyDelete(
-            // id, self.__category, self.__parent)
-            // if verify == 1:
-            // LogStream.logUse("Delete", id)
             if (!MessageDialog.openConfirm(this.getShell(), "Confirm Delete",
                     "Delete Select Time Range: \"" + id[0] + "\"?")) {
                 return;

@@ -3,10 +3,12 @@ package com.raytheon.uf.common.pypies;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.datastorage.DuplicateRecordStorageException;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -277,13 +279,37 @@ public class PyPiesDataStore implements IDataStore {
         StorageStatus ss = null;
         try {
             StoreResponse sr = (StoreResponse) sendRequest(req);
-            records.clear();
             ss = sr.getStatus();
             String[] exc = sr.getExceptions();
             IDataRecord[] failed = sr.getFailedRecords();
+
+            // need to set the correlation object
+            if (failed != null) {
+                for (IDataRecord rec : failed) {
+                    Iterator<IDataRecord> recordIter = records.iterator();
+                    while (recordIter.hasNext()) {
+                        IDataRecord oldRec = recordIter.next();
+                        if (oldRec.getGroup().equals(rec.getGroup())
+                                && oldRec.getName().equals(rec.getName())) {
+                            rec.setCorrelationObject(oldRec
+                                    .getCorrelationObject());
+                            recordIter.remove();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            records.clear();
             StorageException[] jexc = new StorageException[exc.length];
             for (int i = 0; i < exc.length; i++) {
-                jexc[i] = new StorageException(exc[i], failed[i]);
+                // checking for duplicates based on what is in the string...
+                if (exc[i].contains("already exists")) {
+                    jexc[i] = new DuplicateRecordStorageException(exc[i],
+                            failed[i]);
+                } else {
+                    jexc[i] = new StorageException(exc[i], failed[i]);
+                }
             }
 
             ss.setExceptions(jexc);
@@ -369,10 +395,6 @@ public class PyPiesDataStore implements IDataStore {
     protected void initializeProperties() {
         if (address == null) {
             address = props.getAddress();
-            int maxConnections = props.getMaxConnections();
-            HttpClient.getInstance().setMaxConnectionsPerHost(maxConnections);
-            int socketTimeout = props.getSocketTimeout();
-            HttpClient.getInstance().setSocketTimeout(socketTimeout);
         }
     }
 

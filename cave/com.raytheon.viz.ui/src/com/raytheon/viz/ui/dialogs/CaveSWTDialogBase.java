@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Shell;
  * Nov 2, 2010             mschenke    Initial creation
  * Sep 12, 2012 #1165      lvenable    Update for the initial process
  *                                     of removing the dialog blocking capability.
+ * Oct 11, 2012  1229      jkorman     Factored out "mustCreate" method from subclasses.                                    
  * 
  * </pre>
  * 
@@ -506,4 +507,17 @@ public abstract class CaveSWTDialogBase extends Dialog {
         this.caveStyle = caveStyle | CAVE.DO_NOT_BLOCK;
         this.closeCallback = callback;
     }
+
+    /**
+     * Determines if the supplied reference should be created.
+     * 
+     * @param dialog
+     *            A dialog reference.
+     * @return Should the supplied reference should be created.
+     */
+    public boolean mustCreate(CaveSWTDialogBase dialog) {
+        return (dialog == null) || (dialog.getShell() == null)
+                || (dialog.isDisposed());
+    }
+    
 }

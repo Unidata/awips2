@@ -36,7 +36,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -55,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * TAF product configuration dialog.
@@ -66,6 +66,9 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  * 22 MAY 2008  1119       lvenable    Initial creation
  *  9 Jul 2010  5078       rferrel     Added catches for File Not Found.
  *  1 Oct 2010  4345       rferrel     Cleanup to work like AWIPS I.
+ * 12 Oct 2012  1229       rferrel     Convert to CaveSWTDialog subclass
+ *                                      and make non-blocking.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -73,19 +76,9 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  * @version 1.0
  * 
  */
-public class TafProductConfigDlg extends Dialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class TafProductConfigDlg extends CaveSWTDialog {
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafProductConfigDlg.class);
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
 
     /**
      * Composite containing message status controls.
@@ -132,26 +125,20 @@ public class TafProductConfigDlg extends Dialog {
      */
     private Map<String, java.util.List<String>> productsMap;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
      * @param parent
      */
     public TafProductConfigDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS TAF Product Configuration");
     }
 
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
-        shell.setText("AvnFPS TAF Product Configuration");
-
+    @Override
+    protected void initializeComponents(Shell shell) {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 3;
@@ -161,25 +148,18 @@ public class TafProductConfigDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
+    @Override
+    protected void disposed() {
         listFont.dispose();
-
-        return null;
     }
 
     /**
      * Initialize the components on the display.
      */
     private void initializeComponents() {
+        Display display = getParent().getDisplay();
         listFont = new Font(display, "Monospace", 10, SWT.NORMAL);
 
         createBottomMessageControls();
@@ -562,11 +542,16 @@ public class TafProductConfigDlg extends Dialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "TAF Product Configuration Help";
-                String helpText = "This dialog is used to define TAF/TWEB product (list of\nforecasts).\n\nThee products should be defined AFTER relevant site/route\nconfiguration files have been created.\n\nTo add a new product, enter product label in the \"Products\"\nentry field and press <Enter>. Then enter all TAF ids or\nTWEB routes in the \"Idents\" entry field, press <Enter>\nafter typing one item. Press \"Save\" button to save\nconfiguration file.\n\nTo remove a product, press \"Delede\" below \"Products\" list.\n\nTo remove an ident from the product definition, use\n\"Delete\" button in the \"Idents\" column. You must then save\nthe product. This will NOT delete TAF/TWEB configuration\nfiles, this can only be done from the command line.\n\nThe \"Verify\" button can be used to check for existence and\nproper syntax of all relevant files.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "TAF Product Configuration Help";
+
+                    String helpText = "This dialog is used to define TAF/TWEB product (list of\nforecasts).\n\nThee products should be defined AFTER relevant site/route\nconfiguration files have been created.\n\nTo add a new product, enter product label in the \"Products\"\nentry field and press <Enter>. Then enter all TAF ids or\nTWEB routes in the \"Idents\" entry field, press <Enter>\nafter typing one item. Press \"Save\" button to save\nconfiguration file.\n\nTo remove a product, press \"Delede\" below \"Products\" list.\n\nTo remove an ident from the product definition, use\n\"Delete\" button in the \"Idents\" column. You must then save\nthe product. This will NOT delete TAF/TWEB configuration\nfiles, this can only be done from the command line.\n\nThe \"Verify\" button can be used to check for existence and\nproper syntax of all relevant files.";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
 

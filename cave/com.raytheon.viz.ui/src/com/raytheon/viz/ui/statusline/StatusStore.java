@@ -39,6 +39,7 @@ import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
  * ------------	----------	-----------	--------------------------
  * Jul 14, 2008				randerso	Initial creation
  * Sep 12, 2008             wdougherty  Added updateStatusTextI() method
+ * Oct 22, 2012 1229        rferrel     Changes for non-blocking ViewMessagesDialog.
  * 
  * </pre>
  * 
@@ -196,7 +197,8 @@ public class StatusStore {
                 }
 
                 // Update View Message display
-                if (viewDialog != null) {
+                if (viewDialog != null && viewDialog.getShell() != null
+                        && !viewDialog.isDisposed()) {
                     viewDialog.updateText();
                 }
                 // Update Urgent Messages display
@@ -243,13 +245,17 @@ public class StatusStore {
         });
     }
 
-    public ViewMessagesDialog getViewMessagesDialog() {
-        if (viewDialog == null) {
+    public void openViewMessagesDialog() {
+        if (viewDialog == null || viewDialog.getShell() == null
+                || viewDialog.isDisposed()) {
             this.viewDialog = new ViewMessagesDialog(Display.getDefault()
                     .getActiveShell(), this.messageBuffer, this.importanceDict,
                     "View Messages");
+            viewDialog.setBlockOnOpen(false);
+            viewDialog.open();
+        } else {
+            viewDialog.bringToTop();
         }
-        return viewDialog;
     }
 
     public StatBar getStatusBar() {
