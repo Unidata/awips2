@@ -257,50 +257,6 @@ public final class VizApp {
         VizApp.pypiesServer = pypiesServer;
     }
 
-    /**
-     * @return the dataDeliveryServer
-     */
-    public static String getDataDeliveryServer() {
-        return dataDeliveryServer;
-    }
-
-    /**
-     * @param dataDeliveryServer
-     *            the dataDeliveryServer to set
-     */
-    public static void setDataDeliveryServer(String dataDeliveryServer) {
-        VizApp.dataDeliveryServer = dataDeliveryServer;
-    }
-    /**
-     * @return the dataDeliveryLcmServer
-     */
-    public static String getDataDeliveryLcmServer() {
-        return dataDeliveryLcmServer;
-    }
-
-    /**
-     * @param dataDeliveryLcmServer
-     *            the dataDeliveryLcmServer to set
-     */
-    public static void setDataDeliveryLcmServer(String dataDeliveryLcmServer) {
-        VizApp.dataDeliveryLcmServer = dataDeliveryLcmServer;
-    }
-
-    /**
-     * @return the dataDeliveryQueryServer
-     */
-    public static String getDataDeliveryQueryServer() {
-        return dataDeliveryQueryServer;
-    }
-
-    /**
-     * @param dataDeliveryQueryServer
-     *            the dataDeliveryQueryServer to set
-     */
-    public static void setDataDeliveryQueryServer(String dataDeliveryQueryServer) {
-        VizApp.dataDeliveryQueryServer = dataDeliveryQueryServer;
-    }
-
     public static String getServerDataDir() {
         return VizApp.serverDataDir;
     }

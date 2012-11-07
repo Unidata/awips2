@@ -20,21 +20,22 @@
 package com.raytheon.viz.ui.widgets.duallist;
 
 /**
- * TODO Add Description
+ * Interface for an update.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 31, 2012            mpduff     Initial creation.
  * Aug 08, 2012    863     jpiatt     Added selectedChange method for clean & dirty checks.
- *
+ * Nov 02, 2012 1302       djohnson   Add javadoc.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IUpdate {
@@ -50,5 +51,5 @@ public interface IUpdate {
     /**
      * Method called when a change in selection occurs.
      */
-    public void selectionChanged();
+    void selectionChanged();
 }
