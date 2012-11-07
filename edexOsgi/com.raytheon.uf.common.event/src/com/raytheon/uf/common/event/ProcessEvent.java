@@ -54,11 +54,17 @@ public class ProcessEvent extends Event {
     @DynamicSerializeElement
     private String fileName;
 
+    /*
+     * Processing time in milliseconds
+     */
     @DynamicSerializeElement
-    private double processingTimeMilliseconds;
+    private long processingTime;
 
+    /*
+     * Processing latency in milliseconds
+     */
     @DynamicSerializeElement
-    private double processingLatencyMilliseconds;
+    private long processingLatency;
 
     public ProcessEvent() {
     }
@@ -114,34 +120,33 @@ public class ProcessEvent extends Event {
     }
 
     /**
-     * @return the processingTimeMilliseconds
+     * @return the processingTime in milliseconds
      */
-    public double getProcessingTimeMilliseconds() {
-        return processingTimeMilliseconds;
+    public long getProcessingTime() {
+        return processingTime;
     }
 
     /**
-     * @param processingTimeMilliseconds
-     *            the processingTimeMilliseconds to set
+     * @param processingTime
+     *            the processingTime in milliseconds to set
      */
-    public void setProcessingTimeMilliseconds(double processingTimeMilliseconds) {
-        this.processingTimeMilliseconds = processingTimeMilliseconds;
+    public void setProcessingTime(long processingTime) {
+        this.processingTime = processingTime;
     }
 
     /**
-     * @return the processingLatencyMilliseconds
+     * @return the processingLatency in milliseconds
      */
-    public double getProcessingLatencyMilliseconds() {
-        return processingLatencyMilliseconds;
+    public long getProcessingLatency() {
+        return processingLatency;
     }
 
     /**
-     * @param processingLatencyMilliseconds
-     *            the processingLatencyMilliseconds to set
+     * @param processingLatency
+     *            the processingLatency in milliseconds to set
      */
-    public void setProcessingLatencyMilliseconds(
-            double processingLatencyMilliseconds) {
-        this.processingLatencyMilliseconds = processingLatencyMilliseconds;
+    public void setProcessingLatency(long processingLatency) {
+        this.processingLatency = processingLatency;
     }
 
 }
