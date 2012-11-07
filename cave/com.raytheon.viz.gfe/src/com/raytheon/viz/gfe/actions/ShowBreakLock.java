@@ -29,13 +29,14 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.BreakLockDialog;
 
 /**
- * TODO Add Description ShowBreakLock.java Jun 17, 2008
+ * Action class to bring up the break locck dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Jun 17, 2008					Eric Babin Initial Creation
+ * Oct 27, 2012 1287       rferrel     Changes for non-blocking BreakLockDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.BreakLockDialog;
  */
 
 public class ShowBreakLock extends AbstractHandler {
+    private BreakLockDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -59,12 +61,16 @@ public class ShowBreakLock extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        BreakLockDialog dialog = new BreakLockDialog(shell, dm);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new BreakLockDialog(shell, dm);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
         return null;
     }
 

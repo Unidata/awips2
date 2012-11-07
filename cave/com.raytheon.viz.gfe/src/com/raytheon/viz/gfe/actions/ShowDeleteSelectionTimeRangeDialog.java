@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Jan 23, 2008					Eric Babin Initial Creation
+ * Oct 25, 2012 1287       rferrel     Changes for non-blocking ShowDeleteSelectionTimeRangeDialog.
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import com.raytheon.viz.gfe.dialogs.SaveDeleteSelectTRDialog;
 
 public class ShowDeleteSelectionTimeRangeDialog extends AbstractHandler {
 
-    protected static final String DEFAULT_MSG = "You have selected delete on a default period.  Only the user's entry of this item will be deleted.  That is, the item will be reset to the Base default value.  Continue?";
+    private SaveDeleteSelectTRDialog dialog;
 
     /**
      * 
@@ -68,42 +69,17 @@ public class ShowDeleteSelectionTimeRangeDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
 
-        SaveDeleteSelectTRDialog dialog = new SaveDeleteSelectTRDialog(shell,
-                dataManager, "Delete");
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-        // String delName = null;
-        // if (dialog.getReturnCode() == Window.OK) {
-        // delName = dialog.getItemToDelete();
-        // if (selectTRmgr.getRange(delName).getLevel() !=
-        // LocalizationLevel.USER) {
-        // // Confirm
-        // if (!MessageDialog.openConfirm(shell,
-        // "Default Time Period", DEFAULT_MSG)) {
-        // returnCode = Window.CANCEL;
-        // }
-        // }
-        // }
-        //
-        // if (returnCode == Window.OK) {
-        // selectTRmgr.remove(delName);
-        // TimeScaleDisplayedPeriodsPreference
-        // .removeTimeScaleDisplayedPeriod(delName);
-        // try {
-        // selectTRmgr.save(LocalizationLevel.USER);
-        // } catch (Exception e) {
-        // throw new ExecutionException(
-        // "Error saving SelectTimeRanges", e);
-        // }
-        // }
-        // } else {
-        // UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
-        // StatusConstants.CATEGORY_GFE, null,
-        // "Error loading time ranges");
-        // }
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+
+            dialog = new SaveDeleteSelectTRDialog(shell, dataManager, "Delete");
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
         return null;
     }
 }

@@ -257,7 +257,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             @Override
             public void shellClosed(ShellEvent event) {
                 // Block the disposal of this dialog.
-                AfosBrowserDlg.this.shell.setVisible(false);
+                AfosBrowserDlg.this.hide();
                 isAfosActive = false;
                 event.doit = false;
             }
@@ -555,7 +555,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                         .getAfosCommand(currentAfosCommand));
 
                 setReturnValue(false);
-                shell.setVisible(false);
+                hide();
                 isAfosActive = false;
             }
         });
@@ -569,19 +569,15 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(false);
-                shell.setVisible(false);
+                hide();
                 isAfosActive = false;
             }
         });
     }
 
     public void showDialog() {
-        if (shell.isVisible() == false) {
-            shell.setVisible(true);
-            isAfosActive = true;
-        }
-
-        shell.setActive();
+        bringToTop();
+        isAfosActive = true;
     }
 
     /**

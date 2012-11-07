@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.dialogs.ColormapDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for right click menu for changing range of color map values.
@@ -38,6 +39,7 @@ import com.raytheon.viz.ui.dialogs.ColormapDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 2, 2011  7999      dgilling     Initial creation
+ * Oct 17, 2012 1229       rferrel     Changes for non-blocking ColormapDialog.
  * 
  * </pre>
  * 
@@ -48,6 +50,8 @@ import com.raytheon.viz.ui.dialogs.ColormapDialog;
 public class ChangeColorMapRangeAction extends AbstractRightClickAction {
 
     private Parm parm;
+
+    private ColormapDialog colorMapDlg;
 
     public ChangeColorMapRangeAction(Parm parm) {
         super("Set Range...");
@@ -61,21 +65,42 @@ public class ChangeColorMapRangeAction extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        ColorMapCapability cap = getSelectedRsc().getCapability(
-                ColorMapCapability.class);
-        IColorMap prevColorMap = cap.getColorMapParameters().getColorMap();
-        float prevMax = cap.getColorMapParameters().getColorMapMax();
-        float prevMin = cap.getColorMapParameters().getColorMapMin();
+        if (colorMapDlg == null || colorMapDlg.getShell() == null
+                || colorMapDlg.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            ColorMapCapability cap = getSelectedRsc().getCapability(
+                    ColorMapCapability.class);
+            final IColorMap prevColorMap = cap.getColorMapParameters()
+                    .getColorMap();
+            final float prevMax = cap.getColorMapParameters().getColorMapMax();
+            final float prevMin = cap.getColorMapParameters().getColorMapMin();
 
-        ColormapDialog cmd = new ColormapDialog(shell, "Set Color Table Range",
-                cap, parm.getGridInfo().getPrecision());
-        if (cmd.open() != ColormapDialog.OK) {
-            cap.getColorMapParameters().setColorMap(prevColorMap);
-            cap.getColorMapParameters().setColorMapMax(prevMax);
-            cap.getColorMapParameters().setColorMapMin(prevMin);
-            cap.notifyResources();
+            colorMapDlg = new ColormapDialog(shell, "Set Color Table Range",
+                    cap, parm.getGridInfo().getPrecision());
+            colorMapDlg.setBlockOnOpen(false);
+            colorMapDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int status = (Integer) returnValue;
+                        if (status != ColormapDialog.OK) {
+                            ColorMapCapability cap = colorMapDlg
+                                    .getColorMapCapability();
+                            cap.getColorMapParameters().setColorMap(
+                                    prevColorMap);
+                            cap.getColorMapParameters().setColorMapMax(prevMax);
+                            cap.getColorMapParameters().setColorMapMin(prevMin);
+                            cap.notifyResources();
+                        }
+                    }
+                    colorMapDlg = null;
+                }
+            });
+            colorMapDlg.open();
+        } else {
+            colorMapDlg.bringToTop();
         }
     }
 }

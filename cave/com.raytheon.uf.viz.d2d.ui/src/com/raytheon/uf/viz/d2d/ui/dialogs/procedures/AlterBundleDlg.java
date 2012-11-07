@@ -42,14 +42,17 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.procedures.AlterBundleChangeEvent;
 import com.raytheon.uf.viz.core.procedures.AlterBundleFactory;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.IAlterBundleChangeListener;
 import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.MenuButton;
 
 /**
- * Dialog for selecting an alternate bundle.
+ * Dialog for altering a bundle.
  * 
  * <pre>
  * 
@@ -63,6 +66,8 @@ import com.raytheon.viz.ui.widgets.MenuButton;
  *                                      trying to perform a load.
  * Jul 31, 2012 #875       rferrel     Use MenuButton to organize entries
  *                                      in  menus.
+ * Oct 03, 2012 #1248      rferrel     Bundle change listeners added.
+ * Oct 16, 2012 #1229      rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -70,16 +75,16 @@ import com.raytheon.viz.ui.widgets.MenuButton;
  * @version 1.0
  */
 public class AlterBundleDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlterBundleDlg.class);
 
-    private static final String Top_MENU_KEY = "<top>";
+    private final String Top_MENU_KEY = "<top>";
 
-    private static final String MENU_SEP = IAlterBundleContributor.MENU_SEPARATOR;
+    private final String MENU_SEP = IAlterBundleContributor.MENU_SEPARATOR;
 
-    private static final String MI_SEP = IAlterBundleContributor.MI_SEPARATOR;
+    private final String MI_SEP = IAlterBundleContributor.MI_SEPARATOR;
 
-    private static final int MENU_SEP_LEN = MENU_SEP.length();
+    private final int MENU_SEP_LEN = MENU_SEP.length();
 
     private static class AlterBundleEntry {
 
@@ -101,11 +106,17 @@ public class AlterBundleDlg extends CaveSWTDialog {
 
     private Bundle bundle;
 
+    private Map<IAlterBundleContributor, IAlterBundleChangeListener> contribListenerMap;
+
+    private Map<String, MenuButton> menuButtonMap;
+
     protected AlterBundleDlg(Bundle bundle, Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Alter Bundle on Loading");
 
         this.bundle = bundle;
+        this.contribListenerMap = new HashMap<IAlterBundleContributor, IAlterBundleChangeListener>();
+        this.menuButtonMap = new HashMap<String, MenuButton>();
     }
 
     @Override
@@ -136,6 +147,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
             Map<String, String[]> alterables = contrib.getAlterables();
             final List<AlterBundleEntry> contribEntries = new ArrayList<AlterBundleEntry>(
                     alterables.size());
+            contrib.listenerSetup();
             // Create Enable button
             final Button enabledBtn = new Button(comp, SWT.CHECK);
             GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
@@ -157,13 +169,24 @@ public class AlterBundleDlg extends CaveSWTDialog {
                 }
             });
 
+            IAlterBundleChangeListener bundleListner = new IAlterBundleChangeListener() {
+
+                @Override
+                public void changeBundle(AlterBundleChangeEvent event) {
+                    menuButtonChanged(event.getKeys());
+                }
+            };
+            contribListenerMap.put(contrib, bundleListner);
+            contrib.addAlterBundleChangeListener(bundleListner);
+
             int i = 0;
             for (Entry<String, String[]> entry : alterables.entrySet()) {
                 if (i != 0) {
                     new Label(comp, SWT.NONE);
                 }
                 Label label = new Label(comp, SWT.CENTER);
-                label.setText(entry.getKey() + " = ");
+                String key = entry.getKey();
+                label.setText(key + " = ");
 
                 final AlterBundleEntry abe = new AlterBundleEntry();
                 abe.contributor = contrib;
@@ -191,9 +214,11 @@ public class AlterBundleDlg extends CaveSWTDialog {
                 menuButton.setLayoutData(gd);
                 menuButton.addSelectionListener(listener);
                 Menu menu = new Menu(menuButton);
-                MenuItem topMi = createMenu(menu, entry);
+                MenuItem topMi = createMenu(menu, entry.getValue());
                 menuButton.setMenu(menu);
                 menuButton.setSelectedItem(topMi);
+                menuButton.setData(contrib);
+                menuButtonMap.put(key, menuButton);
 
                 ++i;
             }
@@ -201,7 +226,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
         }
     }
 
-    private MenuItem createMenu(Menu topMenu, Entry<String, String[]> entry) {
+    private MenuItem createMenu(Menu topMenu, String[] values) {
         Map<String, Menu> menuMap = new HashMap<String, Menu>();
 
         menuMap.put(Top_MENU_KEY, topMenu);
@@ -210,7 +235,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
         MenuItem mi = null;
         MenuItem topMi = null;
 
-        for (String value : entry.getValue()) {
+        for (String value : values) {
             if (value.startsWith(MENU_SEP)) {
                 value = value.substring(MENU_SEP_LEN);
             }
@@ -331,8 +356,36 @@ public class AlterBundleDlg extends CaveSWTDialog {
         shell.close();
     }
 
+    private void menuButtonChanged(final String[] keys) {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                for (String key : keys) {
+                    MenuButton menuButton = menuButtonMap.get(key);
+                    IAlterBundleContributor contrib = (IAlterBundleContributor) menuButton
+                            .getData();
+                    String[] values = contrib.getAlterables(key);
+                    Menu menu = new Menu(menuButton);
+                    MenuItem topMi = createMenu(menu, values);
+                    menuButton.setMenu(menu);
+                    menuButton.setSelectedItem(topMi);
+                }
+            }
+        });
+    }
+
     private void cancel() {
         bundle = null;
         shell.close();
+    }
+
+    @Override
+    protected void disposed() {
+        for (IAlterBundleContributor contrib : contribListenerMap.keySet()) {
+            contrib.removeAlterBundeChangeListener(contribListenerMap
+                    .get(contrib));
+            contrib.listenerShutdown();
+        }
     }
 }

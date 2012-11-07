@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.text.dao;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.textdb.dao.StdTextProductDao;
@@ -51,31 +52,31 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  */
 public class TextDao extends DefaultPluginDao {
 
-	public TextDao(String pluginName) throws PluginException {
-		super(pluginName);
-	}
-
-	@Override
-	public void purgeAllData() {
-		logger.warn("purgeAllPluginData not implemented for text. No data will be purged.");
-	}
-
-	protected void loadScripts() throws PluginException {
-		// no op
-	}
+    public TextDao(String pluginName) throws PluginException {
+        super(pluginName);
+    }
 
     @Override
-	public void purgeExpiredData() throws PluginException {
-		int deletedRecords = 0;
+    public void purgeAllData() {
+        logger.warn("purgeAllPluginData not implemented for text. No data will be purged.");
+    }
 
-		// only do full purge every few hours since incremental purge runs every
-		// minute
-		if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) % 3 == 0) {
-			TextDB.purgeStdTextProducts();
-		}
+    protected void loadScripts() throws PluginException {
+        // no op
+    }
 
-		PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
-				"text");
+    @Override
+    public void purgeExpiredData() throws PluginException {
+        int deletedRecords = 0;
+
+        // only do full purge every few hours since incremental purge runs every
+        // minute
+        if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) % 3 == 0) {
+            TextDB.purgeStdTextProducts();
+        }
+
+        PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
+                "text");
     }
 
     @SuppressWarnings("unchecked")
@@ -95,14 +96,17 @@ public class TextDao extends DefaultPluginDao {
     }
 
     @Override
-    public Date getMinInsertTime(String productKey)
+    public Date getMinInsertTime(Map<String, String> productKeys)
             throws DataAccessLayerException {
         StdTextProductDao dao = new StdTextProductDao(true);
         DatabaseQuery query = new DatabaseQuery(dao.getDaoClass());
-        List<String[]> keys = this.getProductKeyParameters(productKey);
-        for (String[] key : keys) {
-            query.addQueryParam(key[0], key[1]);
+
+        if ((productKeys != null) && (productKeys.size() > 0)) {
+            for (Map.Entry<String, String> pair : productKeys.entrySet()) {
+                query.addQueryParam(pair.getKey(), pair.getValue());
+            }
         }
+
         query.addReturnedField("insertTime");
         query.addOrder("insertTime", true);
         query.setMaxResults(1);
@@ -113,5 +117,5 @@ public class TextDao extends DefaultPluginDao {
         } else {
             return result.get(0).getTime();
         }
-	}
+    }
 }

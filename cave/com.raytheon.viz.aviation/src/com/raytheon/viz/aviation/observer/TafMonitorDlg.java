@@ -88,6 +88,7 @@ import com.raytheon.viz.avnconfig.HelpUsageDlg;
 import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TafMonitorDlg (Terminal Aerodome Forecast Monitor Dialog) class.
@@ -128,8 +129,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/27/2010   7383        rferrel     Save changed blink state in configMgr.
  * 3/14/2011    8588        rferrel     Allow monitoring multiple products.
  * 11/29/2011   11612       rferrel     Added observers to update viewer tabs.
- * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer 
- * 
+ * 20JUL2012    14570       gzhang/zhao Added methods for highlighting in TAF viewer
+ * 10/02/2012   1229        rferrel     Changes to work with non-blocking WeatherPlotDialog.
+ * 10/04/2012   1229        rferrel     Changes for non-blocking ClimateMenuDlg.
+ * 10/09/2012   1229        rferrel     Made dialog non-blocking.
+ * 10/10/2012   1229        rferrel     Changes for non-blocking ResourceEditorDlg.
+ * 10/10/2012   1229        rferrel     Changes for non-blocking TransmissionQueueDlg.
+ * 10/10/2012   1229        jkorman     Changes for AlertDialog to support non-blocking.
+ * 10/11/2012   1229        jkorman     Changes for BackupDialog to support non-blocking.     
+ * 10/11/2012   1229        rferrel     Changes for non-blocking TafViewerEditorDlg.
+ * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * </pre>
  * 
  * @author grichard
@@ -188,6 +197,16 @@ public class TafMonitorDlg extends CaveSWTDialog {
     private ResourceEditorDlg resDlg;
 
     /**
+     * 
+     */
+    private BackupDialog backupDialog;
+
+    /**
+     * Alert configuration dialog.
+     */
+    private AlertDialog alertDialog;
+
+    /**
      * Resource configuration manager.
      */
     private ResourceConfigMgr configMgr;
@@ -235,6 +254,12 @@ public class TafMonitorDlg extends CaveSWTDialog {
 
     private List<String> productDisplayList;
 
+    private ClimateMenuDlg climateMenuDlg;
+
+    private TransmissionQueueDlg tqDlg;
+
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -247,7 +272,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
             List<String> productDispalyList) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
                 CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
-                        | CAVE.INDEPENDENT_SHELL);
+                        | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Monitor");
 
         this.stationList = stationList;
@@ -373,7 +398,23 @@ public class TafMonitorDlg extends CaveSWTDialog {
 
         configMgr = ResourceConfigMgr.getInstance();
 
-        tveDlg = new TafViewerEditorDlg(shell, false, stationList);
+        boolean transientDialog = configMgr
+                .getDataAsBoolean(ResourceTag.TransientDialogs);
+
+        /*
+         * Check the transient dialog setting. If the transient dialog is true
+         * then the parent dialog cannot be display on top of this dialog. If
+         * the transient is false the parent dialog can be displayed on top of
+         * this dialog.
+         */
+        if (transientDialog == true) {
+            // Parent dialog cannot be displayed on top of this dialog
+            tveDlg = new TafViewerEditorDlg(shell, stationList, CAVE.NONE);
+        } else {
+            // Parent dialog can be displayed on top of this dialog.
+            tveDlg = new TafViewerEditorDlg(shell, stationList,
+                    CAVE.INDEPENDENT_SHELL);
+        }
 
         createMenus();
         createButtonsComposite();
@@ -480,13 +521,11 @@ public class TafMonitorDlg extends CaveSWTDialog {
         setupMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (resDlg == null) {
+                if (mustCreate(resDlg)) {
                     resDlg = new ResourceEditorDlg(shell);
                     resDlg.open();
-
-                    resDlg = null;
                 } else {
-                    resDlg.showDialog();
+                    resDlg.bringToTop();
                 }
             }
         });
@@ -499,8 +538,14 @@ public class TafMonitorDlg extends CaveSWTDialog {
         alertMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                AlertDialog alertDialog = new AlertDialog(shell);
-                alertDialog.open();
+                // Do we need to create a new dialog?
+                if (mustCreate(alertDialog)) {
+                    alertDialog = new AlertDialog(shell);
+                    alertDialog.open();
+                } else {
+                    // No, so use the existing dialog.
+                    alertDialog.bringToTop();
+                }
             }
         });
 
@@ -560,11 +605,15 @@ public class TafMonitorDlg extends CaveSWTDialog {
         usageMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String text = "This is the main interface to AvnFPS.\n\nAll menus and buttons have associated help.  When the mouse cursor is\nplaced over context sensitive help's 'hot spot', a 'balloon' message\nwill appear.\n\nSuccessful completion of a task is usually shown in a message window\nat the bottom of the main GUI or dialogs. Important system messages\nwill be shown there also.  When an error occurs, a warning/error\ndialog will pop up which requires acknowledgment before one can\ninteract further with the application.\n\nMenu options:\n    File:\n        Check Now:  Forces check of all TAFs and transmission\n                    status.\n        Restart:    Restarts the program, using current \n                    configuration\n        Quit:       Terminates the application.\n\n    Options:\n        Setup:      Calls setup configuration dialog which \n                    allows for setting configuration \n                    resources: fonts, colors and values that \n                    affect program behavior.\n        Alert:      Used to select alert criteria 'on-the-fly' \n                    when the program detects a condition \n                    requiring forecaster's action.\n        Blink:      If selected, station id button will blink\n                    when new notification arrives\n    Help:\n        Used to provide version number and location of AvnFPS\n        documentation web sites and this help window.\n\nTAF Editor: Starts TAF editor\nClimate:    Displays Climate GUI\nPlot:       Displays Weather Plot GUI\nBackup:     Invokes list dialog allowing selection of products to \n            monitor.\n\nServer status indicators. green means server is running, red indicates\nserious misconfiguration of a server(s) or a large (> 1 minute) clock\ndifference (skew) between px2f and workstations.\n\nDATA-xxx:   Provides data to the GUI. The monitor will not function \n            without this server running.\n            \nINGEST-xxx: Data ingest server. You may still issue forecasts when \n            this server is not running, although program will not update\n            with new information as it arrives.\n            \nXMIT-xxx:   Forecast transmission server\n\nQueue:  Background color indicates whether last issued forecast was \n        successfully transmitted. The button invokes transmission queue\n        control dialog.\n\nProduct monitoring window consists of the following units:\n\nSite Id button: used to invoke TAF editor. Its background color is used \n    to indicate problem with data. A new alert will cause the button \n    to blink. Press right mouse button to stop blinking.\n    \nLast TAF and METAR time labels: those display issue time. When either\n    one is late, the corresponding label is highlighted. If there \n    is no TAF, or TAF is older than 24 hours, time is set to None \n    for both TAF and MTR. \n\nFor each monitored data source there is a set of labels indicating \nwhether a particular weather element is in agreement with the forecast.\n\nThe following data sources are currently available:\n\nCurrent Observation: Most recent observation\nNhr Persistence: Most recent observation compared to forecast N hours \n                 ahead\nltg:             Real-time CG lightning strikes\nrltg:            Radar-based 3 hour lightning probability forecast\nNDFD Grids:      GFE generated grids\nllws:            Low Level Wind Shear, based on METAR and radars', profilers'\n                 or aircrafts' vertical wind profile data\nccfp:            Collaborative Convective Forecast Product from AWC\n\nDepending on configuration, some of the above can be accessed through \npopup menus associated with the data source heading labels. Use right \nmouse button to display the menu. Not all labels have an associated \nmenu.\n\nBy pointing mouse cursor at a particular data source you will get \nthe forecast, that data values and list of violated rules, if any,\ndisplayed in a balloon message.\n\nOptional shortcut buttons to the TAF Editor.\nAmd:    call TAF editor initialized for amended TAF for selected site.\nRtd:    call TAF editor initialized for delayed TAF for selected site.\nCor:    call TAF editor initialized for corrected TAF for selected site.";
-                String description = "Usage";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        text);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String descrription = "Usage";
+
+                    String helpText = "This is the main interface to AvnFPS.\n\nAll menus and buttons have associated help.  When the mouse cursor is\nplaced over context sensitive help's 'hot spot', a 'balloon' message\nwill appear.\n\nSuccessful completion of a task is usually shown in a message window\nat the bottom of the main GUI or dialogs. Important system messages\nwill be shown there also.  When an error occurs, a warning/error\ndialog will pop up which requires acknowledgment before one can\ninteract further with the application.\n\nMenu options:\n    File:\n        Check Now:  Forces check of all TAFs and transmission\n                    status.\n        Restart:    Restarts the program, using current \n                    configuration\n        Quit:       Terminates the application.\n\n    Options:\n        Setup:      Calls setup configuration dialog which \n                    allows for setting configuration \n                    resources: fonts, colors and values that \n                    affect program behavior.\n        Alert:      Used to select alert criteria 'on-the-fly' \n                    when the program detects a condition \n                    requiring forecaster's action.\n        Blink:      If selected, station id button will blink\n                    when new notification arrives\n    Help:\n        Used to provide version number and location of AvnFPS\n        documentation web sites and this help window.\n\nTAF Editor: Starts TAF editor\nClimate:    Displays Climate GUI\nPlot:       Displays Weather Plot GUI\nBackup:     Invokes list dialog allowing selection of products to \n            monitor.\n\nServer status indicators. green means server is running, red indicates\nserious misconfiguration of a server(s) or a large (> 1 minute) clock\ndifference (skew) between px2f and workstations.\n\nDATA-xxx:   Provides data to the GUI. The monitor will not function \n            without this server running.\n            \nINGEST-xxx: Data ingest server. You may still issue forecasts when \n            this server is not running, although program will not update\n            with new information as it arrives.\n            \nXMIT-xxx:   Forecast transmission server\n\nQueue:  Background color indicates whether last issued forecast was \n        successfully transmitted. The button invokes transmission queue\n        control dialog.\n\nProduct monitoring window consists of the following units:\n\nSite Id button: used to invoke TAF editor. Its background color is used \n    to indicate problem with data. A new alert will cause the button \n    to blink. Press right mouse button to stop blinking.\n    \nLast TAF and METAR time labels: those display issue time. When either\n    one is late, the corresponding label is highlighted. If there \n    is no TAF, or TAF is older than 24 hours, time is set to None \n    for both TAF and MTR. \n\nFor each monitored data source there is a set of labels indicating \nwhether a particular weather element is in agreement with the forecast.\n\nThe following data sources are currently available:\n\nCurrent Observation: Most recent observation\nNhr Persistence: Most recent observation compared to forecast N hours \n                 ahead\nltg:             Real-time CG lightning strikes\nrltg:            Radar-based 3 hour lightning probability forecast\nNDFD Grids:      GFE generated grids\nllws:            Low Level Wind Shear, based on METAR and radars', profilers'\n                 or aircrafts' vertical wind profile data\nccfp:            Collaborative Convective Forecast Product from AWC\n\nDepending on configuration, some of the above can be accessed through \npopup menus associated with the data source heading labels. Use right \nmouse button to display the menu. Not all labels have an associated \nmenu.\n\nBy pointing mouse cursor at a particular data source you will get \nthe forecast, that data values and list of violated rules, if any,\ndisplayed in a balloon message.\n\nOptional shortcut buttons to the TAF Editor.\nAmd:    call TAF editor initialized for amended TAF for selected site.\nRtd:    call TAF editor initialized for delayed TAF for selected site.\nCor:    call TAF editor initialized for corrected TAF for selected site.";
+                    usageDlg = new HelpUsageDlg(shell, descrription, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -617,9 +666,13 @@ public class TafMonitorDlg extends CaveSWTDialog {
                 msgTypes[2] = StatusMessageType.TafMonCigVis;
                 msgTypes[3] = StatusMessageType.TafMonCigVisTrend;
 
-                ClimateMenuDlg climateMenuDlg = new ClimateMenuDlg(shell,
-                        msgTypes, configMgr.getDefaultBackgroundRGB());
-                climateMenuDlg.open();
+                if (mustCreate(climateMenuDlg)) {
+                    climateMenuDlg = new ClimateMenuDlg(shell, msgTypes,
+                            configMgr.getDefaultBackgroundRGB());
+                    climateMenuDlg.open();
+                } else {
+                    climateMenuDlg.bringToTop();
+                }
             }
         });
 
@@ -632,11 +685,19 @@ public class TafMonitorDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
 
-                if (avnPlotDlg == null) {
+                if (mustCreate(avnPlotDlg)) {
                     avnPlotDlg = new WeatherPlotDialog(shell,
                             StatusMessageType.WeatherPlot, stationList);
+                    avnPlotDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            avnPlotDlg = null;
+                        }
+                    });
                     avnPlotDlg.open();
-                    avnPlotDlg = null;
+                } else {
+                    avnPlotDlg.bringToTop();
                 }
             }
         });
@@ -649,9 +710,13 @@ public class TafMonitorDlg extends CaveSWTDialog {
         backupBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                BackupDialog backup = new BackupDialog(shell,
-                        productDisplayList);
-                backup.open();
+                if (mustCreate(backupDialog)) {
+                    backupDialog = new BackupDialog(shell, productDisplayList);
+                    backupDialog.open();
+                } else {
+                    // No, so use the existing dialog.
+                    backupDialog.bringToTop();
+                }
             }
         });
 
@@ -664,8 +729,12 @@ public class TafMonitorDlg extends CaveSWTDialog {
         queueBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TransmissionQueueDlg tqd = new TransmissionQueueDlg(shell);
-                tqd.open();
+                if (mustCreate(tqDlg)) {
+                    tqDlg = new TransmissionQueueDlg(shell);
+                    tqDlg.open();
+                } else {
+                    tqDlg.bringToTop();
+                }
             }
         });
     }
@@ -823,7 +892,8 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
 
         tveDlg.disposeDialog();
-        shell.dispose();
+        // shell.dispose();
+        close();
         return true;
     }
 
@@ -918,10 +988,10 @@ public class TafMonitorDlg extends CaveSWTDialog {
     public final List<ViewerTab> getViewerTabList() {
         return tveDlg.getViewerTabList();
     }
-    
-    //------------------------- DR 14570:
-    
-    public static Map<String,String> getCurrentAlertTimeMap(String siteID){
+
+    // ------------------------- DR 14570:
+
+    public static Map<String, String> getCurrentAlertTimeMap(String siteID) {
         Map<String, String> alertTimeMap = null;
         if (currentDlg != null) {
             if (currentDlg.getDisplay().isDisposed()) {
@@ -936,8 +1006,9 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
         return alertTimeMap;
     }
-    //20120711
-    public static Map<String,String[]> getCurrentTempoMap(String siteID){
+
+    // 20120711
+    public static Map<String, String[]> getCurrentTempoMap(String siteID) {
         Map<String, String[]> tempoMap = null;
         if (currentDlg != null) {
             if (currentDlg.getDisplay().isDisposed()) {
@@ -945,7 +1016,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
             } else {
                 for (TafSiteComp siteRow : currentDlg.getTafSiteComps()) {
                     if (siteRow.getStationName().equals(siteID)) {
-                        tempoMap= siteRow.getTempoMap();
+                        tempoMap = siteRow.getTempoMap();
                     }
                 }
             }
