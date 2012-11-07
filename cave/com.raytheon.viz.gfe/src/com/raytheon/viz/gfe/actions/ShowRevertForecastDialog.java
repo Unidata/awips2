@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.dialogs.WERevertDialog;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 27, 2008					Eric Babin Initial Creation
  * 07/09/2008   962        bphillip    Integrated functionality
+ * Oct 26, 2012 1287       rferrel     Changes for non-blocking WERevertDialog.
  * 
  * </pre>
  * 
@@ -45,6 +46,7 @@ import com.raytheon.viz.gfe.dialogs.WERevertDialog;
  */
 
 public class ShowRevertForecastDialog extends AbstractHandler {
+    private WERevertDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -60,13 +62,17 @@ public class ShowRevertForecastDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        WERevertDialog dialog = new WERevertDialog(shell, dm);
+            dialog = new WERevertDialog(shell, dm);
 
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

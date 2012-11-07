@@ -66,6 +66,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      in initializeComponents
  * 10/12/2010   6009        rferrel     Code clean up from making TafSiteConfig
  *                                      a singleton
+ * 10/04/2012   1229        rferrel     Made non-blocking.
+ * 10/08/2012   1229        rferrel     Changes for non-blocking WindRosePlotDlg.
+ * 10/09/2012   1229        rferrel     Changes for non-blocking MetarDisplayDialog.
+ * 10/09/2012   1229        rferrel     Changes for non-blocking CigVisTrendDlg.
+ * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -102,6 +107,8 @@ public class ClimateMenuDlg extends CaveSWTDialog {
 
     private CigVisTrendDlg cigVisTrend;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -114,7 +121,8 @@ public class ClimateMenuDlg extends CaveSWTDialog {
      */
     public ClimateMenuDlg(Shell parent, StatusMessageType[] statusMsgTypes,
             RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Climate Menu");
 
         this.statusMsgTypes = statusMsgTypes;
@@ -229,11 +237,15 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         usageMenuItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS Climate Menu - Usage";
-                String helpText = "This master menu GUI is used to launch applications that display NCDC\nclimatological data for observation sites in a variety of formats.\n\nButton description:\n\nMETARs:       use to display reconstructed METARs for a user-defined\n              span of days\nWind Rose:    displays Wind Rose for selected dates, times and flight\n              category conditions\nCigVis Dist:  displays ceiling, visibility and flight category\n              distributions by month, hour and wind direction\nCigVis Trend: displays 3-12 hour ceiling, visibility and flight\n              category forecast based on initial conditions";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS Climate Menu - Usage";
+
+                    String helpText = "This master menu GUI is used to launch applications that display NCDC\nclimatological data for observation sites in a variety of formats.\n\nButton description:\n\nMETARs:       use to display reconstructed METARs for a user-defined\n              span of days\nWind Rose:    displays Wind Rose for selected dates, times and flight\n              category conditions\nCigVis Dist:  displays ceiling, visibility and flight category\n              distributions by month, hour and wind direction\nCigVis Trend: displays 3-12 hour ceiling, visibility and flight\n              category forecast based on initial conditions";
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -258,11 +270,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         metarsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (metarDlg == null) {
+                if (metarDlg == null || metarDlg.getShell() == null
+                        || metarDlg.isDisposed()) {
                     metarDlg = new MetarDisplayDialog(shell, stationList,
                             statusMsgTypes[0], statusCompRGB);
                     metarDlg.open();
-                    metarDlg = null;
+                } else {
+                    metarDlg.bringToTop();
                 }
             }
         });
@@ -277,11 +291,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         windRoseBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (windRose == null || windRose.isDisposed()) {
+                if (windRose == null || windRose.getShell() == null
+                        || windRose.isDisposed()) {
                     windRose = new WindRosePlotDlg(shell, stationList,
                             statusMsgTypes[1], statusCompRGB);
                     windRose.open();
-                    windRose = null;
+                } else {
+                    windRose.bringToTop();
                 }
             }
         });
@@ -296,11 +312,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         distBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisDist == null) {
+                if (cigVisDist == null || cigVisDist.getShell() == null
+                        || cigVisDist.isDisposed()) {
                     cigVisDist = new CigVisDistributionDlg(shell, stationList,
                             statusMsgTypes[2], statusCompRGB);
                     cigVisDist.open();
-                    cigVisDist = null;
+                } else {
+                    cigVisDist.bringToTop();
                 }
             }
         });
@@ -315,11 +333,13 @@ public class ClimateMenuDlg extends CaveSWTDialog {
         trendBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (cigVisTrend == null) {
+                if (cigVisTrend == null || cigVisTrend.getShell() == null
+                        || cigVisTrend.isDisposed()) {
                     cigVisTrend = new CigVisTrendDlg(shell, stationList,
                             statusMsgTypes[3], statusCompRGB);
                     cigVisTrend.open();
-                    cigVisTrend = null;
+                } else {
+                    cigVisTrend.bringToTop();
                 }
             }
         });

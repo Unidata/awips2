@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28 FEB 2008  938        lvenable    Initial creation.
  * 4/8/2008     934        grichard    Added IStatusViewable interface.
  * 9/12/2008    1444       grichard    Accommodate separate message logs.
+ * 10/12/2012   1229       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -81,7 +82,7 @@ public class MessageViewerDlg extends CaveSWTDialog {
      */
     public MessageViewerDlg(Composite parent, StatusMessageType msgType) {
         super(parent.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS,
-                CAVE.PERSPECTIVE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("Message Log");
 
         this.msgType = msgType;
@@ -177,17 +178,5 @@ public class MessageViewerDlg extends CaveSWTDialog {
             msgList.remove(msgList.getItemCount() - 1);
         }
         msgList.setSelection(0);
-    }
-
-    /**
-     * Show the dialog.
-     */
-    public void showDialog() {
-
-        if (shell.isVisible() == false) {
-            shell.setVisible(true);
-        }
-
-        shell.setActive();
     }
 }

@@ -31,6 +31,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
+import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 
 /**
  * This class is used to route messages intended for the purge service to the
@@ -70,20 +71,32 @@ public class PurgeRequest {
             List<String> retVal = new ArrayList<String>();
             List<String> plugins = getAvailablePlugins();
 
-            for (int i = 0; i < plugins.size(); i++) {
-                List<PurgeRule> rules = PluginDao.getPurgeRulesForPlugin(plugins
-                        .get(i));
-                if (rules.isEmpty()) {
-                    retVal.add(plugins.get(i));
+            for (String plugin : plugins) {
+                PurgeRuleSet rules = PluginDao.getPurgeRulesForPlugin(plugin);
+
+                List<PurgeRule> defRules = rules.getDefaultRules();
+                List<PurgeRule> ruleList = rules.getRules();
+                List<String> purgeKeys = rules.getKeys();
+                if ((defRules == null)
+                        && ((ruleList == null) || ruleList.isEmpty())) {
+                    retVal.add(plugin);
                     retVal.add("No Rules Specified. Using default.");
-                }else{
-                    for (PurgeRule rule : rules) {
-                        retVal.add(rule.getId().getPluginName());
-                        retVal.add(rule.getRuleDescription());
+                } else {
+                    if (defRules != null) {
+                        for (PurgeRule rule : defRules) {
+                            retVal.add(plugin);
+                            retVal.add(rule.getRuleDescription(purgeKeys));
+                        }
+                    }
+                    if (ruleList != null) {
+                        for (PurgeRule rule : ruleList) {
+                            retVal.add(plugin);
+                            retVal.add(rule.getRuleDescription(purgeKeys));
+                        }
                     }
                 }
             }
-            return retVal.toArray(new String[] {});
+            return retVal.toArray(new String[retVal.size()]);
         } catch (Exception e) {
             throw new EdexException("Error getting plugin purge info", e);
         }

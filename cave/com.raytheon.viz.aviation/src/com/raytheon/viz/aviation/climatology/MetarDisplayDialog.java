@@ -90,6 +90,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 4/4/2011     8896       rferrel     Made timeout configurable
  * 4/8/2011     8838       rferrel     Properly set up "Show Display"
  * 4/12/2011    8861       rferrel     Added file permission check in savedata
+ * 10/09/2012   1229       rferrel     Change to non-blocking dialog.
+ * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -98,7 +100,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class MetarDisplayDialog extends CaveSWTDialog implements
         PyProcessListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarDisplayDialog.class);
 
     /**
@@ -165,6 +167,8 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
 
     private PythonProcess pythonScript = null;
 
+    private HelpUsageDlg usageDlg;
+
     /**
      * Constructor.
      * 
@@ -179,7 +183,8 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
      */
     public MetarDisplayDialog(Shell parent, java.util.List<String> icaos,
             StatusMessageType msgType, RGB statusCompRGB) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT
+                | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS - METAR Display");
 
         this.icaos = icaos;
@@ -484,11 +489,16 @@ public class MetarDisplayDialog extends CaveSWTDialog implements
         usageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "METAR Display Help";
-                String helpText = "This dialog is used to display METARs reconstructed from climate data.\n\nMenu Bar\nFile:\n    Print:      invokes printer selection dialog.\n    Save As:    invokes file selection dialog.\n\nOptions:\n    Show Decoded:   toggles between METAR and decoded (ARONET) display \n                format\n    Update on Selection: when selected, \"Station\", \"Month\", \"Day\" \n                and \"Num Days\" changes update the display without \n                pressing \"Show\"\n\nDate Selection\n    Year:       select start year.\n    Month:      select start month.\n    Day:        select start day. Range of days is always 1-31, \n                year 2000, month 2, day 31 results in data for \n                March 2, 2000.\n    Num Days:   number of days of data to display.\n\nShow:   displays reconstructed METARs for the selected dates and \n        display format.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "METAR Display Help";
+
+                    String helpText = "This dialog is used to display METARs reconstructed from climate data.\n\nMenu Bar\nFile:\n    Print:      invokes printer selection dialog.\n    Save As:    invokes file selection dialog.\n\nOptions:\n    Show Decoded:   toggles between METAR and decoded (ARONET) display \n                format\n    Update on Selection: when selected, \"Station\", \"Month\", \"Day\" \n                and \"Num Days\" changes update the display without \n                pressing \"Show\"\n\nDate Selection\n    Year:       select start year.\n    Month:      select start month.\n    Day:        select start day. Range of days is always 1-31, \n                year 2000, month 2, day 31 results in data for \n                March 2, 2000.\n    Num Days:   number of days of data to display.\n\nShow:   displays reconstructed METARs for the selected dates and \n        display format.";
+
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }

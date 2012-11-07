@@ -55,7 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      in initializeComponents.
  * 10/06/2010   6009        rferrel     Use product to get initial selected item.
  * 3/14/2011    8588        rferrel     Allow selection of multiple products.
- * 
+ * 20121010     1229        jkorman     Added DO_NOT_BLOCK so dialog does not block on open.     
  * </pre>
  * 
  * @author lvenable
@@ -88,7 +88,7 @@ public class BackupDialog extends CaveSWTDialog {
      */
     public BackupDialog(Shell parent, java.util.List<String> productDisplayList) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
-                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT);
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("AvnFPS Backup");
         this.productDisplayList = productDisplayList;
     }

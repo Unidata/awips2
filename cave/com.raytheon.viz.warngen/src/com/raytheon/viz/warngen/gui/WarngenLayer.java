@@ -52,6 +52,7 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
@@ -137,6 +138,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * 03/19/2012   DR 14690   Qinglu Lin  While newHatchedArea==null, handle the polygon differently
  *                                     for initial warning and followup (CON); and 
  *                                     convert ratio to percentage while doing comparison.
+ * 10/29/2012   DR 15479   Qinglu Lin  Added code to call removeDuplicateCoordinate() 
+ *                                     in redrawBoxFromHatched().
+ * 11/02/2012   DR 15455   Qinglu Lin  Added setWarningAction(), called redrawBoxFromTrack() while
+ *                                     warningAction is neither null nor WarningAction.NEW, removed 
+ *                                     some code from redrawBoxFromHatched().                                    
  * 
  * </pre>
  * 
@@ -221,6 +227,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getConverterTo(SI.KILOMETRE.times(SI.KILOMETRE));
 
     private GeospatialDataList geoData = null;
+
+    private WarningAction warningAction = null;
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -474,14 +482,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (frameCount == 1 && displayState.geomChanged) {
                 displayState.geomChanged = false;
             }
-            // Initialize box
-            if (((configuration.isTrackEnabled() == false || configuration
-                    .getPathcastConfig() == null) && this.displayState.displayType != DisplayType.POLY)
-                    || frameCount == 1) {
-                createSquare();
-                resetInitialFrame();
+            if (warningAction == null || warningAction == WarningAction.NEW) {
+            	// Initialize box
+            	if (((configuration.isTrackEnabled() == false || configuration
+            			.getPathcastConfig() == null) && this.displayState.displayType != DisplayType.POLY)
+            			|| frameCount == 1) {
+            		createSquare();
+            		resetInitialFrame();
+            	} else {
+            		redrawBoxFromTrack();
+            	}
             } else {
-                redrawBoxFromTrack();
+            	redrawBoxFromTrack();
             }
         }
 
@@ -1364,10 +1376,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         if (displayState.mode == Mode.DRAG_ME) {
             return;
-        } else if (displayState.trackVisible == false
-                && displayState.displayType != DisplayType.POLY) {
-            createSquare();
-            return;
         }
         DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
         GeometryFactory gf = new GeometryFactory();
@@ -1585,6 +1593,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             try {
                 long t0 = System.currentTimeMillis();
+                state.removeDuplicateCoordinate();
                 Polygon hatched = new PolygonUtil(this, geoData.nx, geoData.ny,
                         20, geoData.localExtent, geoData.localToLatLon)
                         .hatchWarningArea(state.getWarningPolygon(),
@@ -2321,5 +2330,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             throw new RuntimeException("Error transforming object, "
                     + e.getLocalizedMessage(), e);
         }
+    }
+    
+    public void setWarningAction(WarningAction warningAction) {
+    	this.warningAction = warningAction;
     }
 }

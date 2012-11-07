@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
@@ -54,10 +55,8 @@ public class FFMPDataContainer {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataContainer.class);
 
-    private java.util.concurrent.ConcurrentHashMap<String, FFMPBasinData> basinDataMap 
-    			= new java.util.concurrent.ConcurrentHashMap<String, FFMPBasinData>();//DR 15471
-    //private HashMap<String, FFMPBasinData> basinDataMap = new HashMap<String, FFMPBasinData>();
-    
+    private final ConcurrentHashMap<String, FFMPBasinData> basinDataMap = new ConcurrentHashMap<String, FFMPBasinData>();// DR
+
     private String sourceName = null;
 
     private String filePath = null;
@@ -80,56 +79,6 @@ public class FFMPDataContainer {
         }
     }
 
-    public Set<String> getKeys() {
-        return basinDataMap.keySet();
-    }
-
-    /**
-     * Get the one you are looking for
-     * 
-     * @return
-     */
-    public FFMPBasinData getBasinData(String huc) {
-        if (basinDataMap.containsKey(huc)) {
-            return basinDataMap.get(huc);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * maybe this will work
-     * 
-     * @param basins
-     * @param hucName
-     */
-    public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
-        for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
-            FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
-            if (basin != null) {
-                if (basin instanceof FFMPGuidanceBasin) {
-                    FFMPGuidanceBasin gbasin = (FFMPGuidanceBasin) basin;
-                    gbasin.getGuidValues().putAll(
-                            ((FFMPGuidanceBasin) entry.getValue())
-                                    .getGuidValues());
-                } else {
-                    basin.getValues().putAll(entry.getValue().getValues());
-                }
-            } else {
-                getBasinData(hucName).put(entry.getKey(), entry.getValue());
-            }
-        }
-    }
-
-    /**
-     * Add a brand new one for new source, or initialization
-     * 
-     * @param basins
-     */
-    public void setBasinData(String huc, FFMPBasinData fftiData) {
-        basinDataMap.put(huc, fftiData);
-    }
-
     /**
      * Adds to the cache
      * 
@@ -147,232 +96,154 @@ public class FFMPDataContainer {
 
         FFMPBasinData currBasinData = getBasinData(huc);
 
-        if (currBasinData == null) {
-            setBasinData(huc, newBasinData);
-        } else {
+        synchronized (currBasinData) {
 
-            for (Long key : newBasinData.getBasins().keySet()) {
+            if (currBasinData == null) {
+                setBasinData(huc, newBasinData);
+            } else {
 
-                if (guid) {
+                for (Long key : newBasinData.getBasins().keySet()) {
 
-                    FFMPGuidanceBasin basin = null;
+                    if (guid) {
 
-                    if (currBasinData.get(key) instanceof FFMPGuidanceBasin) {
-                        basin = (FFMPGuidanceBasin) currBasinData.get(key);
-                    }
+                        FFMPGuidanceBasin basin = null;
 
-                    if (basin == null) {
-
-                        FFMPBasin newbasin = newBasinData.get(key);
-                        basin = new FFMPGuidanceBasin(key,
-                                newbasin.getAggregated());
-
-                        if (newbasin instanceof FFMPGuidanceBasin) {
-
-                            Float val = ((FFMPGuidanceBasin) newbasin).getValue(date, source.getSourceName());
-                            basin.setValue(source.getSourceName(), date, val);
-                        } else {
-                            Float val = newbasin.getValue(date);
-                            basin.setValue(source.getSourceName(), date, val);
+                        if (currBasinData.get(key) instanceof FFMPGuidanceBasin) {
+                            basin = (FFMPGuidanceBasin) currBasinData.get(key);
                         }
 
-                        currBasinData.put(key, basin);
+                        if (basin == null) {
 
-                    } else {
+                            FFMPBasin newbasin = newBasinData.get(key);
+                            basin = new FFMPGuidanceBasin(key,
+                                    newbasin.getAggregated());
 
-                        FFMPBasin newbasin = newBasinData.get(key);
+                            if (newbasin instanceof FFMPGuidanceBasin) {
 
-                        if (newbasin instanceof FFMPGuidanceBasin) {
-                            
-                            FFMPGuidanceBasin newGbasin = (FFMPGuidanceBasin)newBasinData.get(key);
-                            Float basinVal = basin.getValue(date, source.getSourceName());
-                            Float newBasinVal = newGbasin.getValue(date, source.getSourceName());
-
-                            if (basinVal != null
-                                && basinVal >= 0.0f 
-                                && !basinVal.isNaN()
-                                && basinVal != FFMPUtils.MISSING) {
-
-                                if (newBasinVal != null
-                                    && newBasinVal >= 0.0f
-                                    && !newBasinVal.isNaN()
-                                    && newBasinVal != FFMPUtils.MISSING) {
-
-                                    float val = (float) ((basinVal + newBasinVal) / 2.0);
-                                    basin.setValue(source.getSourceName(),
-                                            date, val);
-                                }
+                                Float val = ((FFMPGuidanceBasin) newbasin)
+                                        .getValue(date, source.getSourceName());
+                                basin.setValue(source.getSourceName(), date,
+                                        val);
                             } else {
-                                
-                                if (newBasinVal.isNaN()) {
-                                    newBasinVal = FFMPUtils.MISSING;
-                                }
-                                
-                                basin.setValue(source.getSourceName(),
-                                        date, newBasinVal);
+                                Float val = newbasin.getValue(date);
+                                basin.setValue(source.getSourceName(), date,
+                                        val);
                             }
 
+                            //currBasinData.put(key, basin);
+                            syncPut(currBasinData, key, basin);
                         } else {
 
-                            Float basinVal = basin.getValue(date, source.getSourceName());
-                            Float newBasinVal = newbasin.getValue();
-                            
-                            if (basinVal != null
-                                    && basinVal >= 0.0f 
-                                    && !basinVal.isNaN()
-                                    && basinVal != FFMPUtils.MISSING) {
-                                
-                                if (newBasinVal != null
-                                        && newBasinVal >= 0.0f
-                                        && !newBasinVal.isNaN()
-                                        && newBasinVal != FFMPUtils.MISSING) {
+                            FFMPBasin newbasin = newBasinData.get(key);
+
+                            if (newbasin instanceof FFMPGuidanceBasin) {
+
+                                FFMPGuidanceBasin newGbasin = (FFMPGuidanceBasin) newBasinData
+                                        .get(key);
+                                Float basinVal = basin.getValue(date,
+                                        source.getSourceName());
+                                Float newBasinVal = newGbasin.getValue(date,
+                                        source.getSourceName());
+
+                                if (basinVal != null && basinVal >= 0.0f
+                                        && !basinVal.isNaN()
+                                        && basinVal != FFMPUtils.MISSING) {
+
+                                    if (newBasinVal != null
+                                            && newBasinVal >= 0.0f
+                                            && !newBasinVal.isNaN()
+                                            && newBasinVal != FFMPUtils.MISSING) {
 
                                         float val = (float) ((basinVal + newBasinVal) / 2.0);
                                         basin.setValue(source.getSourceName(),
                                                 date, val);
+                                    }
+                                } else {
+
+                                    if (newBasinVal.isNaN()) {
+                                        newBasinVal = FFMPUtils.MISSING;
+                                    }
+
+                                    basin.setValue(source.getSourceName(),
+                                            date, newBasinVal);
                                 }
+
                             } else {
-                                
-                                if (newBasinVal.isNaN()) {
-                                    newBasinVal = FFMPUtils.MISSING;
+
+                                Float basinVal = basin.getValue(date,
+                                        source.getSourceName());
+                                Float newBasinVal = newbasin.getValue();
+
+                                if (basinVal != null && basinVal >= 0.0f
+                                        && !basinVal.isNaN()
+                                        && basinVal != FFMPUtils.MISSING) {
+
+                                    if (newBasinVal != null
+                                            && newBasinVal >= 0.0f
+                                            && !newBasinVal.isNaN()
+                                            && newBasinVal != FFMPUtils.MISSING) {
+
+                                        float val = (float) ((basinVal + newBasinVal) / 2.0);
+                                        basin.setValue(source.getSourceName(),
+                                                date, val);
+                                    }
+                                } else {
+
+                                    if (newBasinVal.isNaN()) {
+                                        newBasinVal = FFMPUtils.MISSING;
+                                    }
+
+                                    basin.setValue(source.getSourceName(),
+                                            date, newBasinVal);
                                 }
-                                
-                                basin.setValue(source.getSourceName(),
-                                        date, newBasinVal);
                             }
                         }
-                    }
-                    
-                } else {
-
-                    FFMPBasin basin = currBasinData.get(key);
-                    FFMPBasin newbasin = newBasinData.get(key);
-                    Float val = 0.0f;
-
-                    if (basin == null) {
-
-                        basin = new FFMPBasin(key, newbasin.getAggregated());
-                        val = newbasin.getValue(date);
-
-                        if (val.isNaN()) {
-                            val = 0.0f;
-                        }
-
-                        basin.setValue(date, val);
-                        currBasinData.put(key, basin);
 
                     } else {
 
-                        if (basin.getValue(date) != null
-                                && !basin.getValue(date).isNaN()
-                                && basin.getValue(date) != 0.0) {
-                            if (newbasin.getValue(date) != null
-                                    && !newbasin.getValue(date).isNaN()
-                                    && newbasin.getValue(date) != 0.0) {
+                        FFMPBasin basin = currBasinData.get(key);
+                        FFMPBasin newbasin = newBasinData.get(key);
+                        Float val = 0.0f;
 
-                                val = (float) ((basin.getValue(date) + newbasin
-                                        .getValue(date)) / 2);
-                            }
+                        if (basin == null) {
 
-                        } else {
+                            basin = new FFMPBasin(key, newbasin.getAggregated());
                             val = newbasin.getValue(date);
 
                             if (val.isNaN()) {
                                 val = 0.0f;
                             }
+
+                            basin.setValue(date, val);
+                            //currBasinData.put(key, basin);
+                            syncPut(currBasinData, key, basin);
+                        } else {
+
+                            if (basin.getValue(date) != null
+                                    && !basin.getValue(date).isNaN()
+                                    && basin.getValue(date) != 0.0) {
+                                if (newbasin.getValue(date) != null
+                                        && !newbasin.getValue(date).isNaN()
+                                        && newbasin.getValue(date) != 0.0) {
+
+                                    val = (float) ((basin.getValue(date) + newbasin
+                                            .getValue(date)) / 2);
+                                }
+
+                            } else {
+                                val = newbasin.getValue(date);
+
+                                if (val.isNaN()) {
+                                    val = 0.0f;
+                                }
+                            }
+
+                            basin.setValue(date, val);
                         }
-
-                        basin.setValue(date, val);
                     }
                 }
             }
         }
-    }
-
-    public void setSourceName(String sourceName) {
-        this.sourceName = sourceName;
-    }
-
-    public String getSourceName() {
-        return sourceName;
-    }
-
-    /**
-     * check for the oldest key
-     * 
-     * @return
-     */
-    public Date getOldest() {
-        try {
-            for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                    .entrySet()) {
-                FFMPBasin basin = entry.getValue();
-                if (basin instanceof FFMPGuidanceBasin) {
-                    ((FFMPGuidanceBasin) basin).getGuidValues().firstKey();
-                } else {
-                    return basin.getValues().firstKey();
-                }
-            }
-        } catch (Exception e) {
-            statusHandler.debug("No old times available..." + getSourceName());
-            return null;
-        }
-        return null;
-    }
-
-    /**
-     * Gets the list of ordered time keys
-     * 
-     * @param barrierTime
-     * @return
-     */
-    public ArrayList<Date> getOrderedTimes(Date barrierTime) {
-        ArrayList<Date> orderedTimes = new ArrayList<Date>();
-        try {
-            for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                    .entrySet()) {
-                FFMPBasin basin = entry.getValue();
-                for (Date time : basin.getValues().descendingKeySet()) {
-                    if (time.after(barrierTime)) {
-                        orderedTimes.add(time);
-                    }
-                }
-
-                Collections.reverse(orderedTimes);
-
-                return orderedTimes;
-            }
-        } catch (Exception e) {
-            statusHandler.debug("No ordered times available..."
-                    + getSourceName());
-            return null;
-        }
-
-        return null;
-    }
-
-    /**
-     * check for the newest key
-     * 
-     * @return
-     */
-    public Date getNewest() {
-        try {
-            for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                    .entrySet()) {
-                FFMPBasin basin = entry.getValue();
-                if (basin instanceof FFMPGuidanceBasin) {
-                    ((FFMPGuidanceBasin) basin).getGuidValues().lastKey();
-                } else {
-                    return basin.getValues().lastKey();
-                }
-            }
-        } catch (Exception e) {
-            statusHandler.debug("No new times available..." + getSourceName());
-            return null;
-        }
-
-        return null;
     }
 
     /**
@@ -383,13 +254,18 @@ public class FFMPDataContainer {
      */
     public boolean containsKey(Date date) {
         boolean contains = false;
+
         if (getBasinData("ALL") != null) {
-            for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                    .entrySet()) {
-                FFMPBasin basin = entry.getValue();
-                contains = basin.getValues().containsKey(date);
-                if (contains == true) {
-                    return true;
+
+            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+            synchronized (basins) {
+                for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                    FFMPBasin basin = entry.getValue();
+                    contains = basin.getValues().containsKey(date);
+                    if (contains == true) {
+                        return true;
+                    }
                 }
             }
         }
@@ -404,38 +280,45 @@ public class FFMPDataContainer {
      */
     public boolean containsKey(String sourceName) {
         boolean contains = false;
-        for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                .entrySet()) {
-            FFMPBasin basin = entry.getValue();
-            if (basin instanceof FFMPGuidanceBasin) {
-                contains = ((FFMPGuidanceBasin) basin).containsKey(sourceName);
-                if (contains == true) {
-                    // System.out.println("Contains Key: " + sourceName);
-                    return true;
+        HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+        synchronized (basins) {
+            for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                FFMPBasin basin = entry.getValue();
+                if (basin instanceof FFMPGuidanceBasin) {
+                    contains = ((FFMPGuidanceBasin) basin)
+                            .containsKey(sourceName);
+                    if (contains == true) {
+                        // System.out.println("Contains Key: " + sourceName);
+                        return true;
+                    }
                 }
             }
         }
+
         // System.out.println("No Key: " + sourceName);
         return false;
     }
 
     /**
-     * check for size
+     * Get the one you are looking for
      * 
-     * @param date
      * @return
      */
-    public int size() {
-        for (Entry<Long, FFMPBasin> entry : getBasinData("ALL").getBasins()
-                .entrySet()) {
-            FFMPBasin basin = entry.getValue();
-            if (basin instanceof FFMPGuidanceBasin) {
-                return ((FFMPGuidanceBasin) basin).getGuidValues().size();
-            } else {
-                return basin.getValues().size();
-            }
+    public FFMPBasinData getBasinData(String huc) {
+        if (basinDataMap.containsKey(huc)) {
+            return basinDataMap.get(huc);
+        } else {
+            return null;
         }
-        return 0;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public Set<String> getKeys() {
+        return basinDataMap.keySet();
     }
 
     /**
@@ -457,6 +340,98 @@ public class FFMPDataContainer {
         return val;
     }
 
+    /**
+     * check for the newest key
+     * 
+     * @return
+     */
+    public Date getNewest() {
+        try {
+
+            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+            synchronized (basins) {
+                for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                    FFMPBasin basin = entry.getValue();
+                    if (basin instanceof FFMPGuidanceBasin) {
+                        ((FFMPGuidanceBasin) basin).getGuidValues().lastKey();
+                    } else {
+                        return basin.getValues().lastKey();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.debug("No new times available..." + getSourceName());
+            return null;
+        }
+
+        return null;
+    }
+
+    /**
+     * check for the oldest key
+     * 
+     * @return
+     */
+    public Date getOldest() {
+        try {
+            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+            synchronized (basins) {
+                for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                    FFMPBasin basin = entry.getValue();
+                    if (basin instanceof FFMPGuidanceBasin) {
+                        ((FFMPGuidanceBasin) basin).getGuidValues().firstKey();
+                    } else {
+                        return basin.getValues().firstKey();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.debug("No old times available..." + getSourceName());
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the list of ordered time keys
+     * 
+     * @param barrierTime
+     * @return
+     */
+    public ArrayList<Date> getOrderedTimes(Date barrierTime) {
+        ArrayList<Date> orderedTimes = new ArrayList<Date>();
+        try {
+            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+            synchronized (basins) {
+                for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                    FFMPBasin basin = entry.getValue();
+                    for (Date time : basin.getValues().descendingKeySet()) {
+                        if (time.after(barrierTime)) {
+                            orderedTimes.add(time);
+                        }
+                    }
+
+                    Collections.reverse(orderedTimes);
+
+                    return orderedTimes;
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.debug("No ordered times available..."
+                    + getSourceName());
+            return null;
+        }
+
+        return null;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
     /*
      * clean up old junk
      */
@@ -466,12 +441,86 @@ public class FFMPDataContainer {
         }
     }
 
+    /**
+     * maybe this will work
+     * 
+     * @param basins
+     * @param hucName
+     */
+    public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
+
+        for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
+            FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
+            if (basin != null) {
+                if (basin instanceof FFMPGuidanceBasin) {
+                    FFMPGuidanceBasin gbasin = (FFMPGuidanceBasin) basin;
+                    gbasin.getGuidValues().putAll(
+                            ((FFMPGuidanceBasin) entry.getValue())
+                                    .getGuidValues());
+                } else {
+                    basin.getValues().putAll(entry.getValue().getValues());
+                }
+            } else {
+            	syncPut(getBasinData(hucName), entry.getKey(), entry.getValue());
+                //getBasinData(hucName).put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Add a brand new one for new source, or initialization
+     * 
+     * @param basins
+     */
+    public void setBasinData(String huc, FFMPBasinData fftiData) {
+        basinDataMap.put(huc, fftiData);
+    }
+
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
+    /**
+     * check for size
+     * 
+     * @param date
+     * @return
+     */
+    public int size() {
+
+        HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+
+        synchronized (basins) {
+            for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
+                FFMPBasin basin = entry.getValue();
+                if (basin instanceof FFMPGuidanceBasin) {
+                    return ((FFMPGuidanceBasin) basin).getGuidValues().size();
+                } else {
+                    return basin.getValues().size();
+                }
+            }
+        }
+        return 0;
+    }
+    
+    /**
+     * DR 15471 lock put() to avoid ConcurrentModificationException     
+     */    
+    
+    private void syncPut(FFMPBasinData fbd, Long key, FFMPBasin value){
+    	if(fbd==null || key==null) 
+    		return;
+    	
+    	HashMap<Long,FFMPBasin> basins = fbd.getBasins();
+    	if(basins == null)
+    		return;
+    	
+    	synchronized (basins) {
+           basins.put(key, value);
+        }
+    }
 }

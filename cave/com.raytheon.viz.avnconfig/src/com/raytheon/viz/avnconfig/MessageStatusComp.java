@@ -67,6 +67,9 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  *    2/6/2008     817         lvenable    Initial creation.
  *    4/7/2008     934         grichard    Added IStatusSettable implementation.
  *    8/11/2008    1314        grichard    Used PathManager for pathnames.
+ *    10/04/2012   1229        rferrel     Added dispose check needed for 
+ *                                          non-blocking dialogs.
+ *    10/12/2012   1229        rferrel     Changes for non-blocking MessageViewerDlg.
  * 
  * </pre>
  * 
@@ -341,17 +344,19 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
             currentMsgColor.dispose();
         }
 
-        currentMsgColor = new Color(parent.getDisplay(), rgbColor);
+        if (!parent.isDisposed()) {
+            currentMsgColor = new Color(parent.getDisplay(), rgbColor);
 
-        msgTF.setText(String.valueOf(msg));
+            msgTF.setText(String.valueOf(msg));
 
-        blinkAndClear();
+            blinkAndClear();
 
-        StringBuilder sb = new StringBuilder(calculateIssueTime());
-        sb.append(" ").append(msg);
+            StringBuilder sb = new StringBuilder(calculateIssueTime());
+            sb.append(" ").append(msg);
 
-        AvnMessageMgr msgMgr = AvnMessageMgr.getInstance();
-        msgMgr.addMessage(msgType, sb.toString());
+            AvnMessageMgr msgMgr = AvnMessageMgr.getInstance();
+            msgMgr.addMessage(msgType, sb.toString());
+        }
     }
 
     /**
@@ -419,12 +424,12 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      * Create the message viewer dialog.
      */
     private void createMessageViewerDialog() {
-        if (msgViewerDlg == null || msgViewerDlg.getShell().isDisposed()) {
+        if (msgViewerDlg == null || msgViewerDlg.getShell() == null
+                || msgViewerDlg.isDisposed()) {
             msgViewerDlg = new MessageViewerDlg(this, msgType);
             msgViewerDlg.open();
-            msgViewerDlg = null;
         } else {
-            msgViewerDlg.showDialog();
+            msgViewerDlg.bringToTop();
         }
     }
 

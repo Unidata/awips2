@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.dialogs.CopyGridsDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Feb 27, 2008					Eric Babin Initial Creation
+ * Oct 23, 2012 1287       rferrel     Changes for non-blocking CopyGridsDialog.
  * 
  * </pre>
  * 
@@ -47,8 +48,15 @@ import com.raytheon.viz.gfe.dialogs.CopyGridsDialog;
 
 public class ShowCopyGridsDialog extends AbstractHandler {
 
-    private static IUFStatusHandler statusHandler = UFStatus
+    private IUFStatusHandler statusHandler = UFStatus
             .getHandler(ShowCopyGridsDialog.class);
+
+    /**
+     * The active dialog. This assumes the dialog is modal. If the dialog is not
+     * modal then the current logic will bring the active dialog back to the top
+     * no matter which option is selected.
+     */
+    private CopyGridsDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -64,26 +72,31 @@ public class ShowCopyGridsDialog extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        boolean isSelected;
-        String selectedOrAll = event.getParameter("selectedOrAll");
-        if ("selected".equalsIgnoreCase(selectedOrAll)) {
-            isSelected = true;
-        } else if ("all".equalsIgnoreCase(selectedOrAll)) {
-            isSelected = false;
+            boolean isSelected;
+            String selectedOrAll = event.getParameter("selectedOrAll");
+            if ("selected".equalsIgnoreCase(selectedOrAll)) {
+                isSelected = true;
+            } else if ("all".equalsIgnoreCase(selectedOrAll)) {
+                isSelected = false;
+            } else {
+                statusHandler
+                        .error("Invalid parmeter \""
+                                + selectedOrAll
+                                + "\" in ShowCopyGridsDialog. Value must be \"selected\" or \"all\".");
+                dialog = null;
+                return null;
+            }
+
+            dialog = new CopyGridsDialog(shell, dm, isSelected);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
         } else {
-            statusHandler
-                    .error("Invalid parmeter \""
-                            + selectedOrAll
-                            + "\" in ShowCopyGridsDialog. Value must be \"selected\" or \"all\".");
-            return null;
+            dialog.bringToTop();
         }
-
-        CopyGridsDialog dialog = new CopyGridsDialog(shell, dm, isSelected);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
 
         return null;
     }
