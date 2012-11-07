@@ -116,6 +116,7 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
 import com.raytheon.viz.gfe.product.ProductFileUtil;
 import com.raytheon.viz.gfe.product.TextDBUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Composite containing the product editor controls.
@@ -137,7 +138,8 @@ import com.raytheon.viz.gfe.product.TextDBUtil;
  * 21 SEP 2010  5817       jnjanga     Fix attribution phrase append from issuance to issuance.
  * 27 OCT 2010  5817       jnjanga     Fix N.P.E caused when call getVTECActionCodes on non VTEC products.
  * 31 AUG 2012 15178       mli         Add autoWrite and autoStore capability
- * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition             
+ * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition
+ * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
  * 
  * </pre>
  * 
@@ -147,10 +149,10 @@ import com.raytheon.viz.gfe.product.TextDBUtil;
  */
 public class ProductEditorComp extends Composite implements
         INotificationObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductEditorComp.class);
 
-    private static final String EMPTY = "";
+    private final String EMPTY = "";
 
     /**
      * Parent composite.
@@ -296,27 +298,27 @@ public class ProductEditorComp extends Composite implements
 
     private String autoSendAddress;
 
-    private String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
+    private final String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
 
-    private TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
+    private final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
 
-    private int initialYear = year(SimulatedTime.getSystemTime().getTime());
+    private final int initialYear = year(SimulatedTime.getSystemTime()
+            .getTime());
 
     // for CTA dialogs
     private String phenSig = null;
 
     private boolean HazardCTA = false;
 
-    private boolean ProductCTA = false;
-
-    private boolean GenericCTA = false;
+    private CallToActionsDlg ctaDialog;
 
     private ProductDataStruct prodDataStruct;
 
     private TimeZone localTimeZone;
-    
+
     private enum Action {
-    	STORE, TRANSMIT, AUTOSTORE };
+        STORE, TRANSMIT, AUTOSTORE
+    };
 
     /**
      * Product transmission callback to report the state of transmitting a
@@ -324,17 +326,17 @@ public class ProductEditorComp extends Composite implements
      */
     private ITransmissionState transmissionCB;
 
-    private SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
+    private final SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
 
-    private SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
+    private final SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
             "yyMMdd'T'HHmm'Z'");
 
-    private Pattern vtecRE = Pattern
+    private final Pattern vtecRE = Pattern
             .compile("/[OTEX]\\.([A-Z]{3})\\.([A-Z]{4})\\.([A-Z]{2})\\."
                     + "([WAYSOFN])\\.([0-9]{4})\\.([0-9]{6})T([0-9]{4})Z-"
                     + "([0-9]{6})T([0-9]{4})Z/");
 
-    private Map<String, Map<String, Integer>> newYearETNs = new HashMap<String, Map<String, Integer>>();
+    private final Map<String, Map<String, Integer>> newYearETNs = new HashMap<String, Map<String, Integer>>();
 
     /**
      * Job to update times in product
@@ -356,14 +358,14 @@ public class ProductEditorComp extends Composite implements
         REG, PE, COR;
     }
 
-    private static final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC",
-            "AAD", "AAE", "RRA", "RRB", "RRC" };
+    private final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC", "AAD",
+            "AAE", "RRA", "RRB", "RRC" };
 
-    private static final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
+    private final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
 
-    private static final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
+    private final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
 
-    private static final String ZERO_VTEC = "000000T0000Z";
+    private final String ZERO_VTEC = "000000T0000Z";
 
     private List<ActiveTableRecord> activeVtecRecords = null;
 
@@ -654,7 +656,7 @@ public class ProductEditorComp extends Composite implements
         transmitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	storeTransmit(Action.TRANSMIT);
+                storeTransmit(Action.TRANSMIT);
             }
         });
         menuItems.add(transmitMI);
@@ -1038,9 +1040,8 @@ public class ProductEditorComp extends Composite implements
      * Store or Transmit text product.
      * 
      * @param action
-     * 				STORE: 		show the Store dialog
-     * 				TRANSMITT: 	shows the Transmit dialog.
-     * 				AUTOSTORE:  implement autoStore
+     *            STORE: show the Store dialog TRANSMITT: shows the Transmit
+     *            dialog. AUTOSTORE: implement autoStore
      */
     private void storeTransmit(Action action) {
 
@@ -1067,19 +1068,20 @@ public class ProductEditorComp extends Composite implements
         }
 
         if (fixText()) {
-        	
+
             // autoStore
             if (action == Action.AUTOSTORE) {
                 if (testVTEC) {
                     devStore(textdbPil.substring(3));
                 } else {
-                    TextDBUtil.storeProduct(textdbPil, getProductText(), testVTEC);
+                    TextDBUtil.storeProduct(textdbPil, getProductText(),
+                            testVTEC);
                 }
 
                 return;
             }
-        	
-           // Store/transmit...
+
+            // Store/transmit...
             boolean showStore = (action == Action.STORE) ? true : false;
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
                     showStore, this, transmissionCB);
@@ -1096,7 +1098,7 @@ public class ProductEditorComp extends Composite implements
             storeDlg.open(pid);
         }
     }
- 
+
     private boolean fixText() {
         textComp.startUpdate();
         // mmaron #7285: make sure there is \n in the end - to allow
@@ -2248,47 +2250,47 @@ public class ProductEditorComp extends Composite implements
             }
         }
     }
-    
+
     /*
-     *  handle autoWrite, autoStore
+     * handle autoWrite, autoStore
      */
     public void doAutoStuff() {
         int autoWrite = 0;
         Object autoWrite_obj = productDefinition.get("autoWrite");
         if (autoWrite_obj != null)
-            autoWrite = (Integer)autoWrite_obj;
-        
+            autoWrite = (Integer) autoWrite_obj;
+
         int autoStore = 0;
         Object autoStore_obj = productDefinition.get("autoStore");
         if (autoStore_obj != null)
-            autoStore = (Integer)autoStore_obj;
+            autoStore = (Integer) autoStore_obj;
 
-    	if (autoWrite == 1) {
+        if (autoWrite == 1) {
             autoWrite();
-    	}
-    	
-    	if (autoStore == 1) {
+        }
+
+        if (autoStore == 1) {
             storeTransmit(Action.AUTOSTORE);
-    	}
+        }
     }
-    
+
     /*
      * autoWrite
      */
     private void autoWrite() {
-        String fname = null; 
+        String fname = null;
         if (productDefinition.get("outputFile") != null) {
             fname = getDefString("outputFile");
-            if (fname.equals(EMPTY)) return;
+            if (fname.equals(EMPTY))
+                return;
         } else {
             return;
         }
-        
+
         fname = fixfname(fname);
 
         try {
-            ProductFileUtil.writeFile(getProductText(), new File(
-                    fname));
+            ProductFileUtil.writeFile(getProductText(), new File(fname));
         } catch (IOException e) {
             MessageBox mb = new MessageBox(parent.getShell(), SWT.OK
                     | SWT.ICON_WARNING);
@@ -2296,21 +2298,20 @@ public class ProductEditorComp extends Composite implements
             mb.open();
         }
     }
-    
+
     /*
      * Replace {prddir} with siteConfig.GFESUITE_PRDDIR if applicable.
      */
     private String fixfname(String fname) {
         if (fname.contains("{prddir}"))
             fname = fname.replace("{prddir}", prdDir);
-    	
+
         return fname;
     }
 
     private String guessFilename() {
         if (productDefinition.get("outputFile") != null) {
-            String basename = new File(
-                    getDefString("outputFile")).getName();
+            String basename = new File(getDefString("outputFile")).getName();
             return basename;
         } else {
             return guessTDBPil();
@@ -2422,40 +2423,33 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void displayCallToActionsDialog(int callToActionType) {
+        // Allow only one of the 3 types of dialogs to be displayed.
+        if (ctaDialog != null && ctaDialog.getShell() != null
+                && !ctaDialog.isDisposed()) {
+            ctaDialog.bringToTop();
+            return;
+        }
 
         if (callToActionType == 1) {
-
-            if (!ProductCTA && !GenericCTA && !HazardCTA) {
-                HazardCTA = true;
-                CTAHazCB(callToActionType);
-                HazardCTA = false;
-            }
+            CTAHazCB(callToActionType);
         }
         if (callToActionType == 2) {
-
-            if (!HazardCTA && !GenericCTA && !ProductCTA) {
-                String[] Sig = new String[1];
-                String pil = getDefString("pil");
-                if (pil != null) {
-                    Sig[0] = pil.substring(0, 3);
-                    ProductCTA = true;
-                    CallToActionsDlg productCTAsDlg = new CallToActionsDlg(
-                            parent.getShell(), callToActionType, Sig, this);
-                    productCTAsDlg.open();
-                    ProductCTA = false;
-                }
+            String[] Sig = new String[1];
+            String pil = getDefString("pil");
+            if (pil != null) {
+                Sig[0] = pil.substring(0, 3);
+                ctaDialog = new CallToActionsDlg(parent.getShell(),
+                        callToActionType, Sig, this);
+                ctaDialog.setBlockOnOpen(false);
+                ctaDialog.open();
             }
         }
         if (callToActionType == 3) {
-
-            if (!ProductCTA && !HazardCTA && !GenericCTA) {
-                GenericCTA = true;
-                String[] Sig = new String[1];
-                CallToActionsDlg genericCTAsDlg = new CallToActionsDlg(
-                        parent.getShell(), callToActionType, Sig, this);
-                genericCTAsDlg.open();
-                GenericCTA = false;
-            }
+            String[] Sig = new String[1];
+            ctaDialog = new CallToActionsDlg(parent.getShell(),
+                    callToActionType, Sig, this);
+            ctaDialog.setBlockOnOpen(false);
+            ctaDialog.open();
         }
     }
 
@@ -2560,9 +2554,22 @@ public class ProductEditorComp extends Composite implements
                     }
                 }
             }// loop
-            CallToActionsDlg hazardCTAsDlg = new CallToActionsDlg(
-                    parent.getShell(), callToActionType, Sig, this);
-            hazardCTAsDlg.open();
+
+            HazardCTA = true;
+            ctaDialog = new CallToActionsDlg(parent.getShell(),
+                    callToActionType, Sig, this);
+            ctaDialog.setBlockOnOpen(false);
+            ctaDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    HazardCTA = false;
+                    ctaDialog = null;
+                }
+            });
+            ctaDialog.open();
+            // Found segment the cursor is in no need to check more segments.
+            break;
         }// loop
     }
 
@@ -2570,8 +2577,6 @@ public class ProductEditorComp extends Composite implements
 
         textEditorST = getTextEditorST();
         prodDataStruct = textComp.getProductDataStruct();
-
-        String product = getProductText();
 
         int offset = textEditorST.getCaretOffset();
         if (offset >= (textEditorST.getCharCount() - 1)) {
@@ -2952,21 +2957,21 @@ public class ProductEditorComp extends Composite implements
         }
 
     }
-    
+
     /*
      * Handle bad characters in text formatter definition.
      */
     private String getDefString(String key) {
         String str = null;
-    	
+
         Object obj = productDefinition.get(key);
-        if (obj != null && obj instanceof Collection ) {
+        if (obj != null && obj instanceof Collection) {
             Collection<?> collection = (Collection<?>) obj;
-            str = (String)(collection.toArray())[0];
+            str = (String) (collection.toArray())[0];
         } else {
             str = (String) productDefinition.get(key);
         }
-    	
+
         return str;
     }
 }
