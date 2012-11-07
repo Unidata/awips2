@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.plugin.nwsauth.exception;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
+
 /**
  * Exception when the application id for a role is not found.
  * 

@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.localization.msgs;
 
+import java.util.Map;
+
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -56,13 +58,7 @@ public class GetServersResponse implements ISerializableObject {
     private String serverDataDir;
 
     @DynamicSerializeElement
-    private String dataDeliveryServer;
-
-    @DynamicSerializeElement
-    private String dataDeliveryLcmServer;
-
-    @DynamicSerializeElement
-    private String dataDeliveryQueryServer;
+    private Map<String, String> serverLocations;
 
     public String getHttpServer() {
         return httpServer;
@@ -97,47 +93,17 @@ public class GetServersResponse implements ISerializableObject {
     }
 
     /**
-     * @param dataDeliveryServer
-     *            the dataDeliveryServer to set
+     * @return
      */
-    public void setDataDeliveryServer(String dataDeliveryServer) {
-        this.dataDeliveryServer = dataDeliveryServer;
+    public Map<String, String> getServerLocations() {
+        return serverLocations;
     }
 
     /**
-     * @return the dataDeliveryServer
+     * @param serverLocations
+     *            the serverLocations to set
      */
-    public String getDataDeliveryServer() {
-        return dataDeliveryServer;
-    }
-
-    /**
-     * @return the dataDeliveryLcmServer
-     */
-    public String getDataDeliveryLcmServer() {
-        return dataDeliveryLcmServer;
-    }
-
-    /**
-     * @param dataDeliveryLcmServer
-     *            the dataDeliveryLcmServer to set
-     */
-    public void setDataDeliveryLcmServer(String dataDeliveryLcmServer) {
-        this.dataDeliveryLcmServer = dataDeliveryLcmServer;
-    }
-
-    /**
-     * @return the dataDeliveryQueryServer
-     */
-    public String getDataDeliveryQueryServer() {
-        return dataDeliveryQueryServer;
-    }
-
-    /**
-     * @param dataDeliveryQueryServer
-     *            the dataDeliveryQueryServer to set
-     */
-    public void setDataDeliveryQueryServer(String dataDeliveryQueryServer) {
-        this.dataDeliveryQueryServer = dataDeliveryQueryServer;
+    public void setServerLocations(Map<String, String> serverLocations) {
+        this.serverLocations = serverLocations;
     }
 }

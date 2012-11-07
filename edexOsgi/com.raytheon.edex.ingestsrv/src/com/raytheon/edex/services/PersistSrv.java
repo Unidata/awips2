@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2008            chammack     Initial creation
  * 02/06/09     1990       bphillip    Refactored to use plugin specific daos
+ * Nov 02, 2012 1302       djohnson    Remove unused method, fix formatting.
  * </pre>
  * 
  * @author chammack
@@ -53,55 +54,54 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  */
 public class PersistSrv {
 
-	private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-	private static final PersistSrv instance = new PersistSrv();
+    private static final PersistSrv instance = new PersistSrv();
 
-	public static PersistSrv getInstance() {
-		return instance;
-	}
+    public static PersistSrv getInstance() {
+        return instance;
+    }
 
-	private PersistSrv() {
-	}
+    private PersistSrv() {
+    }
 
-	@SuppressWarnings("unchecked")
-	public PluginDataObject[] persist(PluginDataObject[] pdo) {
+    public PluginDataObject[] persist(PluginDataObject[] pdo) {
 
-		if (pdo == null || pdo.length == 0) {
-			return new PluginDataObject[0];
-		}
+        if (pdo == null || pdo.length == 0) {
+            return new PluginDataObject[0];
+        }
 
-		Set<PluginDataObject> pdoList = new HashSet<PluginDataObject>();
-		EDEXUtil.checkPersistenceTimes(pdo);
+        Set<PluginDataObject> pdoList = new HashSet<PluginDataObject>();
+        EDEXUtil.checkPersistenceTimes(pdo);
 
-		try {
-			PluginDao dao = PluginFactory.getInstance().getPluginDao(
-					pdo[0].getPluginName());
-			StorageStatus ss = dao.persistToHDF5(pdo);
-			StorageException[] se = ss.getExceptions();
-			pdoList.addAll(Arrays.asList(pdo));
-			if (se != null) {
-				Map<PluginDataObject, StorageException> pdosThatFailed = new HashMap<PluginDataObject, StorageException>();
-				for (StorageException s : se) {
-					IDataRecord rec = s.getRecord();
+        try {
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(
+                    pdo[0].getPluginName());
+            StorageStatus ss = dao.persistToHDF5(pdo);
+            StorageException[] se = ss.getExceptions();
+            pdoList.addAll(Arrays.asList(pdo));
+            if (se != null) {
+                Map<PluginDataObject, StorageException> pdosThatFailed = new HashMap<PluginDataObject, StorageException>();
+                for (StorageException s : se) {
+                    IDataRecord rec = s.getRecord();
 
-					if (rec != null) {
-						// If we have correlation info and it's a pdo, use that
-						// for the error message...
-						Object corrObj = rec.getCorrelationObject();
-						if (corrObj != null
-								&& corrObj instanceof PluginDataObject) {
-							pdosThatFailed.put((PluginDataObject) corrObj, s);
-						} else {
-							// otherwise, do the best we can with the group
-							// information
-							logger.error("Persisting record " + rec.getGroup()
-									+ "/" + rec.getName() + " failed.", s);
-						}
-					} else {
-						// All we know is something bad happened.
-						logger.error("Persistence error occurred: ", s);
-					}
+                    if (rec != null) {
+                        // If we have correlation info and it's a pdo, use that
+                        // for the error message...
+                        Object corrObj = rec.getCorrelationObject();
+                        if (corrObj != null
+                                && corrObj instanceof PluginDataObject) {
+                            pdosThatFailed.put((PluginDataObject) corrObj, s);
+                        } else {
+                            // otherwise, do the best we can with the group
+                            // information
+                            logger.error("Persisting record " + rec.getGroup()
+                                    + "/" + rec.getName() + " failed.", s);
+                        }
+                    } else {
+                        // All we know is something bad happened.
+                        logger.error("Persistence error occurred: ", s);
+                    }
                 }
 
                 // Produce error messages for each pdo that failed
@@ -134,26 +134,17 @@ public class PersistSrv {
 
                 }
             }
-		} catch (Throwable e1) {
-			logger.error(
-					"Critical persistence error occurred.  Individual records that failed will be logged separately.",
-					e1);
-			for (PluginDataObject p : pdo) {
-				logger.error("Record "
-						+ p
-						+ " failed persistence due to critical error logged above.");
-			}
-		}
+        } catch (Throwable e1) {
+            logger.error(
+                    "Critical persistence error occurred.  Individual records that failed will be logged separately.",
+                    e1);
+            for (PluginDataObject p : pdo) {
+                logger.error("Record "
+                        + p
+                        + " failed persistence due to critical error logged above.");
+            }
+        }
 
-		return pdoList.toArray(new PluginDataObject[pdoList.size()]);
-	}
-
-	public PluginDataObject[] removeRawData(PluginDataObject[] pdos) {
-		if (pdos != null) {
-			for (PluginDataObject pdo : pdos) {
-				pdo.setMessageData(null);
-			}
-		}
-		return pdos;
-	}
+        return pdoList.toArray(new PluginDataObject[pdoList.size()]);
+    }
 }
