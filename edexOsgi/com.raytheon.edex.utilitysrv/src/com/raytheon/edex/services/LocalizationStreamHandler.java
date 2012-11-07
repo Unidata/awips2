@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.edex.utility.ProtectedFiles;
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
@@ -37,7 +38,6 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.stream.AbstractLocalizationStreamRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest;
-import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
