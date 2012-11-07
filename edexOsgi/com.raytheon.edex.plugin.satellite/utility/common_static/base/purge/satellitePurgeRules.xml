@@ -1,796 +1,570 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<key>sectorID</key>
+	<key>physicalElement</key>
+	<defaultRule>
 		<versionsToKeep>24</versionsToKeep>
-	</rule>
+	</defaultRule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Percent of Normal TPW</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Rain fall rate</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska National;physicalElement=Sounder Based Derived Precipitable Water (PW)</key>
-		</id>
+		<keyValue>Alaska National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager 13 micron (IR)</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Alaska Regional;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Alaska Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager 13 micron (IR)</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>56</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Low cloud base imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
 		<versionsToKeep>62</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 11.03 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 14.06 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 3.98 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 4.45 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 6.51 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 7.02 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder 7.43 micron imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=East CONUS;physicalElement=Sounder Visible imagery</key>
-		</id>
+		<keyValue>East CONUS</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Percent of Normal TPW</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Rain fall rate</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 11.03 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 14.06 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 3.98 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 4.45 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 6.51 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 7.02 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder 7.43 micron imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder Based Derived Precipitable Water (PW)</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii National;physicalElement=Sounder Visible imagery</key>
-		</id>
+		<keyValue>Hawaii National</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii Regional;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii Regional;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii Regional;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii Regional;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Hawaii Regional;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Hawaii Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=NH Composite - Meteosat-GOES E-GOES W-GMS;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=NH Composite - Meteosat-GOES E-GOES W-GMS;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=NH Composite - Meteosat-GOES E-GOES W-GMS;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>NH Composite - Meteosat-GOES E-GOES W-GMS</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Northern Hemisphere Composite;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Northern Hemisphere Composite;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Northern Hemisphere Composite;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Northern Hemisphere Composite</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Percent of Normal TPW</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Rain fall rate</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Rain fall rate</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 11.03 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 14.06 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 3.98 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 4.45 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 6.51 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 7.02 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder 7.43 micron imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder Based Derived Precipitable Water (PW)</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico National;physicalElement=Sounder Visible imagery</key>
-		</id>
+		<keyValue>Puerto Rico National</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager 13 micron (IR)</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Puerto Rico Regional;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Puerto Rico Regional</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Gridded Cloud Amount</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Amount</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Gridded Cloud Top Pressure or Height</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Gridded Cloud Top Pressure or Height</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Percent of Normal TPW</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Percent of Normal TPW</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Rain fall rate</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Rain fall rate</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder Based Derived Lifted Index (LI)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Lifted Index (LI)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder Based Derived Precipitable Water (PW)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Precipitable Water (PW)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder Based Derived Surface Skin Temp (SFC Skin)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Based Derived Surface Skin Temp (SFC Skin)</keyValue>
 		<versionsToKeep>48</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 13 micron (IR)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>32</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>20</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Low cloud base imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
 		<versionsToKeep>36</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 11.03 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 14.06 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 3.98 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 4.45 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 6.51 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 7.02 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder 7.43 micron imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=Supernational;physicalElement=Sounder Visible imagery</key>
-		</id>
+		<keyValue>Supernational</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager 11 micron IR</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 11 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager 12 micron IR</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 12 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager 13 micron (IR)</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 13 micron (IR)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager 3.9 micron IR</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 3.9 micron IR</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager 6.7-6.5 micron IR (WV)</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager 6.7-6.5 micron IR (WV)</keyValue>
 		<versionsToKeep>96</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Imager Visible</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Imager Visible</keyValue>
 		<versionsToKeep>56</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Low cloud base imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Low cloud base imagery</keyValue>
 		<versionsToKeep>62</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 11.03 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 11.03 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 14.06 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 14.06 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 3.98 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 3.98 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 4.45 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 4.45 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 6.51 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 6.51 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 7.02 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 7.02 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder 7.43 micron imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder 7.43 micron imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>satellite</pluginName>
-			<key>sectorID=West CONUS;physicalElement=Sounder Visible imagery</key>
-		</id>
+		<keyValue>West CONUS</keyValue>
+		<keyValue>Sounder Visible imagery</keyValue>
 		<versionsToKeep>4</versionsToKeep>
 	</rule>
 	

@@ -1,31 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
+<purgeRuleSet>
+	<key>wxLayer</key>
+	<defaultRule>
+		<versionsToKeep>12</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</defaultRule>
 	<rule>
-		<id>
-			<pluginName>bufrsigwx</pluginName>
-			<key>default</key>
-		</id>
+		<keyValue>SWM</keyValue>
 		<versionsToKeep>12</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
-		<id>
-			<pluginName>bufrsigwx</pluginName>
-			<key>wxLayer=SWM</key>
-		</id>
+		<keyValue>SWH</keyValue>
 		<versionsToKeep>12</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
-	<rule>
-		<id>
-			<pluginName>bufrsigwx</pluginName>
-			<key>wxLayer=SWH</key>
-		</id>
-		<versionsToKeep>12</versionsToKeep>
-		<delta>=00-01:00:00</delta>
-		<round>00-01:00:00</round>
-	</rule>
-
 </purgeRuleSet>

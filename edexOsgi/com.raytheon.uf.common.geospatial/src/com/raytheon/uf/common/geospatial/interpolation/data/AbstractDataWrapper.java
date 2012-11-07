@@ -27,8 +27,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.geospatial.MapUtil;
-
 /**
  * 
  * Abstract class for any data implementation that can act as both a source and
@@ -132,18 +130,45 @@ public abstract class AbstractDataWrapper implements DataSource,
                     .getGridToCRS(PixelInCell.CELL_CENTER);
             MathTransform crs2LatLon = CRS.findMathTransform(sourceCRS,
                     DefaultGeographicCRS.WGS84);
+            // Although theoretically any two points would yield the same
+            // result, nx is chosen as the x coordinate because it overcomes
+            // some of the normalization performed in geotools math transforms.
+            // For most math transforms, geotools will normalize the LatLon
+            // values into into the range centralMeridian +/- 180. In these
+            // cases the 360 degree shift performed later is completely
+            // worthless since geotools will normalize the points into the
+            // same range regardless of how it is shifted. For a worldwide grid
+            // the nx coordinate is guaranteed to be just slightly over the
+            // normalized range, so that when the transform normalizes it will
+            // use a point that is -360 degrees away from the original point.
+            // This means that even though the -360 degree shift we apply is
+            // worthless, the normalization process actually applies an
+            // equivelant shift that yields the correct result. The end result
+            // is that whether the transform normalizes or not there is always a
+            // shift of -360 degrees for all worldwide grids.
+
+            // Start with two points in grid space, one on each corner side of
+            // the y direction.
             DirectPosition2D corner1 = new DirectPosition2D(nx, 0);
             DirectPosition2D corner2 = new DirectPosition2D(nx, ny - 1);
+            // transform the points to crs space.
             grid2crs.transform(corner1, corner1);
             grid2crs.transform(corner2, corner2);
+            // and then to latLon space
             crs2LatLon.transform(corner1, corner1);
             crs2LatLon.transform(corner2, corner2);
-            corner1.x = MapUtil.correctLon(corner1.x);
-            corner2.x = MapUtil.correctLon(corner2.x);
+            // shift the points by 360 degrees because the goal is to know how
+            // many grid cells exist in one 360 roll of longitude.
+            corner1.x = corner1.x - 360;
+            corner2.x = corner2.x - 360;
+            // transform back to crs.
             crs2LatLon.inverse().transform(corner1, corner1);
             crs2LatLon.inverse().transform(corner2, corner2);
+            // and back to grid space
             grid2crs.inverse().transform(corner1, corner1);
             grid2crs.inverse().transform(corner2, corner2);
+            // the difference between the starting x value and the current x
+            // value is the number
             int sourceWrapX = (int) (nx - corner1.x);
             // In order to wrap then the transformed point x value should be
             // on the other side of the grid and the y value should not have

@@ -19,11 +19,15 @@
  **/
 package com.raytheon.viz.warngen.gui;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -36,6 +40,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            mschenke     Initial creation
  * 03/14/2012   DR 14690  Qinglu Lin   Add clear2().
+ * 10/26/2012   DR 15479  Qinglu Lin   Added removeDuplicateCoordinate().
  * 
  * </pre>
  * 
@@ -115,6 +120,31 @@ public class WarngenUIState {
         return oldWarningArea;
     }
 
+    /**
+     * removeDuplicateCoordinate
+     *     remove duplicate intermediate coordinates in warningPolygon. 
+     * History
+     * 10-26-2012 Qinglu Lin   DR15479 Created.
+     */
+    public void removeDuplicateCoordinate() {
+    	Coordinate[] verts = warningPolygon.getCoordinates();
+    	Set<Coordinate> coords = new LinkedHashSet<Coordinate>();
+    	for (Coordinate c: verts)
+    		coords.add(c);
+        if ((verts.length-coords.size()) < 2)
+        	return;
+    	Coordinate[] vertices = new Coordinate[coords.size()+1];
+    	Iterator<Coordinate> iter = coords.iterator();
+    	int i = 0;
+    	while (iter.hasNext()) {
+    		vertices[i] = new Coordinate(iter.next());
+    		i += 1;
+    	}
+    	vertices[i] = new Coordinate(vertices[0]);
+    	GeometryFactory gf = new GeometryFactory();
+    	warningPolygon = gf.createPolygon(gf.createLinearRing(vertices), null);
+    }
+    
     /**
      * Set the old warning area in lat/lon projection. Will be converted to
      * local

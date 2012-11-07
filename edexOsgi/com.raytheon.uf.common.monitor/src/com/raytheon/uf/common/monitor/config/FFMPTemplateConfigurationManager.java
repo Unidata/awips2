@@ -45,7 +45,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2009            lvenable     Initial creation
- * 
+ * Oct 25, 2012 DR 15514   gzhang		Adding getHucLevelsInArray()
  * </pre>
  * 
  * @author dhladky
@@ -257,6 +257,45 @@ public class FFMPTemplateConfigurationManager implements
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * DR 15514: based on getHucLevels()
+     */
+    public String[] getHucLevelsInArray() {    	
+    	
+    	Integer hucNum = 4;
+    	Boolean isVirtual = true;
+    	String[] result = null;    	
+    	java.util.concurrent.locks.ReentrantLock lock = new java.util.concurrent.locks.ReentrantLock();    	
+    	
+    	synchronized(configXml){
+    		hucNum = getNumberOfHuc();
+    		isVirtual = getVirtual();
+    	}   	
+    	
+    	lock.lock();    	
+    	try{
+    		java.util.List<String> list = new ArrayList<String>();
+	    	list.add("ALL");
+	    	list.add("COUNTY");
+	    	
+	    	if(isVirtual){	
+	    		list.add("VIRTUAL");
+	    	}
+	    	
+	    	for (int i = hucNum - 1; i >= 0; i--){ 
+	    		list.add("HUC"+i);	    	
+	    	}
+	    	
+	    	result = list.toArray(new String[]{});
+	    	
+    	}finally{
+    		if(result==null) result = new String[]{};// guaranteed not null
+    		lock.unlock();
+    	}
+    	
+        return result;
     }
 
 }

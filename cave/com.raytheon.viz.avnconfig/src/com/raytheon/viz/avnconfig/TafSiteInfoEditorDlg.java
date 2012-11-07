@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.eclipse.swt.SWT;
@@ -39,7 +40,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -63,6 +63,8 @@ import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -78,6 +80,10 @@ import com.vividsolutions.jts.geom.Point;
  *                                     Make and Edit buttons to work.
  * 10 Dec 2010  7662       rferrel     Create and use getObStation.
  *  9 May 2011  8856       rferrel     Code cleanup
+ * 12 Oct 2012  1229       rferrel     Now a subclass of CaveSWTDialog
+ *                                      and made non-blocking.
+ * 15 Oct 2012  1229       rferrel     Changes for non-blocking TextEditorSetupDlg.
+ * 15 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 
  * </pre>
  * 
@@ -85,24 +91,14 @@ import com.vividsolutions.jts.geom.Point;
  * @version 1.0
  * 
  */
-public class TafSiteInfoEditorDlg extends Dialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class TafSiteInfoEditorDlg extends CaveSWTDialog {
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TafSiteInfoEditorDlg.class);
 
     /**
      * A site's template hours.
      */
-    private final static String[] START_HOURS = { "00", "06", "12", "18" };
-
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
+    private final String[] START_HOURS = { "00", "06", "12", "18" };
 
     /**
      * Composite containing message status controls.
@@ -242,25 +238,26 @@ public class TafSiteInfoEditorDlg extends Dialog {
     private Color correctColor;
 
     /**
+     * Possible to have a different dialog for each issue time.
+     */
+    private Map<String, TextEditorSetupDlg> editorDlgMap;
+
+    private HelpUsageDlg usageDlg;
+
+    /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public TafSiteInfoEditorDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText("AvnFPS TAF Site Info Editor");
+        editorDlgMap = new HashMap<String, TextEditorSetupDlg>();
     }
 
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return Null.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("AvnFPS TAF Site Info Editor");
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -271,25 +268,25 @@ public class TafSiteInfoEditorDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
+    @Override
+    protected void disposed() {
+        if (incorrectColor != null) {
+            incorrectColor.dispose();
         }
 
-        incorrectColor.dispose();
-
-        return null;
+        if (correctColor != null) {
+            correctColor.dispose();
+        }
     }
 
     /**
      * Initialize the components on the display.
      */
     private void initializeComponents() {
+        Display display = getParent().getDisplay();
+
         incorrectColor = new Color(display, new RGB(255, 215, 220));
 
         createTopControls();
@@ -486,11 +483,16 @@ public class TafSiteInfoEditorDlg extends Dialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String description = "AvnFPS - Site Info Editor Help";
-                String helpText = "This dialog is used to define TAF site information.\n\nTo add a new site, enter site id and press \"Update\". Edit\ndisplayed entries and press \"Save\". Create default template\nfiles.\n\nTo change an existing TAF site attribute, enter site id and\npress the \"Load\" button.\n\nTo create template files, press \"Make\" in the \"Templates\"\narea.\n\nTo edit template file, select issue hour, then press \"Edit\"\nin the \"Templates\" area.\n\nYou can use \"Update\" button to extract information from\nAWIPS configuration files. Only non-empty fields will be\noverwritten.";
-                HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
-                usageDlg.open();
+                if (mustCreate(usageDlg)) {
+                    String description = "AvnFPS - Site Info Editor Help";
+
+                    String helpText = "This dialog is used to define TAF site information.\n\nTo add a new site, enter site id and press \"Update\". Edit\ndisplayed entries and press \"Save\". Create default template\nfiles.\n\nTo change an existing TAF site attribute, enter site id and\npress the \"Load\" button.\n\nTo create template files, press \"Make\" in the \"Templates\"\narea.\n\nTo edit template file, select issue hour, then press \"Edit\"\nin the \"Templates\" area.\n\nYou can use \"Update\" button to extract information from\nAWIPS configuration files. Only non-empty fields will be\noverwritten.";
+                    usageDlg = new HelpUsageDlg(shell, description,
+                            helpText);
+                    usageDlg.open();
+                } else {
+                    usageDlg.bringToTop();
+                }
             }
         });
     }
@@ -877,15 +879,30 @@ public class TafSiteInfoEditorDlg extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 if (isSiteIdValid()) {
                     try {
-                        String issueTime = issueCbo.getText().substring(0, 2);
-                        ITafSiteConfig config = TafSiteConfigFactory
-                                .getInstance();
-                        String siteId = siteIdTF.getText();
-                        LocalizationFile lFile = config.getTemplateFile(siteId,
-                                issueTime);
-                        TextEditorSetupDlg editorDlg = new TextEditorSetupDlg(
-                                shell, lFile);
-                        editorDlg.open();
+                        final String issueTime = issueCbo.getText().substring(
+                                0, 2);
+                        TextEditorSetupDlg editorDlg = editorDlgMap
+                                .get(issueTime);
+                        if (mustCreate(editorDlg)) {
+                            ITafSiteConfig config = TafSiteConfigFactory
+                                    .getInstance();
+                            String siteId = siteIdTF.getText();
+                            LocalizationFile lFile = config.getTemplateFile(
+                                    siteId, issueTime);
+                            editorDlg = new TextEditorSetupDlg(shell, lFile);
+                            editorDlgMap.put(issueTime, editorDlg);
+                            editorDlg.setCloseCallback(new ICloseCallback() {
+
+                                @Override
+                                public void dialogClosed(Object returnValue) {
+                                    editorDlgMap.remove(issueTime);
+                                }
+                            });
+
+                            editorDlg.open();
+                        } else {
+                            editorDlg.bringToTop();
+                        }
                     } catch (FileNotFoundException e) {
                         msgStatusComp.setMessageText(e.getMessage(), new RGB(
                                 255, 0, 0));
@@ -1109,6 +1126,7 @@ public class TafSiteInfoEditorDlg extends Dialog {
      * @return boolean - True if all the data is valid.
      */
     private boolean validateData() {
+        Display display = getParent().getDisplay();
         boolean isValid = true;
         correctColor = new Color(display, new RGB(255, 255, 255));
 

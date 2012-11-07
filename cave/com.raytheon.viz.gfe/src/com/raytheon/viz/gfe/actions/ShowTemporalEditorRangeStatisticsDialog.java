@@ -36,12 +36,15 @@ import com.raytheon.viz.gfe.dialogs.TemporalEditorRangeStatisticsDialog;
  * ------------ ---------- ------------- --------------------------
  * Feb 14, 2008            Eric Babin    Initial Creation
  * Jun 04, 2009 #2159      Richard Peter Moved initialization to Dialog.
+ * Oct 26, 2012 1287       rferrel       Changes for non-blocking TemporalEditorRangeStatisticsDialog.
  * </pre>
  * 
  * @author ebabin
  * @version 1.0
  */
 public class ShowTemporalEditorRangeStatisticsDialog extends AbstractHandler {
+    private TemporalEditorRangeStatisticsDialog dialog;
+
     /*
      * (non-Javadoc)
      * 
@@ -51,13 +54,16 @@ public class ShowTemporalEditorRangeStatisticsDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        TemporalEditorRangeStatisticsDialog dialog = new TemporalEditorRangeStatisticsDialog(
-                shell);
-        dialog.setBlockOnOpen(true);
-        dialog.open();
+            dialog = new TemporalEditorRangeStatisticsDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

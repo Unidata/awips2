@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.dialogs.PublishDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Mar 6, 2008					Eric Babin Initial Creation
+ * Oct 25, 2012 1287       rferrel     Changes for non-blocking PublishDialog.
  * 
  * </pre>
  * 
@@ -44,6 +45,7 @@ import com.raytheon.viz.gfe.dialogs.PublishDialog;
  */
 
 public class ShowPublishDialog extends AbstractHandler {
+    private PublishDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -54,14 +56,21 @@ public class ShowPublishDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
         DataManager dm = DataManager.getCurrentInstance();
-        if (dm != null) {
+
+        if (dm == null) {
+            return null;
+        }
+
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+
             PublishDialog dialog = new PublishDialog(shell, dm);
-            dialog.setBlockOnOpen(true);
+            dialog.setBlockOnOpen(false);
             dialog.open();
+        } else {
+            dialog.bringToTop();
         }
 
         return null;
@@ -80,8 +89,8 @@ public class ShowPublishDialog extends AbstractHandler {
 
         DataManager dm = DataManager.getCurrentInstance();
         if (dm != null) {
-            return !dm.getParmManager().getMutableDatabase().equals(
-                    dm.getParmManager().getProductDB());
+            return !dm.getParmManager().getMutableDatabase()
+                    .equals(dm.getParmManager().getProductDB());
         }
         return false;
     }

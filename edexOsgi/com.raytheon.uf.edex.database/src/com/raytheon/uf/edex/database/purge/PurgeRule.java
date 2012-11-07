@@ -20,19 +20,17 @@
 
 package com.raytheon.uf.edex.database.purge;
 
-import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -55,11 +53,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @author bphillip
  * @version 1
  */
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class PurgeRule implements IPersistableDataObject, Serializable,
-        ISerializableObject, Cloneable, Comparable<PurgeRule> {
+public class PurgeRule {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PurgeRule.class);
 
@@ -81,12 +76,12 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
             .compile(TIME_PATTERN_STRING);
 
     /**
-     * The primary key for this rule. The primary key consists of the plugin
-     * name and a key used for purging
+     * The keys this rule is to match. Should be equal to a value based on the
+     * key fields of the record specified in the PurgeRuleSet. Special cases are
+     * made for keyMatch of value default.
      */
-    @XmlElement
-    @DynamicSerializeElement
-    private PurgeRulePK id;
+    @XmlElements({ @XmlElement(name = "keyValue", type = String.class) })
+    private List<String> keyValues;
 
     /** The number of versions to keep */
     @XmlElement
@@ -154,25 +149,21 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
     }
 
     /**
-     * Creates a new PurgeRule with the given key
+     * Gets the key values associated with the PurgeRuleSet keys.
      * 
-     * @param pk
-     *            The key
+     * @return
      */
-    public PurgeRule(PurgeRulePK pk) {
-        this.id = pk;
+    public List<String> getKeyValues() {
+        return keyValues;
     }
 
     /**
-     * Creates a new PurgeRule with the given key elements
+     * Sets the key values associated with the PurgeRuleSet keys.
      * 
-     * @param pluginName
-     *            The plugin name to be used in the PurgeKeyPK
-     * @param key
-     *            The key to be used in the PurgeKeyPK
+     * @param keyValues
      */
-    public PurgeRule(String pluginName, String key) {
-        this(new PurgeRulePK(pluginName, key));
+    public void setKeyValues(List<String> keyValues) {
+        this.keyValues = keyValues;
     }
 
     /**
@@ -341,11 +332,15 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
         return new Date[] { refTime, timeToCompare };
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
-        builder.append("Plugin: ").append(id.getPluginName()).append("  ");
-        builder.append("Key: ").append(id.getKey()).append("  ");
+
+        for (String kv : keyValues) {
+            builder.append("KeyValue: ").append(kv).append("  ");
+        }
+
         builder.append("VersionToKeep: ").append(this.versionsToKeep)
                 .append("  ");
         builder.append("Period: ").append(this.period).append("  ");
@@ -361,48 +356,45 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
      * 
      * @return The human readable description of this rule
      */
-    public String getRuleDescription() {
+    public String getRuleDescription(List<String> keys) {
 
         if (this.ruleDescription == null) {
 
             StringBuilder builder = new StringBuilder();
 
-            if (this.id.getKey().equals("custom")) {
-                builder.append("The ")
-                        .append(this.id.getPluginName())
-                        .append(" plugin implements a customized purge routine.");
+            if ((keys == null) || keys.isEmpty() || (keyValues == null)
+                    || keyValues.isEmpty()) {
+                builder.append("Default rule, ");
             } else {
-                if (id.getKey().isEmpty()) {
-                    builder.append("For ").append(id.getPluginName())
-                            .append(" data, ");
-                } else {
-                    builder.append("For ").append(id.getPluginName())
-                            .append(" data matching ").append(id.getKey())
-                            .append(", ");
+                builder.append("For data matching ");
+                Iterator<String> keyIter = keys.iterator();
+                Iterator<String> valueIter = keyValues.iterator();
+                while (keyIter.hasNext() && valueIter.hasNext()) {
+                    builder.append(keyIter.next()).append("=")
+                            .append(valueIter.next()).append(", ");
                 }
+            }
 
-                if (isDeltaSpecified()) {
-                    getVersionsClause(builder);
-                    builder.append("at ")
-                            .append(this.getTimeDescription(delta))
-                            .append("intervals ");
-                    getRoundClause(builder);
-                    getPeriodClause(builder);
-                } else if (!isDeltaSpecified() && isVersionsToKeepSpecified()) {
-                    getVersionsClause(builder);
-                    getPeriodClause(builder);
-                } else if (!isDeltaSpecified() && !isVersionsToKeepSpecified()
-                        && isPeriodSpecified()) {
-                    getVersionsClause(builder);
-                    getPeriodClause(builder);
-                } else {
-                    builder.append("keep all data.");
-                }
-                if (isModTimeToWaitSpecified()) {
-                    builder.append(
-                            " Do not purge if most recent version has been modified in the last ")
-                            .append(this.getModTimeToWaitDescription());
-                }
+            if (isDeltaSpecified()) {
+                getVersionsClause(builder);
+                builder.append("at ").append(this.getTimeDescription(delta))
+                        .append("intervals ");
+                getRoundClause(builder);
+                getPeriodClause(builder);
+            } else if (!isDeltaSpecified() && isVersionsToKeepSpecified()) {
+                getVersionsClause(builder);
+                getPeriodClause(builder);
+            } else if (!isDeltaSpecified() && !isVersionsToKeepSpecified()
+                    && isPeriodSpecified()) {
+                getVersionsClause(builder);
+                getPeriodClause(builder);
+            } else {
+                builder.append("keep all data.");
+            }
+            if (isModTimeToWaitSpecified()) {
+                builder.append(
+                        " Do not purge if most recent version has been modified in the last ")
+                        .append(this.getModTimeToWaitDescription());
             }
             ruleDescription = builder.toString();
         }
@@ -578,26 +570,6 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
         return builder.toString();
     }
 
-    @Override
-    public Object getIdentifier() {
-        return id;
-    }
-
-    /**
-     * @return the id
-     */
-    public PurgeRulePK getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(PurgeRulePK id) {
-        this.id = id;
-    }
-
     /**
      * @return the versionsToKeep
      */
@@ -687,40 +659,4 @@ public class PurgeRule implements IPersistableDataObject, Serializable,
     public void setLogOnly(boolean logOnly) {
         this.logOnly = logOnly;
     }
-
-    public Object clone() {
-        PurgeRule rval = new PurgeRule();
-        rval.id = (PurgeRulePK) id.clone();
-        rval.delta = delta;
-        rval.logOnly = logOnly;
-        rval.period = period;
-        rval.round = round;
-        rval.versionsToKeep = versionsToKeep;
-
-        return rval;
-    }
-
-    public boolean equals(Object obj) {
-
-        if (!(obj instanceof PurgeRule)) {
-            return false;
-        }
-        PurgeRule rhs = (PurgeRule) obj;
-        return this.id.equals(rhs.getId()) && this.delta.equals(rhs.getDelta())
-                && this.logOnly == rhs.isLogOnly()
-                && this.period.equals(rhs.getPeriod())
-                && this.round.equals(rhs.getRound())
-                && this.versionsToKeep == rhs.getVersionsToKeep();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    @Override
-    public int compareTo(PurgeRule o) {
-        return this.id.getPluginName().compareTo(o.getId().getPluginName());
-    }
-
 }
