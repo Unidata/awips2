@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<purgeRuleSet xmlns:ns2="group">
-	<rule>
-		<id>
-			<pluginName>binlightning</pluginName>
-			<key>default</key>
-		</id>
+<purgeRuleSet>
+	<defaultRule>
 		<versionsToKeep>36</versionsToKeep>
 		<delta>=00-01:00:00</delta>
 		<round>00-01:00:00</round>
-	</rule>
+	</defaultRule>
 </purgeRuleSet>

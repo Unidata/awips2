@@ -35,6 +35,7 @@ import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Apr 11, 2008					Eric Babin Initial Creation
+ * Oct 23, 2012 1287       rferrel     Changes for non-blocking FormatterLauncherDialog.
  * 
  * </pre>
  * 
@@ -56,28 +57,31 @@ public class FormatterlauncherAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        if (dialog == null) {
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
             dialog = new FormatterLauncherDialog(shell);
-            dialog.setBlockOnOpen(true);
-            dialog.open();
-            dialog.dispose();
-            dialog = null;
-        } else if (dialog.getShell() == null) {
+            dialog.setBlockOnOpen(false);
             dialog.open();
         } else {
-            dialog.getShell().setVisible(true);
-            dialog.getShell().setActive();
+            dialog.bringToTop();
             if (dialog.buttonBar != null) {
                 dialog.buttonBar.moveAbove(null);
             }
         }
         return null;
     }
-    
-    public static FormatterLauncherDialog getFormatterLauncher() {
-        return dialog;
+
+    public static void closeFormatters() {
+        if (dialog != null && dialog.getShell() != null && !dialog.isDisposed()) {
+            dialog.closeFormatters();
+        }
+    }
+
+    public static void closeDialog() {
+        if (dialog != null && dialog.getShell() != null && !dialog.isDisposed()) {
+            dialog.closeDialog();
+        }
+        dialog = null;
     }
 }

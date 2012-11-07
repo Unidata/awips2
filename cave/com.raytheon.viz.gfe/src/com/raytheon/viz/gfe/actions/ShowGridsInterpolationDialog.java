@@ -30,6 +30,7 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm.InterpState;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.dialogs.GridsInterpolateDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Handler to show Grid Interpolation Dialog and initiate interpolation
@@ -40,6 +41,7 @@ import com.raytheon.viz.gfe.dialogs.GridsInterpolateDialog;
  * ------------ ----------  --------------  --------------------------
  * Feb 27, 2008             Eric Babin      Initial Creation
  * Jun  4, 2008    #1161    Ron Anderson    Reworked
+ * Oct 25, 2012 #1287       rferrel         Changes for non-blocking GridsInterpolateDialog.
  * 
  * </pre>
  * 
@@ -48,6 +50,7 @@ import com.raytheon.viz.gfe.dialogs.GridsInterpolateDialog;
  */
 
 public class ShowGridsInterpolationDialog extends AbstractHandler {
+    private GridsInterpolateDialog dialog;
 
     /*
      * (non-Javadoc)
@@ -58,20 +61,38 @@ public class ShowGridsInterpolationDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        GridsInterpolateDialog dialog = new GridsInterpolateDialog(shell);
-        dialog.setBlockOnOpen(true);
+            dialog = new GridsInterpolateDialog(shell);
+            dialog.setBlockOnOpen(false);
+            dialog.setCloseCallback(new ICloseCallback() {
 
-        if (dialog.open() == IDialogConstants.OK_ID) {
-            InterpMode interpMode = dialog.getInterpMode();
-            int interval = dialog.getInterval() * 3600;
-            int duration = dialog.getDuration() * 3600;
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int returnCode = (Integer) returnValue;
+                        if (returnCode == IDialogConstants.OK_ID) {
+                            InterpMode interpMode = dialog.getInterpMode();
+                            int interval = dialog.getInterval() * 3600;
+                            int duration = dialog.getDuration() * 3600;
 
-            DataManager.getCurrentInstance().getParmOp().interpolateSelected(
-                    interpMode, InterpState.ASYNC, interval, duration);
-        } // else do nothing...
+                            DataManager
+                                    .getCurrentInstance()
+                                    .getParmOp()
+                                    .interpolateSelected(interpMode,
+                                            InterpState.ASYNC, interval,
+                                            duration);
+                        }
+                    }
+                    dialog = null;
+                }
+            });
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
 
         return null;
     }

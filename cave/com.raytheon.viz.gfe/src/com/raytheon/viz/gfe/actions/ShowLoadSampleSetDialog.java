@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.actions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -31,10 +32,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action to launch sampele set dialog.
@@ -45,6 +50,7 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2008             Eric Babin  Initial Creation
  * Apr 9, 2009  1288       rjpeter     Removed explicit refresh of SpatialDisplayManager.
+ * Oct 24, 2012 1287       rferrel     Changes for non-blocking SampleSetDialog.
  * 
  * </pre>
  * 
@@ -53,14 +59,12 @@ import com.raytheon.viz.gfe.dialogs.SampleSetDialog;
  */
 
 public class ShowLoadSampleSetDialog extends AbstractHandler {
+    private final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ShowLoadSampleSetDialog.class);
 
-    // SampleRenderable sample;
+    private SampleSetDialog dialog;
 
-    // public ShowLoadSampleSetDialog() {
-    //
-    // super();
-    // this.sample = new SampleRenderable();
-    // }
+    private DataManager dm;
 
     /*
      * (non-Javadoc)
@@ -71,96 +75,81 @@ public class ShowLoadSampleSetDialog extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm == null) {
-            return null;
-        }
-
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        ArrayList<SampleId> sampleIdList = dm.getSampleSetManager()
-                .getInventoryAsList();
-
-        Collections.sort(sampleIdList, new Comparator<SampleId>() {
-
-            @Override
-            public int compare(SampleId o1, SampleId o2) {
-                return o1.getName().compareTo(o2.getName());
+        if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
+            dm = DataManager.getCurrentInstance();
+            if (dm == null) {
+                return null;
             }
 
-        });
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
 
-        SampleSetDialog dialog = new SampleSetDialog(shell, sampleIdList,
-                SampleSetDialog.LOAD);
+            ArrayList<SampleId> sampleIdList = dm.getSampleSetManager()
+                    .getInventoryAsList();
 
-        dialog.setBlockOnOpen(true);
-        dialog.open();
-        if (dialog.getReturnCode() != Window.CANCEL
-                && dialog.getSelectedSampleIdIndexes() != null) {
-            if (dialog.getReturnCode() == SampleSetDialog.OK) {
-                if (dialog.getType() == SampleSetDialog.LOAD) {
-                    for (int i = 0; i < dialog.getSelectedSampleIdIndexes().length; i++) {
-                        SampleId id = sampleIdList.get(dialog
-                                .getSelectedSampleIdIndexes()[i]);
-                        try {
-                            dm.getSampleSetManager().loadSampleSet(id,
-                                    ISampleSetManager.SampleSetLoadMode.ADD);
-                        } catch (GFEException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else if (dialog.getType() == SampleSetDialog.SAVE) {
-                    dm.getSampleSetManager().saveActiveSampleSet(
-                            new SampleId(dialog.getSampleName()));
-                }
-                if (dialog.getType() == SampleSetDialog.DELETE) {
-                    for (int i = 0; i < dialog.getSelectedSampleIdIndexes().length; i++) {
-                        SampleId id = sampleIdList.get(dialog
-                                .getSelectedSampleIdIndexes()[i]);
-                        dm.getSampleSetManager().deleteSampleSet(id);
-                    }
-                }
-            } else if (dialog.getReturnCode() == SampleSetDialog.REMOVE) {
-                for (int i = 0; i < dialog.getSelectedSampleIdIndexes().length; i++) {
-                    SampleId id = sampleIdList.get(dialog
-                            .getSelectedSampleIdIndexes()[i]);
-                    try {
-                        dm.getSampleSetManager().loadSampleSet(id,
-                                ISampleSetManager.SampleSetLoadMode.REMOVE);
-                    } catch (GFEException e) {
-                        e.printStackTrace();
-                    }
+            Collections.sort(sampleIdList, new Comparator<SampleId>() {
+
+                @Override
+                public int compare(SampleId o1, SampleId o2) {
+                    return o1.getName().compareTo(o2.getName());
                 }
 
-            } else if (dialog.getReturnCode() == SampleSetDialog.REPLACE) {
-                for (int i = 0; i < dialog.getSelectedSampleIdIndexes().length; i++) {
-                    SampleId id = sampleIdList.get(dialog
-                            .getSelectedSampleIdIndexes()[i]);
-                    try {
-                        dm.getSampleSetManager().loadSampleSet(id,
-                                ISampleSetManager.SampleSetLoadMode.REPLACE);
-                    } catch (GFEException e) {
-                        e.printStackTrace();
+            });
+
+            dialog = new SampleSetDialog(shell, sampleIdList,
+                    SampleSetDialog.LOAD);
+
+            dialog.setBlockOnOpen(false);
+            dialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Integer) {
+                        int returnCode = (Integer) returnValue;
+                        doDialogClosed(returnCode);
                     }
+                    dialog = null;
                 }
-            }
+            });
+
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        // refresh();
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.tools.AbstractTool#refresh()
-     */
-    // @Override
-    // protected void refresh() {
-    // IEditorPart part = VizApp.getCurrentEditor();
-    // if (part instanceof AbstractEditor) {
-    // ((AbstractEditor) part).refresh();
-    // }
-    // }
+    private void doDialogClosed(int returnCode) {
+        if (returnCode != Window.CANCEL
+                && dialog.getSelectedSampleIdIndexes() != null) {
+            List<SampleId> sampleIdList = dialog.getSamples();
+            ISampleSetManager.SampleSetLoadMode mode = null;
+            switch (returnCode) {
+            case SampleSetDialog.OK:
+                mode = ISampleSetManager.SampleSetLoadMode.ADD;
+                break;
+            case SampleSetDialog.REMOVE:
+                mode = ISampleSetManager.SampleSetLoadMode.REMOVE;
+                break;
+            case SampleSetDialog.REPLACE:
+                mode = ISampleSetManager.SampleSetLoadMode.REPLACE;
+                break;
+            default:
+                statusHandler.handle(Priority.PROBLEM,
+                        "Load unknow return code: " + returnCode);
+                return;
+            }
+
+            for (int index : dialog.getSelectedSampleIdIndexes()) {
+                SampleId id = sampleIdList.get(index);
+                try {
+                    dm.getSampleSetManager().loadSampleSet(id, mode);
+                } catch (GFEException e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Load failed for mode: " + mode.toString()
+                                    + ", sample id: " + id.toString(), e);
+                }
+            }
+        }
+    }
 }

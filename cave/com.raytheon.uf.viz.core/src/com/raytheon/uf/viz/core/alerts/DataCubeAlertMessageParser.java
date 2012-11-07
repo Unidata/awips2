@@ -19,22 +19,11 @@
  **/
 package com.raytheon.uf.viz.core.alerts;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.RecordFactory;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 /**
  * 
@@ -64,52 +53,7 @@ public class DataCubeAlertMessageParser extends AbstractAlertMessageParser {
     public Object parseAlertMessage(AlertMessage message,
             AbstractRequestableResourceData reqResourceData)
             throws VizException {
-        Object objectToSend = null;
-        Map<String, Object> attribs = new HashMap<String, Object>(
-                message.decodedAlert);
-        String dataURI = message.dataURI;
-        if (reqResourceData.isUpdatingOnMetadataOnly()) {
-            PluginDataObject record = RecordFactory.getInstance()
-                    .loadRecordFromUri(dataURI);
-            objectToSend = record;
-        } else {
-            attribs.put("dataURI", message.dataURI);
-            Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-            for (String column : attribs.keySet()) {
-                if (column.equals("dataURI")) {
-                    continue;
-                }
-                if ((attribs.get(column) == null)
-                        || attribs.get(column).toString().equals("null")) {
-                    vals.put(column, new RequestConstraint(null,
-                            RequestConstraint.ConstraintType.ISNULL));
-                } else {
-                    vals.put(column, new RequestConstraint(attribs.get(column)
-                            .toString()));
-                }
-            }
-            // Make sure there is really data before sending it to be loaded
-            DataTime[] availableTimes = DataCubeContainer.performTimeQuery(
-                    vals, false);
-            if (availableTimes == null) {
-                return objectToSend;
-            }
-            for (DataTime time : availableTimes) {
-                if (time.equals(attribs.get("dataTime"))) {
-                    LayerProperty lp = new LayerProperty();
-
-                    lp.setDesiredProduct(ResourceType.PLAN_VIEW);
-                    lp.setEntryQueryParameters(vals, false);
-                    lp.setSelectedEntryTimes(new DataTime[] { time });
-                    List<Object> resp = DataCubeContainer.getData(lp, 60000);
-                    if (resp.size() == 0)
-                        return null;
-                    objectToSend = resp.get(0);
-                    break;
-                }
-            }
-        }
-        return objectToSend;
+        return null;
     }
 
 }

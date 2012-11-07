@@ -34,9 +34,14 @@
 						</equals>
 					</iterate>
 				</with>
-          	  	<with variable="activeEditor">
-       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
-    	      	</with>
+				<or>
+				    <with variable="activePart">
+				       <instanceof value="com.raytheon.viz.gfe.GridManagerView"/>
+				    </with>
+	          	  	<with variable="activeEditor">
+	       				<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+	    	      	</with>
+    	      	</or>
     		</and>
 		</definition>
 	</extension>
@@ -355,12 +360,6 @@
            name="SmartTool Name"
            optional="false">
      </commandParameter>
-  </command>
-  <command
-        categoryId="com.raytheon.viz.gfe.GFECategory"
-        description="Start GFE Service Backup"
-        id="com.raytheon.viz.gfe.StartServiceBackup"
-        name="Start GFE Service Backup">
   </command>
   <command
         categoryId="com.raytheon.viz.gfe.GFECategory"
@@ -992,15 +991,6 @@
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
             </activeWhen>
-  </handler>
-  <handler
-        class="com.raytheon.viz.gfe.actions.ShowServiceBackupDlg"
-        commandId="com.raytheon.viz.gfe.StartServiceBackup">
-     <activeWhen>
-        <reference
-              definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-        </reference>
-     </activeWhen>
   </handler>
   <handler
         class="com.raytheon.viz.gfe.actions.ShowSiteActivationDlg"

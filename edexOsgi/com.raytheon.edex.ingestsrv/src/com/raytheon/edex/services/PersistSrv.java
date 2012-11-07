@@ -102,40 +102,38 @@ public class PersistSrv {
                         // All we know is something bad happened.
                         logger.error("Persistence error occurred: ", s);
                     }
-
-                    // Produce error messages for each pdo that failed
-                    int errCnt = 0;
-                    boolean suppressed = false;
-                    for (Map.Entry<PluginDataObject, StorageException> e : pdosThatFailed
-                            .entrySet()) {
-                        if (errCnt > 50) {
-                            logger.warn("More than 50 errors occurred in this batch.  The remaining errors will be suppressed.");
-                            suppressed = true;
-                            continue;
-                        }
-
-                        if (!suppressed) {
-                            if (e.getValue() instanceof DuplicateRecordStorageException) {
-                                logger.warn("Duplicate record encountered (duplicate ignored): "
-                                        + e.getKey().getDataURI());
-                            } else {
-                                logger.error(
-                                        "Error persisting record " + e.getKey()
-                                                + " to database: ",
-                                        e.getValue());
-                            }
-                        }
-
-                        // Remove from the pdoList so the pdo is not propagated
-                        // to the next service
-                        pdoList.remove(e.getKey());
-                        errCnt++;
-
-                    }
                 }
 
-            }
+                // Produce error messages for each pdo that failed
+                int errCnt = 0;
+                boolean suppressed = false;
+                for (Map.Entry<PluginDataObject, StorageException> e : pdosThatFailed
+                        .entrySet()) {
+                    if (errCnt > 50) {
+                        logger.warn("More than 50 errors occurred in this batch.  The remaining errors will be suppressed.");
+                        suppressed = true;
+                        continue;
+                    }
 
+                    if (!suppressed) {
+                        if (e.getValue() instanceof DuplicateRecordStorageException) {
+                            logger.warn("Duplicate record encountered (duplicate ignored): "
+                                    + e.getKey().getDataURI());
+
+                        } else {
+                            logger.error(
+                                    "Error persisting record " + e.getKey()
+                                            + " to database: ", e.getValue());
+                        }
+                    }
+
+                    // Remove from the pdoList so the pdo is not propagated
+                    // to the next service
+                    pdoList.remove(e.getKey());
+                    errCnt++;
+
+                }
+            }
         } catch (Throwable e1) {
             logger.error(
                     "Critical persistence error occurred.  Individual records that failed will be logged separately.",

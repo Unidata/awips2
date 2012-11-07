@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2011            randerso     Initial creation
+ * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -66,7 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class WERevertDialog extends CaveJFACEDialog implements DisposeListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WERevertDialog.class);
 
     private Composite master;
@@ -83,7 +84,7 @@ public class WERevertDialog extends CaveJFACEDialog implements DisposeListener {
 
     public WERevertDialog(Shell parent, DataManager dataManager) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.dataManager = dataManager;
         this.modparms = dataManager.getParmManager().getModifiedParms();
 
