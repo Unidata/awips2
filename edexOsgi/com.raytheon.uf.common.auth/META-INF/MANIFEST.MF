@@ -10,6 +10,7 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.31",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.11.31",
  org.apache.commons.lang;bundle-version="2.3.0"
 Export-Package: com.raytheon.uf.common.auth,
+ com.raytheon.uf.common.auth.exception,
  com.raytheon.uf.common.auth.req,
  com.raytheon.uf.common.auth.resp,
  com.raytheon.uf.common.auth.user

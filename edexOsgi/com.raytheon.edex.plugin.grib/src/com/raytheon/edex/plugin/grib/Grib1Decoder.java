@@ -90,7 +90,6 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 3/11/10      4758        bphillip    Initial Creation
- * 6/12/12      0609        djohnson    Use EDEXUtil for EDEX_HOME.
  * 
  * </pre>
  * 
@@ -98,7 +97,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1
  */
 public class Grib1Decoder extends AbstractDecoder {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Grib1Decoder.class);
 
     /** Missing value string */
@@ -166,7 +165,7 @@ public class Grib1Decoder extends AbstractDecoder {
             ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
-                GridRecord rec = decodeRecord((Grib1Record) records.get(i), raf);
+                GridRecord rec = decodeRecord(records.get(i), raf);
                 if (rec != null) {
                     gribRecords.add(rec);
                 }
