@@ -31,7 +31,6 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -68,17 +67,8 @@ public class LevelMapper extends Mapper {
 
     private LevelMapper() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
-
-        LocalizationContext commonStaticSite = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.SITE);
-
         // read in the namespace map
-        LocalizationFile[] files = pathMgr.listFiles(new LocalizationContext[] {
-                commonStaticSite, commonStaticBase }, "level"
+        LocalizationFile[] files = pathMgr.listStaticFiles("level"
                 + IPathManager.SEPARATOR + "alias", new String[] { ".xml" },
                 true, true);
         for (LocalizationFile file : files) {
@@ -193,12 +183,9 @@ public class LevelMapper extends Mapper {
         return result;
     }
 
-    private static LevelMapper instance;
+    private static final LevelMapper instance = new LevelMapper();
 
-    public static synchronized LevelMapper getInstance() {
-        if (instance == null) {
-            instance = new LevelMapper();
-        }
+    public static LevelMapper getInstance() {
         return instance;
     }
 
