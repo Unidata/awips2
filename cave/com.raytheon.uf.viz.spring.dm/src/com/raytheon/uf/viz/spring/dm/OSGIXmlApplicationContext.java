@@ -25,7 +25,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 
 /**
- * TODO Add Description
+ * XML Application context for OSGI Bundle. Creates a class loader which uses
+ * the bundle to resolve classes
  * 
  * <pre>
  * 
