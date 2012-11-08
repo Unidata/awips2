@@ -25,7 +25,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler for {@link MenuCreationRequest} objects. Uses
+ * {@link MenuCreationRegistry} to find object that will create the menus
  * 
  * <pre>
  * 
