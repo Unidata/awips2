@@ -21,6 +21,13 @@
       <import feature="com.raytheon.uf.edex.radar.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.edex.hydro.feature" version="1.0.0.qualifier"/>
    </requires>
+
+   <plugin
+         id="com.raytheon.uf.common.monitor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
    
    <plugin
          id="com.raytheon.uf.edex.plugin.loctables"
@@ -31,13 +38,6 @@
 
    <plugin
          id="com.raytheon.uf.common.monitor.cpg"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.monitor"
          download-size="0"
          install-size="0"
          version="0.0.0"
