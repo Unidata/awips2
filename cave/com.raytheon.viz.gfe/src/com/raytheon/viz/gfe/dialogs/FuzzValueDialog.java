@@ -72,10 +72,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class FuzzValueDialog extends CaveJFACEDialog implements
         IDisplayedParmListChangedListener, IActivatedParmChangedListener {
 
-    /**
-     * @param args
-     */
-
     private Scale fuzzSlider;
 
     private Composite top;
