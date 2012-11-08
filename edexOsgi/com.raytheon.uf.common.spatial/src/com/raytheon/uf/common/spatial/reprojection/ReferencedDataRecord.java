@@ -28,7 +28,7 @@
  * May 18, 2011            bclement     Initial creation
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
