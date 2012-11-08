@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 4/7/09       1994        bphillip    Initial Creation
  * Sep 07, 2012 1102        djohnson    Add missing JAXB annotations.
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
+ * Nov 02, 2012 1302        djohnson    Remove commented out code.
  * 
  * </pre>
  * 
@@ -83,7 +84,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @SequenceGenerator(name = "GRIDCOVERAGE_GENERATOR", sequenceName = "gridcoverage_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public abstract class GridCoverage extends PersistableDataObject implements
+public abstract class GridCoverage extends PersistableDataObject<Integer>
+        implements
         ISpatialObject {
 
     private static final long serialVersionUID = -1355232934065074837L;
@@ -591,14 +593,6 @@ public abstract class GridCoverage extends PersistableDataObject implements
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
             double minLat = getLowerLeftLat() - dy / 2;
-            // This commented out if block can probably be removed. It was added
-            // for WA 5 Data Delivery, but nobody can remember exactly why.
-            // Commented out 11/01/2012, if you are in this file messing with
-            // something at some reasonable point in the future (especially if
-            // Michael J. Fox is with you), then feel free to delete it.
-            // if (ny * dy < 180) {
-            // minLat = MapUtil.correctLat(getLowerLeftLat()) - dy / 2;
-            // }
             double maxLat = minLat + dy * ny;
             double minLon = getLowerLeftLon() - dx / 2;
             if (dx * nx <= 360) {

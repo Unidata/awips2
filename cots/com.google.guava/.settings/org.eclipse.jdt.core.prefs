@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-#Wed Feb 15 11:40:52 CST 2012
-eclipse.preferences.version=1
-org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
-=======
 #Thu Mar 26 11:28:33 CDT 2009
 eclipse.preferences.version=1
->>>>>>> development
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.6
 org.eclipse.jdt.core.compiler.compliance=1.6
 org.eclipse.jdt.core.compiler.problem.assertIdentifier=error

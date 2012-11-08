@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.edex.auth;
 
-import com.raytheon.uf.common.plugin.nwsauth.roles.IRoleStorage;
 import com.raytheon.uf.edex.auth.authentication.IAuthenticationStorage;
 import com.raytheon.uf.edex.auth.authentication.IAuthenticator;
+import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 
 /**
  * Authentication Manager class, contains classes for storing and retrieving
