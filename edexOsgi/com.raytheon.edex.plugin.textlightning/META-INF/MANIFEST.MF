@@ -11,5 +11,4 @@ Require-Bundle: org.apache.commons.logging,
  javax.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.binlightning,
- com.raytheon.uf.common.dataplugin.binlightning.dao,
  com.raytheon.uf.common.dataplugin.binlightning.impl
