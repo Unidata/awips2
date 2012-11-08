@@ -37,6 +37,7 @@ import java.util.TimeZone;
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2008            randerso    Initial creation
  * Aug 24, 2012 0743       djohnson    Add option to use milliseconds for operations, change to singleton.
+ * Nov 02, 2012 1302       djohnson    Change mistakenly public constructor to private.
  * 
  * </pre>
  * 
@@ -129,7 +130,7 @@ public final class SimulatedTime {
      * @param isFrozen
      *            true to freeze time
      */
-    public SimulatedTime(long millis, double scale, boolean isFrozen) {
+    private SimulatedTime(long millis, double scale, boolean isFrozen) {
         setTime(millis);
         this.scale = scale;
         this.isFrozen = isFrozen;
