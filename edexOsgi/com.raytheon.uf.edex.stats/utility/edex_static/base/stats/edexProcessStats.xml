@@ -1,9 +1,11 @@
-<statsConfig>
+<statisticsConfig>
     <!-- Event Type should be fully qualified name of stat event -->
-        <eventType>com.raytheon.uf.common.event.ProcessEvent</eventType>
-        <groupBy>
-                <attribute name="pluginName"/>
-        </groupBy>
-        <aggregate field="processingTime" unit="ms"/>
-        <aggregate field="processingLatency" unit="ms"/>
-</statsConfig>
+    <statisticsEvent type="com.raytheon.uf.common.event.ProcessEvent"
+        displayName="Processing Events" category="Data Ingest Events">
+        <statisticsGroup name="pluginName" displayName="Data Type" />
+        <statisticsAggregate field="processingTimeMilliseconds"
+            displayName="Processing Time" unit="ms" />
+        <statisticsAggregate field="processingLatencyMilliseconds"
+            displayName="Processing Latency" unit="ms" />
+    </statisticsEvent>
+</statisticsConfig>
