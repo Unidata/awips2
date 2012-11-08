@@ -22,7 +22,8 @@ package com.raytheon.uf.edex.menus;
 import com.raytheon.uf.common.util.registry.GenericRegistry;
 
 /**
- * The registry for t
+ * The registry for {@link AbstractMenuUtil} objects to register they are able
+ * to generate menus.
  * 
  * <pre>
  * 
