@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Mar 01, 2011             njensen     Restructured deserializeArray()
  * Sep 14, 2012 #1169       djohnson    Add ability to write another object into the stream directly.
  * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
- * Nov 02, 2012 1310        djohnson    No more field level adapters.
+ * Nov 02, 2012 1302        djohnson    No more field level adapters.
  * 
  * </pre>
  * 

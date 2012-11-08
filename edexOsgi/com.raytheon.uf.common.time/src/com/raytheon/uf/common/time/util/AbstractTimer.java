@@ -1,6 +1,5 @@
 package com.raytheon.uf.common.time.util;
 
-import net.jcip.annotations.NotThreadSafe;
 
 /**
  * 
@@ -20,7 +19,7 @@ import net.jcip.annotations.NotThreadSafe;
  * @author djohnson
  * @version 1.0
  */
-@NotThreadSafe
+// @NotThreadSafe
 abstract class AbstractTimer implements ITimer {
     private long start;
 
