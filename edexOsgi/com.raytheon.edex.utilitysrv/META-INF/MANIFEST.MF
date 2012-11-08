@@ -10,11 +10,10 @@ Require-Bundle: org.apache.commons.logging,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.0.0",
  com.raytheon.uf.edex.auth,
  com.raytheon.uf.common.status;bundle-version="1.12.1130",
- com.raytheon.uf.common.plugin.nwsauth
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174"
 Export-Package: com.raytheon.edex.services
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.auth.req,
  com.raytheon.uf.common.auth.user,
- com.raytheon.uf.common.plugin.nwsauth.exception,
  com.raytheon.uf.edex.auth.req,
  com.raytheon.uf.edex.auth.resp

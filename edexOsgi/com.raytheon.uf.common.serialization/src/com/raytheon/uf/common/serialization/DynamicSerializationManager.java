@@ -92,8 +92,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 08, 2012 #1251       dgilling    Ensure type registered with
  *                                      serialization adapter is encoded
  *                                      in serialization stream.
- * Nov 02, 2012 1310        djohnson    Remove field level adapters, they
- *                                      break python serialization.
+ * Nov 02, 2012 1302        djohnson    Remove field level adapters, they break python serialization.
  * 
  * </pre>
  * 

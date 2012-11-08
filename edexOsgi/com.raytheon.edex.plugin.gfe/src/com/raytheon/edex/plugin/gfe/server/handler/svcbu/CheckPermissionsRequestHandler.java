@@ -20,10 +20,10 @@
 package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
 import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.plugin.nwsauth.exception.AuthorizationException;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 
