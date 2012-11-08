@@ -34,7 +34,7 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
- * TODO Add Description
+ * ACARDS dao.
  * 
  * <pre>
  * 
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
+ * Nov 02, 2012 1302       djohnson    Add Javadoc.
  * 
  * </pre>
  * 
