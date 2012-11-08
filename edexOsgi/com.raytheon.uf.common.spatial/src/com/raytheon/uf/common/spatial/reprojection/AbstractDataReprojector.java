@@ -28,7 +28,7 @@
  * Jun 15, 2011            bclement     Initial creation
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
