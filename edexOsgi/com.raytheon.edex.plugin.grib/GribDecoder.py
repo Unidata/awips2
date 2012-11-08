@@ -810,9 +810,17 @@ class GribDecoder():
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
 
-            if dx == 65.535:
+            # According to the grib2 spec 65.535 is completely valid, however it
+            # is impossible to define anything larger than a 5x2 grid with this
+            # spacing so we assume it is invalid and try to calculate a better
+            # value. 65.535 was chosen because it is the value encoded in the
+            # GFS161 model and it is completely wrong. This value is probably
+            # an artifact of converting from grib1 to grib2 since in grib1 this
+            # value would be encoded as an unsigned short with all bits as 1
+            # which is a special value in grib1, but in grib2 its just wrong
+            if dx >= 65.535:
                 dx = abs(lo1-lo2)/nx
-            if dy == 65.535:
+            if dy >= 65.535:
                 dy = abs(la1-la2)/ny
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
