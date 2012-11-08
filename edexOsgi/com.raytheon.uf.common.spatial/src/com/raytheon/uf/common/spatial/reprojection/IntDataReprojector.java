@@ -28,11 +28,11 @@
  * Jun 13, 2011            bclement     Initial creation
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import java.awt.Point;
 import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferShort;
+import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
@@ -43,26 +43,25 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 
 /**
- * TODO Add Description
  * 
  * @author bclement
  * @version 1.0
  */
-public class ShortDataReprojector extends
-		AbstractDataReprojector<ShortDataRecord> {
+public class IntDataReprojector extends
+		AbstractDataReprojector<IntegerDataRecord> {
 
-	protected short fill = 0;
+	protected int fill = 0;
 
-    protected short dataMaskValue = -1;
+    protected int dataMaskValue = -1;
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#getGridCoverage
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getGridCoverage
 	 * (com.raytheon.uf.common.datastorage.records.IDataRecord,
 	 * org.opengis.referencing.crs.CoordinateReferenceSystem,
 	 * org.opengis.geometry.Envelope)
@@ -70,9 +69,9 @@ public class ShortDataReprojector extends
 	@Override
 	protected GridCoverage2D getGridCoverage(IDataRecord record,
 			ReferencedEnvelope env) throws Exception {
-		ShortDataRecord dataRecord = (ShortDataRecord) record;
-		short[] data = dataRecord.getShortData();
-		DataBuffer buff = new DataBufferShort(data, data.length);
+		IntegerDataRecord dataRecord = (IntegerDataRecord) record;
+		int[] data = dataRecord.getIntData();
+		DataBuffer buff = new DataBufferInt(data, data.length);
 		int x = (int) dataRecord.getSizes()[0];
 		int y = (int) dataRecord.getSizes()[1];
 		CoordinateReferenceSystem crs = env.getCoordinateReferenceSystem();
@@ -83,7 +82,7 @@ public class ShortDataReprojector extends
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.spatial.repojection.DataReprojector#getMaskCoverage
+     * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getMaskCoverage
      * (com.raytheon.uf.common.datastorage.records.IDataRecord,
      * org.opengis.referencing.crs.CoordinateReferenceSystem,
      * org.opengis.geometry.Envelope)
@@ -93,9 +92,9 @@ public class ShortDataReprojector extends
             ReferencedEnvelope env) throws Exception {
         int x = (int) record.getSizes()[0];
         int y = (int) record.getSizes()[1];
-        short[] mask = new short[x * y];
+        int[] mask = new int[x * y];
         Arrays.fill(mask, dataMaskValue);
-        DataBufferShort buff = new DataBufferShort(mask, mask.length);
+        DataBufferInt buff = new DataBufferInt(mask, mask.length);
         CoordinateReferenceSystem crs = env.getCoordinateReferenceSystem();
         return constructGridCoverage(crs.getName() + " Grid", buff, x, y, env);
     }
@@ -104,11 +103,11 @@ public class ShortDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#extractData(org
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#extractData(org
 	 * .geotools.coverage.grid.GridCoverage2D)
 	 */
 	@Override
-	protected ShortDataRecord extractData(GridCoverage2D coverage) {
+	protected IntegerDataRecord extractData(GridCoverage2D coverage) {
 		RenderedImage image = coverage.getRenderedImage();
 		Raster raster;
 		if (image.getNumXTiles() == 1 && image.getNumYTiles() == 1) {
@@ -118,24 +117,24 @@ public class ShortDataReprojector extends
 			// need to copy data out
 			raster = image.getData();
 		}
-		DataBufferShort dataBuffer = (DataBufferShort) raster.getDataBuffer();
-		short[] data = dataBuffer.getData();
+		DataBufferInt dataBuffer = (DataBufferInt) raster.getDataBuffer();
+		int[] data = dataBuffer.getData();
 		int height = raster.getHeight();
 		int width = raster.getWidth();
-		return new ShortDataRecord("", "", data, 2,
-				new long[] { width, height });
+		return new IntegerDataRecord("", "", data, 2, new long[] { width,
+				height });
 	}
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.spatial.repojection.DataReprojector#extractData(org
+     * com.raytheon.uf.common.spatial.reprojection.DataReprojector#extractData(org
      * .geotools.coverage.grid.GridCoverage2D,
      * org.geotools.coverage.grid.GridCoverage2D)
      */
     @Override
-    protected ShortDataRecord extractData(GridCoverage2D coverage,
+    protected IntegerDataRecord extractData(GridCoverage2D coverage,
             GridCoverage2D maskCoverage) {
         RenderedImage image = coverage.getRenderedImage();
         Raster raster;
@@ -146,8 +145,8 @@ public class ShortDataReprojector extends
             // need to copy data out
             raster = image.getData();
         }
-        DataBufferShort dataBuffer = (DataBufferShort) raster.getDataBuffer();
-        short[] data = dataBuffer.getData();
+        DataBufferInt dataBuffer = (DataBufferInt) raster.getDataBuffer();
+        int[] data = dataBuffer.getData();
 
         // Extract mask
         image = maskCoverage.getRenderedImage();
@@ -158,8 +157,8 @@ public class ShortDataReprojector extends
             // need to copy data out
             raster = image.getData();
         }
-        dataBuffer = (DataBufferShort) raster.getDataBuffer();
-        short[] mask = dataBuffer.getData();
+        dataBuffer = (DataBufferInt) raster.getDataBuffer();
+        int[] mask = dataBuffer.getData();
 
         if (mask.length == data.length) {
             for (int i = 0; i < data.length; ++i) {
@@ -171,28 +170,28 @@ public class ShortDataReprojector extends
 
         int height = raster.getHeight();
         int width = raster.getWidth();
-        return new ShortDataRecord("", "", data, 2,
-                new long[] { width, height });
+        return new IntegerDataRecord("", "", data, 2, new long[] { width,
+                height });
     }
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#getDataSlice(com
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getDataSlice(com
 	 * .raytheon.uf.common.datastorage.records.IDataRecord,
 	 * com.raytheon.uf.common.datastorage.Request)
 	 */
 	@Override
-	protected ShortDataRecord getDataSlice(IDataRecord record, Request req) {
-		ShortDataRecord dataRecord = (ShortDataRecord) record;
+	protected IntegerDataRecord getDataSlice(IDataRecord record, Request req) {
+		IntegerDataRecord dataRecord = (IntegerDataRecord) record;
 		int[] max = req.getMaxIndexForSlab();
 		int[] min = req.getMinIndexForSlab();
 		int toWidth = max[0] - min[0];
 		int toHeight = max[1] - min[1];
-		short[] from = dataRecord.getShortData();
+		int[] from = dataRecord.getIntData();
 		int fromWidth = (int) dataRecord.getSizes()[0];
-		short[] to = new short[toWidth * toHeight];
+		int[] to = new int[toWidth * toHeight];
 		for (int fromY = min[1], toY = 0; fromY < max[1]; ++fromY, ++toY) {
 			int toRow = toY * toWidth;
 			int fromRow = fromY * fromWidth;
@@ -201,13 +200,13 @@ public class ShortDataReprojector extends
 			}
 		}
 		long[] sizes = { toWidth, toHeight };
-		return new ShortDataRecord("", "", to, 2, sizes);
+		return new IntegerDataRecord("", "", to, 2, sizes);
 	}
 
 	/**
 	 * @return the fill
 	 */
-	public short getFill() {
+	public int getFill() {
 		return fill;
 	}
 
@@ -215,7 +214,7 @@ public class ShortDataReprojector extends
 	 * @param fill
 	 *            the fill to set
 	 */
-	public void setFill(short fill) {
+	public void setFill(int fill) {
 		this.fill = fill;
 	}
 
@@ -223,26 +222,26 @@ public class ShortDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.AbstractDataReprojector#compatible
+	 * com.raytheon.uf.common.spatial.reprojection.AbstractDataReprojector#compatible
 	 * (com.raytheon.uf.common.datastorage.records.IDataRecord)
 	 */
 	@Override
 	protected boolean compatible(IDataRecord dataRecord) {
-		return dataRecord instanceof ShortDataRecord;
+		return dataRecord instanceof IntegerDataRecord;
 	}
 
 	@Override
 	protected IDataRecord getDataPoints(IDataRecord record, Request req) {
-		ShortDataRecord dataRecord = (ShortDataRecord) record;
-		short[] from = dataRecord.getShortData();
+		IntegerDataRecord dataRecord = (IntegerDataRecord) record;
+		int[] from = dataRecord.getIntData();
 		int fromWidth = (int) dataRecord.getSizes()[0];
 		Point[] points = req.getPoints();
-		short[] to = new short[points.length];
+		int[] to = new int[points.length];
 		for (int i = 0; i < to.length; ++i) {
 			Point p = points[i];
 			to[i] = from[p.y * fromWidth + p.x];
 		}
-		return new ShortDataRecord("", "", to, 1, new long[] { to.length });
+		return new IntegerDataRecord("", "", to, 1, new long[] { to.length });
 	}
 
 }
