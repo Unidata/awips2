@@ -4,13 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+// TODO this logic could probably be included in the ncgribFileNameProcessor rather than in a singleton
 public class GridLookupFileName {
     /** The singleton instance of GridLookupFileName **/
     private static GridLookupFileName instance;
 
+    // TODO modelname needs to be infered from filename since the file name
+    // processing happens before decode.
     private String[] modelNames = { "cmce", "gefs", "gww", "naefsBC",
             "naefsUS", "naefsAK", "sref" };
 
+    // TODO this should be read from a configureable xml file, not hardcoded
     private String[] template = {
             "cmc_gep.*|cmce;cmc_gec.*|cmcec;cmc_geavg.*|cmceMean;cmc_gespr.*|cmceSpread",
             "gec00.*bc.*|gefscBC;gec00.*anl|gefscAnal;gec00.*[0-9]|gefsc;gep.*anl|gefsAnal;gep.*bc.*|gefsBC;geavg.*bc.*|gefsMeanBC;gespr.*bc.*|gefsSpreadBC;gespr.*|gefsSpread",
@@ -36,6 +40,9 @@ public class GridLookupFileName {
     }
 
     private void initModels() {
+        // TODO instead of just building this map, all parsing should be
+        // happening here and regexes should be built into Pattern object so
+        // that we aren'y constantly reprocessing regexes
         for (int i = 0; i < modelNames.length; i++) {
             models.put(modelNames[i].toUpperCase(), template[i]);
         }
@@ -44,18 +51,24 @@ public class GridLookupFileName {
     public String getModelName(String filename) {
         String modelname = null;
 
+        // this was commented out because file name processing should happen
+        // before decode so there is no pre-existing model name.
         // if (model.equalsIgnoreCase("gww") && gridId.equalsIgnoreCase("229"))
         // {
         // return modelname;
         // }
         //
         // String template = models.get(model.toUpperCase());
+        // since we don't know the model name, we must process all templates.
         for (String template : this.template) {
+            // TODO do not split this for every filename, split in init
             String[] tokens = template.split(";");
             // System.out.println ( " CMC ensemble " + "!!!\n");
 
             for (String token : tokens) {
+                // TODO do not split this for every filename, split in init
                 String[] alias = token.split("\\|");
+                // TODO compile and reuse patterns.
                 if (Pattern.matches(alias[0], filename)) {
                     modelname = alias[1];
 
@@ -67,6 +80,9 @@ public class GridLookupFileName {
                     // }
                     break;
                 }
+            }
+            if (modelname != null) {
+                break;
             }
         }
         return modelname;
