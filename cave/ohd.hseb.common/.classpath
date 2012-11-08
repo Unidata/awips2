@@ -7,7 +7,7 @@
 	<classpathentry exported="true" kind="lib" path="externaljars/fldat.jar"/>
 	<classpathentry exported="true" kind="lib" path="externaljars/ihfsdb.jar"/>
 	<classpathentry exported="true" kind="lib" path="externaljars/jcchart.jar"/>
-i	<classpathentry exported="true" kind="lib" path="externaljars/jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/jdom.jar"/>
 	<classpathentry exported="true" kind="lib" path="externaljars/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="externaljars/netcdfUI-2.2.22.jar"/>
 	<classpathentry exported="true" kind="lib" path="externaljars/postgresql-8.3-603.jdbc3.jar"/>
