@@ -96,6 +96,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * 21 APR 2008  ###        lvenable    Initial creation
  * 07 JUL 2011  9293       rferrel     Hook to allow checking of includeAllZones
  * 07 Nov 2012  1298       rferrel     Changes for non-blocking ClearZoneGroupsDialog.
+ *                                     Changes for non-blocking SaveDeleteComboDlg.
  * 
  * </pre>
  * 
@@ -107,6 +108,8 @@ public class ZoneCombinerComp extends Composite implements
         ILocalizationFileObserver, IZoneCombiner {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
+
+    private SaveDeleteComboDlg saveDeleteCombDlg;
 
     private ClearZoneGroupsDialog examClearDlg;
 
@@ -393,11 +396,17 @@ public class ZoneCombinerComp extends Composite implements
         saveComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                SaveDeleteComboDlg saveCombDlg = new SaveDeleteComboDlg(parent
-                        .getShell(), mapNames, "Save", zoneSelector.getCombos());
-                saveCombDlg.setBlockOnOpen(true);
-                saveCombDlg.open();
-
+                if (saveDeleteCombDlg == null
+                        || saveDeleteCombDlg.getShell() == null
+                        || saveDeleteCombDlg.isDisposed()) {
+                    saveDeleteCombDlg = new SaveDeleteComboDlg(parent
+                            .getShell(), mapNames, "Save", zoneSelector
+                            .getCombos());
+                    saveDeleteCombDlg.setBlockOnOpen(false);
+                    saveDeleteCombDlg.open();
+                } else {
+                    saveDeleteCombDlg.bringToTop();
+                }
             }
         });
 
@@ -424,10 +433,16 @@ public class ZoneCombinerComp extends Composite implements
         deleteComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                SaveDeleteComboDlg deleteCombDlg = new SaveDeleteComboDlg(
-                        parent.getShell(), mapNames, "Delete", null);
-                deleteCombDlg.setBlockOnOpen(true);
-                deleteCombDlg.open();
+                if (saveDeleteCombDlg == null
+                        || saveDeleteCombDlg.getShell() == null
+                        || saveDeleteCombDlg.isDisposed()) {
+                    saveDeleteCombDlg = new SaveDeleteComboDlg(parent
+                            .getShell(), mapNames, "Delete", null);
+                    saveDeleteCombDlg.setBlockOnOpen(false);
+                    saveDeleteCombDlg.open();
+                } else {
+                    saveDeleteCombDlg.bringToTop();
+                }
             }
         });
     }
