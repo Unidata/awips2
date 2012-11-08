@@ -27,9 +27,11 @@ import org.apache.camel.Processor;
 
 /**
  * 
- * Processor for ncep grib files, this processor has lots of hard coded
- * assumptions about file naming that need to be more generic based off ncep
- * file names.
+ * Based off a file name for a grib file, determine the modelName, secondaryId,
+ * and ensembleId. It is ok not to set any headers because the decoder can find
+ * the modelName and ensembleId. Those fields should only be set if the filename
+ * has information beyond what is in the actual grib file.The grib decoder will
+ * not set a secondary id so if it isn't set here it will be null.
  * 
  * <pre>
  * 
@@ -46,20 +48,25 @@ import org.apache.camel.Processor;
  */
 public class NcgribFileNameProcessor implements Processor {
 
+    // TODO does this actually match all ensemble patterns?
     // grab all known ensemble ids
     private static final Pattern ENSEMBLE_ID_PATTERN = Pattern
             .compile("^(p|n|ctl)\\d{0,2}$");
 
+    // TODO merge this pattern in with the patterns in GridLookupFileName
     // anything that ends in nest is assumed to be a nested grid identifier
     private static final Pattern FIREWXNEST_ID_PATTERN = Pattern
             .compile("^firewxnest$");
 
+    // TODO merge this pattern in with the patterns in GridLookupFileName
     // anything that ends in nest is assumed to be a nested grid identifier
     private static final Pattern NEST_ID_PATTERN = Pattern.compile("^.*nest$");
 
+    // TODO merge this pattern in with the patterns in GridLookupFileName
     // SREF gets special handling, does this apply to other models?
     private static final Pattern SREF_PATTERN = Pattern.compile("^sref_.*$");
 
+    // TODO merge this pattern in with the patterns in GridLookupFileName
     // This is the least generic pattern ever, are there any constraints on
     // event names, who knows?
     private static final Pattern HURRICANE_PATTERN = Pattern
@@ -106,6 +113,8 @@ public class NcgribFileNameProcessor implements Processor {
             exchange.getIn().setHeader("datasetid", datasetid);
         }
         if (secondaryid == null) {
+            // TODO does everything really need secondaryid or should this only
+            // be set for events?
             secondaryid = nameTokens[0];
         }
         exchange.getIn().setHeader("secondaryid", secondaryid);
