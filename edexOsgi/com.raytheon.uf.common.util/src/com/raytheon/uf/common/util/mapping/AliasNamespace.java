@@ -25,16 +25,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * 
- * A AliasNamespace represents a set of alternative names for a base name. This
- * list defines the alternatives within a namespace so that it is possible to
- * match aliases for only a specific group. Parent namespaces can be used to
- * bring all aliases from another list into this namespace.
+ * Represents a bidirectional map for going between base names and aliases.
+ * Allows for caseInsensitive aliases since some naming conventions are ambigous
+ * on case. The base names cannot be treated case insensitive because this would
+ * cause ambiguity and require case insensitive handling of base names in all
+ * namespaces.
  * 
  * <pre>
  * 
@@ -49,8 +46,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author bsteffen
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement
 public class AliasNamespace {
 
     protected final boolean caseSensitive;
