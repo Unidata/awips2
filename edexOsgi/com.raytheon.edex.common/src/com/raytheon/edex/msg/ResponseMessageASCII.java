@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.raytheon.edex.util.Util;
-import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
+import com.raytheon.uf.common.util.ConvertUtil;
 
 /**
  * Represents an ASCII product response from EDEX.
