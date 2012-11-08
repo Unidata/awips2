@@ -5,7 +5,6 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="satelliteMenuUtil" class="com.raytheon.edex.util.satellite.SatelliteMenuUtil"/>
-	<bean id="menuCreationRegistry" class="com.raytheon.uf.common.menus.MenuCreationRegistry" factory-method="getInstance" />	
 	<bean id="satelliteMenus" factory-bean="menuCreationRegistry" factory-method="register">
   		<constructor-arg value="satellite"/>
   		<constructor-arg ref="satelliteMenuUtil"/>
