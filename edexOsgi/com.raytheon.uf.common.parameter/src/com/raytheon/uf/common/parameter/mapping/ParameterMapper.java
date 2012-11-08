@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.parameter.Parameter;
@@ -62,17 +61,8 @@ public class ParameterMapper extends Mapper {
 
     private ParameterMapper() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
-
-        LocalizationContext commonStaticSite = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.SITE);
-
         // read in the namespace map
-        LocalizationFile[] files = pathMgr.listFiles(new LocalizationContext[] {
-                commonStaticSite, commonStaticBase }, "parameter"
+        LocalizationFile[] files = pathMgr.listStaticFiles("parameter"
                 + IPathManager.SEPARATOR + "alias", new String[] { ".xml" },
                 true, true);
         for (LocalizationFile file : files) {
@@ -135,12 +125,9 @@ public class ParameterMapper extends Mapper {
         return ParameterLookup.getInstance().getParameter(baseName);
     }
 
-    private static ParameterMapper instance;
+    private static final ParameterMapper instance = new ParameterMapper();
 
-    public static synchronized ParameterMapper getInstance() {
-        if (instance == null) {
-            instance = new ParameterMapper();
-        }
+    public static ParameterMapper getInstance() {
         return instance;
     }
 
