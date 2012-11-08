@@ -28,7 +28,7 @@
  * Jun 13, 2011            bclement     Initial creation
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import java.awt.Point;
 import java.awt.image.DataBufferFloat;
@@ -60,7 +60,7 @@ public class FloatDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#getGridCoverage
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getGridCoverage
 	 * (com.raytheon.uf.common.datastorage.records.IDataRecord,
 	 * org.opengis.referencing.crs.CoordinateReferenceSystem,
 	 * org.opengis.geometry.Envelope)
@@ -81,7 +81,7 @@ public class FloatDataReprojector extends
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.spatial.repojection.DataReprojector#getMaskCoverage
+     * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getMaskCoverage
      * (com.raytheon.uf.common.datastorage.records.IDataRecord,
      * org.opengis.referencing.crs.CoordinateReferenceSystem,
      * org.opengis.geometry.Envelope)
@@ -102,7 +102,7 @@ public class FloatDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#extractData(org
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#extractData(org
 	 * .geotools.coverage.grid.GridCoverage2D)
 	 */
 	@Override
@@ -128,7 +128,7 @@ public class FloatDataReprojector extends
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.spatial.repojection.DataReprojector#extractData(org
+     * com.raytheon.uf.common.spatial.reprojection.DataReprojector#extractData(org
      * .geotools.coverage.grid.GridCoverage2D,
      * org.geotools.coverage.grid.GridCoverage2D)
      */
@@ -177,7 +177,7 @@ public class FloatDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.DataReprojector#getDataSlice(com
+	 * com.raytheon.uf.common.spatial.reprojection.DataReprojector#getDataSlice(com
 	 * .raytheon.uf.common.datastorage.records.IDataRecord,
 	 * com.raytheon.uf.common.datastorage.Request)
 	 */
@@ -221,7 +221,7 @@ public class FloatDataReprojector extends
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.raytheon.uf.common.spatial.repojection.AbstractDataReprojector#compatible
+	 * com.raytheon.uf.common.spatial.reprojection.AbstractDataReprojector#compatible
 	 * (com.raytheon.uf.common.datastorage.records.IDataRecord)
 	 */
 	@Override
