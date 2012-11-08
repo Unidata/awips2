@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,6 +34,10 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.StatsRecord;
+import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
+import com.raytheon.uf.common.stats.xml.StatisticsConfig;
+import com.raytheon.uf.common.stats.xml.StatisticsEvent;
+import com.raytheon.uf.common.stats.xml.StatisticsGroup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
@@ -42,30 +46,28 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.stats.dao.StatsDao;
 import com.raytheon.uf.edex.stats.handler.StatsHandler;
 import com.raytheon.uf.edex.stats.util.ConfigLoader;
-import com.raytheon.uf.edex.stats.xml.Aggregate;
-import com.raytheon.uf.edex.stats.xml.Item;
-import com.raytheon.uf.edex.stats.xml.StatsConfig;
 
 /**
  * Aggregates stat records based on the statsConfig files and stores them after
  * a configured period.
- * 
+ *
  * *
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012            jsanchez     Stored the aggregate buckets in the db.
- * 
+ * Aug 21, 2012            jsanchez    Stored the aggregate buckets in the db.
+ * Nov 07, 2012   1317     mpduff      Updated Configuration Files.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * 
+ *
  */
 public class AggregateManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AggregateManager.class);
 
     private class TimeRangeKey extends TimeRange {
@@ -90,6 +92,7 @@ public class AggregateManager {
             return 1;
         }
 
+        @Override
         public String toString() {
             return super.toString();
         }
@@ -108,9 +111,9 @@ public class AggregateManager {
     private static final int defaultScanInterval = 15;
 
     /** loads localized copies of the statsConfig */
-    private ConfigLoader configLoader;
+    private final ConfigLoader configLoader;
 
-    private CoreDao aggregateRecordDao = new CoreDao(DaoConfig.forClass(
+    private final CoreDao aggregateRecordDao = new CoreDao(DaoConfig.forClass(
             "metadata", AggregateRecord.class));
 
     public AggregateManager(String bucketInterval, String scanInterval)
@@ -124,7 +127,7 @@ public class AggregateManager {
     /**
      * Tests if the bucket interval and the scan interval are valid values. If
      * values are invalid then values will be set to default values.
-     * 
+     *
      * @param bucketInt
      * @param scanInt
      * @return
@@ -183,27 +186,32 @@ public class AggregateManager {
         retrieveStatRecords(statsRecordDao, aggregateBuckets);
 
         // loops through map to aggregate buckets
-        for (StatsConfig statsConfig : configLoader.getConfigurations()) {
-            String eventType = statsConfig.getEventType();
+        for (StatisticsConfig statsConfig : configLoader.getConfigurations()) {
+            for (StatisticsEvent event : statsConfig.getEvents()) {
+                String eventType = event.getType();
 
-            Map<TimeRangeKey, List<StatsRecord>> map = aggregateBuckets
-                    .get(eventType);
-            // map should never be null, since it will be set in the 'sort'
-            // method.
-            for (Iterator<Map.Entry<TimeRangeKey, List<StatsRecord>>> iter = map.entrySet().iterator(); iter.hasNext(); ) {
-                Entry<TimeRangeKey, List<StatsRecord>> element = iter.next();
-                TimeRangeKey tr = element.getKey();
-                List<StatsRecord> records = element.getValue();
-                if (!records.isEmpty()) {
-                    List<Event> data = extractEvents(records);
-                    aggregate(statsConfig, tr, data);
-                    try {
-                        statsRecordDao.deleteAll(records);
-                    } catch (Exception e) {
-                        statusHandler.error("Error deleting stat records", e);
+                Map<TimeRangeKey, List<StatsRecord>> map = aggregateBuckets
+                        .get(eventType);
+                // map should never be null, since it will be set in the 'sort'
+                // method.
+                for (Iterator<Map.Entry<TimeRangeKey, List<StatsRecord>>> iter = map
+                        .entrySet().iterator(); iter.hasNext();) {
+                    Entry<TimeRangeKey, List<StatsRecord>> element = iter
+                            .next();
+                    TimeRangeKey tr = element.getKey();
+                    List<StatsRecord> records = element.getValue();
+                    if (!records.isEmpty()) {
+                        List<Event> data = extractEvents(records);
+                        aggregate(event, tr, data);
+                        try {
+                            statsRecordDao.deleteAll(records);
+                        } catch (Exception e) {
+                            statusHandler.error("Error deleting stat records",
+                                    e);
+                        }
                     }
+                    iter.remove();
                 }
-                iter.remove();
             }
         }
     }
@@ -216,20 +224,22 @@ public class AggregateManager {
             Map<String, Map<TimeRangeKey, List<StatsRecord>>> aggregateBuckets)
             throws Exception {
         Calendar current = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        for (StatsConfig statsConfig : configLoader.getConfigurations()) {
-            String eventType = statsConfig.getEventType();
-            // Does not retrieve stat records of current bucket.
-            // this method should always return a valid array.
-            StatsRecord[] records = statsRecordDao.retrieveRecords(
-                    getBucketStartTime(current), eventType);
-            sort(eventType, records, aggregateBuckets);
+        for (StatisticsConfig statsConfig : configLoader.getConfigurations()) {
+            for (StatisticsEvent event : statsConfig.getEvents()) {
+                String eventType = event.getType();
+                // Does not retrieve stat records of current bucket.
+                // this method should always return a valid array.
+                StatsRecord[] records = statsRecordDao.retrieveRecords(
+                        getBucketStartTime(current), eventType);
+                sort(eventType, records, aggregateBuckets);
+            }
         }
     }
 
     /**
      * Stores the results into proper aggregate buckets. This method assumes
      * that the records are in date order.
-     * 
+     *
      * @param events
      */
     private void sort(String eventType, StatsRecord[] records,
@@ -263,7 +273,7 @@ public class AggregateManager {
      * Creates a time range from a date and the bucket interval. The time range
      * start time that will be the date rounded to the next bucket interval. The
      * time range end time will be the start time plus the bucket interval.
-     * 
+     *
      * @param date
      * @return
      */
@@ -281,7 +291,7 @@ public class AggregateManager {
     /**
      * Calculates the start time that will be the date rounded to the next
      * bucket interval
-     * 
+     *
      * @param date
      * @return
      */
@@ -307,7 +317,7 @@ public class AggregateManager {
 
     /**
      * Extracts the events from the stats records.
-     * 
+     *
      * @param records
      * @return
      */
@@ -331,11 +341,11 @@ public class AggregateManager {
 
     /**
      * Performs the aggregation based on the statsConfig file.
-     * 
+     *
      * @param key
      * @param data
      */
-    private void aggregate(StatsConfig statsConfig, TimeRange timeRange,
+    private void aggregate(StatisticsEvent statsEvent, TimeRange timeRange,
             List<Event> data) {
         Calendar start = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         start.setTime(timeRange.getStart());
@@ -345,8 +355,8 @@ public class AggregateManager {
 
         // collect grouping names from stats config
         List<String> groupByColumns = new ArrayList<String>();
-        for (Item item : statsConfig.getGroupBy().getAttributes()) {
-            String column = item.getName();
+        for (StatisticsGroup groupBy : statsEvent.getGroupList()) {
+            String column = groupBy.getName();
             groupByColumns.add(column);
         }
 
@@ -357,7 +367,7 @@ public class AggregateManager {
         for (String groupKey : map.keySet()) {
 
             List<Event> groupData = map.get(groupKey);
-            for (Aggregate aggregate : statsConfig.getAggregates()) {
+            for (StatisticsAggregate aggregate : statsEvent.getAggregateList()) {
                 String field = aggregate.getField();
                 try {
                     double[] values = new double[groupData.size()];
@@ -387,8 +397,7 @@ public class AggregateManager {
                     }
 
                     AggregateRecord record = new AggregateRecord(
-                            statsConfig.getEventType(), start, end, groupKey,
-                            field);
+                            statsEvent.getType(), start, end, groupKey, field);
                     record.setSum(sum);
                     record.setMin(min);
                     record.setMax(max);
@@ -406,7 +415,7 @@ public class AggregateManager {
      * Breaks the list of data into groups based on groupByColumns. The key is a
      * concatenation of the column values (i.e. datatype.username). This method
      * can group data to n-number of levels.
-     * 
+     *
      * @param data
      * @param groupByColumns
      * @return
@@ -438,7 +447,7 @@ public class AggregateManager {
 
     /**
      * Helper method to group data to one level.
-     * 
+     *
      * @param data
      * @param column
      * @param parent
@@ -473,7 +482,7 @@ public class AggregateManager {
 
     /**
      * Returns the name of the getter method for the parameter
-     * 
+     *
      * @param parameter
      * @return
      */
