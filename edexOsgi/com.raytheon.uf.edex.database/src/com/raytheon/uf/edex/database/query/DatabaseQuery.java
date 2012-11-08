@@ -34,13 +34,13 @@ import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
 
-import com.raytheon.uf.common.dataplugin.convert.ConvertUtil;
 import com.raytheon.uf.common.dataquery.db.JoinField;
 import com.raytheon.uf.common.dataquery.db.OrderField;
 import com.raytheon.uf.common.dataquery.db.OrderField.ResultOrder;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.dataquery.db.ReturnedField;
+import com.raytheon.uf.common.util.ConvertUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
