@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.menus;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -38,8 +37,24 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.menus.MenuSerialization;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
+/**
+ * 
+ * Abstract class for generting menu files
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 8, 2012            mschenke     Initial javadoc creation
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ */
 public abstract class AbstractMenuUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractMenuUtil.class);
@@ -152,35 +167,18 @@ public abstract class AbstractMenuUtil {
         LocalizationFile olFile = pm.getLocalizationFile(caveConfigured,
                 "menus" + File.separator + type + File.separator + "." + type
                         + "MenuTime");
-        File ofFile = olFile.getFile();
 
-        File ffile = lFile.getFile();
-        long useTime = ffile.lastModified();
-
-        long writeTime = 0;
-
-        // read the time from a file, and write the current time to a file
-        try {
-            writeTime = ofFile.lastModified();
-            if (!olFile.exists()) {
-                File file = olFile.getFile();
-                try {
-                    file.createNewFile();
-                    olFile.write(new byte[0]);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (LocalizationException e) {
-                    e.printStackTrace();
-                }
-                olFile.save();
-            }
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to save file to localization", e);
-            return false;
-        }
+        long useTime = lFile.getFile().lastModified();
+        long writeTime = olFile.getFile().lastModified();
 
         if (writeTime < useTime) {
+            try {
+                // Update menu creation time file
+                olFile.write(new byte[0]);
+                olFile.save();
+            } catch (LocalizationException e) {
+                statusHandler.error("Error saving menu creation time file", e);
+            }
             return false;
         } else {
             statusHandler.info("Timestamp in " + fileName
