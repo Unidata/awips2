@@ -5,7 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.common.stats
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.stats
+Export-Package: com.raytheon.uf.common.stats,
+ com.raytheon.uf.common.stats.xml
 Require-Bundle: com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
