@@ -73,6 +73,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.PrivilegedRequestFactory;
 import com.raytheon.uf.viz.core.requests.ServerRequestException;
@@ -226,11 +227,9 @@ public class LocalizationManager implements IPropertyChangeListener {
                 VizApp.setHttpServer(resp.getHttpServer());
                 VizApp.setJmsServer(resp.getJmsServer());
                 VizApp.setPypiesServer(resp.getPypiesServer());
-                VizApp.setDataDeliveryServer(resp.getDataDeliveryServer());
-                VizApp.setDataDeliveryLcmServer(resp.getDataDeliveryLcmServer());
-                VizApp.setDataDeliveryQueryServer(resp
-                        .getDataDeliveryQueryServer());
                 VizApp.setServerDataDir(resp.getServerDataDir());
+                VizServers.getInstance().setServerLocations(
+                        resp.getServerLocations());
             } catch (VizException e) {
                 statusHandler.handle(UFStatus.Priority.SIGNIFICANT,
                         "Error connecting to localization server", e);
