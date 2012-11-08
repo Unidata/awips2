@@ -7,7 +7,6 @@ Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.dataplugin.binlightning,
- com.raytheon.uf.common.dataplugin.binlightning.dao,
  com.raytheon.uf.common.dataplugin.binlightning.impl
 Require-Bundle: com.raytheon.edex.common,
  org.geotools,
