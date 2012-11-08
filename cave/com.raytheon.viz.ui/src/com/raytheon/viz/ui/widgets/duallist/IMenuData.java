@@ -23,20 +23,21 @@ package com.raytheon.viz.ui.widgets.duallist;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * TODO Add Description
+ * Interface representing menu data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 1, 2012            mpduff     Initial creation
- *
+ * Nov 02, 2012 1302       djohnson  Add javadoc.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IMenuData {
