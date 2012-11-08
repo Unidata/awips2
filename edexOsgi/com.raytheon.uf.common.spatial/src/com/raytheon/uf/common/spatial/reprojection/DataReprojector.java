@@ -28,7 +28,7 @@
  * May 18, 2011            bclement     Initial creation
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import java.awt.Point;
 import java.io.FileNotFoundException;
@@ -68,8 +68,8 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.spatial.repojection.AbstractDataReprojector.RequestWrapper;
-import com.raytheon.uf.common.spatial.repojection.KeyLocker.KeyLock;
+import com.raytheon.uf.common.spatial.reprojection.AbstractDataReprojector.RequestWrapper;
+import com.raytheon.uf.common.spatial.reprojection.KeyLocker.KeyLock;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 

@@ -21,7 +21,7 @@
  * 402.291.0100
  *
  */
-package com.raytheon.uf.common.spatial.repojection;
+package com.raytheon.uf.common.spatial.reprojection;
 
 import java.util.HashMap;
 import java.util.Map;
