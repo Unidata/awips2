@@ -199,8 +199,7 @@
          id="com.raytheon.uf.common.time"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.edex.common"
@@ -290,8 +289,7 @@
          id="com.raytheon.uf.common.geospatial"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.pointdata"
@@ -427,12 +425,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.springframework.dm"
-         download-size="0"
-         install-size="0"
-         version="1.2.1"/>
 
    <plugin
          id="com.raytheon.uf.edex.core"
