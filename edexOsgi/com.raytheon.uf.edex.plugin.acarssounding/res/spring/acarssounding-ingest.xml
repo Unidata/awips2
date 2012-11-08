@@ -6,6 +6,10 @@
 
     <bean id="acarsAirports" class="com.raytheon.uf.common.dataplugin.acarssounding.tools.AirportsBean" depends-on="acarsSoundingPluginName" >
     </bean>
+    
+    <bean id="acarsPersistObs" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSPersistObs" depends-on="acarsRegistered, acarsAirports" >
+        <constructor-arg ref="acarsAirports" />
+    </bean>
 
     <bean id="acarsSounding" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSounding" depends-on="acarsAirports, acarsRegistered" >
         <constructor-arg ref="acarsSoundingPluginName" />
@@ -15,7 +19,7 @@
     <bean id="acarsSoundingSplitter" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSoundingSplitter" >
     </bean>
 
-	<bean id="acarsSoundingSrvCamelRegistered" factory-bean="contextManager"
+	<bean id="acarsSoundingCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="acarsSoundingSrv-camel"/>
   	</bean>  
@@ -63,5 +67,9 @@
             </split>
         </route>
 
+		<route id="acarsSoundingRoute">
+            <from uri="directvm:acarsSounding"/>
+            <bean ref="acarsPersistObs" method="process" />
+        </route>
     </camelContext>
 </beans>
