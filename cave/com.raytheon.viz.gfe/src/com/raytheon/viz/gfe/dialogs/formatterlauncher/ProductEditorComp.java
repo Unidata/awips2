@@ -153,8 +153,6 @@ public class ProductEditorComp extends Composite implements
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductEditorComp.class);
 
-    private FindReplaceDlg findAndReplaceDlg;
-
     private final String EMPTY = "";
 
     /**
@@ -2464,14 +2462,12 @@ public class ProductEditorComp extends Composite implements
      *            dialog.
      */
     private void displayFindReplaceDialog(boolean findAndReplace) {
-        if (findAndReplaceDlg == null || findAndReplaceDlg.getShell() == null
-                || findAndReplaceDlg.isDisposed()) {
-            findAndReplaceDlg = new FindReplaceDlg(parent.getShell(),
-                    findAndReplace, textComp);
-            findAndReplaceDlg.open();
-        } else {
-            findAndReplaceDlg.bringToTop();
-        }
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
+        FindReplaceDlg findAndReplaceDlg = new FindReplaceDlg(
+                parent.getShell(), findAndReplace, textComp);
+        findAndReplaceDlg.open();
     }
 
     private void CTAHazCB(int callToActionType) {
