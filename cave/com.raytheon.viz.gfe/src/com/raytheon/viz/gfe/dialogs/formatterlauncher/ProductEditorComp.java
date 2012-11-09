@@ -142,6 +142,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
  *                                     Changes for non-blocking FindReplaceDlg.
  *                                     Changes for non-blocking StoreTransmitDlg.
+ *                                     Changes for non-blocking WrapLengthDialog.
  * 
  * </pre>
  * 
@@ -866,14 +867,27 @@ public class ProductEditorComp extends Composite implements
         wrapLengthMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                WrapLengthDialog wrapLengthDialog = new WrapLengthDialog(
+                // The dialog being opened is modal to the parent dialog. This
+                // will prevent the launching of another dialog until the modal
+                // dialog is closed.
+                final WrapLengthDialog wrapLengthDialog = new WrapLengthDialog(
                         getShell());
                 wrapLengthDialog.setWrapLength(wrapColumn);
-                int result = wrapLengthDialog.open();
-                if (result == Window.OK) {
-                    wrapColumn = wrapLengthDialog.getWrapLength();
-                    textComp.setWrapColumn(wrapColumn);
-                }
+                wrapLengthDialog.setBlockOnOpen(false);
+                wrapLengthDialog.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof Integer) {
+                            int result = (Integer) returnValue;
+                            if (result == Window.OK) {
+                                wrapColumn = wrapLengthDialog.getWrapLength();
+                                textComp.setWrapColumn(wrapColumn);
+                            }
+                        }
+                    }
+                });
+                wrapLengthDialog.open();
             }
         });
     }
