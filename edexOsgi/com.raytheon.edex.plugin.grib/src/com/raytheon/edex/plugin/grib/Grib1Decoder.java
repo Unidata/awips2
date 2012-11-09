@@ -478,7 +478,7 @@ public class Grib1Decoder extends AbstractDecoder {
         parameterAbbreviation = parameterAbbreviation.replaceAll("_", "-");
         try {
             parameterAbbreviation = ParameterMapper.getInstance()
-                    .lookupBaseName("grib", parameterAbbreviation);
+                    .lookupBaseName(parameterAbbreviation, "grib");
         } catch (MultipleMappingException e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
             parameterAbbreviation = e.getArbitraryMapping();
