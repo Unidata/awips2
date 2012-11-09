@@ -97,6 +97,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * 07 JUL 2011  9293       rferrel     Hook to allow checking of includeAllZones
  * 07 Nov 2012  1298       rferrel     Changes for non-blocking ClearZoneGroupsDialog.
  *                                     Changes for non-blocking SaveDeleteComboDlg.
+ *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
  * 
  * </pre>
  * 
@@ -108,10 +109,6 @@ public class ZoneCombinerComp extends Composite implements
         ILocalizationFileObserver, IZoneCombiner {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
-
-    private SaveDeleteComboDlg saveDeleteCombDlg;
-
-    private ClearZoneGroupsDialog examClearDlg;
 
     /**
      * Parent composite.
@@ -396,17 +393,15 @@ public class ZoneCombinerComp extends Composite implements
         saveComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (saveDeleteCombDlg == null
-                        || saveDeleteCombDlg.getShell() == null
-                        || saveDeleteCombDlg.isDisposed()) {
-                    saveDeleteCombDlg = new SaveDeleteComboDlg(parent
-                            .getShell(), mapNames, "Save", zoneSelector
-                            .getCombos());
-                    saveDeleteCombDlg.setBlockOnOpen(false);
-                    saveDeleteCombDlg.open();
-                } else {
-                    saveDeleteCombDlg.bringToTop();
-                }
+                // The dialog being opened is modal to the parent dialog. This
+                // will
+                // prevent the launching of another dialog until the modal
+                // dialog is
+                // closed.
+                SaveDeleteComboDlg saveCombDlg = new SaveDeleteComboDlg(parent
+                        .getShell(), mapNames, "Save", zoneSelector.getCombos());
+                saveCombDlg.setBlockOnOpen(false);
+                saveCombDlg.open();
             }
         });
 
@@ -433,16 +428,15 @@ public class ZoneCombinerComp extends Composite implements
         deleteComboMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (saveDeleteCombDlg == null
-                        || saveDeleteCombDlg.getShell() == null
-                        || saveDeleteCombDlg.isDisposed()) {
-                    saveDeleteCombDlg = new SaveDeleteComboDlg(parent
-                            .getShell(), mapNames, "Delete", null);
-                    saveDeleteCombDlg.setBlockOnOpen(false);
-                    saveDeleteCombDlg.open();
-                } else {
-                    saveDeleteCombDlg.bringToTop();
-                }
+                // The dialog being opened is modal to the parent dialog. This
+                // will
+                // prevent the launching of another dialog until the modal
+                // dialog is
+                // closed.
+                SaveDeleteComboDlg deleteCombDlg = new SaveDeleteComboDlg(
+                        parent.getShell(), mapNames, "Delete", null);
+                deleteCombDlg.setBlockOnOpen(false);
+                deleteCombDlg.open();
             }
         });
     }
@@ -505,21 +499,22 @@ public class ZoneCombinerComp extends Composite implements
     }
 
     private void openClearDialog() {
-        if (examClearDlg == null || examClearDlg.getShell() == null
-                || examClearDlg.isDisposed()) {
-            examClearDlg = new ClearZoneGroupsDialog(parent.getShell(),
-                    zoneSelector, getCombinationsFileName());
-            examClearDlg.setBlockOnOpen(false);
-            examClearDlg.open();
-        } else {
-            examClearDlg.bringToTop();
-        }
-
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
+        ClearZoneGroupsDialog examClearDlg = new ClearZoneGroupsDialog(
+                parent.getShell(), zoneSelector, getCombinationsFileName());
+        examClearDlg.setBlockOnOpen(false);
+        examClearDlg.open();
     }
 
     private void openShuffleDialog() {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         ShuffleZoneGroupsDialog shuffleDlg = new ShuffleZoneGroupsDialog(
                 parent.getShell(), this.zoneSelector, getCombinationsFileName());
+        shuffleDlg.setBlockOnOpen(false);
         shuffleDlg.open();
     }
 
