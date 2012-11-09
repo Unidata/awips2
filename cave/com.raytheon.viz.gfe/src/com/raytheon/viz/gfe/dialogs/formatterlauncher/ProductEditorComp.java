@@ -141,6 +141,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition
  * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
  *                                     Changes for non-blocking FindReplaceDlg.
+ *                                     Changes for non-blocking StoreTransmitDlg.
  * 
  * </pre>
  * 
@@ -1084,8 +1085,6 @@ public class ProductEditorComp extends Composite implements
 
             // Store/transmit...
             boolean showStore = (action == Action.STORE) ? true : false;
-            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB);
             String pid;
             if (showStore) {
                 pid = guessTDBPil();
@@ -1096,7 +1095,13 @@ public class ProductEditorComp extends Composite implements
                     pid = "kkkknnnxxx";
                 }
             }
-            storeDlg.open(pid);
+
+            // The dialog being opened is modal to the parent dialog. This will
+            // prevent the launching of another dialog until the modal dialog is
+            // closed.
+            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
+                    showStore, this, transmissionCB, pid);
+            storeDlg.open();
         }
     }
 
