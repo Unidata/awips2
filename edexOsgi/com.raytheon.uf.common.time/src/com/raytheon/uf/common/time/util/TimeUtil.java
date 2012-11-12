@@ -39,6 +39,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * ------------ ---------- ----------- --------------------------
  * Feb 02, 2009            njensen     Initial creation
  * Sep 11, 2012 1154       djohnson    Add MILLIS constants and isNewerDay().
+ * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * 
  * </pre>
  * 
@@ -95,6 +96,8 @@ public class TimeUtil {
     public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * 7;
 
     public static final long MILLIS_PER_YEAR = 3600 * 24 * 1000 * 365;
+
+    public static final int SECONDS_PER_MINUTE = 60;
 
     // create instance of simple date format on class load, as instantiating it
     // is expensive the SimpleDateFormat class is not thread-safe,
