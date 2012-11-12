@@ -33,7 +33,7 @@
 	</bean>
 
 	<bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
-		factory-method="getInstance">
+		factory-method="getInstance" depends-on="commonTimeRegistered">
 	</bean>
 
 	<bean factory-bean="siteAwareRegistry" factory-method="register">
