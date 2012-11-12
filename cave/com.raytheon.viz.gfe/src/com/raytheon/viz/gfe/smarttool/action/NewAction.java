@@ -33,6 +33,7 @@ import com.raytheon.viz.gfe.dialogs.NewToolDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2008            njensen     Initial creation
+ * Nov 12, 2012 1298       rferrel     Changes for non-blocking NewToolDialog.
  * 
  * </pre>
  * 
@@ -51,8 +52,12 @@ public class NewAction extends AbstractSmartToolAction {
         if (!utility) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
+            // The dialog being opened is modal to the parent dialog. This will
+            // prevent the launching of another dialog until the modal dialog is
+            // closed.
             NewToolDialog d = new NewToolDialog(shell, "MyTool",
                     new NewInputValidator());
+            d.setBlockOnOpen(false);
             d.open();
         }
     }
