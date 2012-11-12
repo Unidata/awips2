@@ -57,6 +57,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -76,6 +77,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * 10Apr2008    1068        MW Fegan    Remove redundant memory reporting.
  * 15Jul2008    1014        MW Fegan    Improved logging of JiBX marshaling errors.
  * Aug 20, 2008             dglazesk    Added functions for handling JaXB marshalling
+ * Nov 09, 2012 1322        djohnson    Add close for Spring context.
  * </pre>
  * 
  * @author mfegan
@@ -1347,5 +1349,23 @@ public final class Util {
             }
         }
     }
+
+    /**
+     * Performs a safe-close on a {@link ConfigurableApplicationContext}.
+     * 
+     * @param ctx
+     *            the context
+     */
+    public static String close(final ConfigurableApplicationContext ctx) {
+        // Just adapt to a normal Java closeable
+        return close(new Closeable() {
+            @Override
+            public void close() throws IOException {
+                if (ctx != null) {
+                    ctx.close();
+                }
+            }
+        });
+}
 
 }
