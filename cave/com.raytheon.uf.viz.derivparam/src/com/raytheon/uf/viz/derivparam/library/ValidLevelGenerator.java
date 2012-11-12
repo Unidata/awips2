@@ -33,6 +33,9 @@ import com.raytheon.uf.common.dataplugin.level.CompareType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
+import com.raytheon.uf.common.util.mapping.Mapper;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
@@ -62,6 +65,8 @@ public class ValidLevelGenerator {
 
     private LevelFactory lf;
 
+    private LevelMapper lm;
+
     private Map<MasterLevel, Set<Level>> masterLevels;
 
     private Set<Level> validLevels;
@@ -71,6 +76,7 @@ public class ValidLevelGenerator {
     public ValidLevelGenerator() {
         lmf = LevelMappingFactory.getInstance();
         lf = LevelFactory.getInstance();
+        lm = LevelMapper.getInstance();
     }
 
     public Set<Level> generateLevels(String validLevelsString)
@@ -78,7 +84,6 @@ public class ValidLevelGenerator {
         masterLevels = new HashMap<MasterLevel, Set<Level>>();
         validLevels = new HashSet<Level>();
         masterLevelsHandled = new HashSet<MasterLevel>();
-
         if (validLevelsString != null && validLevelsString.length() > 0) {
             String[] levelTokenArray = validLevelsString.split(",");
             List<String> tokensToProcess = new ArrayList<String>(
@@ -291,7 +296,13 @@ public class ValidLevelGenerator {
             }
             case MasterLevel: {
                 MasterLevel ml = lf.getMasterLevel(token);
-
+                if (ml == null) {
+                    try {
+                        ml = lm.lookupMasterLevel(token, Mapper.DEPRECATED);
+                    } catch (MultipleMappingException e) {
+                        ml = lf.getMasterLevel(e.getArbitraryMapping());
+                    }
+                }
                 if (negate) {
                     for (Entry<MasterLevel, Set<Level>> entry : masterLevels
                             .entrySet()) {
@@ -340,6 +351,13 @@ public class ValidLevelGenerator {
             } else {
                 // plane was not a group, see if it is a master level
                 MasterLevel ml = lf.getMasterLevel(token);
+                if (ml == null) {
+                    try {
+                        ml = lm.lookupMasterLevel(token, Mapper.DEPRECATED);
+                    } catch (MultipleMappingException e) {
+                        ml = lf.getMasterLevel(e.getArbitraryMapping());
+                    }
+                }
                 if (ml != null) {
                     rval = Type.MasterLevel;
                 } else {
