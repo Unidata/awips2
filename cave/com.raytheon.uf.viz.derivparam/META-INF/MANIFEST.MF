@@ -9,13 +9,14 @@ Require-Bundle: org.eclipse.core.runtime,
  javax.measure,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
