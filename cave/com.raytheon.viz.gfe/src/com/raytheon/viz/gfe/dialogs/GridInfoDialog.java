@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 25, 2008            ebabin       Initial creation
  * Jun 20, 2008  #875      bphillip     Implemented Dialog functionality
  * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
+ * Nov 12, 2012  #1298     rferrel      Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -92,7 +93,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
     private Composite top;
 
-    private String[] gridInfoElements = { "Grid Info", "Grid History",
+    private final String[] gridInfoElements = { "Grid Info", "Grid History",
             "ISC History", "Weather Element Info", "Weather Element State",
             "Locks", "Data Distribution" };
 
@@ -102,7 +103,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
     public GridInfoDialog(Shell parent, Parm parm, Date clickTime) {
         super(parent);
-        this.setShellStyle(SWT.TITLE | SWT.CLOSE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS);
         this.parm = parm;
         gridData = parm.overlappingGrid(clickTime);
 
