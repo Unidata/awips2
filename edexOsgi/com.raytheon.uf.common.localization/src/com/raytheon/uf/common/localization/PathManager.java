@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/12/2008              chammack    Initial Creation.
+ * Oct 23, 2012 1322       djohnson    Allow test code in the same package to clear fileCache.
  * 
  * </pre>
  * 
@@ -62,10 +63,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class PathManager implements IPathManager {
-    private static transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PathManager.class, "Localization");
 
-    private static final Map<LocalizationFileKey, LocalizationFile> fileCache = new ConcurrentHashMap<LocalizationFileKey, LocalizationFile>();
+    // @VisibleForTesting
+    static final Map<LocalizationFileKey, LocalizationFile> fileCache = new ConcurrentHashMap<LocalizationFileKey, LocalizationFile>();
 
     final ILocalizationAdapter adapter;
 
@@ -145,6 +147,7 @@ public class PathManager implements IPathManager {
         return file != null ? file.getFile() : null;
     }
 
+    @Override
     public Map<LocalizationLevel, LocalizationFile> getTieredLocalizationFile(
             LocalizationType type, String name) {
         Map<LocalizationLevel, LocalizationFile> map = new HashMap<LocalizationLevel, LocalizationFile>();
@@ -277,6 +280,7 @@ public class PathManager implements IPathManager {
      * .edex.utility.LocalizationContext[], java.lang.String,
      * java.lang.String[])
      */
+    @Override
     public LocalizationFile[] listFiles(LocalizationContext[] contexts,
             String name, String[] filter, boolean recursive, boolean filesOnly) {
         try {

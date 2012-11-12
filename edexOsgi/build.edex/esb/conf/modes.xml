@@ -275,6 +275,8 @@
     <mode name="datadeliverytemplate" template="true">
         <include>.*datadelivery.*</include>
         <include>.*bandwidth.*</include>
+        <!-- Exclude the inmemory versions of Spring files -->
+        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
         <include>time-common.xml</include>
         <include>grib-common.xml</include>
         <include>grid-common.xml</include>
