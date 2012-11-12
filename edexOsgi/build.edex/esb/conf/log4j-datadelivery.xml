@@ -17,6 +17,17 @@
       <layout class="org.apache.log4j.PatternLayout"> 
          <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
       </layout> 
+   </appender>
+   
+   <!-- BandwidthManager log --> 
+   <appender name="BandwidthManagerLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-bandwidth-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
    </appender> 
 
    <!-- registry log --> 
@@ -115,6 +126,16 @@
    <logger name="com.raytheon.uf.edex.registry" additivity="false">
    		<level value="INFO"/>
    		<appender-ref ref="RegistryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
    </logger>
 
    <logger name="com.raytheon.uf.edex.ebxml" additivity="false">
