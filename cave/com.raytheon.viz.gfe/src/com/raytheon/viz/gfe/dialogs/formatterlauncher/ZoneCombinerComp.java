@@ -98,6 +98,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * 07 Nov 2012  1298       rferrel     Changes for non-blocking ClearZoneGroupsDialog.
  *                                     Changes for non-blocking SaveDeleteComboDlg.
  *                                     Changes for non-blocking ShuffleZoneGroupsDialog.
+ *                                     Changes for non-blocking ZoneColorEditorDlg.
  * 
  * </pre>
  * 
@@ -755,7 +756,9 @@ public class ZoneCombinerComp extends Composite implements
      * Display the Color Editor dialog.
      */
     private void displayColorEditorDialog() {
-
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         ZoneColorEditorDlg zoneColorDlg = new ZoneColorEditorDlg(
                 parent.getShell(), colorMap);
         zoneColorDlg.open();
