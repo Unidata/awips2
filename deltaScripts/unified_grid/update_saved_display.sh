@@ -41,6 +41,15 @@ for f in "$@"; do
 	sed -n 's/key="modelInfo\.modelName"/key="info.datasetId"/g;p;' -i $f
 	#plugin name
 	sed -n 's/constraintValue="grib"/constraintValue="grid"/g;p;' -i $f
+
+	#Also need to map the productIdentifierKey in best res resource data.
+	sed -n 's/productIdentifierKey="modelInfo\.level\.levelonevalue"/productIdentifierKey="info.level.levelonevalue"/g;p;' -i $f
+	sed -n 's/productIdentifierKey="modelInfo\.level\.leveltwovalue"/productIdentifierKey="info.level.leveltwovalue"/g;p;' -i $f
+	sed -n 's/productIdentifierKey="modelInfo\.level\.masterLevel.name"/productIdentifierKey="info.level.masterLevel.name"/g;p;' -i $f
+	sed -n 's/productIdentifierKey="modelInfo\.modelName"/productIdentifierKey="info.datasetId"/g;p;' -i $f
+	sed -n 's/productIdentifierKey="modelInfo\.parameterAbbreviation"/productIdentifierKey="info.parameter.abbreviation"/g;p;' -i $f
+
+
 	#diff $f $bf > /dev/null
 	#if [ $? -eq 0 ]; then rm $bf; echo "No Changes"; fi
 done
