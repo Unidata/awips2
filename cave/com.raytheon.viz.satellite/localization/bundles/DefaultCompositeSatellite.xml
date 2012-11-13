@@ -15,7 +15,8 @@
 						</capabilities>
 					</loadProperties>
 					<resourceData xsi:type="satBestResResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
+						inclusionFactor="${inclusionFactor;0.4}">
 						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="satellite"
