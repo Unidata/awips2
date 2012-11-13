@@ -159,7 +159,7 @@ def d_dx(grid):
 # Returns the derivative along the second innermost axis.  By convention
 # this is the y-axis.
 def d_dy(grid):
-    return centeredDifference(grid, -2)
+    return -centeredDifference(grid, -2)
 
 # Returns the derivative along the third innermost axis.  By convention
 # this is the z-axis.  If a 2-dimensional grid is specified, an error
