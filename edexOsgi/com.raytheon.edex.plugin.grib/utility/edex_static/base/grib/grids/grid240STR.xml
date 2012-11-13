@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240152</name>
     <description>HRAP Grid for STR (Colorado Basin RFC Salt Lake City, Utah)</description>
-    <la1>30.027</la1>
-    <lo1>-114.429</lo1>
+    <la1>30.047</la1>
+    <lo1>-114.413</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>260</nx>
     <ny>360</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
