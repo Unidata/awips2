@@ -20,6 +20,9 @@
 package com.raytheon.uf.viz.core.localization;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,7 +37,9 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationFile.ModifiableLocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationInternalFile;
+import com.raytheon.uf.common.localization.LockingFileInputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
@@ -72,15 +77,12 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         this.contexts = new HashMap<LocalizationType, LocalizationContext[]>();
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Returns a directory name for the localization type
      * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#getDirNameForType
-     * (
-     * com.raytheon.uf.common.localization.LocalizationContext.LocalizationType)
+     * @param type
+     * @return
      */
-    @Override
     public String getDirNameForType(LocalizationType type) {
         if (type == LocalizationType.COMMON_STATIC) {
             return "common";
@@ -228,21 +230,39 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#save(java.io
-     * .File, com.raytheon.uf.common.localization.LocalizationContext,
-     * java.lang.String)
+     * com.raytheon.uf.common.localization.ILocalizationAdapter#save(com.raytheon
+     * .uf.common.localization.LocalizationFile. ModifiableLocalizationFile)
      */
     @Override
-    public boolean save(File localFile, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
-        if (context.getLocalizationLevel().isSystemLevel()) {
-            throw new UnsupportedOperationException(
-                    "Saving to the System Level, "
-                            + context.getLocalizationLevel()
-                            + ", is not supported.");
+    public boolean save(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
+        File localFile = file.getLocalFile();
+        if (localFile.isDirectory() == false && localFile.exists()) {
+            InputStream in = null;
+            try {
+                in = new LockingFileInputStream(localFile);
+                long serverModTime = manager.upload(file.getContext(),
+                        file.getFileName(), in, localFile.length());
+                // Success! set potentially changed fields
+                file.setTimeStamp(new Date(serverModTime));
+                file.setIsAvailableOnServer(true);
+                file.setIsDirectory(false);
+                return true;
+            } catch (FileNotFoundException e) {
+                throw new LocalizationOpFailedException(
+                        "Error saving file, does not exist");
+            } finally {
+                // Make sure to close input stream
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        // Ignore close exception
+                    }
+                }
+            }
         }
-
-        return manager.upload(context, fileName, localFile);
+        return false;
     }
 
     /*
@@ -443,16 +463,26 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.common.localization.ILocalizationAdapter#delete(java.
-     * io.File, com.raytheon.uf.common.localization.LocalizationContext,
-     * java.lang.String)
+     * com.raytheon.uf.common.localization.ILocalizationAdapter#delete(com.raytheon
+     * .uf.common.localization.LocalizationFile. ModifiableLocalizationFile)
      */
     @Override
-    public boolean delete(File file, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
-        file.delete();
-        return !file.exists() && manager.delete(context, fileName);
+    public boolean delete(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
+        long deleteTime = manager.delete(file.getContext(), file.getFileName());
 
+        // Made it here! file on server succesfully deleted! Delete local file
+        // reference. If that fails, doesn't matter since file does not exist!
+        File localFile = file.getLocalFile();
+        localFile.delete();
+
+        // Reset fields
+        file.setTimeStamp(new Date(deleteTime));
+        file.setIsAvailableOnServer(false);
+        file.setFileChecksum(null);
+        file.setIsDirectory(false);
+
+        return true;
     }
 
     private ListResponse convertResponse(ListResponseEntry entry,
