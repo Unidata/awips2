@@ -128,6 +128,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 06 Nov   2012 15399   wkwock       Fix refine the plot algorithm and sampling algorithm
  * 06 Nov   2012 15459   lbousaidi    update data when page/up or page/down is pressed without having
  * 									  to click in graph button again. 
+ * 06 Nov   2012 15400   lbousaidi    Changed logic in buildPointString routine, added discharge2stage
+ *                                    to display stage value, also added checking for rating curve for both 
+ *                                    stage and discharge. 
  * @author lvenable
  * @version 1.0
  * 
@@ -1599,31 +1602,57 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         double yValue = pixel2y(graphData, y);
         String units = FEET;
         boolean isRiverData = true;
+        boolean isStage= true;
         ArrayList<TraceData> traces = graphData.getTraces();
         for (TraceData trace : traces) {
             if (!trace.getPe().toUpperCase().startsWith("H")
                     && !trace.getPe().toUpperCase().startsWith("Q")) {
                 isRiverData = false;
             }
-        }
-
-        if (isRiverData) {
-            sb.append(" value=" + twoDecimalFormat.format(yValue) + " "
-                    + units + " ");
-
-            double q = StageDischargeUtils.stage2discharge(lid, yValue);
-            if (q != HydroConstants.MISSING_VALUE) {
-	            units = CFS;
-	            if (q > 10000) {
-	                units = KCFS;
-	                q = q / 1000;
-	            }
-	            sb.append(String.format("%8.1f", q) + " " + units);
+            if (trace.getPe().toUpperCase().startsWith("Q")) {
+                isStage=false;
             }
-        } else {
-            units = INCH;
-            sb.append("  value=" + twoDecimalFormat.format(yValue) + " "
-                    + units + " ");
+        }
+        
+        if (isRiverData) {        	
+        	
+            if (isStage) {
+            	/**
+                 * Convert the stage to discharge for the location and stage value passed in.
+                 */
+        		double q = StageDischargeUtils.stage2discharge(lid, yValue);
+        		//check for rating curve
+        		if (q != HydroConstants.RATING_CONVERT_FAILED) {
+	                if (q > 10000) {
+	                	units = KCFS;
+	                	q = q / 1000;	                	
+	                }else {
+	                	units = CFS;
+	                } 
+	                	sb.append(" value=" + twoDecimalFormat.format(yValue)
+        					+ " " + FEET + " ");
+	                	sb.append(String.format("%8.1f", q) + " " + units);
+        		}else {
+        			sb.append(" value=" + twoDecimalFormat.format(yValue));
+        		} 
+        
+            }else {  
+            	/**
+                 * Convert the discharge to stage for the location and discharge value passed in.
+                 */
+        		double q = StageDischargeUtils.discharge2stage(lid, yValue);
+        		//check for rating curve
+        		if (q != HydroConstants.RATING_CONVERT_FAILED) {
+        			sb.append(" value=" + twoDecimalFormat.format(yValue)
+        							+ " " + CFS + " ");
+        			sb.append(String.format("%8.1f", q) + " " + FEET);
+        		}else {
+        			sb.append(" value=" + twoDecimalFormat.format(yValue));
+        		}
+        	}
+        	
+        }else {
+           sb.append("  value=" + twoDecimalFormat.format(yValue)); 
         }
 
         return sb.toString();
