@@ -51,6 +51,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 18, 2011            mnash     Initial creation
  * Sep 10, 2012 15337      kshresth  Changed sector on OCONUS:Products under 
  * 									 Derived Products Imagery Display
+ * Nov 01, 2012 15346      kshresth  Added Satellite Products for OCONUS
+ * 
  * </pre>
  * 
  * @author mnash
@@ -144,17 +146,17 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
             // sector0
             sub = new VariableSubstitution();
             sub.key = "sector0";
-            sub.value = "Northern Hemisphere Composite";
+            sub.value = state + " Regional";
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[0] = sub;           
             // sector1
             sub = new VariableSubstitution();
             sub.key = "sector1";
-            sub.value = "Northern Hemisphere Composite";
+            sub.value = state + " National";
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[1] = sub;
             // sector2
             sub = new VariableSubstitution();
             sub.key = "sector2";
-            sub.value = "Northern Hemisphere Composite";
+            sub.value = "Supernational";
             ((CommonIncludeMenuContribution) file.contributions[0]).substitutions[2] = sub;
             // sector 3, for these sites copy sector2
             sub = new VariableSubstitution();
