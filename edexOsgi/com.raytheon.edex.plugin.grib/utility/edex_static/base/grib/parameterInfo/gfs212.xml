@@ -447,7 +447,7 @@
     <n3D>0</n3D>
     <levelsDesc>MB 0&gt;500</levelsDesc>
     <levels>
-      <level>MB0500</level>
+      <level>SFC</level>
     </levels>
   </gribParameterInfo>
   <gribParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">

@@ -92,7 +92,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ----------  ----------- --------------------------
  * 
  * 07/14/09      2152       D. Hladky   Initial release
- * 
+ * 10/25/12		DR 15514    G. Zhang	Fix ConcurrentModificationException
  * </pre>
  * 
  * @author dhladky
@@ -213,11 +213,13 @@ public class FFMPProcessor {
                         FFMPSourceConfigurationManager.SOURCE_TYPE.GAGE
                                 .getSourceType())) {
 
-            ArrayList<String> hucs = template.getTemplateMgr().getHucLevels();
-
+            //ArrayList<String> hucs = template.getTemplateMgr().getHucLevels();// DR 15514
+            String[] hucs = template.getTemplateMgr().getHucLevelsInArray();// DR 15514
             synchronized (hucs) {
                 if (hucs != null) {
-                    for (String huc : hucs) {
+                    //for (String huc : hucs) {
+                    for(int i=0; i<hucs.length; i++){	
+                    	String huc = hucs[i];
                         if (huc != null) {
                             if (!huc.equals("ALL") || !huc.equals("VIRTUAL")) {
                                 setValues(huc);
