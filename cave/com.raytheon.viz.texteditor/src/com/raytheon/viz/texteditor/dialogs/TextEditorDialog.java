@@ -302,6 +302,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 12OCT2012   15418        D.Friedman  Do not store product when sending in operational mode.
  *                                      Do not use changed BBB from OUPResponse.
  * 17OCT2012   1229         rferrel     Changes for non-blocking SWTMessageBox.
+ * 05Nov2012   15560        S. Naples   Added check to see if we are in edit mode before capturing keys.
  * </pre>
  * 
  * @author lvenable
@@ -3530,6 +3531,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
             public void verifyKey(VerifyEvent event) {
+                // Ignore edit keys when not in edit mode.
+            	if (textEditor.getEditable() == false){
+            		return;
+            	}
                 if (event.keyCode == SWT.DEL || event.character == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
