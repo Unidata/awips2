@@ -53,6 +53,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  *                                       of removing the dialog blocking capability.
  * 09/20/12     1196        rferrel      Changes to setBlockOnOpen.
  * 09/27/12     1196        rferrel      Added bringToTop
+ * 11/13/12     1298        rferrel      Override open to work in a similar manner
+ *                                        to CaveSWTDialogBase's open.
  * 
  * </pre>
  * 
@@ -278,5 +280,20 @@ public class CaveJFACEDialog extends Dialog implements
 
         super.setBlockOnOpen(blockOnOpen);
         // blockedOnOpen = blockOnOpen;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.window.Window#open()
+     */
+    @Override
+    public int open() {
+        if (isOpen()) {
+            bringToTop();
+            return getReturnCode();
+        }
+
+        return super.open();
     }
 }
