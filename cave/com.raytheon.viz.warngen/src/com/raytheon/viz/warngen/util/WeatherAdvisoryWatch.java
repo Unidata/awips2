@@ -31,6 +31,7 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 1, 2009            bwoodle     Initial creation
+ * Nov 9, 2012  DR 15430   D. Friedman Support proper watch inclusion language
  * 
  * </pre>
  * 
@@ -39,13 +40,45 @@ import java.util.List;
  */
 
 public class WeatherAdvisoryWatch implements Comparable<WeatherAdvisoryWatch> {
+    
+    public static class Portion {
+        public String parentRegion;
 
+        public List<String> partOfParentRegion;
+
+        public String getParentRegion() {
+            return parentRegion;
+        }
+
+        public void setParentRegion(String parentRegion) {
+            this.parentRegion = parentRegion;
+        }
+
+        public List<String> getPartOfParentRegion() {
+            return partOfParentRegion;
+        }
+
+        public void setPartOfParentRegion(List<String> partOfParentRegion) {
+            this.partOfParentRegion = partOfParentRegion;
+        }
+    }
+
+    /* TODO: NOTE: There is no site field.  We currently only process
+     * WCNs for the site and not WOUs from the SPC.
+     */
+    
     private String phensig;
+    
+    private int eventId;
 
     private Date endTime;
+    
+    private List<Portion> portions;
 
+    @Deprecated
     private String parentRegion;
 
+    @Deprecated
     private List<String> partOfParentRegion;
 
     public String getPhensig() {
@@ -64,23 +97,59 @@ public class WeatherAdvisoryWatch implements Comparable<WeatherAdvisoryWatch> {
         this.endTime = endTime;
     }
 
+    @Deprecated
     public String getParentRegion() {
         return parentRegion;
     }
 
+    @Deprecated
     public void setParentRegion(String parentRegion) {
         this.parentRegion = parentRegion;
     }
 
+    @Deprecated
     public List<String> getPartOfParentRegion() {
         return partOfParentRegion;
     }
 
+    @Deprecated
     public void setPartOfParentRegion(List<String> partOfParentRegion) {
         this.partOfParentRegion = partOfParentRegion;
     }
+    
+    @Override
+    public boolean equals(Object obj) {        
+        return obj instanceof WeatherAdvisoryWatch &&
+            this.compareTo((WeatherAdvisoryWatch) obj) == 0;
+    }
 
     public int compareTo(WeatherAdvisoryWatch waw) {
-        return this.parentRegion.compareTo(waw.getParentRegion());
+        if (this.phensig == null)
+            return waw.phensig == null ? 0 : -1;
+        else if (waw.phensig == null)
+            return 1;
+        else {
+            int c = this.phensig.compareTo(waw.phensig);
+            if (c == 0)
+                return this.eventId - waw.eventId;
+            else
+                return c;
+        }
+    }
+
+    public int getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(int eventId) {
+        this.eventId = eventId;
+    }
+
+    public List<Portion> getPortions() {
+        return portions;
+    }
+
+    public void setPortions(List<Portion> portions) {
+        this.portions = portions;
     }
 }
