@@ -72,7 +72,7 @@ def main():
 		
 	# Currently sendNotificationMsg requires the optional (flag) arguments
 	# be placed prior to the positional arguments.
-	commandLine = "sendNotificationMsg"
+	commandLine = "/awips2/fxa/bin/sendNotificationMsg"
 	if options.host is not None:
 		commandLine += " --host=" + options.host
 	if options.port is not None:
