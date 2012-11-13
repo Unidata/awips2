@@ -3,9 +3,9 @@
     <statisticsEvent type="com.raytheon.uf.common.event.ProcessEvent"
         displayName="Processing Events" category="Data Ingest Events">
         <statisticsGroup name="pluginName" displayName="Data Type" />
-        <statisticsAggregate field="processingTimeMilliseconds"
+        <statisticsAggregate field="processingTime"
             displayName="Processing Time" unit="ms" />
-        <statisticsAggregate field="processingLatencyMilliseconds"
+        <statisticsAggregate field="processingLatency"
             displayName="Processing Latency" unit="ms" />
     </statisticsEvent>
 </statisticsConfig>
