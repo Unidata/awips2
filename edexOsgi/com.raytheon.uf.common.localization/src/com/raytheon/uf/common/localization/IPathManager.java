@@ -27,7 +27,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 
 /**
- * A generalized interface for constructing LocalizationFiles.
+ * A generalized interface for constructing LocalizationFiles. NOTE: There will
+ * only exist a single reference to any LocalizationFile. It is the
+ * IPathManager's responsibility to ensure multiple objects of the same
+ * LocalizationFile are not returned
  * 
  * Note: Paths should use IPathManager.SEPARATOR as the separator for
  * consistency. The client OS could potentially differ from the localization
