@@ -111,7 +111,7 @@ class ifpServerText:
                        "EditAreaGroup": ("COMMON_STATIC", "gfe/editAreaGroups"),
                        "SampleSet": ("COMMON_STATIC", "gfe/sampleSets"),
                        "ColorTable": ("CAVE_STATIC", "colormaps/GFE"),
-                       "WeatherElementGroup": ("COMMON_STATIC", "gfe/weGroups"),
+                       "WeatherElementGroup": ("CAVE_STATIC", "gfe/weGroups"),
                        "SelectTR": ("COMMON_STATIC", "gfe/text/selecttr"),
                        "Tool": ("CAVE_STATIC", "gfe/userPython/smartTools"),
                        "Procedure": ("CAVE_STATIC", "gfe/userPython/procedures"),
