@@ -75,6 +75,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2009            snaples     Initial creation
  * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * Nov 06, 2012 15481      wkwock      Fix save 6 hours precipitation files
  * 
  * </pre>
  * 
@@ -649,6 +650,81 @@ public class SaveLevel2Data {
                 }
             }
 
+            //save for each 6 hour periods
+            for (l = 0; l < 5; l++) {
+
+                if (DailyQcUtils.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
+                    continue;
+                }
+
+                /*
+                 * this needs to be fixed to ensure that the gridded temperature
+                 * files are named correctly.
+                 */
+                if (l < 2) {
+                    old_time = DailyQcUtils.pdata[j].data_time;
+                    Calendar od = Calendar.getInstance();
+                    od.setTime(old_time);
+                    od.add(Calendar.SECOND, -86400);
+                    old_time = od.getTime();
+                } else {
+                    old_time = DailyQcUtils.pdata[j].data_time;
+                }
+
+                gm.setTime(old_time);
+
+                if (l < 4) {
+                    ll = 0;
+                } else {
+                    ll = 1;
+                }
+
+                RenderPcp rcp = new RenderPcp();
+                rcp.render_pcp(j, l, ll, max_stations,
+                        DailyQcUtils.precip_stations, hrap_grid,
+                        DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+
+                String dbuf = String.format("%s%s_%04d%02d%02d", grid_file,
+                        timefile[2][l], gm.get(Calendar.YEAR),
+                        gm.get(Calendar.MONTH) + 1,
+                        gm.get(Calendar.DAY_OF_MONTH));
+
+                /* output grid to file in ascii xmrg format */
+                WriteQPFGrids wqg = new WriteQPFGrids();
+                wqg.write_qpf_grids(dbuf);
+
+                if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                    WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
+                    String ncfile = String.format("%s.nc", dbuf);
+                    wng.write_dqc_netcdf_grids(ncfile, l, 1, 1,
+                            ga.getCommonGridAttributes(), datavals);
+                    WriteDQCGribGrids wgg = new WriteDQCGribGrids();
+                    String fname_grib = String.format("%s.grb", dbuf);
+                    int status = wgg
+                            .write_dqc_grib_grids(ncfile, fname_grib, 1);
+                    if (status != 0) {
+                        statusHandler
+                                .handle(Priority.WARN,
+                                        String.format(
+                                                "problem with writing GRIB file in write_dqc_grib_grids. status=%d\n",
+                                                status));
+                    }
+
+                }
+
+                if (l < 4) {
+                    num = j * 4 + 3 - l;
+                } else {
+                    num = 40 + j;
+                }
+
+                /* Create the MAP. */
+                CreateMap cm = new CreateMap();
+                cm.create_map(num);
+
+            }
+            
+            //save the whole days
             for (l = 0; l < 5; l++) {
 
                 if (DailyQcUtils.pdata[j].used[l] == 0 || qctype_flag[0] == -1) {
@@ -696,25 +772,6 @@ public class SaveLevel2Data {
                     WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
                     wng.write_dqc_netcdf_grids(fname_nc, l, num_period_qc, 1,
                             ga.getCommonGridAttributes(), datavals);
-                }
-
-                if (DailyQcUtils.mpe_dqc_save_grib == true) {
-                    WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
-                    String ncfile = String.format("%s.nc", dbuf);
-                    wng.write_dqc_netcdf_grids(ncfile, l, 1, 1,
-                            ga.getCommonGridAttributes(), datavals);
-                    WriteDQCGribGrids wgg = new WriteDQCGribGrids();
-                    String fname_grib = String.format("%s.grb", dbuf);
-                    int status = wgg
-                            .write_dqc_grib_grids(ncfile, fname_grib, 1);
-                    if (status != 0) {
-                        statusHandler
-                                .handle(Priority.WARN,
-                                        String.format(
-                                                "problem with writing GRIB file in write_dqc_grib_grids. status=%d\n",
-                                                status));
-                    }
-
                 }
 
                 if (l < 4) {
