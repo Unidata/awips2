@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240159</name>
     <description>HRAP Grid for PTR (Northwest RFC Portland, Oregon)</description>
-    <la1>37.952</la1>
-    <lo1>-124.207</lo1>
+    <la1>38.00</la1>
+    <lo1>-124.179</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>400</nx>
     <ny>378</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
