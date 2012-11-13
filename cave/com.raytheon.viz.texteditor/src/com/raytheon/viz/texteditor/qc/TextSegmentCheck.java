@@ -52,6 +52,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 											Add vtec to checkHeadline signature
  * 20 JUL 2012  15006	   mgamazaychikov	Do not perform search for a list of 
  * 											county/zones names in the MWS segment heading.
+ * 07 NOV 2012  15003	   mgamazaychikov	Do not perform QC check on standalone MWS headline.
  * 
  * </pre>
  * 
@@ -500,18 +501,13 @@ public class TextSegmentCheck implements IQCCheck {
             return errorMsg;
         }
         /*
-         * DR15003 standalone MWS can have no headline.
+         * DR15003: no headline QC on standalone MWS.
          * To distinguish between standalone and follow up MWS
          * the VTEC check is performed as standalone MWS 
          * do not contain VTEC
          */
         if (nnn.equals("MWS") && vtec == null) {
-        	if (headline.length() == 0) {
-        		return errorMsg;
-            } else if (!headline.endsWith("...")) {
-                errorMsg += "Headline should end with '...'.\n";
-            }
-            return errorMsg;     	
+            return "";  	
         }
 
         if (headline.length() == 0) {
