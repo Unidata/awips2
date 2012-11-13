@@ -23,6 +23,7 @@ import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -68,7 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/08/2008              chammack    Initial Port from AWIPS I (minus ISC support)
  * 07/23/2012     #936     dgilling    Reinstate config-handling code to
  *                                     calcGridLabels().
- * 
+ * 11/05/2012     #14566   jzeng       Reverse the order of grids 
+ * 							  in calcGridLabels ()
  * </pre>
  * 
  * @author chammack
@@ -281,6 +283,8 @@ public class SamplePainter {
                 && (gridCoordinate.x < maxX) && (gridCoordinate.y < maxY)) {
             inGrid = true;
         }
+
+        Collections.reverse(grids);
 
         // get the list of samples that should be painted and in the
         // order
