@@ -105,12 +105,11 @@ public class SaveCombinationsFileHandler implements
             if (isAdded) {
                 changeType = FileChangeType.ADDED;
             }
-            EDEXUtil.getMessageProducer()
-                    .sendAsync(
-                            "utilityNotify",
-                            new FileUpdatedMessage(localization, FileUtil.join(
-                                    COMBO_FILE_DIR, request.getFileName()),
-                                    changeType));
+            EDEXUtil.getMessageProducer().sendAsync(
+                    "utilityNotify",
+                    new FileUpdatedMessage(localization, FileUtil.join(
+                            COMBO_FILE_DIR, request.getFileName()), changeType,
+                            localFile.lastModified()));
         } finally {
             if (file != null) {
                 file.close();
