@@ -149,6 +149,7 @@ public class GribDao extends PluginDao {
      * @throws PluginException
      */
     private void updateCaches() throws PluginException {
+
         try {
             List<Integer> orphanedIds = purgeGribModelOrphans();
             EDEXUtil.getMessageProducer().sendAsyncUri(PURGE_MODEL_CACHE_TOPIC,
