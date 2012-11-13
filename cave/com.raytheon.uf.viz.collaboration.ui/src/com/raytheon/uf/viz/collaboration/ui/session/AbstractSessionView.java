@@ -24,11 +24,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -103,6 +105,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
+
     /**
      * Mapping of images used in the view so they are not constantly created and
      * allowing them to be disposed.
@@ -146,6 +150,7 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         userIds = CollaborationUtils.getIds();
         fonts = new HashMap<String, Font>();
         colors = new HashMap<RGB, Color>();
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     protected void initComponents(Composite parent) {
@@ -330,9 +335,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                         .getAdapter(IWorkbenchSiteProgressService.class);
                 service.warnOfContentChange();
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(timestamp);
-                String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+                Date date = new Date(timestamp);
+                String time = dateFormatter.format(date);
 
                 String name = connection.getContactsManager().getDisplayName(
                         userId);
@@ -596,9 +600,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(System.currentTimeMillis());
-                String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+                Date date = new Date();
+                String time = dateFormatter.format(date);
                 string.insert(0, "(" + time + ") : ");
                 if (messagesText.getCharCount() != 0) {
                     string.insert(0, "\n");
