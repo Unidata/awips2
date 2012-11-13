@@ -1558,8 +1558,7 @@ public abstract class PluginDao extends CoreDao {
                 byte[] data = SerializationUtil.transformToThrift(entry
                         .getValue());
 
-                // debug transform back for object inspection
-                Object obj = SerializationUtil.transformFromThrift(data);
+                SerializationUtil.transformFromThrift(data);
 
                 // save list to disk (in gz format?)
                 FileUtil.bytes2File(data, file, true);
