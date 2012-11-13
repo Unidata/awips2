@@ -45,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2010            chammack     Initial creation
  * 
+ * 10/30/2012	15448	   Xiaochuan	Check if container != null first in from().
+ * 	
  * </pre>
  * 
  * @author chammack
@@ -156,36 +158,40 @@ public class PointDataThriftContainer implements ISerializableObject {
         List<FloatPointDataObject> floatTypes = new ArrayList<FloatPointDataObject>();
         List<StringPointDataObject> stringTypes = new ArrayList<StringPointDataObject>();
         List<LongPointDataObject> longTypes = new ArrayList<LongPointDataObject>();
-
-        for (Map.Entry<String, AbstractPointDataObject<?>> v : container.pointDataTypes
-                .entrySet()) {
-            AbstractPointDataObject<?> o = v.getValue();
-            if (o instanceof IntPointDataObject) {
-                intTypes.add((IntPointDataObject) o);
-            } else if (o instanceof FloatPointDataObject) {
-                floatTypes.add((FloatPointDataObject) o);
-            } else if (o instanceof StringPointDataObject) {
-                stringTypes.add((StringPointDataObject) o);
-            } else if (o instanceof LongPointDataObject) {
-                longTypes.add((LongPointDataObject) o);
-            } else {
-                throw new UnsupportedOperationException("Got type: "
+        
+        if( container != null )
+        {
+        	for (Map.Entry<String, AbstractPointDataObject<?>> v : container.pointDataTypes
+        			.entrySet()) {
+        		AbstractPointDataObject<?> o = v.getValue();
+        		if (o instanceof IntPointDataObject) {
+        			intTypes.add((IntPointDataObject) o);
+        		} else if (o instanceof FloatPointDataObject) {
+        			floatTypes.add((FloatPointDataObject) o);
+        		} else if (o instanceof StringPointDataObject) {
+        			stringTypes.add((StringPointDataObject) o);
+        		} else if (o instanceof LongPointDataObject) {
+        			longTypes.add((LongPointDataObject) o);
+        		} else {
+        			throw new UnsupportedOperationException("Got type: "
                         + o.getClass().getName()
                         + ".  Code must be updated to support new type");
-            }
+        		}
+        	
+        	}
+
+        	pdtc.intData = intTypes
+                	.toArray(new IntPointDataObject[intTypes.size()]);
+        	pdtc.floatData = floatTypes.toArray(new FloatPointDataObject[floatTypes
+        	                                                             .size()]);
+        	pdtc.stringData = stringTypes
+                	.toArray(new StringPointDataObject[stringTypes.size()]);
+        	pdtc.longData = longTypes.toArray(new LongPointDataObject[longTypes
+        	                                                          .size()]);
+
+        	pdtc.size = container.getAllocatedSz();
         }
-
-        pdtc.intData = intTypes
-                .toArray(new IntPointDataObject[intTypes.size()]);
-        pdtc.floatData = floatTypes.toArray(new FloatPointDataObject[floatTypes
-                .size()]);
-        pdtc.stringData = stringTypes
-                .toArray(new StringPointDataObject[stringTypes.size()]);
-        pdtc.longData = longTypes.toArray(new LongPointDataObject[longTypes
-                .size()]);
-
-        pdtc.size = container.getAllocatedSz();
-
+        
         return pdtc;
 
     }
