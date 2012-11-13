@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 05Aug2008    #1407       ebabin      Dim delta button for wx/discrete types.
  * Oct 25, 2012 #1287      rferrel     Code clean up part of non-blocking dialog.
  * Oct 13, 2012 #1298      rferrel     Changes for non-blocking SetDeltaDialog.
+ *                                      Changes for non-blocking SetValueDialog.
  * </pre>
  * 
  * @author njensen
@@ -111,7 +112,7 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     public EditActionsDialog(Shell parentShell) {
         super(parentShell);
         title = "Edit Actions";
-        setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE | SWT.RESIZE);
+        setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE);
 
         dataManager = DataManager.getCurrentInstance();
         parm = dataManager.getSpatialDisplayManager().getActivatedParm();
@@ -328,12 +329,7 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     }
 
     private void showPickupDialog() {
-        Shell shell = getParentShell();
-
-        SetValueDialog svd = new SetValueDialog(shell, dataManager);
-        svd.setBlockOnOpen(false);
-        svd.open();
-
+        SetValueDialog.openDialog();
     }
 
     /*
