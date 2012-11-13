@@ -8,9 +8,9 @@
 # Authors:  Virgil Middendorf (BYZ), Steve Sigler (MSO)                        #
 # Contributers: Ahmad Garabi, Ken Sargeant, Dave Pike, Dave Rosenberg,         #
 #               Tim Barker, Maureen Ballard, Jay Smith, Dave Tomalak,          #
-#               Evelyn Bersack,                                                #
+#               Evelyn Bersack, Juliya Dynina                                  #
 #                                                                              #
-# Date of last revision:  07/07/11                                             #
+# Date of last revision:  11/02/12                                             #
 #                                                                              #
 # Script description: This script can create a netcdf file containing IFPS     #
 #    grids, quality control the netcdf file, send the file to a local rsync    #
@@ -141,6 +141,7 @@
 # 04/16/12:  Added a little error checking for work directory and replaced     #
 #            the hard-coded path to /awips2/fxa/bin with $FXA_BIN.  Removed    #
 #            awips1 code.                                                      #
+# 11/02/12:  Restored error checking for AWIPS2.                               #
 ################################################################################
 # check to see if site id was passed as argument
 # if not then exit from the script
@@ -227,7 +228,7 @@ cdfTimeRange="-s ${start_time} -e ${end_time} "
 # The script will attempt to create the netcdf file three times before failing.
 creationAttemptCount=1
 badGridFlag=1
-while (( ( $creationAttemptCount <= creationAttempts ) && ( $badGridFlag == 1 ) ))
+while (( ( $creationAttemptCount <= $creationAttempts ) && ( $badGridFlag == 1 ) ))
 do
    # create the netcdf file
    echo starting netcdf file creation...attempt number ${creationAttemptCount} at $(date) >> $LOG_FILE
@@ -239,7 +240,7 @@ do
    if (( filesize < 1000000 )) ;then
       echo $filesize >> $LOG_FILE
       if [[ $turnOffAllNotifications == "no" ]] ;then
-         ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL ${probAlertNum} "${SITE} netcdf file determined to be incomplete and not sent to webfarms. Did you publish to official?"
+         ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file determined to be incomplete and not sent to webfarms. Did you publish to official?" -s
       fi
       rm -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf
       echo netcdf file is too small. Either the Official database is empty OR EDEX is down. >> $LOG_FILE
@@ -253,25 +254,21 @@ do
    ##############################################
    # STOP HERE RIGHT NOW
    ##############################################
-
    if [[ $QCnetCDF == "yes" ]] ;then
       #Check netcdf file for errors. 
       echo started netcdf file checking at $(date) >> $LOG_FILE
-      ${GFESUITE_BIN}/iscMosaic -h $CDSHOST $parmlist -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf -d ${SITE}_GRID_Test_Fcst_00000000_0000 -D $iscMosaicDelay >> ${WRKDIR}/iscmosaicOutput.$$ 2>&1
+      ${GFESUITE_BIN}/iscMosaic -h $CDSHOST $parmlist -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf -d ${SITE}_GRID_Test_Fcst_00000000_0000 -D $iscMosaicDelay 
       
-#      cd $runDir
-      iscmosaicError=$(cat ${WRKDIR}/iscmosaicOutput.$$ | grep Failure)
-      if [[ $iscmosaicError != "" ]] ;then
-         echo "isc error|${iscmosaicError}|" >> $LOG_FILE
+      if [[ $? > 0 ]] ;then
          if [[ $creationAttemptCount == $creationAttempts ]] ;then
             if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "Errors detected in ${SITE} netcdf file again and not sent to webfarms. Send Grids Manually."
+               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Errors detected in ${SITE} netcdf file again and not sent to webfarms. Send Grids Manually." -s
             fi
             echo "Errors detected in ${SITE} netcdf file again and not sent to webfarms. Script stopped." >> $LOG_FILE
             exit
          else 
             if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "Errors detected in ${SITE} netcdf file again. Regenerating netcdf file attempt # ${creationAttemptCount}."
+               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Errors detected in ${SITE} netcdf file again. Regenerating netcdf file attempt # ${creationAttemptCount}." -s
             fi
             echo "Errors detected in ${SITE} netcdf file. Regenerating netcdf file." >> $LOG_FILE
          fi
@@ -281,7 +278,6 @@ do
          echo The netcdf file appears to be good. >> $LOG_FILE
          badGridFlag=0
       fi
-      rm -f ${WRKDIR}/iscmosaicOutput.$$
    else
       echo netcdf file checking bypassed at $(date) >> $LOG_FILE
       badGridFlag=0
@@ -330,10 +326,31 @@ echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # move optimized netcdf file to the local rsync server.
-echo trying to scp optimized netcdf file to $locServer at $(date) >> $LOG_FILE
-scp ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz ${locServer}:${locDirectory}/${site} >> $LOG_FILE 2>&1
-echo ...finished. >> $LOG_FILE
-echo " " >> $LOG_FILE
+for i in 1 2 3
+do
+   CHK=`ssh -q -o "BatchMode yes" -o "ConnectTimeout 5" $locServer "echo success"`;
+   if [ "success" = $CHK ] >/dev/null 2>&1
+   then
+      echo attempt $i to scp optimized netcdf file to $locServer at $(date) >> $LOG_FILE
+      scp ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz ${locServer}:${locDirectory}/${site} >> $LOG_FILE 2>&1
+      echo ...finished. >> $LOG_FILE
+      echo " " >> $LOG_FILE
+      break
+   fi
+
+   # failed to connect - wait 5 seconds and try again
+   sleep 5
+done
+
+if [[ $CHK != "success" ]] ;then
+   if [[ $turnOffAllNotifications == "no" ]] ;then
+       ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Failed to send optimized netcdf file to $locServer. Script stopped." -s
+   fi
+   # cleanup the zipped optimized file on AWIPS
+   rm -f ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz
+   echo "Failed to send optimized netcdf file to $locServer at $(date). Script stopped." >> $LOG_FILE
+   exit 1
+fi
 
 # cleaning up the zipped optimized file on AWIPS.
 echo cleaning up the zipped optimized file on AWIPS at $(date) >> $LOG_FILE
@@ -345,7 +362,7 @@ echo " " >> $LOG_FILE
 if [[ $SendQCgoodNotification == "yes" ]] ;then
    echo sending forecaster notification that QC passed at $(date) >> $LOG_FILE
    if [[ $turnOffAllNotifications == "no" ]] ;then
-      ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "${SITE} netcdf file passed quality control check. Now rsyncing the file to the webfarms."
+      ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file passed quality control check. Now rsyncing the file to the webfarms." -s
    fi
    echo ...finished. >> $LOG_FILE
    echo " " >> $LOG_FILE
@@ -386,7 +403,7 @@ do
          echo Waited more than $rsyncWait minutes to start a rsync to the Web Farm >> $LOG_FILE
          echo but another rsync process is still running - so could not. >> $LOG_FILE
          if [[ $turnOffAllNotifications == "no" ]] ;then
-            ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "${SITE} GFE netcdf file NOT sent to the Consolidated web farm. Another rsync process blocked transfer."
+            ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file NOT sent to the Consolidated web farm. Another rsync process blocked transfer." -s
          fi
          rsync_ok="no"
          break
@@ -427,7 +444,7 @@ do
          msg=$(ssh $locServer ${locDirectory}/checkCWFGrids.pl ${SITE})
          if [[ $msg != "" ]] ;then
             if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL ${probAlertNum} "${msg}"
+               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${msg}" -s
             fi
             echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
             echo "${msg}" >> $LOG_FILE
@@ -451,7 +468,7 @@ do
             if [[ $sendCWFnotification == "yes" ]] ;then
                echo Detected that grids DID make it to the consolidated web farm at $(date) >> $LOG_FILE
                if [[ $turnOffAllNotifications == "no" ]] ;then
-                  ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "${SITE} GFE netcdf file sent to the consolidated web farm."
+                  ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file sent to the consolidated web farm." -s
                fi
             fi
          fi
@@ -460,14 +477,14 @@ do
          if [[ $sendCWFnotification == "yes" ]] ;then
             echo Detected that grids DID make it to the consolidated web farm at $(date) >> $LOG_FILE
             if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL 1 "${SITE} GFE netcdf file sent to the consolidated web farm."
+               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file sent to the consolidated web farm." -s
             fi
          fi
       fi
       if [[ ( $rsyncAttempt > 5 ) && ( $rsyncCompleted = 0) ]] ;then
          rsyncCompleted=1
          if [[ $turnOffAllNotifications == "no" ]] ;then
-            ${FXA_BIN}/sendNotificationMsg ANNOUNCER LOCAL ${probAlertNum} "${SITE} GFE netcdf file was NOT sent to the Consolidated Web Farm, because rsync connection is broken."
+            ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file was NOT sent to the Consolidated Web Farm, because rsync connection is broken." -s
          fi
          echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
       fi

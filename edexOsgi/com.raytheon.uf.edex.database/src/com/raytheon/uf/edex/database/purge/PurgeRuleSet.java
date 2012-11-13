@@ -80,7 +80,7 @@ public class PurgeRuleSet implements ISerializableObject {
         return defaultRules;
     }
 
-    public void setDefaultRules(List<PurgeRule> defaultRules) {
+    public void setDefaultRules(final List<PurgeRule> defaultRules) {
         this.defaultRules = defaultRules;
     }
 
@@ -89,7 +89,7 @@ public class PurgeRuleSet implements ISerializableObject {
      * 
      * @param defaultRule
      */
-    public void setDefaultRule(PurgeRule defaultRule) {
+    public void setDefaultRule(final PurgeRule defaultRule) {
         this.defaultRules = new ArrayList<PurgeRule>(1);
         this.defaultRules.add(defaultRule);
     }
@@ -103,7 +103,7 @@ public class PurgeRuleSet implements ISerializableObject {
         return (rules == null) ? Collections.<PurgeRule> emptyList() : rules;
     }
 
-    public void setRules(List<PurgeRule> rules) {
+    public void setRules(final ArrayList<PurgeRule> rules) {
         this.rules = rules;
     }
 
@@ -116,7 +116,7 @@ public class PurgeRuleSet implements ISerializableObject {
         return keys;
     }
 
-    public void setKeys(List<String> keys) {
+    public void setKeys(final List<String> keys) {
         this.keys = keys;
     }
 
@@ -128,7 +128,7 @@ public class PurgeRuleSet implements ISerializableObject {
      *            purge rules for.
      * @return
      */
-    public List<PurgeRule> getRuleForKeys(String[] keyValues) {
+    public List<PurgeRule> getRuleForKeys(final String[] keyValues) {
         if (purgeTree == null) {
             purgeTree = new PurgeRuleTree(this);
         }
