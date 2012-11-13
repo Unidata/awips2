@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240155</name>
     <description>HRAP Grid for RHA (Middle Atlantic RFC State College, PA)</description>
-    <la1>38.025</la1>
-    <lo1>-83.346</lo1>
+    <la1>38.035</la1>
+    <lo1>-83.315</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>200</nx>
     <ny>200</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
