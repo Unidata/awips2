@@ -308,7 +308,82 @@ public class AutoDailyQC {
                         }
                     }
 
+                    num_period_qc=5;
+                    //for the 6 hours periods
                     for (int l = 0; l < 5; l++) {
+                        if (DailyQcUtils.pdata[i].used[l] == 0) {
+                            continue;
+                        }
+
+                        if (l < 2) {
+                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                            otime.add(Calendar.SECOND, -86400);
+                        } else {
+                            otime.setTime(DailyQcUtils.pdata[i].data_time);
+                        }
+
+                        int ll;
+                        if (l < 4) {
+                            ll = 0;
+                        } else {
+                            ll = 1;
+                        }
+                        RenderPcp rp = new RenderPcp();
+                        rp.render_pcp(i, l, ll,
+                                DailyQcUtils.precip_stations.size(),
+                                DailyQcUtils.precip_stations,
+                                DailyQcUtils.getHrap_grid(),
+                                DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+
+                        /* output grid to file in Ascii format */
+                        dbuf = String.format("%s%s_%04d%02d%02d",
+                                DailyQcUtils.grid_file,
+                                DailyQcUtils.timefile[2][l],
+                                otime.get(Calendar.YEAR),
+                                otime.get(Calendar.MONTH) + 1,
+                                otime.get(Calendar.DAY_OF_MONTH));
+                        WriteQPFGrids wq = new WriteQPFGrids();
+                        wq.write_qpf_grids(dbuf);
+
+                        /* output grid to file in grib format */
+
+                        // create netCDF file from data, write it out then call
+                        // nc2grib against it making a grib file, when done
+                        // remove the unneeded netCDF file.
+                        if (DailyQcUtils.mpe_dqc_save_grib == true) {
+                            WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
+                            String ncfile = String.format("%s.nc", dbuf);
+                            wng.write_dqc_netcdf_grids(ncfile, 0, 1, 1,
+                                    ga.getCommonGridAttributes(), datavals);
+                            WriteDQCGribGrids wgg = new WriteDQCGribGrids();
+                            String fname_grib = String.format("%s.grb", dbuf);
+                            int status = wgg.write_dqc_grib_grids(ncfile,
+                                    fname_grib, 1);
+                            File nfile = new File(ncfile);
+                            nfile.delete();
+                            nfile = null;
+                            if (status != 0) {
+                                System.out
+                                        .println(String
+                                                .format("\n problem with writing GRIB file in write_dqc_grib_grids. status=%d\n",
+                                                        status));
+                            }
+
+                        }
+
+                        int num;
+                        if (l < 4) {
+                            num = i * 4 + 3 - l;
+                        } else {
+                            num = i + 40;
+                        }
+
+                        /* create the MAP */
+                        CreateMap cm = new CreateMap();
+                        cm.create_map(num);
+                    }
+                    //for (int l = 0; l < 5; l++) {
+                    for (int l = 0; l < num_period_qc; l++) {
                         if (DailyQcUtils.pdata[i].used[l] == 0) {
                             continue;
                         }
@@ -351,42 +426,6 @@ public class AutoDailyQC {
                                     ga.getCommonGridAttributes(), datavals);
                         }
 
-                        /* output grid to file in grib format */
-
-                        // create netCDF file from data, write it out then call
-                        // nc2grib against it making a grib file, when done
-                        // remove the unneeded netCDF file.
-                        if (DailyQcUtils.mpe_dqc_save_grib == true) {
-                            WriteDQCNetCDFGrids wng = new WriteDQCNetCDFGrids();
-                            String ncfile = String.format("%s.nc", dbuf);
-                            wng.write_dqc_netcdf_grids(ncfile, 0, 1, 1,
-                                    ga.getCommonGridAttributes(), datavals);
-                            WriteDQCGribGrids wgg = new WriteDQCGribGrids();
-                            String fname_grib = String.format("%s.grb", dbuf);
-                            int status = wgg.write_dqc_grib_grids(ncfile,
-                                    fname_grib, 1);
-                            File nfile = new File(ncfile);
-                            nfile.delete();
-                            nfile = null;
-                            if (status != 0) {
-                                System.out
-                                        .println(String
-                                                .format("\n problem with writing GRIB file in write_dqc_grib_grids. status=%d\n",
-                                                        status));
-                            }
-
-                        }
-
-                        int num;
-                        if (l < 4) {
-                            num = i * 4 + 3 - l;
-                        } else {
-                            num = i + 40;
-                        }
-
-                        /* create the MAP */
-                        CreateMap cm = new CreateMap();
-                        cm.create_map(num);
                     }
                 }
 

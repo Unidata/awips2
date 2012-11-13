@@ -63,7 +63,8 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * July 12 2011 9709       djingtao   draw right Y axis for showPP is true. add new 
  *                                    function adjust_pcymax()
  * Aug. 10, 2011 10457     djingtao   allow the red rubberband box to be drawn for setMissing in Edit  
- * Jul. 24, 2012 15195     mpduff     Fix x axis scales.                                  
+ * Jul. 24, 2012 15195     mpduff     Fix x axis scales.
+ * 06 Nov   2012 15399     wkwock       Fix refine the plot algorithm and sampling algorithm                                  
  * 
  * </pre>
  * 
@@ -500,11 +501,11 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		int x = -999;
 		int dy = 5;
 		int dx = 4;
-		long startMillis = gd.getXMin().getTime();
+		long startMillis = ((long)Math.ceil(gd.getXMin().getTime()/HydroConstants.MILLIS_PER_HOUR))*HydroConstants.MILLIS_PER_HOUR;
 		long endMillis = gd.getXMax().getTime();
 
 		for (long i = startMillis; i <= endMillis; i += HydroConstants.MILLIS_PER_HOUR) {
-			x = x2pixel(gd, i);
+			x = x2pixel(gd, i+59000); //59 seconds for better sampling
 			Date d = SimulatedTime.getSystemTime().getTime();
 			d.setTime(i);
 			dy = 5;
@@ -667,8 +668,8 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		long xMin = gd.getXMin().getTime();
 		long xMax = gd.getXMax().getTime();
 		long xDiff = xMax - xMin;
-		long millisPerPixel = xDiff / graphAreaWidth;
-		long millisTime = (xpix - GRAPHBORDER_LEFT) * millisPerPixel + xMin;
+		double millisPerPixel = xDiff / graphAreaWidth;
+		long millisTime = (long)(xpix * millisPerPixel) + xMin;
 
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(millisTime);
