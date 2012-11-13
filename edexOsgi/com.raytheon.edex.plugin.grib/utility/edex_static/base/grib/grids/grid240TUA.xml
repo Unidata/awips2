@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240150</name>
     <description>HRAP Grid for TUA (Arkansas-Red River RFC Tulsa, Oklahoma)</description>
-    <la1>33.603</la1>
-    <lo1>-106.455</lo1>
+    <la1>33.621</la1>
+    <lo1>-106.434</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>335</nx>
     <ny>159</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
