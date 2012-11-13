@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240153</name>
     <description>HRAP Grid for RSA (California-Nevada RFC Sacramento, California)</description>
-    <la1>30.91</la1>
-    <lo1>-120.872</lo1>
+    <la1>30.931</la1>
+    <lo1>-120.858</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>235</nx>
     <ny>335</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>

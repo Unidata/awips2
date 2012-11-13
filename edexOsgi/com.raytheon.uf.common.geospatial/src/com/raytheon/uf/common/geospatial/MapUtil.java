@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                         reprojectGeometry.
  *    06/19/2012   14988       D. Friedman Make oversampling more like AWIPS 1
  *    09/18/2012   #1091       randerso    corrected getBoundingEnvelope
+ *    11/06/2012   15406       ryu         Added convertToNativeEnvelope()
  * 
  * </pre>
  * 
@@ -263,6 +264,55 @@ public class MapUtil {
             }
 
         }
+        generalEnvelope.setRange(0, minX, maxX);
+        generalEnvelope.setRange(1, minY, maxY);
+
+        return generalEnvelope;
+    }
+
+    /**
+     * Construct a native envelope from the grid domain represented
+     * by the lower left and the upper right corners.
+     *
+     * @param ll
+     *            lower left of the grid envelope
+     * @param ur
+     *            upper right of the grid envelope
+     * @param gloc
+     *            grid location object
+     * @return a native envelope
+     *
+     */
+    public static GeneralEnvelope convertToNativeEnvelope(
+            Coordinate ll, Coordinate ur, ISpatialObject gloc) {
+        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
+        generalEnvelope.setCoordinateReferenceSystem(gloc.getCrs());
+
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        for (Coordinate p : new Coordinate[]{ll, ur}) {
+            Coordinate translated = gridCoordinateToNative(p,
+        			PixelOrientation.CENTER, gloc);
+            double x = translated.x;
+            double y = translated.y;
+
+            if (x < minX) {
+                minX = x;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y < minY) {
+                minY = y;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+        }
+
         generalEnvelope.setRange(0, minX, maxX);
         generalEnvelope.setRange(1, minY, maxY);
 
