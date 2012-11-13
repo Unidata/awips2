@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240158</name>
     <description>HRAP Grid for TAR (Northeast RFC Taunton, Massachusetts)</description>
-    <la1>42.057</la1>
-    <lo1>-80.004</lo1>
+    <la1>42.066</la1>
+    <lo1>-79.970</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>180</nx>
     <ny>235</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
