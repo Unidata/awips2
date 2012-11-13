@@ -60,6 +60,8 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  * Nov 30, 2010            rjpeter     Initial creation
  * Jul 31, 2012  #965      dgilling    Force ordering of sites in 
  *                                     getActiveSites().
+ * Nov 1, 2012   15417     ryu         Modified getActiveSites to include
+ *                                     home site only if activated.
  * 
  * </pre>
  * 
@@ -139,8 +141,13 @@ public class SiteAwareRegistry {
     public String[] getActiveSites() {
         // make a set of the strings for each listener site
         Set<String> tmp = new LinkedHashSet<String>();
-        tmp.add(PropertiesFactory.getInstance().getEnvProperties()
-                .getEnvValue("SITENAME"));
+        String mySite = PropertiesFactory.getInstance().getEnvProperties()
+                .getEnvValue("SITENAME");
+        for (ISiteActivationListener sa : activationListeners) {
+            if (sa.getActiveSites().contains(mySite)) {
+                tmp.add(mySite);
+            }
+        }
         for (ISiteActivationListener sa : activationListeners) {
             tmp.addAll(sa.getActiveSites());
         }

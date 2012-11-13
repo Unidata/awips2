@@ -173,6 +173,9 @@ public class DefineRefSetDialog extends CaveJFACEDialog implements
      * Modal dialog from the menu so only one can be open at a time.
      */
     private CaveJFACEDialog menuModalDlg;
+    private SaveDeleteEditAreaGroupDialog deleteGroupDlg;
+
+    private SaveDeleteEditAreaGroupDialog saveGroupDlg;
 
     public DefineRefSetDialog(Shell parent, DataManager dataManager) {
         super(parent);
