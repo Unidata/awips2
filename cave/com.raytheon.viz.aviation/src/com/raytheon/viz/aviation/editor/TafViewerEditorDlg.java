@@ -222,6 +222,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 12OCT2012    1229        rferrel     Changes for non-blocking FindReplaceDlg.
  *                                       made non-blocking.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
+ * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 
  * </pre>
  * 
@@ -2753,7 +2754,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private boolean checkSyntaxInEditor(boolean doLogMessage) {
         // Get the content of the Taf Editor.
         // Assume editorTafTabComp is for the active tab.
-        String in = (editorTafTabComp.getTextEditorControl().getText());
+    	// DR15477: trim blank lines before Syntax Checking
+        String in = (editorTafTabComp.getTextEditorControl().getText().trim());
         // Declare variables for processing the editor's contents.
         boolean errorInTaf = false;
         int idx1 = 0;
