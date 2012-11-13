@@ -39,6 +39,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * Sep 18, 2009 2260       mpduff     Initial creation
  * Apr 25, 2012 14499      wkwock     Refine format, query, etc
  * Sep 11, 2012 13781      wkwock     add print menu
+ * Oct 19, 2012 15454      wkwock     Fix missing River mile, Zero Datum, Check bar
  *
  * </pre>
  *
@@ -141,14 +142,14 @@ public class E19AReport extends E19Report {
         buffer.append(String.format("STATION NO: %-11s\n", locData.getLocation().getSn()));
         
         String mile = null;
-        if (data.getRiverstat().getDa() != HydroConstants.MISSING_VALUE) {
+        if (data.getRiverstat().getMile() != HydroConstants.MISSING_VALUE) {
             mile = String.format("%8.2f", data.getRiverstat().getMile());
         } else {
             mile = "        ";
         }
         
         String wstg = null;
-        if (data.getRiverstat().getFs() != HydroConstants.MISSING_VALUE) {
+        if (data.getRiverstat().getWstg() != HydroConstants.MISSING_VALUE) {
             wstg = String.format("%8.2f", data.getRiverstat().getWstg());
         } else {
             wstg = "        ";
@@ -158,14 +159,14 @@ public class E19AReport extends E19Report {
         buffer.append(String.format("   USGS NO: %-11s\n", data.getRiverstat().getGsno()));
 
         String zd = null;
-        if (data.getRiverstat().getDa() != HydroConstants.MISSING_VALUE) {
+        if (data.getRiverstat().getZd() != HydroConstants.MISSING_VALUE) {
             zd = String.format("%8.3f", data.getRiverstat().getZd());
         } else {
             zd = "        ";
         }
         
         String bf = null;
-        if (data.getRiverstat().getFs() != HydroConstants.MISSING_VALUE) {
+        if (data.getRiverstat().getBf() != HydroConstants.MISSING_VALUE) {
             bf = String.format("%8.2f", data.getRiverstat().getBf());
         } else {
             bf = "        ";
@@ -175,7 +176,7 @@ public class E19AReport extends E19Report {
         buffer.append(String.format("   NESS ID: %-8s\n", dataDcpTelem.getDcp().getGoes()));
         
         String cb = null;
-        if (data.getRiverstat().getDa() != HydroConstants.MISSING_VALUE) {
+        if (data.getRiverstat().getCb() != HydroConstants.MISSING_VALUE) {
             cb = String.format("%8.3f", data.getRiverstat().getCb());
         } else {
             cb = "        ";
@@ -277,7 +278,7 @@ public class E19AReport extends E19Report {
         buffer.append("     LATEST GAGE TYPE           START DATE              OWNER OF GAGE\n");
         
         if (dataG.getGageList() != null && dataG.getGageList().size() > 0) {
-        	Gage gage=dataG.getGageList().get(dataG.getGageList().size()-1);
+        	Gage gage=dataG.getGageList().get(0);
             buffer.append(String.format("       %-11s                %10s              %-11s\n", gage.getType(), sdf.format(gage.getBegin()), gage.getOwner()));
         }
         
