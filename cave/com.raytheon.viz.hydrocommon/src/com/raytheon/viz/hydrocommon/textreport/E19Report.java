@@ -46,6 +46,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
  * Apr 25, 2012 14499      wkwock     Refine format, query, etc
+ * Oct 14, 2012 15454      wkwock     Fix can not generate e19 if damage filed is empty
  *
  * </pre>
  *
@@ -1392,9 +1393,13 @@ public class E19Report extends TextReport {
                                 tmp1 = String.format("%7.2f", floodList.get(floodIndex).getStage());
                             }
 
-                            thisLineStr="  " + tmp1 + " - " + lines[lineIndex];
+                            if (lines==null || lines[lineIndex]==null) {
+                            	thisLineStr="  " + tmp1 + " -";
+                            } else {
+                            	thisLineStr="  " + tmp1 + " - " + lines[lineIndex];
+                            }
                         }else {
-                        	thisLineStr="            " + lines[lineIndex];
+                        	thisLineStr="            ";
                         }
                         
                         int spaces = flood_filler - thisLineStr.length();
@@ -1410,7 +1415,7 @@ public class E19Report extends TextReport {
                         
                         lineIndex++;
                         
-                        if (lineIndex == lines.length - 1) {  // No more lines in this record
+                        if (lines !=null && lineIndex == lines.length - 1) {  // No more lines in this record
                             floodIndex++;  // Get the next record
                             
                             if ((floodList.size() > floodIndex) && (floodList.get(floodIndex) != null)) {
