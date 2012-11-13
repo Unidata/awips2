@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 06/03/2011   #8919      rferrel     No longer display color bar when
  *                                     VisMode is GRAPHIC
  * 11/13/20112  #1298      rferrel     Changes for non-blocking SetDeltaDialog.
+ *                                     Changes for non-blocking SetValueDialog.
  * 
  * </pre>
  * 
@@ -535,12 +536,7 @@ public class GFEColorbarResource extends
     }
 
     private void showPickupDialog() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        SetValueDialog svd = new SetValueDialog(shell, dManager);
-        svd.setBlockOnOpen(false);
-        svd.open();
+        SetValueDialog.openDialog();
     }
 
     private class SetPickupAction extends AbstractRightClickAction {
