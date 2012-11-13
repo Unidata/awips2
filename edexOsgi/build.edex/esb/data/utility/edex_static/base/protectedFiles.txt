@@ -5,6 +5,9 @@
 # A simple example would be 
 # BASE:common_static/textdb/textCategoryClass.txt
 
+#SCAN_COMMON files
+SITE:common_static/scan/SCANRunSiteConfig.xml
+
 #AvnFPS files
 SITE:cave_static/aviation/avnwatch/aviationForecasterConfig.xml
 
