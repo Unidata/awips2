@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.geotools.referencing.CRS;
@@ -67,7 +68,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2010            mschenke     Initial creation
- * Oct 31, 2012  DR 15287  D. Friedman  Fix overlap calculation 
+ * Nov 06, 2012  DR 15157  D. Friedman  Allow configured inclusion percentage
  * 
  * </pre>
  * 
@@ -81,6 +82,9 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
     @XmlElement(name = "resource")
     protected ResourceList resourceList = new ResourceList();
+
+    @XmlAttribute
+    protected Double inclusionFactor;
 
     private ResourcePair resourceToDraw;
 
@@ -156,12 +160,14 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
         Map<ResourcePair, Double> percentOfIntersection = new HashMap<ResourcePair, Double>();
         if (disclosedResource != null) {
+            final double inclusionPercentageToUse = inclusionFactor != null ?
+                    inclusionFactor : DESIRED_PERCENTAGE;
             // check inclusion percentage of the disclosed resource
             Double inclusion = getInclusionPercentage(descriptor,
                     disclosedResource, extent);
             if (inclusion != Double.NaN) {
                 percentOfIntersection.put(disclosedResource, inclusion);
-                if (inclusion < DESIRED_PERCENTAGE) {
+                if (inclusion < inclusionPercentageToUse) {
                     disclosedResource = null;
                 }
             } else {
@@ -335,7 +341,7 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
                         for (Polygon last : prevs) {
                             // Don't want to double include percentage areas
-                            totalPercentage -= last.intersection(polygon).intersection(extent)
+                            totalPercentage -= last.intersection(polygon)
                                     .getArea() / extent.getArea();
                         }
                     }
@@ -346,5 +352,13 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
             }
         }
         return totalPercentage;
+    }
+
+    public Double getInclusionFactor() {
+        return inclusionFactor;
+    }
+
+    public void setInclusionFactor(Double inclusionFactor) {
+        this.inclusionFactor = inclusionFactor;
     }
 }
