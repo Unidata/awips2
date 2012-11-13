@@ -21,8 +21,8 @@
 <polarStereoGridCoverage>
     <name>250160</name>
     <description>QPF Grid for TIR (Ohio Basin RFC Wilmington, Ohio)</description>
-    <la1>36.19</la1>
-    <lo1>-91.347</lo1>
+    <la1>36.203</la1>
+    <lo1>-91.320</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>250</nx>
     <ny>260</ny>
