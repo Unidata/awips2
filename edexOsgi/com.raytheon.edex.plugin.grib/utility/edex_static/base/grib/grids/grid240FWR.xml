@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240162</name>
     <description>HRAP Grid for WFR (West Gulf RFC Fort Worth, Texas)</description>
-    <la1>24.852</la1>
-    <lo1>-108.99</lo1>
+    <la1>24.869</la1>
+    <lo1>-108.973</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>425</nx>
     <ny>390</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
