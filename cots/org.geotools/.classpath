@@ -19,12 +19,12 @@
 	<classpathentry exported="true" kind="lib" path="gt-graph-2.6.4.jar" sourcepath="gt-graph-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-gtopo30-2.6.4.jar" sourcepath="gt-gtopo30-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-image-2.6.4.jar" sourcepath="gt-image-2.6.4-sources.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-jdbc-postgis-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-jdbc-postgis-2.6.4.jar" sourcepath="gt-jdbc-postgis-2.6.4-sources.zip"/>
 	<classpathentry exported="true" kind="lib" path="gt-main-2.6.4.jar" sourcepath="gt-main-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-metadata-2.6.4.jar" sourcepath="gt-metadata-2.6.4-sources.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-postgis-2.6.4.jar" sourcepath="gt-postgis-2.6.4-sources.zip"/>
-	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-postgis-2.6.4.jar" sourcepath="gt-postgis-2.6.4-sources.zip"/>
+	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4.jar" sourcepath="gt-referencing-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4.jar" sourcepath="gt-referencing3D-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-render-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-shapefile-2.6.4.jar" sourcepath="gt-shapefile-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xml-2.6.4.jar"/>
@@ -33,13 +33,13 @@
 	<classpathentry exported="true" kind="lib" path="gt-xsd-gml2-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-gml3-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-kml-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-xsd-ows-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-xsd-ows-2.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-xsd-sld-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-xsd-wfs-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-wfs-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="net.opengis.ows-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="net.opengis.wfs-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="net.opengis.wfsv-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-xsd-wfs-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-wfs-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="net.opengis.ows-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="net.opengis.wfs-2.6.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="net.opengis.wfsv-2.6.4.jar"/>
 	<classpathentry kind="lib" path="jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="jts-1.10.jar"/>
 	<classpathentry kind="lib" path="picocontainer-1.2.jar"/>
