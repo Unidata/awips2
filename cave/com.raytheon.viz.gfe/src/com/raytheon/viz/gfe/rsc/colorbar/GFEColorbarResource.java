@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 05Aug2008    #1405       ebabin      Fix fo delta not displaying after first use.
  * 06/03/2011   #8919      rferrel     No longer display color bar when
  *                                     VisMode is GRAPHIC
+ * 11/13/20112  #1298      rferrel     Changes for non-blocking SetDeltaDialog.
  * 
  * </pre>
  * 
@@ -109,8 +110,8 @@ public class GFEColorbarResource extends
         IContextMenuProvider, IPickupValueChangedListener,
         IDisplayModeChangedListener, IMessageClient,
         IDisplayedParmListChangedListener {
-	
-	public static final double HEIGHT = 25.0;
+
+    public static final double HEIGHT = 25.0;
 
     private class GFEColorbarInputHandler extends InputAdapter {
 
@@ -388,7 +389,7 @@ public class GFEColorbarResource extends
 
         // Construct a bar that is HEIGHT pixels high
         double height = HEIGHT * screenExtent.getHeight()
-        		/ paintProps.getCanvasBounds().height;
+                / paintProps.getCanvasBounds().height;
 
         PixelExtent pe = new PixelExtent(screenExtent.getMinX(),
                 screenExtent.getMaxX(), screenExtent.getMinY(),
@@ -403,7 +404,7 @@ public class GFEColorbarResource extends
         // erase the whole colorbar to a black background
         target.drawShadedRect(pe, ColorUtil.BLACK, 1.0, null);
         target.drawRect(pe, GFEColorbarResource.COLORBAR_GRAY, 2.0f, 1.0f);
-        
+
         if (currentParm == null) {
             return;
         }
@@ -530,12 +531,7 @@ public class GFEColorbarResource extends
     }
 
     private void showDeltaDialog() {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        SetDeltaDialog deltaDialog = new SetDeltaDialog(shell, dManager);
-        deltaDialog.setBlockOnOpen(true);
-        deltaDialog.open();
+        SetDeltaDialog.openDialog();
     }
 
     private void showPickupDialog() {
