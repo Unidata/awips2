@@ -48,6 +48,7 @@ import com.raytheon.viz.hydrocommon.textreport.TextReportData.StaffGageData;
  * Nov 09, 2010 5416       lbousaid   changed gageQuery
  * Dec 08, 2011 11728      lbousaidi  changed the routines that retrieve data
  * Apr 25, 2012 14499      wkwock     Refine format, query, etc
+ * Nov 06, 2012 15454      wkwock     Fix query for get data from gage table
  * 
  * </pre>
  * 
@@ -356,7 +357,7 @@ public class TextReportDataManager extends HydroDataManager {
 	public TextReportData getGageQueryList(String lid) {
 		TextReportData data = new TextReportData();
 		String gageQuery = "select gbegin, type, owner, remark, maint, gend from gage where lid = '"
-				+ lid + "' order by gbegin,type";
+				+ lid + "' and gend is null ORDER BY gbegin desc";
 		ArrayList<Object[]> rs = runQuery(gageQuery);
 		ArrayList<Gage> gageList = new ArrayList<Gage>();
 		int i = 0;
