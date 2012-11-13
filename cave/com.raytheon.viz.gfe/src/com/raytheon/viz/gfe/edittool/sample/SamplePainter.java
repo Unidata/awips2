@@ -69,8 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/08/2008              chammack    Initial Port from AWIPS I (minus ISC support)
  * 07/23/2012     #936     dgilling    Reinstate config-handling code to
  *                                     calcGridLabels().
- * 11/05/2012     #14566   jzeng       Reverse the order of grids 
- * 							  in calcGridLabels ()
+ * 11/05/2012     #14566   jzeng       Paint the sample points with the order of grids 
+ * 							           in calcGridLabels ()
  * </pre>
  * 
  * @author chammack
@@ -254,12 +254,16 @@ public class SamplePainter {
      * @param colors
      *            The color list
      */
-    private void calcGridLabels(Coordinate worldLoc, final List<GridID> grids,
+    private void calcGridLabels(Coordinate worldLoc, final List<GridID> Grids,
             final GridID imageGrid, List<String> sampleLabels, List<RGB> colors) {
 
-        if (grids.isEmpty()) {
+        if (Grids.isEmpty()) {
             return;
         }
+        
+        List<GridID> grids = Grids;
+        
+        Collections.reverse(grids);
 
         // if list is not defined, then all samples will be painted for
         // all parms
@@ -283,8 +287,6 @@ public class SamplePainter {
                 && (gridCoordinate.x < maxX) && (gridCoordinate.y < maxY)) {
             inGrid = true;
         }
-
-        Collections.reverse(grids);
 
         // get the list of samples that should be painted and in the
         // order
@@ -340,6 +342,7 @@ public class SamplePainter {
             sampleLabels.add(label);
             colors.add(labelColor);
         }
+        Collections.reverse(grids);
     }
 
     /**

@@ -21,13 +21,13 @@
 <polarStereoGridCoverage>
     <name>240154</name>
     <description>HRAP Grid for ORN (Lower Mississippi RFC Slidel, Louisiana)</description>
-    <la1>28.686</la1>
-    <lo1>-98.791</lo1>
+    <la1>28.701</la1>
+    <lo1>-98.770</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>419</nx>
     <ny>419</ny>
-    <dx>4.762</dx>
-    <dy>4.762</dy>
+    <dx>4.7625</dx>
+    <dy>4.7625</dy>
     <spacingUnit>km</spacingUnit>
     <minorAxis>6371229.0</minorAxis>
     <majorAxis>6371229.0</majorAxis>
