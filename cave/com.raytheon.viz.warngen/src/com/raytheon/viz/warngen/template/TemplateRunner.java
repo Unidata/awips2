@@ -22,12 +22,10 @@ package com.raytheon.viz.warngen.template;
 import java.awt.geom.Point2D;
 import java.io.StringWriter;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,9 +33,11 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,14 +45,12 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
-import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
@@ -60,11 +58,11 @@ import com.raytheon.uf.common.activetable.GetActiveTableRequest;
 import com.raytheon.uf.common.activetable.GetActiveTableResponse;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
-import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
-import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -75,7 +73,6 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
@@ -101,11 +98,11 @@ import com.raytheon.viz.warngen.util.FollowUpUtil;
 import com.raytheon.viz.warngen.util.WarnGenMathTool;
 import com.raytheon.viz.warngen.util.WatchUtil;
 import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch;
+import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch.Portion;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
@@ -129,6 +126,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Aug 29, 2011   15351    jsanchez    Set the timezone for TML time.
  * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.
  * Sep 18, 2012   15332    jsanchez    Used a new warning text handler.
+ * Nov  9, 1202   DR 15430 D. Friedman Improve watch inclusion.
  * </pre>
  * 
  * @author njensen
@@ -742,7 +740,7 @@ public class TemplateRunner {
         try {
             t0 = System.currentTimeMillis();
             WatchUtil watches = getWatches(warngenLayer, config, warnPolygon,
-                    fourLetterSiteId);
+                    fourLetterSiteId, simulatedTime);
             System.out.println("getWatches time: "
                     + (System.currentTimeMillis() - t0));
             if (watches != null) {
@@ -837,12 +835,13 @@ public class TemplateRunner {
      *            ([template_name_site.xml])
      * @param polygon
      *            The Geometry surrounded by the warning polygon.
+     * @param simulatedTime
      * @return
      * @throws Exception
      */
     private static WatchUtil getWatches(WarngenLayer warngenLayer,
             WarngenConfiguration config, Geometry polygon,
-            String fourLetterSiteId) throws Exception {
+            String fourLetterSiteId, Date simulatedTime) throws Exception {
         Validate.isTrue(config.getHatchedAreaSource()
                 .getIncludedWatchAreaBuffer() >= 0,
                 "IncludedWatchAreaBuffer can not be negative");
@@ -877,8 +876,27 @@ public class TemplateRunner {
             GetActiveTableResponse resp = (GetActiveTableResponse) ThriftClient
                     .sendRequest(req);
             long t1 = System.currentTimeMillis();
-            java.util.List<ActiveTableRecord> activeTable = resp
-                    .getActiveTable();
+            java.util.List<ActiveTableRecord> respList = resp.getActiveTable();
+            ArrayList<ActiveTableRecord> activeTable = new ArrayList<ActiveTableRecord>(
+                    respList.size());
+            // Filter out entries representing non-active events.
+            for (ActiveTableRecord ar : respList) {
+                if ("CAN".equals(ar.getAct()) || "EXP".equals(ar.getAct()))
+                    continue;
+                if (ar.getEndTime() == null) {
+                    statusHandler.handle(Priority.ERROR, String.format(
+                            "Watch %s has null end time; not included.",
+                            ar.getVtecstr()));
+                    continue;
+                }
+                // From A1 SELSparagraphs.C processWOU
+                if (simulatedTime.before(new Date(ar.getStartTime().getTime()
+                        .getTime() - 180 * 1000))
+                        || simulatedTime.after(ar.getEndTime().getTime()))
+                    continue;
+
+                activeTable.add(ar);
+            }
 
             System.out.println("getWatches.getActiveTable time: " + (t1 - t0)
                     + ", found "
@@ -902,96 +920,293 @@ public class TemplateRunner {
                 t1 = System.currentTimeMillis();
                 System.out.println("getWatches.createWatchGeometry time: "
                         + (t1 - t0));
-                SpatialQueryResult[] parentRegionFeatures = null;
 
-                try {
-                    String field = "the_geom";
-                    t0 = System.currentTimeMillis();
-                    List<Double> results = DbMapQueryFactory.getMapQuery(
-                            "mapdata.states", field).getLevels();
-                    Collections.sort(results, Collections.reverseOrder());
-                    Double decimationTolerance = null;
-                    for (Double result : results) {
-                        if (result <= 0.064) {
-                            decimationTolerance = result;
-                        }
-                    }
-
-                    if (decimationTolerance != null) {
-                        DecimalFormat df = new DecimalFormat("0.######");
-                        String suffix = "_"
-                                + StringUtils.replaceChars(df.format(results
-                                        .get(results.size() - 1)), '.', '_');
-                        parentRegionFeatures = SpatialQueryFactory.create()
-                                .query("states", field + suffix,
-                                        new String[] { "Name" }, watchArea,
-                                        null, false, SearchMode.INTERSECTS);
-                    } else {
-                        parentRegionFeatures = SpatialQueryFactory.create()
-                                .query("states", new String[] { "Name" },
-                                        watchArea, null, false,
-                                        SearchMode.INTERSECTS);
-                    }
-
-                    t1 = System.currentTimeMillis();
-                    System.out.println("getWatches.stateSpatialQuery time: "
-                            + (t1 - t0) + ", found "
-                            + parentRegionFeatures.length + " states");
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error querying state geometries", e);
-                    return null;
-                }
-
-                rval = new WatchUtil();
-                WeatherAdvisoryWatch watch = null;
-                long cumulativeIntersect = 0;
-                long cumulativeCalcPortion = 0;
-                GeodeticCalculator gc = new GeodeticCalculator();
-
-                // For each State in our watchArea...
-                for (int j = 0; j < parentRegionFeatures.length; j++) {
-                    Geometry parentGeom = parentRegionFeatures[j].geometry;
-                    List<PreparedGeometry> prepGeoms = new ArrayList<PreparedGeometry>();
-                    GeometryUtil.recursivePreparedGeometry(parentGeom,
-                            prepGeoms);
-
-                    for (ActiveTableRecord atr : activeTable) {
-                        // Get the intersection of watchArea with State.
-                        watch = new WeatherAdvisoryWatch();
-                        watch.setEndTime(atr.getEndTime().getTime());
-                        watch.setPhensig(atr.getPhensig());
-
-                        // If State intersections intersects with out ATR
-                        // record, add watch
-                        t0 = System.currentTimeMillis();
-                        boolean intersects = GeometryUtil.intersects(prepGeoms,
-                                atr.getGeometry());
-                        t1 = System.currentTimeMillis();
-                        cumulativeIntersect = (t1 - t0);
-
-                        if (intersects) {
-                            watch.setParentRegion(parentRegionFeatures[j].attributes
-                                    .get("Name").toString());
-
-                            t0 = System.currentTimeMillis();
-                            watch.setPartOfParentRegion(GisUtil
-                                    .asStringList(GisUtil.calculatePortion(
-                                            parentGeom, atr.getGeometry(), gc)));
-                            t1 = System.currentTimeMillis();
-                            cumulativeCalcPortion = (t1 - t0);
-                            rval.addWaw(watch);
-                        }
-                    }
-                }
-
-                System.out.println("getWatches.cumulativeIntersect: "
-                        + cumulativeIntersect);
-                System.out.println("getWatches.cumulativeCalcPortion: "
-                        + cumulativeCalcPortion);
+                t0 = System.currentTimeMillis();
+                rval = processATEntries(activeTable, warngenLayer);
+                System.out.println("getWatches.createPoritions time: "
+                        + (t1 - t0));
             }
         }
 
         return rval;
     }
+
+    private static class WatchWork {
+        public WeatherAdvisoryWatch waw;
+        public boolean valid;
+        public ArrayList<String> ugcZone = new ArrayList<String>();
+
+        public WatchWork(WeatherAdvisoryWatch waw) {
+            this.waw = waw;
+        }
+    }
+
+    /**
+     * Create the list of objects representing active watches that will be
+     * passed to the template context.
+     * 
+     * @param activeTable
+     *            List of entries for active watches
+     * @param warngenLayer
+     * @return
+     */
+    private static WatchUtil processATEntries(
+            List<ActiveTableRecord> activeTable, WarngenLayer warngenLayer) {
+        WatchUtil rval = new WatchUtil();
+        TreeMap<WeatherAdvisoryWatch, WatchWork> map = new TreeMap<WeatherAdvisoryWatch, TemplateRunner.WatchWork>();
+
+        AreaSourceConfiguration asc = null;
+        for (AreaSourceConfiguration a : warngenLayer.getConfiguration()
+                .getAreaSources()) {
+            if (a.getType() == AreaType.HATCHING) {
+                asc = a;
+                break;
+            }
+        }
+        if (asc == null) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Cannot process watches: missing HATCHING area source configuration");
+            return rval;
+        }
+        GeospatialData[] geoData = warngenLayer.getGeodataFeatures(asc
+                .getAreaSource() + "." + warngenLayer.getLocalizedSite());
+        if (geoData == null || geoData.length == 0) {
+            statusHandler.handle(Priority.ERROR,
+                    "Cannot process watches: cannot get geospatial data");
+            return rval;
+        }
+
+        // For each watch event, get the end time and list of active zones
+        for (ActiveTableRecord ar : activeTable) {
+            /*
+             * Currently reports all zones in the watch even if a given zone is
+             * not in the warning polygon. If the logic is changed to only show
+             * the portions of the watch near our warning polygon, perform the
+             * isEmpty check here.
+             */
+            WeatherAdvisoryWatch waw = new WeatherAdvisoryWatch();
+            waw.setPhensig(ar.getPhensig());
+            try {
+                waw.setEventId(Integer.parseInt(ar.getEtn()));
+            } catch (RuntimeException e) {
+                statusHandler.handle(Priority.ERROR, String.format(
+                        "Watch %s has null end time; not included.",
+                        ar.getVtecstr()));
+                continue;
+            }
+
+            WatchWork work = map.get(waw);
+            if (work == null) {
+                waw.setEndTime(ar.getEndTime().getTime());
+                work = new WatchWork(waw);
+                map.put(waw, work);
+            }
+            // TODO: Building geometry just to perform this test is probably
+            // inefficient with the post-DR-15430 logic...
+            if (!ar.getGeometry().isEmpty())
+                work.valid = true;
+
+            work.ugcZone.add(ar.getUgcZone()); 
+        }
+
+        for (WatchWork work : map.values()) {
+            /*
+             * If none of the areas in the watch were neer our warning polygon,
+             * do not included it.
+             */
+            if (!work.valid)
+                continue;
+            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw));
+                rval.addWaw(work.waw);
+        }
+
+        return rval;
+    }
+
+    /**
+     * Given the list of counties in a watch, fill out the "portions" part of
+     * the given WeatherAdvisoryWatch
+     * 
+     * @param ugcs
+     * @param asc
+     * @param geoData
+     * @param waw
+     */
+    private static boolean determineAffectedPortions(List<String> ugcs,
+            AreaSourceConfiguration asc, GeospatialData[] geoData,
+            WeatherAdvisoryWatch waw) {
+
+        // Maps state abbreviation to unique fe_area values 
+        HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
+
+        for (String ugc : ugcs) {
+            for (Entry<String, String[]> e : FipsUtil.parseCountyHeader(ugc).entrySet()) {
+                String stateAbbrev = e.getKey();
+                if (e.getValue().length != 1) // either zero or more than one
+                                              // would be wrong
+                    statusHandler.handle(Priority.ERROR,
+                            "Invalid ugczone in active table entry");
+                Set<String> feAreas = map.get(stateAbbrev);
+                if (feAreas == null) {
+                    feAreas = new HashSet<String>();
+                    map.put(stateAbbrev, feAreas);
+                }
+                try {
+                    feAreas.add(getFeArea(stateAbbrev, e.getValue()[0], asc,
+                            geoData));
+                } catch (RuntimeException exc) {
+                    statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                    return false;
+                }
+            }
+        }
+
+        ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
+        for (Entry<String, Set<String>> e : map.entrySet()) {
+            Portion portion = new Portion();
+            try {
+                portion.parentRegion = getStateName(e.getKey(), asc, geoData)
+                        .toUpperCase();
+            } catch (RuntimeException exc) {
+                statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                return false;
+            }
+            portion.partOfParentRegion = Area
+                    .converFeAreaToPartList(mungeFeAreas(e.getValue()));
+            System.out.format("Munged %s to %s (%s)\n", e.getValue(),
+                    mungeFeAreas(e.getValue()), portion.partOfParentRegion);
+            portions.add(portion);
+        }
+        waw.setPortions(portions);
+        // Set legacy values
+        if (portions.size() > 0) {
+            waw.setParentRegion(portions.get(0).parentRegion);
+            waw.setPartOfParentRegion(portions.get(0).partOfParentRegion);
+        }
+        
+        return true;
+    }
+
+    // Based on AWIPS 1 SELSparagraphs.C SELSparagraphs::processWOU().
+    private static String mungeFeAreas(Set<String> feAreas) {
+        String abrev = "";
+        // If eight or more portions, don't qualify area of state
+        int m = feAreas.size();
+        if (m < 8) {
+            String partAbrev = "";
+            /*
+             * TODO: Unused variables should be removed if we are not going to
+             * improve this in A2.
+             */
+            @SuppressWarnings("unused")
+            int nw, nc, ne, wc, cc, ec, sw, sc, se, pa;
+            int eee, www, nnn, sss, ee, ww, nn, ss;
+
+            // Identify individual sub areas of this state affected
+            nw = nc = ne = wc = cc = ec = sw = sc = se = pa = 0;
+            eee = www = nnn = sss = ee = ww = nn = ss = 0;
+            for (String part : feAreas) {
+                if ("pa".equals(part)) {
+                    pa = 1;
+                    continue;
+                } else if ("nn".equals(part))
+                    nnn = nn = 1;
+                else if ("ss".equals(part))
+                    sss = ss = 1;
+                else if ("ee".equals(part))
+                    eee = ee = 1;
+                else if ("ww".equals(part))
+                    www = ww = 1;
+                else if ("nw".equals(part))
+                    nnn = www = nw = 1;
+                else if ("nc".equals(part))
+                    nnn = nc = 1;
+                else if ("ne".equals(part))
+                    nnn = eee = ne = 1;
+                else if ("wc".equals(part))
+                    www = wc = 1;
+                else if ("cc".equals(part)) {
+                    cc = 1;
+                    continue;
+                } else if ("ec".equals(part))
+                    eee = ec = 1;
+                else if ("sw".equals(part))
+                    sss = www = sw = 1;
+                else if ("sc".equals(part))
+                    sss = sc = 1;
+                else if ("se".equals(part))
+                    sss = eee = se = 1;
+                partAbrev = part;
+            }
+            // decide how to describe these subareas.
+            if (ne > 0 && nw > 0)
+                nn = 1;
+            if (se > 0 && sw > 0)
+                ss = 1;
+            if (se > 0 && ne > 0)
+                ee = 1;
+            if (sw > 0 && nw > 0)
+                ww = 1;
+            if (nnn > 0 && sss > 0 && eee > 0 && www > 0)
+                return abrev;
+            if (nn > 0 && ss > 0 || ee > 0 && ww > 0)
+                return abrev;
+            if (nnn + sss + eee + www == 3) {
+                if (www == 0) {
+                    abrev = "e";
+                } else if (eee == 0) {
+                    abrev = "w";
+                } else if (nnn == 0) {
+                    abrev = "s";
+                } else if (sss == 0) {
+                    abrev = "n";
+                }
+                return abrev;
+            }
+            if (nnn == sss && eee == www || cc == m) {
+                abrev = "c";
+                return abrev;
+            }
+            if (pa != 0 && cc == 0) {
+                abrev = "pa";
+                if (--m <= 0) {
+                    return abrev;
+                }
+            }
+            if (m == 1 + cc) {
+                abrev += partAbrev + " ";
+                return abrev;
+            }
+            if (nnn != sss) {
+                abrev += nnn != 0 ? "n" : "s";
+            }
+            if (eee != www) {
+                abrev += eee != 0 ? "e" : "w";
+            }
+        }
+        return abrev;
+    }
+
+    private static String getStateName(String key, AreaSourceConfiguration asc,
+            GeospatialData[] geoData) {
+        for (GeospatialData g : geoData) {
+            if (key.equals((String) g.attributes.get("STATE")))
+                return (String) g.parent.attributes.get("NAME");
+        }
+        return null;
+    }
+
+    private static String getFeArea(String stateAbbrev, String ugc,
+            AreaSourceConfiguration asc, GeospatialData[] geoData) {
+        for (GeospatialData g : geoData) {
+            if (stateAbbrev.equals((String) g.attributes.get("STATE"))
+                    && ((String) g.attributes.get(asc.getFipsField()))
+                            .endsWith(ugc))
+                return (String) g.attributes.get(asc.getFeAreaField());
+        }
+
+        return null;
+    }
+
 }
