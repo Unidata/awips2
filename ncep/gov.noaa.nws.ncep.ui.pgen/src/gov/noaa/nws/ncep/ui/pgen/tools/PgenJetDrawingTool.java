@@ -167,6 +167,7 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 		 */
 		@Override	
 		public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
 			//  Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -248,6 +249,8 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 		 */
 		@Override
 		public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
+
 			//  Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(x, y);
 			if ( loc == null ) return false;
@@ -276,7 +279,7 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 		}
 		@Override
 		public boolean handleMouseDownMove(int aX, int aY, int button) {
-			if ( shiftDown ) return false;
+			if ( !isResourceEditable() || shiftDown ) return false;
 			else return true;
 		}
 	}

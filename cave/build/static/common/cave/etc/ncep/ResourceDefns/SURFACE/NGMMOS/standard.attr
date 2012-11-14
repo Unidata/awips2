@@ -1,5 +1,0 @@
-! Attributes for the NGMMOS resource with "standard" plot model
-!
-plotModel=@PlotModels/bufrmosNGM/standard.xml
-plotDensity=10
-conditionalFilter=

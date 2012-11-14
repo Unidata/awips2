@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Shell;
  * ------------ ---------- ----------- --------------------------
  * 08/09  		#151		J. Wu		Initial creation. 
  * 02/12  		#656		J. Wu		Retain the last location of the dialog. 
+ * 07/12  		#822		J. Wu		Add createShell() so it can be overrided 
+ *                                      to create shell with different styles. 
  * 
  * </pre>
  * 
@@ -95,7 +97,7 @@ public class ProductDialog extends Dialog {
         
         // Create the main shell; 
     	Shell parent = this.getParent();
-        shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MODELESS );
+        shell = createShell( parent );
 
         // Set the title of the dialog.
         setTitle();
@@ -128,6 +130,16 @@ public class ProductDialog extends Dialog {
         }
 
         return returnValue;
+    }
+        
+    /**
+     * Create a new modeless hell by default.
+     * 
+     * @return Return shell.
+     */
+    protected Shell createShell( Shell parent ) {
+        Shell newShell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MODELESS );
+    	return newShell;
     }
         
     /**

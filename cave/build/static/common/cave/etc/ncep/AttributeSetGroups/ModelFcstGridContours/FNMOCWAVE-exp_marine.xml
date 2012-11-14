@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>FNMOCWAVE</resource>
+    <attrSetGroupName>exp_marine</attrSetGroupName>
+    <attrSetNames>sig_wave_gridded_feet,sig_wave_gridded_feet_only,sig_wave_gridded_feet_dir,sig_wave_gridded_metersn,sig_wave_gridded_meters_only,sig_wave_gridded_meters_dir</attrSetNames>
+</AttributeSetGroup>

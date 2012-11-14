@@ -8,6 +8,7 @@
 package gov.noaa.nws.ncep.ui.pgen.display;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 
 /**
  * Interface used for all graphic objects in PGEN.  
@@ -19,10 +20,11 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 public interface IDisplayable {
 
 	/**
-	 * Draws graphic objects to the specified graphics target.
+	 * Draws graphic objects to the specified graphics target with given paint properties.
 	 * @param target
+	 * @param paintProps
 	 */
-	public void draw(IGraphicsTarget target);
+	public void draw(IGraphicsTarget target, PaintProperties paintProps);
 	
 	/**
 	 * Disposes of any resources held by the graphic objects

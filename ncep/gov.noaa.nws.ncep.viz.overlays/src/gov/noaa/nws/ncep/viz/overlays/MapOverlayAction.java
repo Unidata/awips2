@@ -55,7 +55,7 @@ import com.raytheon.viz.ui.UiPlugin;
  * 02/18/10     #226       Greg Hull   new RscBndleTemplate constructor       
  * 08/11/10     #273       Greg Hull   bundleName->overlayName and use ResourceFactory to create 
  *                                     the overlay resource.
- * 
+ * 09/12/12     #869       Greg Hull   call instantiateResources instead of construct().
  * </pre>
  * 
  * @author bhebbard
@@ -103,7 +103,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 	ResourceSelection rbt = ResourceFactory.createResource( fullRscName ); 
                 	ResourcePair rscPair = rbt.getResourcePair();
             		ResourceProperties props = rscPair.getProperties();
-            		AbstractVizResource ovrlyRsc = rscPair.getResource(); 
+            		AbstractResourceData ovrlyRscData = rscPair.getResourceData(); 
             		
                     IDisplayPane[] seldPanes = ((NCMapEditor)editor).getSelectedPanes();
                     
@@ -115,16 +115,11 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     for (IDisplayPane pane : seldPanes ) {
                     	existingMD = pane.getRenderableDisplay().getDescriptor();
 
-                    	if(ovrlyRsc == null) {
-                    		AbstractResourceData resourceData = rscPair.getResourceData(); 
-                    		if(resourceData != null)
-                    			ovrlyRsc = resourceData.construct(
-                    					rscPair.getLoadProperties(), existingMD); 
-                    	}
                     	ResourceList resourceList = existingMD.getResourceList(); 
-                    	resourceList.add(ovrlyRsc, props); 
-                    	ovrlyRsc.setDescriptor(existingMD);
-                    	ovrlyRsc.init( pane.getTarget() );
+                    	ResourcePair rp = new ResourcePair();
+                    	rp.setResourceData( ovrlyRscData );
+                    	resourceList.add( rp ); 
+                    	resourceList.instantiateResources( existingMD, true );
                     }
 
                     editor.refresh();

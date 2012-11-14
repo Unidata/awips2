@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.hideLoop;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import org.eclipse.core.commands.ExecutionEvent;
@@ -30,7 +32,9 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/10		#314		Q. Zhou   	Initial Creation.
- * 
+ * 09-Aug-2012  #839        Archana     Updated to toggle the
+ *                                      colorbar when its corresponding resource
+ *                                      is toggled on/off.  
  * </pre>
  * 
  * @author	Q. Zhou
@@ -65,24 +69,61 @@ public class HideLoopAction extends AbstractHandler implements IElementUpdater  
 			
 			NCMapDescriptor idtor = (NCMapDescriptor)editor.getDescriptor();
 				
-			if( idtor != null) {	
-				ResourceList rscList = idtor.getResourceList();
+//			if( idtor != null) {	
+//				ResourceList rscList = idtor.getResourceList();
+//				
+//				for( ResourcePair rp : rscList ) {
+//					
+//					if( rp != null && isRemovable( rp.getResource() ) ){
+//						if (editor.getHideShow() == true) {
+//							
+//							rp.getProperties().setVisible(false); 							
+//						}
+//					    else {
+//					
+//							rp.getProperties().setVisible(true);							
+//						}
+//					}
+//				}						
+//			}
 				
-				for( ResourcePair rp : rscList ) {
+	        ResourceList theMainList = editor.getActiveDisplayPane().getDescriptor().getResourceList();
 					
-					if( rp != null && isRemovable( rp.getResource() ) ){
-						if (editor.getHideShow() == true) {
+	        List<ResourcePair> subListOfResourcesToToggle = new ArrayList<ResourcePair>(0);
+	        List<ResourcePair> listOfCorrespondingColorBarResources = new ArrayList<ResourcePair>(0); 
 							
-							rp.getProperties().setVisible(false); 							
-						}
-					    else {
 					
-							rp.getProperties().setVisible(true);							
+            /*
+             * Create 2 sublists.One for the colorbar resources and one for the 
+             * requestable resources (non-system and non-map layer resources)  	
+             * Set the visibility for all the resources in both lists to false.
+             */
+            
+            for ( ResourcePair resPair : theMainList){
+            	
+            	if ( resPair != null && ( ! resPair.getProperties().isSystemResource()) 
+            			&& !resPair.getProperties().isMapLayer()){
+            		if(editor.getHideShow()){
+            		    subListOfResourcesToToggle.add(resPair);
+            		    resPair.getProperties().setVisible(false);
+            		}else{
+            			resPair.getProperties().setVisible(true);
+            		}
 						}
+            	else if(resPair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0){
+            		if(editor.getHideShow()){
+            		     //listOfCorrespondingColorBarResources.add(resPair);
+            		     resPair.getProperties().setVisible(false);
+            		}else{
+            			 resPair.getProperties().setVisible(true);
 					}
 				}						
 			}
 		
+            if(subListOfResourcesToToggle.isEmpty())
+            	return null;
+            
+            
 			editor.refresh();	
 					
 		

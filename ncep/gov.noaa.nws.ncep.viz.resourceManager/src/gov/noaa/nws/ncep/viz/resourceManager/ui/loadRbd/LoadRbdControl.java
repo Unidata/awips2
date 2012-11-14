@@ -105,6 +105,12 @@ import com.raytheon.viz.ui.UiPlugin;
  * 04/27/12       #585      S. Gurung       Added code to reorder RBDs using right-click and save the order
  * 											so that RBDs are displayed in the sequence specified   
  * 05/17/2012     #791       Quan Zhou      Modified LoadRBD to check if default editor is empty, then replace it.
+ * 06/18/2012     #713      G. Hull         replace code with new clone() for the RbdBndl
+ * 06/26/2012     #568      G. Hull         Move "Save Order" functionality to Manage Rbds tab
+ * 07/19/2012     #568      G. Hull         Use new RbdViewComposite
+ * 07/31/2012     #528      G. Hull         back to selecting all when an spf is selected
+ * 08/01/2012     #836      G. Hull         check for paneLayout when using empty editor
+ * 
  * </pre>
  * 
  * @author ghull
@@ -122,11 +128,11 @@ public class LoadRbdControl extends Composite {
     private Combo spf_group_combo = null;
     private ListViewer spf_name_lviewer = null;
     private ListViewer rbd_lviewer = null;
-    private ListViewer rsc_lviewer = null;
+    private RbdViewComposite rscViewer = null;
 
     private Button edit_rbd_btn = null;
     private Button sel_all_rbd_btn = null;
-    private Button save_spf_rbdseq_btn = null;
+//    private Button save_spf_rbdseq_btn = null;
     private TimelineControl timelineControl = null;
     
     private Button load_btn = null;
@@ -139,7 +145,7 @@ public class LoadRbdControl extends Composite {
     // this is the input for the rbd_lviewr content provider. It is 
     // initially set with the rbds in an spf and is updated with edited rbds.
     //
-    private ArrayList<RbdBundle> availRbdsList = null;
+    private List<RbdBundle> availRbdsList = null;
     private ArrayList<RbdBundle> seldRbdsList = null;
     
     // This is set each time an RBD is edited and cleared when a new SPF is selected.
@@ -166,11 +172,6 @@ public class LoadRbdControl extends Composite {
         Composite top_form = this;        
         top_form.setLayout( new GridLayout(1,true) );
         
-        
-        top_form.setSize( 750, 400 );
-        
-        //top_form.setLayout( new FormLayout() );
-
         sash_form = new SashForm( top_form, SWT.VERTICAL );
         GridData gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
@@ -258,54 +259,37 @@ public class LoadRbdControl extends Composite {
         rbd_lbl.setLayoutData( fd );
 
         edit_rbd_btn = new Button( sel_rbds_grp, SWT.PUSH );
-        fd = new FormData();// 80,25 );
+        fd = new FormData( 85,27 );
         edit_rbd_btn.setText("Edit RBD");
         fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
-        fd.left  = new FormAttachment( rbd_lviewer.getList(), 5, SWT.LEFT );
+        fd.left  = new FormAttachment( rbd_lviewer.getList(), 20, SWT.LEFT );
         edit_rbd_btn.setLayoutData( fd );
         edit_rbd_btn.setEnabled(false); // Not Implemented
 
         sel_all_rbd_btn = new Button( sel_rbds_grp, SWT.PUSH );
-        fd = new FormData();// 80,25 );
+        fd = new FormData( 85,27 );
         sel_all_rbd_btn.setText("Select All");
         fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
-        fd.right  = new FormAttachment( rbd_lviewer.getList(), -95, SWT.RIGHT );
+        fd.right  = new FormAttachment( rbd_lviewer.getList(), -20, SWT.RIGHT );
         sel_all_rbd_btn.setLayoutData( fd );
 
-        save_spf_rbdseq_btn = new Button( sel_rbds_grp, SWT.PUSH );
-        fd = new FormData();// 80,25 );
-        save_spf_rbdseq_btn.setText("Save Order");
-        fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
-        fd.right  = new FormAttachment( rbd_lviewer.getList(), -5, SWT.RIGHT );
-        save_spf_rbdseq_btn.setLayoutData( fd );
-        
-        rsc_lviewer = new ListViewer( sel_rbds_grp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
+        rscViewer = new RbdViewComposite( sel_rbds_grp );
       	
         fd = new FormData();
-        fd.top = new FormAttachment( rbd_lviewer.getList(), 0, SWT.TOP );
+        fd.top = new FormAttachment( rbd_lviewer.getList(), -20, SWT.TOP );
         fd.left  = new FormAttachment( 66, 7 );
         fd.right = new FormAttachment( 100, -5 );
         fd.bottom = new FormAttachment( 100, -120 );
-        rsc_lviewer.getList().setLayoutData( fd );
-        
-        // do this as an indication that the list is view-only
-        rsc_lviewer.getList().setBackground( sel_rbds_grp.getBackground() );
-
-        Label rsc_lbl = new Label( sel_rbds_grp, SWT.NONE);
-        rsc_lbl.setText("Resources && Overlays");
-       	fd = new FormData();
-        fd.bottom  = new FormAttachment( rsc_lviewer.getList(), -3, SWT.TOP );
-        fd.left  = new FormAttachment( rsc_lviewer.getList(), 0, SWT.LEFT );
-        rsc_lbl.setLayoutData( fd );
+        rscViewer.setLayoutData( fd );
    
         load_opts_grp = new Group( sel_rbds_grp, SWT.SHADOW_NONE );
         load_opts_grp.setText("Display Options");
         load_opts_grp.setLayout( new FormLayout() );
 
         fd = new FormData();
-        fd.top = new FormAttachment( rsc_lviewer.getList(), 20, SWT.BOTTOM );
-        fd.left  = new FormAttachment( rsc_lviewer.getList(), 0, SWT.LEFT );
-        fd.right  = new FormAttachment( rsc_lviewer.getList(), 0, SWT.RIGHT );
+        fd.top = new FormAttachment( rscViewer, 20, SWT.BOTTOM );
+        fd.left  = new FormAttachment( rscViewer, 0, SWT.LEFT );
+        fd.right  = new FormAttachment( rscViewer, 0, SWT.RIGHT );
         fd.bottom  = new FormAttachment( 100, -5 );
         load_opts_grp.setLayoutData( fd );
 
@@ -380,7 +364,7 @@ public class LoadRbdControl extends Composite {
    			public void widgetSelected(SelectionEvent e) {
    				String spfGroupName = spf_group_combo.getText();	
    				spf_name_lviewer.setInput( spfGroupName );
-
+   				//spf_name_lviewer.getList().select(0);
    				setSeldSpfName();
    			} 
    		});
@@ -406,15 +390,6 @@ public class LoadRbdControl extends Composite {
             }
         });
         
-//      spf_name_lviewer.getList().addListener( SWT.MouseDoubleClick, new Listener() {
-//   			public void handleEvent(Event event) {
-//            	setSeldSpfName();
-//   				loadRBD();
-//// double click will leave the dialog up while "Load" will dispose it
-////   				shell.dispose();
-//   			}
-//   		});
-
         // the input is the  availRbdsList
         rbd_lviewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
@@ -451,70 +426,6 @@ public class LoadRbdControl extends Composite {
             } 
        	});     
        	
-       	// Input is an RbdBundle and return is a list of the resource names. For 
-       	// multi-pane RBDs the paneLayout is given and each pane is labeled
-       	//
-        rsc_lviewer.setContentProvider( new IStructuredContentProvider() {
-			@Override
-			public Object[] getElements(Object inputElement) {
-				RbdBundle selRbd = (RbdBundle)inputElement;
-				if( selRbd == null ) {
-					return new String[0];
-				}
-				
-				ArrayList<String> rscNames = new ArrayList<String>();
-				boolean isMultiPane = (selRbd.getPaneLayout().getNumberOfPanes() > 1 );
-
-				// loop thru all of the resources in all of the panes and create the
-				// list of items for the viewer. These will depend on whether we are
-				// importing a single pane (in which case only the selected pane's 
-				// resources are displayed) and whole RBDs (in which case all pane's
-				// resources are displayed) For multi-pane RBDs the format will include
-				// the name of the pane.
-				for( int r=0 ; r<selRbd.getPaneLayout().getRows() ; r++ ) {
-					for( int c=0 ; c<selRbd.getPaneLayout().getColumns() ; c++ ) {
-						PaneID paneId = new PaneID(r,c)	;
-						
-						NCMapRenderableDisplay disp = selRbd.getDisplayPane(paneId);
-						AbstractDescriptor mapDescr = (AbstractDescriptor)disp.getDescriptor();
-
-						if( isMultiPane ) {
-							rscNames.add( "Pane ("+ paneId.toString() +") : " + disp.getPredefinedAreaName() );
-						}
-						else { 
-							rscNames.add( "Single Pane : "+disp.getPredefinedAreaName() );
-						}
-
-						for( ResourcePair rp : mapDescr.getResourceList() ) {
-							if( rp.getResourceData() instanceof INatlCntrsResourceData ) {
-								INatlCntrsResourceData ncRsc = 
-									(INatlCntrsResourceData)rp.getResourceData();
-								String rscName = ncRsc.getResourceName().toString();
-
-								if( ncRsc.getIsEdited() ) {
-									rscName = rscName + "(E)";
-								}
-
-								if( isMultiPane ) {
-									rscName = "   " + rscName;
-								}
-
-								rscNames.add( rscName );
-							}
-						}
-
-					}
-				}
-		    	return rscNames.toArray();
-			}
-			@Override
-			public void dispose() { }
-
-			@Override
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-        });    
-
        	// double click is same as OK (except of course is can't work for multiple selections)
        	rbd_lviewer.getList().addListener( SWT.MouseDoubleClick, new Listener() {
    			public void handleEvent(Event event) {
@@ -619,12 +530,6 @@ public class LoadRbdControl extends Composite {
        		}
         });
        	
-       	save_spf_rbdseq_btn.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-       			saveSpfRbdsSequence();
-       		}
-       	});
-       	
    		// if this button is enabled then only one rbd can be selected.
    		// get the selected rbd and set the auto update flag
    		auto_update_btn.addSelectionListener(new SelectionAdapter() {
@@ -662,7 +567,7 @@ public class LoadRbdControl extends Composite {
 			    				geoSyncArea = area;
 			    			}
 			    			if( !geoSyncArea.equals( area ) ) {
-			    	        	MessageBox mb = new MessageBox( NmapUiUtils.getCaveShell(), SWT.OK);
+			    	        	MessageBox mb = new MessageBox( shell, SWT.OK);
 			    	        	mb.setText("Info");
 			    	        	mb.setMessage("The panes in the RBD have different Predefined Areas,\n"+
 			    	        	  			  "but you may change the area after loading.");
@@ -720,13 +625,17 @@ public class LoadRbdControl extends Composite {
 		} catch (VizException e) {
 		}
 
-		orderSpfRbdsBySequence();
-		
     	rbd_lviewer.setInput( availRbdsList );
     	rbd_lviewer.refresh();
-    	//06/02/11, xguo. refresh Resource & Overlays window.
-    	rsc_lviewer.setInput( null );
-    	timelineControl.clearTimeline( );
+
+    	//  pre-select all the resource bundles 
+    	// 
+    	rbd_lviewer.getList().selectAll();
+    	
+    	setSelectedRBDs();
+//
+//    	rscViewer.viewRbd( null );
+//    	timelineControl.clearTimeline( );
     }
     
     // called from the groups and rbd viewers after 
@@ -802,7 +711,7 @@ public class LoadRbdControl extends Composite {
         		auto_update_btn.setSelection( false );        		
     		}
     		
-    		rsc_lviewer.setInput( rbdSel );
+    		rscViewer.viewRbd( rbdSel );
     		
     		widgetsVisible = (rbdSel.getPaneLayout().getNumberOfPanes() > 1);
     		
@@ -811,7 +720,7 @@ public class LoadRbdControl extends Composite {
     		auto_update_btn.setEnabled( false );
     		auto_update_btn.setSelection( false );
 
-    		rsc_lviewer.setInput( null );
+    		rscViewer.viewRbd( null );
 
     		timelineControl.clearTimeline();
 		}
@@ -831,18 +740,15 @@ public class LoadRbdControl extends Composite {
     	for( int i=0 ; i<spf_group_combo.getItemCount() ; i++ ) {
     		if( saveSeldGroup.equals( spf_group_combo.getItem(i) ) ) {
     			spf_group_combo.select(i);
-//				setSeldSpfName();
 				return;
     		}
     	}
-    	//06/02/11. No pre-select
-        //spf_group_combo.select(0);
     }
     
     private boolean loadRBD( boolean close ) {
     	// sanity check. this shouldn't happen.
         if( seldRbdsList.size() == 0 ) {
-        	MessageBox mb = new MessageBox( NmapUiUtils.getCaveShell(), SWT.OK);
+        	MessageBox mb = new MessageBox( shell, SWT.OK);
         	mb.setText("No SPFs are Selected.");
         	mb.setMessage("No SPFs are Selected.");
         	mb.open();
@@ -858,30 +764,15 @@ public class LoadRbdControl extends Composite {
         		
 		for( RbdBundle rbdBndl : seldRbdsList ) {
 			String rbdName = rbdBndl.getRbdName();
-			NCTimeMatcher timeMatcher = rbdBndl.getTimeMatcher();
+//			NCTimeMatcher timeMatcher = rbdBndl.getTimeMatcher();
 			
 			// Since rbdLoader uses the same resources in the rbdBundle to load in the editor,
 			// we will need to make a copy here so that future edits are not immediately reflected in
 			// the loaded display. The easiest way to do this is to marshal and then unmarshal the rbd.
 			try {
-    			File tempRbdFile;
-
-				try {
-					tempRbdFile = File.createTempFile("tempRBD-", ".xml");
-					 
-	    			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, 
-							tempRbdFile.getAbsolutePath() );
-				} catch (SerializationException e) {
-					throw new VizException(e);
-	    		} catch (IOException e) {
-					throw new VizException(e);
-				}
-
-				rbdBndl = RbdBundle.unmarshalRBD( tempRbdFile, null );
-    			tempRbdFile.delete();
-
-				// timeMatcher currently isn't marshalling completely.
-				rbdBndl.setTimeMatcher(	new NCTimeMatcher( timeMatcher ) );
+				rbdBndl = RbdBundle.clone( rbdBndl );
+//				// timeMatcher currently isn't marshalling completely.
+//				rbdBndl.setTimeMatcher(	new NCTimeMatcher( timeMatcher ) );
 
 				AbstractRenderableDisplay panes[] = rbdBndl.getDisplays();
 
@@ -942,7 +833,10 @@ public class LoadRbdControl extends Composite {
 				if( newEditor == null ) {
 					// if there is a default display, replace it.
 					String defaultName = defaultRscList.get(0);
-					if( !defaultName.equals( rbdName ) && !emptyEditorRemoved && NmapUiUtils.findEmptyEditor(defaultRscList)) {
+					if( !defaultName.equals( rbdName ) && 
+						!emptyEditorRemoved &&
+						rbdBndl.getPaneLayout().getNumberOfPanes() == 1 &&
+						NmapUiUtils.findEmptyEditor(defaultRscList)) {
 						emptyEditorRemoved = true;
 						newEditor = (NCMapEditor)NmapUiUtils.findDisplayByName(defaultName);String name = newEditor.getDisplayName();
 						newEditor.setDisplayName(name.substring(0, name.indexOf("-")+1) + rbdName);
@@ -972,7 +866,7 @@ public class LoadRbdControl extends Composite {
 				rbdLoader.addRBD( rbdBndl, newEditor );
 				
     		} catch (VizException e) {
-            	MessageBox mb = new MessageBox( NmapUiUtils.getCaveShell(), SWT.OK);
+            	MessageBox mb = new MessageBox( shell, SWT.OK);
             	mb.setText("Error Loading RBD "+ rbdName );
             	mb.setMessage("Error Loading RBD "+ rbdName+ ".\n\n"+e.getMessage() );
             	mb.open();
@@ -1023,21 +917,7 @@ public class LoadRbdControl extends Composite {
 		// make a copy of this RBD so that edits made and then canceled are not saved to this object
     	// 
     	try {
-    		try {
-    			NCTimeMatcher saveTimeMatcher = rbdSel.getTimeMatcher();
-    			File tempRbdFile = File.createTempFile("tempRBD-", ".xml");
-
-    			SerializationUtil.jaxbMarshalToXmlFile( rbdSel, tempRbdFile.getAbsolutePath() );
-    			rbdSel = RbdBundle.unmarshalRBD( tempRbdFile, null );
-
-    			rbdSel.setTimeMatcher( saveTimeMatcher );
-    			tempRbdFile.delete();
-
-    		} catch (SerializationException e) {
-    			throw new VizException( e );    			
-    		} catch (IOException e) {
-    			throw new VizException( e );			
-    		} 
+    		rbdSel = RbdBundle.clone( rbdSel );
     	
     		if( editRbdDlg == null ) {
     			editRbdDlg = new EditRbdDialog( shell, rbdSel );   						
@@ -1055,66 +935,18 @@ public class LoadRbdControl extends Composite {
     				
     				setSelectedRBDs();
     				
-    				rsc_lviewer.refresh( true );    				
+    				rscViewer.refresh();    				
     			}
     		}
     		
     	} catch (VizException e1) {
     		MessageDialog errDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), "Error", null, 
+    				shell, "Error", null, 
     				"Error Editing RBD",
     				MessageDialog.ERROR, new String[]{"Ok"}, 0);
     		errDlg.open();
     	}
 
     	editRbdDlg = null;   				
-    }
-    
-    private void orderSpfRbdsBySequence() {
-    	
-    	HashMap<Integer, RbdBundle> map = new HashMap<Integer, RbdBundle>();
-    	
-    	for (int i=0; i<availRbdsList.size(); i++) {
-    		RbdBundle rbdBundle =  availRbdsList.get(i);
-    		Integer seq = rbdBundle.getRbdSequence();
-    		if (seq == 0 || seq == null)
-    			map.put(i+1, rbdBundle);
-    		else
-    			map.put(seq, rbdBundle);
-    	}
-    	
-    	ArrayList<RbdBundle> orderedRbdList = new ArrayList<RbdBundle>();    	
-    	TreeSet<Integer> keys = new TreeSet<Integer>(map.keySet());
-    	
-    	for (Integer key : keys) { 
-    		orderedRbdList.add(map.get(key));
-    	}
-
-    	if (orderedRbdList.size() > 0)	
-    		availRbdsList = orderedRbdList;
-    }
-    
-    private void saveSpfRbdsSequence() {
-    	
-    	try{
-	    	int seq = 1;
-	    	for (RbdBundle rbdBundle: availRbdsList) {
-	    		rbdBundle.setRbdSequence(seq++);
-	    		StructuredSelection seldSpfs = (StructuredSelection)spf_name_lviewer.getSelection();  
-	    		String seldSpfName = (String)seldSpfs.getFirstElement();
-	    		SpfsManager.getInstance().saveRbdToSpf( spf_group_combo.getText(), seldSpfName, rbdBundle );
-	    	}
-    	}
-    	catch( VizException e ) {
-    		final String msg = e.getMessage();
-    		VizApp.runSync(new Runnable() {
-    			public void run() {
-    				Status status = new Status(Status.ERROR, UiPlugin.PLUGIN_ID, 0, msg, null );
-    				ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-    						"ERROR", "Error.", status);
-    			}
-    		});
-    	}
-    	
     }
 }
