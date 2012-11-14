@@ -46,7 +46,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/10			?		B. Yin   	Initial Creation. 
- * 03/12		$703		B. Yin		Generate product text from style sheet
+ * 03/12		#703		B. Yin		Generate product text from style sheet
+ * 06/12		#786		B. Yin		Close all dialogs after text is saved.
  *
  * </pre>
  * 
@@ -186,6 +187,15 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 				}
 				
 				otlk.saveToFile( dirPath + getFileName(otlk)+".xml");
+				
+				//clean up
+				this.close();
+				ofd.close();
+				ofd.getOtlkDlg().drawingLayer.removeSelected();
+				ofd.getOtlkDlg().mapEditor.refresh();
+				ofd.getOtlkDlg().close();
+				PgenUtil.setSelectingMode();
+				
 			}
 		}
 		

@@ -1,0 +1,29 @@
+!
+! Restore File : precip_12hr_mm
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! J. Carr/HPC            2/99   Removed the contour from type and left just fill
+!                               Also changed the fint and time interval
+!
+GLEVEL =  0                                                                       
+GVCORD =  none                                                                    
+SKIP   =    0                                                                       
+SCALE  =   0                                                                       
+GDPFUN =  p12m
+TYPE   =    f
+CINT   =    
+LINE   =    
+FINT   =    2;4;7;13;19;26;32;39;45;52;58;65;72;78;84;91;98;104
+FLINE  =   0;21-30;14-20;5
+HILO   =    31;0/x#/3-200//100;0/y
+HLSYM  =   1.5
+!CLRBAR =  1                                                                       
+WIND   =                                                                            
+TITLE  =   5/-1/~ 12-HR TOTAL PRECIPITATION (MM)! 0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1
+GDATTIM=  f12-last-06

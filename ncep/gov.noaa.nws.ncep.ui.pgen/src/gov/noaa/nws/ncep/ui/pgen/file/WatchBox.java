@@ -189,7 +189,7 @@ public class WatchBox {
     @XmlAttribute
     protected Integer watchNumber;
     @XmlAttribute
-    protected Integer contWatch;
+    protected String contWatch;
     @XmlAttribute
     protected String forecaster;
     @XmlAttribute
@@ -997,7 +997,7 @@ public class WatchBox {
      *     {@link Integer }
      *     
      */
-    public Integer getContWatch() {
+    public String getContWatch() {
         return contWatch;
     }
 
@@ -1009,7 +1009,7 @@ public class WatchBox {
      *     {@link Integer }
      *     
      */
-    public void setContWatch(Integer value) {
+    public void setContWatch(String value) {
         this.contWatch = value;
     }
 

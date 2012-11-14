@@ -1,0 +1,25 @@
+!
+! Restore File : bl_winds_only
+!
+! Log:
+! J.L.Partain/MPC	 2/99	Initial creation
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  kntv(wnd)
+TYPE   =    b
+CINT   =    
+LINE   =    
+FINT   =    
+FLINE  =   
+HILO   =    
+HLSYM  =   
+!CLRBAR=  0
+WIND   =    9/0.7/1.5/112
+TITLE  =   1/-1/~ SFC WIND    (KTS)
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

@@ -112,7 +112,9 @@ import gov.noaa.nws.ncep.viz.common.SnapUtil;
  * 05/12		 TTR 310	B. Yin		added a method to change line type.
  * 05/12			#808	J. Wu		Update Gfa vor text
  * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
- * 
+ * 06/12         #777       Q. Zhou     Added isNewTrack flag on Track to get first time differently
+ * 07/12         #663       Q. Zhou     Modified handleMouseDown for preselected DE.  
+ * 08/12         #803       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseDownMove. 
  * </pre>
  * 
  * @author	B. Yin
@@ -169,6 +171,15 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	if ( de instanceof Contours ) {
     		selectInContours = true;
      		selectedContours = (Contours)de;
+     	}
+    	else if ( de instanceof Gfa ) { //Added for gfa move text.
+    		attrDlg = AttrDlgFactory.createAttrDlg( ((Gfa)de).getPgenCategory(), ((Gfa)de).getPgenType(),
+        			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell() );
+    		attrDlg.setBlockOnOpen(false);
+    		if (attrDlg.getShell() == null) attrDlg.open();
+    		((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
+    		drawingLayer.setSelected((Gfa)de);
+    		editor.refresh();
      	}
 	    else {
      		selectInContours = false;    		
@@ -392,6 +403,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	
+        	if ( !isResourceEditable() ) return false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown || simulate ) return false;
@@ -408,7 +420,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         			preempt = true;
 
         			if ( drawingLayer.getSelectedDE() instanceof SinglePointElement
-        					&& drawingLayer.getDistance(drawingLayer.getSelectedDE(), loc) > 30 ) {
+        					&& drawingLayer.getDistance(drawingLayer.getSelectedDE(), loc) > drawingLayer.getMaxDistToSelect() ) {
         				ptSelected = false;   //prevent SPE from moving when selecting it and then click far away and hold to  move.
         			}
         			
@@ -572,6 +584,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                		    }
                 	} else if(elSelected instanceof Track) {
                 		TrackAttrDlg trackAttrDlg = (TrackAttrDlg)attrDlg; 
+                		trackAttrDlg.isNewTrack = false;
                 		trackAttrDlg.initializeTrackAttrDlg((Track)elSelected); 
                 		displayTrackExtrapPointInfoDlg(trackAttrDlg, (Track)elSelected); 
                 	}
@@ -616,6 +629,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                 	} else if(attrDlg instanceof GfaAttrDlg){
                 		((GfaAttrDlg)attrDlg).redrawHazardSpecificPanel();
                 		attrDlg.setAttrForDlg( elSelected );
+                		((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
                 	}
                 }
                 
@@ -630,6 +644,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
             	// Close the attribute dialog and do the cleanup.
             	if ( attrDlg != null ) {
             		closeAttrDlg(attrDlg, pgenType); 
+            		if ( attrDlg instanceof GfaAttrDlg ){
+            			//re-set event trigger 
+            			PgenUtil.setSelectingMode();
+            		}
             	}
 
             	attrDlg = null;
@@ -668,6 +686,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) { 
+        	if ( !isResourceEditable() ) return false;
         	
         	if ( shiftDown ) return false;
         	if ( dontMove  && drawingLayer.getSelectedDE() != null) return true;
@@ -684,7 +703,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         	if (loc != null && inOut == 1) {
         		//make sure the click is close enough to the element
-        		if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) 
+        		if ( drawingLayer.getDistance(tmpEl, loc) > drawingLayer.getMaxDistToSelect() && !ptSelected ) 
         			return false;
         	}
         	else if (loc != null && inOut == 0) {       		
@@ -745,13 +764,18 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         					tmpEl.getParent() instanceof DECollection &&
         					tmpEl.getParent().getPgenCategory() != null &&
         					tmpEl.getParent().getPgenCategory().equalsIgnoreCase("Front")){
-        				if ( ((IText)attrDlg).getString().length > 0 ) {  
-        					//add "[" or "]" to front labels
-        					StringBuffer lbl = new StringBuffer(((IText)attrDlg).getString()[0]);
+        				
+        				String[] text = ((IText)attrDlg).getString();
+        				
+        				//add "[" or "]" to front labels. The rule: If the label is only number and in one line, will be surrounded by [,]. 					
+        				if ( text.length == 1 ) {         					
+        					StringBuffer lbl = new StringBuffer(((TextAttrDlg)attrDlg).getString()[0]);
+        							
         					if ( lbl.length() > 0 ){
         						if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
         						if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
-
+        						try {
+        							Integer.parseInt(lbl.toString());
         						//check if the text is right or left of the front
         						if ( PgenTextDrawingTool.rightOfLine(mapEditor, loc, (Line)tmpEl.getParent().getPrimaryDE()) >= 0 ){
         							((TextAttrDlg)attrDlg).setText(new String[]{lbl+"]"});
@@ -759,12 +783,15 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         						else {
         							((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
         						}
+        						} catch (NumberFormatException e) {
+        							/*do nothing*/}
         					}
+        					}
+        				
         					((Text)tmpEl).setText(((TextAttrDlg)attrDlg).getString());
         					((SinglePointElement)tmpEl).setLocationOnly(loc);
         				}
 
-        			}        			
         			else {
 	        			((SinglePointElement)tmpEl).setLocationOnly(loc);
         			}
@@ -820,7 +847,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         					Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
         					double dist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
         						dist = 0;
-        					if ( dist <= 30 ){ 
+        					if ( dist <= drawingLayer.getMaxDistToSelect() ){ 
         						ghostEl.setPoints( points );
 
         						setGhostLineColorForTrack(ghostEl, ptIndex); 
@@ -855,6 +882,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
+        	if ( !isResourceEditable() ) return false;
 
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){
@@ -1040,6 +1068,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         
         @Override
         public boolean handleKeyDown(int keyCode) {
+        	if ( !isResourceEditable() ) return false;
+
 	          if(keyCode == SWT.DEL){
 	        	  PgenResource pResource = PgenSession.getInstance().getPgenResource();
 	        	  pResource.deleteSelectedElements();

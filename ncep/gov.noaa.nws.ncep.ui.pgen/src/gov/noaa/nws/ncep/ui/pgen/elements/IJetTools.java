@@ -26,5 +26,7 @@ public interface IJetTools {
 	public Coordinate latLon2Relative( Coordinate loc, Vector barb);
 	public Coordinate relative2LatLon( Coordinate relative, Vector barb);
 	public java.util.Vector<Integer> checkHashOnJet(Jet aJet);
+	//For 'DelPart'
+	public void addBarbHashFromAnotherJet(Jet jet1, Jet jet2);
 
 }

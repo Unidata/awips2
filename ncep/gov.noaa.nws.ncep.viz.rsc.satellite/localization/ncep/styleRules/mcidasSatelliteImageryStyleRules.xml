@@ -1556,7 +1556,229 @@
 </styleRule>
 
 
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="30"   label="30" />
+     <entry pixelValue="21"  displayValue="42"   label="42" />
+     <entry pixelValue="42"  displayValue="54"   label="54" />
+     <entry pixelValue="63"  displayValue="66"   label="66" />
+     <entry pixelValue="84"  displayValue="78"   label="78" />
+     <entry pixelValue="105" displayValue="90"   label="90" />
+     
+     <entry pixelValue="126"   displayValue="102"   label="102" />
+     <entry pixelValue="147"  displayValue="113"   label="113" />
+     <entry pixelValue="168"  displayValue="125"   label="125" />
+     <entry pixelValue="190"  displayValue="137"   label="137" />
+     <entry pixelValue="212"  displayValue="149"   label="149" />
+     <entry pixelValue="233" displayValue="161"   label="161" />
+     <entry pixelValue="255" displayValue="172"   label="172" />     
+     </dataMapping>
+  </imageStyle>
+</styleRule>
 
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_CIRA</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_ELLROD</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_SPLIT</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>VAAC_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  <displayUnits label="BRIT">NcIRPixel</displayUnits>
+     <dataMapping>
+     <entry pixelValue="0"   displayValue="0"   label="0" />
+     <entry pixelValue="7"  displayValue="16"   label="16" />
+     <entry pixelValue="15"  displayValue="32"   label="32" />
+     <entry pixelValue="23"  displayValue="48"   label="48" />
+     <entry pixelValue="31"  displayValue="64"   label="64" />
+     <entry pixelValue="39"  displayValue="80"   label="80" />
+     <entry pixelValue="47"  displayValue="96"   label="96" />
+     <entry pixelValue="55"  displayValue="112"   label="112" />
+     <entry pixelValue="63"  displayValue="128"   label="128" />
+     <entry pixelValue="71"  displayValue="144"   label="144" />
+     <entry pixelValue="79"  displayValue="160"   label="160" />
+     <entry pixelValue="87"  displayValue="176"   label="176" />
+     <entry pixelValue="95"  displayValue="192"   label="192" />
+     <entry pixelValue="103"  displayValue="208"   label="208" />
+     <entry pixelValue="111"  displayValue="224"   label="224" />
+     <entry pixelValue="119"  displayValue="240"   label="240" />
+     <entry pixelValue="127"  displayValue="255"   label="255" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
 
 </styleRuleset>
 

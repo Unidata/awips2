@@ -18,14 +18,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPage;
 
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 public class PgenPaletteAction extends AbstractHandler {
 
+	@SuppressWarnings("restriction")
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException { 
 		
@@ -40,16 +43,26 @@ public class PgenPaletteAction extends AbstractHandler {
 
 			IViewPart vpart = wpage.findView( PgenUtil.VIEW_ID );
 
+
 			try {
 
 				if ( vpart == null ){
 
 					vpart = wpage.showView( PgenUtil.VIEW_ID );
-
+					IViewReference pgenViewRef =   wpage.findViewReference(PgenUtil.VIEW_ID);
+					if(pgenViewRef != null&& wpage instanceof WorkbenchPage ){
+						( (WorkbenchPage) wpage ).detachView(pgenViewRef);
+					}
 				}
 				else {
 
-					if ( ! wpage.isPartVisible(vpart) ) vpart = wpage.showView( PgenUtil.VIEW_ID );
+					if ( ! wpage.isPartVisible(vpart) ){ 
+						vpart = wpage.showView( PgenUtil.VIEW_ID );
+						IViewReference pgenViewRef =   wpage.findViewReference(PgenUtil.VIEW_ID);
+						if(pgenViewRef != null&& wpage instanceof WorkbenchPage ){
+							( (WorkbenchPage) wpage ).detachView(pgenViewRef);
+						}
+					}
 
 				}
 			}

@@ -38,7 +38,7 @@ import com.raytheon.viz.core.graphing.GraphDescriptor;
 public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
 	@XmlElement
 	protected int paneNumber;
-	
+    
 	protected NsharpResourceHandler rscHandler=null;
     
 	
@@ -50,7 +50,7 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
 		this.rscHandler = rscHandler;
 	}
 
-	public int getPaneNumber() {
+    public int getPaneNumber() {
 		return paneNumber;
 	}
 

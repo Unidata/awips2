@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>RAP</resource>
+    <attrSetGroupName>precip</attrSetGroupName>
+    <attrSetNames>precip_3hr,precip_6hr,precip_6hr_emsl,precip_6hr_mslp,precip_6hr_mslp_sfcddhght,precip_6hr_mslphilo</attrSetNames>
+</AttributeSetGroup>

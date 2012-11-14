@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>GFSXMOS</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
 	<resourceParameters>
@@ -15,8 +16,9 @@ legendColor=RGB {0, 255, 0}
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
-    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
-    <dfltFrameCount>10</dfltFrameCount>
-    <dfltTimeRange>48</dfltTimeRange>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>999</dfltFrameCount>
+    <!-- 8 days 6 hours -->
+    <dfltTimeRange>198</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>

@@ -1,0 +1,27 @@
+!
+! Restore File : sig_wave_gridded_meters
+!
+! Log:
+! J.L.Partain/MPC	2/99	Initial creation - NWW3 model
+! T. Piper/GSC		5/99	Added -1 line position for TITLE  =
+! J.L.Partain/MPC       5/01    Set filter=n and added SKIP   =
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    /-1;1
+SCALE  =   0
+GDPFUN =  HTSGW           ! kntv(wnd)
+TYPE   =    p               ! b
+CINT   =    0     
+LINE   =    
+FINT   =    
+FLINE  =   
+HILO   =    0
+HLSYM  =   0
+!CLRBAR =  0
+WIND   =    17/0.8/1.8/112
+TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (m) and NWW3 10m WIND   =S!0
+COLORS =  1
+MARKER =  0
+GRDLBL =                                                                         
+FILTER =  no
