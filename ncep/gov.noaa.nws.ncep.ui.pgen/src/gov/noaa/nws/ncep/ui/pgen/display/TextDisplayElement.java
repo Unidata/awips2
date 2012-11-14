@@ -21,6 +21,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
@@ -129,7 +130,7 @@ public class TextDisplayElement implements IDisplayable {
 	 * @see gov.noaa.nws.ncep.ui.pgen.display.IDisplayable#draw(com.raytheon.viz.core.IGraphicsTarget)
 	 */
 	@Override
-	public void draw(IGraphicsTarget target) {
+	public void draw(IGraphicsTarget target, PaintProperties paintProps) {
 
 		//target.setRotateTextAroundPoint(true);
 

@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/09/2011   #541       S. Gurung   Initial creation
  * 12/16/2011              S. Gurung   Removed resourceAttrsModified()
  * 03/30/2012   #651       S. Gurung   Removed method resourceChanged
+ * 09-04-2012              B. Hebbard  Add getGridGeometry() to descriptor per OB12.9.1 RTS
+ *                                     change IRadialMeshExtension.constructMesh 2nd param
  * 
  * </pre>
  * 
@@ -204,7 +206,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, descriptor.getGridGeometry());
+                radarRecord, ((IMapDescriptor) descriptor).getGridGeometry());
     }
 
 	@Override

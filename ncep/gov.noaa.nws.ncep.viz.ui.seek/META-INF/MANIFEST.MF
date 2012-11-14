@@ -4,6 +4,8 @@ Bundle-Name: Seek Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.ui.seek;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.ui.seek.Activator
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.viz.ui;bundle-version="1.10.13",
  org.apache.commons.lang;bundle-version="2.3.0",
  org.eclipse.ui,
@@ -19,3 +21,4 @@ Require-Bundle: com.raytheon.viz.ui;bundle-version="1.10.13",
  gov.noaa.nws.ncep.viz.tools;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gov.noaa.nws.ncep.viz.ui.seek

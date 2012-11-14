@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>NWW3</resource>
+    <attrSetGroupName>exp_marine</attrSetGroupName>
+    <attrSetNames>NWW3-exp_marine.xml,sig_wave_gridded_meters_dir,sig_wave_gridded_meters_only,sig_wave_gridded_dir_only,sig_wave_gridded_feet,sig_wave_gridded_mslp_feet_nw,sig_wave_gridded_feet_dir,sig_wave_gridded_feet_only,peak_swell_per_gridded</attrSetNames>
+</AttributeSetGroup>

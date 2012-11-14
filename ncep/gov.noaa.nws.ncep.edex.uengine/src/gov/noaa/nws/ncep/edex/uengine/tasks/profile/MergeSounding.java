@@ -29,6 +29,9 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
  * 12/2010		301			T. Lee/NCEP	Re-factored for BUFRUA
  * 5/10/2011    301         C. Chen     added rhToDewpoint(), tempToVapr()
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
+ * 	8/2012					T. Lee/NCEP	Removed missing wind interpolation
+ *	8/2012					T. Lee/NCEP	Fixed max wind merging; May fix NSHARP EL calculation
+
  * </pre>
  * 
  * @author T. Lee
@@ -298,7 +301,7 @@ public class MergeSounding {
 		// Interpolate missing temperature, dew point and winds.
 		constructMissing(1,sndata);
 		constructMissing(2,sndata);
-		constructMissing(3,sndata);
+		//constructMissing(3,sndata);
 
 		// Return single level or add underground mandatory data to the sounding profile
 		if ( isNumber (level) == 0 ) {
@@ -1027,8 +1030,7 @@ public class MergeSounding {
 		 * Do nothing if wind report is reported on height surfaces.
 		 */
 
-		if (checkWindData(sig_wa) || checkWindData(sig_wc) ||
-				(sig_wa.size() < 1 && sig_wc.size() < 1 )) {
+		if ( sig_wa.size() < 1 && sig_wc.size() < 1 ) {
 			return;
 		}
 
@@ -1188,8 +1190,7 @@ public class MergeSounding {
 		/*
 		 * Do nothing if wind report is not on height surfaces.
 		 */
-		if (!checkWindData(sig_wa) || !checkWindData(sig_wc) || 
-				(sig_wa.size() < 1 && sig_wc.size() < 1)) {
+		if ( sig_wa.size() < 1 && sig_wc.size() < 1 ) {
 			return;
 		}
 

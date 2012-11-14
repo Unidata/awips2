@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
  * 09/10		#305/306	B. Yin		Added Cloud and Turbulence
  * 02/11        #318        S. Gilbert  Added Distance Display Options Dialog
  * 08/11		#?			B. Yin		Added Pgen Inc/Dec 
+ * 06/12        #734        J. Zeng     Add SPENES
  * </pre>
  * 
  * @author	B. Yin
@@ -175,6 +176,10 @@ public class AttrDlgFactory {
 			return WatchBoxAttrDlg.getInstance( parShell );
 			
 	    }
+		else if ((pgenType != null) && pgenType.equalsIgnoreCase("SPENES")) {
+			return SpenesAttrDlg.getInstance( parShell );
+
+		}
 		else if  ( pgenType != null && pgenType.equalsIgnoreCase("TCM") ) {
 			 
 			return TcmAttrDlg.getInstance( parShell );

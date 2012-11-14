@@ -99,6 +99,7 @@ public class PgenGfaFormatTool extends AbstractPgenDrawingTool {
 		 */
 		@Override
 		public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
 			if ( button == 1) {
 
@@ -118,7 +119,7 @@ public class PgenGfaFormatTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+			return false;
 		}
 	}
 

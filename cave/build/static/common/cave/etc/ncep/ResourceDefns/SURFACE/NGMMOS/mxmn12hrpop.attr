@@ -1,5 +1,0 @@
-! Attributes for the NGMMOS resource with "mxmn12hrpop" plot model
-!
-plotModel=@PlotModels/bufrmosNGM/mxmn12hrpop.xml
-plotDensity=10
-conditionalFilter=

@@ -7,15 +7,9 @@
  */
 package gov.noaa.nws.ncep.viz.ui.display;
 
-
-
-
-
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,7 +18,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -32,16 +25,12 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -82,6 +71,8 @@ public class NCMapDescriptor extends MapDescriptor {
     @XmlElement
     private Boolean autoUpdate = false;
 
+    private Boolean suspendZoom = false;
+
     public Boolean isAutoUpdate() {
         return autoUpdate;
     }
@@ -91,6 +82,14 @@ public class NCMapDescriptor extends MapDescriptor {
         if (getTimeMatcher() != null) {
             // getTimeMatcher().setAutoUpdate( autoUpdate );
         }
+    }
+
+    public Boolean getSuspendZoom() {
+        return suspendZoom;
+    }
+
+    public void setSuspendZoom(Boolean suspendZoom) {
+        this.suspendZoom = suspendZoom;
     }
 
     public NCMapDescriptor() throws VizException {
@@ -253,7 +252,6 @@ public class NCMapDescriptor extends MapDescriptor {
 		}
     }
 
-
     /***
      * Overridden method to refresh all the contribution items in the status bar
      * each time the index of the frame changes during looping.
@@ -266,31 +264,23 @@ public class NCMapDescriptor extends MapDescriptor {
     // bsteffen remove Override as super calss does not have this method TODO
     // make sure this works
     // @Override
-    /* Chin this is not supported since 11.5
-    public void handleDataTimeIndex(LoopProperties loopProperties)
-            throws VizException {
-
-        int localDateIndex = getCurrentFrame();
-        // bsteffen removed call to super, as super does not ahve this.
-        // super.handleDataTimeIndex(loopProperties);
-        if (localDateIndex != getCurrentFrame()) {
-            // Chin: fixed a race condition that when user switch editor to
-            // NON-NCMapEditor editor,
-            // for example NsharpSkewtEditor, and the last looping notice event
-            // arrived to here.
-            // At such scenario, current active editor is NsharpSkewtEditor. If
-            // just blindly
-            // type cast to NCMapEditor, then a type cast error exception will
-            // be thrown.
-            AbstractEditor editor = (AbstractEditor) (PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .getActiveEditor());
-            if (editor instanceof NCMapEditor) {
-                NCMapEditor nmapEditor = (NCMapEditor) editor;
-                nmapEditor.refreshGUIElements();
-            }
-        }
-    }*/
+    /*
+     * Chin this is not supported since 11.5 public void
+     * handleDataTimeIndex(LoopProperties loopProperties) throws VizException {
+     * 
+     * int localDateIndex = getCurrentFrame(); // bsteffen removed call to
+     * super, as super does not ahve this. //
+     * super.handleDataTimeIndex(loopProperties); if (localDateIndex !=
+     * getCurrentFrame()) { // Chin: fixed a race condition that when user
+     * switch editor to // NON-NCMapEditor editor, // for example
+     * NsharpSkewtEditor, and the last looping notice event // arrived to here.
+     * // At such scenario, current active editor is NsharpSkewtEditor. If //
+     * just blindly // type cast to NCMapEditor, then a type cast error
+     * exception will // be thrown. AbstractEditor editor = (AbstractEditor)
+     * (PlatformUI.getWorkbench() .getActiveWorkbenchWindow().getActivePage()
+     * .getActiveEditor()); if (editor instanceof NCMapEditor) { NCMapEditor
+     * nmapEditor = (NCMapEditor) editor; nmapEditor.refreshGUIElements(); } } }
+     */
 //    @SuppressWarnings("deprecation")
 //	@Override
 //	public void checkDrawTime(LoopProperties loopProperties) {
@@ -305,10 +295,13 @@ public class NCMapDescriptor extends MapDescriptor {
 //    	if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
 //    		int currentFrame = this.getCurrentFrame();
 //			int totalFrames = this.getFrameCount();
-//			System.out.println("NcMapD checkDrawTime curFram="+currentFrame+ " totalFrame="+totalFrames);
+    // System.out.println("NcMapD checkDrawTime curFram="+currentFrame+
+    // " totalFrame="+totalFrames);
 //			
-//    		IDescriptor.FrameChangeMode mode = IDescriptor.FrameChangeMode.valueOf("TIME_ONLY");
-//			IDescriptor.FrameChangeOperation operation = IDescriptor.FrameChangeOperation.valueOf("NEXT");
+    // IDescriptor.FrameChangeMode mode =
+    // IDescriptor.FrameChangeMode.valueOf("TIME_ONLY");
+    // IDescriptor.FrameChangeOperation operation =
+    // IDescriptor.FrameChangeOperation.valueOf("NEXT");
 //			for (IFrameChangedListener lstnr : listenerSet) {
 //	            lstnr.frameChanged(operation, mode);
 //	        }

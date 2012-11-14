@@ -1,12 +1,12 @@
    <colorBar>
        <showLabels>true</showLabels>
-       <drawToScale>true</drawToScale>
+       <drawToScale>false</drawToScale>
        <orientation>Vertical</orientation>
-       <anchorLoc>UpperLeft</anchorLoc>
-       <lengthAsRatio>0.4</lengthAsRatio>
-       <widthInPixels>15</widthInPixels>
+       <anchorLoc>LowerLeft</anchorLoc>
+       <lengthAsRatio>0.5</lengthAsRatio>
+       <widthInPixels>10</widthInPixels>
        <numDecimals>1</numDecimals>
-       <IntervalValue>0.0</IntervalValue>
+       <IntervalValue>0.0</IntervalValue> 
        <IntervalValue>0.5</IntervalValue>
        <IntervalValue>1.0</IntervalValue>
        <IntervalValue>1.5</IntervalValue>

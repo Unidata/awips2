@@ -126,8 +126,9 @@ void mean_wind(float pbot, float ptop, float *mnu, float *mnv,
 	/*  mnv              - V-Component of mean wind (kt)         */
 	/*************************************************************/
 {
-	float  pinc, usum, vsum, wgt, w1, num, i, ix1;
+	float  pinc, usum, vsum, wgt, w1, num, p, ix1;
 	float  sfctemp, sfcdwpt, sfcpres, lower, upper;
+	int i;
 	Parcel pcl;
 
 	*wdir = RMISSD;
@@ -167,10 +168,12 @@ void mean_wind(float pbot, float ptop, float *mnu, float *mnv,
 	}
 	else {
 	   num = wgt = usum = vsum = 0;
-	   for (i = pbot; i >= ptop; i -= pinc) {
-	      w1 = i;
-	      usum = usum + (i_wndu(i, I_PRES) * w1);
-	      vsum = vsum + (i_wndv(i, I_PRES) * w1);
+	   p = pbot;
+	   for (i = 0; i <= 20; i++) {
+	      w1 = p;
+	      usum = usum + (i_wndu(p, I_PRES) * w1);
+	      vsum = vsum + (i_wndv(p, I_PRES) * w1);
+	      p -= pinc;
 	      wgt = wgt + w1;
 	      num++;
 	   }
@@ -201,8 +204,9 @@ void mean_wind_npw(float pbot, float ptop, float *mnu, float *mnv,
 	/*  mnv              - V-Component of mean wind (kt)         */
 	/*************************************************************/
 {
-	float  pinc, usum, vsum, wgt, w1, num, i, ix1;
+	float  pinc, usum, vsum, wgt, w1, num, p, ix1;
 	float  sfctemp, sfcdwpt, sfcpres, lower, upper;
+	int i;
 	Parcel pcl;
 
 	*wdir = RMISSD;
@@ -242,10 +246,12 @@ void mean_wind_npw(float pbot, float ptop, float *mnu, float *mnv,
 	}
 	else {
 	   num = wgt = usum = vsum = 0;
-	   for (i = pbot; i >= ptop; i -= pinc) {
-	      w1 = 1;
-	      usum = usum + i_wndu(i, I_PRES);
-	      vsum = vsum + i_wndv(i, I_PRES);
+	   p = pbot;
+	   for (i = 0; i <= 20; i++) {
+	      w1 = p;
+	      usum = usum + i_wndu(p, I_PRES);
+	      vsum = vsum + i_wndv(p, I_PRES);
+	      p -= pinc;
 	      wgt = wgt + w1;
 	      num++;
 	   }
@@ -277,8 +283,9 @@ void sr_wind(float pbot, float ptop, float stdir, float stspd,
 	/*  mnv              - V-Component of mean wind (kt)         */
 	/*************************************************************/
 {
-	float pinc, usum, vsum, wgt, w1, num, i, ix1, stu, stv;
+	float pinc, usum, vsum, wgt, w1, num, ix1, stu, stv, p;
 	short idx;
+	int i;
 
 	/* ----- Calculate Storm motion vectors ----- */
 	stu = ucomp(stdir, stspd);
@@ -305,20 +312,16 @@ void sr_wind(float pbot, float ptop, float stdir, float stspd,
 	          ((i_wndu(ptop, I_PRES) - stu) * ptop);
 	   vsum = ((i_wndv(pbot, I_PRES) - stv) * pbot) +
 	          ((i_wndv(ptop, I_PRES) - stv) * ptop);
-	   /*usum = ((ucomp(i_wdir(pbot, I_PRES), i_wspd(pbot, I_PRES)) - stu) * pbot) + 
-                  ((ucomp(i_wdir(ptop, I_PRES), i_wspd(ptop, I_PRES)) - stu) * ptop); 
-           vsum = ((vcomp(i_wdir(pbot, I_PRES), i_wspd(pbot, I_PRES)) - stv) * pbot) +        
-                  ((vcomp(i_wdir(ptop, I_PRES), i_wspd(ptop, I_PRES)) - stv) * ptop);*/
 	   wgt = pbot + ptop;
 	}
 	else {
 	   num = wgt = usum = vsum = 0;
-	   for (i = pbot; i >= ptop; i -= pinc) {
-	      w1 = i;
-	      usum = usum + ((i_wndu(i, I_PRES) - stu) * w1);
-	      vsum = vsum + ((i_wndv(i, I_PRES) - stv) * w1);
-	      /*usum = usum + ((ucomp(i_wdir(i, I_PRES), i_wspd(i, I_PRES)) - stu) * w1);
-              vsum = vsum + ((vcomp(i_wdir(i, I_PRES), i_wspd(i, I_PRES)) - stv) * w1);*/
+	   p = pbot;
+	   for (i = 0; i <= 20 ; i++) {
+	      w1 = p;
+	      usum = usum + ((i_wndu(p, I_PRES) - stu) * w1);
+	      vsum = vsum + ((i_wndv(p, I_PRES) - stv) * w1);
+	      p -= pinc;
 	      wgt = wgt + w1;
 	      num++;
 	   }
@@ -374,10 +377,6 @@ void wind_shear(float pbot, float ptop, float *shu, float *shv,
 	   /* 10/9/07 RLT edit */
 	   ubot = i_wndu(pbot, I_PRES);
 	   vbot = i_wndv(pbot, I_PRES);
-	   /*ubot = ucomp((i_wdir(pbot, I_PRES)), (i_wspd(pbot, I_PRES)));
-           vbot = vcomp((i_wdir(pbot, I_PRES)), (i_wspd(pbot, I_PRES)));
-	   printf("\n ubot = %7.1f   vbot = %7.1f\n", ubot, vbot);*/
-
 	}
 
 	if (ptop == -1) { ptop = i_pres(agl(3000.0)); }
@@ -388,15 +387,6 @@ void wind_shear(float pbot, float ptop, float *shu, float *shv,
 	   /* ----- Calculate Vector Difference ----- */
 	   *shu = i_wndu(ptop, I_PRES) - ubot;
 	   *shv = i_wndv(ptop, I_PRES) - vbot;
-	   /* *shu = ucomp((i_wdir(ptop, I_PRES)), (i_wspd(ptop, I_PRES))) - ubot;
-	   *shv = vcomp((i_wdir(ptop, I_PRES)), (i_wspd(ptop, I_PRES))) - vbot; */
-
-	  /*printf( "TOP:  %7.1f  %7.1f  %7.1f %7.1f %7.1f\nBOT:  %7.1f  %7.1f  %7.1f %7.1f %7.1f\nANS:  %7.1f  %7.1f %7.1f %7.1f\n",
-		    ptop, i_wdir(ptop, I_PRES), i_wspd(ptop, I_PRES), i_wndu(ptop, I_PRES), i_wndv(ptop, I_PRES), pbot, 
-		    angle(ubot, vbot), speed(ubot, vbot), i_wndu(pbot, I_PRES), i_wndv(pbot, I_PRES), angle(*shu, *shv), 
-		    speed(*shu, *shv), *shu, *shv);*/  
-	
-
 	   if (qc(*shu) && qc(*shv)) {
 	     *sdir = angle(*shu, *shv);
 	     *smag = speed(*shu, *shv);
@@ -513,10 +503,12 @@ float helicity(float lower, float upper, float sdir, float sspd,
 		 srv2 = kt_to_mps(vcomp(sndg[i][idxd], sndg[i][idxs]) - cy);
 
 		 lyrh = (sru2 * srv1) - (sru1 * srv2);
-		 if (lyrh > 0.0)
+		 if (lyrh > 0.0) {
 		   *phel += lyrh;
-		 else
+		 }
+		 else {
 		   *nhel += lyrh;
+		 }
 		 sru1 = sru2;
 		 srv1 = srv2;
 	      }
@@ -527,15 +519,12 @@ float helicity(float lower, float upper, float sdir, float sspd,
 	   srv2 = kt_to_mps(i_wndv(i_pres(msl(upper)), I_PRES) - cy);
 
 	   lyrh = (sru2 * srv1) - (sru1 * srv2);
-	   if (lyrh > 0.0)
+	   if (lyrh > 0.0) {
 	     *phel += lyrh;
-	   else
+	   }
+	   else {
 	     *nhel += lyrh;
-
-/*
-fprintf(stderr, "helicity: layer: %.1f:%.1f phel: %.1f nhel: %.1f\n",
-lower, upper, *phel, *nhel);
-*/
+	   }
 	   return (*phel + *nhel);
 	}
 
