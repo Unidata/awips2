@@ -20,10 +20,15 @@
 
 package gov.noaa.nws.ncep.viz.ui.display;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
+import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor.IFrameChangedListener;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 
@@ -35,6 +40,7 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.SubStatusLineManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -91,6 +97,9 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * 07/15/11                    C Chen      add implements AbstractNcEditor. fix looping buttons not coordinated issue
  * 11/11/11                    ghull       remove frameChangeListener from all descriptors
  * 12/02/11       #571         ghull       check for activePage in refreshGUIElements and in dispose()
+ * 07/12/12       ###          ghull       call refreshGUIElements on paneChange. Select all panes at once instead of selecting/deselecting.
+ * 07/31/12       #631         ghull       check promptOnClose preference to set isDirty.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -288,7 +297,6 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
         }
 
         contributePerspectiveActions();
-
     }
 
     //
@@ -410,24 +418,33 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
     // way of a radio behaviour.
     public void selectPane(IDisplayPane selPane, boolean radioBehaviour) {
 
-        // first select the given pane
-        if (!isSelectedPane(selPane)) {
-            ((NCPaneManager) editorInput.getPaneManager())
-                    .selectPane((NCDisplayPane) selPane);
-        }
+    	// get a list of the panes to be selected.
+    	//
+    	List<IDisplayPane> seldPanes;
 
-        // if radio behavour then deselect all the other panes.
-        // (if the selPane is not found then
         if (radioBehaviour) {
-            IDisplayPane[] dispPanes = getDisplayPanes();
+        	seldPanes = new ArrayList<IDisplayPane>();
+    		seldPanes.add( selPane );
+        }
+        else {
+        	IDisplayPane[] dispPanes = getSelectedPanes(); //getDisplayPanes();
+        	seldPanes = new ArrayList<IDisplayPane>( Arrays.asList( dispPanes ) );
 
-            for (IDisplayPane pane : dispPanes) {
-                if (pane != selPane && isSelectedPane(pane)) {
-                    ((NCPaneManager) editorInput.getPaneManager())
-                            .deselectPane(pane);
+        	if( seldPanes.contains( selPane ) &&  
+        		seldPanes.size() > 1 ) {
+        		seldPanes.remove( selPane );
                 }
+        	else {
+        		seldPanes.add( selPane );
             }
         }
+        
+        if( !seldPanes.isEmpty() ) {
+        	((NCPaneManager) editorInput.getPaneManager())
+        							.selectPanes( seldPanes );        	
+        }
+        
+        refreshGUIElements();        
     }
 
     // Currently this just sets the listener for 1 (the active) pane.
@@ -455,13 +472,15 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
 
     //
     // // Note: this will not get called unless the editor is dirty and
-    // currently
-    // // we never do this.
     // // Also Note that this will bypass raytheon's disableClose so that if we
     // // implement
     // // isDirty and still want to allow some of our Editors to not be closed
     // // (nsharp?), then
     // // we will need to override disableClose.
+    @Override
+    public int promptToSaveOnClose() {
+    	return super.promptToSaveOnClose();
+    }
     // @Override
     // public int promptToSaveOnClose() {
     // if (PlatformUI.getWorkbench().isClosing()) {
@@ -484,27 +503,28 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
     // //
      @Override
      public boolean isDirty() {
-    // // for( IDisplayPane pane : getDisplayPanes() ) {
-    // // IRenderableDisplay display = pane.getRenderableDisplay();
-    // // if (display != null) {
-    // // for (ResourcePair rp : display.getDescriptor()
-    // // .getResourceList()) {
-    // // if( rp.getResource() instanceof AbstractNatlCntrsResource ) {
-    // // if( ((AbstractNatlCntrsResource)rp.getResource()).isDirty() ) {
-    // // return true;
-    // // }
-    // // }
-    // // // raytheons test...
-    // // ResourceProperties props = rp.getProperties();
-    // // if (!props.isSystemResource() && !props.isMapLayer()) {
-    // // return true;
-    // // }
-    // // }
-    // // }
-    // // }
-     return false;
+    	 
+//    	 for( IDisplayPane pane : getDisplayPanes() ) {
+//    		 IRenderableDisplay display = pane.getRenderableDisplay();
+//    		 if (display != null) {
+//    			 for (ResourcePair rp : display.getDescriptor()
+//    					 .getResourceList()) {
+//    				 if( rp.getResource() instanceof AbstractNatlCntrsResource ) {
+//    					 if( ((AbstractNatlCntrsResource)rp.getResource()).isDirty() ) {
+//    						 return true;
+//    					 }
+//    				 }
+//    				 // raytheons test...
+//    				 ResourceProperties props = rp.getProperties();
+//    				 if (!props.isSystemResource() && !props.isMapLayer()) {
+//    					 return true;
+//    				 }
+//    			 }
+//    		 }
+//    	 }
+ 		return NmapCommon.getNcepPreferenceStore().getBoolean( NcepGeneralPreferencesPage.PromptOnDisplayClose );
      }
-    //
+
     public String getApplicationName() {
         return applicationName;
     }

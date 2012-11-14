@@ -16,6 +16,10 @@ import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 /**
  * Class to represent a multiple point element.
@@ -299,6 +303,33 @@ public abstract class MultiPointElement extends DrawableElement implements IMult
 		
 	}
 
+	/**
+     * Generate a JTS polygon from a set of points.
+     * 
+     * It is assumed that the first point is not repeated at the end
+     * in the input array of point.
+     * 
+     * @param points	array of points
+     * @return
+     */
+	public Polygon toJTSPolygon() {
+		GeometryFactory geometryFactory = new GeometryFactory();
+
+		Coordinate[] coords = new Coordinate[linePoints.size()+1]; 
+			
+		for (int ii = 0; ii<linePoints.size(); ii++ ){
+			coords[ii] = linePoints.get(ii);
+		}
+		coords[coords.length - 1] = coords[0];
+
+		CoordinateArraySequence cas = new CoordinateArraySequence( coords );
+		LinearRing ring = new LinearRing( cas, geometryFactory );	
+
+		Polygon polygon = new Polygon( ring, null, geometryFactory );
+		
+		return polygon;
+	}
+	
 	/**
 	 * Gets "filled".
 	 */

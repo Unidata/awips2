@@ -2,13 +2,14 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd.LoadRbdControl;
+import gov.noaa.nws.ncep.viz.resourceManager.ui.manageSpf.ManageSpfControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl;
-import gov.noaa.nws.ncep.viz.resourceManager.ui.spf.ManageMultiSPFControl;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,6 +44,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 02/16/11       #408      Greg Hull    Change shell to Modeless and have hotkey 
  *                                       bring to the front.
  * 11/07/11                 Chin Chen    fixed a null pointer exception bug                                      
+ * 06/19/12       #624      Greg Hull    clone imported RBD and set size based 
+ *                                       on prev width.
+ *                                       
  * </pre>
  * 
  * @author 
@@ -66,9 +70,9 @@ public class ResourceManagerDialog extends Dialog {
 
     protected  ManageResourceControl manageRscCntrl = null;
 
-    protected ManageMultiSPFControl manageMultiSPFControl; 
+    protected ManageSpfControl manageRbdsCntrl; 
     
-    private Point prevSize = new Point( 750, 860 );
+    private static int prevHeight=0;
     private Point prevLocation = new Point(0,0);
     
     public ResourceManagerDialog(Shell parShell, String title,
@@ -110,28 +114,42 @@ public class ResourceManagerDialog extends Dialog {
 
 		if( currEditor != null ) { 
 			RbdBundle rbdBndl = new RbdBundle();
-//			rbdBndl.setNcEditor( currEditor );
 			rbdBndl.initFromEditor(currEditor);
+
+			try {
+				rbdBndl = RbdBundle.clone( rbdBndl );
 
 			rbd_mngr.initFromRbdBundle( rbdBndl );
 		}        
+			catch ( VizException e ) {
+				MessageDialog errDlg = new MessageDialog( 
+						shell, "Error", null, 
+						"Error importing Rbd from display "+currEditor.getDisplayName()+".\n" +
+							e.getMessage(),
+						MessageDialog.ERROR, new String[]{"OK"}, 0);
+				errDlg.open();
+
+				rbd_mngr.init(); 
+			}
+    	
+		}        
 
     	createRbdCntrl = new CreateRbdControl( mngrTabFolder, rbd_mngr );
-    	
+
+    	final TabItem manageSPFTabItem = new TabItem( mngrTabFolder, SWT.NONE );
+    	manageSPFTabItem.setText( "   Manage SPFs  " );
+
+    	manageRbdsCntrl = new ManageSpfControl( mngrTabFolder );
+
     	final TabItem cnfgTabItem = new TabItem( mngrTabFolder, SWT.NONE );
     	cnfgTabItem.setText( "   Manage Resources  " );
 
     	manageRscCntrl = new ManageResourceControl( mngrTabFolder );
 
-    	final TabItem manageSPFTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	manageSPFTabItem.setText( "   Manage SPFs  " );
-
-    	manageMultiSPFControl = new ManageMultiSPFControl( mngrTabFolder );
-
     	mngrTabItem.setControl( createRbdCntrl );
     	loadTabItem.setControl( loadRbdCntrl );
+    	manageSPFTabItem.setControl(  manageRbdsCntrl );
     	cnfgTabItem.setControl( manageRscCntrl );
-    	manageSPFTabItem.setControl( manageMultiSPFControl );
 
     	
     	Button closeBtn = new Button( shell, SWT.PUSH );
@@ -146,27 +164,27 @@ public class ResourceManagerDialog extends Dialog {
        		}
         });
     	
-    	shell.setMinimumSize(600,550);
+//    	shell.setMinimumSize(600,550);
     	
     	mngrTabFolder.layout();    	
 
-    	shell.pack();
+//    	shell.pack();
 
-    	if( mode == null || mode.equals("LOAD") ) {
+    	if( mode == null || mode.equals("LOAD_RBD") ) {
     		mngrTabFolder.setSelection(0);
     		loadRbdCntrl.updateDialog();
     	}
-    	else if( mode.equals("CREATE") ) {
+    	else if( mode.equals("CREATE_RBD") ) {
     		mngrTabFolder.setSelection(1);
     		createRbdCntrl.updateDialog();
     	}
-    	else if( mode.equals("MANAGE") ) {
+    	else if( mode.equals("MANAGE_RBDS") ) {
     		mngrTabFolder.setSelection(2);
-		    manageRscCntrl.updateDialog();
+    		manageRbdsCntrl.updateDialog();
     	}
-    	else if( mode.equals("MULTI-SPF") ) {
+    	else if( mode.equals("MANAGE_RESOURCES") ) {
     		mngrTabFolder.setSelection(3);
-//    		manageMultiSPFControl.updateDialog();
+		    manageRscCntrl.updateDialog();
     	}
     	else {
     		mngrTabFolder.setSelection(0);
@@ -183,10 +201,12 @@ public class ResourceManagerDialog extends Dialog {
        			else if( seldTab[0].getControl() instanceof CreateRbdControl ) {       				
        				((CreateRbdControl)seldTab[0].getControl()).updateDialog();
        			}
+       			else if( seldTab[0].getControl() instanceof ManageSpfControl ) {       				
+       				((ManageSpfControl)seldTab[0].getControl()).updateDialog();
+       			}
        			else if( seldTab[0].getControl() instanceof ManageResourceControl ) {       				
        				((ManageResourceControl)seldTab[0].getControl()).updateDialog();
        			}
-
        		}
         });    	
     }
@@ -200,17 +220,12 @@ public class ResourceManagerDialog extends Dialog {
     	Shell parent = getParent();
     	Display display = parent.getDisplay();
 
-    	shell.setSize( prevSize );
+    	shell.setSize( new Point( shell.getSize().x, 
+    		  ( prevHeight == 0 ? shell.getSize().y : prevHeight )) );
     	shell.setLocation( prevLocation );
     	shell.open();
     	
     	isOpen = true;
-    	
-//    	AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getInstance().getActivePerspectiveManager();
-//
-//    	if( pMngr instanceof NCPerspectiveManager ) {
-//    		
-//    	}
     	
     	while( !shell.isDisposed() ) {
     		if( !display.readAndDispatch() ) {
@@ -231,6 +246,7 @@ public class ResourceManagerDialog extends Dialog {
     	// if there is a preview editor up then close it
     	if(shell!=null){
     		if( !shell.isDisposed() ) {
+    			prevHeight = shell.getSize().y;
     			shell.dispose();	
     		}
     	}

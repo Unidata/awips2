@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.EnableDisableAction;
@@ -58,6 +59,7 @@ import com.raytheon.viz.ui.cmenu.RemoveResourceAction;
  * 										Added mouse handlers, initInternal, toggleVisibility. See D2DLegendResource
  * 02/06/2011              S. Gurung    Separated/moved input handler code to class NCLegendHandler
  * 02/29/2011     651      Archana      Added the overridden method fillContextMenu()										
+ * 07/27/2012	  695	   B. Yin		Added editable capability for resource legends
  * </pre>
  * 
  * @author ghull
@@ -110,6 +112,12 @@ public class NCLegendResource extends
                         continue;
                     } else {
                         legend.label = rsc.getName();
+                        //if the resource is editable, add (Editable) to the legend string
+                        if (rsc.hasCapability(EditableCapability.class)
+                                && rsc.getCapability(EditableCapability.class)
+                                        .isEditable()) {
+                        	legend.label += " (Editable) ";
+                        }
                         legend.resource = resourcePair;
                     }
 
@@ -195,58 +203,58 @@ public class NCLegendResource extends
        return super.checkLabelSpace(descriptor, target, x, y);
    }
 
-   @Override
- protected void fillContextMenu(IMenuManager menuManager,
-		ResourcePair selectedResource) {
-
-   	MoveUpAction upAction = new MoveUpAction();
-	MoveDownAction downAction = new MoveDownAction();
-	EnableDisableAction enableDisableAction = new EnableDisableAction();
-	RemoveResourceAction rrAction = new RemoveResourceAction();
-	NCMapEditor container = NmapUiUtils.getActiveNatlCntrsEditor();
-
-    upAction.setContainer(container);
-	upAction.setSelectedRsc(selectedResource);
-	downAction.setContainer(container);
-	downAction.setSelectedRsc(selectedResource);
-	enableDisableAction.setContainer(container);
-	enableDisableAction.setSelectedRsc(selectedResource);
-	rrAction.setContainer(container);
-	rrAction.setSelectedRsc(selectedResource);
-	
-    AbstractVizResource<?,?> thisResource = selectedResource.getResource();
-    //Cyclic dependancy work-around..
-	Object editRscAttrsAction =  null;
-    Method[] arrayOfMethods = thisResource.getClass().getMethods();
-    for ( Method m : arrayOfMethods ){
-    	if ( m.getName().compareTo("resourceAttrsModified") == 0){
-    		try {
-				editRscAttrsAction =  Class.forName("gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction").newInstance();
-				( ( AbstractRightClickAction ) editRscAttrsAction ).setContainer(container);
-				( ( AbstractRightClickAction ) editRscAttrsAction ).setSelectedRsc(selectedResource);
-				break;
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		
-    	}
-    }
-
-    if ( editRscAttrsAction != null )
-    	menuManager.add( ( IAction )editRscAttrsAction);
-    
-	menuManager.add(upAction);
-	menuManager.add(downAction);
-	menuManager.add(enableDisableAction);
-	menuManager.add(rrAction);
-	
- }
+//   @Override
+// protected void fillContextMenu(IMenuManager menuManager,
+//		ResourcePair selectedResource) {
+//
+//   	MoveUpAction upAction = new MoveUpAction();
+//	MoveDownAction downAction = new MoveDownAction();
+//	EnableDisableAction enableDisableAction = new EnableDisableAction();
+//	RemoveResourceAction rrAction = new RemoveResourceAction();
+//	NCMapEditor container = NmapUiUtils.getActiveNatlCntrsEditor();
+//
+//    upAction.setContainer(container);
+//	upAction.setSelectedRsc(selectedResource);
+//	downAction.setContainer(container);
+//	downAction.setSelectedRsc(selectedResource);
+//	enableDisableAction.setContainer(container);
+//	enableDisableAction.setSelectedRsc(selectedResource);
+//	rrAction.setContainer(container);
+//	rrAction.setSelectedRsc(selectedResource);
+//	
+//    AbstractVizResource<?,?> thisResource = selectedResource.getResource();
+//    //Cyclic dependancy work-around..
+//	Object editRscAttrsAction =  null;
+//    Method[] arrayOfMethods = thisResource.getClass().getMethods();
+//    for ( Method m : arrayOfMethods ){
+//    	if ( m.getName().compareTo("resourceAttrsModified") == 0){
+//    		try {
+//				editRscAttrsAction =  Class.forName("gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction").newInstance();
+//				( ( AbstractRightClickAction ) editRscAttrsAction ).setContainer(container);
+//				( ( AbstractRightClickAction ) editRscAttrsAction ).setSelectedRsc(selectedResource);
+//				break;
+//			} catch (InstantiationException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IllegalAccessException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (ClassNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//    		
+//    	}
+//    }
+//
+//    if ( editRscAttrsAction != null )
+//    	menuManager.add( ( IAction )editRscAttrsAction);
+//    
+//	menuManager.add(upAction);
+//	menuManager.add(downAction);
+//	menuManager.add(enableDisableAction);
+//	menuManager.add(rrAction);
+//	
+// }
 
 }

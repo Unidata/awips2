@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.ui.display;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -56,8 +57,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date Ticket# Engineer Description ------------ ---------- -----------
- * -------------------------- 03/07/11 R1G2-9 Greg Hull Created
+ * Date          Ticket#    Engineer     Description 
+ * ------------ ----------  -----------  -------------------------- 
+ * 03/07/11      R1G2-9 	Greg Hull 	 Created
+ * 07/18/12      #649       Shova Gurung Fixed echo/virtual cursor display issue.
+ * 09/13/12			?		B. Yin		 Refresh only for multiple panes
  * 
  * </pre>
  * 
@@ -201,7 +205,11 @@ public class NCPaneManager extends PaneManager {
                 }
             }
 
+            //Refresh only for multiple panes.
+            if ( getNumberofPanes() > 1 ){
+            	
             refresh();
+            }
 
             return false;
         }
@@ -234,12 +242,13 @@ public class NCPaneManager extends PaneManager {
 
         inputManager = new InputManager(this);
 
+        // sgurung: moved the following code to initializeComponents(...) 
         // Enable the inspect adapters
         // handles the VirtualCursor and selecting the panes
-        if (paneContainer instanceof NCMapEditor) {
+        /*if (paneContainer instanceof NCMapEditor) {
             inputManager.registerMouseHandler(new NcPaneMouseHandler(
                     (NCMapEditor) paneContainer), InputPriority.PERSPECTIVE);
-        }
+        }*/
 
         displayPanes = new ArrayList<NCDisplayPane>();
         selectedPanes = new ArrayList<NCDisplayPane>();
@@ -267,6 +276,13 @@ public class NCPaneManager extends PaneManager {
 
         parentComposite = parent;
         parentComposite.setLayout(gl);
+
+        // Enable the inspect adapters
+        // handles the VirtualCursor and selecting the panes
+        if (paneContainer instanceof NCMapEditor) {
+            inputManager.registerMouseHandler(new NcPaneMouseHandler(
+                    (NCMapEditor) paneContainer), InputPriority.PERSPECTIVE);
+        }
 
         // create the Composites for the panes ahead of time be
         // Composite canvasComp = new Composite(composite, SWT.NONE);
@@ -402,36 +418,53 @@ public class NCPaneManager extends PaneManager {
         // if not already selected then
         if (!selectedPanes.contains(pane)) {
             selectedPanes.add((NCDisplayPane) pane);
-
         }
 
-        for (ISelectedPanesChangedListener lstnr : listeners) {
-            lstnr.selectedPanesChanged(NC_PANE_SELECT_ACTION,
-                    getSelectedPanes(NC_PANE_SELECT_ACTION));
-        }
-
-        refresh();
+//        for( ISelectedPanesChangedListener lstnr : listeners ) {
+//            lstnr.selectedPanesChanged(NC_PANE_SELECT_ACTION,
+//                    getSelectedPanes(NC_PANE_SELECT_ACTION));
+//        }
+//        refresh();
     }
 
     public void selectPane(NCDisplayPane pane) {
-        System.out.println("NCPaneManager selecting pane " + pane.hashCode());
+//        System.out.println("NCPaneManager selecting pane " + pane.hashCode());
         setSelectedPane(NC_PANE_SELECT_ACTION, pane);
     }
 
-    // if this pane is in the list of selected panes, remove it
-    // and call the listeners.
-    public void deselectPane(IDisplayPane pane) {
-        if (selectedPanes.contains(pane)) {
-            selectedPanes.remove(pane);
+    public void selectPanes( List<IDisplayPane> seldPanes ) {
+
+    	if( seldPanes.isEmpty() ) {
+    		return;
+    	}
+    	
+    	selectedPanes.clear();
+    	
+    	for( IDisplayPane p : seldPanes ) {
+    		setSelectedPane(NC_PANE_SELECT_ACTION, p );	
+    	}
 
             for (ISelectedPanesChangedListener lstnr : listeners) {
                 lstnr.selectedPanesChanged(NC_PANE_SELECT_ACTION,
                         getSelectedPanes(NC_PANE_SELECT_ACTION));
             }
-
-            refresh();
-        }
     }
+
+    
+    // if this pane is in the list of selected panes, remove it
+    // and call the listeners.
+//    public void deselectPane(IDisplayPane pane) {
+//        if (selectedPanes.contains(pane)) {
+//            selectedPanes.remove(pane);
+//
+//            for (ISelectedPanesChangedListener lstnr : listeners) {
+//                lstnr.selectedPanesChanged(NC_PANE_SELECT_ACTION,
+//                        getSelectedPanes(NC_PANE_SELECT_ACTION));
+//            }
+//
+//            refresh();
+//        }
+//    }
 
     // This method is part of the IPaneManager interface but
     // for the NC Perspective multiple panes may be selected.

@@ -9,6 +9,7 @@ package gov.noaa.nws.ncep.ui.pgen.display;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -55,10 +56,11 @@ public class FillDisplayElement implements IDisplayable {
 	/**
 	 * Draws the filled shapes to the specified graphics target
 	 * @param target Destination graphics target
+	 * @param paintProps PaintProperties
 	 * @see gov.noaa.nws.ncep.ui.pgen.display.IDisplayable#draw(com.raytheon.viz.core.IGraphicsTarget)
 	 */
 	@Override
-	public void draw(IGraphicsTarget target) {
+	public void draw(IGraphicsTarget target, PaintProperties paintProps) {
 
 		try {
 		   target.drawShadedShape(shape, alpha);

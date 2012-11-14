@@ -13,6 +13,7 @@
  * 12/2009		144			T. Lee		Added calType, satelliteId
  *										and imageTypeNumber
  * 05/2010		144			L. Lin		Migration to TO11DR11.
+ * 09/2012					B. Hebbard  Merge out RTS changes from OB12.9.1
  * </pre>
  * 
  * @author tlee
@@ -201,6 +202,7 @@ public class McidasRecord extends PersistablePluginDataObject implements
         super(uri);
     }
 
+    
     /**
      * Set the time to be used for the persistence time for this object.
      * 
@@ -349,5 +351,4 @@ public class McidasRecord extends PersistablePluginDataObject implements
     public void setImageTypeNumber(Integer imageTypeNumber) {
         this.imageTypeNumber = imageTypeNumber;
     }
-
 }

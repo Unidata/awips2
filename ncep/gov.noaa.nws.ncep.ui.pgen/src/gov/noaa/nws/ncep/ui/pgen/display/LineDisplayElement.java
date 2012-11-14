@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -69,7 +70,7 @@ public class LineDisplayElement implements IDisplayable {
 	 * @see gov.noaa.nws.ncep.ui.pgen.display.IDisplayable#draw()
 	 */
 	@Override
-	public void draw(IGraphicsTarget target) {
+	public void draw(IGraphicsTarget target, PaintProperties paintProps) {
 		
 		RGB shapeColor = new RGB(color.getRed(), color.getGreen(), color.getBlue());
 		try {

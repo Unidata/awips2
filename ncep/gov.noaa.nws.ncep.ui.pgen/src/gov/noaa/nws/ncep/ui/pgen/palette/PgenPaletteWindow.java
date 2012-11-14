@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
+import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
@@ -83,6 +84,7 @@ import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSelectingTool;
+import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 //import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -156,6 +158,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	private Button undoButton =  null;
 	private Button redoButton = null;
 	private String currentCategory = null;
+	private String currentObject = null;
+
 	private String currentAction = "";
 
 	private HashMap<String, Button> buttonMap = null;    // map of buttons currently displayed on palette
@@ -561,8 +565,19 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
 				if ( point.equals(OBJECT_SECTION)
 						&& currentAction.equalsIgnoreCase("MultiSelect")){
-					elem =  itemMap.get( "MultiSelect");
+					if ( currentCategory != null && currentCategory.equalsIgnoreCase("MET")){
+						if ( currentObject != null ){
+							resetIcon(currentObject);
+						}
+						
+						currentObject = elem.getAttribute("name");
+						setActiveIcon(currentObject);
 
+				}
+					elem =  itemMap.get( "MultiSelect");
+				}
+				else if ( currentObject != null ){
+					resetIcon(currentObject);
 				}
 				
 				//change front/line type
@@ -766,7 +781,9 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Activated: "+part.getClass().getCanonicalName() );
 		//if ( part instanceof NCMapEditor &&((NCMapEditor) part).getApplicationName().equals("NA")) {
-		if ( part instanceof AbstractEditor ) {
+		
+		//change AbstrcactEditor to VizMultiPaneEditor in order to avoid NSharp editor.		
+		if ( isNCMapEditor( part ) ) {
 			
 			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 			if ( (rsc==null) && (PgenUtil.getPgenMode()==PgenMode.SINGLE) ) rsc = PgenUtil.createNewResource();
@@ -818,7 +835,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		//System.out.println("Something BroughtToTop: "+part.getClass().getCanonicalName() );
 		partActivated(partRef);
 		
-		if ( part instanceof AbstractEditor ) {
+		if (  isNCMapEditor( part )  ) {
 			AbstractEditor editor = (AbstractEditor)part;
 			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 
@@ -870,7 +887,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 				PgenUtil.removeSelectedPaneChangedListener( currentIsMultiPane, this );
 			}
 		}
-		else if ( part instanceof AbstractEditor ) {
+		else if (  isNCMapEditor( part )  ) {
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
@@ -883,7 +900,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Deactivated: "+part.getClass().getCanonicalName() );
 		
-		if ( part instanceof AbstractEditor ) {
+		//change AbstrcactEditor to VizMultiPaneEditor in order to avoid NSharp editor.
+		if (  isNCMapEditor( part )  ) {
 			
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
@@ -929,7 +947,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Hidden: "+part.getClass().getCanonicalName() );
 		
-		if ( part instanceof AbstractEditor ) {
+		if (  isNCMapEditor( part )  ) {
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
@@ -946,7 +964,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	public void partVisible(IWorkbenchPartReference partRef) {
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Opened: "+part.getClass().getCanonicalName() );
-		if(part instanceof AbstractEditor && !PreloadGfaDataThread.loaded ) {
+		if( isNCMapEditor( part )  && !PreloadGfaDataThread.loaded ) {
 			// preload the classes to reduce the first GFA format time 
 			new PreloadGfaDataThread().start();
 		}
@@ -1252,6 +1270,20 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 			//PgenResource rsc = PgenUtil.findPgenResourceInPane(panes.get(0));
 			//if ( rsc != null ) PgenSession.getInstance().setResource(rsc);
 //		}	
+	}
+
+	/**
+	 * @return the currentObject
+	 */
+	public String getCurrentObject() {
+		return currentObject;
+	}
+	
+	/*
+	 * Check if a workbench part is NCMapEditor
+	 */
+	private boolean isNCMapEditor( IWorkbenchPart part ){
+		return ( part instanceof VizMultiPaneEditor && part instanceof AbstractNcEditor );
 	}
 
 }

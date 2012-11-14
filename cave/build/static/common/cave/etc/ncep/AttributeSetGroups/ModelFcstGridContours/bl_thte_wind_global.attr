@@ -1,0 +1,28 @@
+!
+! Restore File : bl_thte_wind
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! J. Carr/HPC            6/97   Changed title to reflect better labeling
+! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+! J. Carr/HPC   	10/97	Changed the files parameters for contouring and color fill
+!
+GLEVEL= 9950
+GVCORD= sgma
+SKIP=   0/1
+FILTER= yes
+SCALE=  0
+GDPFUN= thte(mul(1e-2,pres@0%none;tmpc;dwpc))//the!the!the!kntv(wnd)
+TYPE=   c/f                      !c         !c    !b
+CINT=   4/200/308                !4/312/324/!4/328
+LINE=   16/1/1                   !2/1/3     !32/1/2/1
+FINT=   328;336;344;352;360;368
+FLINE=  0;24;30;29;15;18;20
+HILO=   0
+HLSYM=  0
+WIND=   9/0.7/2/112
+TITLE=  1/-1/~ BL (5 MB AGL) THTE AND WIND (KTS)!0
+!CLRBAR= 1/V/LL!0
+COLORS= 2                                                                       
+MARKER= 2                                                                       
+GRDLBL= 5                                                                       

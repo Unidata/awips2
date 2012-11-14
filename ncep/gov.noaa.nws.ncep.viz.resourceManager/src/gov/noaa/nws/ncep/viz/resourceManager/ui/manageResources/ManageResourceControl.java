@@ -12,11 +12,13 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -33,6 +35,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 12/17/10       #365      Greg Hull    add updateDialog
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
  * 07/25/11       #450      Greg Hull    Save to User Localization
+ * 07/03/12       #568      Greg Hull    Set size on updateDialog
  *
  * </pre>
  * 
@@ -41,12 +44,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 public class ManageResourceControl extends Composite {
 
+	private Shell shell;
+
 	private ResourceDefnsMngr rscDefnMngr;
 		
     private SashForm sashForm = null;
     private Group selRscGrp = null;
     private Group editRscGrp = null;
     
+    private Point initDlgSize = new Point( 750, 860 );
+
     private ResourceEditSelectionComposite selectResourceComp = null;
     
    	public interface IEditResourceComposite {
@@ -81,10 +88,8 @@ public class ManageResourceControl extends Composite {
         super(parent, SWT.NONE);
         
         rscDefnMngr = ResourceDefnsMngr.getInstance();
-	    // query the database to generate dynamic resource names.
-//      xguo,06/02/11. To enhance the system performance, move 
-//      data resource query into NC-Perspective initialization
-//        rscDefnMngr.generateDynamicResources();
+
+        shell = parent.getShell();
 
         Composite top_comp = this;        
         top_comp.setLayout( new GridLayout(1,true) );
@@ -452,11 +457,7 @@ public class ManageResourceControl extends Composite {
    		}
    	}
    	
-   	// requery for subTypes and grids.
     public void updateDialog() {
-//      xguo,06/02/11. To enhance the system performance, move 
-//      data resource query into NC-Perspective initialization
-//    	rscDefnMngr.generateDynamicResources();
-    	// To do: implement update Manage Resources Tab 
+    	shell.setSize( initDlgSize );
     }
 }

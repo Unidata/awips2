@@ -85,6 +85,8 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 09/11		#335		J. Wu		Added type/subtype/alias/file template
  * 11/11		?			B. Yin		Put settings file in localization
  * 01/12		TTR463		J. Wu		Creating new activity from existing ones
+ * 07/12  		#822        J. Wu    	Synchronize with the presence of PGEN Palette
+ * 08/12  		#822        J. Wu    	Make this dialog "APPLICATION_MODAL"
  * 
  * </pre>
  * 
@@ -207,8 +209,6 @@ public class ProductConfigureDialog extends ProductDialog {
 		
         super( parShell );
 		
-        retrievePgenPalette();
-      
     }
 	
 	/**
@@ -275,6 +275,14 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     public void initializeComponents() {
 	    
+    	/*
+         * Retrieve PGEN pallete info - it may get disposed when palette is deactivated
+         * so we need to make sure palette is there and retrieve info before starting to
+         * build this GUI.
+         */
+    	retrievePgenPalette();
+  	
+    	
     	/*
     	 * Load product types
     	 */
@@ -3496,6 +3504,18 @@ public class ProductConfigureDialog extends ProductDialog {
 	private static String nvl(String value) {
 		return value == null ? "" : (new String( value ) );
 	}
+
+    /**
+     * Create a new primary_modal shell for this dialog.
+     * 
+     * @return Return shell.
+     */
+	@Override
+	protected Shell createShell( Shell parent ) {
+        Shell newShell = new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL );
+    	return newShell;
+    }
+
 
 	
 }
