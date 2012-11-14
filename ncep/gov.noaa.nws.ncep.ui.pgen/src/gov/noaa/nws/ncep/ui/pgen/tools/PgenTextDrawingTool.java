@@ -44,7 +44,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
  * 07/10			?		B. Yin		Added '[' or ']' for front labels 
  * 02/11			?		B. Yin		Fixed Outlook type problem.
  * 04/11			?		B. Yin		Re-factor IAttribute
- *
+ * 08/12         #802       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseMove.
  * </pre>
  * 
  * @author	B. Yin
@@ -177,6 +177,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
            
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -284,6 +285,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
@@ -294,15 +296,20 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             	AbstractDrawableComponent ghost = null;
             	
             		if ( ((IText)attrDlg).getString().length > 0 ) {  
-            			//add "[" or "]" to front labels
+            			//add "[" or "]" to front labels. The rule: If the label is only number and in one line, will be surrounded by [,]. 
             			if (addLabelToSymbol && prevElem.getPgenCategory() != null 
             					&& prevElem.getPgenCategory().equalsIgnoreCase("Front")){
-            				StringBuffer lbl = new StringBuffer(((IText)attrDlg).getString()[0]);
+            				
+            				String[] text = ((IText)attrDlg).getString();
+            				if ( text.length == 1 ) {  
+            					StringBuffer lbl = new StringBuffer(((TextAttrDlg)attrDlg).getString()[0]);
+            				
             				if ( lbl.length() > 0 ){
             					if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
             					if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
 
-
+            						try {
+            							Integer.parseInt(lbl.toString());
             					//check if the text is right or left of the front
             					if ( rightOfLine(mapEditor, loc, (Line)prevElem.getPrimaryDE()) >= 0 ){
 
@@ -310,6 +317,9 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             					}
             					else {
             						((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
+            					}
+            						} catch (NumberFormatException e) {
+            							/*do nothing*/}
             					}
             				}
 
@@ -334,7 +344,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			if ( shiftDown ) return false;
+			if ( !isResourceEditable()|| shiftDown ) return false;
 			else return true;
 		}
  

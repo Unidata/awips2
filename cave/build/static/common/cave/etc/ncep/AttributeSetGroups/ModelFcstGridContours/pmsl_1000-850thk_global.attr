@@ -1,0 +1,25 @@
+!
+! Restore File : pmsl_1000-850_thk_nw
+!
+! Log:
+! J.L.Partain/MPC	 5/98	PMSL & 1000-850thk with no winds for pgen underlay
+!
+GLEVEL =  850:1000                  !0
+GVCORD =  pres                      !none
+SKIP   =    0
+SCALE  =   -1                        ! 0
+GDPFUN =  (sub(hght@850,hght@1000)) !sm9s(mul(1e-2,pmsl))
+TYPE   =    c                         !
+CINT   =    1                         !4
+LINE   =    3/5/1/2                   !20/1/1/2
+FINT   =    
+FLINE  =   
+HILO   =    !26;2/H#;L#/1020-1070;900-1012/3/30;30/y
+HLSYM  =   1;1//22;22/1.4;1.4/hw
+!CLRBAR=  1
+WIND   =    
+TITLE  =   1/-1/~ PMSL, 1000-850mb THKN !0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

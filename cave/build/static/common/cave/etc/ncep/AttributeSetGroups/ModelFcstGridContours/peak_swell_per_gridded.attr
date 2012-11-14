@@ -1,0 +1,25 @@
+!
+! Restore File : peak_swell_per_gridded
+!
+! Log:
+! J.L.Partain/MPC	11/16/99  Gridpoint peak swell period
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  perpw
+TYPE   =    p
+CINT   =    0 
+LINE   =    
+FINT   =    
+FLINE  =   
+HILO   =    0   
+HLSYM  = 
+!CLRBAR =  
+WIND   =    
+TITLE  =   5/-1/~ GRIDPOINT PEAK SWELL PERIOD (sec)!0
+COLORS =  1
+MARKER =  0
+GRDLBL =                                                                         
+FILTER =  1

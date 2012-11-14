@@ -97,7 +97,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03-04-2011              G. Zhang     Initial creation
- * 07-11-2022              Greg Hull    create initResource to create the colorBarResource.
+ * 07-11-2011              Greg Hull    create initResource to create the colorBarResource.
+ * 09-04-2012              B. Hebbard   Add getGridGeometry() to descriptor per OB12.9.1 RTS
+ *                                      change IRadialMeshExtension.constructMesh 2nd param
  * 
  * </pre>
  * 
@@ -591,8 +593,7 @@ params = /*new ColorMapParameters();//*/ColorMapParameterFactory.build((Object) 
     public IMesh buildMesh(IGraphicsTarget target, RadarTimeRecord timeRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                timeRecord.radarCacheObject.getObjectSync(),
-                descriptor.getGridGeometry());
+                timeRecord.radarCacheObject.getObjectSync(), descriptor.getGridGeometry());
     }
 
     public PixelCoverage buildCoverage(IGraphicsTarget target,

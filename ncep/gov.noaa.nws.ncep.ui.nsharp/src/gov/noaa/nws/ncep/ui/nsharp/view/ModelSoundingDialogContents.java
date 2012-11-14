@@ -83,7 +83,7 @@ public class ModelSoundingDialogContents {
 	private String stnStr="";
 	private final String GOOD_LATLON_STR = " A good input looked like this:\n 38.95;-77.45 or 38.95,-77.45";
 	private final String GOOD_STN_STR = " A good input looked like this:\n GAI or gai";
-	String gribDecoderName = "grid";//NcSoundingQuery.NCGRIB_PLUGIN_NAME;
+	String gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME; //for unified grid, change back to "grid"; ?
 	private String selectedModel=null;	
 	//private DBType currentDb = DBType.NCGRIB;
 	
@@ -119,7 +119,7 @@ public class ModelSoundingDialogContents {
 			//gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
 			//System.out.println("perspective id = " + VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
 		}*/
-	}
+		}
 	
 	private void createMDLAvailableFileList() {
 		if(sndTimeList!=null)
@@ -127,7 +127,7 @@ public class ModelSoundingDialogContents {
 		if(availableFileList!=null)
 			availableFileList.removeAll();
 		HashMap<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-		rcMap.put( "info.datasetId", new RequestConstraint(selectedModel) );
+		rcMap.put( "modelName", new RequestConstraint(selectedModel) );
 		ldDia.startWaitCursor();
     	ArrayList<String> queryRsltsList1 = 
     		NsharpGridInventory.getInstance().searchInventory( 
@@ -138,7 +138,7 @@ public class ModelSoundingDialogContents {
     	 * grid file name like this "2012-01-17 16".
     	 */
     	char fileSep =  File.pathSeparatorChar;
-    	String header = "grid"+fileSep+  selectedModel +fileSep;
+    	String header = "ncgrib"+fileSep+  selectedModel +fileSep;
     	if( queryRsltsList1 != null && !queryRsltsList1.isEmpty() ) {
     		Collections.sort(queryRsltsList1, String.CASE_INSENSITIVE_ORDER);
     		Collections.reverse(queryRsltsList1);
@@ -348,11 +348,11 @@ public class ModelSoundingDialogContents {
 		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
     	cfgList = graphConfigProperty.getGribModelTypeList();
 		HashMap<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-		rcMap.put( "pluginName", new RequestConstraint("grid") );
+		rcMap.put( "pluginName", new RequestConstraint("ncgrib") );
 
     	ArrayList<String> queryRsltsList = 
     		NsharpGridInventory.getInstance().searchInventory( 
-    			rcMap, "info.datasetId" );
+    			rcMap, "modelInfo.modelName" );
     	
     	/*
     	 * Chin Note: with this query, the returned string has this format, "ncgrib/gfsP5"
@@ -363,7 +363,7 @@ public class ModelSoundingDialogContents {
     		Collections.sort(queryRsltsList, String.CASE_INSENSITIVE_ORDER);
 			for(String queryRslt : queryRsltsList ) {
 				System.out.println("model name:"+queryRslt );
-				String modelName = queryRslt.substring( "grid/".length() );
+				String modelName = queryRslt.substring( "ncgrib/".length() );
 				if(cfgList!=null && cfgList.size()>0){
 					if(cfgList.contains(modelName))
 						modelTypeList.add(modelName);
@@ -371,7 +371,7 @@ public class ModelSoundingDialogContents {
 				else
 					modelTypeList.add(modelName);
 			}
-		}
+			}
 		ldDia.stopWaitCursor();
 		
     }
@@ -455,7 +455,7 @@ public class ModelSoundingDialogContents {
 				createModelTypeListOld();
 			}          		            	 	
 		} );  */
-		
+				
 		
 		//bottomGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
 		//bottomGp.setLayout( new GridLayout( 2, false ) );
@@ -706,7 +706,7 @@ public class ModelSoundingDialogContents {
 		}	*/	
 		if(modelTypeList!=null){
 			if(modelTypeList.getListeners(SWT.Selection).length >0)
-				modelTypeList.removeListener(SWT.Selection, modelTypeList.getListeners(SWT.Selection)[0]);
+			modelTypeList.removeListener(SWT.Selection, modelTypeList.getListeners(SWT.Selection)[0]);
 			modelTypeList.dispose();
 			modelTypeList = null;
 		}

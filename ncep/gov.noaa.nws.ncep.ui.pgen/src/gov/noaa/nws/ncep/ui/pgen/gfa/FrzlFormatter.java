@@ -44,6 +44,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * ------------	----------	-----------	--------------------------
  * 05/2011		#?			B. Yin		Initial Creation.
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 08/12		#?			B. Yin		Added a cll to build vortest for fzlvl
  * 
  * </pre>
  * 
@@ -174,6 +175,7 @@ public class FrzlFormatter {
 					if ( clippedGfa != null ){
 						GfaRules.assignIssueTime(clippedGfa);
 						clippedGfa.setGfaArea( areaName );
+						clippedGfa.setGfaVorText(Gfa.buildVorText( clippedGfa ));
 						ret.add( clippedGfa );
 					}
 				}
@@ -235,6 +237,7 @@ public class FrzlFormatter {
 					if ( clippedGfa != null ){
 						GfaRules.assignIssueTime(clippedGfa);
 						clippedGfa.setGfaArea( areaName );
+						clippedGfa.setGfaVorText(Gfa.buildVorText( clippedGfa ));
 						ret.add( clippedGfa );
 					}
 				}

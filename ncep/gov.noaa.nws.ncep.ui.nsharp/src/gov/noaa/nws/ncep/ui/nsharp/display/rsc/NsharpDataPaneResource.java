@@ -448,7 +448,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		DrawableString str = new DrawableString("ABCDE=", NsharpConstants.color_white);  
    		str.font = font10;
 		double equalSignPos=(startX+target.getStringsBounds(str).getWidth())*hRatio*xRatio;
-		fValue.setValue(0);
+   		fValue.setValue(0);
    		nsharpNative.nsharpLib.precip_water(fValue, -1.0F, -1.0F);
    		if(nsharpNative.nsharpLib.qc(fValue.getValue())==1) {
    			textStr = String.format("%.2f in", fValue.getValue());
@@ -513,7 +513,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		}
    		else {
    			textStr = " M";
-   		}	
+   		}		
    		str.setText("K=", NsharpConstants.color_white);
    		str.setCoordinates(startX, curY);
  		str1.setText(textStr,NsharpConstants.color_white);
@@ -528,13 +528,13 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		}
    		else {
    			textStr = " M";
-   		}	  
+   		}	   		
    		str.setText("DCAPE=", NsharpConstants.color_white);
    		str.setCoordinates(firstToken, curY);
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(firstToken+equalSignPos, curY);
 		target.drawStrings(str, str1);
-		
+
 		//FZL
    		fValue.setValue(0);
    		float fgzft = nsharpNative.nsharpLib.mtof(nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(nsharpNative.nsharpLib.temp_lvl( 0, fValue ))));
@@ -622,8 +622,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_white);
  		str1.setCoordinates(thirdToken+equalSignPos, curY);
 		target.drawStrings(str, str1);
-
-		curY = curY+charHeight; //move to new line
+   		
+   		curY = curY+charHeight; //move to new line
 
    		fValue.setValue(0);
    		fValue1.setValue(0);
@@ -657,7 +657,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setCoordinates(firstToken+equalSignPos, curY);
 		target.drawStrings(str, str1);
 
-		fValue.setValue(0);
+   		fValue.setValue(0);
    		float maxT= nsharpNative.nsharpLib.ctof(nsharpNative.nsharpLib.max_temp( fValue, -1));
    		if(nsharpNative.nsharpLib.qc(maxT)==1) {
    			textStr = String.format("%.0fF",maxT);
@@ -1187,7 +1187,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
    		DrawableString str = new DrawableString("Corfidi Downshear = ", NsharpConstants.color_white);  		
 		double equalSignPos=rect.x+target.getStringsBounds(str).getWidth()*hRatio*xRatio;
-
+		
 		//BRN Shear		
 		// get parcel data by calling native nsharp parcel() API. value is returned in pcl 
 		// current parcel is reset earlief already we dont have to call define_parcel() again.
@@ -1260,8 +1260,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
  		str1.setText(textStr,NsharpConstants.color_red);
  		str1.setCoordinates(equalSignPos, curY);
  		target.drawStrings(str, str1);
- 		
- 		
+		
+		
 		curY = curY+charHeight; //move to new line
 		//Bunkers Left
 		nsharpNative.nsharpLib.bunkers_left_motion(fValue1, fValue2, fValue3, fValue4);

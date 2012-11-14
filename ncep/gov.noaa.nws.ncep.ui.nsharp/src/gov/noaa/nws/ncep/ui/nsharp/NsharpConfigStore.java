@@ -54,7 +54,7 @@ public class NsharpConfigStore implements ISerializableObject{
 		for(String lnName: NsharpConstants.lineNameArray){
 			if(linePropertyMap.get(lnName) == null){
 				NsharpLineProperty lp = NsharpConstants.defaultLineProperty[i];
-			
+
 				linePropertyMap.put(lnName, lp);
 			}
 			i++;

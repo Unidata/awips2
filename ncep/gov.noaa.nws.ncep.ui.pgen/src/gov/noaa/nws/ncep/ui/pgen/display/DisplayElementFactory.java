@@ -42,6 +42,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
@@ -52,6 +53,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaClip;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
 import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
@@ -65,6 +67,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
+import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -122,6 +125,9 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 07/11		#?			J. Wu		Allow more than 1 labels for closed contour lines.
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 03/12        #697        Q. Zhou     Fixed line arrow head size for line & gfa  
+ * 07/12        #834        J. Wu       Fixed fuzzy text display. 
+ * 08/12		#760		B. Yin		Modify line factory to apply world wrap.
+ * 09/12					B. Hebbard  Merge out RTS changes from OB12.9.1 - adds reset()
  * </pre>
  * 
  * @author sgilbert
@@ -216,38 +222,291 @@ public class DisplayElementFactory {
 	 * Creates a list of IDisplayable Objects from an IMultiPoint object
 	 * @param de A PGEN Drawable Element of a multipoint object
 	 * @param paintProps The paint properties associated with the target
+	 * @param worldWrap  The flag to apply world wrap for lines 
 	 * @return A list of IDisplayable elements
 	 */
-	public ArrayList<IDisplayable> createDisplayElements(ILine de, PaintProperties paintProps) {
-		
-		
-		
-		float density;
-	    double[][] pixels;
-	    double[][] smoothpts;
+	public ArrayList<IDisplayable> createDisplayElements(ILine de, PaintProperties paintProps, boolean worldWrap) {
 	    
-	    setScales(paintProps);
-	    
-	    /*
-	     * save drawable element
-	     */
+		if ( worldWrap ) {
 	    elem = de;
+			ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
+
+			WorldWrapCorrector corrector = new WorldWrapCorrector(
+					mapDescriptor.getGridGeometry());
+	    
+			// put line points in a coordinate array 
+			Coordinate[] coord;
+			if ( de.isClosedLine() ){
+				coord = new Coordinate[de.getLinePoints().length+1];
+				for ( int ii = 0; ii < de.getLinePoints().length; ii++ ) {
+					coord[ ii ] = new Coordinate( de.getLinePoints()[ii].x,  de.getLinePoints()[ii].y);
+		}
+				coord[ de.getLinePoints().length ] = new Coordinate( de.getLinePoints()[0].x,  de.getLinePoints()[0].y);
+			}
+			else {
+				coord = new Coordinate[de.getLinePoints().length];
+		
+				for ( int ii = 0; ii < de.getLinePoints().length; ii++ ) {
+					coord[ ii ] = new Coordinate( de.getLinePoints()[ii].x,  de.getLinePoints()[ii].y);
+				}
+
+			}
+
+			// apply world wrap.
+			// pointsToLineString is in GfaClip. It should be put in a common place
+			Geometry geo = null;
+			try {
+				geo = corrector.correct(GfaClip.getInstance().pointsToLineString( coord ) );
+			}
+			catch ( Exception e ){
+				System.out.println( "World wrap error: " + e.getMessage() );
+				return list;
+	    }
+		
+			if ( geo != null && geo.getNumGeometries() > 1 ){
+				for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
+					Geometry geo1 = geo.getGeometryN( ii ); 
+					double[][] pixels = PgenUtil.latlonToPixel( geo1.getCoordinates(), mapDescriptor);
+					double[][] smoothpts;
+					float density;
+
+					 //  Apply parametric smoothing on pixel coordinates, if required
+		if ( de.getSmoothFactor() > 0 ) {
+			float devScale = 50.0f;
+  	    	if ( de.getSmoothFactor() == 1 )  density = devScale / 1.0f;
+  	    	else density = devScale / 5.0f;
+  	    	smoothpts = CurveFitter.fitParametricCurve(pixels, density);
+  	    }
+		else {
+			smoothpts = pixels;
+		}
+
+					list.addAll( createDisplayElementsForLines( de, smoothpts, paintProps));					
+					
+				     //   Draw labels for contour lines.
+					//list.addAll( adjustContourLineLabels( elem, paintProps, smoothpts ) );	
+					
+				}
+
+				return list;
+			}
+
+		}
+
+		return createDisplayElements(de, paintProps);
+
+	}
+	
+	/**
+	 * Creates display elements for multiple points elements.
+	 * This method gets attributes, such as colors from the input elements, then apply these
+	 * attributes on the smoothed(if needed) points to create a list of displayable.
+	 * @param de A PGEN Drawable Element of a multipoint object
+	 * @param smoothpts points of the multipoint object
+	 * @param paintProps The paint properties associated with the target
+	 * @return
+	 */
+
+	private ArrayList<IDisplayable> createDisplayElementsForLines(ILine de, double[][] smoothpts, PaintProperties paintProps){
 
 	    /*
 	     * Get color for creating displayables.
 	     */
 	    Color[] dspClr = getDisplayColors( elem.getColors() );
-	    
-	    /*
-	     * Create the List to be returned, some wireframe shapes and a shaded shape 
-	     * to be used for the IDisplayables
-	     */
+
+		/*
+		 *  Find Line Pattern associated with this element, if "Solid Line" was not requested.
+		 */
+		LinePattern pattern=null;
+		LinePatternManager lpl = LinePatternManager.getInstance();
+		try {
+			pattern = lpl.getLinePattern(de.getPatternName());
+			//System.out.println("&&&pattern "+pattern.getMaxExtent());
+		}
+		catch (LinePatternException lpe) {
+			/*
+			 * could not find desired line pattern.  Used solid line as default.
+			 */
+			System.out.println(lpe.getMessage() + ":  Using Solid Line by default.");
+			pattern = null;
+		}
+
+		/*
+		 * If pattern has some segments whose length is set
+		 * at runtime based on the desired line width, update the pattern now
+		 */
+		if ( (pattern != null) && pattern.needsLengthUpdate() ) {
+			pattern = pattern.updateLength( screenToExtent * de.getLineWidth() / (de.getSizeScale() * deviceScale) );
+		}
+		
+		
+		/*
+		 * Flip the side of the pattern along the spine
+		 */
+		if ( (elem instanceof Line) && ((Line)elem).isFlipSide() ) pattern = pattern.flipSide();
+		
+		/*
+		 *  If a LinePattern is found for the object, apply it.
+		 *  Otherwise, just use solid line.
+		 */
+		ScaleType scaleType = null;
+		if ( (pattern != null) && (pattern.getNumSegments() > 0) ) {
+			scaleType = ScaleType.SCALE_ALL_SEGMENTS;
+			if ( elem instanceof Line ) {
+				Line line = (Line)elem;
+				//  Change scale type for fronts so that only BLANK and LINE segments are scaled.
+				//  This is done so that size of front pips don't vary with length of front.
+				if ( line.getPgenCategory().equalsIgnoreCase("Front") ) scaleType = ScaleType.SCALE_BLANK_LINE_ONLY;
+			}
+		}
+		
+		boolean isCCFP = false;
+		AbstractDrawableComponent adc=((Line)de).getParent();
+		isCCFP = (adc!=null && ("CCFP_SIGMET".equals(adc.getPgenType())));
+		DECollection ccfp = null;
+		if ( isCCFP ) { 
+			ccfp = (DECollection)adc;
+		} 
+
+		ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
+  	
+		list.addAll(createDisplayElementsFromPts( smoothpts, dspClr, pattern, scaleType, getDisplayFillMode( de.isFilled() ), 
+			((ILine)de).getLineWidth(), isCCFP, ccfp, paintProps ) );
+		    	
+		/*
+	     *   Draw labels for contour lines.
+		 */ 
+		list.addAll( adjustContourLineLabels( elem, paintProps, smoothpts ) );		  
+		
+		
+		return list;
+	}
+
+	/**
+	 * Creates displayable from the input attributes and points of the line
+	 * @param pts
+	 * @param dspClr
+	 * @param pattern
+	 * @param scaleType
+	 * @param isFilled
+	 * @param lineWidth
+	 * @param isCCFP
+	 * @param ccfp
+	 * @param paintProps
+	 * @return
+	 */
+	private  ArrayList<IDisplayable> createDisplayElementsFromPts(double[][] pts,  Color[] dspClr,  LinePattern pattern, ScaleType scaleType, Boolean isFilled, 
+			float lineWidth, boolean isCCFP, DECollection ccfp, PaintProperties paintProps ){
+		
 		ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
 		wfs = new IWireframeShape[ dspClr.length];
 		for ( int i=0; i< dspClr.length; i++) {
 			wfs[i] = target.createWireframeShape(false, mapDescriptor);
 		}
 	    ss = target.createShadedShape(false, mapDescriptor, true);
+	    
+		/*
+		 * Create arrow head, if needed
+		 */
+		if ( (pattern != null) && pattern.hasArrowHead() ) {
+			/*
+			 * Get scale size from drawable element.
+			 */
+			double scale = elem.getSizeScale();
+			if ( scale <= 0.0 ) scale = 1.0;
+			double sfactor = deviceScale * scale;
+
+			double pointAngle = 60.0;                    // Angle of arrow point - defining narrowness
+			double extent = pattern.getMaxExtent();
+			
+			// Consider distance away from center line, the height should be no less than extent * 1.5.
+			// Currently we only have extent 1 and 2 available.
+			// 3.5 is what we want the size to be.
+			double height = sfactor * 3.5;  			
+			if(extent * 1.5 > 3.5)   
+				height = sfactor * extent * 1.5;
+			
+			int n = pts.length - 1;
+			//  calculate direction of arrow head
+			double slope = Math.toDegrees(Math.atan2( (pts[n][1]-pts[n-1][1]), (pts[n][0]-pts[n-1][0]) ));
+
+			arrow = new ArrowHead (new Coordinate(pts[n][0],pts[n][1]), 
+					pointAngle, slope, height, pattern.getArrowHeadType() );
+			Coordinate[] ahead = arrow.getArrowHeadShape();
+
+			if ( pattern.getArrowHeadType() == ArrowHeadType.OPEN ) 
+				//   Add to wireframe
+				wfs[0].addLineSegment(toDouble(ahead));
+			if ( pattern.getArrowHeadType() == ArrowHeadType.FILLED ) {
+				//   Add to shadedshape
+
+				ss.addPolygonPixelSpace( toLineString(ahead), 
+						new RGB ( dspClr[0].getRed(), dspClr[0].getGreen(), dspClr[0].getBlue() ));
+			}
+		}
+		if ( (pattern != null) && (pattern.getNumSegments() > 0) ) {
+			handleLinePattern(pattern, pts, scaleType);
+		}
+		else {
+			wfs[0].addLineSegment(pts);
+		}
+
+		if ( isFilled ){
+			list.add( createFill(pts) );
+		}
+		/*
+		 *   Compile each IWireframeShape, create its LineDisplayElement, and add to 
+		 *   IDisplayable return list
+		 */
+		for ( int k=0; k < wfs.length; k++ ) {
+
+  		    wfs[k].compile();
+		    LineDisplayElement lde = new LineDisplayElement(wfs[k], dspClr[k], lineWidth );
+		    list.add(lde);
+		}
+			
+		/*
+		 *   Compile each IShadedShape, create FillDisplayElement, and add to 
+		 *   IDisplayable return list
+		 */   
+		// TODO - This loop may be needed if we ever have to support different alphas
+		//for ( IShadedShape shade : ss ) {
+  		    ss.compile();
+		    FillDisplayElement fde = new FillDisplayElement(ss, elem.getColors()[0].getAlpha());
+		    list.add(fde);
+		    
+		    if ( isCCFP ){
+		    	addCcfpSpeed(list, paintProps, ccfp );		    
+		    }
+		    
+		//}
+		return list;
+	}
+	
+	/**
+	 * Creates a list of IDisplayable Objects from an IMultiPoint object
+	 * @param de A PGEN Drawable Element of a multipoint object
+	 * @param paintProps The paint properties associated with the target
+	 * @return A list of IDisplayable elements
+	 */
+	public ArrayList<IDisplayable> createDisplayElements(ILine de, PaintProperties paintProps) {
+
+		double[][] smoothpts;
+		double[][] pixels;
+		float density;
+
+		setScales(paintProps);
+
+		/*
+		 * save drawable element
+		 */
+		elem = de;
+
+		/*
+	     * Create the List to be returned, some wireframe shapes and a shaded shape 
+	     * to be used for the IDisplayables
+	     */
+		ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
 		
 	    /*
 	     * Get lat/lon coordinates from drawable element
@@ -278,126 +537,9 @@ public class DisplayElementFactory {
 		else {
 			smoothpts = pixels;
 		}
-
-		/*
-		 *  Find Line Pattern associated with this element, if "Solid Line" was not requested.
-		 */
-		LinePattern pattern=null;
-		LinePatternManager lpl = LinePatternManager.getInstance();
-		try {
-			pattern = lpl.getLinePattern(de.getPatternName());
-			//System.out.println("&&&pattern "+pattern.getMaxExtent());
-		}
-		catch (LinePatternException lpe) {
-			/*
-			 * could not find desired line pattern.  Used solid line as default.
-			 */
-			System.out.println(lpe.getMessage() + ":  Using Solid Line by default.");
-			pattern = null;
-		}
-
-		/*
-		 * If pattern has some segments whose length is set
-		 * at runtime based on the desired line width, update the pattern now
-		 */
-		if ( (pattern != null) && pattern.needsLengthUpdate() ) {
-			pattern = pattern.updateLength( screenToExtent * de.getLineWidth() / (de.getSizeScale() * deviceScale) );
-		}
 		
-		/*
-		 * Create arrow head, if needed
-		 */
-		if ( (pattern != null) && pattern.hasArrowHead() ) {
-			/*
-			 * Get scale size from drawable element.
-			 */
-			double scale = elem.getSizeScale();
-			if ( scale <= 0.0 ) scale = 1.0;
-			double sfactor = deviceScale * scale;
+		list.addAll( createDisplayElementsForLines( de, smoothpts, paintProps));
 
-			double pointAngle = 60.0;                    // Angle of arrow point - defining narrowness
-			double extent = pattern.getMaxExtent();
-			
-			// Consider distance away from center line, the height should be no less than extent * 1.5.
-			// Currently we only have extent 1 and 2 available.
-			// 3.5 is what we want the size to be.
-			double height = sfactor * 3.5;  			
-			if(extent * 1.5 > 3.5)   
-				height = sfactor * extent * 1.5;
-			
-			int n = smoothpts.length - 1;
-			//  calculate direction of arrow head
-			double slope = Math.toDegrees(Math.atan2( (smoothpts[n][1]-smoothpts[n-1][1]), (smoothpts[n][0]-smoothpts[n-1][0]) ));
-
-			arrow = new ArrowHead (new Coordinate(smoothpts[n][0],smoothpts[n][1]), 
-					pointAngle, slope, height, pattern.getArrowHeadType() );
-			Coordinate[] ahead = arrow.getArrowHeadShape();
-
-			if ( pattern.getArrowHeadType() == ArrowHeadType.OPEN ) 
-				//   Add to wireframe
-				wfs[0].addLineSegment(toDouble(ahead));
-			if ( pattern.getArrowHeadType() == ArrowHeadType.FILLED ) {
-				//   Add to shadedshape
-
-				ss.addPolygonPixelSpace( toLineString(ahead), 
-						new RGB ( dspClr[0].getRed(), dspClr[0].getGreen(), dspClr[0].getBlue() ));
-			}
-		}
-		
-		/*
-		 * Flip the side of the pattern along the spine
-		 */
-		if ( (elem instanceof Line) && ((Line)elem).isFlipSide() ) pattern = pattern.flipSide();
-
-		/*
-		 *  If a LinePattern is found for the object, apply it.
-		 *  Otherwise, just use solid line.
-		 */
-		if ( (pattern != null) && (pattern.getNumSegments() > 0) ) {
-			ScaleType scaleType = ScaleType.SCALE_ALL_SEGMENTS;
-			if ( elem instanceof Line ) {
-				Line line = (Line)elem;
-				//  Change scale type for fronts so that only BLANK and LINE segments are scaled.
-				//  This is done so that size of front pips don't vary with length of front.
-				if ( line.getPgenCategory().equalsIgnoreCase("Front") ) scaleType = ScaleType.SCALE_BLANK_LINE_ONLY;
-			}
-			handleLinePattern(pattern, smoothpts, scaleType);
-		}
-		else {
-			wfs[0].addLineSegment(smoothpts);
-		}
-
-		/*
-		 *  Create ShadedShape for fill, if necessary
-		 */
-		if ( getDisplayFillMode( de.isFilled() ) ) {
-			list.add( createFill(smoothpts) );
-		}
-		
-		/*
-		 *   Compile each IWireframeShape, create its LineDisplayElement, and add to 
-		 *   IDisplayable return list
-		 */
-		for ( int k=0; k < wfs.length; k++ ) {
-  		    wfs[k].compile();
-		    LineDisplayElement lde = new LineDisplayElement(wfs[k], dspClr[k],de.getLineWidth());
-		    list.add(lde);
-		}
-			
-		/*
-		 *   Compile each IShadedShape, create FillDisplayElement, and add to 
-		 *   IDisplayable return list
-		 */   
-		// TODO - This loop may be needed if we ever have to support different alphas
-		//for ( IShadedShape shade : ss ) {
-  		    ss.compile();
-		    FillDisplayElement fde = new FillDisplayElement(ss, elem.getColors()[0].getAlpha());
-		    list.add(fde);
-		//}
-
-		    AbstractDrawableComponent adc=((Line)de).getParent();
-		    if(adc!=null&&("CCFP_SIGMET".equals(adc.getPgenType())))
-		    	addCcfpSpeed(list, paintProps,  (gov.noaa.nws.ncep.ui.pgen.elements.DECollection)adc);		    
 		/*
 	     *   Draw labels for contour lines.
 		 */ 
@@ -1495,7 +1637,7 @@ public class DisplayElementFactory {
         /*
          * Create SymbolSetElement and return it
          */
-        slist.add( new SymbolSetElement( pic, paintProps, pts ) );
+        slist.add( new SymbolSetElement( pic, pts ) );
         return slist;
 
     }
@@ -3752,7 +3894,16 @@ public class DisplayElementFactory {
         		break;       			
         	}
         }
-        return target.initializeFont(fontName, fontSize, styles);
+        
+        /*
+         *  set smoothing and scaleFont to false to disable anti-aliasing (which cause
+         *  the fuzziness of the text). 
+         */       
+        IFont font  = target.initializeFont(fontName, fontSize, styles);
+        font.setSmoothing(false);
+        font.setScaleFont(false);
+      
+        return font;
 	}
     
     /**

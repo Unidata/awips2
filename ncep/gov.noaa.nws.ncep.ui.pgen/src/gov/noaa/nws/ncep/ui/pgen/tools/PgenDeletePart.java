@@ -8,6 +8,19 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
+import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
+import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
+
 import java.awt.Color;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -16,21 +29,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
-
-import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
-import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
-import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
-import gov.noaa.nws.ncep.ui.pgen.display.ILine;
-import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
-
-import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetLine;
-import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 
 /**
  * Implements a modal map tool for PGEN deleting part function.
@@ -44,6 +42,7 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * 11/10		#332		B. Yin		Added cleanup() for handler
  * 11/17        #343        S. Gilbert  Delete where selected. not just vertices
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 06/12        TTR102		B. Yin		Make it work for Jet
  *
  * </pre>
  * 
@@ -123,6 +122,7 @@ public class PgenDeletePart extends PgenSelectingTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
+        	if ( !isResourceEditable() ) return false;
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -136,7 +136,6 @@ public class PgenDeletePart extends PgenSelectingTool {
         			// Get the nearest element and set it as the selected element.
         			DrawableElement elSelected = drawingLayer.getNearestElement( loc, delPartFilter );
         			if ( elSelected instanceof ILine  &&
-        				 !(elSelected instanceof JetLine) && 
         				 !(elSelected instanceof WatchBox)) {
         				
         				drawingLayer.setSelected( elSelected );
@@ -255,7 +254,7 @@ public class PgenDeletePart extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button){
-        	return true;
+        	return false;
         }
 
         /**

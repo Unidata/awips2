@@ -381,6 +381,7 @@ public class PgenResourceData extends AbstractResourceData
 		
 		// remove the empty "Default" product
 		if ( productList.size() == 1 && productList.get(0).getName().equals( "Default") 
+			 &&	productList.get(0).getType().equals( "Default")
 			 && productList.get(0).getLayers().size() == 1 
 			 && productList.get(0).getLayers().get(0).getName().equals( "Default") 
 			 && productList.get(0).getLayers().get(0).getDrawables().size() == 0 ) {
