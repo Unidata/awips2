@@ -252,5 +252,5 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
 	public void setPaneConfigurationName(String paneConfigurationName) {
 		this.paneConfigurationName = paneConfigurationName;
 	}
-    
+
 }

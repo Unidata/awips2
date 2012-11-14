@@ -27,6 +27,7 @@ import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 
 import java.awt.Color;
@@ -40,12 +41,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
@@ -56,15 +60,19 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 ;
 /**
 /**
@@ -85,6 +93,13 @@ import com.vividsolutions.jts.geom.Point;
  *                                     implemented the IRscDataObj interface                                                                                                                 
  * 04/11			?	   B. Yin	   Re-factor IAttribute
  * 05/23/12       785      Q. Zhou     Added getName for legend.
+ * 06/25/2012     758      S. Gurung   Added new method drawPolygon(...) to clip polygons that span the edges (in world view).
+ *								       Added code to display the latest SIGMET currently in effect, if there are 
+ *									   2 or more SIGMETs with same messageID valid at the same time frame.
+ * 06/27/2012     830      S. Gurung   Added fix for the issue: changes in Edit Attributes Dialog not functioning properly. 
+ * 08/17/2012     655      B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ * 10/25/2012              B. Hebbard  [per S. Gurung] Replace 3 WorldWrapChecker.getInverseCentralMeridian() calls,
+ *                                     due to split by RTS in OB12.11.1 into get{High|Low}InverseCentralMeridian()
  * </pre>
  * 
  * @author Archana
@@ -168,7 +183,63 @@ implements INatlCntrsResource{
    @Override
     protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
     	return (AbstractFrameData) new FrameData( frameTime, timeInt );
-    }
+    } 
+   
+   @Override
+	protected boolean postProcessFrameUpdate() {
+   	
+	   // for each frame...
+   	
+	   	for (AbstractFrameData afd : frameDataMap.values()) {
+	   		FrameData fd = (FrameData) afd;
+	   		
+	   		// ...go through all the data time matched to this frame
+	   		// to determine, for every messageid, the latest issuance
+	   		// of SIGMETs for that messageid
+	   		
+	   		Map<String,DataTime> latestSigmetIssuanceTimeForMessageId = new HashMap<String,DataTime>();
+	   		
+	   		for (IntlSigmetRscDataObj isigRDO : fd.condensedIntligLinkedHashMap.values()) {
+	   			String sequenceNumber = isigRDO.sequenceNumber.trim();
+	   			if (sequenceNumber != null && !sequenceNumber.isEmpty()) {
+	   				String messageID = isigRDO.messageID.trim();
+	   				// null International SIGMET still counts as 'issuance'
+					DataTime latestSigmetIssuanceForThisMessageID =
+						latestSigmetIssuanceTimeForMessageId.get(messageID);
+					if (latestSigmetIssuanceForThisMessageID == null ||
+							isigRDO.issueTime.greaterThan(latestSigmetIssuanceForThisMessageID)) {
+						latestSigmetIssuanceTimeForMessageId.put(messageID, isigRDO.issueTime);
+					}
+	   					
+	   			}
+	   		}
+	   		
+	   		//latestSigmetIssuanceTimeForMessageId = latestSigmetIssuanceTimeForMessageId;
+	   		// Now that we've determined the latest issuances for each messageId -- we make a second
+	   		// pass through the data time matched to this frame.  This time,
+	   		// we purge anything superseded by a later issuance.
+	   		
+	   		String[] keys = new String[1];
+	   		keys = fd.condensedIntligLinkedHashMap.keySet().toArray(keys);
+	   		for (String key : keys) {
+	   			IntlSigmetRscDataObj isigRDO = fd.condensedIntligLinkedHashMap.get(key);
+	   			String sequenceNumber = (isigRDO == null) ? null : isigRDO.sequenceNumber;
+	   			if (sequenceNumber != null && !sequenceNumber.isEmpty()) {
+	   				String messageID = isigRDO.messageID.trim();
+	   				
+					DataTime latestSigmetIssuanceForThisMessageID =
+						latestSigmetIssuanceTimeForMessageId.get(messageID);
+					if (latestSigmetIssuanceForThisMessageID != null &&
+							latestSigmetIssuanceForThisMessageID.greaterThan(isigRDO.issueTime)) {
+						fd.condensedIntligLinkedHashMap.remove(key);
+					}
+	   			}
+	   		}
+	   		
+	   	}
+   
+		return true;
+	}
     
    /***
     * Overridden method to render the International SIGMETs in each frame.
@@ -204,6 +275,7 @@ implements INatlCntrsResource{
 	    	   FrameData currFrameData = (FrameData) frameData;
 	    	   DataTime activeFrameTime = currFrameData.getFrameTime();
                Collection<IntlSigmetRscDataObj> condensedISIGCollection= currFrameData.condensedIntligLinkedHashMap.values();
+                            
 	    	   for(IntlSigmetRscDataObj condensedISIG : condensedISIGCollection){
 	    		   
 	    		   /*  Check for invalid time range*/
@@ -224,322 +296,390 @@ implements INatlCntrsResource{
 					Coordinate tempSymbolLocationWorldCoord = null;
 					ArrayList<WeatherHazardType> weatherHarzardList = condensedISIG.getWeatherHazardEnumList();
 					
-	    			/* Retrieve the symbol specific attributes such as symbol size, width, pattern to be used etc, for all the
-					 * weather hazards in the current international sigmet
-					 **/
-					condensedISIG.symbolAttributeSubsetList   = condensedISIG.generateListOfSymbolAttributesForAllWeatherHazards(
-                       		                                        weatherHarzardList);	    			
-						
-					if(condensedISIG.symbolAttributeSubsetList.size() > 0){
-							firstSymbolAttributes = condensedISIG.symbolAttributeSubsetList.get(0);
-							polygonLineColor = firstSymbolAttributes.getSymbolColor();
-							polygonLineWidth = firstSymbolAttributes.getLineWidth();
-					}
-						
-					if(weatherHarzardList.get(0).equals(WeatherHazardType.TEST)){
-							lineStyle          = LineStyle.SHORT_DASHED;
-					}
-
-		
+					boolean enabled = false;		    		   
+		    		int weatherHarzardListSize = (weatherHarzardList!=null)? weatherHarzardList.size():0;
+		    		
+					for (int i=0; i<weatherHarzardListSize; i++) {
 					
-					condensedISIG.polygonVertexPixelCoordList = this.generatePixelCoordinateListFromWorldCoordinateList(condensedISIG.polygonVertexWorldCoord);
-					if(condensedISIG.polygonVertexPixelCoordList != null){
-						int polygonVertexPixelCoordListSize = condensedISIG.polygonVertexPixelCoordList.size();
-                        boolean isLocationLookUpFailed = condensedISIG.isLocationLookUpFailed();
-						if(polygonVertexPixelCoordListSize > 1 && !isLocationLookUpFailed ){
-							     this.drawPolygon(graphicsTarget,condensedISIG.polygonVertexPixelCoordList,polygonLineColor,polygonLineWidth,lineStyle);
-							     
-							     /*Get the pixel coordinate of the lowest vertex of the polygon to render the text */
-							    textLocation = condensedISIG.getLabelLocation(condensedISIG.polygonVertexPixelCoordList);
-							     
-							    /*Get the centroid of the polygon in world coordinates to render the symbol*/
-							    tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(this.getDescriptor(),
-							    		                                  condensedISIG.polygonVertexPixelCoordList);
-							     int distance   = condensedISIG.getDistance();
-							     String polyExtent = condensedISIG.getPolygonExtent();
-							     if(distance != IDecoderConstantsN.INTEGER_MISSING){
-							    	 if(!condensedISIG.isPolygonClosed()){
-							    	 /*If a surrounding polygon is to be rendered */
-                                      this.drawPolygonSurroundingLine(graphicsTarget,
-                                    		this.getDescriptor(),
-                                    		condensedISIG.polygonVertexWorldCoord,
-                                    		condensedISIG.polygonVertexPixelCoordList,
-                                    		polygonLineColor,polygonLineWidth,
-                                    		LineStyle.SHORT_DASHED,distance,polyExtent);
-							    	 }
-							     }
-							   
-                              }
-                            
-                              else if(polygonVertexPixelCoordListSize == 1 && !isLocationLookUpFailed){
-      							
-                            	  /*Get the location of the single vertex to draw the symbol at that point, but convert it first to world coordinates*/
-                            	  PixelCoordinate singlePoint  = condensedISIG.polygonVertexPixelCoordList.get(0);
-                            	  double[] pixLoc =  new double[]{singlePoint.getX(), singlePoint.getY()};
-                            	  PixelCoordinate symbolPixToWorldCoord  = new PixelCoordinate(descriptor.pixelToWorld(pixLoc)); 
-                            	  tempSymbolLocationWorldCoord = new Coordinate(symbolPixToWorldCoord.getX(), symbolPixToWorldCoord.getY());
-                            	  if(condensedISIG.getDistance() != IDecoderConstantsN.INTEGER_MISSING){
-
-                            		  /*This is a weather hazard within a circular area*/
-     								  double radius = condensedISIG.getDistance();
-     								    
-                            		  /*delta is used to draw the marker at the center of the circle*/				   
-  									  double delta = offsetY * 0.3;
-                            		  this.drawCircleWithMarker(graphicsTarget,singlePoint,radius, delta, polygonLineColor, polygonLineWidth);
-   						 	      }
-                            	  
-  						 	    	
-								       /*This is retained from legacy code:
-								        * For a single point (isolated) TEST SIGMET the label's text is preceded with the character 'T'.
-								        **/
-              					if(weatherHarzardList.size() > 0 
-              							&& weatherHarzardList.get(0).equals(WeatherHazardType.TEST)){
-								       labelList.add("T");   						 	    	
-              					}
-                            	  
-                            	  /*The location of the label should be the same as that of the single vertex, but with a small x and y offset
-                            	   * to separate it from the symbol*/
-						 	      textLocation = singlePoint;
-								  textLocation.addToX(offsetX);
-								  textLocation.addToY(offsetY);                             	  
-
-                              }
-                              else if(isLocationLookUpFailed){
-                            	  /*The question marks are added to ensure that 
-                            	   *the user understands this is a case of location look up failure*/
-                            	  labelList.add("??");
-                            	  tempSymbolLocationWorldCoord = new Coordinate(condensedISIG.getAlternateSymbolLocationLongitude(),condensedISIG.getAlternateSymbolLocationLatitude());
-                                  double[] worldPixel = new double[]{tempSymbolLocationWorldCoord.x, tempSymbolLocationWorldCoord.y};
-                                  textLocation = new PixelCoordinate( descriptor.worldToPixel(worldPixel));
-                                  textLocation.addToX(offsetX);
-                                  textLocation.addToY(offsetY);
-                              }
-						
-
-						   /*Check if the symbols need to be displayed*/
-	                       if(intlSigmetResourceDataObj.symbolEnable){
-
-	                    	   /*If the symbol location is not null and the list of symbols and the list of weather hazards are not empty..*/
-								if(tempSymbolLocationWorldCoord != null 
-										&& !condensedISIG.symbolAttributeSubsetList.isEmpty()
-										&& !weatherHarzardList.isEmpty()){
-									
-									PixelCoordinate coordOfSymbolInPixel;
-									DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, descriptor );
-									ArrayList<IDisplayable> displayEls = new ArrayList<IDisplayable>(0);
-									String symbolType = "ASTERISK";
-									
-									Coordinate symbolCoordinate = tempSymbolLocationWorldCoord;
-									int numSymbolsToDisplay = weatherHarzardList.size();
-									boolean isDrawText = false;
-									firstSymbolAttributes  = condensedISIG.symbolAttributeSubsetList.get(0);
-									Color[] symbolColor = { new Color(firstSymbolAttributes.getSymbolColor().red,
-		                                                        firstSymbolAttributes.getSymbolColor().green,
-		                                                        firstSymbolAttributes.getSymbolColor().blue)};
-									
-									
-									for( int i = 0 ; i < numSymbolsToDisplay ; i++ ){
-                                        /*(Non-Javadoc)
-                                         * If the symbol is to be displayed in the Southern Hemisphere,
-                                         * and if it is either a hurricane or a tropical storm, then
-                                         * different symbols are used than if it were to be rendered in the 
-                                         * Northern Hemisphere.
-                                         */
-										if(symbolCoordinate.x < 0){
-                                        	if(weatherHarzardList.get(i) == WeatherHazardType.HU){
-                                        		symbolType = "HURRICANE_SH";
-                                        	}
-                                        	if(weatherHarzardList.get(i) == WeatherHazardType.TR){
-                                        		symbolType = "TROPICAL_STORM_SH";
-                                        	}                                            	 
-                                        }
-										
-                                        /*
-                                         * (Non-Javadoc)
-                                         * For the weather hazards listed below, instead of symbols, a text representation
-                                         * of the same is rendered within a box.
-                                         * (Note): 
-                                         * The decision to render WIND/WTSPT hazards as text 
-                                         * (since no equivalent symbols exist) is an improvement over legacy, 
-                                         * which does not render them at all.
-                                         * For WIND/WTSPT, the text is rendered in the color white, since there is
-                                         * no predefined color.  
-                                         */
-                                        if(weatherHarzardList.get(i) == WeatherHazardType.MW 
-                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WS
-                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WIND
-                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WTSPT){
-                                        	isDrawText = true;
-                                        	switch(weatherHarzardList.get(i)){
-                                        	case MW:
-                                        		symbolType = "MTW";
-                                        		break;
-                                        	case WS:
-                                        		symbolType = "LLWS";
-                                        		break;	                                        	
-                                        	case WIND:
-                                        		symbolType = "WIND";
-                                        		break;
-                                        	case WTSPT:
-                                        		symbolType = "WTSPT";
-                                        		break;	                                                      	
-                                        	default:
-                                        		break;
-                                        	}
-                                        }
-                                        
-                                        int    symbolWidth   = condensedISIG.symbolAttributeSubsetList.get(i).getSymbolWidth();
-                                        double symbolSize    =  condensedISIG.symbolAttributeSubsetList.get(i).getSymbolSize();
-
-                                        if(isDrawText){
-                                        	String[] textString = new String[]{symbolType};
-                                        	/*(Non-Javadoc)
-                                        	 * The symbol scaling calculation shown below are ad-hoc and not
-                                        	 *very accurate since there is no specific scaling factor
-                                        	 *that exists between the symbols and the fonts used in CAVE*/
-                                        	float symbolSizeInNMAP = (float)(7*symbolSize + 2.5);
-                                        	float fontSize = symbolSizeInNMAP;
-                                        	Text symbolText = new Text(null,
-                                        			                  "Courier", 
-                                        			                  symbolSizeInNMAP,
-                                        			                  TextJustification.CENTER,
-                                        			                  symbolCoordinate,
-                                        			                  0.0,
-                                        			                  TextRotation.SCREEN_RELATIVE,
-                                        			                  textString,
-                                        			                  FontStyle.BOLD,
-                                        			                  symbolColor[0],
-                                        			                  0,0,
-                                        			                  false,
-                                        			                  DisplayType.BOX,
-                                        			                  "Text",
-                                        			                  "General Text"
-                                        			                  );
-                                        	displayEls = df.createDisplayElements((IText)symbolText,paintProps);
-                                        	
-                                        }else{
-											   symbolType = condensedISIG.symbolAttributeSubsetList.get(i).getSymbolType(); 
-									           Symbol symbol = new Symbol(
-														null,
-														symbolColor,
-														symbolWidth,
-														symbolSize * 0.60, /* scale per NMAP*/
-														false,
-														symbolCoordinate,
-														"Symbol",
-														symbolType);
-										         displayEls = df.createDisplayElements(symbol,paintProps);
-                                        }
-
-										if (displayEls != null && !displayEls.isEmpty()) {
-											for (IDisplayable each : displayEls) {
-												each.draw(graphicsTarget);
-												each.dispose();
-											}
-										}
-									   
-									   isDrawText = false;
-
-                                       
-                                       
-                                       /*To get the x-offset and y-offset to display more than one symbol without overlapping*/
-                                       coordOfSymbolInPixel = new PixelCoordinate(descriptor.worldToPixel(new double[]{symbolCoordinate.x, symbolCoordinate.y}));
-                                       coordOfSymbolInPixel.addToX(offsetX*1.5);
-                                       coordOfSymbolInPixel.addToY(offsetY*1.5);
-                                       double pixelArr[] = new double[]{coordOfSymbolInPixel.getX(), coordOfSymbolInPixel.getY()};
-                                       double worldArr[] = descriptor.pixelToWorld(pixelArr);
-                                       symbolCoordinate = new Coordinate(worldArr[0], worldArr[1]);  
-									}
-									
-								}
-	                       }
-						
-						    /*Display the messageID and sequenceNumber*/
-                            if(intlSigmetResourceDataObj.nameOrNumberEnable){
-                            	/*
-                            	 * (Non-Javadoc)
-                            	 * If both the messageID and the sequenceNumber are not null, display them together.
-                            	 * If the message id alone is not null, display it, but if it is null,
-                            	 * don't display the sequence number.
-                            	 */
-                            	if(condensedISIG.getMessageID() != null  ) {
-                            		String locMessageId = condensedISIG.getMessageID();
-                            		/*
-                            		 * (Non-Javadoc)
-                            		 * This is retained from legacy code:
-                            		 * If any of the sigmets (KZNY/KZMA/KZHU/TJZS) in the Atlantic are encountered, 
-                            		 * the label is preceded with the character 'A'.
-                            		 * */
-                            		if(condensedISIG.isSIGMETInAtlantic(condensedISIG.getIssueOffice(),
-                            				                            condensedISIG.getOmwo(),
-                            				                            condensedISIG.getAtsu())){
-                            			labelList.add("A");
-                            		}
-
-                            		if(condensedISIG.getSequenceNumber() != null){
-                            			
-                            			labelList.add(new String (locMessageId + " " 
-                            					+ condensedISIG.getSequenceNumber()));
-                            		}
-                            		else{
-                            			labelList.add(locMessageId);	
-                            		}
-
-                            	}
-                            }					
-                            
-                            if(intlSigmetResourceDataObj.timeEnable){
-                            	labelList.add( condensedISIG.getStartTimeText()+ "-" + condensedISIG.getEndTimeText());
-                            } 									    
-
-                            if(intlSigmetResourceDataObj.motionEnable){
-                            	if(condensedISIG.getSpeed() != IDecoderConstantsN.INTEGER_MISSING ){
-                            		labelList.add(condensedISIG.getSpeed() + " KT " + condensedISIG.getDirection());
-                            	}
-
-                            }
-                            
-                            if(intlSigmetResourceDataObj.flightLevelEnable){
-                            	int lowerFlightLevel = condensedISIG.getFlightLevel1();
-                            	int upperFlightLevel = condensedISIG.getFlightLevel2();
-                            		if(lowerFlightLevel > 0 && upperFlightLevel > 0){
-
-                            			labelList.add(lowerFlightLevel + " / " + upperFlightLevel);
-
-                            		}else{
-                            			   if(lowerFlightLevel > 0){
-                            				   labelList.add(lowerFlightLevel + "");
-                            			   }else if(upperFlightLevel > 0){
-                            				   labelList.add(upperFlightLevel + "");
-                            			   }else{
-                            			    labelList.add("");
-                            			   }
-                            		}                            
-                            }
-                            
-                            
-                        	if(!labelList.isEmpty() && textLocation != null){
-
-                        		for(int j = 0; j < labelList.size(); j++){
-                        			textRGBArray.add(polygonLineColor);
-
-                        		}
-
-                        		graphicsTarget.drawStrings(
-                        				font, 
-                        				(labelList.toArray(new  String[0])), 
-                        				textLocation.getX() + offsetX,
-                          				textLocation.getY() + offsetY,
-                        				0.0,
-                        				TextStyle.NORMAL, 
-                        				textRGBArray.toArray(new RGB[0]), 
-                        				HorizontalAlignment.LEFT, 
-                        				VerticalAlignment.TOP);
-
-                        	}                              
+						switch( weatherHarzardList.get(i) ) {
+							case TS:
+								enabled     = intlSigmetResourceDataObj.getThunderstormEnable();
+								break;
+							case TB:
+								enabled     = intlSigmetResourceDataObj.getTurbulenceEnable();
+								break;
+							case HU:
+								enabled     = intlSigmetResourceDataObj.getHurricaneEnable();
+								break;
+							case TR:
+								enabled     = intlSigmetResourceDataObj.getTropicalStormEnable();
+								break;
+							case TD:
+								enabled     = intlSigmetResourceDataObj.getTropicalDepressionEnable();
+								break;
+							case VA:
+								enabled     = intlSigmetResourceDataObj.getVolcanicAshCloudEnable();
+								break;
+							case MW:
+								enabled     = intlSigmetResourceDataObj.getMountainWaveEnable();
+								break;
+							case TC:
+								enabled     = intlSigmetResourceDataObj.getTropicalCycloneEnable();
+								break;
+							case SQ:
+								enabled     = intlSigmetResourceDataObj.getSquallLineEnable();
+								break;
+							case CAT:
+								enabled     = intlSigmetResourceDataObj.getCatEnable();
+								break;
+							case IC:
+								enabled     = intlSigmetResourceDataObj.getIcingEnable();
+								break;
+							case GR:
+								enabled     = intlSigmetResourceDataObj.getHailEnable();
+							break;
+							case DS:
+								enabled     = intlSigmetResourceDataObj.getDustStormEnable();
+								break;
+							case SS:
+								enabled     = intlSigmetResourceDataObj.getSandStormEnable();
+								break;
+							case CB:
+								enabled     = intlSigmetResourceDataObj.getCumulonimbusEnable();
+								break;
+							case WS:
+								enabled     = intlSigmetResourceDataObj.getLowLevelWindShearEnable();
+								break;
+							default:
+						}
 
 					}
-	    	   }		
+					
+						if (enabled) {
+						
+		    			/* Retrieve the symbol specific attributes such as symbol size, width, pattern to be used etc, for all the
+						 * weather hazards in the current international sigmet
+						 **/
+						condensedISIG.symbolAttributeSubsetList   = condensedISIG.generateListOfSymbolAttributesForAllWeatherHazards(
+	                       		                                        weatherHarzardList);	    			
+							
+						if(condensedISIG.symbolAttributeSubsetList.size() > 0){
+								firstSymbolAttributes = condensedISIG.symbolAttributeSubsetList.get(0);
+								polygonLineColor = firstSymbolAttributes.getSymbolColor();
+								polygonLineWidth = firstSymbolAttributes.getLineWidth();
+						}
+							
+						if(weatherHarzardList.get(0).equals(WeatherHazardType.TEST)){
+								lineStyle          = LineStyle.SHORT_DASHED;
+						}
+	
+			
+						
+						condensedISIG.polygonVertexPixelCoordList = this.generatePixelCoordinateListFromWorldCoordinateList(condensedISIG.polygonVertexWorldCoord);
+						if(condensedISIG.polygonVertexPixelCoordList != null){
+							int polygonVertexPixelCoordListSize = condensedISIG.polygonVertexPixelCoordList.size();
+	                        boolean isLocationLookUpFailed = condensedISIG.isLocationLookUpFailed();
+							if(polygonVertexPixelCoordListSize > 1 && !isLocationLookUpFailed ){
+								    //this.drawPolygon(graphicsTarget,condensedISIG.polygonVertexPixelCoordList,polygonLineColor,polygonLineWidth,lineStyle);
+									
+									Coordinate[] polygonCoordinatesList = condensedISIG.getPolygonLatLonCoordinates();
+					    			this.drawPolygon(polygonCoordinatesList, graphicsTarget, polygonLineColor, polygonLineWidth, lineStyle);
+								     
+								     /*Get the pixel coordinate of the lowest vertex of the polygon to render the text */
+								    textLocation = condensedISIG.getLabelLocation(condensedISIG.polygonVertexPixelCoordList);
+								     
+								    /*Get the centroid of the polygon in world coordinates to render the symbol*/
+								    /* tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(condensedISIG, this.getDescriptor(),
+								    		                                  condensedISIG.polygonVertexPixelCoordList);*/
+								    
+								    tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(polygonCoordinatesList, this.getDescriptor(), graphicsTarget);
+								    
+								     int distance   = condensedISIG.getDistance();
+								     String polyExtent = condensedISIG.getPolygonExtent();
+								     if(distance != IDecoderConstantsN.INTEGER_MISSING){
+								    	 if(!condensedISIG.isPolygonClosed()){
+								    	 /*If a surrounding polygon is to be rendered */
+	                                      this.drawPolygonSurroundingLine(graphicsTarget,
+	                                    		this.getDescriptor(),
+	                                    		condensedISIG.polygonVertexWorldCoord,
+	                                    		condensedISIG.polygonVertexPixelCoordList,
+	                                    		polygonLineColor,polygonLineWidth,
+	                                    		LineStyle.SHORT_DASHED,distance,polyExtent);
+								    	 }
+								     }
+								   
+	                              }
+	                            
+	                              else if(polygonVertexPixelCoordListSize == 1 && !isLocationLookUpFailed){
+	      							
+	                            	  /*Get the location of the single vertex to draw the symbol at that point, but convert it first to world coordinates*/
+	                            	  PixelCoordinate singlePoint  = condensedISIG.polygonVertexPixelCoordList.get(0);
+	                            	  double[] pixLoc =  new double[]{singlePoint.getX(), singlePoint.getY()};
+	                            	  PixelCoordinate symbolPixToWorldCoord  = new PixelCoordinate(descriptor.pixelToWorld(pixLoc)); 
+	                            	  tempSymbolLocationWorldCoord = new Coordinate(symbolPixToWorldCoord.getX(), symbolPixToWorldCoord.getY());
+	                            	  if(condensedISIG.getDistance() != IDecoderConstantsN.INTEGER_MISSING){
+	
+	                            		  /*This is a weather hazard within a circular area*/
+	     								  double radius = condensedISIG.getDistance();
+	     								    
+	                            		  /*delta is used to draw the marker at the center of the circle*/				   
+	  									  double delta = offsetY * 0.3;
+	                            		  this.drawCircleWithMarker(graphicsTarget,singlePoint,radius, delta, polygonLineColor, polygonLineWidth);
+	   						 	      }
+	                            	  
+	  						 	    	
+									       /*This is retained from legacy code:
+									        * For a single point (isolated) TEST SIGMET the label's text is preceded with the character 'T'.
+									        **/
+	              					if(weatherHarzardList.size() > 0 
+	              							&& weatherHarzardList.get(0).equals(WeatherHazardType.TEST)){
+									       labelList.add("T");   						 	    	
+	              					}
+	                            	  
+	                            	  /*The location of the label should be the same as that of the single vertex, but with a small x and y offset
+	                            	   * to separate it from the symbol*/
+							 	      textLocation = singlePoint;
+									  textLocation.addToX(offsetX);
+									  textLocation.addToY(offsetY);                             	  
+	
+	                              }
+	                              else if(isLocationLookUpFailed){
+	                            	  /*The question marks are added to ensure that 
+	                            	   *the user understands this is a case of location look up failure*/
+	                            	  labelList.add("??");
+	                            	  tempSymbolLocationWorldCoord = new Coordinate(condensedISIG.getAlternateSymbolLocationLongitude(),condensedISIG.getAlternateSymbolLocationLatitude());
+	                                  double[] worldPixel = new double[]{tempSymbolLocationWorldCoord.x, tempSymbolLocationWorldCoord.y};
+	                                  textLocation = new PixelCoordinate( descriptor.worldToPixel(worldPixel));
+	                                  textLocation.addToX(offsetX);
+	                                  textLocation.addToY(offsetY);
+	                              }
+							
+	
+							   /*Check if the symbols need to be displayed*/
+		                       if(intlSigmetResourceDataObj.symbolEnable){
+	
+		                    	   /*If the symbol location is not null and the list of symbols and the list of weather hazards are not empty..*/
+									if(tempSymbolLocationWorldCoord != null 
+											&& !condensedISIG.symbolAttributeSubsetList.isEmpty()
+											&& !weatherHarzardList.isEmpty()){
+										
+										PixelCoordinate coordOfSymbolInPixel;
+										DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, descriptor );
+										ArrayList<IDisplayable> displayEls = new ArrayList<IDisplayable>(0);
+										String symbolType = "ASTERISK";
+										
+										Coordinate symbolCoordinate = tempSymbolLocationWorldCoord;
+										int numSymbolsToDisplay = weatherHarzardList.size();
+										boolean isDrawText = false;
+										firstSymbolAttributes  = condensedISIG.symbolAttributeSubsetList.get(0);
+										Color[] symbolColor = { new Color(firstSymbolAttributes.getSymbolColor().red,
+			                                                        firstSymbolAttributes.getSymbolColor().green,
+			                                                        firstSymbolAttributes.getSymbolColor().blue)};
+										
+										
+										for( int i = 0 ; i < numSymbolsToDisplay ; i++ ){
+	                                        /*(Non-Javadoc)
+	                                         * If the symbol is to be displayed in the Southern Hemisphere,
+	                                         * and if it is either a hurricane or a tropical storm, then
+	                                         * different symbols are used than if it were to be rendered in the 
+	                                         * Northern Hemisphere.
+	                                         */
+											if(symbolCoordinate.x < 0){
+	                                        	if(weatherHarzardList.get(i) == WeatherHazardType.HU){
+	                                        		symbolType = "HURRICANE_SH";
+	                                        	}
+	                                        	if(weatherHarzardList.get(i) == WeatherHazardType.TR){
+	                                        		symbolType = "TROPICAL_STORM_SH";
+	                                        	}                                            	 
+	                                        }
+											
+	                                        /*
+	                                         * (Non-Javadoc)
+	                                         * For the weather hazards listed below, instead of symbols, a text representation
+	                                         * of the same is rendered within a box.
+	                                         * (Note): 
+	                                         * The decision to render WIND/WTSPT hazards as text 
+	                                         * (since no equivalent symbols exist) is an improvement over legacy, 
+	                                         * which does not render them at all.
+	                                         * For WIND/WTSPT, the text is rendered in the color white, since there is
+	                                         * no predefined color.  
+	                                         */
+	                                        if(weatherHarzardList.get(i) == WeatherHazardType.MW 
+	                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WS
+	                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WIND
+	                                        		|| weatherHarzardList.get(i) == WeatherHazardType.WTSPT){
+	                                        	isDrawText = true;
+	                                        	switch(weatherHarzardList.get(i)){
+	                                        	case MW:
+	                                        		symbolType = "MTW";
+	                                        		break;
+	                                        	case WS:
+	                                        		symbolType = "LLWS";
+	                                        		break;	                                        	
+	                                        	case WIND:
+	                                        		symbolType = "WIND";
+	                                        		break;
+	                                        	case WTSPT:
+	                                        		symbolType = "WTSPT";
+	                                        		break;	                                                      	
+	                                        	default:
+	                                        		break;
+	                                        	}
+	                                        }
+	                                        
+	                                        int    symbolWidth   = condensedISIG.symbolAttributeSubsetList.get(i).getSymbolWidth();
+	                                        double symbolSize    =  condensedISIG.symbolAttributeSubsetList.get(i).getSymbolSize();
+	
+	                                        if(isDrawText){
+	                                        	String[] textString = new String[]{symbolType};
+	                                        	/*(Non-Javadoc)
+	                                        	 * The symbol scaling calculation shown below are ad-hoc and not
+	                                        	 *very accurate since there is no specific scaling factor
+	                                        	 *that exists between the symbols and the fonts used in CAVE*/
+	                                        	float symbolSizeInNMAP = (float)(7*symbolSize + 2.5);
+	                                        	float fontSize = symbolSizeInNMAP;
+	                                        	Text symbolText = new Text(null,
+	                                        			                  "Courier", 
+	                                        			                  symbolSizeInNMAP,
+	                                        			                  TextJustification.CENTER,
+	                                        			                  symbolCoordinate,
+	                                        			                  0.0,
+	                                        			                  TextRotation.SCREEN_RELATIVE,
+	                                        			                  textString,
+	                                        			                  FontStyle.BOLD,
+	                                        			                  symbolColor[0],
+	                                        			                  0,0,
+	                                        			                  false,
+	                                        			                  DisplayType.BOX,
+	                                        			                  "Text",
+	                                        			                  "General Text"
+	                                        			                  );
+	                                        	displayEls = df.createDisplayElements((IText)symbolText,paintProps);
+	                                        	
+	                                        }else{
+												   symbolType = condensedISIG.symbolAttributeSubsetList.get(i).getSymbolType(); 
+										           Symbol symbol = new Symbol(
+															null,
+															symbolColor,
+															symbolWidth,
+															symbolSize * 0.60, /* scale per NMAP*/
+															false,
+															symbolCoordinate,
+															"Symbol",
+															symbolType);
+											         displayEls = df.createDisplayElements(symbol,paintProps);
+	                                        }
+	
+											if (displayEls != null && !displayEls.isEmpty()) {
+												for (IDisplayable each : displayEls) {
+													each.draw(graphicsTarget, paintProps);
+													each.dispose();
+												}
+											}
+										   
+										   isDrawText = false;
+	
+	                                       
+	                                       
+	                                       /*To get the x-offset and y-offset to display more than one symbol without overlapping*/
+	                                       coordOfSymbolInPixel = new PixelCoordinate(descriptor.worldToPixel(new double[]{symbolCoordinate.x, symbolCoordinate.y}));
+	                                       coordOfSymbolInPixel.addToX(offsetX*1.5);
+	                                       coordOfSymbolInPixel.addToY(offsetY*1.5);
+	                                       double pixelArr[] = new double[]{coordOfSymbolInPixel.getX(), coordOfSymbolInPixel.getY()};
+	                                       double worldArr[] = descriptor.pixelToWorld(pixelArr);
+	                                       symbolCoordinate = new Coordinate(worldArr[0], worldArr[1]);  
+										}
+										
+									}
+		                       }
+							
+							    /*Display the messageID and sequenceNumber*/
+	                            if(intlSigmetResourceDataObj.nameOrNumberEnable){
+	                            	/*
+	                            	 * (Non-Javadoc)
+	                            	 * If both the messageID and the sequenceNumber are not null, display them together.
+	                            	 * If the message id alone is not null, display it, but if it is null,
+	                            	 * don't display the sequence number.
+	                            	 */
+	                            	if(condensedISIG.getMessageID() != null  ) {
+	                            		String locMessageId = condensedISIG.getMessageID();
+	                            		/*
+	                            		 * (Non-Javadoc)
+	                            		 * This is retained from legacy code:
+	                            		 * If any of the sigmets (KZNY/KZMA/KZHU/TJZS) in the Atlantic are encountered, 
+	                            		 * the label is preceded with the character 'A'.
+	                            		 * */
+	                            		if(condensedISIG.isSIGMETInAtlantic(condensedISIG.getIssueOffice(),
+	                            				                            condensedISIG.getOmwo(),
+	                            				                            condensedISIG.getAtsu())){
+	                            			labelList.add("A");
+	                            		}
+	
+	                            		if(condensedISIG.getSequenceNumber() != null){
+	                            			
+	                            			labelList.add(new String (locMessageId + " " 
+	                            					+ condensedISIG.getSequenceNumber()));
+	                            		}
+	                            		else{
+	                            			labelList.add(locMessageId);	
+	                            		}
+	
+	                            	}
+	                            }					
+	                            
+	                            if(intlSigmetResourceDataObj.timeEnable){
+	                            	labelList.add( condensedISIG.getStartTimeText()+ "-" + condensedISIG.getEndTimeText());
+	                            } 									    
+	
+	                            if(intlSigmetResourceDataObj.motionEnable){
+	                            	if(condensedISIG.getSpeed() != IDecoderConstantsN.INTEGER_MISSING ){
+	                            		labelList.add(condensedISIG.getSpeed() + " KT " + condensedISIG.getDirection());
+	                            	}
+	
+	                            }
+	                            
+	                            if(intlSigmetResourceDataObj.flightLevelEnable){
+	                            	int lowerFlightLevel = condensedISIG.getFlightLevel1();
+	                            	int upperFlightLevel = condensedISIG.getFlightLevel2();
+	                            		if(lowerFlightLevel > 0 && upperFlightLevel > 0){
+	
+	                            			labelList.add(lowerFlightLevel + " / " + upperFlightLevel);
+	
+	                            		}else{
+	                            			   if(lowerFlightLevel > 0){
+	                            				   labelList.add(lowerFlightLevel + "");
+	                            			   }else if(upperFlightLevel > 0){
+	                            				   labelList.add(upperFlightLevel + "");
+	                            			   }else{
+	                            			    labelList.add("");
+	                            			   }
+	                            		}                            
+	                            }
+	                            
+	                            
+	                        	if(!labelList.isEmpty() && textLocation != null){
+	
+	                        		for(int j = 0; j < labelList.size(); j++){
+	                        			textRGBArray.add(polygonLineColor);
+	
+	                        		}
+	
+	                        		graphicsTarget.drawStrings(
+	                        				font, 
+	                        				(labelList.toArray(new  String[0])), 
+	                        				textLocation.getX() + offsetX,
+	                          				textLocation.getY() + offsetY,
+	                        				0.0,
+	                        				TextStyle.NORMAL, 
+	                        				textRGBArray.toArray(new RGB[0]), 
+	                        				HorizontalAlignment.LEFT, 
+	                        				VerticalAlignment.TOP);
+	
+	                        	}                              
+	
+						}
+		    	   }	
+	    	   }
 	       }	   
 	} 
 	
@@ -601,6 +741,7 @@ implements INatlCntrsResource{
 		ArrayList<PixelCoordinate> polygonVertexPixelCoord,
 		RGB polygonLineColor,
 		int polygonLineWidth, LineStyle lineStyle, int distance, String polygonExtent) throws VizException {
+		
 		if (polygonVertexWorldCoord != null && polygonVertexWorldCoord.size() > 1) {
 			Coordinate[] polygonWorldCoordinateArray = new Coordinate[polygonVertexWorldCoord
 			                                                          .size()];
@@ -619,7 +760,7 @@ implements INatlCntrsResource{
 								|| polygonExtent.contains("WITHIN"))){
 					distanceNM = distance/2 * METRE_TO_NM_CONVERSION_FACTOR;
 				}
-
+				
 				/*(Non-Javadoc)
 				 * Get the coordinates on either side of the line
 				 */
@@ -631,7 +772,7 @@ implements INatlCntrsResource{
 						polygonWorldCoordinateArray,
 						arrayOfVerticesOnEitherSide[0],
 						arrayOfVerticesOnEitherSide[1]);
-
+				
 				/*(Non-Javadoc)
 				 * Ideally, it should be easy to just use the existing IntlSigmetResource.drawPolygon()
 				 * method coupled with the IGraphicsTarget.drawArc() method. However when doing this, it was
@@ -640,7 +781,7 @@ implements INatlCntrsResource{
 				 * Hence the code to render the polygon and its arc point-by-point have been added here. 
 				 */
 
-				PixelCoordinate prevLoc = null;
+				/*PixelCoordinate prevLoc = null;
 				for (Coordinate currCoordinate : arrayOfVerticesOnEitherSideForPolygonWithArc[0]) {
 					double[] latLon = { currCoordinate.x, currCoordinate.y };
 					PixelCoordinate currLoc = new PixelCoordinate(descriptor.worldToPixel(latLon));
@@ -652,14 +793,15 @@ implements INatlCntrsResource{
 					}
 
 					prevLoc = currLoc;
-				}
+				}*/
+				
 				/*
 				 * (Non-Javadoc)
 				 * prevLoc is set to the last element of the first side of the polygon
 				 * The second side is drawn from its last vertex to the first, thereby allowing the 
 				 * line in-between the first and second sides to be drawn first  
 				 * */
-				for (int j = arrayOfVerticesOnEitherSideForPolygonWithArc[1].length - 1; j >= 0; j--) {
+				/*for (int j = arrayOfVerticesOnEitherSideForPolygonWithArc[1].length - 1; j >= 0; j--) {
 					Coordinate currCoordinate = arrayOfVerticesOnEitherSideForPolygonWithArc[1][j];
 					double[] latLon = { currCoordinate.x, currCoordinate.y };
 
@@ -673,7 +815,40 @@ implements INatlCntrsResource{
 					}
 
 					prevLoc = currLoc;
+				}*/
+				
+				
+				ArrayList<Coordinate> coordinatesList = new ArrayList<Coordinate>();
+				
+				for (Coordinate currCoordinate : arrayOfVerticesOnEitherSideForPolygonWithArc[0]) {		
+					coordinatesList.add(new Coordinate(currCoordinate.x, currCoordinate.y));
 				}
+				
+				for (int j = arrayOfVerticesOnEitherSideForPolygonWithArc[1].length-1; j >= 0; j--) {
+					Coordinate currCoordinate = arrayOfVerticesOnEitherSideForPolygonWithArc[1][j];					
+					coordinatesList.add(new Coordinate(currCoordinate.x, currCoordinate.y));
+				}
+				
+				Coordinate[] coordinates = new Coordinate[coordinatesList.size()];
+				for (int i=0; i<coordinatesList.size(); i++) {
+					coordinates[i] = coordinatesList.get(i);
+				}
+				
+				IWireframeShape wireframeShape = graphicsTarget.createWireframeShape(false, descriptor);	
+				JTSCompiler jtsCompiler = new JTSCompiler(null, wireframeShape, descriptor);
+				GeometryFactory gf = new GeometryFactory(); 
+				
+				LineString ls = gf.createLineString(coordinates);			
+				
+				try {
+					jtsCompiler.handle(ls, polygonLineColor, true);
+					wireframeShape.compile(); 
+					graphicsTarget.drawWireframeShape(wireframeShape, polygonLineColor, polygonLineWidth, lineStyle);
+				} catch (VizException e) {
+					System.out.println("VizException caught when calling IntlSigmetResource.drawPolygonSurroundingLine(...): " + e.getMessage()); 
+			    } 
+			
+				wireframeShape.dispose();  
 			}	
 			else{
 				if(polygonExtent.contains("OF")){
@@ -685,14 +860,17 @@ implements INatlCntrsResource{
 					if(lineType.contains("SEOF") || lineType.contains("SWOF")){
 						lineType = new String("SOF");
 					}
-
+					
 					Coordinate[] sideOfLineArr = SigmetInfo.getSOLCoors(polygonWorldCoordinateArray, 
 							lineType, distanceNM, descriptor);
 					if(sideOfLineArr != null && sideOfLineArr.length > 1){
 						List<Coordinate> sideOfLineList =  Arrays.asList(sideOfLineArr);
 						ArrayList<PixelCoordinate>  sideOfLinePixCoordlist =  generatePixelCoordinateListFromWorldCoordinateList(sideOfLineList);
 						drawPolygon(graphicsTarget, sideOfLinePixCoordlist, polygonLineColor, polygonLineWidth, lineStyle);
-
+						
+						//The following method should be used if we want the polygons that span the edges to be clipped 
+						//Seems this case is extremely rare. No test cases were found. So for now not using the new drawPolygon method for this case.
+						//this.drawPolygon(sideOfLineArrInLatLonCoordinates, graphicsTarget, polygonLineColor, polygonLineWidth, lineStyle);
 					}
 				}
 
@@ -783,9 +961,37 @@ implements INatlCntrsResource{
 			}
 		}        	
     }	
-	
+    
+    /***
+	 * Draws a polygon with the given line color, line style and line width 
+	 * Also, clips the polygons, if necessary.
+	 * @param polygonCoordinatesList - the list of polygon coordinates in Lat/Lon
+	 * @param graphicsTarget - the graphics target
+	 * @param polygonLineColor - the color of the polygon in RGB
+	 * @param polygonLineWidth - the width of the polygon in int
+	 * @param lineStyle - the type of line to drawn
+	 * @throws VizException
+	 */
+    private void drawPolygon(Coordinate[] polygonCoordinatesList, IGraphicsTarget target, RGB lineColor, int lineWidth, LineStyle lineStyle) {
+    	
+    	if (polygonCoordinatesList != null) {
+			IWireframeShape wireframeShape = target.createWireframeShape(false, descriptor);		
+			JTSCompiler jtsCompiler = new JTSCompiler(null, wireframeShape, descriptor);
+			GeometryFactory gf = new GeometryFactory(); 
+			LineString ls = gf.createLineString(polygonCoordinatesList);			
+						
+			try {
+				jtsCompiler.handle(ls, lineColor, true);
+				wireframeShape.compile(); 
+				target.drawWireframeShape(wireframeShape, lineColor, lineWidth, lineStyle);
+			} catch (VizException e) {
+				System.out.println("VizException caught when calling IntlSigmetResource.drawPolygon(...): " + e.getMessage()); 
+		    } 
+			wireframeShape.dispose();  
+		}    	
 
-	
+	}		
+  
 	/***
 	 * Retrieves only a sub-set of the attributes of the IntlSigmetRecord required to
 	 * paint it on the frame.
@@ -1041,6 +1247,228 @@ implements INatlCntrsResource{
 			
 		    return centroid;
 		}
+	
+		/* Returns the mid-point of a polygon
+    	 * @param polygonCoordinatesList - the list of vertices of the polygon in pixel coordinates.
+    	 * @param currDescriptor    - the descriptor for this resource.
+    	 * @param graphicsTarget - the graphics target
+    	 * @return the centroid of the Polygon in world coordinates.
+    	 */
+		  
+		private Coordinate getCentroidInWorldCoordinates(Coordinate[] polygonCoordinatesList, IMapDescriptor currDescriptor, IGraphicsTarget target) {
+			Coordinate centroid = null;
+			
+			if (polygonCoordinatesList != null && polygonCoordinatesList.length > 0) {				
+				GeometryFactory geomFactory   = new GeometryFactory();
+				LineString lineString         = geomFactory.createLineString(polygonCoordinatesList);								
+				Point centroidPoint = lineString.getCentroid();
+				
+				if (isPolygonClosed) {
+					WorldWrapChecker wwc = new WorldWrapChecker(descriptor.getGridGeometry());
+					Point centroidPt = getCentroidForClippedPolygon(geomFactory.createLineString(getPolygonLatLonCoordinates()), wwc, currDescriptor,target);
+					
+					if (centroidPt != null) {
+						centroidPoint = centroidPt;
+					}
+				}	
+					
+				Coordinate centroidCoordinate = centroidPoint.getCoordinate();
+				double[] pixLoc               = {centroidCoordinate.x, centroidCoordinate.y};
+				PixelCoordinate centroidInPixelCoord = new PixelCoordinate(currDescriptor.pixelToWorld(pixLoc));
+				centroid = new Coordinate(centroidInPixelCoord.getX(), centroidInPixelCoord.getY());
+				
+			}				
+			
+		    return centroid;
+		}
+		
+		/* Returns the mid-point of clipped polygon; returns null if polygon is not clipped.
+		 * This method takes care of the issue where a symbol for a clipped polygon (displayed at the edges)
+		 * is drawn in the middle of the map area instead of displaying it in the center of the polygon.
+		 * 
+		 * This method is copied from class WorldWrapChecker: 
+		 * private void wrapCorrect(Geometry g, List<Geometry> geomList, double inverseCentralMeridian) 
+		 * with some minor changes added to get the centroid of a clipped geometry. 
+         *   
+    	 * @param g
+    	 * @param checker		 - the world wrap checker
+    	 * @param currDescriptor - the descriptor for this resource.
+    	 * @param graphicsTarget - the graphics target
+    	 * @return the centroid of the Polygon OR null
+    	 */
+		private Point getCentroidForClippedPolygon(Geometry g, WorldWrapChecker checker, IMapDescriptor currDescriptor, IGraphicsTarget target) {
+	    	
+	    	List<Geometry> geomList = new ArrayList<Geometry>();
+	    	if (g.isEmpty() == false) {
+	            // Algorithm:
+	            // Process primitive geometry type (non collection). Algorithm works
+	            // in that it walks the geometry, when two points cross, it adds or
+	            // subtracts 360 to the offset to flatten out the geometry. When
+	            // first part is done, geometries will be continuous and not limited
+	            // to -180 to 180, they will be technically be > neg infinitive, <
+	            // pos infinity given that the algorithm supports wrapping around
+	            // the world multiple times. When we have the continuous geometry,
+	            // we split it up into sections by intersecting with a 360 deg
+	            // inverse central meridian. We then normalize the points for each
+	            // section back to -180 to 180
+	            boolean handle = false;
+	            if (checker.needsChecking()) {
+	                boolean polygon = g instanceof Polygon;
+	                Coordinate[] coords = g.getCoordinates();
+	                if (polygon) {
+	                    // remove duplicate last point for polygon
+	                    coords = Arrays.copyOf(coords, coords.length - 1);
+	                }
+	                int length = coords.length + (polygon ? 0 : -1);
+	                int truLen = coords.length;
+	                double currOffset = 0.0;
+	                double minOffset = 0.0, maxOffset = 0.0;
+	                for (int i = 0; i < length; ++i) {
+	                    int ip1 = (i + 1) % truLen;
+	                    Coordinate a = coords[i];
+	                    Coordinate b = coords[ip1];
+
+	                    if (ip1 != 0) {
+	                        b.x += currOffset;
+	                    }
+
+	                    Boolean low = null;
+	                    if (a.x - b.x > 180.0) {
+	                        low = false;
+	                    } else if (b.x - a.x > 180.0) {
+	                        low = true;
+	                    } else if (checker.check(a.x, b.x)) {
+	                        handle = true;
+	                    }
+
+	                    if (low != null) {
+	                        handle = true;
+	                        // we wrap either low end or high
+	                        if (low) {
+	                            currOffset -= 360;
+	                            b.x -= 360.0;
+	                            if (currOffset < minOffset) {
+	                                minOffset = currOffset;
+	                            }
+	                           
+	                        } else {
+	                            currOffset += 360;
+	                            b.x += 360;
+	                            if (currOffset > maxOffset) {
+	                                maxOffset = currOffset;
+	                            }
+	                            
+	                        }
+	                    }
+	                }
+	                if (handle) {
+                	     // All coords in geometry should be denormalized now, get
+                         // adjusted envelope, divide envelope into sections, for
+                         // each section, intersect with geometry and add to
+                         // geom list
+                         List<Geometry> sections = new ArrayList<Geometry>();
+                         List<Double> rolls = new ArrayList<Double>();
+                         GeometryFactory gf = g.getFactory();
+                         double delta = 0.00001;
+                         double start = checker.getLowInverseCentralMeridian() + minOffset;
+                         double end = checker.getHighInverseCentralMeridian() + maxOffset;
+                         double minY = -90, maxY = 90;
+                         while (start < end) {
+                             double useStart = start;
+                             double useEnd = start + 360;
+                             double minX = useStart + delta;
+                             double maxX = (useEnd) - delta;
+
+                             Geometry section = gf.createPolygon(
+                                     gf.createLinearRing(new Coordinate[] {
+                                             new Coordinate(minX, maxY),
+                                             new Coordinate(maxX, maxY),
+                                             new Coordinate(maxX, minY),
+                                             new Coordinate(minX, minY),
+                                             new Coordinate(minX, maxY) }), null);                          
+                             section = section.intersection(g);
+                             
+                             if (section.isEmpty() == false) {
+                                 sections.add(section);
+                                 rolls.add(useEnd);
+                                
+                             }
+                             start += 360;
+                         }
+                        
+                         if (sections.size() > 0) {
+                        	 /* if sections.size() > 0, then the geometry is clipped */
+                        	 for (int i = 0; i < sections.size(); ++i) {
+	                             Geometry section = sections.get(i);
+	                             double rollVal = rolls.get(i);
+	                             rollLongitudes(section, rollVal, checker.getHighInverseCentralMeridian());
+	                             geomList.add(section);
+	                         }
+                        	
+                        	IWireframeShape wireframeShape = target.createWireframeShape(false, descriptor);		
+                 			JTSCompiler jtsCompiler = new JTSCompiler(null, wireframeShape, descriptor);
+                 				
+                 			LineString ls = gf.createLineString(geomList.get(0).getCoordinates());		
+                 			
+                 			try {
+                 				jtsCompiler.handle(ls, new RGB(255, 255, 255), true);
+                 			} catch (VizException e) {
+                 				System.out.println("VizException caught when calling IntlSigmetResource.getCentroidForClippedPolygon(...): " + e.getMessage()); 
+                 		    } 
+                 			
+                 			//return the centroid of the first section 
+             				return geomList.get(0).getCentroid();	             				
+                         }                        
+	                }
+	            }
+	        }
+	      return null;
+	    }
+		
+		/*
+		 * This method is copied from class WorldWrapChecker: 
+		 * private void rollLongitudes(Geometry g, double inverseCentralMeridianUsed, double inverseCentralMeridian) 
+         */
+		private void rollLongitudes(Geometry g, double inverseCentralMeridianUsed,
+	            double inverseCentralMeridian) {
+	        double diff = inverseCentralMeridian - inverseCentralMeridianUsed;
+	        if (diff != 0) {
+	            for (Coordinate c : g.getCoordinates()) {
+	                c.x += diff;
+	            }
+	        }
+	    }
+		
+		private Coordinate[] getPolygonLatLonCoordinates() {
+	    	
+	    	if (arrayLatLonPoints != null && arrayLatLonPoints.length > 0) {
+	    		
+	    		Coordinate[] coordinates = null;
+	    		if (isPolygonClosed) {
+	    			coordinates = new Coordinate[arrayLatLonPoints.length+1];
+	    		} else {
+	    			coordinates = new Coordinate[arrayLatLonPoints.length];
+	    		}
+	    			
+	    		for(int i = 0; i<arrayLatLonPoints.length; i++) {
+	    			LatLonPoint latLonPoint = arrayLatLonPoints[i]; 
+					
+	    			Coordinate eachCoordinate = new Coordinate(latLonPoint.getLongitude(LatLonPoint.INDEGREES), latLonPoint.getLatitude(LatLonPoint.INDEGREES)); 
+	    			coordinates[i] = eachCoordinate; 
+				}
+			
+				if (isPolygonClosed) {
+					int coordinateArrayLength = coordinates.length; 
+					Coordinate startingPointCoordinate = new Coordinate(arrayLatLonPoints[0].getLongitude(LatLonPoint.INDEGREES), arrayLatLonPoints[0].getLatitude(LatLonPoint.INDEGREES)); 
+					coordinates[coordinateArrayLength-1] = startingPointCoordinate; 
+				} 
+
+		    	return coordinates;
+	    	} 
+	    	else {
+	    		return null;
+	    	}
+	    }
 		
 		/**
 		 * @return the startTimeText
@@ -1475,7 +1903,7 @@ implements INatlCntrsResource{
 				switch(currentHazard){
 				    
 				    case TS:/*Thunderstorm*/
-		    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.thunderstormColor,
 				    			intlSigmetResourceDataObj.thunderstormSymbolWidth,
@@ -1483,7 +1911,6 @@ implements INatlCntrsResource{
 				    			intlSigmetResourceDataObj.thunderstormEnable,
 				    			"PAST_WX_09", //refer symbolPatterns.xml
 				    			intlSigmetResourceDataObj.thunderstormLineWidth));
-
 				    	
 					break;
 					
@@ -1529,8 +1956,8 @@ implements INatlCntrsResource{
 					
 					
 				    case TB:/*Turbulence*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.turbulenceColor,
 				    			intlSigmetResourceDataObj.turbulenceSymbolWidth,
 				    			intlSigmetResourceDataObj.turbulenceSymbolSize,
@@ -1542,8 +1969,8 @@ implements INatlCntrsResource{
 					break;		    					
 				    
 				    case HU:/*Hurricane*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.hurricaneColor,
 				    			intlSigmetResourceDataObj.hurricaneSymbolWidth,
 				    			intlSigmetResourceDataObj.hurricaneSymbolSize,
@@ -1555,8 +1982,8 @@ implements INatlCntrsResource{
 					break;			    					
 
 				    case TR:/*Tropical Storm*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.tropicalStormColor,
 				    			intlSigmetResourceDataObj.tropicalStormSymbolWidth,
 				    			intlSigmetResourceDataObj.tropicalStormSymbolSize,
@@ -1568,8 +1995,8 @@ implements INatlCntrsResource{
 					break;		    					
 
 				    case TD:/*Tropical Depression*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.tropicalDepressionColor,
 				    			intlSigmetResourceDataObj.tropicalDepressionSymbolWidth,
 				    			intlSigmetResourceDataObj.tropicalDepressionSymbolSize,
@@ -1581,8 +2008,8 @@ implements INatlCntrsResource{
 					break;			    					
 
 				    case VA:/*Volcanic Ash*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.volcanicAshCloudColor,
 				    			intlSigmetResourceDataObj.volcanicAshCloudSymbolWidth,
 				    			intlSigmetResourceDataObj.volcanicAshCloudSymbolSize,
@@ -1594,8 +2021,8 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case MW:/*Mountain Wave*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.mountainWaveColor,
 				    			intlSigmetResourceDataObj.mountainWaveSymbolWidth,
 				    			intlSigmetResourceDataObj.mountainWaveSymbolSize,
@@ -1606,8 +2033,8 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case TC:/*Tropical Cyclone*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.tropicalCycloneColor,
 				    			intlSigmetResourceDataObj.tropicalCycloneSymbolWidth,
 				    			intlSigmetResourceDataObj.tropicalCycloneSymbolSize,
@@ -1618,9 +2045,9 @@ implements INatlCntrsResource{
 				    	
 					break;
 
-				    case SQ:/*Cumulonimbus*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    case SQ:/*SQuall Line*/
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.squallLineColor,
 				    			intlSigmetResourceDataObj.squallLineSymbolWidth,
 				    			intlSigmetResourceDataObj.squallLineSymbolSize,
@@ -1631,8 +2058,8 @@ implements INatlCntrsResource{
 					break;					
 					
 				    case CAT:/*Clear Air Turbulence*/
-  				    	
-				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
+				    
+  				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.catColor,
 				    			intlSigmetResourceDataObj.catSymbolWidth,
 				    			intlSigmetResourceDataObj.catSymbolSize,  
@@ -1643,7 +2070,7 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case IC:/*ICing*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.icingColor,
 				    			intlSigmetResourceDataObj.icingSymbolWidth,
@@ -1655,7 +2082,7 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case GR:/*Hail*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.hailColor,
 				    			intlSigmetResourceDataObj.hailSymbolWidth,
@@ -1667,7 +2094,7 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case DS:/*Dust Storm*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.dustStormColor,
 				    			intlSigmetResourceDataObj.dustStormSymbolWidth,
@@ -1679,7 +2106,7 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case SS:/*Sand Storm*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.sandStormColor,
 				    			intlSigmetResourceDataObj.sandStormSymbolWidth,
@@ -1691,7 +2118,7 @@ implements INatlCntrsResource{
 					break;		    					
 					
 				    case CB:/*Cumulonimbus*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.cumulonimbusColor,
 				    			intlSigmetResourceDataObj.cumulonimbusSymbolWidth,
@@ -1704,7 +2131,7 @@ implements INatlCntrsResource{
 
 					
 				    case WS:/*Wind Shear*/
-  				    	
+				    
 				    	localSymbolAttributeSubsetList.add(new SymbolAttributesSubSet<RGB, Integer, Float, Boolean, String>(
 				    			intlSigmetResourceDataObj.lowLevelWindShearColor,
 				    			intlSigmetResourceDataObj.lowLevelWindShearSymbolWidth,
@@ -2113,6 +2540,7 @@ implements INatlCntrsResource{
 			return legendString + "-No Data";
 		}
 		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
-	}
+	}    
+    
 }
 

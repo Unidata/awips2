@@ -36,7 +36,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 08/11 		?			B. Yin		Fixed the no half-hour label bug.
  * 02/12        TTR456      Q.Zhou      Added speed knot, mph. Added combos and roundTo indices for speed & dir .
-                                        Modified setSpeed
+ *                                       Modified setSpeed
+ * 06/12        #777        Q.Zhou      Modified DEFAULT_EXTRA_POINT_NUMBER.                                      
  * </pre>
  * 
  * @author	M. Gao
@@ -52,7 +53,7 @@ public class Track extends Line implements ITrack {
 	
 	private final static float DEFAULT_FONT_SIZE = 14.0f; 
 	private final static float DEFAULT_LINE_WIDTH = 0.1f; 
-	private final static int DEFAULT_EXTRA_POINT_NUMBER = 2; 
+	private final static int DEFAULT_EXTRA_POINT_NUMBER = 5; 
 //	private final static int DEFAULT_INTERVAL_HOUR = 1; 
 	private final static String INTERVAL_TIME_FORMAT_PATTERN = "HH:mm"; 
 	public void setExtrapMarker(String extrapMarker) {

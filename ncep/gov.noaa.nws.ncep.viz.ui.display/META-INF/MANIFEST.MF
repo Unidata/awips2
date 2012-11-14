@@ -20,5 +20,6 @@ Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.rsc.legend,
+ gov.noaa.nws.ncep.gempak.parameters.colorbar,
  javax.measure.unit,
  javax.vecmath

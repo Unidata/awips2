@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>marine</attrSetGroupName>
-    <attrSetNames>bl_h2o_conv,500mb_hght_absv,emsl_and_bl_wind,emsl_and_10m_wind,emsl_and_ll_wind,pmsl_1000-850_thk,pmsl_and_bl_wind,pmsl_and_10m_wind,pmsl_and_ll_wind,stability_850mb_wnd,stability_900mb_wnd,stability_950mb_wnd</attrSetNames>
+    <attrSetNames>bl_h2o_conv_nam,500mb_hght_absv,emsl_and_bl_wind,emsl_and_10m_wind,emsl_and_ll_wind,pmsl_1000-850_thk_nam,pmsl_and_bl_wind,pmsl_and_10m_wind_nam,pmsl_and_ll_wind_nam,stability_850mb_wnd,stability_900mb_wnd,stability_950mb_wnd</attrSetNames>
 </AttributeSetGroup>

@@ -108,6 +108,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
          */
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
+        	if ( !isResourceEditable() ) return false;
        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);

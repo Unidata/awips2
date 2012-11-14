@@ -9,6 +9,7 @@
  * ------------	----------	-----------	--------------------------
  * 11/2009		Uma Josyula		Initial creation
  * 01/2011		B. Hebbard 		Handle ambiguity variants
+ * 07/2012		B. Hebbard 		Handle OSCAT / OSCAT_HI
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -74,7 +75,12 @@ public class NcscatDecoder extends AbstractDecoder {
 			record.setDataTime(new DataTime(sProcess.getStartTime()));
 			
 			if (record.getRecordLength()==688){
+
+				if(plugin.equalsIgnoreCase("oscat")){
+					record.setReportType("oscat-hi");
+				}else{
 				record.setReportType("quikscat");
+				}
 			}else if(record.getRecordLength()==1372){
 				record.setReportType("quikscat-hi");
 			}else if(record.getRecordLength()==382){
@@ -94,6 +100,8 @@ public class NcscatDecoder extends AbstractDecoder {
 				}else{	
 				record.setReportType("ascat-hi");
 				}
+			}else if(record.getRecordLength()==328){
+				record.setReportType("oscat");
 			}else if(record.getRecordLength()==715){
 				record.setReportType("wscat");
 			}

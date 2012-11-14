@@ -35,7 +35,7 @@ import org.eclipse.ui.PlatformUI;
 
 
 public class NsharpConfigDialog extends Dialog {
-	private Button parameterBtn, dataDisplayBtn,dataPageBtn, timeLineBtn, stnBtn, paneCfgBtn;
+	private Button parameterBtn, dataDisplayBtn,dataPageBtn, timeLineBtn, stnBtn, paneCfgBtn, mdlCfgBtn;
 	private static NsharpConfigDialog thisDialog=null;
 	private static NsharpParametersSelectionConfigDialog parameterSelDialog = null;
 	private static NsharpDataDisplayConfigDialog dataDislpayDialog = null;
@@ -43,6 +43,7 @@ public class NsharpConfigDialog extends Dialog {
 	private static NsharpTimeLineConfigDialog timelineDialog = null;
 	private static NsharpStnConfigDialog stnDialog = null;
 	private static NsharpPaneConfigDialog paneCfgDialog = null;
+	private static NsharpGribModelTypeConfigDialog mdlCfgDialog = null;
 	public NsharpConfigDialog(Shell parentShell) {
 		super(parentShell);
 		// TODO Auto-generated constructor stub
@@ -77,12 +78,14 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
 					paneCfgBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					parameterSelDialog.open();
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -100,12 +103,14 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
 					paneCfgBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					dataDislpayDialog.open();
 					parameterBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -123,12 +128,14 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( false );
 					dataDisplayBtn.setEnabled(false);
 					paneCfgBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					dataPageDialog.open();
 					parameterBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataDisplayBtn.setEnabled(true);
 					paneCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -146,12 +153,14 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
 					paneCfgBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					timelineDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -169,12 +178,14 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
 					paneCfgBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					stnDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -193,13 +204,40 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
 					stnBtn.setEnabled( false );
+					mdlCfgBtn.setEnabled( false );
 					paneCfgDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );
+				}	
+			}          		            	 	
+		} );
 					
+		mdlCfgBtn = new Button(parent,  SWT.PUSH);
+		mdlCfgBtn.setText("Grid Model Type Configuration");
+		mdlCfgBtn.setEnabled( true );
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		mdlCfgBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				mdlCfgDialog =  NsharpGribModelTypeConfigDialog.getInstance(shell);
+				if ( mdlCfgDialog != null ) {
+					dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					timeLineBtn.setEnabled( false );
+					dataPageBtn.setEnabled( false );
+					stnBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
+					mdlCfgDialog.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					dataPageBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
+					paneCfgBtn.setEnabled(true);
 				}	
 			}          		            	 	
 		} );
@@ -238,7 +276,7 @@ public class NsharpConfigDialog extends Dialog {
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
         shell.setText( "Nsharp Configuration" );
-        shell.setSize(250, 300);
+        shell.setSize(250, 350);
     }
 	@Override
     public int open( ) {

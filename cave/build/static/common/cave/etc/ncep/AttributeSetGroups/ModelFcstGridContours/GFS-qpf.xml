@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>GFS</resource>
     <attrSetGroupName>qpf</attrSetGroupName>
-    <attrSetNames>300mb_ageo_div_isotachs,700mb_hght_wind_dwpt,850mb_h2o_transport,850mb_hght_wind_dwpt,850mb_thtae_advection,850mb_wind_pw,bl_moistconv_wind_dwpt,kindex_700mbtemp_bldwpt_mslp,lifted_index,pcpn_potential,pw_emsl_c-vec,ransnocsi_500-850,ransnocsi_700-850,svrwx</attrSetNames>
+    <attrSetNames>300mb_ageo_div_isotachs,700mb_hght_wind_dwpt,850mb_h2o_transport,850mb_hght_wind_dwpt,850mb_thtae_advection,850mb_wind_pw,bl_moistconv_wind_dwpt_global,kindex_700mbtemp_bldwpt_mslp_global,lifted_index_global,pcpn_potential_global,pw_emsl_c-vec,ransnocsi_500-850,ransnocsi_700-850,svrwx_global</attrSetNames>
 </AttributeSetGroup>

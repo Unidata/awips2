@@ -23,11 +23,14 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -104,7 +107,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	private String statesIncl;
 	private String adjAreas;
 	private int replWatch;
-	private int contWatch;
+	private String contWatch;
 	//issue flag: issued = 1; canceled = -1; un-issued = 0;
 	private int issueFlag;
 	private String watchType;
@@ -958,11 +961,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		FileTools.write( filename, filePrds );
 	}
 	
-	public void setContWatch(int contWatch) {
+	public void setContWatch(String contWatch) {
 		this.contWatch = contWatch;
 	}
 
-	public int getContWatch() {
+	public String getContWatch() {
 		return contWatch;
 	}
 
@@ -1656,30 +1659,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
      * @param fips
      * @return
      */
-    private List<String> findCntyInClst(String fips, List<String> rt){
-    	 if ( rt == null ) rt = new ArrayList<String>();
-    	String value = PgenStaticDataProvider.getProvider().getClstTbl().get(fips);
-    	if ( value != null ){
-    		int index = 0;
-    		do {
-    			String cluster = value.substring(index, index+5);
-    			if ( cluster.equals(fips) && !rt.contains(cluster)){
-    				rt.add(cluster);
-    			}
-    			else {
-    				//recursive
-    				if ( !rt.contains(cluster) ){
-    					rt.addAll( findCntyInClst(cluster, rt));
-    				}
-    			}
-				index += 6;
-			}while (index+5 <= value.length());
-    	}
-    	else {
-    		rt.add(fips);
-    	}
+    private Set<String> findCntyInClst(String fips){
     	
-    	return rt;
+    	Set<String> rt = PgenStaticDataProvider.getProvider().getClstTbl().get(fips);
+    	return (rt == null )? new HashSet<String>(Arrays.asList(fips)): rt;
+    	
     }
 
     /**
@@ -1690,7 +1674,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
     	if ( county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")){
     		removeCounty( county);
     	}
-    	for ( String fips : findCntyInClst(county.getFips(), null)){
+    	for ( String fips : findCntyInClst(county.getFips())){
     		removeCounty(PgenStaticDataProvider.getProvider().findCounty(fips));
     	}
     }  
@@ -1704,7 +1688,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
     		addCounty( county);
     	}
     	else {
-    		for ( String fips : findCntyInClst(county.getFips(), null)){
+    		for ( String fips : findCntyInClst(county.getFips())){
     			SPCCounty cnty = PgenStaticDataProvider.getProvider().findCounty(fips);
     			if (  cnty != null && !countyList.contains(cnty)) addCounty(cnty);
     		}

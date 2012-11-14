@@ -1,5 +1,8 @@
 package gov.noaa.nws.ncep.viz.common.ui;
 
+import gov.noaa.nws.ncep.viz.common.Activator;
+import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.text.NumberFormat;
@@ -10,15 +13,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.raytheon.uf.common.time.DataTime;
 
-//import com.raytheon.uf.viz.core.localization.LocalizationManager;
-
-//import gov.noaa.nws.ncep.viz.
 /**
  * Common class for constants, utility methods ...
  *  * 
@@ -72,6 +73,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 12/20/10       #137      Q. Zhou         Modified standalone condition for watch box & volcano
  * 07/28/11       #450      G. Hull         move pgen localization calls to pgen
  * 08/09/11       #450      G. Hull         get/set for pgen working directory.
+ * 07/31/12       #631      G. Hull         getNcepPreferenceStore()
  * 
  * </pre>
  * 
@@ -92,6 +94,8 @@ public class NmapCommon {
     	// ? frameTool, looping
     };
     
+	private static IPreferenceStore ncPrefStore = null;
+
     public final static String NatlCntrsPerspectiveID = "gov.noaa.nws.ncep.viz.ui.NCPerspective";
 
     private static String pgenWorkingDirectory=".";
@@ -112,6 +116,34 @@ public class NmapCommon {
         return new String( DefaultMap );
     }
 
+    // Added this to make it more clear that this plugin's store is used for 
+    // all Ncep preferences
+    // 
+    public static IPreferenceStore getNcepPreferenceStore() {
+    	/*
+    	 * First time, set defaults for the Ncgrid preference store
+    	 */
+    	if ( ncPrefStore == null ) {
+    		ncPrefStore =  Activator.getDefault().getPreferenceStore();
+    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.PromptOnDisplayClose, false );
+    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.ShowLatestResourceTimes, true );
+
+    		/*
+    			myprefs.setDefault( NcgridPreferences.LLLAT, "");
+    			myprefs.setDefault( NcgridPreferences.LLLON, "");
+    			myprefs.setDefault( NcgridPreferences.URLAT, "");
+    			myprefs.setDefault( NcgridPreferences.URLON, "");
+    			/*
+    			myprefs.setDefault( NcgridPreferences.CLIP_AREA_COM,  NcgridPreferences.CLIP_AREA_US);
+    			myprefs.setDefault( NcgridPreferences.GAREA, NcgridPreferences.CLIP_AREA_US);
+    			myprefs.setDefault( NcgridPreferences.PROJ, "STR/90;-97;0");
+    			myprefs.setDefault( NcgridPreferences.CUSTOM_AREA, false );
+    		 */
+    	}
+
+    	return ncPrefStore;
+    }
+    
     /*
      * This helper method to fix a bug caused the logic of checking environmental "ISCONVERTER"
      */

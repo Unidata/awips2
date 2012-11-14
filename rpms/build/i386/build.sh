@@ -144,6 +144,7 @@ if [ "${1}" = "-delta" ]; then
    fi
 
    buildRPM "awips2"
+   buildRPM "Installer.ncep-database"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-python-dynamicserialize"
@@ -178,6 +179,7 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
+   buildRPM "Installer.ncep-database"
    buildRPM "awips2-alertviz"
    buildEDEX
    if [ $? -ne 0 ]; then
@@ -311,12 +313,6 @@ if [ "${1}" = "-ade" ]; then
       exit 1
    fi
 
-   # Build the source jar file
-   ade_work_dir="/home/dmsys/Dim12/build/AWIPS2/AWIPS2-ADE-OB12.11.2-CM"
-   cd $ade_work_dir
-   ./build_source_jar.sh 
-   cp -v /tmp/awips2-ade-baseline-SOURCES.jar ${WORKSPACE}/${ade_directory}
-
    # Tar the directory.
    pushd . > /dev/null 2>&1
    cd ${WORKSPACE}
@@ -343,6 +339,7 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
+   buildRPM "Installer.ncep-database"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>RAP</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>1000-850_thkni,100mb_hght_wind,150mb_hght_wind,200mb_hght_wind,200mb_div_isotachs,250mb_ageo_div_isotachs,250mb_hght_wind,250mb_wind_and_rel_vort,300mb_hght_absv,300mb_hght_absv_adv,300mb_hght_wind,500mb_hght_absv,500mb_hght_absv_adv,500mb_hght_geoabsv,500mb_hght_wind,500mb_hght_color,600mb_hght_rh_omega,700mb_hght_rh_omega,850-700_thkn,bl_rh,mmsl,potvort_400-250mb</attrSetNames>
+</AttributeSetGroup>

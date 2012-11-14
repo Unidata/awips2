@@ -20,6 +20,7 @@ Import-Package: gov.noaa.nws.ncep.gempak.parameters.core.contourinterval,
  org.junit
 Export-Package: gov.noaa.nws.ncep.gempak.parameters,
  gov.noaa.nws.ncep.gempak.parameters.colors,
+ gov.noaa.nws.ncep.gempak.parameters.colorbar,
  gov.noaa.nws.ncep.gempak.parameters.discrete,
  gov.noaa.nws.ncep.gempak.parameters.dlines,
  gov.noaa.nws.ncep.gempak.parameters.gridlimits,

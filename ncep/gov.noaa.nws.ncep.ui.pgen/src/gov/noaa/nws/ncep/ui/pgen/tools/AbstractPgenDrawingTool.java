@@ -73,11 +73,14 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
         if (!(ep instanceof AbstractEditor) ){
             return;
         }
+        
+        if ( !super.isDelObj() ){
     	/*
     	 * Activate editor before tool is loaded, so that it is not loaded twice.
     	 */
     	PlatformUI.getWorkbench().getActiveWorkbenchWindow().
     				getActivePage().activate(EditorUtil.getActiveEditor());
+        }
 
     	super.activateTool();
       	

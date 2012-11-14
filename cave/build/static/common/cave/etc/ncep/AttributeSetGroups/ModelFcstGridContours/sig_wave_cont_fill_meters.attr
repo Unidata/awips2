@@ -1,0 +1,26 @@
+!
+! Restore File : sig_wave_cont_fill_meters
+!
+! Log:
+! J.L.Partain/MPC	2/98	Initial creation for nww3
+! T. Piper/GSC		5/99	Added -1 line position for TITLE  =
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  HTSGW	!kntv(wnd)
+TYPE   =    c/f	!b
+CINT   =    1/2/1000     
+LINE   =    31/1/1/1
+FINT   =    2;4;6;8;10
+FLINE  =   0;24;25;30;14;2
+HILO   =    0
+HLSYM  =   0
+!CLRBAR =  1
+WIND   =    17/0.9/1.5/112
+TITLE  =   5/-1/~ SIG WAVE HEIGHT (m) and NWW3 10m WIND   =S!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

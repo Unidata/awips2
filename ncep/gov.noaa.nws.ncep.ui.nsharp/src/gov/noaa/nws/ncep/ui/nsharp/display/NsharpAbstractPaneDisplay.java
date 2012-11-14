@@ -136,7 +136,7 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
 	public String getPaneName() {
 		return paneName;
 	}
-	
+
 	@Override
     protected void customizeResourceList(ResourceList resourceList) {
     	AbstractResourceData resourceData = new NsharpAbstractPaneResourceData();
