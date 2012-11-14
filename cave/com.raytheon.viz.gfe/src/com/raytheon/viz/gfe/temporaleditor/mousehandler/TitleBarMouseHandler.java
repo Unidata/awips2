@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.temporaleditor.AbstractTemporalEditorBar;
 import com.raytheon.viz.gfe.temporaleditor.TemporalEditorUtil;
 import com.raytheon.viz.gfe.temporaleditor.dialogs.DisplayAttributesDialog;
 import com.raytheon.viz.gfe.temporaleditor.dialogs.MoveWeatherElementDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * MouseHandler to resize temporal editor bars.
@@ -47,6 +48,7 @@ import com.raytheon.viz.gfe.temporaleditor.dialogs.MoveWeatherElementDialog;
  * Date         Ticket#    Engineer      Description
  * ------------ ---------- ------------- --------------------------
  * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * Nov 14, 2012 #1298      rferrel       Changes for non-blocking DisplayAttributesDialog.
  * </pre>
  * 
  * @author rjpeter
@@ -122,11 +124,20 @@ public class TitleBarMouseHandler extends MouseHandler {
                     public void run() {
                         Shell shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
+                        // The dialog being opened is modal to the parent
+                        // dialog. This will prevent the launching of another
+                        // dialog until the modal dialog is closed.
                         DisplayAttributesDialog dialog = new DisplayAttributesDialog(
                                 shell, teBar, parm);
-                        dialog.setBlockOnOpen(true);
+                        dialog.setBlockOnOpen(false);
+                        dialog.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                teBar.redraw();
+                            }
+                        });
                         dialog.open();
-                        teBar.redraw();
                     }
                 });
             }
