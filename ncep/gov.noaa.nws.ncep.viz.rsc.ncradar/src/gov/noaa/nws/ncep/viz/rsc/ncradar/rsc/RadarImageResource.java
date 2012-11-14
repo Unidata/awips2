@@ -23,6 +23,7 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,13 +33,12 @@ import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.jts.ReferencedEnvelope;
+
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
+
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -82,6 +82,8 @@ import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
+import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.core.units.PiecewisePixel;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -102,7 +104,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/16/2011              S. Gurung   Added resourceAttrsModified()
  * 01/03/2011              S. Gurung   Changed circle color to black
  * 04/02/2012   #651       S. Gurung   Added fix for applying resource attributes changes.
- * 
+ * 06-07-2012   #717       Archana	   Updated setColorMapParameters() to store label information
+ *                                      for the colorbar 
  * </pre>
  * 
  * @author sgurung
@@ -219,14 +222,30 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 		}
 		int numLevels = radarRecord.getNumLevels();
 		Object[] thresholds = radarRecord.getDecodedThresholds();
+		DataMappingPreferences dmPref = new DataMappingPreferences();
+		DataMappingEntry dmEntry;
+		List<DataMappingEntry> dmEntriesList = new ArrayList<DataMappingEntry>(0);		
 		if (numLevels <= 16) {
 			ArrayList<Integer> pixel = new ArrayList<Integer>();
 			ArrayList<Float> real = new ArrayList<Float>();
 			for (int i = 0; i < numLevels; i++) {
+				dmEntry = new DataMappingEntry();
+			    dmEntry.setPixelValue(new Double(i));				
 				if (thresholds[i] instanceof Float) {
 					pixel.add(i);
 					real.add((Float) thresholds[i]);
+					dmEntry.setDisplayValue(((Float)thresholds[i]).doubleValue());
+					dmEntry.setLabel(((Float)thresholds[i]).toString());					
+				}else{
+					   dmEntry.setDisplayValue(Double.NaN);
+					   
+					   if ( ((String)thresholds[i]).compareToIgnoreCase("NO DATA") == 0 ){
+						    dmEntry.setLabel("ND");
+					   }else
+						   dmEntry.setLabel((String)thresholds[i]);
 				}
+				
+			    dmEntriesList.add(dmEntry);
 			}
 
 			double[] pix = new double[pixel.size()];
@@ -278,6 +297,21 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 		rtr.params  = colorMapParameters;
 		getCapability(ColorMapCapability.class).setColorMapParameters(
 				colorMapParameters);
+		if ( dmEntriesList.size() > 0 ){
+		    DataMappingEntry[] dmEntryArray = new DataMappingEntry[dmEntriesList.size()];
+		    dmEntriesList.toArray(dmEntryArray);
+ 		    dmPref.setSerializableEntries(dmEntryArray);
+ 		    ImagePreferences imgPref = new ImagePreferences();
+ 		    imgPref.setDataMapping(dmPref);
+ 		    SamplePreferences sampPref = new SamplePreferences();
+ 		    sampPref.setMinValue(0);
+ 		    sampPref.setMaxValue(255);
+ 		    imgPref.setSamplePrefs(sampPref);	
+ 		    colorBar.setImagePreferences(imgPref);
+ 		    colorBar.setDisplayUnitStr(radarRecord.getUnit());
+ 		    colorBar.setAlignLabelInTheMiddleOfInterval(true);
+ 		    this.cbarResource.getResourceData().setColorBar(colorBar);
+		}		
 	}
     
 
@@ -295,6 +329,12 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
             disposeImage(image);
         }
         images.clear();
+        if( cbarResource.getResourceData().getColorbar() != null ){
+        	cbarResource.getResourceData().getColorbar().dispose();
+        	cbarResource.getResourceData().setColorBar(null);
+        }
+        
+        issueRefresh();
     }
 
     @Override

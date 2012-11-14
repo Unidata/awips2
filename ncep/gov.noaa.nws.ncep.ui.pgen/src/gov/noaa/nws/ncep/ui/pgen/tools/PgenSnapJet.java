@@ -14,6 +14,10 @@ import java.util.Iterator;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.linearref.LinearLocation;
+import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
@@ -48,6 +52,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetText;
  * 04/11		?			B. Yin		fixed zoom/unzoom problem in R1G2-9
  * 04/11		?			B. Yin		Re-factor IAttribute
  * 10/11		?			B. Yin		Fixed the flight level text location issue.
+ * 06/12		TTR102		B. Yin		Added addBarbHashFromAnotherJet() for 'DelPart'
  *
  * </pre>
  * 
@@ -760,4 +765,49 @@ public class PgenSnapJet implements IJetTools{
 		return ret;
 	}
 	
+	/**
+	 * Add hashes and barbs that belong to jet2, but lie on jet1, into jet1.
+	 * This method is used to delete a part of one jet.  
+	 * @param jet1
+	 * @param jet2
+	 */
+	@Override
+	public void addBarbHashFromAnotherJet(Jet jet1, Jet jet2 ){
+		if (jet2.size() <=1 ) return;
+
+		double[][] newpts = this.getJetCurve( jet1 );
+   		Coordinate[] coords = new Coordinate[ newpts.length ];
+		
+		for (int k=0; k<newpts.length; k++) {
+			coords[k] = new Coordinate( newpts[k][0], newpts[k][1]);
+		}
+		LineString	ls = new GeometryFactory().createLineString( coords );
+		LocationIndexedLine lil = new LocationIndexedLine(ls);
+		
+		Iterator<DrawableElement>  it = jet2.createDEIterator();
+		
+		while ( it.hasNext() ){
+			DrawableElement adc = it.next();
+			
+			if ( adc instanceof Jet.JetBarb ||
+					adc instanceof Jet.JetHash ){
+
+				double[] loc = {((SinglePointElement)adc).getLocation().x, ((SinglePointElement)adc).getLocation().y };
+				double[] pix = descriptor.worldToPixel( loc );
+				Coordinate screenPt = new Coordinate(pix[0], pix[1]);
+				LinearLocation linloc = lil.project(screenPt);
+				Coordinate screen2 = lil.extractPoint(linloc);
+				
+				if ( screenPt.distance(screen2) < 100 ){
+					if ( adc instanceof Jet.JetBarb ){
+						//add its parent windInfo which include the flight level text
+						jet1.add(adc.getParent().copy());
+					}
+					else {
+						jet1.add(adc.copy());
+					}
+				}
+			}
+		}
+	}
 }

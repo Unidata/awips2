@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>OSCT</resourceDefnName>
+    <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>
+pluginName=ncscat
+! the reportType may be overridden in an attrSet file
+reportType=oscat
+color=RGB {155, 155, 155}
+    </resourceParameters>
+    <filterLabels>SCAT</filterLabels>
+    <rscImplementation>SCAT</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>360</frameSpan>
+    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>24</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

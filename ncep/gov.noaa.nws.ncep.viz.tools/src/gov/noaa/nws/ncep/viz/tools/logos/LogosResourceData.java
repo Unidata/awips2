@@ -18,7 +18,7 @@ public class LogosResourceData extends AbstractResourceData {
 	 * 
 	 */
 	public LogosResourceData() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	/* (non-Javadoc)

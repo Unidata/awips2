@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Sounder 12.66 micron imagery
+displayUnitStr=IRPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

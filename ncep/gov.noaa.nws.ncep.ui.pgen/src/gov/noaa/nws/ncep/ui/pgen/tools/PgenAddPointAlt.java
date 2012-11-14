@@ -110,6 +110,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
+        	if ( !isResourceEditable() ) return false;
         	
         	preempt = false;
         	
@@ -201,7 +202,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
         	
-        	if ( button != 1 || shiftDown ) return false;
+        	if ( !isResourceEditable()|| button != 1 || shiftDown ) return false;
         	
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -236,7 +237,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         @Override
     	public boolean handleMouseUp(int anX, int aY, int button) {
         	
-        	if ( button != 1 ) return false;
+        	if (  !isResourceEditable() || button != 1 ) return false;
         	
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;

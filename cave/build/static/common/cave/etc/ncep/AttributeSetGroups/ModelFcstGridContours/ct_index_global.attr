@@ -1,0 +1,22 @@
+!
+! Restore File : ct_index
+!
+! Log:
+! J.Carr/HPC	 5/99	Initial creation
+!
+GLEVEL= 0!700!9950!0
+GVCORD= none!pres!sgma!none
+SCALE = 0
+GDPFUN= sm9s(ctot)!sm9s(tmpc)!sm9s(dwpf)!sm9s(mul(1e-2,pmsl))
+TYPE  = f!c
+CINT  = 2/16/36!2/6!50;55;60;65;70;75;80!4
+CONTUR= 2
+LINE  = 0!5/10/4!21/1/3!6//3
+FINT  = 16;20;24;28
+FLINE = 0;24;30;14;2
+HILO  = 0!0!0!6/H#;L#
+HLSYM = !!!1.5;1.5//22;22/3;3/hw
+!CLRBAR= 1
+WIND  = bk0
+TITLE = 1/0/~ CT INDEX, 700mb TEMP (>6 C), BL DWPT AND MSLP|~CT INDEX
+FILTER= 1

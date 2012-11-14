@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 05/12        #637        Archana.S   Updated the code to update the filter hr in PgenFilterDlg
  *                                      based on the current Fcst hr selected.
  * 05/12		#808		J. Wu		update vor text.
+ * 07/12        #663        Q. Zhou     Add selected Gfa in movetext listener. Added get/set for MoveTextBtn
  * </pre>
  * 
  * @author mlaryukhin
@@ -236,7 +237,10 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		moveTextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				PgenUtil.setDrawingGfaTextMode(lastUsedGfa);
+				
+				PgenUtil.setDrawingGfaTextMode((Gfa) de);
+				moveTextBtn.setEnabled(true);
+
 			}
 		});
 
@@ -1082,6 +1086,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			if(iattr instanceof Gfa) {
 				// update the points to be use for "Move Text" button 
 				lastUsedGfa = (Gfa)iattr;
+				de = lastUsedGfa;
 				moveTextBtn.setEnabled(true);
 				Color c = lastUsedGfa.getColors() == null ? null:lastUsedGfa.getColors()[0];
 				if (c != null){
@@ -1428,6 +1433,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 					if (newEl instanceof Gfa) {
 						((Gfa)newEl).snap();
 						lastUsedGfa = (Gfa)newEl;
+						de = lastUsedGfa;
 						lastUsedGfa.setGfaValues(values);
 					}
 				}
@@ -1938,9 +1944,23 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 * @param vorText
 	 */
 	public void setVorText( String vorText ){
-		textVOR.setText( vorText );
+	    //vorText maybe null when multi-selecting
+		if ( vorText != null ) textVOR.setText( vorText );
 	}
 
-	
+	/**
+	 * check if the MoveText button is enabled.
+	 * @return
+	 */
+	public boolean isMoveTextEnable(){
+		return moveTextBtn.isEnabled();
+	}
+	/**
+	 * Enable/Disable the move text button
+	 * @param flag
+	 */
+	public void enableMoveTextBtn( boolean flag ){
+		moveTextBtn.setEnabled(flag);
+	}
 }
 

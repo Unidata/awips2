@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.RGB;
  *                  
  * 05/02/12     778         Q. Zhou     Changed symbol size form int to double    
  * 06/11/12     654         S. Gurung   Changed default textSize to 14          
+ * 08/23/12     844         S. Gurung   Changed default textFont to Standard   
  * </pre>
  * 
  */
@@ -54,7 +55,7 @@ public class PlotModelElement {
     protected String textSize = "14"; // defaults
     
     @XmlAttribute
-    protected String textFont = "Helvetica";
+    protected String textFont = "Standard";
 	
     @XmlAttribute
     protected String textStyle = "Normal";

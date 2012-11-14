@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>RAP</resource>
+    <attrSetGroupName>anl_loops</attrSetGroupName>
+    <attrSetNames>200mb_hght_wind_al,250mb_ageo_div_isotachs_al,300mb_hght_wind_al,300mb_hght_absv_al,500mb_hght_absv_al,700mb_rh_rs_temp_al,700mb_hght_rh_al,850mb_hght_tmp_wind_al,850mb_hght_wind_dwpt_al,850mb_h2o_transport_al,potvort_400-250mb_al,300thta_pres_wnd_pres_adv_al</attrSetNames>
+</AttributeSetGroup>

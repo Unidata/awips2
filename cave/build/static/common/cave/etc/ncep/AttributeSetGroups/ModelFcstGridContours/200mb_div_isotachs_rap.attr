@@ -1,0 +1,25 @@
+!
+! Restore File : 200mb_div_isotachs
+!
+! Log:
+! D.W.Plummer/NCEP	 9/97	Initial creation
+!
+GLEVEL =  200                                                                     
+GVCORD =  PRES                                                                    
+SKIP   =    1/1;-1
+SCALE  =   0!0!5!5!-1
+GDPFUN =  mag(kntv(wnd))//jet!jet!div(wnd)//dvg!dvg!sm5s(hght)
+TYPE   =    c!c/f!c/f!c!c
+CINT   =    30;50!70;90;110;130;150;170;190!-11;-9;-7;-5;-3!2/3/18!12/720
+LINE   =    26!32//2!19/-2//2!20!1//2
+FINT   =    !70;90;110;130;150;170;190!3;5;7;9;11;13!
+FLINE  =   !0;24;25;29;7;15;14;2!0;23;22;21;17;16;2!
+HILO   =    0!0!0!0!1/H#;L#/3                                                       
+HLSYM  =   0!0!0!0!1.5;1.5//22;22/2;2/hw                                           
+!CLRBAR =  0!0!1/V/LL!0                                                            
+WIND   =    0
+TITLE  =   1/-1/~ @ DIVERGENCE AND ISOTACHS!0 
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

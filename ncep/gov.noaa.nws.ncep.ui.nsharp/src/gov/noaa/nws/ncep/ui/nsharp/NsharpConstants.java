@@ -460,7 +460,7 @@ public class NsharpConstants {
     public static final float HODO_CENTER_Y_ = HODO_Y_ORIG + (float)(1.00/2.00) * HODO_HEIGHT;
     public static final int HODO_COORDINATE_X1 = -50;
     public static final int HODO_COORDINATE_X1_STD = -90;
-     public static final int HODO_COORDINATE_Y1 = 75;
+    public static final int HODO_COORDINATE_Y1 = 75;
     public static final int HODO_COORDINATE_X2 = 70;
     public static final int HODO_COORDINATE_Y2 = -95;
     

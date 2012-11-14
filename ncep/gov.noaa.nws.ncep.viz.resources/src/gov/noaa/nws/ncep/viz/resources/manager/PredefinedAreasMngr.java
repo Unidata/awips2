@@ -7,7 +7,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
+
+import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -17,6 +21,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
 
 /**
@@ -29,7 +34,7 @@ import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 07/28/11       #450      Greg Hull    Created / broke out from NmapResourceUtils. Use NcPathManager
- *
+ * 07/10/12       #646      Greg Hull    createPredefinedArea
  * </pre>
  * 
  * @author 
@@ -136,6 +141,42 @@ public class PredefinedAreasMngr {
 			
 		} catch (SerializationException e) {
 			throw new VizException( e );
+		}
+	}
+	
+	public static PredefinedArea createPredefinedArea( 
+			NCMapRenderableDisplay display ) throws VizException {
+		PredefinedArea pArea = new PredefinedArea();
+		pArea.setPredefinedArea( display );
+		
+		return clonePredefinedArea( pArea );
+	}
+	
+	public static PredefinedArea clonePredefinedArea( PredefinedArea pArea ) throws VizException { 
+
+		try {
+			File tempRbdFile = File.createTempFile("tempArea-", ".xml");
+
+			SerializationUtil.jaxbMarshalToXmlFile( pArea, 
+									tempRbdFile.getAbsolutePath() );
+			String s = null;
+			FileReader fr = new FileReader( tempRbdFile );
+			char[] b = new char[ (int)tempRbdFile.length() ];
+			fr.read(b);
+			fr.close();
+			s = new String(b);
+
+			pArea = (PredefinedArea)SerializationUtil.unmarshalFromXml( s );
+			tempRbdFile.delete();
+			
+			return pArea;
+			
+		} catch (SerializationException e) {
+			throw  new VizException( e );
+		} catch (IOException e) { // from createTempFile
+			throw  new VizException( e ); 
+		} catch (JAXBException e) {
+			throw  new VizException( e ); 
 		}
 	}
 }
