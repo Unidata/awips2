@@ -1,7 +1,7 @@
 colorMapName=nids_cmref
 colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=30
-prodName=CREF
+!prodName=CREF
 alpha=1.0
 brightness=1.0
 contrast=1.0

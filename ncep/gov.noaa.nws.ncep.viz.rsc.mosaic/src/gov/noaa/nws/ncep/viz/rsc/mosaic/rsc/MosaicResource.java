@@ -78,7 +78,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07/11/11                  Greg Hull   ColorBarResource 
  *  06-07-2012     717         Archana	  Updated setColorMapParameters() to store label information
  *                                        for the colorbar                                     
- * 
+ *  06/21/2012     #825	      Greg Hull   rm mosaicInfo.txt; get legend info from the Record.
+ *  07/18/12       717        Archana     Refactored a field used to align the label data      
  * </pre>
  * 
  * @author mli
@@ -117,6 +118,12 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		DataTime     tileTime; // the time of the data used to create the tileset
 		                       // used to determine if we need to replace the tile 
 		                       // with a better timematch. 
+		public int    prodCode;
+		public String prodName;
+		public String unitName;
+		public int    numLevels;
+		public String legendStr="";
+
 		
 		protected FrameData(DataTime time, int interval) {
 			super(time, interval);	
@@ -127,6 +134,12 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
         	PluginDataObject pdo = ((DfltRecordRscDataObj)rscDataObj).getPDO();
 			MosaicRecord radarRecord = (MosaicRecord) pdo;
 			
+			prodCode = radarRecord.getProductCode();
+			prodName = radarRecord.getProdName();
+			numLevels = radarRecord.getNumLevels();
+			unitName  = radarRecord.getUnit();
+			legendStr = createLegend( prodCode, prodName, numLevels, unitName );
+			
 			synchronized (this) {
 				try {
 					if (!(pdo instanceof MosaicRecord)) {
@@ -136,7 +149,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 						return false;
 					}
 
-					if( radarRscData.getProductCode().intValue() != radarRecord.getProductCode().intValue() ) {
+					if( radarRscData.getProductCode().intValue() != prodCode ) {
 						System.out.println("??? radar product code in data Record doesn't match"+
 								" the requested product code???");
 						radarRscData.setProductCode( radarRecord.getProductCode() );
@@ -226,15 +239,45 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		return new FrameData( frameTime, frameInterval );
 	}
 	
+	private String createLegend( int prodCode,  String prodName, 
+						         int numLevels, String unitName) {
+		if( unitName == null ) {
+			unitName = " ";
+		} else {
+			if (!unitName.contains("(")) {
+				String temp = " (";
+				temp += unitName + ") ";
+				unitName = temp;
+			}
+			if (unitName.contains("/10")) {
+				unitName = unitName.replace("/10", "");
+			}
+			if (unitName.contains("*1000")) {
+				unitName = unitName.replace("*1000", "");
+			}
+		}
+
+		String legendString = new String( prodName + unitName
+					+ (int) (Math.log( numLevels) / Math.log(2)) + "-bit " );
+		return legendString;		
+	}
 	
 	@Override
 	public String getName() {
-		String legendString = super.getName();
+
 		FrameData fd = (FrameData) getCurrentFrame();
-		if (fd == null || fd.tileTime == null || fd.tileSet.getMapDescriptor().getFrameCount() == 0) {
-			return legendString + "-No Data";
+
+		if( fd == null ) {
+			return "Natl Mosaic-No Data";
 		}
-		return legendString + NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
+		else if( fd.tileTime == null || 
+				 fd.tileSet.getMapDescriptor().getFrameCount() == 0) {
+		
+			return fd.legendStr + "-No Data";
+		}
+		else {
+			return fd.legendStr + NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
+		}
 	}
 	
 	/*
@@ -269,7 +312,9 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 
             cbarResource = (ColorBarResource) cbarRscPair.getResource();
 //            cbarResource.setColorBar( radarRscData.getColorBar() );
- 
+            getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
+            getCapability(ColorMapCapability.class).setSuppressingMenuItems(true); 
+            getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
 			queryRecords();
 
 			if (this.baseTile != null) {
@@ -448,7 +493,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		           cBar.setDisplayUnitStr(radarRecord.getUnit());
 		       } 		       
  		       
- 	       	   cBar.setNumPixelsToReAlignLabel(65);
+ 	       	   cBar.setAlignLabelInTheMiddleOfInterval(true);
  	       	   cBar.setColorMap(colorMap);
  
  		       this.radarRscData.setColorBar(cBar);

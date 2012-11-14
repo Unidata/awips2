@@ -45,7 +45,8 @@ import java.util.List;
  * 09/2010  	#151    	J. Wu		Initial Creation
  * 09/2011  	#335    	J. Wu		Added type/subtype/alias for 
  * 										PGEN activities.
- * 09/11  		#335      	J. Wu 		made cascading menu for activity type/subtype. 
+ * 09/2011		#335      	J. Wu 		made cascading menu for activity type/subtype. 
+ * 08/2012  	#?    	    J. Wu		Add the activity to the existing ones instead of "Replace"
  * 
  * </pre>
  * 
@@ -105,7 +106,6 @@ public class ProductLauncher extends ContributionItem {
             	}
             	else {
             		typeUsed.add( prdType.getType() );
-                	 
            	    }
  
             	MenuItem typeItem = new MenuItem( menu, SWT.CASCADE, ii );
@@ -185,10 +185,13 @@ public class ProductLauncher extends ContributionItem {
 	      	 
 	    productList.add( prd );
   	 
+	    
 		/*
 		 * Add this product list to the PgenResource to launch the product template
 		 */
-	    PgenSession.getInstance().getPgenResource().replaceProduct( productList );     
+	    List<Product>  curPrdList = PgenSession.getInstance().getPgenResource().getProducts();
+	    prd.setName( findUniqueActivityName( curPrdList, prd.getName() ) );
+	    PgenSession.getInstance().getPgenResource().addProduct( productList );		    	
 
 	}
 	
@@ -263,5 +266,40 @@ public class ProductLauncher extends ContributionItem {
 
     }
     
+
+	/*
+	 * Build an activity name that is unique in the activity list. 
+	 */
+	private String findUniqueActivityName( List<Product> prds, String actName ) {
+		
+		String outName = new String( actName );
+		
+		int ii = 1;
+		while ( !isUniqueActivityName( prds, outName ) ) {
+			outName = new String( outName + " " + ii );
+			ii++;
+		}
+		
+		return outName;
+		
+	}
+
+	/*
+	 * Check if an activity name is unique in the activity list. 
+	 */
+	private boolean isUniqueActivityName( List<Product> prds, String actName ) {
+		
+		boolean isUnique = true;
+		
+		for ( Product prd : prds ) {
+			if ( prd.getName().equalsIgnoreCase( actName ) ) {
+				isUnique = false;
+				break;
+			}
+		}
+				
+		return isUnique;
+		
+	}
 
 }

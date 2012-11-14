@@ -46,6 +46,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.Spenes;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.AvnText;
 import gov.noaa.nws.ncep.ui.pgen.elements.MidCloudText;
@@ -122,7 +123,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
  * 03/12        #676        Q. Zhou     Added Issue Office field.
  * 03/12        #610        J. Wu		Restore issue/until times for GFA smears.
  * 05/12        #808        J. Wu		Remove SnapUtil from converting GFA.
- * 
+ * 06/12	    #734        J. Zeng     Add converter for spenes
  * </pre>
  * 
  * @author	J. Wu
@@ -521,6 +522,14 @@ public class ProductConverter {
 				
     		    des.add( tca );   
     		}  	
+    		
+    	}   
+    	
+    	if ( !elem.getSpenes().isEmpty() ) {
+    		
+    		for ( gov.noaa.nws.ncep.ui.pgen.file.Spenes fspenes : elem.getSpenes()){
+     			des.add(convertXML2Spenes(fspenes));
+     		}
     		
     	}   
     	
@@ -1049,6 +1058,9 @@ public class ProductConverter {
 
 						fde.getSigmet().add( sigmet );
 					
+					}
+					else if ( de instanceof Spenes ) {
+						fde.getSpenes().add(convertSpenes2XML((Spenes)de));
 					}
 					else {
 						gov.noaa.nws.ncep.ui.pgen.file.Line line = 
@@ -1760,6 +1772,119 @@ public class ProductConverter {
 	    return contours;
 
     }
+    
+    /**
+     * convert a Spenes element to XML file
+     * @param spenes
+     * @return
+     */
+    private static gov.noaa.nws.ncep.ui.pgen.file.Spenes convertSpenes2XML(Spenes spenes) {
+    	gov.noaa.nws.ncep.ui.pgen.file.Spenes fspenes = 
+    		new gov.noaa.nws.ncep.ui.pgen.file.Spenes();
+    	//set color
+    	fspenes.setPgenCategory(spenes.getPgenCategory());
+    	fspenes.setPgenType(spenes.getPgenType());
+    	fspenes.setLineWidth(spenes.getLineWidth());
+    	fspenes.setSmoothLevel(spenes.getSmoothFactor());
+    	fspenes.setInitDateTime(spenes.getInitDateTime());
+    	fspenes.setStateZ000(spenes.getStateZ000());
+    	fspenes.setLatestDataUsed(spenes.getLatestDataUsed());
+    	fspenes.setObsHr(spenes.getObsHr());
+    	fspenes.setForecasters(spenes.getForecasters());
+    	fspenes.setLocation(spenes.getLocation());
+    	fspenes.setAttnWFOs(spenes.getAttnWFOs());
+    	fspenes.setAttnRFCs(spenes.getAttnRFCs());
+    	fspenes.setEvent(spenes.getEvent());
+    	fspenes.setSatAnalysisTrends(spenes.getSatAnalysisTrend());
+    	fspenes.setShortTermBegin(spenes.getShortTermBegin());
+    	fspenes.setShortTermEnd(spenes.getShortTermEnd());
+    	fspenes.setOutLookLevel(spenes.getOutlookLevel());
+    	fspenes.setAddlInfo(spenes.getAddlInfo());
+    	fspenes.setLatlon(spenes.getLatLon());
+    	
+    	//set points
+    	for ( Coordinate crd : spenes.getLinePoints() ) {
+
+			Point fpt = new Point();
+			fpt.setLat( crd.y );
+			fpt.setLon( crd.x );   	         		    	    
+
+			fspenes.getPoint().add( fpt );
+		}
+    	Point fpt = new Point();
+    	Coordinate crd = new Coordinate();
+    	crd = spenes.getLinePoints()[0];
+    	fpt.setLat(crd.y);
+    	fpt.setLon(crd.x);
+    	fspenes.getPoint().add(fpt);
+	
+
+    	//set color
+    	for ( Color clr : spenes.getColors() ) {
+
+			gov.noaa.nws.ncep.ui.pgen.file.Color fclr = 
+				new gov.noaa.nws.ncep.ui.pgen.file.Color();
+
+			fclr.setRed( clr.getRed() );
+			fclr.setGreen( clr.getGreen() );
+			fclr.setBlue( clr.getBlue() );
+			fclr.setAlpha( clr.getAlpha() );	    	    
+			fspenes.getColor().add( fclr );		    	
+		}	 
+    	
+    	return fspenes;
+    }
+    
+    /**
+     * Convert XML to spenes element
+     * @param fwb
+     * @return
+     */
+    private static Spenes convertXML2Spenes( gov.noaa.nws.ncep.ui.pgen.file.Spenes fspenes ){
+	    	Spenes sp  =	new Spenes();
+	    
+	    	sp.setPgenCategory(fspenes.getPgenCategory());
+	    	sp.setPgenType(fspenes.getPgenType());
+	    	sp.setLineWidth(fspenes.getLineWidth());
+	    	sp.setSmoothFactor(fspenes.getSmoothLevel());
+	    	sp.setInitDateTime(fspenes.getInitDateTime());
+	    	sp.setLatestData(fspenes.getLatestDataUsed());
+	    	sp.setObsHr(fspenes.getObsHr());
+	    	sp.setForecasters(fspenes.getForecasters());
+	    	sp.setStateZ000(fspenes.getStateZ0000());
+	    	sp.setLocation(fspenes.getLocation());
+	    	sp.setAttnWFOs(fspenes.getAttnWFOs());
+	    	sp.setAttnRFCs(fspenes.getAttnRFCs());
+	    	sp.setEvent(fspenes.getEvent());
+	    	sp.setSatAnalysisTrend(fspenes.getSatAnalysisTrends());
+	    	sp.setShortTermBegin(fspenes.getShortTermBegin());
+	    	sp.setShortTermEnd(fspenes.getShortTermEnd());
+	    	sp.setOutlookLevel(fspenes.getOutLookLevel());
+	    	sp.setAddlInfo(fspenes.getAddlInfo());
+	    	sp.setLatLon(fspenes.getLatlon());
+	    	//set color
+	    	Color[] clr = new Color[ fspenes.getColor().size() ];
+		    int nn = 0;
+    	    for (gov.noaa.nws.ncep.ui.pgen.file.Color fColor : fspenes.getColor() ) {
+		        clr[nn++] = new Color( fColor.getRed(), fColor.getGreen(),
+		        		               fColor.getBlue(),  fColor.getAlpha() ); 	
+		    }
+    	    sp.setColors(clr);
+    	    		    
+    	    //set points
+		    ArrayList<Coordinate> linePoints = new ArrayList<Coordinate>();
+		    nn = 0;
+		    for ( Point pt : fspenes.getPoint() ) {
+		        	linePoints.add( new Coordinate( pt.getLon(), pt.getLat() ));
+		    }
+		    sp.setPointsOnly(linePoints);
+		    
+	    	
+	    	
+	    	return sp;
+    }
+    
+    
     
     /**
      * Convert a WatchBox element to file
