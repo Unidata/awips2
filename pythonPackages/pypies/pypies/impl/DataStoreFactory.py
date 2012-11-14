@@ -54,11 +54,13 @@ def createStorageRecord(rawData, ds):
     t = typeToClassMap[rawData.dtype.type]
     inst = t()
     name = ds.name
+    parentName = '/'
     slashIndex = name.rfind('/')
     if slashIndex > -1:
+        parentName = name[0:slashIndex]
         name = name[slashIndex+1:]
     inst.setName(name)
-    inst.setGroup(ds.parent.name)
+    inst.setGroup(parentName)
     inst.putDataObject(rawData)
     inst.setDimension(len(ds.shape))    
     sizes = []
