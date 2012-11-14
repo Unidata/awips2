@@ -1,8 +1,0 @@
-legend_color=RGB {200, 200, 200}
-colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
-imageType=Cloud water content
-displayUnitStr=PrecipPixel
-alpha=1.0
-brightness=1.0
-contrast=1.0

@@ -67,6 +67,7 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
      */
     @Override	
     public boolean handleMouseDown(int anX, int aY, int button) {
+    	if ( !drawingLayer.isEditable() ) return false;
     	
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -118,6 +119,8 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     @Override
     public boolean handleMouseMove(int x, int y) {
 
+    	if ( !drawingLayer.isEditable() ) return false;
+    	
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(x, y);
     	if ( loc == null ) return false;
@@ -134,7 +137,7 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-    	if ( shiftDown ) return false;
+    	if ( !drawingLayer.isEditable() || shiftDown ) return false;
     	else return true;
 	}
 
