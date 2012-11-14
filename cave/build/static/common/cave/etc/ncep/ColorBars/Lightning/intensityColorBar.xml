@@ -1,6 +1,6 @@
    <colorBar>
        <showLabels>true</showLabels>
-       <drawToScale>true</drawToScale>
+       <drawToScale>false</drawToScale>
        <orientation>Vertical</orientation>
        <anchorLoc>UpperLeft</anchorLoc>
        <length>0.4</length>

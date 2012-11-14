@@ -80,6 +80,7 @@ import com.vividsolutions.jts.io.ParseException;
  * 05-Nov- 2010   247       Archana    Initial creation.   
  * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
  * 05/23/2012     785      Q. Zhou     Added getName for legend.
+ * 17 Aug 2012    655      B. Hebbard  Added paintProps as parameter to IDisplayable draw
  * </pre>
  * 
  * @author archana
@@ -244,8 +245,8 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 																             .worldToPixel(worldC));
 												pixCoord.addToY(offsetY*1.75);
 										        target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
-												                          		TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.CENTER, 
-														                        VerticalAlignment.MIDDLE, 0.0);  												
+												                  TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+														          VerticalAlignment.TOP, 0.0);  												
 
 											}
 							           }
@@ -266,8 +267,8 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 											}
 							          }
 											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
-													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.CENTER, 
-													VerticalAlignment.MIDDLE, 0.0);  
+													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+													VerticalAlignment.TOP, 0.0);  
 							           }
 							          
 							          /*If the outline flag is enabled draw the outline else plot the marker at the centroid of the zone's area*/
@@ -291,7 +292,7 @@ drawOutlineForZone2(eachFipsInfo.getFipsCode()/*eachFipsInfo.fipsNumber*/, targe
 										            displayEls = df.createDisplayElements(symbol,paintProps);
 													if (displayEls != null && !displayEls.isEmpty()) {
 														for (IDisplayable each : displayEls) {
-															each.draw(target);
+															each.draw(target, paintProps);
 															each.dispose();
 														}
 													}

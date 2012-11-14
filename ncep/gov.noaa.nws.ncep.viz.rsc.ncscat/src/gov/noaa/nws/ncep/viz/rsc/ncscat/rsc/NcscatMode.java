@@ -26,6 +26,7 @@ import java.util.EnumSet;
  * ------------ ---------- ----------- --------------------------
  * 02 Jun 2010  235B       B. Hebbard  Initial creation.
  * 03 Feb 2011  235E       B. Hebbard  Add support for ambiguity variants.
+ * 16 Aug 2012             B. Hebbard  Add OSCAT / OSCAT_HI
  * 
  * </pre>
  * 
@@ -41,6 +42,8 @@ public enum NcscatMode {
         ASCAT_HI        (  82, false, ByteOrder.BIG_ENDIAN ),
         EXASCT          (  42, false, ByteOrder.LITTLE_ENDIAN ),
         EXASCT_HI       (  82, false, ByteOrder.LITTLE_ENDIAN ),
+        OSCAT           (  36, true,  ByteOrder.BIG_ENDIAN ),
+        OSCAT_HI        (  76, true,  ByteOrder.LITTLE_ENDIAN ),
         WSCAT           (  79, true,  ByteOrder.LITTLE_ENDIAN ),
         UNKNOWN         (  76, true,  ByteOrder.BIG_ENDIAN );
         

@@ -74,7 +74,7 @@ public class PgenMoveElement extends PgenCopyElement {
 	    @Override
 	    public boolean handleMouseUp(int x, int y, int button) {
 	      	
-	    	if ( shiftDown || simulate ) return false;
+	    	if (  !isResourceEditable() || shiftDown || simulate ) return false;
 	    	
 	     	if ( ghostEl != null ) {
 

@@ -50,6 +50,7 @@ public class PgenDeleteAll extends AbstractPgenTool {
     protected void activateTool( ) {
 
     	super.activateTool();
+    	if ( !isResourceEditable() ) return;
     	
         /*
          * Confirm "delete All" request

@@ -19,6 +19,7 @@ Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.common,
  gov.noaa.nws.ncep.viz.common.dbQuery,
  gov.noaa.nws.ncep.viz.common.graphicUtil,
+ gov.noaa.nws.ncep.viz.common.preferences,
  gov.noaa.nws.ncep.viz.common.soundingQuery,
  gov.noaa.nws.ncep.viz.common.ui,
  gov.noaa.nws.ncep.viz.common.ui.color

@@ -1,0 +1,27 @@
+!
+! Restore File : mul(1e-2,pmsl)_1000-850_thk
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! J. Carr/HPC         5/15/97   Changed line thickness on thickness and hilo ranges
+! J. Carr/HPC            6/97   Changed boundary level to comply with EMC changes
+!
+GLEVEL =  850:1000                  !0  
+GVCORD =  pres                      !none
+SKIP   =    0/1;1
+SCALE  =   -1                        ! 0
+GDPFUN =  (sub(hght@850,hght@1000)) !sm9s(mul(1e-2,pmsl)) ! kntv(wnd@30:0%pdly)
+TYPE   =    c                         !           ! b
+CINT   =    1                         !4
+LINE   =    3/5/2/1                   !20//2
+FINT   =    
+FLINE  =   
+HILO   =    !26;2/H#;L#/1020-1070;900-1012/3/30;30/y
+HLSYM  =   2;1.5//21//hw
+!CLRBAR=  1
+WIND   =    9/0.7/2/112
+TITLE  =   1/-1/~ PMSL, 1000-850mb THKN & BL (0-30 MB AGL) WIND    (KTS)!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

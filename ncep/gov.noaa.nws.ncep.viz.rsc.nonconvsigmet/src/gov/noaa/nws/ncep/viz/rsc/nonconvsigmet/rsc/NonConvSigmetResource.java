@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 18 Nov 2010    307       Greg Hull   newRscDataObjsList -> newRscDataObjsQueue
  * 05 Aug 2011    n/a       B. Hebbard  Preserve newRscDataObjsQueue during traversal in processCancelRequest
  * 05/23/12       785       Q. Zhou     Added getName for legend.
+ * 17 Aug 2012    655       B. Hebbard  Added paintProps as parameter to IDisplayable draw
  * </pre>
  * 
  * @author bhebbard 
@@ -352,7 +353,7 @@ public class NonConvSigmetResource extends
 			    			DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
 			    			ArrayList<IDisplayable> displayEls = df.createDisplayElements( symbol , paintProps );
 			    			for (IDisplayable each : displayEls) {
-			    				each.draw(target);
+			    				each.draw(target, paintProps);
 			    				each.dispose();
 			    			}
 			    		}
