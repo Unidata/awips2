@@ -85,6 +85,8 @@ import com.raytheon.uf.common.time.DataTime;
  * 10/04/10       #307      Greg Hull    add Manual Timeline selection
  * 01/27/11       #408      Greg Hull    add an avail dom rsc without setting the GUI
  * 02/11/11       #408      Greg Hull    combined with Timeline class (now TimelineControl)
+ * 06/19/12       #657      Greg Hull    removeSpinnerListeners() before setting the 
+ *                                       spinner maxvalues.
  * 
  * </pre>
  * 
@@ -164,12 +166,6 @@ public class TimelineControl extends Composite {
 	private Combo refTimeCombo;
 	private Label refTimeLbl;
 	
-	// this flag is set when setting the gui elements (Spinners) for the numFrames, 
-	// skipValue, and timeRange values. This will trigger the ModifyListener which will
-	// check this flag before continuing...
-	// (This may not be needed anymore)
-	private boolean settingTimelineValuesFlag = false;
-		
 	private int timeRangeHrs = 0; // 
 			
 	private String availFrameIntervalStrings[] = { "Data",
@@ -610,20 +606,12 @@ public class TimelineControl extends Composite {
 
 			timeData = new TimelineData( availTimes );
 
-			//		removeSpinnerListeners();
-			//		settingTimelineValuesFlag = true;
+			removeSpinnerListeners();
 
+			// these can trigger the modify listeners too...
 			numFramesSpnr.setMaximum( availTimes.size() );
 			numSkipSpnr.setMaximum( availTimes.size()-1 );
 			hasDifferentMinutes = checkTimeMinutes( availTimes );
-
-			//		setNumberofFrames( timeMatcher.getNumFrames() );
-			//		setSkipValue( timeMatcher.getSkipValue() );
-			//		setFrameInterval( frameInt );
-			//		setTimeRangeHrs( tRange );
-
-			//		settingTimelineValuesFlag = false;
-			//		addSpinnerListeners();
 
 			List<Calendar> seldTimes = toCalendar( timeMatcher.getFrameTimes() );
 
@@ -631,21 +619,6 @@ public class TimelineControl extends Composite {
 				timeData.select( seldTime );
 			}
 			
-//			if( !timeData.isEmpty() ) {
-//
-//				switch(behavior) {
-//				case APPEND:
-//					timeData.appendTimes( numFramesSpnr.getSelection(), numSkipSpnr.getSelection() );
-//					break;
-//				case PREPEND:
-//					timeData.prependTimes( numFramesSpnr.getSelection(), numSkipSpnr.getSelection() );
-//					break;
-//				} 
-//			}
-
-			removeSpinnerListeners();
-			settingTimelineValuesFlag = true;
-				
 			// if this is a forecast dominant resource, the reference time
 			// is not needed since the cycle time is the reference time.
 			refTimeCombo.setVisible( !timeMatcher.isForecast() );
@@ -659,7 +632,7 @@ public class TimelineControl extends Composite {
 			 
 			setTimeRangeHrs( timeMatcher.getTimeRange() );
 
-			settingTimelineValuesFlag = false;
+			
 			addSpinnerListeners();
 			
 			
@@ -718,10 +691,6 @@ public class TimelineControl extends Composite {
 		numFramesSpnr.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {				
-				if( settingTimelineValuesFlag ) {
-					return;
-				}
-
 				Spinner spin = (Spinner)e.widget;
 
 				timeMatcher.setNumFrames( spin.getSelection() );
@@ -751,9 +720,6 @@ public class TimelineControl extends Composite {
 		numSkipSpnr.addModifyListener( new ModifyListener() {		
 			@Override
 			public void modifyText(ModifyEvent e) {
-				if( settingTimelineValuesFlag ) {
-					return;
-				}
 				if( timeData == null || timeData.isEmpty() ) 
 					return;
 				
@@ -777,10 +743,7 @@ public class TimelineControl extends Composite {
 		timeRangeDaysSpnr.addModifyListener( new ModifyListener() {		
 			@Override
 			public void modifyText(ModifyEvent e) {
-				if( settingTimelineValuesFlag ) {
-					return;
-				}
-				else if( timeRangeHrs == timeRangeDaysSpnr.getSelection()*24 + 
+				if( timeRangeHrs == timeRangeDaysSpnr.getSelection()*24 + 
 					            		 timeRangeHrsSpnr.getSelection() ) {
 					return;
 				}
@@ -803,10 +766,7 @@ public class TimelineControl extends Composite {
 		timeRangeHrsSpnr.addModifyListener( new ModifyListener() {		
 			@Override
 			public void modifyText(ModifyEvent e) {
-				if( settingTimelineValuesFlag ) {
-					return;
-				}
-				else if( timeRangeHrs == timeRangeDaysSpnr.getSelection()*24 + 
+				if( timeRangeHrs == timeRangeDaysSpnr.getSelection()*24 + 
 						                 timeRangeHrsSpnr.getSelection() ) {
 					return;
 				}

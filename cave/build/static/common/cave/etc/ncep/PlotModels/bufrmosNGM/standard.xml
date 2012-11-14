@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosNGM" name="standard">
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TMPF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TMPF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="255"/>  <!-- GEMPAK#15 -->
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="DWPF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="DWPF">
         <Position>LL</Position>
         <Color red="0" green="255" blue="255"/>  <!-- GEMPAK#22 -->
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STID">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         <Position>LR</Position>
         <Color red="16" green="78" blue="139"/>  <!-- GEMPAK#18 -->
     </PlotModelElement>

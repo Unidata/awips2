@@ -37,6 +37,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
  * 12/09     	#160        G. Zhang    Added ISigmet for Sigmet support
  * 03/10		#223		M.Laryukhin	Gfa added. 
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 09/12					B. Hebbard  Merge RTS changes from OB12.9.1
  * </pre>
  * 
  * @author sgilbert
@@ -151,7 +152,7 @@ public abstract class AbstractElementContainer {
 		    	displayEls = def.createDisplayElements( (IGfa) element, paintProps );
 		    }
 		    else if ( element instanceof ILine ){
-		    	displayEls = def.createDisplayElements( (ILine) element, paintProps );
+		    	displayEls = def.createDisplayElements( (ILine) element, paintProps, true );
 		    }
 	    }
 	}

@@ -5,7 +5,7 @@
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
 pluginName=aww
-reportType=THUNDERSTORM_REPORT,TORNADO_REPORT,WATCH_COUNTY_NOTIFICATION
+reportType=THUNDERSTORM_REPORT,TORNADO_REPORT,STATUS_REPORT
 color=RGB {155, 155, 155}
 legendName=WATCH
     </resourceParameters>

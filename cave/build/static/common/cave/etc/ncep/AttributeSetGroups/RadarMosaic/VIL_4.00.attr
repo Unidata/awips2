@@ -1,7 +1,7 @@
 colorMapName=nids_vil
 colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=148
-prodName=VIL_4
+!prodName=VIL_4
 alpha=1.0
 brightness=1.0
 contrast=1.0

@@ -1,0 +1,29 @@
+!
+! Restore File : sig_wave_gridded_mslp_meters_nw
+!
+! Log:
+! J.L.Partain/MPC        2/99   no-winds version
+! T. Piper/GSC		 5/99	Added -1 line position for TITLE  =
+! J.L.Partain/MPC	 5/01	Set filter=n and added SKIP   =
+! T. Lee/SAIC		 2/04	Changed AVN to GFS
+!
+GDFILE  nww3 ! gfs
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0/-1;1
+SCALE  =   0
+GDPFUN =  HTSGW           !sm5s(mul(1e-2,pmsl))
+TYPE   =    p               !c
+CINT   =    0  		!4
+LINE   =                    !25/13/1/2
+FINT   =    
+FLINE  =   
+HILO   =                    !26;2/h#;l#///30;30/y
+HLSYM  =    		!.9;0.8//21//hw
+!CLRBAR =  1
+WIND   =    
+TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (m) with GFS PMSL!0
+COLORS =  1
+MARKER =  0
+GRDLBL =                                                                         
+FILTER =  no

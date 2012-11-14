@@ -4,21 +4,22 @@
 ! Log:
 ! J. Carr/HPC         10/97   New file
 !
-GLEVEL=30:0!30:0!30:0!0   !30:0
-GVCORD=pdly!pdly!pdly!none!pdly
-SKIP=
-FILTER=y
-SCALE=0
-GDPFUN=tmpf!tmpf!tmpf!sm5s(emsl) ! kntv(wnd)
-TYPE=c/f !c   !c   !c           ! b
-CINT=4/-99/32!4/36/80!4/84  !4
-LINE=27/1/2  !2/1/1  !16/1/3!19//3
-FINT=20;32;0!
-FLINE=29;30;24;0!
-HILO=0!0!0!20/H#;L#/1020-1070;900-1012
-HLSYM=0!0!0!1.5;1.5//22;22/3;3/hw
-WIND=9/0.7/2/112
-TITLE=1/-1/~ EMSL PRESSURE, BL TEMPERATURE (0-30MB AGL), WIND (KTS)!0
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
+GLEVEL =  30:0!30:0!30:0!0   !30:0
+GVCORD =  pdly!pdly!pdly!none!pdly
+SKIP   =    0/1
+SCALE  =   0
+GDPFUN =  tmpf!tmpf!tmpf!sm5s(mul(1e-2,emsl)) ! kntv(wnd)
+TYPE   =    c/f !c   !c   !c           ! b
+CINT   =    4/-99/32!4/36/80!4/84  !4
+LINE   =    27/1/2  !2/1/1  !16/1/3!19//3
+FINT   =    20;32;0!
+FLINE  =   29;30;24;0!
+HILO   =    0!0!0!20/H#;L#/1020-1070;900-1012
+HLSYM  =   0!0!0!1.5;1.5//22;22/3;3/hw
+!CLRBAR =  1/V/LL!0
+WIND   =    9/0.7/2/112
+TITLE  =   1/-1/~ EMSL PRESSURE, BL TEMPERATURE (0-30MB AGL), WIND    (KTS)!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

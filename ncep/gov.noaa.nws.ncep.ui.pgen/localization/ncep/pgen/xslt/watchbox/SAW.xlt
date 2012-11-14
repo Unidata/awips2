@@ -142,6 +142,14 @@
           <xsl:value-of select="@moveSpeed"/>
           <xsl:text>.</xsl:text>
 
+   	<xsl:if test="@replWatch > 0">
+  	   <xsl:value-of select="$newline"/>
+           <xsl:text>         WW </xsl:text>
+           <xsl:value-of select="@replWatch"/>
+           <xsl:text>..</xsl:text>
+    </xsl:if>
+
+
 	<!-- format corner points lat/lon -->
 	  <xsl:value-of select="$newline"/>
 	  <xsl:value-of select="$newline"/>
