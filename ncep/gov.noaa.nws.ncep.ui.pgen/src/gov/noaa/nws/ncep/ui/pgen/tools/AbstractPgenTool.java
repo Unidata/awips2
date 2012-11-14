@@ -132,11 +132,28 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
     	
     }
 
+    /**
+     * Get the PGEN resource
+     * @return
+     */
 	public PgenResource getDrawingLayer() {
 		return drawingLayer;
 	}
 
+	/**
+	 * Set the PGEN resource
+	 * @param drawingLayer
+	 */
 	public void setDrawingLayer(PgenResource drawingLayer) {
 		this.drawingLayer = drawingLayer;
+	}
+	
+	/**
+	 * Check if the PGEN resource is editable.
+	 * @return
+	 */
+	protected boolean isResourceEditable(){
+		if ( drawingLayer == null ) return false;
+		else return drawingLayer.isEditable();
 	}
 }

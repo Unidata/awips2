@@ -4,6 +4,8 @@ Bundle-Name: Option Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.tools;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.tools.Activator
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: org.apache.log4j, com.raytheon.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools;bundle-version="2.5.2",
@@ -13,6 +15,7 @@ Require-Bundle: org.eclipse.ui,
  javax.measure;bundle-version="1.0.0",
  com.sun.jna;bundle-version="3.0.9",
  com.raytheon.viz.alerts,
+ org.eclipse.core.runtime,
  com.raytheon.uf.common.colormap;bundle-version="1.11.22",
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
  com.raytheon.viz.core;bundle-version="1.10.13",
@@ -27,20 +30,23 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.gempak.parameters;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.gempak.parameters.core;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.customprojection;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.customprojection;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.tools,
+ gov.noaa.nws.ncep.viz.tools.aodt,
  gov.noaa.nws.ncep.viz.tools.colorMapEditor,
  gov.noaa.nws.ncep.viz.tools.contour,
  gov.noaa.nws.ncep.viz.tools.contourinterval,
  gov.noaa.nws.ncep.viz.tools.cursor,
  gov.noaa.nws.ncep.viz.tools.frame,
  gov.noaa.nws.ncep.viz.tools.imageProperties,
+ gov.noaa.nws.ncep.viz.tools.logos,
  gov.noaa.nws.ncep.viz.tools.loopManagement,
  gov.noaa.nws.ncep.viz.tools.ncInventoryControl,
+ gov.noaa.nws.ncep.viz.tools.panZoom,
  gov.noaa.nws.ncep.viz.tools.predefinedArea
-Eclipse-RegisterBuddy: org.apache.log4j
 Bundle-ClassPath: .
 Import-Package: gov.noaa.nws.ncep.common.log.logger,
  gov.noaa.nws.ncep.edex.common.ncinventory,

@@ -1,0 +1,28 @@
+!
+! Restore File : 500mb_hght_absv
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! J. Carr/HPC            7/99   Smoothed height field. Changed skip to 0.
+!                               Changed contur to 2 for height. 
+!
+GLEVEL =  500
+GVCORD =  pres
+SKIP   =    0                  !0             !0
+SCALE  =   5                  !5             !-1
+GDPFUN =  abs(avor(wnd))//v  !v             !sm5s(hght)
+TYPE   =    c/f                !c             !c
+CINT   =    2/10/20            !2/4/8         !6
+LINE   =    7/5/1/2            !29/5/1/2      !5/1/2/1
+FINT   =    16;20;24;28;32;36;40;44
+FLINE  =   0;23-15
+HILO   =    2;6/X;N/10-99;10-99!0 
+HLSYM  =             
+!CLRBAR =  1        
+WIND   =    18/1/1
+TITLE  =   5/-1/~ @ HEIGHT AND ABS VORTICITY!0
+COLORS =  2         
+MARKER =  2        
+GRDLBL =  5                                                                       
+FILTER =  1

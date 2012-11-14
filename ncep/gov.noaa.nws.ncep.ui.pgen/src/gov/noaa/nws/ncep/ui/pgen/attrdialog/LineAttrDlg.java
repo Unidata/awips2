@@ -58,6 +58,8 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      selected color instead of displaying 
  *                                      the complete color matrix .
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 07/12	#610(TTR419)	B. Yin		Melti-Select GFA does not need check boxes for 
+ *										every attributes
  * </pre>
  * 
  * @author	B. Yin
@@ -787,7 +789,8 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 		this.create();
 
 		if ( PgenSession.getInstance().getPgenPalette().getCurrentAction()
-				.equalsIgnoreCase("MultiSelect")){
+				.equalsIgnoreCase("MultiSelect")
+				&& !(this instanceof GfaAttrDlg) ){
 			enableChkBoxes(true);
 			enableAllWidgets(false);
 		}

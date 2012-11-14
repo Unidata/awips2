@@ -388,7 +388,38 @@
 			sref_rsm.*[pn][1-9].*|srefRsm;
 			sref_nmm.*ctl.*|srefNmmCtl;
 			sref_nmm.*[pn][1-9].*|srefNmm;
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>SREF ensemble for WRF_EM (Eulerian Mass-core)</title>
+		<name>sref</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>212</grid>
+		<process>
+			<id>116</id>
+		</process>
+		<template>
+			sref_em.*ctl.*|srefEmCtl;
 			sref_em.*[pn][1-9].*|srefEm;
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>SREF ensemble for NMB (Non-hydrostatic Multiscale Meteorological Model on Grid B)</title>
+		<name>sref</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>212</grid>
+		<process>
+			<id>111</id>
+		</process>
+		<template>
+			sref_nmb.*ctl.*|srefNmmbCtl;
+			sref_nmb.*[pn][1-9].*|srefNmmb;
         </template>
 		<dt>3</dt>
 	</model>
@@ -401,6 +432,10 @@
 		<grid>3</grid>
 		<process>
 			<id>141</id>
+			<id>142</id>
+			<id>143</id>
+			<id>144</id>
+			<id>145</id>
 		</process>
 		<dt>3</dt>
 	</model>	
@@ -414,6 +449,10 @@
 		<grid>228</grid>
 		<process>
 			<id>141</id>
+			<id>142</id>
+			<id>143</id>
+			<id>144</id>
+			<id>145</id>
 		</process>
 		<dt>3</dt>
 	</model>
@@ -426,6 +465,10 @@
 		<grid>14529</grid>
 		<process>
 			<id>141</id>
+			<id>142</id>
+			<id>143</id>
+			<id>144</id>
+			<id>145</id>
 		</process>
 		<dt>3</dt>
 	</model>
@@ -2607,8 +2650,20 @@
 	</model>
 
 	<model>
-		<title>SREF</title>
-		<name>SREF212</name>
+		<title>SREF 3h Mean</title>
+		<name>srefMean</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>212</grid>
+		<process>
+			<id>113</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>SREF 3h Prob</title>
+		<name>srefProb</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>212</grid>

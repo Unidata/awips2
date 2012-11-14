@@ -615,7 +615,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
     	}
     	return gap;
     }
-    @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
 	private void plotNsharpMovingTempLine(IGraphicsTarget target,
             WGraphics world, RGB color) throws VizException{
     	float currentLayerTemp, currentLayerDewP;
@@ -1129,7 +1129,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			str6.setCoordinates(dispX, dispY);
 			str6.horizontalAlignment = HorizontalAlignment.LEFT;
 			str6.verticallAlignment = VerticalAlignment.TOP;
-	    	
+
 	    	//column 3: Theta, ThetaW, ThetaE
 	    	dispX = dispX +target.getStringsBounds(str5).getWidth()*hRatio;
 	    	dispY = ymin + 35 * zoomLevel* yRatio+target.getStringsBounds(str).getHeight()*vRatio ;
@@ -1155,7 +1155,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		else {
 			boxExt = new PixelExtent(dispX,dispX+(rect.getWidth()+1)*hRatio,dispY-1*vRatio, dispY+rect.getHeight()*vRatio);
 			target.drawShadedRect(boxExt, NsharpConstants.color_black, 1f, null);	//blank out box		
-		}
+    }
 		target.drawStrings(str);
 		target.drawRect(boxExt, wwTypeColor, 2f, 1f); // box border line colored with "Psbl Watch Type" color
     }
@@ -1255,22 +1255,22 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 					// parcel trace curve
 					if(graphConfigProperty.isParcel() == true && !compareStnIsOn && !compareTmIsOn){
 						if(soundingLys.size() > 0){
-							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
+								NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
 							target.drawWireframeShape(parcelTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
+							}
 						}
-					}
 					if(graphConfigProperty.isParcelAscent() == true && !compareStnIsOn && !compareTmIsOn){
 						if(soundingLys.size() > 0){
 							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_ASCENT]);
 							target.drawWireframeShape(parcelAscentRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 							
-						}
+					}
 					}
 					if(graphConfigProperty.isDcape() == true && dacpeTraceRscShape != null  && !compareStnIsOn && !compareTmIsOn){
 						if(soundingLys.size() > 0){
 							NsharpLineProperty lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_DCAPE]);
 							target.drawWireframeShape(dacpeTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
-							
+
 						}
 					}
 					if(graphConfigProperty.isEffLayer() == true && !compareStnIsOn && !compareTmIsOn ){
@@ -1314,7 +1314,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 						target.drawWireframeShape(vtempTraceCurveRscShape,lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 
 						// parcel trace curve
-						lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
+								lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL]);
 						target.drawWireframeShape(parcelTraceRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
 						lp =linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_PARCEL_ASCENT]);
 						target.drawWireframeShape(parcelAscentRscShape, lp.getLineColor(),lp.getLineWidth(),lp.getLineStyle(),font10);
@@ -1499,7 +1499,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		double [][] lines = {{c1.x, c1.y},{c2.x, c2.y}};
 		parcelTraceRscShape.addLineSegment(lines);
 		c1 = c2;
-		
+
 		Coordinate a1 = NsharpWxMath.getSkewTXY(sfcpres, sfctemp);
 		a1.x = world.mapX(a1.x);
 		a1.y = world.mapY(a1.y);
@@ -1571,7 +1571,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 				}
 			}
 		}
-       
+
 
 		/* ----- Find min ThetaE layer ----- */
         mine=1000; minep=-999;
@@ -1601,7 +1601,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			if(layer.getPressure() > upper){
 				uptr = i;
 				break;
-			}
+	}
 		}
         
 
@@ -2635,12 +2635,12 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		omegaYEnd = omegaYOrig + omegaHeight;
 		createRscWireFrameShapes();
 		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT)
-			skewTBackground.handleResize(ext);
+		skewTBackground.handleResize(ext);
 		else if(currentGraphMode == NsharpConstants.GRAPH_ICING)
-			icingBackground.handleResize(ext);
+		icingBackground.handleResize(ext);
 		else if(currentGraphMode == NsharpConstants.GRAPH_TURB)
 			turbBackground.handleResize(ext);
-					
+		
 		//System.out.println(descriptor.getPaneNumber()+":calling wito handle resize");
 		if(rscHandler != null && rscHandler.getWitoPaneRsc()!=null )
 			//simple D2D pane does not display WITO pane

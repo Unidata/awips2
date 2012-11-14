@@ -24,7 +24,7 @@ INSERT INTO awips.satellite_creating_entities VALUES (5,'POES-NPOESS');
 INSERT INTO awips.satellite_creating_entities VALUES (6,'Composite');
 INSERT INTO awips.satellite_creating_entities VALUES (7,'DMSP');
 INSERT INTO awips.satellite_creating_entities VALUES (8,'GMS');
-INSERT INTO awips.satellite_creating_entities VALUES (9,'METEOSTAT');
+INSERT INTO awips.satellite_creating_entities VALUES (9,'METEOSAT');
 INSERT INTO awips.satellite_creating_entities VALUES (10,'GOES-7(H) Reserved for future use.');
 INSERT INTO awips.satellite_creating_entities VALUES (11,'GOES-8(I)');
 INSERT INTO awips.satellite_creating_entities VALUES (12,'GOES-9(J)');

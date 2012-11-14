@@ -1,0 +1,25 @@
+!
+! Restore File : 24-hr_obs_pcpn.al
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  p24i
+TYPE   =    f
+CINT   =    .25/4/
+LINE   =    2//1/0
+FINT   =    .01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.25;2.5;2.75;3;3.25;3.5;3.75;4
+FLINE  =   0;21-30;14-20;5
+HILO   =    31;0/x#2////y
+HLSYM  =   1.5
+!CLRBAR=  1
+WIND   =    0
+TITLE  =   1/-1/~ 24-HR OBS PRECIP (RFC, 40km avg) !0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

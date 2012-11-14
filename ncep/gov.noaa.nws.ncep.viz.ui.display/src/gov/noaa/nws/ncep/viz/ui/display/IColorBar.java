@@ -8,7 +8,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
-
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAttributesBuilder;
 /**
  *  An Interface to define the methods needed to edit and paint ColorBars. 
  * 
@@ -23,6 +25,16 @@ import org.eclipse.swt.widgets.Display;
  *                                        getDisplayUnitStr() and 
  *                                        getNumPixelsToReAlignLabel()
  * 
+ * 06/18/12      #743         Archana     Added the following methods:
+ *                                        isDrawColorBar(),setDrawColorBar(),
+ *                                        isDrawBoxAroundColorBar(),
+ *                                        setDrawBoxAroundColorBar(),
+ *                                        setXPixelCoordFraction(),getXPixelCoordFraction(),
+ *                                        setYPixelCoordFraction(),getYPixelCoordFraction(),               
+ *    
+ *    
+ *    
+ *    
  * </pre>
  * 
  * @author ghull
@@ -31,15 +43,18 @@ import org.eclipse.swt.widgets.Display;
 
 public interface IColorBar {
 	
-	public static enum ColorBarOrientation {
-		Vertical, Horizontal
-	}
+//	public static enum ColorBarOrientation {
+//		Vertical, Horizontal
+//	}
+//	
+//	public static enum ColorBarAnchorLocation {
+//		UpperLeft, /*UpperCenter,*/ UpperRight,
+//		/*CenterLeft, CenterCenter, CenterRight,*/
+//		LowerLeft, /* LowerCenter,*/ LowerRight
+//	}
 	
-	public static enum ColorBarAnchorLocation {
-		UpperLeft, /*UpperCenter,*/ UpperRight,
-		/*CenterLeft, CenterCenter, CenterRight,*/
-		LowerLeft, /* LowerCenter,*/ LowerRight
-	}
+	public abstract void setColorBarAttributesBuilder(ColorBarAttributesBuilder colorBarAttributesBuilder);
+	public abstract ColorBarAttributesBuilder getColorBarAttributesBuilder();
 		
 	public abstract int getNumIntervals();
 	
@@ -86,8 +101,9 @@ public interface IColorBar {
 	
 	public abstract String getDisplayUnitStr();
 	
-	public abstract int getNumPixelsToReAlignLabel();
+	public abstract boolean isAlignLabelInTheMiddleOfInterval();
 	
+	public abstract void setAlignLabelInTheMiddleOfInterval(boolean b);
 	// Methods to get/set values for the colorBar intervals and colors
 	//
 	public abstract boolean isValueInInterval( int c, Float value, Unit<?> units );
@@ -133,5 +149,24 @@ public interface IColorBar {
 	public abstract void setColorDevice( Display disp );
 	
 	public abstract void dispose();
+	
+	public abstract void setAttributesFromColorBarAttributesBuilder(ColorBarAttributesBuilder colorBarAttributesBuilder);
+	
+	public abstract void setDrawColorBar(Boolean b);
+	
+	public abstract Boolean isDrawColorBar();
+	
+	public abstract Boolean isDrawBoxAroundColorBar();
+	
+	public abstract void setDrawBoxAroundColorBar(Boolean drawBoxAroundColorBar);
+	
+	public abstract void setYPixelCoordFraction(double yPixelCoordFraction) ;
+	
+	public abstract void setXPixelCoordFraction(double xPixelCoordFraction) ;
+	
+	public abstract double getXPixelCoordFraction();
+	
+	public abstract double getYPixelCoordFraction();
+	
 }
 

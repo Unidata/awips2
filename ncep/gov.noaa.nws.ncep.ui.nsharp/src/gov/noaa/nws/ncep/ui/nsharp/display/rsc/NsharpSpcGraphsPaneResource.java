@@ -135,7 +135,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		if(side == left ){
 			xstart = spcLeftXOrig+   0.5*charWidth;
 			xend = spcLeftXOrig + spcFrameWidth;
-		}
+	}
 		else{
 			xstart = spcRightXOrig + 0.5*charWidth;
 			xend = spcRightXOrig + spcFrameWidth;
@@ -202,7 +202,7 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource{
 		subTStr2.setCoordinates(xpos, ypos);
 		strList.add(subTStr2);
 		//target.drawStrings(subTStr1, subTStr2);
-		
+	
 		ypos = ypos + 1.5* charHeight;
 		//----- Plot Y-Coordinate hash marks, 0 - 70 kt ----- 
 		int maxval = 70;
