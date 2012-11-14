@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.viz.core,
  gov.noaa.nws.ncep.viz.common,
- gov.noaa.nws.ncep.ui.pgen
+ gov.noaa.nws.ncep.ui.pgen,
+ com.raytheon.viz.core,
+ org.geotools
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.geospatial,

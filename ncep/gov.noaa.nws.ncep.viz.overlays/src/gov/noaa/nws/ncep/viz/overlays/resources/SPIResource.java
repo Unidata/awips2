@@ -52,6 +52,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
  *    8/07/09                   Greg Hull   rm commented out or unused code
  *    12/1/2009                 ghull       to11d6 : Reference ncep data directory
  *    07/28/2011    450         ghull       NcPathManager
+ *    08/17/12      655         B. Hebbard  Added paintProps as parameter to IDisplayable draw
  *    
  * </pre>
  * 
@@ -222,7 +223,7 @@ public class SPIResource extends AbstractVizResource<SPIResourceData, MapDescrip
 					ArrayList<IDisplayable> elements = df.createDisplayElements(symbolSet, paintProps);
 					for (IDisplayable each : elements)
 					{
-						each.draw(target);
+						each.draw(target, paintProps);
 						each.dispose();
 					}
 				}

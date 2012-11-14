@@ -1,0 +1,28 @@
+!
+! Restore File : 700mb_rh_rs_temp
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! J.Carr/NCEP	         6/97	changed boundary layer labels to comply with EMC
+! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+! Archana/Chugach    9/2012     #866   Added CLRBAR
+!
+GLEVEL=700!700!700!850!850!30:0!30:0
+GVCORD=PRES!PRES!PRES!PRES!PRES!pdly!pdly
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=relh !tmpc !tmpc  !tmpc !tmpc  !tmpc !tmpc
+TYPE=c/f        ! c
+CINT=70;90;95   !2;-2 !200;0 !2;-2 !200;0 !2;-2 !-100;0;100
+LINE=32//1/0    !6/3/2!6/1/2 !2/3/2!2/1/2 !20/3/2!20/1/2
+FINT=70;90;95
+FLINE=0;24;23;22
+HILO=0
+HLSYM=0
+!CLRBAR=1
+WIND=
+TITLE=1/-1/~ 700 MB RH, TEMPERATURES (BL yel, 850 red, 700 cyan)!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

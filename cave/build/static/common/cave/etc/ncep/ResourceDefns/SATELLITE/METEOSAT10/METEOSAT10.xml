@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
+    <isEnabled>false</isEnabled>
     <resourceDefnName>METEOSAT10</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <resourceParameters>

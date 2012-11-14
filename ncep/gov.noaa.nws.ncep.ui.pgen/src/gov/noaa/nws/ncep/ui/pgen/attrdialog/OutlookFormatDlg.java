@@ -38,6 +38,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -64,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 07/11        #450        G. Hull     NcPathManager
  * 03/12		$703		B. Yin		Generate product text from style sheet
  * 05/12		#710		B. Yin		Format HAIL outlook first
+ * 07/12		#789		B. Yin		Change all time to UTC.
  *
  * </pre>
  * 
@@ -94,11 +97,11 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	
 	//initial date and time
 	private DateTime initDate;
-	private DateTime initTime;
+	private Text initTime;
 	
 	//expiration check box and date/time widgets
 	private DateTime expDate;
-	private DateTime expTime;
+	private Text expTime;
 	
 	//forecaster name
 	private Text forecaster;
@@ -169,7 +172,14 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		Composite initDt = new Composite(top, SWT.NONE);
 		initDt.setLayout( new GridLayout(2, false) );
 		initDate = new DateTime(initDt, SWT.BORDER | SWT.DATE );
-		initTime = new DateTime(initDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		initTime = new Text(initDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+
+		FormData fd = new FormData();
+		fd.top = new FormAttachment(dayGrp,2, SWT.BOTTOM);
+		fd.left = new FormAttachment(initDate, 5, SWT.RIGHT);
+		initTime.setLayoutData(fd);
+		PgenUtil.setUTCTimeTextField(initDt, initTime,  
+				this.getDefaultInitDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
 		
 		setInitDt(this.getDefaultInitDT(this.getDays().replaceAll(" Fire", "")));
 
@@ -179,7 +189,15 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		Composite expDt = new Composite(top, SWT.NONE);
 		expDt.setLayout( new GridLayout(2, false) );
 		expDate = new DateTime(expDt, SWT.BORDER | SWT.DATE );
-		expTime = new DateTime(expDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		expTime = new Text(expDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+
+		FormData fd2 = new FormData();
+		fd2.top = new FormAttachment(initTime, 2, SWT.BOTTOM);
+		fd2.left = new FormAttachment(expDate, 5, SWT.RIGHT);
+		expTime.setLayoutData(fd2);
+		
+		PgenUtil.setUTCTimeTextField(expDt, expTime,  
+				this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
 		
 		setExpDt(this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")));
 
@@ -285,7 +303,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 
 		Calendar expiration = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		expiration.set(expDate.getYear(), expDate.getMonth(), expDate.getDay(), 
-				expTime.getHours(), expTime.getMinutes(), 0);
+			    this.getHourFromTextField( expTime ), 
+			    this.getMinuteFromTextField( expTime ), 0); 
 		expiration.set(Calendar.MILLISECOND, 0);
 		return expiration;
 	}
@@ -297,7 +316,9 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	public Calendar getInitTime(){
 		Calendar init = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		init.set(initDate.getYear(), initDate.getMonth(), initDate.getDay(), 
-				    initTime.getHours(), initTime.getMinutes(), 0);
+				    this.getHourFromTextField(initTime), 
+				    this.getMinuteFromTextField(initTime), 0); 
+
 		init.set(Calendar.MILLISECOND, 0);
 		
 		return init;
@@ -642,8 +663,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		initDate.setYear(cal.get(Calendar.YEAR));
 		initDate.setMonth(cal.get(Calendar.MONTH));
 		initDate.setDay(cal.get(Calendar.DAY_OF_MONTH));
-		initTime.setHours(cal.get(Calendar.HOUR_OF_DAY));
-		initTime.setMinutes(cal.get(Calendar.MINUTE));
+		initTime.setText(String.format("%1$tH%1$tM", cal));
 	}
 	
 	/**
@@ -654,8 +674,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		expDate.setYear(cal.get(Calendar.YEAR));
 		expDate.setMonth(cal.get(Calendar.MONTH));
 		expDate.setDay(cal.get(Calendar.DAY_OF_MONTH));
-		expTime.setHours(cal.get(Calendar.HOUR_OF_DAY));
-		expTime.setMinutes(cal.get(Calendar.MINUTE));
+		expTime.setText(String.format("%1$tH%1$tM", cal));
 	}
 	
 	/**
@@ -677,5 +696,36 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 
 	public void setOtlkDlg(OutlookAttrDlg otlkDlg) {
 		this.otlkDlg = otlkDlg;
+	}
+	
+	
+	/**
+ 	 * Get the expiration hour from the validTime text widget
+     */
+	private int getHourFromTextField( Text txt ){
+		int ret =0;
+		try {
+			String hm = txt.getText();
+			ret = Integer.parseInt(hm.substring(0, hm.length()== 4 ? 2:1 ));
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
+	
+	/**
+ 	 * Get the expiration minute from the validTime text widget
+     */
+	private int getMinuteFromTextField( Text txt ){
+		int ret =0;
+		try {
+			String hm = txt.getText();
+			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
 	}
 }

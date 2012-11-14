@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NsharpConfigStore xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <graphProperty tempOffset="0" windBarbDistance="400" windBarb="true" corfidiV="false" omega="true" smvBunkersL="true" smvBunkersR="true" smv1585="false" smv3075="false" meanWind="true" hodo="true" cloud="false" effLayer="true" moistAdiabat="false" dryAdiabat="true" mixratio="false" wetBulb="true" vTemp="true" parcel="true" dewp="true" temp="true"/>
+    <graphProperty paneConfigurationName="Default Configuration 1" tempOffset="0" windBarbDistance="400" windBarb="true" corfidiV="false" omega="true" smvBunkersL="true" smvBunkersR="true" smv1585="false" smv3075="false" meanWind="true" hodo="true" cloud="false" effLayer="true" moistAdiabat="false" dryAdiabat="true" mixratio="true" wetBulb="true" vTemp="true" parcelAscent="true" parcel="true" dewp="true" temp="true"/>
     <linePropertyMap>
         <Line lineName="Compare 6">
             <lineProperty lineWidth="2" lineStyle="SOLID">
@@ -17,24 +17,14 @@
                 <lineColor>RGB {30, 144, 255}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Icing EPI">
-            <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {255, 0, 255}</lineColor>
-            </lineProperty>
-        </Line>
         <Line lineName="Compare 3">
             <lineProperty lineWidth="2" lineStyle="SOLID">
                 <lineColor>RGB {155, 0, 220}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Wind Barb">
-            <lineProperty lineWidth="1" lineStyle="SOLID">
-                <lineColor>RGB {255, 255, 0}</lineColor>
-            </lineProperty>
-        </Line>
-        <Line lineName="Icing RH">
+        <Line lineName="Icing EPI">
             <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {0, 255, 0}</lineColor>
+                <lineColor>RGB {255, 0, 255}</lineColor>
             </lineProperty>
         </Line>
         <Line lineName="Compare 9">
@@ -42,14 +32,24 @@
                 <lineColor>RGB {0, 139, 0}</lineColor>
             </lineProperty>
         </Line>
+        <Line lineName="Icing RH">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Wind Barb">
+            <lineProperty lineWidth="1" lineStyle="SOLID">
+                <lineColor>RGB {255, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
         <Line lineName="Compare 8">
             <lineProperty lineWidth="2" lineStyle="SOLID">
                 <lineColor>RGB {139, 0, 139}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Compare 7">
-            <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {139, 71, 38}</lineColor>
+        <Line lineName="Parcel Ascent">
+            <lineProperty lineWidth="1" lineStyle="DOTS">
+                <lineColor>RGB {255, 140, 0}</lineColor>
             </lineProperty>
         </Line>
         <Line lineName="Compare 10">
@@ -57,9 +57,9 @@
                 <lineColor>RGB {144, 238, 144}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Overlay 2">
+        <Line lineName="Compare 7">
             <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {0, 255, 0}</lineColor>
+                <lineColor>RGB {139, 71, 38}</lineColor>
             </lineProperty>
         </Line>
         <Line lineName="Temperature">
@@ -67,14 +67,14 @@
                 <lineColor>RGB {255, 0, 0}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Overlay 1">
-            <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {255, 0, 0}</lineColor>
-            </lineProperty>
-        </Line>
-        <Line lineName="Turbulence WindShear">
+        <Line lineName="Overlay 2">
             <lineProperty lineWidth="2" lineStyle="SOLID">
                 <lineColor>RGB {255, 174, 185}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Overlay 1">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {145, 44, 238}</lineColor>
             </lineProperty>
         </Line>
         <Line lineName="Compare 2">
@@ -87,6 +87,11 @@
                 <lineColor>RGB {255, 0, 0}</lineColor>
             </lineProperty>
         </Line>
+        <Line lineName="Turbulence WindShear">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 174, 185}</lineColor>
+            </lineProperty>
+        </Line>
         <Line lineName="Icing Temp">
             <lineProperty lineWidth="2" lineStyle="SOLID">
                 <lineColor>RGB {255, 0, 0}</lineColor>
@@ -97,14 +102,14 @@
                 <lineColor>RGB {0, 255, 255}</lineColor>
             </lineProperty>
         </Line>
-        <Line lineName="Turbulence Ln">
-            <lineProperty lineWidth="2" lineStyle="SOLID">
-                <lineColor>RGB {255, 0, 255}</lineColor>
-            </lineProperty>
-        </Line>
         <Line lineName="Virtual Temp">
             <lineProperty lineWidth="2" lineStyle="SHORT_DASHED">
                 <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Turbulence Ln">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 255}</lineColor>
             </lineProperty>
         </Line>
         <Line lineName="Dew Point">
@@ -117,5 +122,11 @@
                 <lineColor>RGB {255, 250, 250}</lineColor>
             </lineProperty>
         </Line>
+        <Line lineName="DCAPE">
+            <lineProperty lineWidth="2" lineStyle="DOTS">
+                <lineColor>RGB {255, 255, 255}</lineColor>
+            </lineProperty>
+        </Line>
     </linePropertyMap>
+    <dataPageProperty severePotentialPage="10" convectiveInitiationPage="9" meanWindPage="8" stormRelativePage="7" mixingHeightPage="6" opcDataPage="5" thermodynamicDataPage="4" parcelDataPage="3" summary2Page="2" summary1Page="1"/>
 </NsharpConfigStore>

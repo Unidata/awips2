@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="ship_standard">
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TMPF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="WSYM">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="WSYM">
         <Position>ML</Position>
         <Color red="255" green="0" blue="255"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="DWPF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="DWPF">
         <Position>LL</Position>
         <Color red="0" green="205" blue="0"/>
     </PlotModelElement>
     
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="SKYC">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="SKYC">
         <Position>SC</Position>
         <Color red="0" green="178" blue="238"/>
     </PlotModelElement>   
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Courier" textSize="12" paramName="BRBK">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="BRBK">
         <Position>WD</Position>
         <Color red="0" green="178" blue="238"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Courier" textSize="12" paramName="SMSL">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="SMSL">
         <Position>UR</Position>
         <Color red="30" green="144" blue="255"/>
     </PlotModelElement>
     
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Courier" textSize="12" paramName="P03C">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="P03C">
         <Position>MR</Position>
         <Color red="238" green="238" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="WHFT">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="WHFT">
         <Position>LR</Position>
         <Color red="255" green="174" blue="185"/>
     </PlotModelElement>    
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="STID">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         <Position>TC</Position>
         <Color red="205" green="133" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="SSTF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="SSTF">
         <Position>BC</Position>
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>

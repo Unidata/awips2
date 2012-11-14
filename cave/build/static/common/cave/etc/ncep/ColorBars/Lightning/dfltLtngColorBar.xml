@@ -1,10 +1,10 @@
    <colorBar>
        <showLabels>true</showLabels>
-       <drawToScale>true</drawToScale>
+       <drawToScale>false</drawToScale>
        <orientation>Vertical</orientation>
-       <anchorLoc>UpperLeft</anchorLoc>
+       <anchorLoc>LowerRight</anchorLoc>
        <length>0.4</length>
-       <width>15</width>
+       <width>10</width>
        <numDecimals>0</numDecimals>
 
        <IntervalValue>0.0</IntervalValue>

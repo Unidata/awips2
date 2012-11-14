@@ -4,21 +4,22 @@
 ! Log:
 ! J. Carr/HPC	 7/98	Initial creation
 !
-GLEVEL=400:850!0
-GVCORD=pres!none
-SKIP=
-FILTER=y
-SCALE=0
-GDPFUN=squo(2,vadd(vlav(wnd@850:700%pres,vlav(wnd@500:400%pres)!sm9s(pmsl)
-TYPE=b!c
-CINT=0!4
-LINE=0!20//3
-FINT=
-FLINE=
-HILO=0!26;2/H#;L#/1020-1070;900-1012//30;30/y
-HLSYM=0!2;1.5//21//hw
-WIND=bk10/0.9/1.4/112!bk0
-TITLE=1/-2/~ 850-400 MB MLW and MSLP|~850-400mb MLW, MSLP!0
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
+GLEVEL =  400:850!0
+GVCORD =  pres!none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  squo(2,vadd(vlav(wnd@850:700%pres,vlav(wnd@500:400%pres)!sm9s(mul(1e-2,pmsl))
+TYPE   =    b!c
+CINT   =    0!4
+LINE   =    0!20//3
+FINT   =    
+FLINE  =   
+HILO   =    0!26;2/H#;L#/1020-1070;900-1012//30;30/y
+HLSYM  =   0!2;1.5//21//hw
+!CLRBAR=  0                                                                      
+WIND   =    bk10/0.9/1.4/112!bk0
+TITLE  =   1/-2/~ 850-400 MB MLW and MSLP|~850-400mb MLW AND MSLP!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

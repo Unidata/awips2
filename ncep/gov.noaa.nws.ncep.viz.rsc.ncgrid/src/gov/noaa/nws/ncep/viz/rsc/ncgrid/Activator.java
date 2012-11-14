@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid;
-
+  
+import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;    
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -29,6 +30,8 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+        LibraryLoader.load("cnflib");
+        LibraryLoader.load("gempak");
 	}
 
 	/*
