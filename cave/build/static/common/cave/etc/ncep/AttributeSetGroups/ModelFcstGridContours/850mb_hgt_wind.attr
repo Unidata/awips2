@@ -1,0 +1,25 @@
+!
+! Restore File : 850mb_hgt_wind
+!
+! Log:
+! J. Carr/HPC         7/23/98  Initial creation
+!
+GLEVEL =  850!850!850
+GVCORD =  pres!pres!pres
+SKIP   =    0/1;-1
+SCALE  =   0             !-1
+GDPFUN =  mag(kntv(wnd))!sm5s(hght)!kntv(wnd)
+TYPE   =    c/f           !c         !b
+CINT   =    5/20          !3
+LINE   =    32/1/2/2      !19//2
+FINT   =    20;35;50;65
+FLINE  =   0;24;25;30;15
+HILO   =    0             !20/H#;L#/
+HLSYM  =   0             !1.5;1.5//22;22/3;3/hw
+!CLRBAR =  1/V/LL!0
+WIND   =    9/0.7/2/112
+TITLE  =   1/-1/~ @HGT, WIND    (KTS)
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

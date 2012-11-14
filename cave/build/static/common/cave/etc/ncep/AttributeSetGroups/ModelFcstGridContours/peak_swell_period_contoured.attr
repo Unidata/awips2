@@ -1,0 +1,25 @@
+!
+! Restore File : peak_swell_period_contoured
+!
+! Log:
+! J.L.Partain/MPC	08/18/00  Contoured peak swell period
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  sm5s(perpw)!sm5s(perpw)!sm5s(perpw)!vecn(mul(sin(mul(dirpw,DTR)),-5),mul(cos(mul(dirpw,DTR)),-5))
+TYPE   =    c!c!c!a
+CINT   =    1/0/8!1/9/13!1/14
+LINE   =    18/1/2!5/1/2!2/1/2
+FINT   =    
+FLINE  =   
+HILO   =    0
+HLSYM  = 
+!CLRBAR =  
+WIND   =    !!!ak31/.7/1.2/112/.5
+TITLE  =   5/-1/~ PEAK SWELL PERIOD (sec) and DIRECTION!0
+COLORS =  1
+MARKER =  0
+GRDLBL =  
+FILTER =  1

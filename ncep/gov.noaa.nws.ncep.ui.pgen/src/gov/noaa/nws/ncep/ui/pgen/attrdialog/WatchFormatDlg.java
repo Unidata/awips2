@@ -8,11 +8,13 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 
 import java.awt.Color;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -33,7 +35,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -52,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 03/06/11     #707        Q.Zhou      Changed FORECASTER text to combo. Load from forecaster.xml.
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  * 05/12		#776, 769	B. Yin		Added UTC time. Carry ove info from WCC/WCL dialogs.
+ * 08/12        #770        Q. Zhou     added continuing Watch.
  * </pre>
  * 
  * @author	B. Yin
@@ -397,17 +399,36 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		});
 		
 		//Create continue watch number text
+		List<String> contWatch = PgenStaticDataProvider.getProvider().loadContWatchNum();//loadContWatchNum();
+		String cont = "";
+		if (contWatch != null && !contWatch.isEmpty()) {
+			for (int i=0; i< contWatch.size(); i++)
+				cont += contWatch.get(i) +" ";
+			
+			if (cont.endsWith(" "))
+				cont = cont.substring(0, cont.length()-1);
+					
+		}
+		else {
+			cont = "0000";
+		}
+		
 		Label continueLbl = new Label(top, SWT.LEFT);
 		continueLbl.setText("Continue Watch#:");
 		cText = new Text(top, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
-		cText.addVerifyListener(new VerifyListener(){
 
-			@Override
-			public void verifyText(VerifyEvent e) {
-				e.doit = PgenUtil.validatePositiveInteger(e);
-				if ( ! e.doit ) Display.getCurrent().beep();
-			}
-		});
+		cText.setText(cont);
+		cText.setEditable(true);
+		
+	// Continue watch number can be a string like "510,512".
+	//	cText.addVerifyListener(new VerifyListener(){
+
+	//		@Override
+	//		public void verifyText(VerifyEvent e) {
+	//			e.doit = PgenUtil.validatePositiveInteger(e);
+	//			if ( ! e.doit ) Display.getCurrent().beep();
+	//		}
+	//	});
 
 		//Create forecaster list
 		Label forecasterLbl = new Label(top, SWT.LEFT);
@@ -703,7 +724,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	 * @return int - watch number
 	 */
 	public int getWatchNumber(){
-		if ( watchNumber.getText() == null ){
+		if ( watchNumber.getText() == null || watchNumber.getText().isEmpty() ){
 			return 0;
 		}
 		else {
@@ -711,6 +732,23 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		}
 	}
 	
+	private String getContNumber(){
+		if ( cText.getText() == null || cText.getText().isEmpty() ){
+			return "";
+		}
+		else {
+			return cText.getText();
+		}
+	}
+	
+	private int getReplaceNumber(){
+		if ( rText.getText() == null || rText.getText().isEmpty() ){
+			return 0;
+		}
+		else {
+			return Integer.valueOf(rText.getText());
+		}
+	}
 	/**
 	 * Apply attributes from the format dialog to the watch box element 
 	 * @param wb
@@ -747,6 +785,9 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		else if ( wb.getWatchType().equalsIgnoreCase(TORNADO)){
 			wb.setColors(new Color[]{TORNADO_COLOR, TORNADO_COLOR});
 		}
+		
+		wb.setContWatch( this.getContNumber());
+		wb.setReplWatch(this.getReplaceNumber());
 	}
 
 	/**

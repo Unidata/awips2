@@ -196,10 +196,26 @@
       <handler
             class="gov.noaa.nws.ncep.viz.tools.panZoom.NcZoomTool"
             commandId="gov.noaa.nws.ncep.viz.tools.zoom">
+            <enabledWhen>
+            <with
+                  variable="gov.noaa.nws.ncep.viz.tools.zoomState">
+               <equals
+                     value="notSuspended">
+               </equals>
+            </with>
+         </enabledWhen>
       </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.tools.panZoom.NcUnzoomTool"
             commandId="gov.noaa.nws.ncep.viz.tools.unzoom">
+            <enabledWhen>
+            <with
+                  variable="gov.noaa.nws.ncep.viz.tools.zoomState">
+               <equals
+                     value="notSuspended">
+               </equals>
+            </with>
+         </enabledWhen>
       </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.tools.predefinedArea.PredefinedAreaAction"
@@ -264,27 +280,21 @@
             <!-- Turn off Raytheon's keybinding in the National Centers context-->
             <key
             commandId=""
-            contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="BACKSPACE">
           </key>
           <key
             commandId=""
-            contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="F12">
          </key>          
          <!-- Turn off the default keybinding in the National Centers context-->
-         <key
-                commandId=""
-                contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
-                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-                sequence="F10">
-         </key>         
 
          <key
                 commandId=""
-                contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
                 schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
                 sequence="F12">
          </key>
@@ -390,16 +400,10 @@
                           <parameter id="keyNum" value="9"/>
          </key>            
 
-         <key
-                commandId=""
-                contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
-                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-                sequence="F10">
-         </key>
          
          <key
                 commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
-                contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
                 schemeId="com.raytheon.viz.ui.awips.scheme"
                 sequence="F10">
                           <parameter id="keyNum" value="10"/>
@@ -500,6 +504,16 @@
                 sequence="ALT+I">
          </key> 
          
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomStateSourceProvider">
+         <variable
+               name="gov.noaa.nws.ncep.viz.tools.zoomState"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
    
       <extension

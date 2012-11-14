@@ -28,6 +28,7 @@ package gov.noaa.nws.ncep.ui.pgen.elements;
  * 11/10		#182		G. Zhang	Added CONVSIGMET
  * 01/10		#104?		S. Gilbert	Added MID_CLOUD_TEXT
  * 03/10		#223		M.Laryukhin	Gfa added. 
+ * 04/12	    #734        J. Zeng     Added Spenes
  * </pre>
  * 
  * @author	J. Wu
@@ -36,5 +37,5 @@ package gov.noaa.nws.ncep.ui.pgen.elements;
 */
 public enum DrawableType {
     LINE, SYMBOL, KINKLINE, TEXT, AVN_TEXT, MID_CLOUD_TEXT, ARC, TRACK, VECTOR, ANY, COMBO_SYMBOL, JET, TCA, GFA, 
-    WATCH_BOX, CONTOURS, SIGMET, CONV_SIGMET, VAA, VAA_CLOUD, TCM_FCST;
+    WATCH_BOX, CONTOURS, SIGMET, CONV_SIGMET, VAA, VAA_CLOUD, TCM_FCST, SPENES;
 }

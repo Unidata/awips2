@@ -13,6 +13,7 @@ import org.eclipse.core.commands.ExecutionException;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**
@@ -30,6 +31,8 @@ public class PgenUndoRedoHandler extends AbstractTool {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 	
+		if ( PgenSession.getInstance().getPgenResource() != null &&
+				PgenSession.getInstance().getPgenResource().isEditable() ) {
 		if ( event.getApplicationContext().equals("Undo")) 
 			PgenSession.getInstance().getCommandManager().undo();
 		
@@ -50,6 +53,7 @@ public class PgenUndoRedoHandler extends AbstractTool {
 		
 		//de-activate drawing tools 
 		PgenUtil.setSelectingMode();	
+		}
 		return null;
 	}
 

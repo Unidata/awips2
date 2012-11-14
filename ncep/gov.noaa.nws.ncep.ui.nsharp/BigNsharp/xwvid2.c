@@ -657,48 +657,53 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
         if (mucape >= 100 && mucin >= -250)
         {
 
-        /*      printf( "Determining Effective Surface\n"); */
-                /* ----- Begin at surface and search upward for "Effective Surface" ----- */
+        		//     printf( "Determining Effective Surface\n");
+        		// ----- Begin at surface and search upward for "Effective Surface" -----
                 for(i=sfc();i<=numlvl-1;i++)
                 {
                 ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
                 if((pcl.bplus >= ecape) && (pcl.bminus >= ecinh))
                         {
                         *bot = sndg[i][pIndex];
-                        /* printf( "EFFSFC = %f\n", *bot); */
+        				// printf( "EFFSFC = %f\n", *bot);
                         break;
                         }
                 }
 
                 if (*bot == RMISSD) return;
 
-/*              printf( "Determining Effective Top\n"); */
-                /* ----- Keep searching upward for the "Effective Top" ----- */
+        		//             printf( "Determining Effective Top\n");
+        		// ----- Keep searching upward for the "Effective Top" -----
                 for(i=sfc();i<=numlvl-1;i++)
                 {
                 if (sndg[i][pIndex] <= *bot)
                         {
 			if ((sndg[i][tIndex] != RMISSD) && (sndg[i][tdIndex] != RMISSD)) {
 	                        ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
-				/*printf("%.2f %.2f %.2f  - %.2f %.2f\n", sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], pcl.bplus, pcl.bminus);*/
+        					//printf("%.2f %.2f %.2f  - %.2f %.2f\n", sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], pcl.bplus, pcl.bminus);
                 	        if((pcl.bplus <= ecape) || (pcl.bminus <= ecinh))
-                                        /* check for missing T/Td data with significant wind levels in obs soundings */
+        						//check for missing T/Td data with significant wind levels in obs soundings
                         	        {
 					ok = 0;
 					j=1;
-					while (!ok) {
+
+        						while (!ok && i-j >=0 && i-j <= numlvl-1) {
 						if ((sndg[i-j][tIndex] != RMISSD) && (sndg[i-j][tdIndex] != RMISSD)) { ok=1; } else { j++; }
 						}
+        						if(i-j >=0 && i-j <= numlvl-1)
                                 	*top = sndg[i-j][pIndex];
-					/*printf("inflow top = %f\n", *top);*/
+        						//printf("inflow top = %f\n", *top);
         	                        break;
                 	                }
 				}
                         }
                 }
+
+        	}
+        	//	printf( "EIL - %f\n", *bot);
+
+
         }
-/*	printf( "EIL - %f\n", *bot);
-*/      }
 
 float scp(float stdir, float stspd)
 /***************************************************************/

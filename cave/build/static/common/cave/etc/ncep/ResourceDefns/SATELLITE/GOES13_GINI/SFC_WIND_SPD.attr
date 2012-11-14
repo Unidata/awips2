@@ -1,8 +1,0 @@
-legend_color=RGB {200, 200, 200}
-colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
-imageType=Surface wind speeds over oceans and Great Lakes
-displayUnitStr=GenericPixel
-alpha=1.0
-brightness=1.0
-contrast=1.0

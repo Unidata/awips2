@@ -1,0 +1,8 @@
+colorMapName=watvap
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+! The DB values have spaces but imageType must use " "s. 
+imageType=Imager 6.7-6.5 micron IR (WV)
+displayUnitStr=DerivedWVPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0
