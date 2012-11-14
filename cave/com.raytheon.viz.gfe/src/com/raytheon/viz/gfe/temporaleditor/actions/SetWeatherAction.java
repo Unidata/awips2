@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.temporaleditor.dialogs.TEWxSetValueDialog;
  * Date         Ticket#    Engineer      Description
  * ------------ ---------- ------------- --------------------------
  * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * Nov 13, 2012 #1298      rferrel       Changes for non-blocking TEWxSetValueDialog.
  * </pre>
  * 
  * @author rjpeter
@@ -54,9 +55,12 @@ public class SetWeatherAction extends Action {
 
     @Override
     public void run() {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         TEWxSetValueDialog weatherPickupValueDialog = new TEWxSetValueDialog(
                 Display.getCurrent().getActiveShell(), parm, date);
-        weatherPickupValueDialog.setBlockOnOpen(true);
+        weatherPickupValueDialog.setBlockOnOpen(false);
         weatherPickupValueDialog.open();
     }
 }
