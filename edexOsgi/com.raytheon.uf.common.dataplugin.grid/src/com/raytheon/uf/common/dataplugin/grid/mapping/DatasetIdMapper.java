@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.grid.mapping;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -55,17 +54,8 @@ public class DatasetIdMapper extends Mapper {
 
     private DatasetIdMapper() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext commonStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
-
-        LocalizationContext commonStaticSite = pathMgr.getContext(
-                LocalizationContext.LocalizationType.COMMON_STATIC,
-                LocalizationContext.LocalizationLevel.SITE);
-
         // read in the namespace map
-        LocalizationFile[] files = pathMgr.listFiles(new LocalizationContext[] {
-                commonStaticSite, commonStaticBase }, "grid"
+        LocalizationFile[] files = pathMgr.listStaticFiles("grid"
                 + PathManager.SEPARATOR + "dataset" + IPathManager.SEPARATOR
                 + "alias", new String[] { ".xml" }, true, true);
         for (LocalizationFile file : files) {
@@ -79,12 +69,9 @@ public class DatasetIdMapper extends Mapper {
         }
     }
 
-    private static DatasetIdMapper instance;
+    private static final DatasetIdMapper instance = new DatasetIdMapper();
 
-    public static synchronized DatasetIdMapper getInstance() {
-        if (instance == null) {
-            instance = new DatasetIdMapper();
-        }
+    public static DatasetIdMapper getInstance() {
         return instance;
     }
 }
