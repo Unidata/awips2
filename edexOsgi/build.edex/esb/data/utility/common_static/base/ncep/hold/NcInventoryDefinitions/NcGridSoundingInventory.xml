@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>NcGridSoundingInventory</inventoryName>
+    <!--  Do we want to store level information in here???? -->    
+    <!-- Alternatively could store dataTime.refTime,dataTime.forecasttime -->
+    <inventoryParameters>pluginName,modelName,eventName,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="pluginName">
+            <constraint constraintValue="ncgribxxx" constraintType="EQUALS"/>
+        </mapping>
+        <!--  any other needed constraints. ie parameters, levels....  -->
+    </baseConstraints>
+</NcInventoryDefinition>

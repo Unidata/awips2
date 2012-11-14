@@ -141,7 +141,7 @@ public class GridPointMarkerDisplay implements IRenderable {
                 if (each == null)
                     continue;
 
-                each.draw(target);
+                each.draw(target, paintProps);
                 each.dispose();
             }
         }

@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Percent of Normal TPW
+displayUnitStr=PercentOfNormalTPWPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

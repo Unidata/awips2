@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools,
  com.raytheon.viz.core;bundle-version="1.11.7",
- com.raytheon.viz.ui;bundle-version="1.11.7",
+ com.raytheon.viz.ui,
  gov.noaa.nws.ncep.viz.ui.display;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.resources,
@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.resourceManager;bundle-version="1.0.0",
- gov.noaa.nws.ncep.staticdataprovider;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.staticdataprovider;bundle-version="1.0.0",
+ com.raytheon.viz.ui.personalities.awips
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.ui.perspectives;uses:="org.eclipse.ui,org.eclipse.ui.plugin,org.osgi.framework"
 Import-Package: com.raytheon.viz.alerts.observers,

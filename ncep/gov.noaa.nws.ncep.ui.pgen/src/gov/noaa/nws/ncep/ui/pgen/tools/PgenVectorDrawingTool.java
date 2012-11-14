@@ -111,6 +111,7 @@ public class PgenVectorDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
            
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -186,6 +187,7 @@ public class PgenVectorDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick( x, y );
@@ -214,7 +216,7 @@ public class PgenVectorDrawingTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			if ( shiftDown ) return false;
+			if (!isResourceEditable() || shiftDown ) return false;
 			else return true;
 		}
 

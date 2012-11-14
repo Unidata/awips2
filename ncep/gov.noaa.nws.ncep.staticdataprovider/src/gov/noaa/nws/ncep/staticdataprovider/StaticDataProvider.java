@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -26,10 +27,12 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import gov.noaa.nws.ncep.common.staticdata.CostalWater;
+import gov.noaa.nws.ncep.common.staticdata.Cwa;
 import gov.noaa.nws.ncep.common.staticdata.FAArea;
 import gov.noaa.nws.ncep.common.staticdata.FARegion;
 import gov.noaa.nws.ncep.common.staticdata.GreatLake;
 import gov.noaa.nws.ncep.common.staticdata.IStaticDataProvider;
+import gov.noaa.nws.ncep.common.staticdata.Rfc;
 import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.common.staticdata.USState;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
@@ -45,7 +48,9 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/12		?			B. Yin   	Moved from PGEN 
- *
+ * 06/12        734         J. Zeng     add getAllRfcs() and getAllCwas()
+ * 08/12        #770        Q. Zhou     added loadContWatchNum()
+
  * </pre>
  * 
  * @author	B. Yin
@@ -88,7 +93,7 @@ public class StaticDataProvider implements IStaticDataProvider {
 	}
 
 	@Override
-	public HashMap<String, String> getClstTbl() {
+	public HashMap<String, Set<String>> getClstTbl() {
 		return StationTableProvider.getClstTbl();
 	}
 
@@ -219,6 +224,46 @@ public class StaticDataProvider implements IStaticDataProvider {
 	}
 
 	@Override
+	public List<USState> loadStateTable(){
+		return USStateProvider.loadStateTable();
+	}
+	
+	@Override 
+	public ArrayList<USState> statesInGeometry(Geometry geo) {
+		return USStateProvider.statesInGeometry(geo);
+	}
+	
+	
+	@Override
+	public List<Rfc> getAllRfcs() {
+		return RfcProvider.getAllRfcs();
+	}
+
+	@Override
+	public List<Rfc> loadRfcTable() {
+		return RfcProvider.loadRfcTable();
+	}
+
+	@Override
+	public ArrayList<Rfc> rfcsInGeometry(Geometry geo) {
+		return RfcProvider.rfcsInGeometry(geo);
+	}
+	
+	@Override
+	public List<Cwa> getAllCwas() {
+		return CwaProvider.getAllCwas();
+	}
+
+	@Override
+	public List<Cwa> loadCwaTable() {
+		return CwaProvider.loadCwaTable();
+	}
+	@Override
+	public ArrayList<Cwa> cwasInGeometry(Geometry geo) {
+		return CwaProvider.cwasInGeometry(geo);
+	}
+	
+	@Override
 	public HashMap<String, String> getStateAbrvMap() {
 		HashMap<String, String> stMap = new HashMap<String,String>();
 		String queryStates = "Select state,name FROM mapdata.states;";
@@ -272,4 +317,24 @@ public class StaticDataProvider implements IStaticDataProvider {
 			String columnName, String columnValue) {
 		return G2GBoundsProvider.getG2GBounds(tableAlias, columnName, columnValue);
 	}
+
+	@Override
+	public boolean isRfcLoaded() {
+		return RfcProvider.isRfcLoaded();
+	}
+
+	@Override
+	public List<String> loadContWatchNum() {
+		// TODO Auto-generated method stub
+		List<String> watchNum = new ArrayList<String>();
+		
+		try {
+			watchNum = ContinuingWatch.loadContWatchNum();
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return watchNum;
+	}
+
 }

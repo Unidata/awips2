@@ -1419,7 +1419,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	public void setOtlkType( String type ){
 		outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
 		setDefaultLabels( this.getOutlookType());
-	//	setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
+		setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
 	}
 		
 	/**
