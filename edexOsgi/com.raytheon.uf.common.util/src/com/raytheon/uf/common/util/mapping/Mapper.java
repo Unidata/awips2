@@ -81,7 +81,9 @@ public abstract class Mapper {
         Unmarshaller unmarshaller = Mapper.unmarshaller;
         if (unmarshaller == null) {
             // This will be safe if multiple threads get in before the sync
-            // block.
+            // block. This is not in a static block or ThreadLocal because this
+            // class is deliberately not handling any exceptions but instead
+            // propagates all problems to the concrete implementation.
             JAXBContext context = JAXBContext.newInstance(AliasList.class,
                     Alias.class);
             unmarshaller = context.createUnmarshaller();
