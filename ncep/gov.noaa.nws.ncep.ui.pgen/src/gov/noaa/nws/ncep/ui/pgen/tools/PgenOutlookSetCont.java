@@ -110,7 +110,7 @@ public class PgenOutlookSetCont extends AbstractPgenDrawingTool{
 		@Override	
 		public boolean handleMouseDown(int anX, int aY, int button) {
 
-			if ( otlk == null ) return false;
+			if (  !isResourceEditable() || otlk == null ) return false;
 			
 			//  Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -179,6 +179,7 @@ public class PgenOutlookSetCont extends AbstractPgenDrawingTool{
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+        	if ( !isResourceEditable() ) return false;
 			return true;
 		}
 	}

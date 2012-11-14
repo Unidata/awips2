@@ -7,7 +7,9 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.display;
 
+import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -49,7 +51,7 @@ public class DefaultElementContainer extends AbstractElementContainer {
 
 	/* 
 	 * Draws to the given graphics target.  Recreates the IDisplayable objects if zooming or 
-	 * if the Layer properties change.
+	 * if the Layer properties change
 	 * @see gov.noaa.nws.ncep.ui.pgen.display.AbstractTBNL#draw(com.raytheon.uf.viz.core.IGraphicsTarget, com.raytheon.uf.viz.core.drawables.PaintProperties, boolean)
 	 */
 	@Override
@@ -67,12 +69,18 @@ public class DefaultElementContainer extends AbstractElementContainer {
 			def.setLayerDisplayAttr(dprops.getLayerMonoColor(), dprops.getLayerColor(), dprops.getLayerFilled());
 			needsCreate = true;
 		}
+		else if ( element instanceof IMidCloudText || element instanceof IAvnText ||
+				  ( element instanceof IText && 
+				    ((IText)element).getDisplayType().equals(DisplayType.BOX) ) ||
+				    element instanceof IGfa ) {
+			needsCreate = true;	   			
+		}		
 		
 		if ( needsCreate ) createDisplayables(paintProps);
 		saveProps = dprops;
 		
 		for ( IDisplayable each : displayEls ) {
-	         each.draw(target);
+	         each.draw(target, paintProps);
 		}
 	}
 

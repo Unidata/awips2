@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/11        450         G. Hull     settings tbl from NcPathManager
  * 08/11		?			B. Yin		Put current time for Storm Track
  * 11/11		?  			B. Yin		Load settings for different Activity Type.
+ * 09/12					B. Hebbard	Merge changes by RTS OB12.9.1 (format only, this file)
  * 
  * </pre>
  * 

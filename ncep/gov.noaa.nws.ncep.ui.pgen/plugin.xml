@@ -273,6 +273,10 @@
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool" 
           name="Pgen TCM Create"> 
       </command>
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool" 
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSpenesTool" 
+          name="Pgen SPENES Create"> 
+      </command>
       <command 
             id="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
             name="Activate Layer From Hot Key">
@@ -499,6 +503,10 @@
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenTcmDrawingTool"
             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool">
+       </handler>
+	   <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenSpenesDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSpenesTool">
        </handler>
    </extension>
 
@@ -2977,6 +2985,12 @@
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool"
              icon="icons/hcntrak.gif" />                   
           <object
+             name="SPENES"
+             label="SPENES"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSpenesTool"
+             icon="icons/spenes.gif" />                   
+          <object
              name="INTL_SIGMET"
              label="INTL_SIGMET"
              className="SIGMET"
@@ -3032,7 +3046,7 @@
             class="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
             id="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
             name="PGEN"
-            category="org.eclipse.jface.Prerences">
+            category="gov.noaa.nws.ncep.viz.common.nceppreferences">
       </page> 
    </extension>
    <extension

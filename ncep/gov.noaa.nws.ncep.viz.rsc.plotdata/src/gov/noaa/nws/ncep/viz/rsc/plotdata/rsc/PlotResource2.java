@@ -20,10 +20,9 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
-import gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.common.Activator;
+import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelGenerator2;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV;
@@ -112,6 +111,8 @@ import static java.lang.System.out;
  *  								   within a predefined Data Area (from Preferences) but outside
  *  								   of the current display area to improve panning performance
  *  05/23/2012     785     Q. Zhou     Added getName for legend.
+ *  08/22/2012     #809    sgurung     For bgGenerator thread, add stations to queue only when zoomLevel > 0.10
+ *  								   (this fixes the issue of slow performance when zooming all the way in, when Data Area is set)	
  * </pre>
  * 
  * @author brockwoo
@@ -202,8 +203,6 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 
                 boolean plotAll = ( density > MAX_DENSITY || threshold < distFloor  );
                 
-                GeneralEnvelope dataAreaEnvelope = getDataAreaEnvelope();
-                
                 LinkedList<Station> stationList = new LinkedList<Station>();
                 LinkedList<Station> bgStationList = new LinkedList<Station>();
                 List<String> toRemove = new ArrayList<String>();
@@ -233,7 +232,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                             	stationList.addLast(station);  
                         	}
                             else {
-                            	bgStationList.add(station);
+                            	bgStationList.addLast(station);
                             }
                         }
                     } 
@@ -270,6 +269,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 // for stations within the current display area
                 generator.queueStations(newStations);
                 
+                if (theseProps.getZoomLevel() > 0.10) {
                 newStations = new ArrayList<PlotInfo>();
                 for (Station station : bgStationList) {
                     if (station.plotImage == null) {
@@ -283,6 +283,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 
                 // for stations within the data area (from Preferences) but outside of the current display area
                 bgGenerator.queueStations(newStations);
+                }
                 
                 synchronized (this) {
                     lastComputed.clear();
@@ -338,6 +339,8 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     private final ISchedulingRule mutexRule = new MutexRule();
     
     private MathTransform WGS84toPROJCRS = null; 
+    
+    private GeneralEnvelope dataAreaEnvelope = null;
     
 	public class Station {
         PlotInfo info;
@@ -905,6 +908,8 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         
         density = plotRscData.getPlotDensity() / 10.0;
         
+        dataAreaEnvelope = getDataAreaEnvelope();
+        
         if( generator != null ) {
     		generator.cancel();
     		generator.cleanImages();
@@ -1071,7 +1076,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 		//expression
 		String expr = "((-|\\+)?[0-9]+(\\.[0-9]+)?)+";
 		
-		IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+		IPreferenceStore prefs = NmapCommon.getNcepPreferenceStore();
     	String llLat = prefs.getString(GraphicsAreaPreferences.LLLAT);
     	String llLon = prefs.getString(GraphicsAreaPreferences.LLLON);
     	String urLat = prefs.getString(GraphicsAreaPreferences.URLAT);

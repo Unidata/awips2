@@ -1,7 +1,7 @@
 colorMapName=nids_tops
 colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=95
-prodName=TOPS2
+!prodName=TOPS2
 alpha=1.0
 brightness=1.0
 contrast=1.0

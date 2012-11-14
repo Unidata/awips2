@@ -4,21 +4,22 @@
 ! Log:
 ! J. Carr/HPC   	 9/98	Initial creation
 !
-GLEVEL=9823!9823:0!9823:0
-GVCORD=sgma!sgma!sgma
-SKIP=
-FILTER=y
-SCALE=0
-GDPFUN=thte(mul(.9823;pres@0%none),tmpc,dwpc)//te!te!te
-TYPE=c
-CINT=4//296                                   !4/300/320!4/324
-LINE=30/2/2/0                                 !29/2/2/0 !7/2/2/1 
-FINT=0
-FLINE=0
-HILO=0
-HLSYM=0
-WIND=
-TITLE=1/-1/~ BL (18MB AGL) THTAE!0
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
+GLEVEL =  9950!9950
+GVCORD =  sgma!sgma
+SKIP   =    0/1
+SCALE  =   0
+GDPFUN =  thte(mul(1e-2,pres@0%none);tmpc;dwpc)//the!the!the
+TYPE   =    c
+CINT   =    4//296                !4/300/320!4/324
+LINE   =    30/2/2/0              !29/2/2/0 !7/2/2/1
+FINT   =    
+FLINE  =   
+HILO   =    0
+HLSYM  =   0
+!CLRBAR=  1/V/LL
+WIND   =    
+TITLE  =   1/-1/~ BL THTE!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

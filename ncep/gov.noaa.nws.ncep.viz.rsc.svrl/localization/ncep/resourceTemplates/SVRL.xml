@@ -6,7 +6,7 @@
 					isMapLayer="false" isHoverOn="false" isVisible="true" />
 		<resourceData xsi:type="NC-SvrlResourceData"
 					isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
-			<frameSpan>${frame_interval}</frameSpan>
+			<frameSpan>${frameSpan}</frameSpan>
 			<dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
 			<dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
 			<timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
@@ -63,7 +63,6 @@
 			<Watchxxx9SymbolSize>${Watchxxx9SymbolSize}</Watchxxx9SymbolSize>
 			<watchBoxTimeEnable>${watchBoxTimeEnable}</watchBoxTimeEnable>
 			<watchBoxLabelEnable>${watchBoxLabelEnable}</watchBoxLabelEnable>
-			<watchBoxNumberEnable>${watchBoxNumberEnable}</watchBoxNumberEnable>
 			<colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
 			<watchBoxOutlineEnable>${watchBoxOutlineEnable}</watchBoxOutlineEnable>
 			<requestStyle>METADATA</requestStyle>
