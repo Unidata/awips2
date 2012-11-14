@@ -760,7 +760,8 @@ public class GFEDao extends DefaultPluginDao {
                 Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
                 int lowestHr = -1;
                 for (GridInfoRecord m : (List<GridInfoRecord>) results) {
-                    String param = m.getParameter().getAbbreviation().toLowerCase();
+                    String param = m.getParameter().getAbbreviation()
+                            .toLowerCase();
                     if (param.equals(abbreviation) && (lowestHr < 0)) {
                         model = m;
                     } else {
@@ -846,7 +847,7 @@ public class GFEDao extends DefaultPluginDao {
                 if (dTimeList.contains(tr)) {
                     timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
-	    }
+            }
 
             if (!timeList.isEmpty()) {
                 return timeList;
@@ -866,7 +867,6 @@ public class GFEDao extends DefaultPluginDao {
 
         return timeList;
     }
-
 
     private List<DataTime> executeD2DParmQuery(ParmID id)
             throws DataAccessLayerException {
@@ -913,7 +913,9 @@ public class GFEDao extends DefaultPluginDao {
         query.addDistinctParameter("dataTime.refTime");
         query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
         query.addOrder("dataTime.refTime", false);
-
+        if (maxRecords > 0) {
+            query.setMaxResults(maxRecords);
+        }
         List<?> result = this.queryByCriteria(query);
 
         for (Object obj : result) {
