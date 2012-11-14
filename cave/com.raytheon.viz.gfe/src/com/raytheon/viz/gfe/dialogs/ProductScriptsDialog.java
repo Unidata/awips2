@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 	Mar 7, 2008			   Eric Babin   Initial Creation
  * Oct 27, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
  * Oct 25, 2012 1287       rferrel     Code changes for non-blocking PublishDialog.
+ * Nov 13, 2012 1298       rferrel     Code changes for non-blocking UserEntryDialog.
  * 
  * </pre>
  * 
@@ -318,16 +319,22 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                     String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
                             .split(":");
                     String configFile = entry[2];
+                    // The dialog being opened is modal to the parent dialog.
+                    // This will prevent the launching of another dialog until
+                    // the modal dialog is closed.
+
+                    // Keep this a blocking dialog so the loop will only display
+                    // one dialog at a time.
                     UserEntryDialog entryDlg = new UserEntryDialog(
                             this.getShell(), entry[1] + " Entry", entry[1]
                                     + ":", entry[2]);
-                    String returnMsg = entryDlg.open();
+                    Object returnMsg = entryDlg.open();
                     if (returnMsg == null) {
                         // cancel pressed
                         run = false;
                         continue;
                     }
-                    configFile = returnMsg;
+                    configFile = returnMsg.toString();
 
                     cmd = cmd.substring(0, entryIdx) + configFile
                             + cmd.substring(endEntryIdx + 1);
