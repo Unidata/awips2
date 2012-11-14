@@ -14,6 +14,8 @@
  * 11/2009		128			T. Lee		Migrated to TO11D6
  * 09/2011      			Chin Chen   changed to improve purge performance and
  * 										removed xml serialization as well
+ * 07/2012      #606        Greg Huoll  added reportType to the dataURI
+ * 
  * </pre>
  * 
  * @author T.Lee
@@ -54,6 +56,7 @@ public class TcmRecord extends PluginDataObject {
     
     /** Report type */
     @Column(length=32)
+    @DataURI(position=6)
     @DynamicSerializeElement   
     private String reportType;
 

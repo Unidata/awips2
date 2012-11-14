@@ -57,6 +57,8 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 08/11		#? TTR58	B. Yin		Made the time factors editable.
  * 02/12        TTR456      Q.Zhou      Added speed units combo, roundTo combo and roundDirTo combo.
+ * 06/12        #777        Q.Zhou      Modified DEFAULT_NUMBER_OF_TIMES. 
+ * 										Added isNewTrack flag to make the FirstTime(/SecondTime) current time when create a Track
  * </pre>
  * 
  * @author	M. Gao
@@ -74,7 +76,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 
 	public static String[] BoxName = new String[]{ "Normal", "Boxed", "Blanked", "Outline" };
 		
-	private final int DEFAULT_NUMBER_OF_TIMES = 2; 
+	private final int DEFAULT_NUMBER_OF_TIMES = 5; 
 	private final int DEFAULT_HOUR_SHIFT_FOR_FIRST_TIME = 4; 
 	private final int DEFAULT_HOUR_SHIFT_BEYOND_FIRST_TIME = 1; 
 	
@@ -130,11 +132,13 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 	private Calendar firstTimeCalendar; 
     private Calendar secondTimeCalendar; 
     
-    private int numberOfTimes = DEFAULT_NUMBER_OF_TIMES; //set the default to 2 
+    private int numberOfTimes = DEFAULT_NUMBER_OF_TIMES; //set the default to 5
     
     TrackExtrapPointInfoDlg trackExtrapPointInfoDlg; 
     
 	private static TrackAttrDlg INSTANCE = null;
+    
+	public boolean isNewTrack = false;
     
     /**
 	 * Private constructor
@@ -263,9 +267,18 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		/*
 		 * 2. restore first time and second time text values
 		 */
+		if (isNewTrack == true) {
+			String[] firstSecondTimeValueArray = getFirstSecondTimeInitialTimeValueForSetTimeButton(); 
+			getFirstTimeText().setText(firstSecondTimeValueArray[0]);
+			getSecondTimeText().setText(firstSecondTimeValueArray[1]);
+		}
+		else {
+        
 		getFirstTimeText().setText(getFirstOrSecondTimeStringValue(track.getFirstTimeCalendar(), true, track.getInitialPoints())); 
 		getSecondTimeText().setText(getFirstOrSecondTimeStringValue(track.getSecondTimeCalendar(), false, track.getInitialPoints())); 
+		}
 
+		//isNewTrack = false;
 		/*
 		 * 3. restore Number of times value
 		 */
@@ -375,6 +388,8 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 	 * @param listener 
 	 */
 	private void initializeComponents(Composite topComposite) {
+		isNewTrack = true;
+		
 	    int textWidth = 120; //160;      
 	    int textHeight = 15; //40;    
 
@@ -714,6 +729,42 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		calendar.add(Calendar.HOUR_OF_DAY, DEFAULT_HOUR_SHIFT_BEYOND_FIRST_TIME); 
 		setSecondTimeCalendar(calendar); 
 		timeValueResult[1] = getDateTimeStringValue(calendar); 
+		
+//		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); 		
+//		//calendar.add(Calendar.HOUR_OF_DAY, DEFAULT_HOUR_SHIFT_FOR_FIRST_TIME); 
+//		setFirstTimeCalendar(calendar); 
+//		timeValueResult[0] = getDateTimeStringValue(calendar); 
+//		
+//		String intervalStr = getPreviousIntervalTimeValue(); //intervalTimeValue;
+//		System.out.println("intervalStr "+intervalStr);
+//		
+//		if (intervalStr == null || intervalStr.equalsIgnoreCase(""))
+//			intervalStr = "1:00";
+//		String[] intervalString = intervalStr.split(":");
+//		
+//		int day = 0;
+//		int hr = 0;
+//		int min = 0;
+//		if (intervalString.length == 1){
+//			try {
+//				hr = Integer.parseInt(intervalString[0]);
+//			}
+//			catch (NumberFormatException e) {				
+//			}
+//		}
+//		else if (intervalString.length == 2){
+//			try {
+//				hr = Integer.parseInt(intervalString[0]);
+//				min = Integer.parseInt(intervalString[1]);
+//			}
+//			catch (NumberFormatException e) {				
+//			}
+//		}
+//		
+//		calendar.add(Calendar.HOUR_OF_DAY, hr); 
+//		calendar.add(Calendar.MINUTE, min); 
+//		setSecondTimeCalendar(calendar); 
+//		timeValueResult[1] = getDateTimeStringValue(calendar); 
 		
 		return timeValueResult; 
 	}

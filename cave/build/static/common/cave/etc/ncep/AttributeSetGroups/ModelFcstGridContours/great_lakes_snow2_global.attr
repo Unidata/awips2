@@ -1,0 +1,25 @@
+!
+! Restore File : great_lakes_snow2
+!
+! Log:
+! J. Carr/HPC 	 3/00	Initial creation
+!
+GLEVEL= 7200:9400  !850                  !850       !850       !9950
+GVCORD= sgma       !pres                 !pres      !pres      !sgma
+SKIP  = 0
+SCALE = 0          !0                    !0         !1         !0
+GDPFUN= sm5s(relh) !sub(tmpc@2%hght,tmpc)!sm9s(tmpc)!sm5s(omeg)!kntv(wnd)
+TYPE  = c/f        !c                    !c         !c         !s
+CINT  = 60;65;70;75!1/10                 !1//0      !1//-1
+LINE  = 3//2       !20/1/1               !15/3/2    !6/1/2     !17/1/2
+FINT  = 80;90
+FLINE = 0;23;22
+HILO  = 0
+HLSYM = 0
+!CLRBAR= 1/V/LL!0
+WIND  = 9/0.9/2/112
+TITLE = 1/-1/~ 720-940 MB RH,9950 SG STRM,850 MB OMG,850-2m dT (YEL),850 T(RED)!0
+COLORS= 2                                                                       
+MARKER= 2                                                                       
+GRDLBL= 5                                                                       
+FILTER= 1

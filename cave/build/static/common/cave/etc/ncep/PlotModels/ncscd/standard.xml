@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="ncscd" name="standard">
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TDXF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TDXF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
     </PlotModelElement>
     
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="WSYM">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="WSYM">
         <Position>ML</Position>
         <Color red="255" green="0" blue="255"/>
     </PlotModelElement>
     
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TDNF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TDNF">
         <Position>LL</Position>
         <Color red="0" green="255" blue="0"/>
     </PlotModelElement>
     <!-- 
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="SKYC">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="SKYC">
         <Position>SC</Position>
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>
     -->
- 	<PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="P06I">
+ 	<PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="P06I">
         <Position>UR</Position>
         <Color red="127" green="255" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="P24I">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="P24I">
         <Position>LR</Position>
         <Color red="255" green="127" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STID">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         <Position>BC</Position>
     	<Color red="139" green="71" blue="38"/>
     </PlotModelElement>

@@ -1,0 +1,25 @@
+!
+! Restore File : precipitation_potential
+!
+! Log:
+! J. Carr       5/21/97     Initial creation
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    0
+SCALE  =   0
+GDPFUN =  sm9s(quo(mul(quo(pwtr;25.4),relh@4400:10000%sgma),100))
+TYPE   =    c/f 
+CINT   =    .2/.2
+LINE   =    23/1/2/1
+FINT   =    .6;.8;1;1.2;1.4;1.6
+FLINE  =   0;23;22;21;2;30;7
+HILO   =    0
+HLSYM  =   0
+!CLRBAR=  1
+WIND   =    
+TITLE  =   1/-2/~ PCPN POTENTIAL (PW X (1000-440 MB RH)) INCHES OF PW!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

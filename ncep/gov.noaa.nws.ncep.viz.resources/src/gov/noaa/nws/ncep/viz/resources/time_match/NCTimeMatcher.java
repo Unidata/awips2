@@ -51,6 +51,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *                                      to allow for initialization without timelineControl
  * 03/07/11     migration  Greg Hull    rm notifyResourceAdd and change defn of initialLoad
  * 11/29/11       518      Greg Hull    add dfltFrameTimes
+ * 06/17/12       713      Greg Hull    typo in copy constr for skipValue
+ * 08/27/12       851      Greg Hull    ignore dataTime level when creating new frame Times
  * 
  * </pre>
  * 
@@ -138,7 +140,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         frameTimes = new ArrayList<DataTime>(tm.frameTimes);
         timesLoaded = tm.timesLoaded;
         numFrames = tm.numFrames;
-        skipValue = tm.dfltSkipFrames;
+        skipValue = tm.skipValue;
         timeRange = tm.timeRange;
         refTime = (tm.refTime == null ? null : new DataTime(
                 tm.refTime.getRefTime(), tm.refTime.getFcstTime()));
@@ -516,14 +518,18 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     // auto-update
     // occurs.
     public ArrayList<DataTime> determineNewFrameTimes(DataTime newDataTime) {
+    	// in somecases the dataTime from the data can have a level set which
+    	// can mess up the equals() method.
+    	DataTime newFrameTime = new DataTime( newDataTime.getValidTime() );
+    	
         ArrayList<DataTime> newFrameTimes = new ArrayList<DataTime>(1);
 
         // if the timeline was created using DATA_TIMES then the new time is the
         // new frame time unless
         // it is already in the frameTimes.
         if (frameInterval == -1) {
-            if (!frameTimes.contains(newDataTime)) {
-                newFrameTimes.add(newDataTime);
+            if (!frameTimes.contains(newFrameTime)) {
+                newFrameTimes.add(newFrameTime);
             }
         } else if (frameInterval != 0) { // if MANUAL or FRAME_TIMES
             // TODO : we could add forecast updates but right now it doesn't
@@ -543,7 +549,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                 // possible if no updates are received for a complete frame.
                 // (TODO : is this what we want or should we only update to the
                 // given data?)
-                while (nextFrameTimeMs + frameInterval * 1000 * 60 < newDataTime
+                while (nextFrameTimeMs + frameInterval * 1000 * 60 < newFrameTime
                         .getValidTime().getTime().getTime()) {
                     nextFrameTimeMs += frameInterval * 1000 * 60;
                     newFrameTimes.add(new DataTime(new Date(nextFrameTimeMs)));

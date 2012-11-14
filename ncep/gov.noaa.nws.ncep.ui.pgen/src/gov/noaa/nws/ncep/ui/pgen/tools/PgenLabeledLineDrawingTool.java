@@ -21,6 +21,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -35,6 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10		304			B. Yin   	Initial Creation.
  * 09/10		305/306		B. Yin		Added Cloud and Turbulence
  * 12/11		?			B. Yin		Added open/close line functions
+ * 08/12		?			B. Yin		One Cloud/Turb per layer
  * 
  * </pre>
  * 
@@ -149,6 +151,7 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -156,7 +159,10 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         	
         	if ( button == 1 ) {
         		
+        		if ( "CCFP_SIGMET".equalsIgnoreCase(pgenType) 
+        				|| attrDlg.isAddLineMode() ){
                 points.add( loc );                
+        		}
                 
                 return true;
                 
@@ -190,7 +196,13 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         		else {
 
         			// add the labeled line to PGEN resource
-        			if ( attrDlg.isAddLineMode() && labeledLine != null ) {
+        			if ( attrDlg.isAddLineMode()) {
+        				if( labeledLine == null ) {
+        					labeledLine = getLabeledLineInCurrentLayer( pgenType );
+        				}
+        				
+        				if( labeledLine != null ) {
+
         				//add line to labeled line collection
         				LabeledLine newll = labeledLine.copy();
         				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
@@ -202,13 +214,25 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         				//new labeled line
         				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
         						points, null, drawingLayer.getActiveLayer());
+        					
         				drawingLayer.addElement( elem );
         				labeledLine = (LabeledLine)elem;
         			}
+        			}
+
+        			if("CCFP_SIGMET".equals(pgenType) ) {
+        				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
+        						points, null, drawingLayer.getActiveLayer());
+
+        				drawingLayer.addElement( elem );
+        				labeledLine = (LabeledLine)elem;
+
+
+        				if ( ccdlg.isAreaType()){//avoid 2 Sigmet elements issue
         			
-        			if("CCFP_SIGMET".equals(pgenType) && ccdlg.isAreaType()){//avoid 2 Sigmet elements issue
         			    ccfpTxtFlag = true; 
         			    setAddingLabelHandler( );//return true;//avoid right click cause no showing issue
+        			}
         			}
         			
         			drawingLayer.removeGhostLine();
@@ -243,6 +267,8 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;
@@ -283,13 +309,29 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-        	if ( shiftDown ) return false;
+        	if (  !isResourceEditable() || shiftDown ) return false;
         	else return true;
 		}
 
 		private void clearPoints(){
         	points.clear();
         }
+
+		/**
+		 * Returns the Labeled Line in the current layer with input type(Turb/Cloud).
+		 * @param type
+		 * @return
+		 */
+		private LabeledLine getLabeledLineInCurrentLayer( String type){
+			Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+			while ( it.hasNext() ){
+				AbstractDrawableComponent adc = it.next();
+				if ( adc instanceof LabeledLine && adc.getPgenType().equalsIgnoreCase(type)){
+					return (LabeledLine) adc;
+				}
+			}
+			return null;
+		}
 
     }
     
