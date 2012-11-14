@@ -1,0 +1,29 @@
+!
+! Restore File : bl1_rh
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! J. Carr/NCEP	         6/97	changed boundary layer labels to comply with EMC
+! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+! T. Lee/GSC		 6/99	Increased omega contour range
+! Archana/Chugach    9/2012     #866   Added CLRBAR
+!
+GLEVEL=30:0!30:0!90:60!30:0
+GVCORD=pdly
+SKIP=
+FILTER=y
+SCALE=0!0!3!0
+GDPFUN=relh!relh!omeg!kntv(wnd)
+TYPE=c/f!c!c ! b
+CINT=80;90;95!10;20;30;40;50;60;70!-25;-23;-21;-19;-17;-15;-13;-11;-9;-7;-5;-3;-1
+LINE=32//1!25//1!6//3
+FINT=70;80;90;95
+FLINE=0;24;23;22;14
+HILO=0
+HLSYM=0
+WIND=9/0.8/2/112
+!CLRBAR=1/V/LL!0
+TITLE=1/-1/~ 0-30MB AGL RELH AND WIND (KTS) AND 60-90MB AGL OMEGA!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

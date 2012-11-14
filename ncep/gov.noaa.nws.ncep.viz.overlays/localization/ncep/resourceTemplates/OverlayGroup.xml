@@ -19,7 +19,9 @@
                 <table>mapdata.world</table>
                 <labelField>name</labelField>
                 <mapName>World</mapName>
+<!-- don't need this anymore
                 <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
+-->                
               </resourceData>
             </resource>
             <resource>
@@ -28,7 +30,7 @@
               </loadProperties>
               <properties isSystemResource="false" isBlinking="false"
                 isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                <pdProps maxDisplayWidth="100000000" minDisplayWidth="750000" />
+                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
               </properties>
               <resourceData xsi:type="NC-dbOverlayResourceData">
                 <table>mapdata.states</table>
@@ -56,7 +58,7 @@
               </loadProperties>
               <properties isSystemResource="false" isBlinking="false"
                 isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                <pdProps maxDisplayWidth="1" minDisplayWidth="0" />
               </properties>
               <resourceData xsi:type="NC-dbOverlayResourceData">
                 <table>mapdata.mexico</table>
@@ -68,9 +70,10 @@
               <loadProperties>
                 <resourceType>PLAN_VIEW</resourceType>
               </loadProperties>
+ <!-- Counties are 'disabled'. To display set the maxDisplayWidth="100000000" -->          
               <properties isSystemResource="false" isBlinking="false"
                 isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                <pdProps maxDisplayWidth="750000" minDisplayWidth="0" />
+                <pdProps maxDisplayWidth="1" minDisplayWidth="0" />
               </properties>
               <resourceData xsi:type="NC-dbOverlayResourceData">
                 <table>mapdata.county</table>

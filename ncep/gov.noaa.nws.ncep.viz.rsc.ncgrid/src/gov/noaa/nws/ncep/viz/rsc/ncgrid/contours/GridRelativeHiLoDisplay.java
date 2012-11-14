@@ -123,7 +123,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     gridPointHiSymbolSet, paintProps);
             for (IDisplayable each : elements) {
-                each.draw(target);
+                each.draw(target, paintProps);
                 each.dispose();
             }
         } else if (hiloBuild.getSymbolHiType() == 1) {
@@ -147,7 +147,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     gridPointLoSymbolSet, paintProps);
             for (IDisplayable each : elements) {
-                each.draw(target);
+                each.draw(target, paintProps);
                 each.dispose();
             }
         } else if (hiloBuild.getSymbolLoType() == 1) {

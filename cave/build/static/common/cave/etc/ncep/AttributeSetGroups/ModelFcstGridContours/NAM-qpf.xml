@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>qpf</attrSetGroupName>
-    <attrSetNames>300mb_ageo_div_isotachs,700mb_hght_wind_dwpt,850mb_h2o_transport,850mb_hght_wind_dwpt,850mb_thtae_advection,850mb_wind_pw,lifted_index,bl_h2o_trnsp_omgq,bl_moistconv_wind_dwpt,bestcape_cin,kindex_700mbtemp_bldwpt_mslp,pcpn_potential,precip_type_12hr_amounts,precip_type_24hr_amounts,precip_type_48hr_amounts,precip_type_6hr_amounts,pw_emsl_c-vec,ransnocsi_500-850,ransnocsi_600-800,sfclifted_index</attrSetNames>
+    <attrSetNames>300mb_ageo_div_isotachs,700mb_hght_wind_dwpt,850mb_h2o_transport_nam,850mb_hght_wind_dwpt,850mb_thtae_advection,850mb_wind_pw,lifted_index_nam,bl_h2o_trnsp_omgq,bl_moistconv_wind_dwpt,bestcape_cin_nam,kindex_700mbtemp_bldwpt_mslp,pcpn_potential,precip_type_12hr_amounts,precip_type_24hr_amounts,precip_type_48hr_amounts,pw_emsl_c-vec,ransnocsi_500-850,ransnocsi_600-800,sfclifted_index</attrSetNames>
 </AttributeSetGroup>

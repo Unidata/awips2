@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>CMC</resource>
+    <attrSetGroupName>streamline</attrSetGroupName>
+    <attrSetNames>250mb_streamlines,500mb_streamlines,700mb_streamlines,850mb_streamlines,925mb_streamlines,1000mb_streamlines</attrSetNames>
+</AttributeSetGroup>

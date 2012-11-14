@@ -1,8 +1,0 @@
-legend_color=RGB {200, 200, 200}
-colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
-imageType=Gridded Cloud Top Pressure or Height
-displayUnitStr=SounderCloudTopHeightPixel
-alpha=1.0
-brightness=1.0
-contrast=1.0

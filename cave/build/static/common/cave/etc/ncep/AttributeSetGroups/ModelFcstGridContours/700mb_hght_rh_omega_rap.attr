@@ -1,0 +1,28 @@
+!
+! Restore File : 700mb_hght_rh_omega
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! T. Lee/GSC		 6/99	Increased omega contour range
+! J. Carr/HPC            7/99   Changed skip to a 0 and changed contur to a 2.
+!
+GLEVEL =  700
+GVCORD =  pres
+SKIP   =    0
+SCALE  =   0              !0              !-1        !1             !1
+GDPFUN =  sm5s(relh)     !sm5s(relh)     !sm5s(hght)!sm5s(omeg)    !sm5s(omeg)
+TYPE   =    c              !c/f            !c
+CINT   =    10;30 !50;70;90 !3 !-25;-23;-21;-19;-17;-15;-13;-11;-9;-7;-5;-3;-1 !1;3;5;7;9;11;13;15;17;19
+LINE   =    8/1/2/0         !23//2/0        !20/1/1/1 !6/1/1/1 ! 24/5/1/1
+FINT   =    70;90
+FLINE  =   0;23;22
+HILO   =                                                                            
+HLSYM  =                                                                           
+!CLRBAR =  1                                                                       
+WIND   =    18/1/1
+TITLE  =   5/0/~ @ HEIGHTS, REL HUMIDITY AND OMEGA!
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10		#304		B. Yin		Added LabeledLine
  * 09/11		?			B. Yin		Added TCM
  * 03/12        #625        S. Gurung   Make Line and Line(Med) thicker for CCFP_SIGMET
+ * 04/12        #734        J. Zeng     Added SPENES
  *
  * </pre>
  * 
@@ -218,6 +219,11 @@ public class DrawableElementFactory {
 
 		case TCM_FCST:
 			de = new TcmFcst(locations.get(0), ((ITcm)attr).getFcstHr(), ((ITcm)attr).getWindRadius());
+			break;
+
+		case SPENES:
+			de = new Spenes();
+			((Spenes) de).setLinePoints(locations);
 			break;
 		default:
 			/*

@@ -28,6 +28,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * 08/12/11       #450     Greg Hull   use the RBD name instead of the filename. 
  * 02/15/2012     #627     Archana    Updated the call to addRbd() to accept 
  *                                    a NCMapEditor object as one of the arguments   
+ * 08/16/2012     #655     B. Hebbard  (TTR 382) Run rbdLoader sync instead of async,
+ *                                     to ensure descriptor has valid xforms before paint
  * </pre>
  * 
  * @author ghull
@@ -87,7 +89,9 @@ public class NewDisplayAction extends AbstractHandler {
     		ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
     		
     		rbdLoader.addRBD( rbd, editor );
-    		VizApp.runAsync( rbdLoader );
+    		//TODO -- is there a way we still run async, w/o reintroducing TTR 382?
+    		// VizApp.runAsync( rbdLoader );
+    		VizApp.runSync( rbdLoader );
     	}
     	catch ( Exception ve ) {
     		System.out.println("Could not load rbd: " + ve.getMessage());

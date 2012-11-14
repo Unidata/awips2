@@ -1,0 +1,27 @@
+!
+! Restore File : 500mb_hght_color
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! J. Carr/HPC            7/99   Changed contur to a 2.
+!
+GLEVEL =  500
+GVCORD =  pres
+SKIP   =    0
+SCALE  =   -1
+GDPFUN =  sm5s(hght)
+TYPE   =    c/f
+CINT   =    6
+LINE   =    32/1/1/1
+FINT   =    504;510;516;522;528;534;540;546;552;558;564;570;576;582;588;594
+FLINE  =   30-14
+HILO   =    
+HLSYM  =                                                                           
+!CLRBAR =  1                                                                       
+WIND   =    18/1/1
+TITLE  =   1/-1/~ 500mb HEIGHTS !0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1
