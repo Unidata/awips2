@@ -1,7 +1,7 @@
 colorMapName=nids_pre
 colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=101
-prodName=PRCPC
+!prodName=PRCPC
 alpha=1.0
 brightness=1.0
 contrast=1.0

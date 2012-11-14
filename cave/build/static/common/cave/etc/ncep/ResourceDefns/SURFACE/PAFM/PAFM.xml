@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>PAFM</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
     <resourceParameters>
@@ -17,7 +18,7 @@ legendColor=RGB {0, 255, 0}
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>180</frameSpan>
     <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
-    <dfltFrameCount>10</dfltFrameCount>
+    <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>168</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>

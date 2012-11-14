@@ -1,0 +1,25 @@
+!
+! Restore File : precip_type
+!
+! Log:
+! J. Carr/HPC	03/00	Initial creation
+!
+GLEVEL =  0           !0           !0           !0 
+GVCORD =  none        !none        !none        !none
+SKIP   =    0/1
+SCALE  =   2           !2           !2           !2
+GDPFUN =  sm5s(WXTr06)!sm5s(WXTs06)!sm5s(WXTp06)!sm5s(WXTz06)
+TYPE   =    c/f         !c/f         !c/f         !c/f
+LINE   =    22/1/2/0    !4/1/2/0     !7/1/2/0     !2/1/2/0
+CINT   =    50;200      !50;200      !50;200      !50;200
+FINT   =    50;200      !50;200      !50;200      !50;200
+FLINE  =   0;23;23     !0;25;25     !0;30;30     !0;15;15
+HILO   =    0
+HLSYM  =   0
+!CLRBAR=  0
+WIND   =    9/0.7/2/112
+TITLE  =   1/-2/~ PCPN TYPE   =|~PCPN TYPE AND VV!0
+COLORS =  2
+MARKER =  2
+GRDLBL =  5
+FILTER =  1

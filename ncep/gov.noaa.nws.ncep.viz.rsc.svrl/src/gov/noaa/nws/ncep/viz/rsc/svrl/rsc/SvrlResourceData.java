@@ -329,8 +329,8 @@ public class SvrlResourceData  extends AbstractNatlCntrsRequestableResourceData
 				EditElement.CHECK_BOX, 1 ));
 		attrs.addAttr( new MiscResourceAttr( "watchBoxLabelEnable", "County",
 				EditElement.CHECK_BOX, 1 ));
-		attrs.addAttr( new MiscResourceAttr( "watchBoxNumberEnable", "Watch number",
-				EditElement.CHECK_BOX, 1 ));
+//		attrs.addAttr( new MiscResourceAttr( "watchBoxNumberEnable", "Watch number",
+//				EditElement.CHECK_BOX, 1 ));
 		attrs.addAttr( new MiscResourceAttr( "colorCodeEnable", "Color Code",
 				EditElement.CHECK_BOX, 1 ));
 		attrs.addAttr( new MiscResourceAttr( "watchBoxOutlineEnable", "Outline",

@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 06/01/2012     #815      Greg Hull    rm NatlCntrsLocalizationAdapter and use CAVELocalizationAdapter
  * 06/07/2012     #717      Archana      Added the constants STYLE_RULES_DIR,
  *                                       MCIDAS_IMG_STYLE_RULES and GINI_IMG_STYLE_RULES                                 
+ * 06/21/2012     #825      Greg Hull    rm mosaicInfo.txt
  * </pre>
  * 
  * @author ghull 
@@ -91,8 +92,6 @@ public class NcPathManager {
 
 		public static final String CLOUD_HEIGHT_SOUNDING_MODELS = 
 			                              NCEP_ROOT+"CloudHeight"+File.separator+"SoundingModels.xml";
-// NOT USED. CAN REMOVE
-//		public static final String LCL_RDR_LEGENDS = NCEP_ROOT+"Radar"+ File.separator+"localRadarLegendNames.txt";
 		
 		public static final String GEOG_TBL = PREDEFINED_AREAS_DIR + File.separator+
 												     "gempak"+File.separator+"geog.xml";
@@ -121,7 +120,7 @@ public class NcPathManager {
 	    // assumes the filename. So don't change the fileNames. 
 	    // the files.
 	    public static final String RADAR_INFO   = NCEP_ROOT + "Radar"+File.separator+"radarInfo.txt";
-	    public static final String MOSAIC_INFO  = NCEP_ROOT + "Radar"+File.separator+"mosaicInfo.txt";
+//	    public static final String MOSAIC_INFO  = NCEP_ROOT + "Radar"+File.separator+"mosaicInfo.txt";
 	    public static final String MCIDAS_IMG_STYLE_RULES = STYLE_RULES_DIR + "mcidasSatelliteImageryStyleRules.xml";
 	    public static final String GINI_IMG_STYLE_RULES = STYLE_RULES_DIR + "giniSatelliteImageryStyleRules.xml";	    
 	    // PGEN Files 
@@ -257,10 +256,10 @@ public class NcPathManager {
     	return lFileMap;
 	}
 
-//    public LocalizationFile[] listFiles( LocalizationContext[] contexts,
-//            String name, String[] filter, boolean recursive, boolean filesOnly) {
-//    	return pathMngr.listFiles( contexts, /* NcepDir+*/name, filter, recursive, filesOnly );
-//	}
+    // convienence method to get all the versions of a file. Assume CAVE_STATIC.
+    public Map<LocalizationLevel, LocalizationFile> getTieredLocalizationFile( String name) {
+    	return pathMngr.getTieredLocalizationFile( LocalizationType.CAVE_STATIC, name );
+	}
 	
     public LocalizationContext getContext( LocalizationType type,
             LocalizationLevel level) {

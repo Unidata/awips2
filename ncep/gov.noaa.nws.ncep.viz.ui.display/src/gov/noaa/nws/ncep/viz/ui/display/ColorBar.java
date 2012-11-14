@@ -13,8 +13,11 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAttributesBuilder;
+import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
 /**
  *  An ColorBar for use by FFG, LTNG and other resources which assign colors to 
  *  defined interval ranges. 
@@ -29,6 +32,14 @@ import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
  * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
  *                                        reversing the order of colors in the color-bar.
  * 06/07/12      #717       Archana       Added the overridden methods getDisplayUnitStr() and getNumPixelsToReAlignLabel()                                                                           
+ * 06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
+ *                                                                       xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
+ *                                                                       isDrawBoxAroundColorBar. added the corresponding setter/getter methods
+ *                                                                       Added setAttibutesFromColorBarAttributesBuilder()                                      
+ *07/18/12       #717       Archana       Refactored numPixelsToReAlignLabel to alignLabelInTheMiddleOfInterval
+ *                                                                        and added the corresponding setter/getter methods 
+ *09/11/12        #743  Archana           Minor update in the method setAttributesFromColorBarAttributesBuilder() to set
+ *                                                                       the pixel width correctly.
  * 
  * </pre>
  * 
@@ -59,19 +70,19 @@ public class ColorBar implements IColorBar, ISerializableObject {
     private Boolean showLabels = true;
     
     @XmlElement
-    private Boolean reverseOrder = false;    
+    private Boolean reverseOrder = true;    
     
 	@XmlElement 
-    private Boolean drawToScale = false;
+    private Boolean drawToScale = true;
     
 	@XmlElement
 	private ColorBarOrientation orientation = ColorBarOrientation.Vertical;
 	
     @XmlElement
-    private ColorBarAnchorLocation anchorLoc = ColorBarAnchorLocation.UpperLeft;
+    private ColorBarAnchorLocation anchorLoc = ColorBarAnchorLocation.LowerLeft;
     
 	private static final Float defaultLength = .5f;  
-	private static final int defaultWidth = 15;
+	private static final int defaultWidth = 15; //change to 0.01
 	
     @XmlElement
     private Float lengthAsRatio = defaultLength;  // as a ratio of the screen size
@@ -81,6 +92,48 @@ public class ColorBar implements IColorBar, ISerializableObject {
     
     @XmlElement
     private int numDecimals=0;
+    
+    @XmlElement
+    private Boolean drawColorBar = true;
+    
+    @XmlElement
+    private Boolean drawBoxAroundColorBar = true;
+    
+    private double xPixelCoordFraction = 0.005;
+    
+    private double yPixelCoordFraction = 0.05;
+    
+    private boolean alignLabelInTheMiddleOfInterval = false;
+    /**
+     * 
+	 * @return the drawColorBar
+	 */
+	public final Boolean isDrawColorBar() {
+		return drawColorBar;
+	}
+
+	/**
+	 * @param drawColorBar the drawColorBar to set
+	 */
+	public final void setDrawColorBar(Boolean drawColorBar) {
+		this.drawColorBar = drawColorBar;
+	}
+
+	/**
+	 * @return the drawBoxAroundColorBar
+	 */
+	public final Boolean isDrawBoxAroundColorBar() {
+		return drawBoxAroundColorBar;
+	}
+
+	/**
+	 * @param drawBoxAroundColorBar the drawBoxAroundColorBar to set
+	 */
+	public final void setDrawBoxAroundColorBar(Boolean drawBoxAroundColorBar) {
+		this.drawBoxAroundColorBar = drawBoxAroundColorBar;
+	}
+
+	private  ColorBarAttributesBuilder colorBarAttributesBuilder = null;
     
 	private Display display=null; // the Display used to create the Colors in the intervals
 
@@ -107,6 +160,12 @@ public class ColorBar implements IColorBar, ISerializableObject {
 		widthInPixels = cbar.widthInPixels;
 		numDecimals = cbar.numDecimals;
 		reverseOrder = cbar.reverseOrder;
+		colorBarAttributesBuilder = cbar.colorBarAttributesBuilder;
+		drawColorBar              = cbar.drawColorBar;
+		drawBoxAroundColorBar     = cbar.drawBoxAroundColorBar;
+		xPixelCoordFraction       = cbar.xPixelCoordFraction;
+		yPixelCoordFraction       = cbar.yPixelCoordFraction;
+		alignLabelInTheMiddleOfInterval = cbar.alignLabelInTheMiddleOfInterval;
 		for( int i=0 ; i<cbar.getNumIntervals() ; i++ ) {
 			addColorBarInterval( cbar.getIntervalMin(i),
 							     cbar.getIntervalMax(i), cbar.getRGB(i) );
@@ -634,6 +693,16 @@ public class ColorBar implements IColorBar, ISerializableObject {
 
 		result = prime * result
 		+ ((reverseOrder == null) ? 0 : reverseOrder.hashCode());		
+		
+		result = prime * result
+		+ ((colorBarAttributesBuilder == null) ? 0 : colorBarAttributesBuilder.hashCode());
+
+		result = prime * result
+		+ ((drawColorBar == null) ? 0 : drawColorBar.hashCode());		
+		
+		result = prime * result
+		+ ((drawBoxAroundColorBar == null) ? 0 : drawBoxAroundColorBar.hashCode());
+		
 		return result;
 	}
 
@@ -710,6 +779,30 @@ public class ColorBar implements IColorBar, ISerializableObject {
 		} else if (!reverseOrder.equals(other.reverseOrder))
 			return false;
 		
+		if (colorBarAttributesBuilder == null) {
+			if (other.colorBarAttributesBuilder != null)
+				return false;
+		} else if (!colorBarAttributesBuilder.equals(other.colorBarAttributesBuilder))
+			return false;		
+		
+		if (drawColorBar == null) {
+			if (other.drawColorBar != null)
+				return false;
+		} else if (!drawColorBar.equals(other.drawColorBar))
+			return false;
+		
+		if (drawBoxAroundColorBar == null) {
+			if (other.drawBoxAroundColorBar != null)
+				return false;
+		} else if (!drawBoxAroundColorBar.equals(other.drawBoxAroundColorBar))
+			return false;		
+		
+        if (xPixelCoordFraction != other.xPixelCoordFraction )   		
+		    return false;
+        
+        if (yPixelCoordFraction != other.yPixelCoordFraction )
+        	return false;
+        
 		return true;
 	}
 
@@ -719,8 +812,75 @@ public class ColorBar implements IColorBar, ISerializableObject {
 	}
 	
 	@Override
-	public int getNumPixelsToReAlignLabel(){
-		return 0;
+	public boolean isAlignLabelInTheMiddleOfInterval(){
+		return alignLabelInTheMiddleOfInterval;
+	}
+	
+	@Override
+	public void setAlignLabelInTheMiddleOfInterval(boolean b){
+		alignLabelInTheMiddleOfInterval = b;
+	}
+
+	/**
+	 * @return the colorBarAttributesBuilder
+	 */
+	public final ColorBarAttributesBuilder getColorBarAttributesBuilder() {
+		return colorBarAttributesBuilder;
+	}
+
+	/**
+	 * @param colorBarAttributesBuilder the colorBarAttributesBuilder to set
+	 */
+	public final void setColorBarAttributesBuilder(
+			ColorBarAttributesBuilder colorBarAttributesBuilder) {
+		this.colorBarAttributesBuilder = colorBarAttributesBuilder;
+	}
+
+	@Override
+	public void setAttributesFromColorBarAttributesBuilder(ColorBarAttributesBuilder colorBarAttributesBuilder) {
+		     if (colorBarAttributesBuilder != null ){
+		    	 
+		    	 setLengthAsRatio( (float) colorBarAttributesBuilder.getLength());
+		    	 double tempWidth =  Math.abs( colorBarAttributesBuilder.getWidth() * 1000);
+		    	 setWidthInPixels((int)tempWidth);
+		    	 setAnchorLoc(colorBarAttributesBuilder.getAnchorLocation());
+		    	 setOrientation(colorBarAttributesBuilder.getColorBarOrientation());
+		    	 
+		    	 setXPixelCoordFraction(colorBarAttributesBuilder.getX());
+		    	 setYPixelCoordFraction(colorBarAttributesBuilder.getY());
+		    	 setLabelColor(colorBarAttributesBuilder.getColor());
+		    	 setDrawBoxAroundColorBar(colorBarAttributesBuilder.isDrawBoxAroundColorBar());
+		    	 setDrawColorBar(colorBarAttributesBuilder.isDrawColorBar() );
+		     }
+		
+	}
+
+	/**
+	 * @param yPixelCoordFraction the yPixelCoordFraction to set
+	 */
+	public void setYPixelCoordFraction(double yPixelCoordFraction) {
+		this.yPixelCoordFraction = yPixelCoordFraction;
+	}
+
+	/**
+	 * @return the yPixelCoordFraction
+	 */
+	public double getYPixelCoordFraction() {
+		return yPixelCoordFraction;
+	}
+
+	/**
+	 * @param xPixelCoordFraction the xPixelCoordFraction to set
+	 */
+	public void setXPixelCoordFraction(double xPixelCoordFraction) {
+		this.xPixelCoordFraction = xPixelCoordFraction;
+	}
+
+	/**
+	 * @return the xPixelCoordFraction
+	 */
+	public double getXPixelCoordFraction() {
+		return xPixelCoordFraction;
 	}
 }
 

@@ -60,6 +60,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/11/11                 Chin Chen   1.Fixed AODT can not retrieve IR temp issue
  * 	                                    2.Fixed AODT crash CAVE issue when invalid data retrieved from database
  * 										3.Changed to retrieve IR data only when user click Run AODT button
+ * 07/02/12					S. Jacobs & 1.Fixed AODT Lat/Lon text input issue		
+ * 							J. Bartlett 2.Monospace font for the AODT output 				
  * </pre>
  * 
  * @author 
@@ -314,6 +316,9 @@ public class AODTDialog extends Dialog {
 		// Update center location
     	
 		// Calculate temperatures for a tileset of 105 by 105 pixels
+    	// Retrieve raw data from centerLat and centerLon
+    	centerLat = Float.valueOf(lat_txt.getText().trim()).floatValue();
+    	centerLon = Float.valueOf(lon_txt.getText().trim()).floatValue();
 		double[] p1 = mapEditor.getDescriptor().worldToPixel(new double[] { centerLon, centerLat });
 		int rad = NUMX / 2;
 		for (int i = -rad; i <= rad; i++ ) {
@@ -377,7 +382,11 @@ public class AODTDialog extends Dialog {
     	} else {
     		output = odt.getOuput();
     	}
-    	if(output != null)AODTResult.setText(output);
+    	if(output != null){
+    	    font = new Font(AODTResult.getShell().getDisplay(), "Monospace", 10, SWT.NORMAL);
+    	    AODTResult.setFont(font);
+    		AODTResult.setText(output);
+    	}
     	
     	if (verifyHistoryFile()) {
     		setHistoryFileCombo();

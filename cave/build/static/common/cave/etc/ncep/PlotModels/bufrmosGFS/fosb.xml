@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosGFS" name="fosb">
  
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="FOSB">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="FOSB">
         <Position>UL</Position>
         <Color red="255" green="125" blue="0"/>
     </PlotModelElement>
