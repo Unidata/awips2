@@ -54,7 +54,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -221,6 +220,9 @@ public class PgenUtil {
     
     private static final void setCommandMode(String command){
         IEditorPart part = EditorUtil.getActiveEditor();
+        
+        if ( part == null ) return;
+        
         ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
         Command cmd = service.getCommand(command);
 
@@ -239,6 +241,7 @@ public class PgenUtil {
         	}
         }
     }
+    
     /**
      * Set the drawing mode to symbol. 
      * When drawing a symbol with a text, this method is called after the text is finished
@@ -320,7 +323,7 @@ public class PgenUtil {
 			try {
 				HashMap<String, Object> params = new HashMap<String, Object>();
 				params.put("editor", part);
-				params.put("name", "Gfa");
+				params.put("name", "GFA");
 				params.put("className", "MET");
 				StringBuilder sb = new StringBuilder("");
 				

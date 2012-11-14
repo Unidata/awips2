@@ -14,6 +14,9 @@ Bundle-ActivationPolicy: lazy
 Import-Package: com.vividsolutions.jts.geom,
  com.vividsolutions.jts.io,
  com.vividsolutions.jts.operation.valid,
+ gov.noaa.nws.ncep.common.dataplugin.aww,
  gov.noaa.nws.ncep.viz.common.dbQuery,
- gov.noaa.nws.ncep.viz.localization
+ gov.noaa.nws.ncep.viz.localization,
+ gov.noaa.nws.ncep.viz.rsc.wtch.util,
+ gov.noaa.nws.ncep.viz.resources
 Export-Package: gov.noaa.nws.ncep.staticdataprovider

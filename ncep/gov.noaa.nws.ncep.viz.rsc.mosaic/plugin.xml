@@ -78,6 +78,7 @@
             defaultValue="not-specified"
             paramType="REQUEST_CONSTRAINT">
       </nc-resourceParameter>
+<!--
       <nc-resourceParameter
             ncResourceName="RadarMosaic"
             paramClass="String"
@@ -85,7 +86,7 @@
             defaultValue="not-specified"
             paramType="REQUEST_CONSTRAINT">
       </nc-resourceParameter>
-
+ -->
       <nc-resourceParameter
             ncResourceName="RadarMosaic"
             paramClass="RGB"

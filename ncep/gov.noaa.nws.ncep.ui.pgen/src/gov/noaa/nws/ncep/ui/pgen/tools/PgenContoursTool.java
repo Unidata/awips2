@@ -8,6 +8,25 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
+import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
+import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
+import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
+import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.Text;
+import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,26 +35,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
-
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
-import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
-import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
-import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
-
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
-import gov.noaa.nws.ncep.ui.pgen.display.ILine;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
-import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
-import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-
-import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
 
 /**
  * Implements a modal map tool for PGEN Contours drawing.
@@ -60,7 +59,8 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
  * @author	J. Wu
  */
 
-public class PgenContoursTool extends AbstractPgenDrawingTool implements CommandStackListener{
+public class PgenContoursTool extends AbstractPgenDrawingTool implements
+        CommandStackListener {
 
 	/**
 	 * Points of the new element.
@@ -68,8 +68,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
     private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
 
 	/**
-	 * An instance of DrawableElementFactory, which is used to 
-	 * create new elements.
+     * An instance of DrawableElementFactory, which is used to create new
+     * elements.
 	 */
 	private DrawableElementFactory def = new DrawableElementFactory();
 	
@@ -77,10 +77,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
 	 * Current Contours element.
 	 */
 	private boolean  addContourLine = false;
+
 	private Contours elem = null;		
+
 	private Contours lastElem = null;		
 
 	private int undo = -1;
+
 	private int redo = -1;
 	
     public PgenContoursTool(){
@@ -98,19 +101,19 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
     protected void activateTool( ) {
     	
     	super.activateTool();
+        LibraryLoader.load("g2g");
     	
     	/*
-    	 * if the ExecutionEvent's trigger has been set, it should be something from 
-    	 * a Contours to start with.  Load it's attributes to the Contours attr Dialog.
-    	 * If not. we will start with a new Contours.
+         * if the ExecutionEvent's trigger has been set, it should be something
+         * from a Contours to start with. Load it's attributes to the Contours
+         * attr Dialog. If not. we will start with a new Contours.
     	 */   	
       	Object de = event.getTrigger();
 	    
         if ( de instanceof Contours ) {
 		    elem = (Contours)de;
 		    addContourLine = true;
-     	}
-        else {
+        } else {
             elem = null;
         }
 		              
@@ -124,6 +127,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
 
     /**
      * Returns the current mouse handler.
+     * 
      * @return
      */
     public IInputHandler getMouseHandler() {	
@@ -150,18 +154,20 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {           
+            if (!isResourceEditable())
+                return false;
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+            if (loc == null)
+                return false;
         	    	
         	//Drawing Min/Max symbol
         	if ( attrDlg != null && ((ContoursAttrDlg)attrDlg).drawSymbol() ) {
             	
         		if ( button == 1 ) {        		
                     drawContourMinmax( loc );
-        		}
-                else if ( button == 3 ) {                    
+                } else if (button == 3) {
                	
                 	setDrawingMode();  
                     points.clear();
@@ -171,8 +177,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
                     drawingLayer.removeGhostLine();
                     
                 	return true;           	
-                }
-                else {            	
+                } else {
                    	return false;              	
                 }                   
         	}
@@ -186,10 +191,10 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
             			
                         points.add( 0, loc );   
                         
-           		    }
-            		else {
+                    } else {
             			
-            			if ( points.size() > 1 ) points.remove( 1 );
+                        if (points.size() > 1)
+                            points.remove(1);
             			
             			points.add( 1, loc );           		       
             			drawContourCircle();
@@ -197,8 +202,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
           		
                     return true;
 
-        		}
-                else if ( button == 3 ) {                    
+                } else if (button == 3) {
                	
                 	setDrawingMode();  
                     points.clear();
@@ -208,36 +212,32 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
                     drawingLayer.removeGhostLine();
                     
                 	return true;           	
-                }
-                else {            	
+                } else {
                    	return false;              	
                 }  
         		
         	}
 
-        	
         	// Drawing line
             if ( button == 1 ) {        		
 
-            	if ( attrDlg != null && !((ContoursAttrDlg)attrDlg).drawSymbol() &&
-            			!((ContoursAttrDlg)attrDlg).drawCircle() ) {
+                if (attrDlg != null
+                        && !((ContoursAttrDlg) attrDlg).drawSymbol()
+                        && !((ContoursAttrDlg) attrDlg).drawCircle()) {
 
                     points.add( loc );  
             	}
             	
                 return true;               
-            }
-            else if ( button == 3 ) {
+            } else if (button == 3) {
              	
                 setDrawingMode(); 
               	drawContours(); 
              	
             	return true;           	
-            }
-        	else if ( button == 2 ) {       		
+            } else if (button == 2) {
         		return true;       		
-        	}
-            else {            	
+            } else {
                	return false;              	
             }
         	
@@ -251,27 +251,33 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+            if (!isResourceEditable())
+                return false;
         
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
-        	if ( loc == null ) return false;
+            if (loc == null)
+                return false;
         	
         	// Draw a ghost contour min/max
         	if ( attrDlg != null && ((ContoursAttrDlg)attrDlg).drawSymbol() ) {
 
         		ContoursAttrDlg dlg = (ContoursAttrDlg)attrDlg;
         		ContourMinmax ghost = null;            	
-                ghost = new ContourMinmax( loc, dlg.getActiveSymbolClass(),dlg.getActiveSymbolObjType(),
+                ghost = new ContourMinmax(loc, dlg.getActiveSymbolClass(),
+                        dlg.getActiveSymbolObjType(),
                 		    new String[] {dlg.getLabel()} );
                 
-         	    IAttribute mmTemp = ((ContoursAttrDlg)attrDlg).getMinmaxTemplate();
+                IAttribute mmTemp = ((ContoursAttrDlg) attrDlg)
+                        .getMinmaxTemplate();
 
         	    if ( mmTemp != null ) {    	        	
         	    	Symbol oneSymb =  (Symbol)(ghost.getSymbol());
  	        	    oneSymb.update( mmTemp );
     	        }
         	       	        
-        	    IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLabelTemplate();
         	    if ( lblTemp != null ) {
      	            Text lbl = ghost.getLabel();
      	            String[] oldText = lbl.getText();
@@ -296,16 +302,20 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         		if ( points != null && points.size() >= 1 ) {
 
         			ContourCircle ghost = new ContourCircle( points.get( 0 ), loc,
-                            new String[]{ ((ContoursAttrDlg)attrDlg).getLabel() } ,
+                            new String[] { ((ContoursAttrDlg) attrDlg)
+                                    .getLabel() },
                             ((ContoursAttrDlg)attrDlg).hideCircleLabel() );       	     
       
-	                IAttribute circleTemp = ((ContoursAttrDlg)attrDlg).getCircleTemplate();
+                    IAttribute circleTemp = ((ContoursAttrDlg) attrDlg)
+                            .getCircleTemplate();
                     if ( circleTemp != null ) {    	        	
                         ghost.getCircle().setColors( circleTemp.getColors() );
-                        ((Arc)ghost.getCircle()).setLineWidth( circleTemp.getLineWidth() );
+                        ((Arc) ghost.getCircle()).setLineWidth(circleTemp
+                                .getLineWidth());
                     }
      	        
-                    IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                    IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                            .getLabelTemplate();
                     if ( lblTemp != null ) {
                         Text lbl = ghost.getLabel();  	                    
    	        	        String[] oldText = lbl.getText();
@@ -317,7 +327,6 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
    	        	        lbl.setAuto( auto );
                     }
 
-                
                     drawingLayer.setGhostLine( ghost );      
               	    mapEditor.refresh();
         		}
@@ -329,14 +338,18 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	// Draw a ghost ContourLine            
         	if ( points != null && points.size() >= 1) {
                 
-        		ArrayList<Coordinate> ghostPts = new ArrayList<Coordinate>(points);
+                ArrayList<Coordinate> ghostPts = new ArrayList<Coordinate>(
+                        points);
                 ghostPts.add(loc);
        	
-        	    ContourLine cline = new ContourLine( ghostPts, ((ILine)attrDlg).isClosedLine(), 
+                ContourLine cline = new ContourLine(
+                        ghostPts,
+                        ((ILine) attrDlg).isClosedLine(),
     			        new String[]{ ((ContoursAttrDlg)attrDlg).getLabel() },
         	    	   ((ContoursAttrDlg)attrDlg).getNumOfLabels() ); 
        	                	    
-        	    IAttribute lineTemp = ((ContoursAttrDlg)attrDlg).getLineTemplate();
+                IAttribute lineTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLineTemplate();
 
         	    if ( lineTemp != null ) {    	        	
  	        	    Line oneLine =  cline.getLine();
@@ -350,7 +363,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	    	cline.getLine().setSmoothFactor(0);
         	    }
    	        
-        	    IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLabelTemplate();
         	    if ( lblTemp != null ) {
         	        for ( Text lbl : cline.getLabels() ) {
    	        	        String[] oldText = lbl.getText();
@@ -363,11 +377,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
     	            }
         	    }
     	        
-        	    Contours el = (Contours)(def.create( DrawableType.CONTOURS, null,            		
- 				       "MET", "Contours", points, drawingLayer.getActiveLayer() ) );
+                Contours el = (Contours) (def.create(DrawableType.CONTOURS,
+                        null, "MET", "Contours", points,
+                        drawingLayer.getActiveLayer()));
        		    
    			    cline.setParent( el );
-       		    cline.getLine().setPgenType ( ((ContoursAttrDlg)attrDlg).getContourLineType() );
+                cline.getLine().setPgenType(
+                        ((ContoursAttrDlg) attrDlg).getContourLineType());
        		       			
 			    el.update( (ContoursAttrDlg)attrDlg );
 			    el.add( cline );
@@ -383,6 +399,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+            if (!isResourceEditable())
+                return false;
+
 			return true;
 		}
 
@@ -393,13 +412,17 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	
         	if ( points.size() > 1 ) {
         	     
-        		 ContourLine cline = new ContourLine( points, ((ILine)attrDlg).isClosedLine(), 
+                ContourLine cline = new ContourLine(
+                        points,
+                        ((ILine) attrDlg).isClosedLine(),
 		                                 new String[]{ ((ContoursAttrDlg)attrDlg).getLabel() }, 
 		                                 ((ContoursAttrDlg)attrDlg).getNumOfLabels() ); 
        		 
-        		 cline.getLine().setPgenType ( ((ContoursAttrDlg)attrDlg).getContourLineType() );
+                cline.getLine().setPgenType(
+                        ((ContoursAttrDlg) attrDlg).getContourLineType());
      	                		         		 
-        	     IAttribute lineTemp = ((ContoursAttrDlg)attrDlg).getLineTemplate();
+                IAttribute lineTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLineTemplate();
         	     if ( lineTemp != null ) {    	        	
      	        	 Line oneLine =  cline.getLine();
      	             Boolean isClosed = oneLine.isClosedLine();
@@ -412,7 +435,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	    	 cline.getLine().setSmoothFactor(0);
         	     }
        		     
-        	     IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLabelTemplate();
         	     if ( lblTemp != null ) {
         	         for ( Text lbl : cline.getLabels() ) {
         	        	 String[] oldText = lbl.getText();
@@ -425,31 +449,32 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
     	             }
         	     }
         		 
-        	     //Check if we need to add to existing contours or create a new one
+                // Check if we need to add to existing contours or create a new
+                // one
                  elem = checkExistingContours();
         	     
-                 
          		 if ( elem == null ) {
        	            
 			    	/*
-			    	* create a new element with attributes from the Attr dialog, and add
-			     	* it to the PGEN Resource
+                     * create a new element with attributes from the Attr
+                     * dialog, and add it to the PGEN Resource
 			     	*/
    			    	elem = (Contours)(def.create( DrawableType.CONTOURS, null,            		
- 				           "MET", "Contours", points, drawingLayer.getActiveLayer() ) );
+                            "MET", "Contours", points,
+                            drawingLayer.getActiveLayer()));
 			
    			    	cline.setParent( elem );
    			    	elem.update( (ContoursAttrDlg)attrDlg );
    			    	elem.add( cline );
    			    	drawingLayer.addElement( elem );
    			    	   			
-   				}
-		    	else {
+                } else {
 			
 		        	/*
-			     	* Make a copy of the existing element; update its attributes from
-			     	* those in the Attr Dialog;  replace the existing element with
-			     	*  the new one in the pgen resource - (This allows Undo/Redo)
+                     * Make a copy of the existing element; update its
+                     * attributes from those in the Attr Dialog; replace the
+                     * existing element with the new one in the pgen resource -
+                     * (This allows Undo/Redo)
 			     	*/            			  	     
 		        	Contours newElem = (Contours)elem.copy();   
            	          			
@@ -485,18 +510,21 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	if ( loc != null ) {
         	     
         		 String cls = ((ContoursAttrDlg)attrDlg).getActiveSymbolClass();
-           		 String type = ((ContoursAttrDlg)attrDlg).getActiveSymbolObjType();      	        		 
+                String type = ((ContoursAttrDlg) attrDlg)
+                        .getActiveSymbolObjType();
         		 ContourMinmax cmm = new ContourMinmax( loc, cls, type,
 		                                 new String[]{ ((ContoursAttrDlg)attrDlg).getLabel() } ); 
          	             	     
-         	    IAttribute mmTemp = ((ContoursAttrDlg)attrDlg).getMinmaxTemplate();
+                IAttribute mmTemp = ((ContoursAttrDlg) attrDlg)
+                        .getMinmaxTemplate();
 
         	    if ( mmTemp != null ) {    	        	
                     Symbol oneSymb =  (Symbol)(cmm.getSymbol());
  	        	    oneSymb.update( mmTemp );
     	        }
         	       	        
-        	    IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLabelTemplate();
         	    if ( lblTemp != null ) {
      	            Text lbl = cmm.getLabel();
      	            String[] oldText = lbl.getText();
@@ -508,16 +536,18 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
      	            lbl.setAuto( auto );
         	    }
    
-       	        //Check if we need to add to existing contours or create a new one
+                // Check if we need to add to existing contours or create a new
+                // one
                 elem = checkExistingContours();
        	             	     
          		 if ( elem == null ) {
 			    	/*
-			    	 * create a new element with attributes from the Attr dialog, and add
-			     	* it to the PGEN Resource
+                     * create a new element with attributes from the Attr
+                     * dialog, and add it to the PGEN Resource
 			     	*/
    			    	elem = (Contours)(def.create( DrawableType.CONTOURS, null,            		
- 				           "MET", "Contours", points, drawingLayer.getActiveLayer() ) );
+                            "MET", "Contours", points,
+                            drawingLayer.getActiveLayer()));
 			
    			    	cmm.setParent( elem );
    			    	elem.update( (ContoursAttrDlg)attrDlg );
@@ -525,13 +555,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	              			
    			    	drawingLayer.addElement( elem );
    			    	   			
-   				}
-		    	else {
+                } else {
 			
 		        	/*
-			     	* Make a copy of the existing element; update its attributes from
-			     	* those in the Attr Dialog;  replace the existing element with
-			     	*  the new one in the pgen resource - (This allows Undo/Redo)
+                     * Make a copy of the existing element; update its
+                     * attributes from those in the Attr Dialog; replace the
+                     * existing element with the new one in the pgen resource -
+                     * (This allows Undo/Redo)
 			     	*/            			
 		        	Contours newElem = (Contours)elem.copy();
            	          			
@@ -579,15 +609,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
        	            addContourLine = false;
     		    
         	        PgenUtil.setSelectingMode();
-        	    }
-        	    else {
+                } else {
                     
                     // start a new Contours element - new points will be drawn
         	        // as new ContourLine in a new Contours element.
        	            if ( !addContourLine ) {
       	        	    elem = null;
-        	        }
-        	        else { //back to selecting
+                    } else { // back to selecting
         	            PgenUtil.setSelectingMode();
        	            }
         	    } 
@@ -603,17 +631,22 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	
         	if ( points != null && points.size() > 1 ) {
         	     
-       		    ContourCircle cmm = new ContourCircle( points.get( 0 ), points.get( 1 ),
+                ContourCircle cmm = new ContourCircle(
+                        points.get(0),
+                        points.get(1),
 		                                 new String[]{ ((ContoursAttrDlg)attrDlg).getLabel() } ,
 		                                 ((ContoursAttrDlg)attrDlg).hideCircleLabel() );       	     
        	        
-       		    IAttribute circleTemp = (((ContoursAttrDlg)attrDlg).getCircleTemplate());
+                IAttribute circleTemp = (((ContoursAttrDlg) attrDlg)
+                        .getCircleTemplate());
     	        if ( circleTemp != null ) {    	        	
                     cmm.getCircle().setColors( circleTemp.getColors() );
-                    ((Arc)cmm.getCircle()).setLineWidth( circleTemp.getLineWidth() );
+                    ((Arc) cmm.getCircle()).setLineWidth(circleTemp
+                            .getLineWidth());
     	        }
        	       	        
-        	    IAttribute lblTemp = ((ContoursAttrDlg)attrDlg).getLabelTemplate();
+                IAttribute lblTemp = ((ContoursAttrDlg) attrDlg)
+                        .getLabelTemplate();
         	    if ( lblTemp != null ) {
         	        Text lbl = cmm.getLabel();
 	        	        String[] oldText = lbl.getText();
@@ -625,16 +658,18 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
    	        	        lbl.setAuto( auto );
         	    }
 
-       	        //Check if we need to add to existing contours or create a new one
+                // Check if we need to add to existing contours or create a new
+                // one
                 elem = checkExistingContours();
         	             	     
          		 if ( elem == null ) {
 			    	/*
-			    	 * create a new element with attributes from the Attr dialog, and add
-			     	* it to the PGEN Resource
+                     * create a new element with attributes from the Attr
+                     * dialog, and add it to the PGEN Resource
 			     	*/
    			    	elem = (Contours)(def.create( DrawableType.CONTOURS, null,            		
- 				           "MET", "Contours", points, drawingLayer.getActiveLayer() ) );
+                            "MET", "Contours", points,
+                            drawingLayer.getActiveLayer()));
 			
    			    	cmm.setParent( elem );
    			    	elem.update( (ContoursAttrDlg)attrDlg );
@@ -642,13 +677,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         	              			
  			    	drawingLayer.addElement( elem );
    			    	   			
-   				}
-		    	else {
+                } else {
 			
 		        	/*
-			     	* Make a copy of the existing element; update its attributes from
-			     	* those in the Attr Dialog;  replace the existing element with
-			     	*  the new one in the pgen resource - (This allows Undo/Redo)
+                     * Make a copy of the existing element; update its
+                     * attributes from those in the Attr Dialog; replace the
+                     * existing element with the new one in the pgen resource -
+                     * (This allows Undo/Redo)
 			     	*/            			
 		        	Contours newElem = (Contours)elem.copy();
            	          			
@@ -677,30 +712,34 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
 
         }
         
-        
 		/*
-		 * Loop through current layer and see if there is an same type of Contours.
+         * Loop through current layer and see if there is an same type of
+         * Contours.
 		 * 
-		 * If yes, show a warning message and ask for confirmation either add to the
-		 * existing contours or draw a new Cnntours.
+         * If yes, show a warning message and ask for confirmation either add to
+         * the existing contours or draw a new Cnntours.
 		 */
         private Contours checkExistingContours() {
         	
         	Contours existingContours = elem;
        	    
-    		//Loop through current layer and see if there is an same type of Contours.
-    		//If yes, show a warning message and ask for confirmation either add to the
+            // Loop through current layer and see if there is an same type of
+            // Contours.
+            // If yes, show a warning message and ask for confirmation either
+            // add to the
     		//existing contours or draw a new Contours.
         	if ( existingContours == null ) {
         		
-        		Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+                Iterator<AbstractDrawableComponent> it = drawingLayer
+                        .getActiveLayer().getComponentIterator();
         		while( it.hasNext() ) {
         			AbstractDrawableComponent adc = it.next();
         			if ( adc instanceof Contours && !(adc instanceof Outlook) ) {
         				Contours thisContour = (Contours)adc;
         				ContoursAttrDlg thisDlg = (ContoursAttrDlg)attrDlg;
-        				if ( thisContour.getParm().equals( thisDlg.getParm() ) &&
-        					 thisContour.getLevel().equals( thisDlg.getLevel() ) ) {
+                        if (thisContour.getParm().equals(thisDlg.getParm())
+                                && thisContour.getLevel().equals(
+                                        thisDlg.getLevel())) {
         				    existingContours = (Contours)adc;
         				    break;
         				}
@@ -708,14 +747,16 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements Command
         		}
 
         		if ( existingContours != null ) {
-        			MessageDialog msgDlg = new MessageDialog( 
-        					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-        					"Warning!", null, "There is another [" + existingContours.getParm() +
-        					        "," + existingContours.getLevel() +
-        					        "] Contours element in this layer.\n" +
-        							"Do you want to add to it or create a new one?",
+                    MessageDialog msgDlg = new MessageDialog(PlatformUI
+                            .getWorkbench().getActiveWorkbenchWindow()
+                            .getShell(), "Warning!", null, "There is another ["
+                            + existingContours.getParm() + ","
+                            + existingContours.getLevel()
+                            + "] Contours element in this layer.\n"
+                            + "Do you want to add to it or create a new one?",
         					MessageDialog.INFORMATION, 
-        					new String[]{ "Add to Existing One", "Create a New One" }, 0 );
+                            new String[] { "Add to Existing One",
+                                    "Create a New One" }, 0);
         			msgDlg.open();
                     
         			//start a new Contours.

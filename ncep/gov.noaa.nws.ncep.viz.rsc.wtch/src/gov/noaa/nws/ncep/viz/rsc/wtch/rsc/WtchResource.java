@@ -51,6 +51,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct. 26, 2011          Michael Gao  Initial creation.
  * 05/23/2012     785     Q. Zhou      Added getName for legend.
+ * 08/30/12       853     Q. Zhou      Displayed watch number. Modified time in getWatchLabelList().
+                                       Fixed label colorCode not change problem. Fixed colorCode not change back problem.
  * </pre>
  * 
  * @author mgao 
@@ -595,7 +597,7 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 		List<String> watchLabelStringList = getWatchLabelList(wtchRscDataObj, wtchResourceData); 
 		if(isThereALabelForDrawing(watchLabelStringList)) {
 			drawLabel(wtchRscDataObj, watchLabelStringList, target, 
-					paintProps, lineColor); 
+					paintProps, watchLineColor); 
 		}
 	}
 	
@@ -650,14 +652,15 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 				watchLabelStringList.add(String.valueOf(watchNumber)); 
 			}
 		}
-		
 		/*
 		 * Now check and append the event start and end time
 		 */
 		if(wtchResourceData.getWatchBoxTimeEnable()) {
 			DataTime watchEventDataTime = wtchRscDataObj.getDataTime(); 
 			String watchBoxTimeString = getTimeValueByDataTime(watchEventDataTime); 
-			watchLabelStringList.add(watchBoxTimeString); 
+			
+			String modifiedTime = watchBoxTimeString.substring(0,2) + watchBoxTimeString.substring(3,8) + watchBoxTimeString.substring(9,11);
+			watchLabelStringList.add(modifiedTime); //12:15-21:00 -> 1215-2100
 		}
 		return watchLabelStringList;  
 	}
@@ -735,8 +738,9 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 			RGB defaultLineColor, int defaultLineWidth) {
 		RGB lineColor = defaultLineColor; 
 		int lineWidth = defaultLineWidth; 
-		
 		int watchNumber = wtchRscDataObj.watchNumber; 
+		
+		if(wtchResourceData.getColorCodeEnable()){
 		int lastDigitOfWatchNumber = watchNumber%10; 
 		switch(lastDigitOfWatchNumber) {
 			case 0:
@@ -800,6 +804,19 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 				}
 			break; 
 		}
+		}
+		
+		else {
+			if (wtchRscDataObj.reportType.equalsIgnoreCase("SEVERE_THUNDERSTORM_WATCH")){
+				lineColor       = wtchResourceData.thunderstormColor;
+				lineWidth = wtchResourceData.getThunderstormLineWidth();				
+			} 
+			else if (wtchRscDataObj.reportType.equalsIgnoreCase("TORNADO_WATCH_OUTLINE_UPDATE")){
+				lineColor       = wtchResourceData.tornadoColor;
+				lineWidth = wtchResourceData.getTornadoLineWidth();
+			}
+		}
+		
 		LineColorAndWidth lineColorAndWidth = new LineColorAndWidth(lineColor, lineWidth);
 		return lineColorAndWidth; 
 	}
@@ -822,10 +839,10 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 			double[] labelPix = descriptor.worldToPixel( labelLatLon );
 			try {
 				graphicTarget.drawStrings(font, textArray,   
-						labelPix[0], labelPix[1]+3*ratio, 0.0, TextStyle.NORMAL,
+						labelPix[0], labelPix[1]+4*ratio, 0.0, TextStyle.NORMAL,
 						new RGB[] {labelColor, labelColor, labelColor},
 						HorizontalAlignment.LEFT, 
-						VerticalAlignment.MIDDLE );
+						VerticalAlignment.TOP );
 			} catch(VizException vize){
 				logger.error("VizException is thrown when trying to drawLabel for WATCH, error=" + vize.getMessage());
 			}

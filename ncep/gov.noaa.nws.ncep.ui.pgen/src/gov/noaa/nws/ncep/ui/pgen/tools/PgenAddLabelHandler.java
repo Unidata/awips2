@@ -105,6 +105,8 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     @Override	
     public boolean handleMouseDown(int anX, int aY, int button) {
     	
+    	if ( !drawingLayer.isEditable())  return false;
+
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(anX, aY);
     	if ( loc == null || shiftDown) return false;
@@ -246,6 +248,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseMove(int x, int y) {
+    	if ( !drawingLayer.isEditable())  return false;
 
     	LabeledLine l = prevTool.getLabeledLine(); 
     	if(l!=null && l instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp)
@@ -271,7 +274,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-		if ( shiftDown ) return false;
+		if ( !drawingLayer.isEditable()|| shiftDown ) return false;
 		else return true;	}
 
 	/**

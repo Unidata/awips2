@@ -118,6 +118,7 @@ public class NsharpMapMouseHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseUp(int x, int y, int button) {
+    	if ( !NsharpMapResource.getOrCreateNsharpMapResource().isEditable()) return false;
     	//System.out.println("NsharpMapMouseHandler handleMouseUp called");
        	// button 1 is left mouse button
     	if (button == 1 ){

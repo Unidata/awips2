@@ -1,8 +1,0 @@
-legend_color=RGB {200, 200, 200}
-colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
-imageType=Polar 3.7u
-displayUnitStr=IRPixel
-alpha=1.0
-brightness=1.0
-contrast=1.0

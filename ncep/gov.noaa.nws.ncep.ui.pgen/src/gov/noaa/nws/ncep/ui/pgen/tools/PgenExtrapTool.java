@@ -87,6 +87,7 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
          */
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
+        	if ( !isResourceEditable() ) return false;
        	
         	preempt = false;
         	
@@ -162,7 +163,7 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			if ( shiftDown ) return false;
+			if ( !isResourceEditable() || shiftDown ) return false;
 			else return preempt;
 		}
 

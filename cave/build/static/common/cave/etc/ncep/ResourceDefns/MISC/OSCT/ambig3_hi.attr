@@ -1,0 +1,26 @@
+! Attributes for OSCAT - High Resolution - Ambiguity 3
+!
+! frame interval in minutes
+! the reportType could alternatively be set in the .prm file
+reportType=oscat-hi-ambig3
+
+colorBar1=@ColorBars/SCAT/ambig3ColorBar1.xml
+colorBar2=@ColorBars/SCAT/ambig3ColorBar2.xml
+! 
+skipEnable=false
+skipValue=5
+densityValue=50
+timeStampEnable=true
+timeStampColor=RGB {255, 255, 255}
+timeStampInterval=30
+timeStampLineWidth=1
+arrowStyle=WIND_BARB
+arrowWidth=1
+arrowSize=2
+headSize=4
+highWindSpeedEnable=true
+lowWindSpeedEnable=true
+rainFlagEnable=true
+availabilityFlagEnable=true
+use2ndColorForRainEnable=false
+plotCirclesForRainEnable=true

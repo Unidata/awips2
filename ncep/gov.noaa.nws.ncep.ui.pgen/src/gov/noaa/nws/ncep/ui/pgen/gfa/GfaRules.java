@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 										pre-load it when PGEN is activated.
  * 07/11					J. Wu		Remove smears with empty state list.
  * 03/12	    #601		J. Wu		Fixed conditional wording for "contgByd".
+ * 06/12	    TTR393		J. Wu		Adjust algorithm in "processMaybe" to spped
+ *                                      up processing by 200 times.
  * 
  * </pre>
  * 
@@ -902,15 +904,29 @@ public class GfaRules {
 				// 
 				// ratio = (Outlook Area - Intersect Area)/ State Area
 				// 
-				Geometry a = airmetP.intersection(stateP);
+				//  June, 2012 - adjust algorithm to find the ratio due to high-resolution state bounds.
+				//
+				//  Prevoius - Intersection Area = (A^S) ^ (O^S)
+				//  Now      - Intersection Area = (A^O)^S
+				//
+				// 
+				Geometry a = airmetP.intersection( outlookP );
+				if ( a == null ) continue;
+				
 				Geometry o = outlookP.intersection(stateP);
-				Geometry i = a.intersection(o);
+				
+				Geometry i = a.intersection( stateP );
+				if ( i == null ) continue;
 				
 				double oArea = PgenUtil.getSphPolyArea(o);
 				double iArea = PgenUtil.getSphPolyArea(i);
-				double sArea = PgenUtil.getSphPolyArea(stateP);
 				
-				double ratio = (oArea - iArea)/sArea;
+				double ratio = 0.0;
+				if ( (oArea - iArea) > 0.0 ) {
+				double sArea = PgenUtil.getSphPolyArea(stateP);
+				     ratio = (oArea - iArea)/sArea;
+				}
+				
 				if (ratio >= gfaOtlkgenRatio) return "YES";
 				
 			} else {

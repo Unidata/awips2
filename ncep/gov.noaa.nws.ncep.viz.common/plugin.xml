@@ -15,13 +15,19 @@
    <extension
          point="org.eclipse.ui.preferencePages">   
       <page
-            class="gov.noaa.nws.ncep.viz.common.NcepPreferences"
-            id="org.eclipse.jface.Prerences"
+            class="gov.noaa.nws.ncep.viz.common.preferences.NcepPreferences"
+            id="gov.noaa.nws.ncep.viz.common.nceppreferences"
             name="NCEP">
       </page>   
       <page
-            category="org.eclipse.jface.Prerences"
-            class="gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences"
+            category="gov.noaa.nws.ncep.viz.common.nceppreferences"
+            class="gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage"
+            id="gov.noaa.nws.ncep.viz.common.NcepGeneralPreferencesPage"
+            name="General">
+      </page>
+      <page
+            category="gov.noaa.nws.ncep.viz.common.nceppreferences"
+            class="gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences"
             id="gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences"
             name="Data Area">
       </page>

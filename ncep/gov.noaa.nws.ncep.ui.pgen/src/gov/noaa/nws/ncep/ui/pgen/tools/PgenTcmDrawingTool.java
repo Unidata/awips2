@@ -113,18 +113,13 @@ public class PgenTcmDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
         	//  Check if mouse is in geographic extent
         	//Coordinate loc = mapEditor.translateClick(anX, aY);
         	
         	if ( button == 1 ) { 
                 
-        	 	// create an element.
-    	//		elem = (DrawableElement)def.create(DrawableType.TCM_QUATRO, (IAttribute)attrDlg,
-        //			        pgenCategory, pgenType, loc,
-        //			        drawingLayer.getActiveLayer());
-    	//		drawingLayer.addElement(elem);
-    			
                 return false;
                 
             }

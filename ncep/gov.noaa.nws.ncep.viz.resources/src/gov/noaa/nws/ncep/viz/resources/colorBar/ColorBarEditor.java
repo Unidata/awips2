@@ -1,16 +1,12 @@
 package gov.noaa.nws.ncep.viz.resources.colorBar;
 
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.ui.display.IColorBar;
-import gov.noaa.nws.ncep.viz.ui.display.IColorBar.ColorBarAnchorLocation;
-import gov.noaa.nws.ncep.viz.ui.display.IColorBar.ColorBarOrientation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
 
 import java.util.ArrayList;
 
-import javax.measure.unit.Unit;
-
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -22,7 +18,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -44,12 +39,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
+
 
 /**
-// This widget is used to edit ColorBars. ColorBars can be used on image based resources or on non-image
-// resources and the behaviour is slightly different in each case. For non-images, a colorMap is used to create
-// the intervals and associated colors while for images the colors are taken from the colorMap.
+ * This widget is used to edit ColorBars  for non-imagery resources.
+ *
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -57,6 +51,15 @@ import org.eclipse.ui.PlatformUI;
  * ------------ ----------  ----------- --------------------------
  * 03/21/10      #259        Greg Hull    Initial Creation.
  * 09/29/11      #248        Greg Hull    dispose()
+ * 07/17/12      #743        Archana      Refactored the packages for 
+ *                                        ColorBarAnchorLocation and ColorBarOrientation
+ * 07/26/12      #797        Archana      Removed the boolean updatingIntervals,
+ *                                        added the methods addModifyListenersForSpinners()
+ *                                        and removeModifyListenersForSpinners()
+ *                                        Updated the modifyEvent() for both max/min interval spinners to
+ *                                        exit if the spinners are set to the MAX/MIN Integer values respectively. 
+ *                                           
+ *                                           
  * 
  * </pre>
  * 
@@ -66,9 +69,9 @@ import org.eclipse.ui.PlatformUI;
 
 public class ColorBarEditor extends Composite {
 	private final int CBAR_XOFF = 15;	
-	private final int CBAR_YOFF = 50;
+//	private final int CBAR_YOFF = 50;
 	private ArrayList<Rectangle> colorBarRects = null;
-	private ArrayList<Float> intrvlsToLabel = null;
+//	private ArrayList<Float> intrvlsToLabel = null;
 	private int seldIntrvl = 0;
 	
 	private int dragXvalue = 0; 
@@ -83,13 +86,20 @@ public class ColorBarEditor extends Composite {
 
 	private Point canvasSize = null;
 		
-	private ArrayList<Unit<?>> availUnits;
+//	private ArrayList<Unit<?>> availUnits;
 	
 	private Float pixPerUnit = 1.0f;
 	
 	private ColorBarAnchorLocation[] availAnchorLocs = new ColorBarAnchorLocation[] { 
-		ColorBarAnchorLocation.UpperLeft, ColorBarAnchorLocation.UpperRight,
-		ColorBarAnchorLocation.LowerLeft, ColorBarAnchorLocation.LowerRight
+		ColorBarAnchorLocation.UpperLeft,
+//		ColorBarAnchorLocation.UpperCenter,
+		ColorBarAnchorLocation.UpperRight,
+//		ColorBarAnchorLocation.CenterLeft,
+//		ColorBarAnchorLocation.CenterCenter,
+//		ColorBarAnchorLocation.CenterRight,
+		ColorBarAnchorLocation.LowerLeft,
+//		ColorBarAnchorLocation.LowerCenter,
+		ColorBarAnchorLocation.LowerRight
 	};
 	
 	final Combo orientationCombo;
@@ -124,13 +134,13 @@ public class ColorBarEditor extends Composite {
 	
 	// If the colorbar applies to a color mappable image.
 	// In this case the 
-	private Boolean applyToImage = false; // this
+//	private Boolean applyToImage = false; // this
 	
 	private Display colorDevice;
 	
 	private double scaleMult = 1.0;
 	
-	private boolean updatingIntervals = false;
+//	private boolean updatingIntervals = false;
 	
 	private final Listener mouseLstnr = new Listener() {
 		
@@ -153,7 +163,7 @@ public class ColorBarEditor extends Composite {
 						// first check to see if clicking on the edge of an interval
 						// (give them a little room for error)
 						// (can't drag the last interval)
-						if( !applyToImage && colorBar.getDrawToScale() ) {
+						if(  colorBar.getDrawToScale() ) {
 
 							if( intrvlIndx != colorBarRects.size()-1  &&
 									Math.abs( e.x - rect.x-rect.width ) <= 1 ) {
@@ -423,21 +433,21 @@ public class ColorBarEditor extends Composite {
         // (Some widgets need to be 'final' since they are access by listers
         // but java complains if they are not set in the constructor so I'm 
         // creating them here. Don't like it but don't know a prefered way around it.)
-		if( applyToImage ) {
-			pixelNumTxt = new Text( topForm, SWT.BORDER | SWT.READ_ONLY );
-			labelPixelBtn = new Button( topForm, SWT.CHECK );
-			createImageCbarWidgets( );
-
-			intrvlMinSpnr = null;
-			intrvlMaxSpnr = null;
-			negInfIntrvlBtn = null;
-			posInfIntrvlBtn = null;
-			negInfIntrvlTxt = null;
-			posInfIntrvlTxt = null;
-			
-			intrvlColorSelector.getButton().setEnabled(false);
-		}
-		else {
+//		if( applyToImage ) {
+//			pixelNumTxt = new Text( topForm, SWT.BORDER | SWT.READ_ONLY );
+//			labelPixelBtn = new Button( topForm, SWT.CHECK );
+//			createImageCbarWidgets( );
+//
+//			intrvlMinSpnr = null;
+//			intrvlMaxSpnr = null;
+//			negInfIntrvlBtn = null;
+//			posInfIntrvlBtn = null;
+//			negInfIntrvlTxt = null;
+//			posInfIntrvlTxt = null;
+//			
+//			intrvlColorSelector.getButton().setEnabled(false);
+//		}
+//		else {
 			//labelColorComp.setVisible( false );
 			labelPixelBtn = null;
 			pixelNumTxt = null;
@@ -448,7 +458,7 @@ public class ColorBarEditor extends Composite {
 			negInfIntrvlTxt = new Text( topForm, SWT.BORDER | SWT.READ_ONLY );
 			posInfIntrvlTxt = new Text( topForm, SWT.BORDER | SWT.READ_ONLY );
 			createNonImageCbarWidgets();
-		}
+//		}
 		
 
         initWidgets();
@@ -458,78 +468,78 @@ public class ColorBarEditor extends Composite {
 		updateSelectedInterval();
 	}
 	
-	private void createImageCbarWidgets() {
-        Composite topForm = this;
-    	FormData fd;
-    	Button prevIntrvl = new Button( topForm, SWT.PUSH );
-    	fd = new FormData();
-    	prevIntrvl.setText("   <   ");
-		fd.top = new FormAttachment( colorComp, 0, SWT.TOP );
-		fd.right = new FormAttachment( colorComp, -30, SWT.LEFT );
-		prevIntrvl.setLayoutData( fd );
-    	
-		Button nextIntrvl = new Button( topForm, SWT.PUSH );
-    	fd = new FormData();
-    	nextIntrvl.setText("   >   ");
-		fd.top = new FormAttachment( colorComp, 0, SWT.TOP );
-		fd.left = new FormAttachment( colorComp, 30, SWT.RIGHT );
-		nextIntrvl.setLayoutData( fd );
-    		
-    	fd = new FormData();
-		fd.top = new FormAttachment( prevIntrvl, 0, SWT.TOP );
-		fd.right = new FormAttachment( prevIntrvl, -30, SWT.LEFT );
-		fd.width = 30;
-		pixelNumTxt.setLayoutData( fd );
-		pixelNumTxt.setBackground( getParent().getBackground() );
-
-		Label pixNumLbl = new Label( topForm, SWT.None );
-		pixNumLbl.setText("Pixel");
-    	fd = new FormData();
-		fd.bottom = new FormAttachment( pixelNumTxt, 0, SWT.TOP );
-		fd.left = new FormAttachment( pixelNumTxt, 0, SWT.LEFT );
-		pixNumLbl.setLayoutData( fd );
-
-		labelPixelBtn.setText("Label Pixel");
-    	fd = new FormData();
-		fd.top = new FormAttachment( nextIntrvl, 2, SWT.TOP );
-		fd.left = new FormAttachment( nextIntrvl, 30, SWT.RIGHT );
-		labelPixelBtn.setLayoutData( fd );
-
-		prevIntrvl.addSelectionListener( new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if( seldIntrvl > 0 ) {
-					seldIntrvl--;
-					computeColorBarRectangles();
-					updateSelectedInterval();
-				}
-			}
-		});
-
-		nextIntrvl.addSelectionListener( new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if( seldIntrvl < colorBar.getNumIntervals()-1 ) {
-					seldIntrvl++;
-					computeColorBarRectangles();
-					updateSelectedInterval();
-				}
-			}
-		});
-		
-		labelPixelBtn.addSelectionListener( new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if( labelPixelBtn.getSelection() ) {
-					colorBar.labelInterval(seldIntrvl, Integer.toString(seldIntrvl));
-				}
-				else {
-					colorBar.labelInterval(seldIntrvl, null);
-				}
-				canvas.redraw();
-			}
-		});
-	}
+//	private void createImageCbarWidgets() {
+//        Composite topForm = this;
+//    	FormData fd;
+//    	Button prevIntrvl = new Button( topForm, SWT.PUSH );
+//    	fd = new FormData();
+//    	prevIntrvl.setText("   <   ");
+//		fd.top = new FormAttachment( colorComp, 0, SWT.TOP );
+//		fd.right = new FormAttachment( colorComp, -30, SWT.LEFT );
+//		prevIntrvl.setLayoutData( fd );
+//    	
+//		Button nextIntrvl = new Button( topForm, SWT.PUSH );
+//    	fd = new FormData();
+//    	nextIntrvl.setText("   >   ");
+//		fd.top = new FormAttachment( colorComp, 0, SWT.TOP );
+//		fd.left = new FormAttachment( colorComp, 30, SWT.RIGHT );
+//		nextIntrvl.setLayoutData( fd );
+//    		
+//    	fd = new FormData();
+//		fd.top = new FormAttachment( prevIntrvl, 0, SWT.TOP );
+//		fd.right = new FormAttachment( prevIntrvl, -30, SWT.LEFT );
+//		fd.width = 30;
+//		pixelNumTxt.setLayoutData( fd );
+//		pixelNumTxt.setBackground( getParent().getBackground() );
+//
+//		Label pixNumLbl = new Label( topForm, SWT.None );
+//		pixNumLbl.setText("Pixel");
+//    	fd = new FormData();
+//		fd.bottom = new FormAttachment( pixelNumTxt, 0, SWT.TOP );
+//		fd.left = new FormAttachment( pixelNumTxt, 0, SWT.LEFT );
+//		pixNumLbl.setLayoutData( fd );
+//
+//		labelPixelBtn.setText("Label Pixel");
+//    	fd = new FormData();
+//		fd.top = new FormAttachment( nextIntrvl, 2, SWT.TOP );
+//		fd.left = new FormAttachment( nextIntrvl, 30, SWT.RIGHT );
+//		labelPixelBtn.setLayoutData( fd );
+//
+//		prevIntrvl.addSelectionListener( new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				if( seldIntrvl > 0 ) {
+//					seldIntrvl--;
+//					computeColorBarRectangles();
+//					updateSelectedInterval();
+//				}
+//			}
+//		});
+//
+//		nextIntrvl.addSelectionListener( new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				if( seldIntrvl < colorBar.getNumIntervals()-1 ) {
+//					seldIntrvl++;
+//					computeColorBarRectangles();
+//					updateSelectedInterval();
+//				}
+//			}
+//		});
+//		
+//		labelPixelBtn.addSelectionListener( new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				if( labelPixelBtn.getSelection() ) {
+//					colorBar.labelInterval(seldIntrvl, Integer.toString(seldIntrvl));
+//				}
+//				else {
+//					colorBar.labelInterval(seldIntrvl, null);
+//				}
+//				canvas.redraw();
+//			}
+//		});
+//	}
 	
 	private void createNonImageCbarWidgets() {
         Composite topForm = this;
@@ -694,45 +704,18 @@ public class ColorBarEditor extends Composite {
 			}
 		});
 
-		intrvlMinSpnr.addModifyListener( new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if( updatingIntervals ) {
-        			return;
-        		}
-				Float minVal = (float)intrvlMinSpnr.getSelection() / (float)scaleMult;
-////				 This should not happen since 
-//				if( seldIntrvl != 0 && minVal <= colorBar.getIntervalMin(seldIntrvl-1 )) {
-//					System.out.println("Can't set Interval min value to be less than the prev interval");
-//					return;
-//				}
-				colorBar.setIntervalMin(seldIntrvl, minVal);
-				computeColorBarRectangles();
-			}
-		});
+		intrvlMinSpnr.addModifyListener( minSpnrListener);
 		
-		intrvlMaxSpnr.addModifyListener(new ModifyListener() {
-        	@Override
-        	public void modifyText(ModifyEvent e) {
-        		if( updatingIntervals ) {
-        			return;
-        		}
-        		
-				Float maxVal = (float)intrvlMaxSpnr.getSelection() / (float)scaleMult;
+		intrvlMaxSpnr.addModifyListener(maxSpnrListener);        
 
-				colorBar.setIntervalMax(seldIntrvl, maxVal);
-				computeColorBarRectangles();
-        	}			
-        });        
-        
-		updatingIntervals = true;
+		removeModifyListenersForSpinners();
 		intrvlMinSpnr.setDigits( colorBar.getNumDecimals() );
 		intrvlMinSpnr.setIncrement(1);
 
 		intrvlMaxSpnr.setDigits( colorBar.getNumDecimals() );
 		intrvlMaxSpnr.setIncrement(1);
 
-		updatingIntervals = false;
+		addModifyListenersForSpinners();
 
 //		intrvlMinSpnr.addSelectionListener( new SelectionListener() {
 //			@Override
@@ -792,7 +775,7 @@ public class ColorBarEditor extends Composite {
 
 		// if there is a colorMap then this is for images and this widget will
 		// be taylored to image colorBars.
-		applyToImage = (colorBar instanceof ColorBarFromColormap == true);
+//		applyToImage = (colorBar instanceof ColorBarFromColormap == true);
 		
 		colorBar.setColorDevice( colorDevice );
 		
@@ -888,10 +871,10 @@ public class ColorBarEditor extends Composite {
         	}
         });
 
-        if( applyToImage ) {
-        	drawToScaleBtn.setVisible( false );
-        }
-        else {
+//        if( applyToImage ) {
+//        	drawToScaleBtn.setVisible( false );
+//        }
+//        else {
         	drawToScaleBtn.setSelection( colorBar.getDrawToScale() );
 
         	drawToScaleBtn.addSelectionListener( new SelectionAdapter() {
@@ -900,7 +883,7 @@ public class ColorBarEditor extends Composite {
         			computeColorBarRectangles();
         		}
         	});
-        }
+//        }
         
 		canvas.setFont(font);
 		canvas.setBackground( canvasColor );
@@ -1051,13 +1034,13 @@ public class ColorBarEditor extends Composite {
 		}
 
 		// for image cmaps draw a border around the colorbar
-		if( applyToImage ) {
-			gc.setForeground( labelColor );
-			Rectangle r1 = colorBarRects.get(0);
-			Rectangle r2 = colorBarRects.get(colorBarRects.size()-1);
-
-			gc.drawRectangle(r1.x-1, r1.y-1, r2.x+r2.width+1-r1.x, r2.height+1 );
-		}
+//		if( applyToImage ) {
+//			gc.setForeground( labelColor );
+//			Rectangle r1 = colorBarRects.get(0);
+//			Rectangle r2 = colorBarRects.get(colorBarRects.size()-1);
+//
+//			gc.drawRectangle(r1.x-1, r1.y-1, r2.x+r2.width+1-r1.x, r2.height+1 );
+//		}
 
 		Rectangle seldRect=colorBarRects.get(seldIntrvl);
 
@@ -1077,12 +1060,12 @@ public class ColorBarEditor extends Composite {
 					seldRect.y-textHeight*2, true );
 		}
 		else {
-			if( applyToImage ) {
-				gc.drawRectangle(seldRect.x, seldRect.y-2, seldRect.width, seldRect.height+3 );
-			}
-			else {
+//			if( applyToImage ) {
+//				gc.drawRectangle(seldRect.x, seldRect.y-2, seldRect.width, seldRect.height+3 );
+//			}
+//			else {
 				gc.drawRectangle(seldRect.x, seldRect.y-1, seldRect.width, seldRect.height+2 );
-			}			
+//			}			
 		}
 
 		// if showing the labels, draw them based on whether this for an image or not
@@ -1090,20 +1073,20 @@ public class ColorBarEditor extends Composite {
 
 			gc.setForeground( labelColor );
 
-			if( applyToImage ) {
-				for( int pix=0 ; pix<colorBar.getNumIntervals() ; pix++ ) {
-					if( colorBar.isIntervalLabeled(pix) ) {
-						String labelStr = Integer.toString(pix);
-						int textWidth = labelStr.length()*charWidth;
-						Rectangle pixRect = colorBarRects.get(pix);
-						int textX = pixRect.x-textWidth/2;
-						int textY = pixRect.y-textHeight;
-						gc.drawText( labelStr, textX, textY, true );
-						gc.drawLine( pixRect.x, pixRect.y, pixRect.x, pixRect.y+pixRect.height );
-					}
-				}
-			}
-			else {
+//			if( applyToImage ) {
+//				for( int pix=0 ; pix<colorBar.getNumIntervals() ; pix++ ) {
+//					if( colorBar.isIntervalLabeled(pix) ) {
+//						String labelStr = Integer.toString(pix);
+//						int textWidth = labelStr.length()*charWidth;
+//						Rectangle pixRect = colorBarRects.get(pix);
+//						int textX = pixRect.x-textWidth/2;
+//						int textY = pixRect.y-textHeight;
+//						gc.drawText( labelStr, textX, textY, true );
+//						gc.drawLine( pixRect.x, pixRect.y, pixRect.x, pixRect.y+pixRect.height );
+//					}
+//				}
+//			}
+//			else {
 				int numIntrvs = colorBar.getNumIntervals();
 				int textWidth = 0;
 				int prevLabelExtent = 0;
@@ -1128,13 +1111,13 @@ public class ColorBarEditor extends Composite {
 					prevLabelExtent = textX+textWidth;
 				}
 				
-				if( !applyToImage ) {
+//				if( !applyToImage ) {
 					String labelStr = colorBar.getLabelString( numIntrvs );
 					gc.drawText( labelStr, 
 							colorBarRects.get(numIntrvs-1).x+colorBarRects.get(numIntrvs-1).width-textWidth/2,
 							colorBarRects.get(numIntrvs-1).y-textHeight, true );
-				}
-			}
+//				}
+//			}
 		}
 	}
 	
@@ -1153,18 +1136,18 @@ public class ColorBarEditor extends Composite {
 	// by setting the min/max or by inserting or removing an interval
 	// 
 	private void updateSelectedInterval() {
-		updatingIntervals = true;
+		removeModifyListenersForSpinners();
 		
 		RGB seldRGB = colorBar.getRGB(seldIntrvl);
 		if( seldRGB != null ) {
 			intrvlColorSelector.setColorValue( seldRGB );
 		}
 		
-		if( applyToImage ) {
-			pixelNumTxt.setText( Integer.toString( seldIntrvl) );
-			labelPixelBtn.setSelection( colorBar.isIntervalLabeled( seldIntrvl ) );
-		}
-		else {		
+//		if( applyToImage ) {
+//			pixelNumTxt.setText( Integer.toString( seldIntrvl) );
+//			labelPixelBtn.setSelection( colorBar.isIntervalLabeled( seldIntrvl ) );
+//		}
+//		else {		
 			int lastIntrvl = colorBar.getNumIntervals()-1;
 			
 			// wait to set these values in the Spinners since we first have to change the min/max  
@@ -1217,8 +1200,8 @@ public class ColorBarEditor extends Composite {
 			setIntervalMax( maxVal );
 
 			//intrvlMinSpnr.setTextLimit(limit);
-		}
-		updatingIntervals = false;
+//		}
+		addModifyListenersForSpinners();
 	}
 	
 	
@@ -1246,21 +1229,21 @@ public class ColorBarEditor extends Composite {
 	}
 	
 	// currently this is only used when a new colormap has been selected ....
-	public void reset( IColorBar newColorBar ){// ColorMap colorMap ) {//String cat, String cmapName ) {
-		if( colorBar != newColorBar ) {
-			// TODO : will need to complete this method by resetting everything 
-			System.out.println("colorBar != newColorbar");
-		}
-		
-		if( !applyToImage ) {
-			return;
-		}
-//	colorBar.removeAllLabels();
-	
-		seldIntrvl = 0;
-		computeColorBarRectangles();
-		updateSelectedInterval();
-	}
+//	public void reset( IColorBar newColorBar ){// ColorMap colorMap ) {//String cat, String cmapName ) {
+//		if( colorBar != newColorBar ) {
+//			// TODO : will need to complete this method by resetting everything 
+//			System.out.println("colorBar != newColorbar");
+//		}
+//		
+//		if( !applyToImage ) {
+//			return;
+//		}
+////	colorBar.removeAllLabels();
+//	
+//		seldIntrvl = 0;
+//		computeColorBarRectangles();
+//		updateSelectedInterval();
+//	}
 		
 	// 
 	private void setIntervalMin( Float newMin ) {
@@ -1300,4 +1283,47 @@ public class ColorBarEditor extends Composite {
 		if( pointerCursor != null ) pointerCursor.dispose();
 		if( dragIntrvlCursor != null ) dragIntrvlCursor.dispose();
 	}
+	
+	   public ModifyListener minSpnrListener = new ModifyListener() {
+	        @Override
+	        public void modifyText(ModifyEvent e) {
+
+               float intrvlValue = (float)intrvlMinSpnr.getSelection();
+	        	
+	        	if(intrvlValue == Integer.MIN_VALUE)
+	        		return;
+	        	
+	        	Float minVal = intrvlValue / (float)scaleMult;
+
+	            colorBar.setIntervalMin(seldIntrvl, minVal);
+	            computeColorBarRectangles();
+	        }
+	    };
+
+	        public ModifyListener maxSpnrListener = new ModifyListener() {
+	        @Override
+	        public void modifyText(ModifyEvent e) {
+	        	
+	        	float intrvlValue = (float)intrvlMaxSpnr.getSelection();
+	        	
+	        	if(intrvlValue == Integer.MAX_VALUE)
+	        		return;
+	        	
+	            Float maxVal = (float)intrvlMaxSpnr.getSelection() / (float)scaleMult;
+
+	            colorBar.setIntervalMax(seldIntrvl, maxVal);
+	            computeColorBarRectangles();
+	        }
+	    };
+
+	    private void addModifyListenersForSpinners() {
+	        intrvlMinSpnr.addModifyListener( minSpnrListener );
+	        intrvlMaxSpnr.addModifyListener( maxSpnrListener );
+	    }
+
+	    private void removeModifyListenersForSpinners() {
+	        intrvlMinSpnr.removeModifyListener( minSpnrListener );
+	        intrvlMaxSpnr.removeModifyListener( maxSpnrListener );
+	    }
+	
 }
