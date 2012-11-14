@@ -77,7 +77,7 @@ public class ResourceSelectionDialog extends Dialog {
     	
     	shell = new Shell( parent, style );
     	shell.setText( title );
-    	shell.setSize( 540, 520 ); // pack later
+    	shell.setSize( 600, 520 ); // pack later
 
     	GridLayout mainLayout = new GridLayout(1, true);
     	mainLayout.marginHeight = 1;

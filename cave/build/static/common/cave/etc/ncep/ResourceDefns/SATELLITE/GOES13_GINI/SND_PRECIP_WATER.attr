@@ -1,8 +1,0 @@
-legend_color=RGB {200, 200, 200}
-colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
-imageType=Sounder Based Derived Precipitable Water (PW)
-displayUnitStr=SounderPrecipWaterPixel
-alpha=1.0
-brightness=1.0
-contrast=1.0

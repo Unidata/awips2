@@ -153,7 +153,7 @@ public class NsharpParcelDialog extends Dialog {
 			//addParcelToList(mupPar);
 			
 		}*/
-	}
+		}
 	//private void addParcelToList(ParcelData parcel){
 	//	if(parcel!=null){
 	//		parcelList.add(parcel);

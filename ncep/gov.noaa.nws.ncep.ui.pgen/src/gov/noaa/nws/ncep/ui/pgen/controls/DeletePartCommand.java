@@ -18,7 +18,9 @@ import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
 import gov.noaa.nws.ncep.ui.pgen.PGenException;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
@@ -37,6 +39,7 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
  * 04/11			?		B. Yin		Changed element from MulitPoint to Line
  * 										(Re-factor IAttribute)
  * 05/11			#808	J. Wu		Update Gfa vor text
+ * 06/12			TTR102	B. Yin		Make it work for Jet
  *
  * </pre>
  * 
@@ -53,18 +56,18 @@ public class DeletePartCommand extends PgenCommand {
 	 * layer from which element should be modfified
 	 */
 //	private Layer layer;
-	private DECollection layer;
+	private DECollection parent;
 	
 	/*
 	 * drawable element to modified
 	 */
-	private Line element;
+	private AbstractDrawableComponent element;
 	
 	/*
 	 * elements after deleting
 	 */
-	private MultiPointElement element1 = null;
-	private MultiPointElement element2 = null;
+	private AbstractDrawableComponent element1 = null;
+	private AbstractDrawableComponent element2 = null;
 
 	/*
 	 * Two end point and locations of the deleting part 
@@ -135,8 +138,8 @@ public class DeletePartCommand extends PgenCommand {
 	//			if ( currLayer.getDrawables().contains(element) ) {
 		//			layer = currLayer;
 		
-				layer = (DECollection)element.getParent();
-					if (element.isClosedLine()){
+				parent = (DECollection)element.getParent();
+					if (((Line)element).isClosedLine()){
 						
 						deleteClosedPart();
 						
@@ -163,7 +166,7 @@ public class DeletePartCommand extends PgenCommand {
 	@Override
 	public void undo() throws PGenException {
 
-		if ( element.isClosedLine() ){
+		if ( !(element instanceof Jet) && ((Line)element).isClosedLine() ){
 			undeleteClosedPart();
 		}
 		else {
@@ -186,7 +189,7 @@ public class DeletePartCommand extends PgenCommand {
 			 * Both points selected were endpoints, remove whole element
 			 */
 			removeAll = true;
-			layer.removeElement( element );
+			parent.removeElement( element );
 			
 		}
 		else if ( lil.getStartIndex().compareTo( firstLoc ) == 0 ||
@@ -208,10 +211,10 @@ public class DeletePartCommand extends PgenCommand {
 				newPts.add(firstPt);
 			}
 			
-			element1.setPoints(newPts);
+			((MultiPointElement)element1).setPoints(newPts);
 			
-			layer.addElement(element1);
-			layer.removeElement(element);
+			parent.addElement(element1);
+			parent.removeElement(element);
 
 		}
 		else {
@@ -223,18 +226,46 @@ public class DeletePartCommand extends PgenCommand {
 				element1 = (MultiPointElement)element.copy();
 				ArrayList<Coordinate> new1 = new ArrayList<Coordinate>( points.subList(0, firstLoc.getSegmentIndex()+1 ));
 				new1.add( firstPt );
-				element1.setPoints( new1 );
+				((MultiPointElement)element1).setPoints( new1 );
 
 				element2 = (MultiPointElement)element.copy();
 				ArrayList<Coordinate> new2 = new ArrayList<Coordinate>();
 				new2.add( secondPt );
 				new2.addAll( points.subList( secondLoc.getSegmentIndex()+1, points.size()));
-				element2.setPoints( new2 );
+				((MultiPointElement)element2).setPoints( new2 );
 			}
 			
-			layer.addElement( element1 );
-			layer.addElement( element2 );
-			layer.removeElement(element);
+			if ( parent instanceof Jet ){
+				Jet jet1 = new Jet();
+				jet1.clear();
+				jet1.addElement(element1);
+				jet1.setPgenCategory(parent.getPgenCategory());
+				jet1.setPgenType(parent.getPgenType());
+
+				jet1.setSnapTool(((Jet)parent).getSnapTool());
+				
+				Jet jet2 = new Jet();
+				jet2.clear();
+				jet2.addElement(element2);
+				jet2.setSnapTool(((Jet)parent).getSnapTool());
+				jet2.setPgenCategory(parent.getPgenCategory());
+				jet2.setPgenType(parent.getPgenType());
+				
+				jet1.getSnapTool().addBarbHashFromAnotherJet(jet1, (Jet)parent);
+				jet2.getSnapTool().addBarbHashFromAnotherJet(jet2, (Jet)parent);
+				
+				jet1.getSnapTool().snapJet(jet1);
+				jet2.getSnapTool().snapJet(jet2);
+
+				element = parent;
+				parent = (DECollection) parent.getParent();
+				element1 = jet1;
+				element2 = jet2;
+			}
+			
+			parent.addElement( element1 );
+			parent.addElement( element2 );
+			parent.removeElement(element);
 			
 		}
 	}
@@ -252,28 +283,28 @@ public class DeletePartCommand extends PgenCommand {
 			//if there are more points between pt1 and pt2, remove the other part.
 			element1 = (MultiPointElement)element.copy();
 			if ( element1 instanceof Gfa ) {
-				element1.setClosed( true );
+				((MultiPointElement)element1).setClosed( true );
 			}
 			else {
-				element1.setClosed( false);				
+				((MultiPointElement)element1).setClosed( false);				
 			}
 			element1.getPoints().clear();
 			element1.getPoints().add( firstPt );
 			element1.getPoints().addAll(points.subList( firstLoc.getSegmentIndex()+1, secondLoc.getSegmentIndex()+1 ));
 			element1.getPoints().add( secondPt );
 			
-			layer.addElement(element1);
-			layer.removeElement(element);
+			parent.addElement(element1);
+			parent.removeElement(element);
 			
 		}
 		else {
 			
 			element1 = (MultiPointElement)element.copy();
 			if ( element1 instanceof Gfa ) {
-				element1.setClosed( true );
+				((MultiPointElement)element1).setClosed( true );
 			}
 			else {
-				element1.setClosed( false);				
+				((MultiPointElement)element1).setClosed( false);				
 			}
 			element1.getPoints().clear();
 			element1.getPoints().add( secondPt );
@@ -281,8 +312,8 @@ public class DeletePartCommand extends PgenCommand {
 			element1.getPoints().addAll(points.subList(0, firstLoc.getSegmentIndex()+1 ));
 			element1.getPoints().add( firstPt );
 			
-			layer.addElement(element1);
-			layer.removeElement(element);
+			parent.addElement(element1);
+			parent.removeElement(element);
 			
 		}
 		
@@ -300,22 +331,29 @@ public class DeletePartCommand extends PgenCommand {
 		
 		if ( removeAll ){
 
-			layer.addElement(element);
+			parent.addElement(element);
 			removeAll = false;
 			
 		}
 		else if ( removeOneEnd ) {
 			
-			layer.addElement(element);
-			layer.removeElement(element1);
+			parent.addElement(element);
+			parent.removeElement(element1);
 			removeOneEnd = false;
 			
 		}
 		else if ( removeMiddle ){
 			
-			layer.removeElement(element1);
-			layer.removeElement(element2);
-			layer.addElement(element);
+			parent.removeElement(element1);
+			parent.removeElement(element2);
+			parent.addElement(element);
+			
+			if ( element instanceof Jet ){
+				parent = (Jet) element;
+				element = ((Jet)parent).getJetLine();
+				element1 = ((Jet)element1).getJetLine();
+				element2 = ((Jet)element2).getJetLine();
+			}
 			
 			removeMiddle = false;
 			
@@ -327,8 +365,8 @@ public class DeletePartCommand extends PgenCommand {
 	 */	
 	private void undeleteClosedPart(){
 		
-			layer.removeElement( element1);
-			layer.addElement( element );
+		parent.removeElement( element1);
+		parent.addElement( element );
 			
 	}
 

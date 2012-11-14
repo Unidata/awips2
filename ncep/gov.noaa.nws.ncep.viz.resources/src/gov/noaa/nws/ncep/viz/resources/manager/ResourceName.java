@@ -25,6 +25,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *  10/20/10                  Xilin Guo   Rename getCycleTimeStringFromDataTime to getTimeStringFromDataTime
  *  02/16/11      #408        Greg Hull   add 'backup' categories for obs/fcst surface/uair
  *  01/09/11      #561        Greg Hull   generated equals()
+ *  09/13/12      #860        Greg Hull   trim()
  *
  * </pre>
  * 
@@ -131,19 +132,13 @@ public class ResourceName {
 		
 	public ResourceName( String cat, String type, String group, String attrSet ) {
 		
-		setFullResourceName( cat + File.separator + 
-							 type + File.separator + 
-							 group + File.separator +
-							 (attrSet == null ? dfltAttrSetName : attrSet ) );				
+		setFullResourceName( cat.trim() + File.separator + 
+							 type.trim() + File.separator + 
+							 group.trim() + File.separator +
+							 (attrSet == null ? dfltAttrSetName : attrSet.trim() ) );				
 	}
 
-//	public String getFullResourceName() {
-//		return toString();
-//	}
-
 	public void setFullResourceName(String rscName) {
-//		this.rscName = rscName;
-		
 		String[] parts = rscName.split( File.separator );
 		// at minimum we need a c
 		if( parts == null || parts.length < 3 ) {
@@ -151,9 +146,9 @@ public class ResourceName {
 			return;
 		}
 		
-		rscCategory = parts[0];
-		rscType     = parts[1];
-		rscAttrSetName = parts[ parts.length-1 ];
+		rscCategory = parts[0].trim();
+		rscType     = parts[1].trim();
+		rscAttrSetName = parts[ parts.length-1 ].trim();
 		
 		// forecast resources have the cycle time after the attrSet without a separator
 		//
@@ -165,13 +160,14 @@ public class ResourceName {
 			setCycleTimeFromString( cycleTimeStr );
 			
 			rscAttrSetName = rscAttrSetName.substring(0, parenIndx );
+			rscAttrSetName = rscAttrSetName.trim();
 		}
 		else {
 			cycleTime = null;
 		}
 		
 		if( parts.length > 3 ) {
-			rscGroup = parts[2];
+			rscGroup = parts[2].trim();
 		}
 		else {
 			rscGroup = "";
@@ -198,7 +194,7 @@ public class ResourceName {
 	}
 
 	public void setRscCategory(String rscCategory) {
-		this.rscCategory = rscCategory;
+		this.rscCategory = (rscCategory == null ? "" : rscCategory.trim() );
 	}
 
 	public String getRscType() {
@@ -206,7 +202,7 @@ public class ResourceName {
 	}
 
 	public void setRscType(String rscType) {
-		this.rscType = rscType;
+		this.rscType = (rscType == null ? "" : rscType.trim() );
 	}
 
 	public String getRscGroup() {
@@ -214,23 +210,15 @@ public class ResourceName {
 	}
 
 	public void setRscGroup(String rscGroup) {
-		this.rscGroup = rscGroup;
+		this.rscGroup = (rscGroup == null ? "" : rscGroup.trim());
 	}
-
-//	public String getRscSecondaryGroup() {
-//		return rscSecondaryGroup;
-//	}
-//
-//	public void setRscSecondaryGroup(String rscSecondaryGroup) {
-//		this.rscSecondaryGroup = rscSecondaryGroup;
-//	}
 
 	public String getRscAttrSetName() {
 		return (rscAttrSetName == null ? "" : rscAttrSetName);
 	}
 
 	public void setRscAttrSetName(String rscAttrSetName) {
-		this.rscAttrSetName = rscAttrSetName;
+		this.rscAttrSetName = (rscAttrSetName == null ? "" : rscAttrSetName.trim() );
 	}
 	
 	public DataTime getCycleTime() {

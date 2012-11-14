@@ -1,3 +1,13 @@
+/*
+ * gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiMouseHandler
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 07/18/2012   #751       S. Gurung   Removed handleMouseDownMove(...) since this functionality
+ * 									   is handled by NcPanHandler.handleMouseDownMove(...).
+ * 
+ *                                     
+ */
 package gov.noaa.nws.ncep.ui.nctextui.rsc;
 
 import java.util.List;
@@ -58,7 +68,7 @@ public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
      *      int, int)
      *  handle left button, so user be able to shift map while it is down
      */
-    @Override
+   /* @Override
     public boolean handleMouseDownMove(int x, int y, int button) {
     	if (button == 1 ){
     		NCMapEditor mapEditor = NctextuiResource.getMapEditor();
@@ -80,7 +90,7 @@ public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
     	}
         return false;
             
-    }
+    }*/
     private String removeCR(String curStr){		
 		int i = ASCII_CR_VAL;
 		char asciiCr = (char)i;

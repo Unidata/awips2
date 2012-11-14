@@ -431,7 +431,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			for (IDisplayable each : elements)
 			{
 				try {
-					each.draw(target);
+					each.draw(target, paintProps);
 					each.dispose();
 				}
 				catch (Exception e) {
@@ -445,7 +445,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			for (IDisplayable each : elements)
 			{
 				try {
-					each.draw(target);
+					each.draw(target, paintProps);
 					each.dispose();
 				}
 				catch (Exception e) {

@@ -144,6 +144,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
+        	if ( !isResourceEditable() ) return false;
        
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -225,6 +226,8 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null || simulate ) return false;
@@ -264,7 +267,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
-        	if ( shiftDown || simulate ) return false;
+        	if (  !isResourceEditable() || shiftDown || simulate ) return false;
         	
         	if ( button == 1 ){
         		//  Check if mouse is in geographic extent
@@ -370,7 +373,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
         	
-        	if ( shiftDown || simulate ) return false;
+        	if (  !isResourceEditable() || shiftDown || simulate ) return false;
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){
     			

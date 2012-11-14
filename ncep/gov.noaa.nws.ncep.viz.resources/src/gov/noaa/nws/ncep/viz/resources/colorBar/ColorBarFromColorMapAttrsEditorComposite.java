@@ -19,8 +19,8 @@ import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.ui.display.IColorBar;
-import gov.noaa.nws.ncep.viz.ui.display.IColorBar.ColorBarAnchorLocation;
-import gov.noaa.nws.ncep.viz.ui.display.IColorBar.ColorBarOrientation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
@@ -87,6 +87,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
  * 04/02/2012               S. Gurung     Increased height for colorBarLocOptionsGroup
  * 04/06/2012    651        Archana       Added a call to refreshColorBar(), when the showLabelBtn
  *                                        is toggled    
+ * 07/17/2012    743        Archana       Refactored the packages for 
+ *                                        ColorBarAnchorLocation and ColorBarOrientation                                              
  * </pre>
  * 
  * @author archana
@@ -97,8 +99,15 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 
 	private ColorBarAnchorLocation[] availAnchorLocs = new ColorBarAnchorLocation[] {
 			ColorBarAnchorLocation.UpperLeft,
+//			ColorBarAnchorLocation.UpperCenter,
 			ColorBarAnchorLocation.UpperRight,
-			ColorBarAnchorLocation.LowerLeft, ColorBarAnchorLocation.LowerRight };
+//			ColorBarAnchorLocation.CenterLeft,
+//			ColorBarAnchorLocation.CenterCenter,
+//			ColorBarAnchorLocation.CenterRight,			
+			ColorBarAnchorLocation.LowerLeft, 
+//			ColorBarAnchorLocation.LowerCenter,
+			ColorBarAnchorLocation.LowerRight,
+	        };
 
 	private static final transient IUFStatusHandler statusHandler = UFStatus
 			.getHandler(ColorBarFromColorMapAttrsEditorComposite.class);
