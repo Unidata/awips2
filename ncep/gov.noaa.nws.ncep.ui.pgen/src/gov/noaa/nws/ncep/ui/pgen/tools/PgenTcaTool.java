@@ -184,6 +184,7 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
         	
         	String coast;
         	boolean isIsland;
@@ -422,6 +423,7 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
 
         	String coast;
         	boolean isIsland;

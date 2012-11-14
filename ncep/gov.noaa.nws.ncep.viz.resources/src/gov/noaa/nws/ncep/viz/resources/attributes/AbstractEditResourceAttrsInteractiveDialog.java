@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resources.attributes;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.swt.SWT;
@@ -23,6 +24,7 @@ import org.eclipse.swt.widgets.Shell;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/29/2012  #651        S. Gurung    Initial Creation.
+ * 06/21/2012  #569        G. Hull      call refreshGUIElements() to update the Fade Display
  * 
  * </pre>
  * 
@@ -107,6 +109,11 @@ public class AbstractEditResourceAttrsInteractiveDialog extends AbstractEditReso
         canBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected(SelectionEvent e) {
         		rscData.setRscAttrSet( new ResourceAttrSet(editedRscAttrSet));
+        		
+        		// This is to update the Fade Display with a possible change in brightness
+        		// which could have occured even though we are cancelling.
+        		NmapUiUtils.getActiveNatlCntrsEditor().refreshGUIElements();
+
         		ok=false;
         		shell.dispose();
         	}
@@ -133,6 +140,9 @@ public class AbstractEditResourceAttrsInteractiveDialog extends AbstractEditReso
         okBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected(SelectionEvent e) {
         		
+        		// This is to update the Fade Display with a possible change in brightness.
+        		NmapUiUtils.getActiveNatlCntrsEditor().refreshGUIElements();
+        		 
         		ok=true;
         		// get the 
         		shell.dispose();

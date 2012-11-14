@@ -1,0 +1,25 @@
+!
+! Restore File : 150mb_hght_wind
+!
+! Log:
+! J. Carr/HPC            8/99   Initial Creation.
+!
+GLEVEL =  150
+GVCORD =  pres
+SKIP   =    0
+SCALE  =   0                             !-1
+GDPFUN =  knts((mag(wnd)))              !sm9s(hght)!kntv(wnd)
+TYPE   =    c/f                           !c         !b
+CINT   =    30;50;70;90;110;130;150       !12
+LINE   =    27/5/2/1                      !20/1/2/1
+FINT   =    70;90;110;130;150
+FLINE  =   0;25;24;29;7;15
+HILO   =    
+HLSYM  =                                                                           
+!CLRBAR =  1                                                                       
+WIND   =    18/1/1
+TITLE  =   5/-1/~ @ HEIGHTS, ISOTACHS AND WIND    (KTS)!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

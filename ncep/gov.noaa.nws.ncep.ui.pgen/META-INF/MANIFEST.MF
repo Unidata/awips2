@@ -20,9 +20,9 @@ Require-Bundle: org.eclipse.ui,
  org.junit;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  gov.noaa.nws.ncep.gempak.parameters.core;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.customprojection;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.customprojection;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.attrdialog,
@@ -39,7 +39,6 @@ Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.tca,
  gov.noaa.nws.ncep.ui.pgen.tools
 Import-Package: com.raytheon.edex.meteoLib,
- gov.noaa.nws.ncep.viz.localization,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,

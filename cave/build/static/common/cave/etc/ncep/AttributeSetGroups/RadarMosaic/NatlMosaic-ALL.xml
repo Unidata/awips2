@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NatlMosaic</resource>
     <attrSetGroupName>ALL</attrSetGroupName>
-	<attrSetNames>RALA_1.00,PRCP,PRCP1_4.00,VIL_4.00,PRCP24_4.00,TOPS_4.00,TOPS2_4.00,PRCPC_4.00,CREF_4.00,CREF_1.00,TOPS18_1.00,TOPS30_1.00,VIL_1.00</attrSetNames>
+	<attrSetNames>BREF_2.00,BREF_nids_cmref,RALA_1.00,PRCP,PRCP1_4.00,PRCP24_4.00,PRCPC_4.00,CREF_4.00,CREF_1.00,CREF_30.00,CREF_nids_cmref,TOPS_4.00,TOPS2_4.00,TOPS18_1.00,TOPS30_1.00,VIL_1.00,VIL_4.00</attrSetNames>
 </AttributeSetGroup>

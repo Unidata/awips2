@@ -14,7 +14,8 @@ reportType=idft
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>1440</frameSpan>
     <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
-    <dfltFrameCount>20</dfltFrameCount>
-    <dfltTimeRange>480</dfltTimeRange>
+    <dfltFrameCount>999</dfltFrameCount>
+    <!-- 16 days -->
+    <dfltTimeRange>384</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>

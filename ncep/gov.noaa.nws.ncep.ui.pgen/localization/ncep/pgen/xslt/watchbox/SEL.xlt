@@ -206,6 +206,19 @@
         <xsl:text>THREATENING WEATHER CONDITIONS AND LISTEN FOR LATER STATEMENTS</xsl:text>
 	<xsl:value-of select="$newline"/>
         <xsl:text>AND POSSIBLE WARNINGS.</xsl:text>
+        
+   	<xsl:if test="@contWatch > 0">
+  	   <xsl:value-of select="$newline"/>
+	   <xsl:value-of select="$newline"/>      
+           <xsl:text>OTHER WATCH INFORMATION... WATCH NUMBER WILL NOT BE IN EFFECT</xsl:text>
+      	   <xsl:value-of select="$newline"/>      
+           <xsl:text>AFTER </xsl:text>
+           <xsl:value-of select="@issueTime"/>
+           <xsl:text>. CONTINUE...WW </xsl:text>
+           <xsl:value-of select="@contWatch"/>
+           <xsl:text>...</xsl:text>
+    </xsl:if>
+        
 	<xsl:value-of select="$newline"/>
 	<xsl:value-of select="$newline"/>
         <xsl:text>DISCUSSION...</xsl:text>

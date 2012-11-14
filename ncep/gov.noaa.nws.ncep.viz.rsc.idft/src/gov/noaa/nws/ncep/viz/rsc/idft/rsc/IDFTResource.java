@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 04/11        #?         B. Yin      Re-factor IAttribute
  * 01/06/2012   530        B. Hebbard  In initResource filter DB query by cycle time
  * 05/23/12     785        Q. Zhou     Added getName for legend.
+ * 08/17/12     655        B. Hebbard  Added paintProps as parameter to IDisplayable draw (2)
  * </pre>
  * 
  * @author gzhang 
@@ -208,7 +209,7 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, Ma
         		//       for faster performance.
         		ArrayList<IDisplayable> displayElsArrow = df.createDisplayElements( (IVector)idftData.vector , paintProps );
         		for ( IDisplayable each : displayElsArrow ) {
-        			each.draw(grphTarget);
+        			each.draw(grphTarget, paintProps);
         			each.dispose();
         		}
 
@@ -218,7 +219,7 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, Ma
         		//       for faster performance.
         		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements( idftData.pointSymbol , paintProps );
         		for ( IDisplayable each : displayElsPoint ) {
-        			each.draw(grphTarget);
+        			each.draw(grphTarget, paintProps);
         			each.dispose();
         		}
 

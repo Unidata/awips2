@@ -13,6 +13,7 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.images.GLImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -33,11 +34,6 @@ public class SymbolSetElement implements IDisplayable {
     private IImage raster;
 
     /*
-     * targets properties used for zoom and extent info
-     */
-    private PaintProperties paintProps;
-
-    /*
      * Array of plot locations in pixel coordinates
      */
     private double[][] locations;
@@ -55,10 +51,8 @@ public class SymbolSetElement implements IDisplayable {
      * @param locations
      *            pixel coordinate locations to display the image
      */
-    public SymbolSetElement(IImage raster, PaintProperties paintProps,
-            double[][] locations) {
+    public SymbolSetElement(IImage raster, double[][] locations) {
         this.raster = raster;
-        this.paintProps = paintProps;
         this.locations = locations;
     }
 
@@ -80,7 +74,7 @@ public class SymbolSetElement implements IDisplayable {
      * @see gov.noaa.nws.ncep.ui.pgen.display.IDisplayable#draw(com.raytheon.viz.core.IGraphicsTarget)
      */
     @Override
-    public void draw(IGraphicsTarget target) {
+    public void draw(IGraphicsTarget target, PaintProperties paintProps) {
 
         double[] loc = new double[3];
 

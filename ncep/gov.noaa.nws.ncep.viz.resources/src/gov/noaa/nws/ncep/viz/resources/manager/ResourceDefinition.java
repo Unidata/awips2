@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.hibernate.ejb.AvailableSettings;
+
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -45,6 +47,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.URICatalog;
+import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
@@ -70,6 +74,10 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  *  05/27/12      #606        Greg Hull   createNcInventoryDefinition()
  *  05/31/12      #606        Greg Hull   save the name/alias of the inventory to query 
  *  06/05/12      #816        Greg Hull   rm definitionIndex
+ *  08/29/12      #556        Greg Hull   check isRequestable() before adding as an AlertObserver (for PGEN)
+ *  09/01/12      #860        Greg Hull   Add smarter caching (for all constraints) of available times.
+ *  09/05/12      #860        Greg Hull   Add this to the URICatalog for storing the latest time.
+ *  09/13/12      #860        Greg Hull   set default for inventoryEnabled to false.
  *
  * </pre>
  * 
@@ -80,8 +88,8 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ResourceDefinition implements ISerializableObject, IAlertObserver, Comparable<ResourceDefinition> {
 
-    // Currently not implemented but this would allow a resource to be defined
-    // but not visible on the resource Selection Dialog
+    // if false this will only show up in the Manage resources gui but not 
+	// on the resource Selection Dialog.
     @XmlElement
     private boolean isEnabled;
 
@@ -91,7 +99,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     @XmlElement
     private String resourceCategory;
 
-    //
     @XmlElement
     @XmlJavaTypeAdapter(StringListAdapter.class)
     private ArrayList<String> filterLabels;
@@ -99,6 +106,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     private String           localizationName; // the path
     private LocalizationFile localizationFile;
 
+    // must match the name in an extention point which defines the java class
+    // that implementes the resource.
 	@XmlElement
     private String rscImplementation;
 
@@ -121,7 +130,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     @XmlElement
     private TimeMatchMethod timeMatchMethod;
 
-    // This can be
     @XmlElement
     private int frameSpan; // if 0 then the intervals are data-driven
 
@@ -153,39 +161,34 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     
     private boolean resourceParametersModified;
 
-    // Default to enabled so it must be explicitly disabled. 
+    // Default to disnabled so it must be explicitly enabled. 
     @XmlElement
-    private Boolean inventoryEnabled = true;
-    
-//	private Boolean inventoryInitialized = false;
+    private Boolean inventoryEnabled = false;
 	
 	private String  inventoryAlias = null;
 	
-    // the names of the parameters which are stored in the inventory;
+    // the names of the parameters which are stored in the inventory for this RD;
     //	
     private ArrayList<String> inventoryParamNames = new ArrayList<String>();
-    // we could save off the inventoryDescription if we need to....
-//    private HashMap<String, RequestConstraint> inventoryConstraints = 
-//											new HashMap<String,RequestConstraint>();
-//    public static enum InventoryLoadStrategy {
-//    	STARTUP, ON_DEMAND, NO_INVENTORY
-//    }
-//    @XmlElement
-//    private InventoryLoadStrategy inventoryLoadStrategy = InventoryLoadStrategy.NO_INVENTORY;
 	
     
-    // this is the list of avail data times for the currently select resource.
-    // the times are read from the inventory.
-    // 
-    private List<DataTime> availTimesCache = new ArrayList<DataTime>();
     
-    // For many/most resources, we don't need to requery when a new attrSet (or group)
-    // is selected and so we won't. This will store the name of the seld rsc used
-    // to query the seldRscAvailTimes.
-    private HashMap<String,RequestConstraint> constraintsUsedForTimeCache = null;
+    // a map from the resource Constraints to a cache of the availableTimes and the
+    // latest time. The availableTimes may come from an inventory query or a db query and
+    // the latest time may be determined from the latest time or it may be updated
+    // via Raytheon's MenuUpdater via the URICatalog by processing alery notifications..
+    //  
+    private Map<Map<String,RequestConstraint>, DataTimesCacheEntry> availTimesCache=null;
     
-    private long timesCacheQueryTime = 0;
-    private static final long cacheHoldTime = 20*1000; // 20 seconds
+    // set this to true and store the latestTimes in the URICatalog. 
+    // Some RscDefns have alot of possible constraints (ie radar and some satellites...) which
+    // means that the inventory queries can get hit all at once and cause a slight (1 second?) 
+    // delay. In this case we will leverage Raytheon's URICatalog which listens for the URI 
+    // Notifications and stores the latest times. 
+    //    NOTE : this is currently only used for the latestTimes in the attr set list. The 
+    // actual times are still coming from the NcInventory. 
+    //
+//    private Boolean addToURICatalog = false;
     
     
     public ResourceDefinition() {
@@ -203,13 +206,10 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         dfltGeogArea = NmapCommon.getDefaultMap();
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
         timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;     
-        //inventoryInitialized = false;
         inventoryAlias = null;
-        constraintsUsedForTimeCache = new HashMap<String,RequestConstraint>();
-        availTimesCache = new ArrayList<DataTime>();
-        timesCacheQueryTime = 0;
+        availTimesCache = new HashMap<Map<String,RequestConstraint>,DataTimesCacheEntry>();
 
-        inventoryEnabled = true;
+        inventoryEnabled = false;
         
         generatedTypesList = new ArrayList<String>();
     	
@@ -244,12 +244,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         
         setLocalizationFile( rscDefn.getLocalizationFile() );
         
-//        inventoryInitialized = false;
         inventoryAlias = null;
         
-        constraintsUsedForTimeCache = new HashMap<String,RequestConstraint>();
-        availTimesCache = new ArrayList<DataTime>();
-        timesCacheQueryTime = 0;
+        availTimesCache = new HashMap<Map<String,RequestConstraint>,DataTimesCacheEntry>();
         
         inventoryEnabled = rscDefn.inventoryEnabled;
         
@@ -519,14 +516,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         this.resourceDefnName = rName;
     }
 
-//    public InventoryLoadStrategy getInventoryLoadStrategy() {
-//		return inventoryLoadStrategy;
-//	}
-//
-//	public void setInventoryLoadStrategy(InventoryLoadStrategy inventoryLoadStrategy) {
-//		this.inventoryLoadStrategy = inventoryLoadStrategy;
-//	}
-
     public boolean isPgenResource() {
         return resourceCategory.equals(ResourceName.PGENRscCategory);
     }
@@ -666,9 +655,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     public void setInventoryAlias( String invAlias ) {
     	inventoryAlias = invAlias;
     }
-//    public void setInventoryInitialized( boolean ii ) {
-//    	inventoryInitialized = ii;
-//    }
 
     public Boolean getInventoryEnabled() {
 		return inventoryEnabled;
@@ -699,8 +685,9 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		
 		// if we need to initialize and maintain any generated types or subTypes
 		//
-		if( getSubTypeGenParamsList().length > 0 ||  
-		   !getRscTypeGenerator().isEmpty() ) {
+		if( isRequestable() &&
+			( getSubTypeGenParamsList().length > 0 ||  
+		     !getRscTypeGenerator().isEmpty() ) ) {
 
 			queryGeneratedTypes();
 
@@ -1045,8 +1032,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
 		String[] rsltsArray = (String[])rslts;
 
-		out.println("Inventory Query for RscTypes for "+ resourceDefnName + 	
-				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
+//		out.println("Inventory Query for RscTypes for "+ resourceDefnName + 	
+//				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
 //		out.println("    RscTypes = "+ (rsltsArray.toString() ) );
 
 		for( String rsltStr : rsltsArray ) {
@@ -1202,8 +1189,8 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
 		List<String> rsltsArray = Arrays.asList( (String[])rslts );
 
-		out.println("Inventory Query for "+ resourceDefnName+" for "+ invPrm+ 
-    				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.size() + " results." );
+//		out.println("Inventory Query for "+ resourceDefnName+" for "+ invPrm+ 
+//    				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.size() + " results." );
     		    		    		
 		return rsltsArray;    	
     }
@@ -1227,12 +1214,104 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	return normalizedDataTimes;
     }
     
-    public DataTime getLatestDataTime( ResourceName rscName ) throws VizException {
-    	List<DataTime> availTimes = getDataTimes( rscName );
-    	if( availTimes != null && !availTimes.isEmpty() ) {
-    		return availTimes.get( availTimes.size()-1 );
+    private void addTimesCacheEntry( ResourceName rscName ) throws VizException {
+    		
+    		List<ResourceName> rscNamesList = new ArrayList<ResourceName>();
+    		rscNamesList.add( rscName );
+//        	 if the cache is empty go ahead and initialize entries for all
+//        	 possible resources.
+//     		rscNamesList = ResourceDefnsMngr.getInstance().getAllSelectableResourceNamesForResourcDefn( this );
+
+//    		for( ResourceName rName : rscNamesList ) {
+    		    ResourceName rName = rscName;
+    		    
+    			Map<String, RequestConstraint> resourceConstraints = 
+    				getInventoryConstraintsFromParameters( 
+    						ResourceDefnsMngr.getInstance().getAllResourceParameters( rName ) );
+
+    			// many resourceNames will have the same set of constraints so only 
+    			// store the unique ones.
+    			//
+    			if( !availTimesCache.containsKey( resourceConstraints ) ) {
+    				availTimesCache.put( resourceConstraints, 
+    						new DataTimesCacheEntry( resourceConstraints ) );
+    			}
+//    		}
+    		
+    		// I pulled 12 out of my arse. Not sure what the best number is.
+    		// Even though the inventory is very quick, getLatestTime() can get called 
+    		// many times by the LabelProvider when showing the attrSet List and there can
+    		// be a slight delay for example with all (40) radar products.
+    		//    		
+    		if( availTimesCache.size() == 12 ) {
+    			for( DataTimesCacheEntry uriRefreshCallback : availTimesCache.values() ) {    				
+    				uriRefreshCallback.addToUriCatalog( );    				
+    			}
+    		}
+    		else if( availTimesCache.size() > 12 ) {
+				availTimesCache.get( resourceConstraints ).addToUriCatalog();
+    		}
     	}
+    
+    // Return the latest time or if there either is NoData or if the time hasn't been 
+    // set yet, return a Null DataTime.
+    //
+    public DataTime getLatestDataTime( ResourceName rscName ) throws VizException {
+    	
+    	if( !isRequestable() ) {
     	return null;
+    }
+    
+    	Map<String, RequestConstraint> resourceConstraints = 
+    		getInventoryConstraintsFromParameters( 
+    				ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName ) );
+
+    	// if times are cached for these constraints, and if the times haven't expired,
+    	//   then just return the cached times.
+    	//
+    	DataTime latestTime = null;
+    	
+    	if( availTimesCache.containsKey( resourceConstraints ) ) {    		    		
+    		latestTime = availTimesCache.get( resourceConstraints ).getLatestTime();
+    		
+//    		if( latestTime != null ) {
+//    			if( latestTime.isNull() ) {
+//    				out.println("Returning NO_DATA for "+rscName.toString() );
+//    			}
+//    			else {
+//    				out.println("returning latestTime "+latestTime.toString() +" for "+rscName.toString()+" from cache.");
+//    			}
+//    		}
+    	}
+
+    	// if not found then force a query to be made to get the times/latestTime.  
+    	// ( ??? Do we still want to do this if the inventory is not enabled?)
+    	// 
+    	if( latestTime == null  ) {
+    		long t0 = System.currentTimeMillis();
+    		
+    		getDataTimes( rscName );
+    	
+    		if( availTimesCache.containsKey( resourceConstraints ) ) {
+    			latestTime = availTimesCache.get( resourceConstraints ).getLatestTime();
+    			
+//    			if( latestTime == null ) {
+//    				out.println("latestTime still null even after times query??? :  "+rscName.toString() );
+//    			}
+//    			else {
+//    				out.println("querying latestTime "+latestTime.toString() +" for "+rscName.toString()+" from cache.");
+//    			}
+    			
+    			// if the query took a long time, then go ahead and add this to the URI Catalog.
+    			//
+        		if( System.currentTimeMillis()-t0 > 2000 ) {
+        			availTimesCache.get( resourceConstraints ).addToUriCatalog();
+        		}
+    		}
+    	}
+    	
+    	// if 'not set' still return a 'Null' dataTime.
+    	return (latestTime == null ? new DataTime(new Date(0)) : latestTime);
     }
     
     // update this to optionally either return all times or only matching cycle times
@@ -1246,40 +1325,42 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     		throw new VizException("Inventory Not Initialized.");
     	}
     	
-    	HashMap<String, RequestConstraint> searchConstraints = 
+    	Map<String, RequestConstraint> resourceConstraints = 
     		getInventoryConstraintsFromParameters( 
     				ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName ) );
 
-    	// if the previous constraints used to get the cached times are the same
-    	//     as the searchconstraints that will be used for this resourceName and
-    	// if the cache has not expired, then we can just return the cached dataTimes.
+    	// if times are cached for these constraints, and if the times haven't expired,
+    	//   then just return the cached times.
     	//
-    	if( constraintsUsedForTimeCache.toString().equals( 
-				searchConstraints.toString() ) ) {
+    	if( availTimesCache.containsKey( resourceConstraints ) ) {
+    		DataTimesCacheEntry cachedTimesEntry = availTimesCache.get( resourceConstraints );
 
-    		if( System.currentTimeMillis()-timesCacheQueryTime < cacheHoldTime ) {
-//    			out.println("returning cached times from "+ (System.currentTimeMillis()-timesCacheQueryTime) + " msecs ago");
-        		return availTimesCache;            	
+    		List<DataTime> availTimes = cachedTimesEntry.getAvailableTimes();
+
+    		if( availTimes != null ) {
+    			return availTimes;
     		}
+    		// (Do not remove the entry in the cache since this may be being refreshed 
+    		// with the latestTimes from the URICatalog. 
     	}
-    	
-    	timesCacheQueryTime = 0;
-    	availTimesCache.clear();
-    	constraintsUsedForTimeCache = searchConstraints;
+    	else {
+    		// if there is no entry in the cache for this resourceName, add an entry
+    		// and possibly add it to the URICatalog
+    		addTimesCacheEntry( rscName );
+    	}
 
     	try {
     		DataTime dataTimeArr[] = null;
     		
-    		// if the inventory is not disabled
+    		// if the inventory is enabled
+    		//
     		if( inventoryEnabled ) {
     			
     	    	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
-    			
-//    			String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
-//    									getResourceDefnName();
     			reqMsg.setInventoryName( inventoryAlias );
     			reqMsg.setRequestedParam( "dataTime" );
-    			reqMsg.setReqConstraintsMap( constraintsUsedForTimeCache );
+    			reqMsg.setReqConstraintsMap( 
+    					(HashMap<String, RequestConstraint>)resourceConstraints );
     			
     			Object rslts;
 
@@ -1287,8 +1368,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
     			rslts = ThriftClient.sendRequest( reqMsg );
 
-//    			out.println("inv request returned "+rslts.getClass().getCanonicalName() );
-    			
     			if( !(rslts instanceof String[]) ) {
     				out.println("Inventory Request Failed:"+rslts.toString() );
     				
@@ -1311,7 +1390,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
     				String rsltStr = (String)rsltsList[i];
     				if( rsltStr == null ) {
-    					dataTimeArr[i] = new DataTime(); // ??? shouldn't happen but what to do here?
+    					dataTimeArr[i] = new DataTime(new Date(0)); // ??? shouldn't happen but what to do here?
     				}
     				else {
     					String[] queryResults = rsltStr.split("/");
@@ -1325,18 +1404,17 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
                 property.setDesiredProduct( ResourceType.PLAN_VIEW );
                 property.setEntryQueryParameters(
-                		constraintsUsedForTimeCache, true, null);
+                		resourceConstraints, true, null);
                 dataTimeArr = property.getEntryTimes();                
         	}
 
     		Arrays.sort( dataTimeArr );
     		
-    		// set the cached avail times, the query time. Already set the 
-            timesCacheQueryTime = System.currentTimeMillis();
-//          rscUsedForTimesCache = rscName;
-            availTimesCache = new ArrayList<DataTime>( Arrays.asList( dataTimeArr ) );
+    		List<DataTime>  availTimesList = Arrays.asList( dataTimeArr );
+    		
+    		availTimesCache.get( resourceConstraints ).setAvailableTimes( availTimesList ); 
             
-    		return availTimesCache;
+    		return availTimesList;
 
     	} catch (VizException e) {
 //    		out.println("Inventory failed query for "+ resourceDefnName+
@@ -1391,6 +1469,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     	generatedTypesList.clear();
     	
 		ProductAlertObserver.removeObserver( getPluginName(), this );
+		
+		// clean up the availTimesCache
+		// (note that if the cache is being updated with latest times from
+		// the URI catalog, the DataTimesCacheEntry objects may stick around and
+		// still get updated. But we can't remove them and it won't hurt anything 
+		// 
+		for( Map<String,RequestConstraint> rCon : availTimesCache.keySet() ) {
+			availTimesCache.get(rCon).getAvailableTimes( true ).clear();
+		}
+		availTimesCache.clear();
 		
 		// TODO: do we need to remove the inventory alias? Shouldn't need to.
     }

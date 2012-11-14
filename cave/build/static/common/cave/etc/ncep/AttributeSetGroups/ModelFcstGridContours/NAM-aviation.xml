@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>aviation</attrSetGroupName>
-    <attrSetNames>bl1_rh,bl2-5_rh,emsl_bl1_wind_850mb_tad,frzg_lvl_hght,frzg_lvl_hght_ncf</attrSetNames>
+    <attrSetNames>bl1_rh_nam,bl2-5_rh,emsl_bl1_wind_850mb_tad,frzg_lvl_hght,frzg_lvl_hght_ncf</attrSetNames>
 </AttributeSetGroup>
