@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    08/10/2010    273         ghull       get overlayData dir from 
  *    07/28/2011    450         ghull       NcPathManager
  *    04/23/2012    #744        sgurung     Display Marker Text based on user specified zoom level
+ *    08/17/12      655         B. Hebbard  Added paintProps as parameter to IDisplayable draw
  *    
  * </pre>
  * 
@@ -281,7 +282,7 @@ public class LPIResource extends AbstractVizResource<LPIResourceData, MapDescrip
 					ArrayList<IDisplayable> elements = df.createDisplayElements(symbolSet, paintProps);
 					for (IDisplayable each : elements)
 					{
-						each.draw(target);
+						each.draw(target, paintProps);
 						each.dispose();
 					}
 				}

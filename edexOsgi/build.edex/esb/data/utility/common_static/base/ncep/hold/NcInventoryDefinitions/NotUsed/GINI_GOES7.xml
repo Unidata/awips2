@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>GINI_GOES7</inventoryName>
+    <inventoryParameters>pluginName,sectorID,physicalElement,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="creatingEntity">
+            <constraint constraintValue="GOES-7(H)" constraintType="EQUALS"/>
+        </mapping>
+        <mapping key="pluginName">
+            <constraint constraintValue="satellite" constraintType="EQUALS"/>
+        </mapping>
+    </baseConstraints>
+</NcInventoryDefinition>

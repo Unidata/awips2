@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>severe</attrSetGroupName>
-    <attrSetNames>svrwx</attrSetNames>
+    <attrSetNames>svrwx_nam</attrSetNames>
 </AttributeSetGroup>

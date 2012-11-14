@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/11			?		B. Yin   	Initial Creation.
+ * 08/21		  626		B. Yin		Change quadrants to the correct order
  *
  * </pre>
  * 
@@ -475,8 +476,9 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		fd.top = new FormAttachment(validTime,5, SWT.TOP);
 		fd.left = new FormAttachment(validTime, 5, SWT.RIGHT);
 		utcLabel.setLayoutData(fd);
+		
 		/*
-		 * 12ft label
+		 * NE 12ft label
 		 */
 		Label ne12ftLabel = new Label(g1,SWT.NONE);
 		ne12ftLabel.setText("NE12FT:");
@@ -486,7 +488,7 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		ne12ftLabel.setLayoutData(fd);
 		
 		/*
-		 * 12ft text field
+		 * NE 12ft text field
 		 */
 		ne12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
 		fd = new FormData();
@@ -494,37 +496,39 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		fd.left = new FormAttachment(0, 10);
 		ne12ftField.setLayoutData(fd);
 		
+		
 		/*
-		 * 12ft label
+		 * SE 12ft label
 		 */
-		Label nw12ftLabel = new Label(g1,SWT.NONE);
-		nw12ftLabel.setText("NW12FT:");
+		Label se12ftLabel = new Label(g1,SWT.NONE);
+		se12ftLabel.setText("SE12FT:");
 		fd = new FormData();
 		fd.top = new FormAttachment(ne12ftLabel,0, SWT.TOP);
 		fd.left = new FormAttachment(ne12ftLabel,50, SWT.RIGHT);
-		nw12ftLabel.setLayoutData(fd);
+		se12ftLabel.setLayoutData(fd);
 		
 		/*
-		 * 12ft text field
+		 * SE 12ft text field
 		 */
-		nw12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
+		se12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(nw12ftLabel,5, SWT.BOTTOM);
-		fd.left = new FormAttachment(nw12ftLabel,0, SWT.LEFT);
-		nw12ftField.setLayoutData(fd);
+		fd.top = new FormAttachment(se12ftLabel,5, SWT.BOTTOM);
+		fd.left = new FormAttachment(se12ftLabel,0, SWT.LEFT);
+		se12ftField.setLayoutData(fd);
+		
 		
 		/*
-		 * 12ft label
+		 * SW 12ft label
 		 */
 		Label sw12ftLabel = new Label(g1,SWT.NONE);
 		sw12ftLabel.setText("SW12FT:");
 		fd = new FormData();
-		fd.top = new FormAttachment(nw12ftLabel,0, SWT.TOP);
-		fd.left = new FormAttachment(nw12ftLabel,50, SWT.RIGHT);
+		fd.top = new FormAttachment(se12ftLabel,0, SWT.TOP);
+		fd.left = new FormAttachment(se12ftLabel,50, SWT.RIGHT);
 		sw12ftLabel.setLayoutData(fd);
 		
 		/*
-		 * 12ft text field
+		 * SW 12ft text field
 		 */
 		sw12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
 		fd = new FormData();
@@ -533,23 +537,24 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		sw12ftField.setLayoutData(fd);
 		
 		/*
-		 * 12ft label
+		 * NW 12ft label
 		 */
-		Label se12ftLabel = new Label(g1,SWT.NONE);
-		se12ftLabel.setText("SE12FT:");
+		Label nw12ftLabel = new Label(g1,SWT.NONE);
+		nw12ftLabel.setText("NW12FT:");
 		fd = new FormData();
 		fd.top = new FormAttachment(sw12ftLabel,0, SWT.TOP);
 		fd.left = new FormAttachment(sw12ftLabel,50, SWT.RIGHT);
-		se12ftLabel.setLayoutData(fd);
+		nw12ftLabel.setLayoutData(fd);
 		
 		/*
-		 * 12ft text field
+		 * NW 12ft text field
 		 */
-		se12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
+		nw12ftField = new Text(g1,SWT.SINGLE | SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(se12ftLabel,5, SWT.BOTTOM);
-		fd.left = new FormAttachment(se12ftLabel,0, SWT.LEFT);
-		se12ftField.setLayoutData(fd);
+		fd.top = new FormAttachment(nw12ftLabel,5, SWT.BOTTOM);
+		fd.left = new FormAttachment(nw12ftLabel,0, SWT.LEFT);
+		nw12ftField.setLayoutData(fd);
+		
 	
 	}
 	
@@ -658,31 +663,33 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		lonField = new Text(comp2, SWT.SINGLE | SWT.BORDER);
 		
 		/*
-		 *  Breakpoint 1 label
+		 *  WindMax
+		 */
+		Label windMaxLabel = new Label(comp2,SWT.NONE);
+		windMaxLabel.setText("WindMax:");
+		windMaxField = new Text(comp2, SWT.SINGLE | SWT.BORDER);   
+
+		/*
+		 *  Gust
 		 */
 		Label gustLabel = new Label(comp2,SWT.NONE);
 		gustLabel.setText("Gust:");
 		gustField = new Text(comp2, SWT.SINGLE | SWT.BORDER);
 		
-     //   bkpt1Field.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
 		/*
-		 *  Breakpoint 2 label
-		 */
-		Label windMaxLabel = new Label(comp2,SWT.NONE);
-		windMaxLabel.setText("WindMax:");
-		windMaxField = new Text(comp2, SWT.SINGLE | SWT.BORDER);   
-		
-		Label spdLabel = new Label(comp2,SWT.NONE);
-		spdLabel.setText("StormSpd:");
-		spdField = new Text(comp2, SWT.SINGLE | SWT.BORDER);
-		
-     //   bkpt1Field.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
-		/*
-		 *  Breakpoint 2 label
+		 *  StormDir
 		 */
 		Label dirLabel = new Label(comp2,SWT.NONE);
 		dirLabel.setText("StormDir:");
 		dirField = new Text(comp2, SWT.SINGLE | SWT.BORDER);   
+		
+		/*
+		 * StormSpd
+		 */
+		Label spdLabel = new Label(comp2,SWT.NONE);
+		spdLabel.setText("StormSpd:");
+		spdField = new Text(comp2, SWT.SINGLE | SWT.BORDER);
+		
 		
 		Composite comp3 = new Composite(fcstInfo, SWT.NONE);
     	GridLayout gdl1 = new GridLayout(5, true);
@@ -693,36 +700,37 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 	
 		Label neLabel = new Label(comp3,SWT.NONE);
 		neLabel.setText("NorthEast");
-		Label nwLabel = new Label(comp3,SWT.NONE);
-		nwLabel.setText("NorthWest");
-		Label seLabel = new Label(comp3,SWT.NONE);
-		seLabel.setText("SouthWest");
 		Label swLabel = new Label(comp3,SWT.NONE);
 		swLabel.setText("SouthEast");
+		Label seLabel = new Label(comp3,SWT.NONE);
+		seLabel.setText("SouthWest");				
+		Label nwLabel = new Label(comp3,SWT.NONE);
+		nwLabel.setText("NorthWest");
+
 		
 		Label spd34Label = new Label(comp3,SWT.NONE);
 		spd34Label.setText("34 Knots");
 		
 		ne34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		nw34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		sw34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 		se34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
+		sw34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
+		nw34Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 
 		Label spd50Label = new Label(comp3,SWT.NONE);
 		spd50Label.setText("50 Knots");
 		
 		ne50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		nw50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		sw50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 		se50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
+		sw50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
+		nw50Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 		
 		Label spd64Label = new Label(comp3,SWT.NONE);
 		spd64Label.setText("64 Knots");
 		
 		ne64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		nw64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
-		sw64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 		se64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER);
+		sw64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
+		nw64Field = new Text(comp3, SWT.SINGLE | SWT.BORDER); 
 		
 		/*
 		 * Composite used to group Apply, delete segment, and new segment buttons

@@ -5,22 +5,22 @@
 ! J.Carr/HPC	 8/97	Initial creation
 ! J.Carr/HPC	 2/98	changed thes to thte and geo to wnd
 !
-GLEVEL=850:700!700!700!850!850!30:0!30:0!850:500
-GVCORD=PRES!PRES!PRES!PRES!PRES!pdly!pdly!PRES
-SKIP=
-FILTER=y
-SCALE=0!0!0!0!0!0!0!6 
-GDPFUN=lav(relh)!tmpc!tmpc!tmpc!tmpc!tmpc!tmpc!sm9s(pvor(thte,wnd))
-TYPE=f        ! c
-CINT=5/70   !2;-2 !200;0 !2;-2 !200;0 !2;-2 !200;0!.2/-10/-0.2  
-LINE=32//2/0    !6/3/2!6/1/2 !2/3/2!2/1/2 !20/3/2!20/1/2 !7/1/2 
-FINT=70;80;90
-FLINE=0;24;23;22
-HILO=
-HLSYM=
-WIND=
-TITLE=1/-2/~ 850-700 RH,T(BL y,850 r,700 cyan),850-500 EPV|~ 850-700 RH, R/S T, EPV!0
-COLORS=2
-MARKER=2
-GRDLBL=5
-
+GLEVEL =  850:700!700!700!850!850!30:0!30:0!850:500
+GVCORD =  PRES!PRES!PRES!PRES!PRES!pdly!pdly!PRES
+SKIP   =
+SCALE  =   0!0!0!0!0!0!0!6 
+GDPFUN =  lav(relh)!tmpc!tmpc!tmpc!tmpc!tmpc!tmpc!sm9s(pvor(thte,wnd))
+TYPE   =    f        ! c
+CINT   =    5/70   !2;-2 !200;0 !2;-2 !200;0 !2;-2 !200;0!.2/-10/-0.2  
+LINE   =    32//2/0    !6/3/2!6/1/2 !2/3/2!2/1/2 !20/3/2!20/1/2 !7/1/2 
+FINT   =    70;80;90
+FLINE  =   0;24;23;22
+HILO   =    
+HLSYM  =   
+!CLRBAR =  1
+WIND   =    
+TITLE  =   1/-2/~ 850-700 RH,T(BL y,850 r,700 cyan),850-500 EPV|~ 850-700 RH, R/S T, EPV!0
+COLORS = 2                                                                       
+MARKER = 2                                                                       
+GRDLBL = 5  
+FILTER =  1

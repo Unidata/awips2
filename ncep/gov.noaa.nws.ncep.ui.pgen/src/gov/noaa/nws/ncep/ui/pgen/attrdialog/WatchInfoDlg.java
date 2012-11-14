@@ -139,6 +139,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	//CWA pane, holding CWAs  
 	private Composite cwaPane;
 	
+	//Bottom buttons
+	private Composite wccGrp;
+	
 	//List of CWAs.Each CwaComposite contains a label, and in/out buttons
 	private List<CwaComposite>  cwaComp;
 
@@ -273,7 +276,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 //        toggleAnchorsBtn.setText("Toggle Anchor Points");
 //        AttrDlg.addSeparator(top);
         
-        Composite wccGrp = new Composite(top, SWT.None);
+        wccGrp = new Composite(top, SWT.None);
     	GridLayout wccGl = new GridLayout(4, false);
      	wccGl.marginLeft = 15;
         wccGrp.setLayout(wccGl);
@@ -719,6 +722,10 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		cwaPane.layout();
 		cwaGrp.pack(true);
 		cwaGrp.layout();
+		
+		wccGrp.layout();
+		wccGrp.pack(true);
+		wccGrp.layout();
 		
 		top.pack(true);
 		top.layout();

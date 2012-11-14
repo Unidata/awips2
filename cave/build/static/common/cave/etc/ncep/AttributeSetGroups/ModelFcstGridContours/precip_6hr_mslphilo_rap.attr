@@ -1,0 +1,28 @@
+!
+! Restore File : precip_6hr_mslphilo
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
+! J. Carr/HPC            2/99   Removed the contour from type and left just fill
+!                               Also changed the fint. Changed p06m to p06i
+!
+GLEVEL =  0                                                                       
+GVCORD =  none                                                                    
+SKIP   =    0                                                                       
+SCALE  =   0                                                                       
+GDPFUN =  p06i!sm5s(mul(1e-2,pmsl))                                     
+TYPE   =    f   !c                                                                
+CINT   =        !4                                                     
+LINE   =        !17/1/2                                                  
+FINT   =    .01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.5;3;4;5;6;7;8;9       
+FLINE  =   0;21-30;14-20;5                                                         
+HILO   =    31;0/x#2/0.1-99//100;0/y!17/H#;L# 
+HLSYM  =   1.5                     !1;1//22;22/2;2/hw                                           
+!CLRBAR =  1                                                                       
+WIND   =                                                                            
+TITLE  =   5/-1/~ 6-HR TOTAL PCPN, MSLP!0                                          
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

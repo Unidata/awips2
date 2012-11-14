@@ -12,7 +12,7 @@ import gov.noaa.nws.ncep.gempak.parameters.hlsym.HLSYM;
 import gov.noaa.nws.ncep.gempak.parameters.intext.TextStringParser;
 import gov.noaa.nws.ncep.gempak.parameters.title.TITLE;
 import gov.noaa.nws.ncep.viz.common.Activator;
-import gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences;
+import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.HILORelativeMinAndMaxLocator;
 import gov.noaa.nws.ncep.viz.common.ui.ModelListInfo;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;

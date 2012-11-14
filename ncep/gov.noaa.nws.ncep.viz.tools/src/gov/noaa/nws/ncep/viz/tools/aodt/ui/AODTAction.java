@@ -1,9 +1,9 @@
 package gov.noaa.nws.ncep.viz.tools.aodt.ui;
 
-
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
+import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
 import gov.noaa.nws.ncep.viz.tools.aodt.AODTProcesser;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.core.commands.common.NotDefinedException;
@@ -16,7 +16,6 @@ import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
-
 
 /**
  * Cloud Height Dialog
@@ -39,20 +38,26 @@ public class AODTAction extends AbstractNCModalMapTool {
 	protected IInputHandler mouseHndlr = null;
 	
 	protected static AODTDialog aodtDlg = null;
+
 	private AODTProcesser aodtProcessor = null;
+
 	private ICloudHeightCapable satResource = null;
 	
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
      */
     @Override
     protected void activateTool() {
+        LibraryLoader.load("aodtv64");
     	
     	mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
     	
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
 
         if( aodtDlg == null ) {
         	
@@ -85,7 +90,8 @@ public class AODTAction extends AbstractNCModalMapTool {
         	aodtDlg = null;
 
         	//deactivateTool();
-    		AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+            AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                    .getCurrentPerspectiveManager();
     		if (mgr != null) {
     			mgr.getToolManager().deselectModalTool(this);
     		}
@@ -99,17 +105,16 @@ public class AODTAction extends AbstractNCModalMapTool {
     private void issueAlert() {
 		
 		String msg = "Unable to invoke AODT tool.\nPlease load an IR Satellite image!";
-    	MessageDialog messageDlg = new MessageDialog( 
-        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-        		"Warning", null, msg,
+        MessageDialog messageDlg = new MessageDialog(PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell(), "Warning", null, msg,
         		MessageDialog.WARNING, new String[]{"OK"}, 0);
         messageDlg.open();
 
 	}
 
 	/*
-     * (non-Javadoc)
-     * org.osgi.framework.BundleContext
+     * (non-Javadoc) org.osgi.framework.BundleContext
+     * 
      * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivateTool()
      */
     @Override
@@ -146,7 +151,8 @@ public class AODTAction extends AbstractNCModalMapTool {
     		
     		if( button == 1 ) {
     			Coordinate ll = mapEditor.translateClick(x, y);
-    			if ( ll == null || satResource == null ) return false;
+                if (ll == null || satResource == null)
+                    return false;
     			
         		Double value = satResource.getSatIRTemperature(ll);
         		if ( value != null && !value.isNaN() ) {

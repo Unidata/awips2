@@ -31,6 +31,8 @@ import gov.noaa.nws.ncep.viz.ui.display.PaneID;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -43,6 +45,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -64,6 +67,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  *    11/15/11                 ghull       add resolveLatestCycleTimes
  *    04/26/12       #585      sgurung     Added rbdSequence 
  *    06/13/12       #817      Greg Hull   add resolveDominantResource()  
+ *    06/20/12       #647      Greg Hull   add clone()
+ *    06/29/12       #568      Greg Hull   implement Comparable
  *
  * </pre>
  * 
@@ -72,7 +77,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class RbdBundle implements ISerializableObject {
+public class RbdBundle implements ISerializableObject, Comparable<RbdBundle> {
 
     @XmlElement
     protected PaneLayout paneLayout = new PaneLayout(1, 1);
@@ -103,11 +108,16 @@ public class RbdBundle implements ISerializableObject {
     @XmlAttribute
     protected String rbdName;
 
-//    private NCMapEditor ncEditor;
-
     // true if edited from the LoadRbd dialog
     private Boolean isEdited = false;
 
+//    @XmlAttribute
+//    protected Date dateCreated = null;
+//
+//    @XmlAttribute
+//    protected String createdBy = null;
+
+    
     // private HashMap<String,AbstractRenderableDisplay> displayPaneMap =
     // new HashMap<String,AbstractRenderableDisplay>
 
@@ -192,6 +202,33 @@ public class RbdBundle implements ISerializableObject {
         displays = new NCMapRenderableDisplay[paneLayout.getNumberOfPanes()];// numPaneRows*numPaneColumns];
     }
 
+    public static RbdBundle clone( RbdBundle rbdBndl ) throws VizException {
+		try {
+			NCTimeMatcher tm = new NCTimeMatcher( rbdBndl.getTimeMatcher() );
+
+			File tempRbdFile = File.createTempFile("tempRBD-", ".xml");
+	        
+			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, 
+									tempRbdFile.getAbsolutePath() );
+			
+			RbdBundle clonedRbd = RbdBundle.unmarshalRBD( tempRbdFile, null );
+			
+			clonedRbd.setTimeMatcher( tm );
+    		
+			clonedRbd.setLocalizationFile( rbdBndl.getLocalizationFile() );
+			
+			tempRbdFile.delete();
+
+    		return clonedRbd;
+    		
+		} catch (SerializationException e) {
+			throw  new VizException( e );
+		} catch (VizException e) {
+			throw new VizException("Error loading rbd "+rbdBndl.rbdName+" :"+e.getMessage()  );
+		} catch (IOException e) { // from createTempFile
+			throw  new VizException( e ); 
+		}
+    }
 //    public NCMapEditor getNcEditor() {
 //        return ncEditor;
 //    }
@@ -232,8 +269,9 @@ public class RbdBundle implements ISerializableObject {
             }
         }
 
-        timeMatcher = (NCTimeMatcher) displays[0].getDescriptor()
-                .getTimeMatcher();
+        setTimeMatcher( 
+        		new NCTimeMatcher(  
+        		     (NCTimeMatcher) displays[0].getDescriptor().getTimeMatcher() ) );
     }
 
     /**
@@ -543,4 +581,14 @@ public class RbdBundle implements ISerializableObject {
     	
     	return timeMatcher.loadTimes(true);
     }
+
+	@Override
+	public int compareTo(RbdBundle rbd) {
+		if( rbdSequence == rbd.rbdSequence ) {
+			return rbdName.compareTo( rbd.rbdName );
+		}
+		else {
+			return rbdSequence - rbd.rbdSequence;
+		}
+	}
 }
