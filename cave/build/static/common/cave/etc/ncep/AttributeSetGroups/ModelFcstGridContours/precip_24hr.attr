@@ -3,26 +3,27 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
 ! J. Carr/HPC            2/99   Removed the contour from type and left just fill
 !                               Also changed the fint and time interval
 !
-GLEVEL=0                                                                       
-GVCORD=none                                                                    
-SKIP=
-FILTER=y
-SCALE=0                                                                       
-GDPFUN=p24i
-TYPE=f
-CINT=
-LINE=
-FINT=.01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.5;3;4;5;6;7;8;9
-FLINE=0;21-30;14-20;5
-HILO=31;0/x#2/0.1-99//100;0/y
-HLSYM=1.5
-WIND=
-TITLE=5/-1/~ 24-HR TOTAL PRECIPITATION ! 0
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
-GDATTIM=f24-last-06
+GLEVEL =  0                                                                       
+GVCORD =  none                                                                    
+SKIP   =    0                                                                       
+SCALE  =   0                                                                       
+GDPFUN =  p24i
+TYPE   =    f
+CINT   =    
+LINE   =    
+FINT   =    .01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.5;3;4;5;6;7;8;9
+FLINE  =   0;21-30;14-20;5
+HILO   =    31;0/x#2/0.1-99//100;0/y
+HLSYM  =   1.5
+!CLRBAR=  1                                                                       
+WIND   =                                                                            
+TITLE  =   5/-1/~ 24-HR TOTAL PRECIPITATION ! 0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1
+GDATTIM=  f24-last-06

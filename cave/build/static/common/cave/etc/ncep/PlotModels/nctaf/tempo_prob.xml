@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="nctaf" name="tempo_prob">
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TCMS">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TCMS">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TVSB">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TVSB">
         <Position>LL</Position>
         <Color red="255" green="255" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TSKC">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TSKC">
         <Position>SC</Position>
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TCEL">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TCEL">
         <Position>UR</Position>
         <Color red="145" green="44" blue="238"/>
     </PlotModelElement> 
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STID">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         <Position>LR</Position>
         <Color red="205" green="133" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="PPRB">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="PPRB">
         <Position>TC</Position>
         <Color red="255" green="192" blue="239"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TXVF">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TXVF">
         <Position>BC</Position>
         <Color red="255" green="255" blue="0"/>
     </PlotModelElement>

@@ -125,6 +125,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link Spenes }
+     * 
+     */
+    public Spenes createSpenes() {
+        return new Spenes();
+    }
+
+    /**
      * Create an instance of {@link Product }
      * 
      */

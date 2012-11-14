@@ -25,6 +25,11 @@ public class ColorBarResourceData extends AbstractResourceData {
 
 	private IColorBar colorBar;
 	
+	// default no-arg required to serialize
+	public ColorBarResourceData() {
+		colorBar = null;
+	}
+
 	public ColorBarResourceData( IColorBar cbar ) {
 		colorBar = cbar;
 	}

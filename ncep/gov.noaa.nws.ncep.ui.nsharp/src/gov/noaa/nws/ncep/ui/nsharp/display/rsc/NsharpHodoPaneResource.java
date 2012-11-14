@@ -438,7 +438,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 					VerticalAlignment.BOTTOM, null);
 		}
 
-		//plot current storm motion vector (mouse click) marker		
+		//plot current storm motion vector (mouse click) marker				
 		//Coordinate hodoStmCenter = rscHandler.getHodoStmCenter();
 		//System.out.println("rscHandler hodo windspd="+ rscHandler.getSmWindSpd()+ " dir="+rscHandler.getSmWindDir());
 		Coordinate hodoStmCenter = WxMath.uvComp(rscHandler.getSmWindSpd(),rscHandler.getSmWindDir());

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gempak Nativelib
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.gempak.nativelib
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.gempak.nativelib.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gov.noaa.nws.ncep.viz.gempak.nativelib

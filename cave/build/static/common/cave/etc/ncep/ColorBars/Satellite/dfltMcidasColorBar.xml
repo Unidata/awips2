@@ -6,7 +6,4 @@
        <lengthAsRatio>0.6</lengthAsRatio>
        <widthInPixels>15</widthInPixels>
        <numDecimals>0</numDecimals>
-
-       <labeledPixels>0,50,100,150,200,255</labeledPixels>
-
    </colorBar>
