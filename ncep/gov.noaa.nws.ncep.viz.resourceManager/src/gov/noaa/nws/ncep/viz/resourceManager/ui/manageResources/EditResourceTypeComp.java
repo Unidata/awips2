@@ -61,6 +61,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 01/24/10                 Greg Hull    Change frame Interval to frame span
  * 03/01/11       #408      Greg Hull    add filter labels
  * 07/22/11       #450      Greg Hull    Save to User Localization
+ * 07/05/12       #821      Greg Hull    up the maxValue for numFrames spinner 
+ * 08/25/12       #         Greg Hull    allow to enable/disable resources
  * 
  * </pre>
  * 
@@ -74,6 +76,8 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 	ResourceName       seldRscName=null;
 	ResourceDefinition seldRscDefn;
 	
+	Button enableRscTypeBtn = null;
+
 	Text    rscTypeTxt;	
 	Combo   timeMatchMethodCombo;
 	Spinner dfltNumFramesSpnr;
@@ -159,17 +163,24 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
     	dfltNumFramesLbl.setLayoutData( fd );
 
     	dfltNumFramesSpnr.setMinimum(1);
-//    	dfltNumFramesSpnr.setMaximum(99);
+    	dfltNumFramesSpnr.setMaximum(999);
     	dfltNumFramesSpnr.setDigits(0);
     	dfltNumFramesSpnr.setIncrement(1);
-    	dfltNumFramesSpnr.setTextLimit(3);
+    	dfltNumFramesSpnr.setTextLimit(4);
     	
+		enableRscTypeBtn = new Button( top_form, SWT.CHECK );
+		enableRscTypeBtn.setText( "Enabled" );
+    	
+		fd = new FormData();
+    	fd.top = new FormAttachment( dfltNumFramesSpnr, -20, SWT.TOP );
+    	fd.left = new FormAttachment( 50, 0);
+    	enableRscTypeBtn.setLayoutData( fd );
     	
     	editParamsTxt = new Text( top_form, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     	fd = new FormData();
     	fd.height = 100;
-    	fd.left = new FormAttachment( 50, 0);
-    	fd.top = new FormAttachment( dfltNumFramesSpnr, -10, SWT.TOP );
+    	fd.left = new FormAttachment( enableRscTypeBtn, 0, SWT.LEFT );
+    	fd.top = new FormAttachment( enableRscTypeBtn, 35, SWT.BOTTOM );
     	fd.right = new FormAttachment( 100, -10 );
 //    	fd.bottom = new FormAttachment( 65, 0 );
     	editParamsTxt.setLayoutData( fd );
@@ -418,6 +429,12 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		
 		// Add listeners
 		//
+		enableRscTypeBtn.addSelectionListener( new SelectionAdapter() {
+        	public void widgetSelected( SelectionEvent ev ) {
+        		
+        	}
+		});
+		
 		rscTypeTxt.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -577,6 +594,8 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 				System.out.println("Unable to get Resource Defn for:"+seldRscName );
 				return;
 			}
+
+			enableRscTypeBtn.setSelection( seldRscDefn.getIsEnabled() );
 
 			String rscTypeGen = seldRscDefn.getRscTypeGenerator();
 			
@@ -989,7 +1008,8 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 	//
 	private void setSelectedRscDefnFromGUI( ResourceDefinition rscDefn ) {
 		
-		rscDefn.setEnabled( true );
+		rscDefn.setEnabled( enableRscTypeBtn.getSelection() );
+		
 		rscDefn.setDfltFrameCount( dfltNumFramesSpnr.getSelection() );
 		
 		for( TimeMatchMethod tmm : TimeMatchMethod.values() ) {

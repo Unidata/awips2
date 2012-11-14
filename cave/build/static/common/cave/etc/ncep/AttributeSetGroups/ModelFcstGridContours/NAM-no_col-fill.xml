@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>no_col-fill</attrSetGroupName>
-    <attrSetNames>250mb_hght_wind_ncf,400mb_avg_rh_ncf,500mb_absv_ncf,500mb_hght_absv_ncf,700mb_hght_rh_omega_ncf,850mb_hght_tmp_wind_ncf,850mb_wind_pw,bestcape_cin_ncf,bl_h2o_conv_ncf,bl_thte_ncf,lifted_index_ncf,pcpn_potential_ncf,precip_type_vv_ncf</attrSetNames>
+    <attrSetNames>250mb_hght_wind_ncf,400mb_avg_rh_ncf,500mb_absv_ncf,500mb_hght_absv_ncf,700mb_hght_rh_omega_ncf,850mb_hght_tmp_wind_ncf,850mb_wind_pw,850mb_wind_pw_ncf_nam,bestcape_cin_ncf_nam,bl_h2o_conv_ncf_nam,bl_thte_ncf_nam,lifted_index_ncf_nam,pcpn_potential_ncf_nam,precip_type_vv_ncf_nam</attrSetNames>
 </AttributeSetGroup>

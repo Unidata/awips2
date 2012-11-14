@@ -19,32 +19,25 @@
  **/
 package gov.noaa.nws.ncep.viz.ui.display;
 
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
-
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.IMiddleClickCapableResource;
-import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
-import com.raytheon.viz.ui.cmenu.ChooseColorAction;
-import com.raytheon.viz.ui.cmenu.ColorEditDialogAction;
 import com.raytheon.viz.ui.input.EditableManager;
+
 
 /**
  * This handler is responsible for picking up mouse clicks and key press events on resources in
@@ -57,6 +50,15 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/03/2012              S. Gurung     Initial creation
+ * 06/25/2012    827       Archana       Updated handleKeyUp() to
+ *                                       toggle the display of the
+ *                                       resources based on the
+ *                                       UP/DOWN arrow key pressed.
+ * 07/27/2012	695			B. Yin		 Added middle mouse click to toggle editable resource.
+ * 08/09/2012   839       Archana        Updated to toggle the colorbar when 
+ *                                       its corresponding resource is toggled on/off.
+ *                                        
+ *                                                                                 
  * 
  * </pre>
  * 
@@ -75,14 +77,17 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
    
     private ResourcePair mouseDownRsc = null;
 
-    private int currentRscIndex = 0;
+    private static int currentRscIndex = 0;
 	
 	private boolean isShiftDown = false;	
+
+	private static boolean isFirstTime = true;
+
 
 	@Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
         
-    	if (mouseButton ==1) {
+    	if (mouseButton ==1 || mouseButton ==2) {
     		//IDisplayPaneContainer editor = getResourceContainer();
             //if (prefManager.handleClick(HIDE_RESOURCE_PREF, mouseButton)) {
     		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
@@ -99,9 +104,9 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
-    	if (mouseButton ==1) {
-    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
     		
+    	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
+    	if (mouseButton ==1) {
     		if( editor != null &&  editor instanceof NCMapEditor ) {
     			IDisplayPane activePane = editor.getActiveDisplayPane();
     			IRenderableDisplay display = editor.getActiveDisplayPane()
@@ -110,13 +115,65 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
                     activePane.getTarget(), x, y);
 
     			if (rsc != null && rsc == mouseDownRsc) {
+   				
     				mouseDownRsc = null;
     				toggleVisibility(rsc);
+    				try {
+    					Method getColorBarMethod = rsc.getResourceData().getClass().getMethod("getColorBar");
+    					if( getColorBarMethod != null ){
+    					     Object colorBar = 	getColorBarMethod.invoke(rsc.getResourceData());
+    					     if ( colorBar != null ){
+    					    	  ResourceList theMainList = NmapUiUtils.getActiveNatlCntrsEditor().getActiveDisplayPane().getDescriptor().getResourceList();
+    					    	  for ( ResourcePair resourcePair : theMainList){
+    			    		 
+    					    		  if (resourcePair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0 ){
+    					    			   Method rscDataColorBarMethod = resourcePair.getResourceData().getClass().getMethod("getColorbar" );
+    					    			   Object colorBarFromCBarResource = rscDataColorBarMethod.invoke( resourcePair.getResourceData());
+    					    			   if (colorBarFromCBarResource.equals(colorBar)){
+    					    				   if ( rsc.getProperties().isVisible() ){
+    					    					   resourcePair.getProperties().setVisible(true);
+    					    				   }
+    					    				   else{
+    					    					   resourcePair.getProperties().setVisible(false);
+    					    				   }
+    					    				   break;
+    					    			   }
+    					    		  }
+    					    	  }
+    					     }
+    					}
+    				} catch (SecurityException e) {
+    					// TODO Auto-generated catch block
+    					
+    				} catch (NoSuchMethodException e) {
+    					// TODO Auto-generated catch block
+    					
+    				} catch(InvocationTargetException e){
+    					
+    				}catch (IllegalAccessException e ){
+    					
+    				}
     				editor.refresh();
     				
     				return true;
     			}
     		}     
+    	}
+    	else if (mouseButton == 2 ){
+    		
+            if (mouseDownRsc != null && mouseDownRsc.getResource()
+                    .hasCapability(EditableCapability.class)) {
+                // check / make editable
+                EditableManager.makeEditable(
+                		mouseDownRsc.getResource(),
+                        !mouseDownRsc.getResource()
+                                .getCapability(EditableCapability.class)
+                                .isEditable());
+				mouseDownRsc = null;
+
+                editor.refresh();
+                return true;
+            }
     	}
     	return false;
   	
@@ -149,62 +206,164 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     @Override
 	public boolean handleKeyUp(int keyCode) {
     	
+    	if ( keyCode != SWT.SHIFT && keyCode != SWT.ARROW_UP && keyCode != SWT.ARROW_DOWN ) {
+            return false;
+	    }
+    	
+    	
     	if ( keyCode == SWT.SHIFT ) {
-			isShiftDown = false;
+			isShiftDown = true;
 		}
     	
-		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
 		
-		if ( (keyCode==SWT.ARROW_UP) || (keyCode==SWT.ARROW_DOWN) ) {
+		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); 
+        ResourceList theMainList = editor.getActiveDisplayPane().getDescriptor().getResourceList();
+      
+        List<ResourcePair> subListOfResourcesToToggle = new ArrayList<ResourcePair>(0);
+        List<ResourcePair> listOfCorrespondingColorBarResources = new ArrayList<ResourcePair>(0); 
 
 			if ( isShiftDown ) {
 				/*
-				 * Make all resources visible
+        	 * Pressing the Shift key with either the up or the down arrow key makes
+        	 * all the non-system/non map layer resources visible.
 				 */
-				ResourceList rl = editor.getActiveDisplayPane().getDescriptor().getResourceList();
-				for (int i=0; i < rl.size(); i++ ) {
-					rl.get(i).getProperties().setVisible(true);
+            if (( keyCode == SWT.ARROW_UP || keyCode == SWT.ARROW_DOWN)){
+        	  for ( ResourcePair resPair : theMainList){
+        		 resPair.getProperties().setVisible(true);
 				}
+            }
 
+        }else{
+
+            /*
+             * Create 2 sublists.One for the colorbar resources and one for the 
+             * requestable resources (non-system and non-map layer resources)  	
+             * Set the visibility for all the resources in both lists to false.
+             */
+
+            for ( ResourcePair resPair : theMainList){
+            	
+            	if ( ! resPair.getProperties().isSystemResource() 
+            			&& !resPair.getProperties().isMapLayer()){
+            		subListOfResourcesToToggle.add(resPair);
+            		resPair.getProperties().setVisible(false);
+            	}
+            	else if(resPair.getResource().getClass().getSimpleName().compareTo("ColorBarResource") == 0){
+            		listOfCorrespondingColorBarResources.add(resPair);
+            		resPair.getProperties().setVisible(false);
 			}
+            }
+            
+            if(subListOfResourcesToToggle.isEmpty())
+            	return false;
+            
+            int listSize = subListOfResourcesToToggle.size();
+           
+            if ( keyCode == SWT.ARROW_UP ){
+          /*The navigation seems counter-intuitive. Yet this works since 
+           *the elements displayed in the legend resource are listed from 
+           *bottom-up
+           *
+           *The very first time either the up arrow is pressed
+           *the currentRscIndex gets initialized to the first element in the list
+           *Subsequently, if the up arrow is pressed, the index is incremented.
+           *If it points beyond the index of the last resource, 
+           *then it gets reset to the index of the first resource 
+           */     
+            	if ( isFirstTime || isShiftDown)
+            		currentRscIndex = 0;
 			else {
-				ResourceList rl = editor.getActiveDisplayPane().getDescriptor().getResourceList();
+            		currentRscIndex++;
+            		if(currentRscIndex > (listSize - 1))
+            			currentRscIndex = 0;
+            	}
 				
-				int incr = 1;
-				if (keyCode==SWT.ARROW_DOWN) incr = -1;
 
+            }else if (keyCode == SWT.ARROW_DOWN ){
 				/*
-				 * look for next non map/system layer resource
+                 *The very first time either the down arrow is pressed
+                 *the currentRscIndex gets initialized to the index of the last 
+                 *resource in the list
+                 *Subsequently, if the down arrow is pressed, the index is decremented.
+                 *If it points beyond the index of the first resource, 
+                 *then it gets set to the index of the last resource 
 				 */
-				int search = currentRscIndex;
-				do {
-					search += incr;
-					if ( search < 0 ) search = rl.size() - 1;
-					if ( search >= rl.size() ) search = 0;
-					if ( ! rl.get(search).getProperties().isMapLayer() ) {
-						currentRscIndex = search;
-						break;
+           	
+            	if(isFirstTime || isShiftDown)
+            		currentRscIndex = listSize - 1;
+            	else{
+                      currentRscIndex--;
+                       if( currentRscIndex < 0 )
+                    	   currentRscIndex = listSize - 1;
 					}
-				} while ( search != currentRscIndex );
 
-				/*
-				 * turn off all non map/system layer resources
+          }
+            
+
+           /*Make the resource visible*/ 
+          ResourcePair rscToSetVisible = subListOfResourcesToToggle.get(currentRscIndex);
+          rscToSetVisible.getProperties().setVisible(true);  
+          
+            /*If rscToSetVisible has a color bar,find the matching colorbar from listOfCorrespondingColorBarResources
+             *and make it visible as well. 
 				 */
-				for (int i=0; i < rl.size(); i++ ) {
-					if ( rl.get(i).getProperties().isMapLayer() || rl.get(i).getProperties().isSystemResource())
-						rl.get(i).getProperties().setVisible(true);
-					else
-						rl.get(i).getProperties().setVisible(false);
+        	  try {
+        		  
+        		  
+    			    Method[] arrayOfMethods = rscToSetVisible.getResourceData().getClass().getMethods();
+    			       for(Method thisMethod: arrayOfMethods ){
+    			    	   if(thisMethod.getName().compareTo("getColorBar") == 0){
+    			    		   Object resClrBar = thisMethod.invoke(rscToSetVisible.getResourceData());
+    	    					if(resClrBar != null ){
+    	    						for(ResourcePair cBarResPair: listOfCorrespondingColorBarResources ){
+    	    							Method getColorBarMethod = cBarResPair.getResourceData().getClass().getMethod("getColorbar");
+    	    							Object clrBar = getColorBarMethod.invoke(cBarResPair.getResourceData());
+    	    							if(resClrBar.equals(clrBar)){
+    	    								cBarResPair.getProperties().setVisible(true);
+    	    								break;
+    	    							}
 				}
+    	    					}    			    		   
+    			    	   }
+    			       }
+    					
 
-				//  re-enable selected resource.
-				rl.get(currentRscIndex).getProperties().setVisible(true);
 
+    		} catch (SecurityException e) {
+
+    			e.printStackTrace();
+    		} catch (NoSuchMethodException e) {
+
+    			e.printStackTrace();
 			}
-			editor.refresh();
+    		catch (IllegalArgumentException e) {
+
+    			e.printStackTrace();
+    		} catch (IllegalAccessException e) {
+
+    			e.printStackTrace();
+    		} catch (InvocationTargetException e) {
+
+    			e.printStackTrace();
+    		}
+            
+          if ( isFirstTime && ( ( keyCode == SWT.ARROW_DOWN ) ||  ( keyCode == SWT.ARROW_UP ) ))
+    	          isFirstTime = false;        	
 
 		}
+        
+
+      if( isShiftDown ){ 
+    	  /*
+    	   *If the shift key was used to make all the resources
+    	   *visible again, the isFirstTime boolean is set to true
+    	   *So in effect the currentRscIndex is reset to either the first or the last
+    	   *non system/non map layer resource depending on which arrow key is 
+    	   *subsequently pressed.
+    	   */
 		isShiftDown = false;
+	     isFirstTime = true;
+      }
 		return false;
 	}
 	
@@ -246,9 +405,47 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
                                 .toggle(rp);
                     }
                 }
+                
                 return;
             }
         }
         rp.getProperties().setVisible(!rp.getProperties().isVisible());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

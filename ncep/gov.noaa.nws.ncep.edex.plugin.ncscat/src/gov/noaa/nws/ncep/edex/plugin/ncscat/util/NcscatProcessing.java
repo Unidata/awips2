@@ -6,6 +6,7 @@
  *
  * <pre>
  * Uma Josyula                               11/2009         Creation
+ * B. Hebbard                                07/2012         Handle OSCAT / OSCAT_HI
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS system.
@@ -13,8 +14,6 @@
 
 
 package gov.noaa.nws.ncep.edex.plugin.ncscat.util;
-
-//import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatPoint;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncscat.NcscatPoint;
 
@@ -24,9 +23,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+
+import com.raytheon.uf.common.serialization.SerializationUtil;
 
 
 public class NcscatProcessing {
@@ -82,29 +86,42 @@ public class NcscatProcessing {
 
 		startTime = Calendar.getInstance(); 
 		endTime = Calendar.getInstance(); 
-		if ((byteBuffer.getShort(0)==  byteBuffer.getShort(1484)) &&(byteBuffer.getShort(2)==  byteBuffer.getShort(1486))){
 
+		// Attempt to discriminate type of data by looking for 'period' of repeating date+hour fields.
+		// TODO !! Guard against false negative which could occur if first 2 times straddle hour boundary,
+		//      !! possibly by checking for match EITHER 1st-&-2nd OR 2nd-&-3rd
+		if ((byteBuffer.getShort(0) == byteBuffer.getShort(1484)) && (byteBuffer.getShort(2) == byteBuffer.getShort(1486))) {
+			// ASCAT_HI or EXASCT_HI (...which are big and little endian, respectively)
 			n=1476;
 			scatNumber=82;
 			recordLength=742;
 		}
 		else if((byteBuffer.getShort(0)==  byteBuffer.getShort(764)) &&(byteBuffer.getShort(2)==  byteBuffer.getShort(766))) {
-
+			// ASCAT or EXASCT (...which are big and little endian, respectively)
 			n=756;
 			scatNumber=42;
 			recordLength=382;			
 		}
 		else if ((byteBuffer.getShort(0)==  byteBuffer.getShort(1376)) &&(byteBuffer.getShort(2)==  byteBuffer.getShort(1378))) {
+			// QUIKSCAT -OR- OSCAT_HI (...which are big and little endian, respectively)
 			n=1368;
 			scatNumber = 76;
 			recordLength =688;
-		} else if((byteBuffer.getShort(0)==  byteBuffer.getShort(2744)) &&(byteBuffer.getShort(2)==  byteBuffer.getShort(2746))){
-
+		}
+		else if ((byteBuffer.getShort(0) == byteBuffer.getShort(656)) && (byteBuffer.getShort(2) == byteBuffer.getShort(658))) {
+			// OSCAT
+			n=648;
+			scatNumber = 36;
+			recordLength = 328;
+		}
+		else if ((byteBuffer.getShort(0) == byteBuffer.getShort(2744)) && (byteBuffer.getShort(2) == byteBuffer.getShort(2746))) {
+			// QUIKSCAT_HI
 			n=2736;
 			recordLength = 1372;
 			scatNumber = 152;
 		}
 		else if((byteBuffer.getShort(56)==  byteBuffer.getShort(1486)) &&(byteBuffer.getShort(58)==  byteBuffer.getShort(1488))){
+			// WSAT
 			n=1422;
 			scatNumber=79;
 			recordLength=715;
@@ -135,8 +152,16 @@ public class NcscatProcessing {
 		//       getShort(...) calls below will do the byte-flipping for us.  We also
 		//       remember byteOrder for a bit later...  (Part 3)
 		//       
-		ByteOrder byteOrder = (n == 1422)|| "ascatx".equalsIgnoreCase(getInputFileName()) ?
-		                      ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+		ByteOrder byteOrder;
+		if ( (n == 1422) || // WSAT
+		    ((n == 1368) && "oscat".equalsIgnoreCase(getInputFileName())) || // OSCAT_HI
+		   "ascatx".equalsIgnoreCase(getInputFileName()) ) { // EXASCT or EXASCT_HI
+			byteOrder = ByteOrder.LITTLE_ENDIAN;
+		}
+		else {
+			byteOrder = ByteOrder.BIG_ENDIAN;
+		}
+		
 		byteBuffer.order(byteOrder);
 		//END of temporary fix by BH - Part 2 (new code added only)
 
@@ -151,6 +176,8 @@ public class NcscatProcessing {
 					min = byteBuffer.getShort(ji+4);
 					sec = byteBuffer.getShort(ji+6);
 
+					if (day<0) break;
+					
 					if(ji<8){
 						//stTime = endTime;
 						startTime.set(Calendar.DAY_OF_YEAR, day);
@@ -158,12 +185,12 @@ public class NcscatProcessing {
 						startTime.set(Calendar.MINUTE, min);
 						startTime.set(Calendar.SECOND, sec);
 					}
-					else{
+					//else{
 						endTime.set(Calendar.DAY_OF_YEAR, day);
 						endTime.set(Calendar.HOUR_OF_DAY, hour);
 						endTime.set(Calendar.MINUTE, min);
 						endTime.set(Calendar.SECOND, sec);
-					}
+					//}
 
 					ji=ji+scatXLen;
 
@@ -218,16 +245,16 @@ public class NcscatProcessing {
                                     }
                                     */
 							        //END of temporary fix by BH - Part 4 (compare Part 1)
-									if((n==1422)||("ascatx".equalsIgnoreCase(getInputFileName()))){//if wsat or exasct swap the bytes
+									if(byteOrder == ByteOrder.LITTLE_ENDIAN) {// swap the bytes
 										newMessage.add(message[calc+1]);
 										bitNum++; 
-										newMessage.add(message[calc]);//since 2 bits form a byte
+										newMessage.add(message[calc]);//since 2 bytes form a short
 										bitNum++;
 									}
 									else{
 										newMessage.add(message[calc]);
 										bitNum++; 
-										newMessage.add(message[calc+1]);//since 2 bits form a byte
+										newMessage.add(message[calc+1]);//since 2 bytes form a short
 										bitNum++;
 									}
 
@@ -258,13 +285,25 @@ public class NcscatProcessing {
 
 
 
+    /**
+     * processHDF5Data  --  SHOULD NOT BE USED IN PRESENT FORM 
+     *                      Please see NcscatResource.processHDF5Data(...)
+     * 
+     * @return List<NcscatPoint>
+     * 
+     * @deprecated Please see NcscatResource.processHDF5Data(...)
+     */
+    @Deprecated
 
 
 	public List<NcscatPoint> processHDF5Data(byte[] hdf5Msg){
 		int ji=0, bitNum=0;
 		int day,hour,min,sec;
 		item= new ArrayList<NcscatPoint>();
-		startTime = Calendar.getInstance(); ;
+		// TODO - Caution!  Separate startTime Calendar object needs to be allocated
+		//                  for each point row, since will be shared by all points
+		//                  in that row.  See below.
+		startTime = Calendar.getInstance();
 		ByteBuffer byteBuffer = null;
 		byteBuffer = ByteBuffer.allocate(hdf5Msg.length);
 		byteBuffer.put(hdf5Msg,0,hdf5Msg.length);
@@ -277,12 +316,14 @@ public class NcscatProcessing {
 			sec = byteBuffer.getShort(bitNum+6);
 			ji=ji+8;
 			bitNum=bitNum+8;
+			// TODO - Caution!  Need to allocate new startTime here...
 			startTime.set(Calendar.DAY_OF_YEAR, day);
 			startTime.set(Calendar.HOUR_OF_DAY, hour);
 			startTime.set(Calendar.MINUTE, min);
 			startTime.set(Calendar.SECOND, sec);
 			for(int j=ji;j<ji+scatNumber*18 && bitNum <hdf5Msg.length;j=j+18){
 				sPointObj = new NcscatPoint();
+				// TODO - continued -  otherwise all points in all rows get same time here
 				sPointObj.setStTime(startTime);
 				sPointObj.setLat(byteBuffer.getShort(j));
 				sPointObj.setLon(byteBuffer.getShort(j+2));
@@ -293,8 +334,6 @@ public class NcscatProcessing {
 				sPointObj.setIb1(byteBuffer.getShort(j+12));
 				sPointObj.setIb2(byteBuffer.getShort(j+14));
 				sPointObj.setIb3(byteBuffer.getShort(j+16));
-
-
 				bitNum=bitNum+18;
 				item.add(sPointObj);
 
@@ -325,7 +364,6 @@ public class NcscatProcessing {
 	}
 
 	private static byte[] listByteTobyteArray(List<Byte> temp) {
-
 		byte[] byteArray = new byte[temp.size()];
 		int jkl=0;
 		for(Byte current:temp){
@@ -340,9 +378,6 @@ public class NcscatProcessing {
 		return recordLength;
 	}
 
-
-
-
 	public static void setRecordLength(int recordLength) {
 		NcscatProcessing.recordLength = recordLength;
 	}
@@ -354,14 +389,4 @@ public class NcscatProcessing {
 		this.inputFileName = inputFileName;
 	}
 
-
 }
-
-
-
-
-
-
-
-
-

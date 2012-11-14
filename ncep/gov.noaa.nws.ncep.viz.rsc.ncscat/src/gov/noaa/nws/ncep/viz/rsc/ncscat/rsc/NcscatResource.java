@@ -67,6 +67,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03 Feb 2011  235E       B. Hebbard  Add support for ambiguity variants
  * 16 Nov 2011             B. Hebbard  Fix excess rowCount increment in paintFrame()
  * 05/23/12       785      Q. Zhou     Added getName for legend.
+ * 16 Aug 2012  843        B. Hebbard  Added OSCAT
+ * 17 Aug 2012  655        B. Hebbard  Added paintProps as parameter to IDisplayable draw
  * </pre>
  * 
  * @author bhebbard
@@ -251,6 +253,7 @@ public class NcscatResource extends
             }
             speed = point.getIsp() / 100.0f;
             speed *= (3600.0f / 1852.0f); // m/s --> kt //TODO: Use Unit conversions...?
+            int qualityBits = point.getIql();
             switch (ncscatMode) {
             case QUIKSCAT:
             case QUIKSCAT_HI:
@@ -259,28 +262,29 @@ public class NcscatResource extends
                 // speed = -9999.9f; // ...then do not plot, regardless of user settings
                 // could break; but let's set the flags below anyway...
                 // }
-                rainQcFlag =        (point.getIql() & 0x0008) != 0x0008 &&  // bit 12 == 0 AND
-                                    (point.getIql() & 0x0004) == 0x0004;    // bit 13 == 1   rain
-                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020;    // bit 10 == 1
-                lowWindSpeedFlag =  (point.getIql() & 0x0010) == 0x0010;    // bit 11 == 1
-                availRedunFlag =    (point.getIql() & 0x0002) == 0x0002;    // bit 14 == 1   availability
+                rainQcFlag =       !getBit(qualityBits, 12) &&  // bit 12 == 0 AND
+                                    getBit(qualityBits, 13);    // bit 13 == 1   rain
+                highWindSpeedFlag = getBit(qualityBits, 10);    // bit 10 == 1
+                lowWindSpeedFlag =  getBit(qualityBits, 11);    // bit 11 == 1
+                availRedunFlag =    getBit(qualityBits, 14);    // bit 14 == 1   availability
                 break;
             case ASCAT:
             case ASCAT_HI:
             case EXASCT:
             case EXASCT_HI:
-                // qcFlag     = (point.getIql() & 0x0800) == 0x0800;        // bit  5 == 1
-                // rainQcFlag = (point.getIql() & 0x0008) != 0x0008 &&      // bit 12 == 0 AND
-                // (point.getIql() & 0x0004) == 0x0004;                     // bit 13 == 1
-                rainQcFlag = (point.getIql() & 0x0800) == 0x0800;           // bit  5 == 1
-                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020;    // bit 10 == 1
-                lowWindSpeedFlag = (point.getIql() & 0x0010) == 0x0010;     // bit 11 == 1
-                // availabilityFlag = (point.getIql() & 0x0002) == 0x0002;  // bit 14 == 1
-                // redundancyFlag = (point.getIql() & 0x0001) == 0x0001;    // bit 15 == 1
-                availRedunFlag = (point.getIql() & 0x0001) == 0x0001;       // bit 15 == 1   redundancy
+                // qcFlag     =     getBit(qualityBits,  5);    // bit  5 == 1
+                // rainQcFlag =    !getBit(qualityBits, 12) &&  // bit 12 == 0 AND
+                //                  getBit(qualityBits, 13);    // bit 13 == 1
+                rainQcFlag =        getBit(qualityBits,  5);    // bit  5 == 1
+                highWindSpeedFlag = getBit(qualityBits, 10);    // bit 10 == 1
+                lowWindSpeedFlag =  getBit(qualityBits, 11);    // bit 11 == 1
+                // availabilityFlag = getBit(qualityBits, 14);  // bit 14 == 1
+                // redundancyFlag = getBit(qualityBits, 15);    // bit 15 == 1
+                availRedunFlag =    getBit(qualityBits, 15);    // bit 15 == 1   redundancy
                 break;
             case WSCAT:
-                rainQcFlag = (point.getIql() & 0x8001) == 0x8001;           // bits 0 AND 15 == 1   rain
+                rainQcFlag = getBit(qualityBits,  0) ||
+                             getBit(qualityBits, 15);           // bits 0 OR 15 == 1   rain
                 highWindSpeedFlag = false;
                 lowWindSpeedFlag = false;
                 availRedunFlag = false;
@@ -292,6 +296,15 @@ public class NcscatResource extends
                 availRedunFlag = false;
                 break;
             }
+        }
+        
+        private boolean getBit (int bits, int bitNum) {
+        	int masks[] = {0x8000, 0x4000, 0x2000, 0x1000,
+        			       0x0800, 0x0400, 0x0200, 0x0100,
+        			       0x0080, 0x0040, 0x0020, 0x0010,
+        			       0x0008, 0x0004, 0x0002, 0x0001};
+        	int mask = masks[bitNum];
+        	return (bits & mask) != 0;
         }
     }
 
@@ -564,7 +577,7 @@ public class NcscatResource extends
         DisplayElementFactory df = new DisplayElementFactory(target, descriptor);
         ArrayList<IDisplayable> displayEls = df.createDisplayElements(windVectors, paintProps);
         for (IDisplayable each : displayEls) {
-            each.draw(target);
+            each.draw(target, paintProps);
             each.dispose();
         }
                 

@@ -70,6 +70,22 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
 
+/**
+ * SVRL resource - Display Severe local storm watch data from aww data.
+ * 
+ *  This code has been developed by the SIB for use in the AWIPS2 system.
+ *
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 
+ * 09/11/12      852        Q. Zhou     Modified time string and alignment in drawTimeLabelWatchNumber().
+ * </pre>
+ * 
+ * @author qzhou 
+ * @version 1.0
+ */
 
 public class SvrlResource  extends AbstractNatlCntrsResource< SvrlResourceData, IMapDescriptor> 
 implements     INatlCntrsResource, IStationField { 
@@ -559,7 +575,6 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 	
 	}
 
-
 	public void drawTimeLabelWatchNumber(SvrlData svrlData,IGraphicsTarget target,RGB color){
 		try{
 			for(int i = 0; i < svrlData.countyNumPoints;i++) {
@@ -568,28 +583,31 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 
 				if( labelPix != null ){
 				
-					String[] text = new String[3];
-					text[0]=" "+svrlData.watchNumber;
-					text[1]=" "+svrlData.countyNames.get(i);
-					DataTime evStartTime = new DataTime( svrlData.eventTime.getValidPeriod().getStart() );
-					DataTime evEndTime = new DataTime( svrlData.eventTime.getValidPeriod().getEnd() );
-					text[2] = " "+evStartTime.toString().substring(11, 16)
-					+ "-" + evEndTime.toString().substring(11, 16);
-					if(!svrlRscData.getWatchBoxTimeEnable() ){
-						text[2] = null;
-					}
+					String[] text = new String[2];
+					List<String> enabledText = new ArrayList<String>();
 
-					if(!svrlRscData.getWatchBoxLabelEnable() ){
-						text[1]=null;
+					if(svrlRscData.getWatchBoxLabelEnable() ){
+						enabledText.add(svrlData.countyNames.get(i));
 					}
-					if(!svrlRscData.getWatchBoxNumberEnable()){
-							text[0] = null;
-					}	for(int ii=0; ii<text.length; ii++){ text[ii] = (text[ii]==null ? "" : text[ii]);}
+					
+					if(svrlRscData.getWatchBoxTimeEnable() ){ 
+						DataTime startTime = new DataTime( svrlData.eventTime.getValidPeriod().getStart() );
+						DataTime endTime = new DataTime( svrlData.eventTime.getValidPeriod().getEnd() );
+						String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
+							+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+						enabledText.add(temp);
+					}
+					
+					for (int j=enabledText.size(); j<2; j++)
+						enabledText.add("");
+					
+					text = enabledText.toArray(text);
+					
 					target.drawStrings(font, text,   
 							labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
 							new RGB[] {color, color, color},
 							HorizontalAlignment.LEFT, 
-							VerticalAlignment.MIDDLE );
+							VerticalAlignment.TOP );
 				}
 			}
 		}
@@ -597,8 +615,6 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 			System.out.println("svrlResource.java at Line 427"+e);
 		}
 	}
-	
-	
 	
 //---------------------------------------------------------------T456
 	

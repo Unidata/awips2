@@ -49,9 +49,9 @@
          <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu?before=help">
            <menu
-                id="NCFile"
-                label="File"
-                mnemonic="F">
+               id="NCCAVE"
+               label="CAVE"
+               mnemonic="C">
              <visibleWhen>
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
@@ -71,7 +71,7 @@
                   </visibleWhen>
                   <parameter
                         name="mode"
-                        value="CREATE">
+                        value="CREATE_RBD">
                   </parameter>
                </command>                   
                 <command
@@ -96,10 +96,46 @@
                     label="Area...">
               </command>                
              </menu>
+            <menu id="perspectives" label="Perspective">
+            	<dynamic
+                   class="com.raytheon.viz.ui.personalities.awips.OpenPerspectiveMenu"
+                   id="com.raytheon.viz.ui.personalities.awips.openPerspective">
+            	</dynamic>
+            </menu>           
              <separator
-                   name="beforeSaveGroup"
+                   name="beforePreferences"
                    visible="true">
              </separator>
+             <command
+                  commandId="org.eclipse.ui.window.preferences" 
+                  label="Preferences..."
+                  style="push"
+                  mnemonic="f">
+            </command> 
+            <separator
+                   name="beforeExit"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="org.eclipse.ui.file.exit"
+                   label="Exit..."
+                   style="push"
+                   mnemonic="E">
+             </command> 
+         </menu> 
+           <menu
+                id="NCFile"
+                label="File"
+                mnemonic="F">
+             <visibleWhen>
+                <reference
+                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                </reference></visibleWhen>
+         
+             <!-- <separator
+                   name="beforeSaveGroup"
+                   visible="true">
+             </separator> -->
              <command
                    commandId="com.raytheon.viz.ui.actions.notImplemented"
                    label="Save"
@@ -112,7 +148,7 @@
                    style="push"
                    mnemonic="A">
              </command>
-             <separator
+             <!-- <separator
                    name="beforePreferences"
                    visible="true">
              </separator>
@@ -121,7 +157,7 @@
                   label="Preferences..."
                   style="push"
                   mnemonic="f">
-            </command>
+            </command> -->
              <separator
                    name="beforePrint"
                    visible="true">
@@ -137,7 +173,7 @@
                    label="Print Reverse Image..."
                    style="push">
              </command>
-             <separator
+             <!-- <separator
                    name="beforeExit"
                    visible="true">
              </separator>
@@ -146,7 +182,7 @@
                    label="Exit..."
                    style="push"
                    mnemonic="E">
-             </command>
+             </command> -->
            </menu>
            <menu
                 id="NCOption"
@@ -261,10 +297,26 @@
                        value="LOCAL">
                  </parameter>
               </command // redundant, but saving as comment in case want to consider placing here again for legacy position consistency-->
+              <menu
+                   id="Satellite"
+                   label="Satellite" >
               <command
                     commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
-                    label="SAT">
+                    label="Fit to Screen">
+                    <parameter
+                       name="displayMode"
+                       value="fitToScreen">
+                     </parameter>
               </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
+                    label="Size of Image">
+                    <parameter
+                       name="displayMode"
+                       value="sizeOfImage">
+                     </parameter>
+              </command>
+              </menu>
               <!--command
                     commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea.DISABLED"
                     label="Custom">
@@ -324,7 +376,18 @@
                     tooltip="Create RBDs">
                  <parameter
                        name="mode"
-                       value="CREATE">
+                       value="CREATE_RBD">
+                 </parameter>
+              </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                    label="Manage RBDs"
+                    mnemonic="S"
+                    style="push"
+                    tooltip="Save, Delete, Copy RBDs">
+                 <parameter
+                       name="mode"
+                       value="MANAGE_RBDS">
                  </parameter>
               </command>
               <command
@@ -332,21 +395,10 @@
                     label="Manage Resources"
                     mnemonic="M"
                     style="push"
-                    tooltip="Create and Edit Resource Definitions">
+                    tooltip="Create and Edit Resource Definitions and Attribute Sets">
                  <parameter
                        name="mode"
-                       value="MANAGE">
-                 </parameter>
-              </command>
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                    label="Manage SPFs"
-                    mnemonic="S"
-                    style="push"
-                    tooltip="Save Multiple SPFs">
-                 <parameter
-                       name="mode"
-                       value="MULTI-SPF">
+                       value="MANAGE_RESOURCES">
                  </parameter>
               </command>
             <command
@@ -475,7 +527,7 @@
                   </visibleWhen>
                   <parameter
                         name="mode"
-                        value="CREATE">
+                        value="CREATE_RBD">
                   </parameter>
                </command>
 	            <command
@@ -827,6 +879,11 @@
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
             name="Switch to Satellite Area">
+         <commandParameter
+               id="displayMode"
+               name="displayMode"
+               optional="true">
+         </commandParameter>
       </command>
       <command
             description="A command with no associated handler, to let us (temporarily) gray out inoperative selections..."
@@ -952,7 +1009,7 @@
             sequence="W">
                  <parameter
                        id="mode"
-                       value="CREATE">
+                       value="CREATE_RBD">
                  </parameter>
          </key>  
          
@@ -963,7 +1020,7 @@
             sequence="SPACE">
                  <parameter
                        id="mode"
-                       value="CREATE">
+                       value="CREATE_RBD">
                  </parameter>
          </key> 
          

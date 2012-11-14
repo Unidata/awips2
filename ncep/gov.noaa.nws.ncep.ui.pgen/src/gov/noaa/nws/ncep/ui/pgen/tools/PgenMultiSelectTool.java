@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/09		#149		B. Yin   	Initial Creation.
  * 04/10		#165		G. Zhang	add support for VAA.
  * 10/10        #289       Archana    Added logic to handle the delete key    
+ * 07/12		#610		B. Yin		Make the multi-select work for GFA.
  * </pre>
  * 
  * @author	B. Yin
@@ -88,6 +89,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 
 		//Current Pgen Category
 		private String pgenCat;
+		private String pgenObj;
 
 		private List<Coordinate> polyPoints;
 		/*
@@ -98,6 +100,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 		 */
 		@Override	   	
 		public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
 			theFirstMouseX = anX;
 			theFirstMouseY = aY;
@@ -105,6 +108,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 			if ( button == 1 ) {
 
 				pgenCat = PgenSession.getInstance().getPgenPalette().getCurrentCategory();
+				pgenObj = PgenSession.getInstance().getPgenPalette().getCurrentObject();
 
 				//if no pgen category, pop up a warning box.
 				if ( pgenCat == null ){
@@ -162,7 +166,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 		 */
 		public boolean handleMouseDownMove(int anX, int aY, int button) {
 
-			if (button != 1 || noCat) {
+			if ( !isResourceEditable() || button != 1 || noCat) {
 				return false;
 			}
 
@@ -200,7 +204,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 		@Override
 		public boolean handleMouseUp(int anX, int aY, int button) {
 
-			if ( noCat) {
+			if (  !isResourceEditable() || noCat) {
 				return false;
 			}
 
@@ -260,6 +264,28 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 							}
 						}
 					}
+					else if (pgenObj != null && pgenObj.equalsIgnoreCase("GFA")){
+						// Get the nearest element and set it as the selected element.
+						AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
+
+						if ( adc != null && adc.getPgenType().equalsIgnoreCase("GFA")){
+
+							if ( pgenType == null || pgenType.equalsIgnoreCase("MultiSelect") ){
+								pgenType = adc.getPgenType();
+							}
+							
+
+					//		if ( adc.getPgenType().equalsIgnoreCase("GFA")){
+
+								if(!drawingLayer.getAllSelected().contains(adc)){
+									drawingLayer.addSelected(adc);
+								}
+								else {
+									drawingLayer.removeSelected(adc);
+								}
+					//		}
+						}
+					}
 				}
 			}
 
@@ -293,6 +319,10 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 
 			if ( attrDlg == null && drawingLayer.getAllSelected() != null
 					&& !drawingLayer.getAllSelected().isEmpty()) {
+				if ( pgenCat.equalsIgnoreCase("MET")){
+					pgenType = pgenObj;
+				}
+					
 				attrDlg = AttrDlgFactory.createAttrDlg( pgenCat, pgenType,
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell() );  
 				
@@ -378,7 +408,7 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 		@Override
 		public boolean handleMouseMove(int anX, int aY) {
 			
-			if (noCat) {
+			if ( !isResourceEditable() || noCat) {
 				return false;
 			}
 
@@ -416,6 +446,8 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleKeyDown(int keyCode) {
+        	if ( !isResourceEditable() ) return false;
+
 			if ( keyCode == SWT.SHIFT) {
 				shiftDown = true;
 			}
