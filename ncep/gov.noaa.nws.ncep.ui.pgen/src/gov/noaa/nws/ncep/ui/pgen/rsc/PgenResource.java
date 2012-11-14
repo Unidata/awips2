@@ -74,8 +74,10 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
@@ -129,6 +131,9 @@ import com.vividsolutions.jts.geom.Point;
  * 										workaround pending RTS regression fix.
  * 04/12		#705		J. Wu		TTR 542 - Draw elements in specific sequences.
  * 05/12		#610		J. Wu		TTR 397 - Select GFA by text box.
+ * 07/12		#695		B. Yin		TTR 261 - Add Pgen resource editable capability.
+ * 08/12		#655		B. Hebbard	TTR 382 - Add paintProps as parameter to IDisplayable draw
+ * 09/12					B. Hebbard  Merge out RTS changes from OB12.9.1
  *
  * </pre>
  * 
@@ -182,6 +187,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 			LoadProperties loadProperties) {
 		
     	super(resourceData, loadProperties);
+        getCapability(EditableCapability.class).setEditable(true);
+
 		resourceData.addChangeListener(this);        // we want to know when PGEN objects change
 
 		elSelected = new ArrayList<AbstractDrawableComponent>();
@@ -276,7 +283,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 */
 	@Override
 	public void initInternal(IGraphicsTarget target) throws VizException {
-	
+        EditableManager.makeEditable(this,
+                getCapability(EditableCapability.class).isEditable());
 	}
 
 	/* (non-Javadoc)
@@ -645,7 +653,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 
 			//drawElement( target, paintProps, df, symset );
 			for ( IDisplayable each : displayEls ) {
-				each.draw(target);
+				each.draw(target, paintProps);
 				each.dispose();
 			}
 		}
@@ -1473,7 +1481,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		this.catFilter = catFilter;
 	}
 	
-	private int getMaxDistToSelect(){
+	public int getMaxDistToSelect(){
 		IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
 		int maxDist = prefs.getInt(PgenPreferences.P_MAX_DIST);  
 		if ( maxDist <= 0 ) maxDist = 30;
@@ -1775,5 +1783,13 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 				
 	}
 
+	   /**
+     * Check if the resource is currently editable
+     * 
+     * @return editable
+     */
+    public boolean isEditable() {
+        return getCapability(EditableCapability.class).isEditable();
+    }
 }
 

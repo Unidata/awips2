@@ -1,0 +1,26 @@
+!
+! Restore File : 250mb_wind_and_rel_vort
+!
+! Log:
+! J. Carr/NCEP/HPC	 10/97	Created restore file
+! J. Carr/HPC             2/99  Changed obs to kntv(wnd)
+
+GLEVEL =  250
+GVCORD =  pres
+SKIP   =    0/1
+SCALE  =   5
+GDPFUN =  (vor(wnd))            !(vor(wnd)) !kntv(wnd)
+TYPE   =    c/f ! c ! b
+CINT   =    2/-99/-2              !2/2/99
+LINE   =    29/5/1/2              !7/5/1/2
+FINT   =    4;6;8;10;12;14;16;18
+FLINE  =   0;14-20;3
+HILO   =    2;6/X;N/-99--4;4-99   ! 0
+HLSYM  =   0
+!CLRBAR =  1/V/LL!0
+WIND   =    6/.8/2/112
+TITLE  =   1/-1/~ @ WIND   = AND RELATIVE VORTICITY!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

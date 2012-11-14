@@ -33,10 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-//import java.util.Date;
-//import java.util.Map.Entry;
-//import java.text.SimpleDateFormat;
-//import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.RGB;
@@ -67,9 +63,6 @@ import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBReader;
-//import com.vividsolutions.jts.geom.Point;
-//import com.vividsolutions.jts.io.ParseException;
-
 
 /**
  * FFA resourceResource - Display Flash Flood data from aww data.
@@ -86,6 +79,8 @@ import com.vividsolutions.jts.io.WKBReader;
  *                                      events start and then end in different dates    
  * 16 Feb 2012    555       S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords()                                 
  * 05/23/12       785       Q. Zhou     Added getName for legend.
+ * 17 Aug 2012    655       B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ * 09/11/12      852        Q. Zhou     Modified time string and alignment in drawLabel().
  * </pre>
  * 
  * @author mgao 
@@ -805,33 +800,38 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 					 */
 					if(!ffaRscData.getOutlineEnable()) {
 						drawSymbol(FFAConstant.FILLED_DIAMOND_SYMBOL, graphicsTarget, paintProps, labelLatLon, 
-								color, symbolLineWidth, symbolSizeScale); 
+								color, symbolLineWidth, symbolSizeScale*0.4); 
 					}
 					
-					String[] textArray = new String[3];
+					String[] text = new String[3];
+					List<String> enabledText = new ArrayList<String>();
 
 					if(ffaRscData.getCountyOrZoneNameEnable() ){
-						textArray[0]=getCountyOrZoneAndStateNameValue(eachCountyOrZoneAndStateName); 
+						enabledText.add(getCountyOrZoneAndStateNameValue(eachCountyOrZoneAndStateName)); 
 					}
 
 					if(ffaRscData.getTimeEnable() ){
-						textArray[1] = getEventTimeStringValue(ffaData.eventTime, ffaData.endTime);
+						enabledText.add(getEventTimeStringValue(ffaData.eventTime, ffaData.endTime));
 					}
 
 					if(ffaRscData.getImmediateCauseEnable() ){
-						textArray[2] = getImmediateCauseDesc(ffaData.immediateCause); 
+						enabledText.add(getImmediateCauseDesc(ffaData.immediateCause)); 
 					}
-for(int i=0; i<textArray.length; i++) textArray[i] = (textArray[i]==null ? "" : textArray[i]);//T456					
-					IExtent screenExtentInPixels = paintProps.getView().getExtent();
 
+					for (int j=enabledText.size(); j<3; j++)
+						enabledText.add("");
+					
+					text = enabledText.toArray(text);
+
+					IExtent screenExtentInPixels = paintProps.getView().getExtent();
 			        double ratio = screenExtentInPixels.getWidth()
 			                / paintProps.getCanvasBounds().width;
 
-					graphicsTarget.drawStrings(font, textArray,   
+					graphicsTarget.drawStrings(font, text,   
 							labelPix[0], labelPix[1]+3*ratio, 0.0, TextStyle.NORMAL,
 							new RGB[] {color, color, color},
 							HorizontalAlignment.LEFT, 
-							VerticalAlignment.MIDDLE );
+							VerticalAlignment.TOP );
 				}
 				index++; 
 			}
@@ -871,7 +871,7 @@ for(int i=0; i<textArray.length; i++) textArray[i] = (textArray[i]==null ? "" : 
     	DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, this.descriptor );
 		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements(symbol, paintProps );
 		for ( IDisplayable each : displayElsPoint ) {
-			      each.draw(graphicsTarget);
+			      each.draw(graphicsTarget, paintProps);
 			      each.dispose();
 		}
 	}
@@ -1024,14 +1024,14 @@ for(int i=0; i<textArray.length; i++) textArray[i] = (textArray[i]==null ? "" : 
 
 	private String getEventTimeStringValue(DataTime eventStartTime, DataTime eventEndTime) {
 		StringBuilder builder = new StringBuilder(16); 
-		builder.append(" "); 
+		 
 		if(eventStartTime != null)
-			builder.append(eventStartTime.toString().substring(0, 16)); //.substring(11, 16)); 
+			builder.append(eventStartTime.toString().substring(8, 10) +"/" +eventEndTime.toString().substring(11, 13) +eventStartTime.toString().substring(14, 16));
 		else
 			builder.append(" - ");
-		builder.append(" -- "); 
+		builder.append("-"); 
 		if(eventEndTime != null)
-			builder.append(eventEndTime.toString().substring(0, 16)); //.substring(11, 16)); 
+			builder.append(eventEndTime.toString().substring(8, 10) +"/" +eventEndTime.toString().substring(11, 13) +eventEndTime.toString().substring(14, 16)); 
 		else
 			builder.append(" - ");
 		return builder.toString(); 
@@ -1529,7 +1529,7 @@ Collection<Geometry> gw = new ArrayList<Geometry>();//2011-10-05 FrameData's fDa
     									
     									countyGeo= (com.vividsolutions.jts.geom.MultiPolygon)wkbReader.read(wkb1);
     									
-    									if ( countyGeo != null && countyGeo.isValid() && ( ! countyGeo.isEmpty())){
+    									if ( countyGeo != null && !countyGeo.isEmpty()){
     										gw.add(countyGeo);
     									}
     									

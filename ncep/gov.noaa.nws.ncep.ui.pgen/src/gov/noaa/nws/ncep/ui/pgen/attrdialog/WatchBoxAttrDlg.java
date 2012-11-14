@@ -14,6 +14,7 @@ import java.awt.Color;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -556,15 +557,25 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	 */
 	public void openSpecDlg(){
 		if (dispBtn.getText().equalsIgnoreCase("Show Display")){
+			final Shell shell = this.getShell();
+			//make sure the spec dialog is on top
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!( shell == null || shell.isDisposed() )) { // make sure the dialog is not closed
 			dispBtn.setText("Hide Display");
 			if ( infoDlg == null ){
 				infoDlg = WatchInfoDlg.getInstance(WatchBoxAttrDlg.this.getParentShell(), INSTANCE);
 			}
 			infoDlg.setBlockOnOpen(false);
+
 			infoDlg.open();
 			infoDlg.clearCwaPane();
 			infoDlg.createCWAs(wb.getWFOs());
 			infoDlg.setStatesWFOs();
+					}
+				}
+			});
 
 		}
 		else {

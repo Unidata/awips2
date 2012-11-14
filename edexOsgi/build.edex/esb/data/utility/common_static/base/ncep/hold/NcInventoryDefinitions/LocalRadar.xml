@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>LocalRadar</inventoryName>
-    <inventoryParameters>pluginName,icao,productCode,elevationNumber,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,icao,productCode,elevationNumber,format,dataTime</inventoryParameters>
     <baseConstraints>
         <mapping key="pluginName">
             <constraint constraintValue="radar" constraintType="EQUALS"/>

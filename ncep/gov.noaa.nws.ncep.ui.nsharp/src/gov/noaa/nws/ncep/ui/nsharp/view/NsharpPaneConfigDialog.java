@@ -23,8 +23,6 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
-import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -42,14 +40,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.ui.editor.EditorInput;
 
 public class NsharpPaneConfigDialog extends Dialog {
 	private static NsharpPaneConfigDialog thisDialog=null;

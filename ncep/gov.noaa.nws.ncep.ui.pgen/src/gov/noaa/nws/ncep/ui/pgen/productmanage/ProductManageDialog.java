@@ -11,6 +11,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.GfaAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.OutlookAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 09/11  		#335      	J. Wu 		made cascading menu for activity type/subtype. 
  * 06/12  		TTR253      J. Wu 		made layer check boxes to stay de-selected 
  *                                      unless the user selects them. 
+ * 06/12		TTR559		B. Yin		Link the layer name to Outlook type
  * 
  * </pre>
  *
@@ -1048,6 +1050,14 @@ public class ProductManageDialog extends ProductDialog {
         	}
         	else {
         	    GfaAttrDlg.getInstance( this.getParent() ).switchHazard( currentLayer.getName() );
+        	}
+        }
+        else if ( OutlookAttrDlg.getInstance( this.getParent()).getShell() !=null ){
+           	if ( drawingLayer.getSelectedDE() != null ) {
+        		OutlookAttrDlg.getInstance( this.getParent() ).close();
+        	}
+        	else {
+        	    OutlookAttrDlg.getInstance( this.getParent() ).setOtlkType( currentLayer.getName() );
         	}
         }
         else {
