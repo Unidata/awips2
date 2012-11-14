@@ -1,3 +1,4 @@
+
 package gov.noaa.nws.ncep.edex.plugin.mosaic.common;
 
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants;
@@ -51,17 +52,24 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Decoder implementation for mosaic plugin
  * 
- * Date Ticket# Engineer Description ------------ ---------- -----------
- * -------------------------- 09/2009 143 L. Lin Initial creation 11/2009 143 L.
- * Lin Add parameters sourceId and trueElevationAngle in mosaic record. 1/2011
- * 143 T. Lee Add resolution to key for AWC 1km NSSL Extracted prod name from
- * mosaicInfo.txt </pre>
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 09/2009      143				L. Lin     	Initial creation
+ * 11/2009      143             L. Lin      Add parameters sourceId and
+ * 											trueElevationAngle in mosaic record.
+ * 1/2011		143				T. Lee		Add resolution to key for AWC 1km NSSL
+ *											Extracted prod name from mosaicInfo.txt
+ * 6/2012       825             G. Hull     rm prodName from URI. Use prodCode where needed.
+ * 09/2012						B. Hebbard  Merge out RTS changes from OB12.9.1
+ * 
+ * 
+ * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
  * @author L. Lin
  * @version 1.0
  */
+
 
 @Entity
 @Table(name = "mosaic", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -75,19 +83,18 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     private static final long serialVersionUID = 1L;
 
     @Column
-    @DataURI(position = 2)
+    @DataURI(position = 1)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer productCode;
 
     @Column
-    @DataURI(position = 3)
+    @DataURI(position=2)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer resolution;
 
     @Column(length = 16)
-    @DataURI(position = 1)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private String prodName;

@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.DefaultVizRadarRecord;
@@ -141,13 +142,16 @@ implements IRadarConfigListener, IResourceDataChanged, IRangeableResource,
     protected AbstractRadarResource(RadarResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        getCapability(ColorableCapability.class);
+//        getCapability(ColorableCapability.class);
         resourceData.addChangeListener(this);
 
         dataTimes = new ArrayList<DataTime>();
         radarRecords = Collections
                 .synchronizedMap(new HashMap<DataTime, VizRadarRecord>());
         icao = "";
+        getCapability(ColorMapCapability.class).setSuppressingMenuItems(true);
+        getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
+        getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
     }
    
     /*

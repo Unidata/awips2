@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.editor.EditorInput;
  *  02/10/2011              Chin Chen   handle multiple editor copies dispose issue    
  *  03/08/2011   migration  Greg Hull   move Display Name methods to DisplayNameManager
  * 05/17/2012     #791       Quan Zhou   Added findEmptyEditor() to check if default editor is empty
+ * 08/09/2012     837       Archana      Updated getNcDisplayID() to fix a NumberFormatException     
  * </pre>
  * 
  * @author ghull
@@ -316,7 +317,13 @@ public class NmapUiUtils {
         if (indx == -1 || indx > 3) {
             return -1;
         } else {
-            return Integer.parseInt(displayTitle.substring(0, indx));
+        	      try{
+        	             int displayID = Integer.parseInt(displayTitle.substring(0, indx));
+        	             return displayID;
+        	
+        	          }catch(NumberFormatException e ){
+        		         return -1;
+        	         }
         }
     }
 

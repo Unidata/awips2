@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Gridded Cloud Amount
+displayUnitStr=SounderCloudAmountPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element ref="{}Track" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}Contours" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}TCA" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{}Spenes" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}Sigmet" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}WatchBox" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element ref="{}Gfa" maxOccurs="unbounded" minOccurs="0"/>
@@ -68,7 +69,8 @@ import javax.xml.bind.annotation.XmlType;
     "outlook",
     "gfa",
     "volcano",
-    "tcm"
+    "tcm",
+    "spenes"
 })
 @XmlRootElement(name = "DrawableElement")
 public class DrawableElement {
@@ -95,6 +97,8 @@ public class DrawableElement {
     protected List<Contours> contours;
     @XmlElement(name = "TCA")
     protected List<TCA> tca;
+    @XmlElement(name = "Spenes")
+    protected List<Spenes> spenes;
     @XmlElement(name = "Sigmet")
     protected List<Sigmet> sigmet;
     @XmlElement(name = "WatchBox")
@@ -425,6 +429,35 @@ public class DrawableElement {
             tca = new ArrayList<TCA>();
         }
         return this.tca;
+    }
+    
+    /**
+     * Gets the value of the spenes property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the spenes property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getSpenes().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link Spenes }
+     * 
+     * 
+     */
+    public List<Spenes> getSpenes() {
+        if (spenes == null) {
+            spenes = new ArrayList<Spenes>();
+        }
+        return this.spenes;
     }
     
     /**

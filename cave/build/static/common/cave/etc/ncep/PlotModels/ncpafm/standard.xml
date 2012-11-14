@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="ncpafm" name="standard">
-                                 <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STID">
+                                 <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         <Position>TC</Position>
             <Color red="255" green="228" blue="220"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TMPF">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TMPF">
             <Position>UL</Position>
             <Color red="255" green="0" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TDYF">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TDYF">
             <Position>UC</Position>
             <Color red="255" green="0" blue="255"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="PP12">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="PP12">
             <Position>UR</Position>
             <Color red="255" green="215" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="RELH">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="RELH">
             <Position>ML</Position>
             <Color red="205" green="133" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="HEAT">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="HEAT">
             <Position>MR</Position>
             <Color red="255" green="174" blue="185"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="WCEQ">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="WCEQ">
             <Position>LL</Position>
             <Color red="0" green="205" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TNTF">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TNTF">
             <Position>LC</Position>
             <Color red="255" green="165" blue="79"/>
         </PlotModelElement>
     <!-- 
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="OVIS">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="OVIS">
         <Position>LR</Position>
         <Color red="5" green="127" blue="255"/>
     </PlotModelElement>
      -->
     <!-- 
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="WSYM">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="WSYM">
         <Position>BC</Position>
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>
      -->
-	<PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="BRBK">
+	<PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="BRBK">
          <Position>WD</Position>
          <Color red="0" green="178" blue="238"/>
     </PlotModelElement>

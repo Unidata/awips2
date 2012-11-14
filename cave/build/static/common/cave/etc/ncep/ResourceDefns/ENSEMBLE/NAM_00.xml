@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>NAM_00</resourceDefnName>
     <resourceCategory>ENSEMBLE</resourceCategory>
         <resourceParameters>
 primaryModel=nam
 availableModels=nam;gefs:01,02,03,04,05,07,09;gfs;ruc80
-pluginName=ncgrib
+pluginName=grid
     </resourceParameters>
     <filterLabels>Forecast,Ensemble</filterLabels>
     <rscImplementation>EnsembleFcstGridContours</rscImplementation>

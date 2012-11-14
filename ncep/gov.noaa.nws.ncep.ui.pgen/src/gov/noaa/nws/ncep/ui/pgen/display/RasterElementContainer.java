@@ -66,7 +66,7 @@ public class RasterElementContainer extends AbstractElementContainer {
 		saveProps = dprops;
 		
 		for ( IDisplayable each : displayEls ) {
-	         each.draw(target);
+	         each.draw(target, paintProps);
 		}
 	}
 

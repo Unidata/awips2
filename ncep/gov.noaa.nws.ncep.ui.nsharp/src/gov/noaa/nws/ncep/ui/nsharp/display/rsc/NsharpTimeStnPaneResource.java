@@ -147,7 +147,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     	y = dtYOrig;
     	target.drawLine(dtXOrig, y, 0.0,dtXEnd , y, 0.0,NsharpConstants.color_white,1, LineStyle.SOLID);
     	//System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
-    	
+
     	x = dtXOrig +dtWidth/2;
     	// line divide nextPage and prevPage strings
     	target.drawLine(x, y, 0.0, 
@@ -274,7 +274,7 @@ public class NsharpTimeStnPaneResource extends NsharpAbstractPaneResource{
     	target.drawLine(x, y, 0.0, 
     			x , y+1.2*charHeight*yRatio, 0.0, 
     			NsharpConstants.color_white,1, LineStyle.SOLID);
-    	
+
     	x = stnXOrig + 5;
     	y = y+1.2*charHeight*yRatio;
     	s = "nextPage";

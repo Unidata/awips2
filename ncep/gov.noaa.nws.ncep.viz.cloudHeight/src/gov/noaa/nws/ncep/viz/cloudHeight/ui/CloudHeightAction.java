@@ -16,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -37,6 +38,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/01/12     524/TTR11   B. Hebbard    Various changes to allow mutual operation of
  *                                        'Take Control' button with other Modal Tools
  * 06/01/12		747			B. Yin		  Made the pan tool work when the shift is held down.
+ * 06/21/12     826         Archana       Updated the activateTool() method to remove the cloudheight tool from the 
+ *                                        tool manager when there is no IR image loaded. 
+ *                                        Instead, the default Pan tool is loaded. 
+ *                                        
  * 
  * </pre>
  * 
@@ -91,7 +96,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 			mouseHndlr = new MouseHandler();
 		}
 		if (mapEditor != null) {
-			mapEditor.registerMouseHandler( this.mouseHndlr );
+			mapEditor.registerMouseHandler( this.mouseHndlr, InputPriority.LOWEST );
 		}
 
         NCDisplayPane[] seldPanes = (NCDisplayPane[]) mapEditor.getSelectedPanes();
@@ -116,6 +121,13 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 		satResource = cldHghtProcessor.getSatResource();
 		if ( satResource == null ) {
 			issueAlert();
+			AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+			.getCurrentPerspectiveManager();
+			if (mgr != null) {
+				mgr.getToolManager().deselectModalTool(this);
+                NmapUiUtils.setPanningMode();
+
+			}
 			return;
 		}
 		

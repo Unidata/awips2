@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
@@ -75,6 +76,10 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * 09/28/11             Xilin Guo    Made changes to create IWireframeShape for watch number 
  * 12/27/11             Xilin Guo    Checked available watch data                          
  * 05/23/2012    785    Q. Zhou      Added getName for legend.
+ * 08/17/12      655    B. Hebbard   Added paintProps as parameter to IDisplayable draw
+ * 09/05/12      857    Q. Zhou      Displayed watch number. Modified time string and alignment in drawTimeLabelWatchNumber().
+ *                                    Added label/time for union.  Fixed a bug for querying county. Modified fill alpha to 0.5.
+ * 09/13/12      857    Q. Zhou      Remove constraint & metamap in initResource().                                  
  * </pre>
  * 
  * @author ujosyula 
@@ -89,6 +94,9 @@ implements     INatlCntrsResource, IStationField {
 	private WouResourceData wouRscData;
 	private List<WouRscDataObj> modifyList ;
 
+	//Area change flag
+	private boolean areaChangeFlag = false;
+	
 		private class WouRscDataObj implements IRscDataObject {
 			String 				datauri;       //used as a key string
 			DataTime        	issueTime;     //  issue time from bulletin
@@ -156,6 +164,27 @@ implements     INatlCntrsResource, IStationField {
 		RGB					symbolColor;
 		int					symbolWidth;
 		int					symbolSize;
+	}
+
+	/**
+	 *  called in the constructor.
+	 */
+	private void addRDChangedListener(){
+		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		editor.addRenderableDisplayChangedListener(this.new WouDCListener());
+	}
+	
+	 /**
+	 * change the flag so outlineShape can be re-calculated
+	 */
+	private class WouDCListener implements com.raytheon.uf.viz.core.IRenderableDisplayChangedListener{
+
+		@Override
+		public void renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane pane,
+				com.raytheon.uf.viz.core.drawables.IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+			
+			areaChangeFlag = true;			
+		}		
 	}
 
 	protected class FrameData extends AbstractFrameData {
@@ -271,6 +300,7 @@ implements     INatlCntrsResource, IStationField {
 				LoadProperties loadProperties ) throws VizException {
 			super(rscData, loadProperties);
 			wouRscData = (WouResourceData) resourceData;	
+			addRDChangedListener();
 		modifyList = new ArrayList<WouRscDataObj>();
 		}
 		
@@ -312,10 +342,10 @@ implements     INatlCntrsResource, IStationField {
 							wouStatusData.issueTime =new DataTime(awwRecord.getIssueTime());
 							wouStatusData.reportType=awwRecord.getReportType();
 							wouStatusData.datauri=awwRecord.getDataURI();
-							wouStatusData.watchNumber=awwRecord.getWatchNumber();
+							
 							String ugcline = awwugcs.getUgc();//get the ugc line to find the counties
 							if(ugcline!=null && ugcline!=""){
-
+								wouStatusData.watchNumber = awwugcs.getEventTrackingNumber();
 								wouStatusData.countyUgc = new ArrayList<String>();
 								int i=0;
 								String temp;
@@ -354,6 +384,7 @@ implements     INatlCntrsResource, IStationField {
 						            wouStatusData.evPhenomena		=awwVtech.getPhenomena();
 						            wouStatusData.evProductClass	=awwVtech.getProductClass();
 						            wouStatusData.evSignificance	=awwVtech.getSignificance();
+						           
 						            if((awwVtech.getAction().equalsIgnoreCase("COR"))||(awwVtech.getAction().equalsIgnoreCase("CAN"))
 						            			||(awwVtech.getAction().equalsIgnoreCase("EXP"))){
 						            	modifyList.add(wouStatusData);
@@ -461,15 +492,14 @@ implements     INatlCntrsResource, IStationField {
 			stationTable = new StationTable( 
 					NcPathManager.getInstance().getStaticFile( 
 							NcPathConstants.COUNTY_STN_TBL ).getAbsolutePath() );
-			HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
-			metadataMap.put("issueOffice",new RequestConstraint("KWNS"));
-			metadataMap.put("wmoHeader",new RequestConstraint("WOUS64"));
-			String wou[]={"SEVERE_THUNDERSTORM_WATCH", "TORNADO_WATCH_OUTLINE_UPDATE"};
-			RequestConstraint ids = new RequestConstraint();
-	        ids.setConstraintType(ConstraintType.IN);
-	        ids.setConstraintValueList(wou);
-			metadataMap.put("reportType",ids);
-			resourceData.setMetadataMap(metadataMap);
+			
+//			HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
+//			String wou[]={"SEVERE_THUNDERSTORM_WATCH", "TORNADO_WATCH_OUTLINE_UPDATE"};
+//			RequestConstraint ids = new RequestConstraint();
+//	        ids.setConstraintType(ConstraintType.IN);
+//	        ids.setConstraintValueList(wou);
+//			metadataMap.put("reportType",ids);
+//			resourceData.setMetadataMap(metadataMap);
 			queryRecords();
 		}
 
@@ -509,6 +539,12 @@ implements     INatlCntrsResource, IStationField {
 		if( paintProps == null ) {
 			return;
 		}
+		
+		if( areaChangeFlag ){   //T456: dispose old outlineShape?/			
+			areaChangeFlag = false; 
+			postProcessFrameUpdate(); 
+		}
+		
 		FrameData currFrameData = (FrameData) frameData;
 
 		RGB color = new RGB (155, 155, 155);
@@ -659,10 +695,10 @@ implements     INatlCntrsResource, IStationField {
 		
 		if ( wouRscData.getWatchBoxFillEnable() ) {
 			if (wouRscData.thunderstormEnable) {
-				drawSevereThunderstormWatch (currFrameData,  target,paintProps, 2);
+				drawSevereThunderstormWatch (currFrameData,  target,paintProps, 3);
 			}
 			if (wouRscData.tornadoEnable) {
-				drawTornadoWatch (currFrameData,  target,paintProps, color, symbolWidth, 2);
+				drawTornadoWatch (currFrameData,  target,paintProps, color, symbolWidth, 3);
 			}
 		}
 		if ( wouRscData.getWatchBoxUnionEnable() ) {
@@ -713,7 +749,7 @@ implements     INatlCntrsResource, IStationField {
 					DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
 					ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
 					for (IDisplayable each : displayEls) {
-						each.draw(target);
+						each.draw(target, paintProps);
 						each.dispose();
 					}
 				}
@@ -745,25 +781,31 @@ implements     INatlCntrsResource, IStationField {
 
 		String geoConstraint = String.format("the_geom_0_001 && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
 				env.getMinX(), env.getMinY(), env.getMaxX(), env.getMaxY());
+	    
 	    StringBuilder query = new StringBuilder(
 		"select countyname, state, AsBinary(the_geom), AsBinary(the_geom_0_001) from mapdata.county where (");
         int i = 0;
 	    for ( WouCntyRscData wData : wouCntyDataValues) {
 	    	if ( ! isDisplay( wData) || wData.g.size() > 0 ) continue;
+	    	
 	    	if ( i != 0 ) {
 	    		query.append(" OR ");
 	    	}
+	    	
 	    	query.append("(countyname LIKE '%");
-			query.append(wData.countyName.replace("_", " "));
+			query.append(wData.countyName.replace("_", " ").replace("'", "\\'")); //Queen_Anne's
 			query.append("%' AND  state ='");
 			query.append(wData.stateName);
 			query.append("')");
 			i ++;
+	    	
 	    }
+	    
 	    if ( i == 0 ) return;
          query.append(") AND ");
          query.append(geoConstraint);
 		 query.append(";");
+		 //System.out.println("query "+query);
 		 List<Object[]> results = DirectDbQuery.executeQuery
 			        (query.toString(), "maps", QueryLanguage.SQL);
 		 WKBReader wkbReader = new WKBReader();
@@ -882,34 +924,34 @@ implements     INatlCntrsResource, IStationField {
 
 					if( labelPix != null ){
 						String[] text = new String[3];
-						text[0]=" "+wData.watchNumber;
-						text[1]=" "+wData.countyName;
-						DataTime startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
-						DataTime endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
-						text[2] =" " + startTime.toString().substring(11, 16) + "-"
-								+ endTime.toString().substring(11, 16);
+						List<String> enabledText = new ArrayList<String>();
 
-
-						if(!wouRscData.getWatchBoxTimeEnable() ){
-							//text[2] = null;
-							text[2] = "";
+						if(wouRscData.getWatchBoxNumberEnable() ){
+							enabledText.add(wData.watchNumber);
 						}
 
-						if(!wouRscData.getWatchBoxLabelEnable() ){
-							//text[1]=null;
-							text[1]="";
+						if(wouRscData.getWatchBoxLabelEnable() ){
+							enabledText.add(wData.countyName);
 						}
 
-						if(!wouRscData.getWatchBoxNumberEnable() ){
-							//text[0] = null;
-							text[0] = "";
+						if(wouRscData.getWatchBoxTimeEnable() ){
+							DataTime startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
+							DataTime endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
+							String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
+								+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+							enabledText.add(temp);
 						}
+
+						for (int i=enabledText.size(); i<3; i++)
+							enabledText.add("");
+						
+						text = enabledText.toArray(text);
 
 						target.drawStrings(font, text,   
 								labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
 								new RGB[] {wouData.color, wouData.color, wouData.color},
 								HorizontalAlignment.LEFT, 
-								VerticalAlignment.MIDDLE );
+								VerticalAlignment.TOP );
 					}
 				}
 			}
@@ -934,6 +976,12 @@ implements     INatlCntrsResource, IStationField {
 						target.drawWireframeShape(wouData.outlineShape, wouData.color, wouData.symbolWidth,lineStyle);
 					}
 				}
+				else if ( drawtype == 3) {
+					if ( wouData.outlineShape != null && wouData.outlineShape.isDrawable() ) {
+						float alpha = (float) 0.5;
+						target.drawShadedShape(wouData.shadedShape, alpha);
+					}
+				}
 				else {
 					if ( wouData.shadedShape != null && wouData.shadedShape.isDrawable()){
 						float alpha = paintProps.getAlpha();
@@ -944,16 +992,95 @@ implements     INatlCntrsResource, IStationField {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void drawSevereThunderstormWatchUnion (FrameData currFrameData, IGraphicsTarget target ) throws VizException{
 		LineStyle lineStyle = LineStyle.SOLID;
 		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
         if ( wouCntyDataValues.size() <= 0 ) {
         	return;
         }
+        			
         for( WouData wouData : wouCntyDataValues ) {
         	if ((wouData.reportType).equalsIgnoreCase("SEVERE_THUNDERSTORM_WATCH") ) {
+        		Collection<WouCntyRscData> wouDataValues = wouData.data.values();
+    			if ( wouDataValues.size() <= 0 ) 
+    				continue;
         		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+        			
+        			List<Coordinate> xyCloseList = new ArrayList<Coordinate>();
+        			List<String> timeList = new ArrayList<String>();
+        			String[] label = new String[2];
+        			DataTime startTime = null;
+					DataTime endTime = null;
+					String time = "";
+					String temp = "";
+					
+        			for ( WouCntyRscData wData : wouDataValues) {
+    					if ( ! isDisplay( wData) ) 
+    						continue;    					
+    					xyCloseList.add( new Coordinate( wData.countyLon, wData.countyLat));
+    					
+    					startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
+    					endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
+    					temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
+            				+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+    					
+    					if (time.equalsIgnoreCase("") || !time.equalsIgnoreCase(temp)) {
+    						timeList.add(temp);
+    						time = temp;
+    					}
+        			}	
+    					
+    				if ( !xyCloseList.get(0).equals(xyCloseList.get(xyCloseList.size()-1)) )
+    						xyCloseList.add(xyCloseList.size(), xyCloseList.get(0));
+    				
+//    				double[] coorArray = new double[xyCloseList.size()];
+//    				wouData.unionShape.addLabel(wouData.key, coorArray);
+    				
+    				GeometryFactory gf = new GeometryFactory();
+    				Coordinate[] coorArray = new Coordinate[xyCloseList.size()];
+    				for(int i=0; i<xyCloseList.size(); i++){
+    						coorArray[i] = xyCloseList.get(i);
+    				}
+    					
+    				Polygon xyClosePoly = gf.createPolygon(gf.createLinearRing(coorArray), null);
+    				Point p = xyClosePoly.getCentroid();
+    				
+    				if (wouRscData.getWatchBoxNumberEnable()) {
+    					label[0] = wouData.key;
+    					if (wouRscData.getWatchBoxTimeEnable()) 
+    						label[1] = timeList.get(0);
+    					else
+    						label[1] = "";
+    				}
+    				else if (wouRscData.getWatchBoxTimeEnable()) {
+    					label[0] = timeList.get(0);
+    					label[1] = "";
+    				}
+    				else {
+    					label[0] = "";
+    					label[1] = "";
+    				}
+        			
+    				double allX = xyCloseList.get(0).x;
+    				double allY = xyCloseList.get(0).y;
+        			for (int i=1; i<xyCloseList.size(); i++) {
+        				allX += xyCloseList.get(i).x;
+        				allY += xyCloseList.get(i).y;
+        			}
+        			double[] labelLatLon = { allX/xyCloseList.size(), allY/xyCloseList.size() }; 
+//    				double[] labelLatLon = { (xyCloseList.get(0).x + xyCloseList.get(xyCloseList.size()/2).x)/2, 
+//    						(xyCloseList.get(0).y + xyCloseList.get(xyCloseList.size()/2).y)/2 }; 
+        			
+					double[] labelPix = descriptor.worldToPixel( labelLatLon );
+        			target.drawStrings(font, label,   
+        					labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
+        					new RGB[] {wouData.color, wouData.color, wouData.color},
+        					HorizontalAlignment.LEFT, 
+        					VerticalAlignment.TOP );
+        			
         			target.drawWireframeShape(wouData.unionShape,wouData.color, wouData.symbolWidth,lineStyle );
+        			
         		}
         	}
         }
@@ -971,6 +1098,12 @@ implements     INatlCntrsResource, IStationField {
 				if ( drawtype == 1) {
 					if ( wouData.outlineShape != null && wouData.outlineShape.isDrawable() ) {
 						target.drawWireframeShape(wouData.outlineShape, wouData.color, wouData.symbolWidth,lineStyle);
+					}
+				}
+				else if ( drawtype == 3) {
+					if ( wouData.outlineShape != null && wouData.outlineShape.isDrawable() ) {
+						float alpha = (float) 0.5;
+						target.drawShadedShape(wouData.shadedShape, alpha);
 					}
 				}
 				else {
@@ -991,8 +1124,88 @@ implements     INatlCntrsResource, IStationField {
         }
         for( WouData wouData : wouCntyDataValues ) {
         	if ((wouData.reportType).equalsIgnoreCase("TORNADO_WATCH_OUTLINE_UPDATE") ) {
+//        		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+//        			target.drawWireframeShape(wouData.unionShape, wouData.color,wouData.symbolWidth,lineStyle );
+//        		}
+        		Collection<WouCntyRscData> wouDataValues = wouData.data.values();
+    			if ( wouDataValues.size() <= 0 ) 
+    				continue;
         		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+        			
+        			List<Coordinate> xyCloseList = new ArrayList<Coordinate>();
+        			List<String> timeList = new ArrayList<String>();
+        			String[] label = new String[2];
+        			DataTime startTime = null;
+					DataTime endTime = null;
+					String time = "";
+					String temp = "";
+					
+        			for ( WouCntyRscData wData : wouDataValues) {
+    					if ( ! isDisplay( wData) ) 
+    						continue;    					
+    					xyCloseList.add( new Coordinate( wData.countyLon, wData.countyLat));
+    					
+    					startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
+    					endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
+    					temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
+            				+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+    					
+    					if (time.equalsIgnoreCase("") || !time.equalsIgnoreCase(temp)) {
+    						timeList.add(temp);
+    						time = temp;
+    					}
+        			}	
+    					
+    				if ( !xyCloseList.get(0).equals(xyCloseList.get(xyCloseList.size()-1)) )
+    						xyCloseList.add(xyCloseList.size(), xyCloseList.get(0));
+    				
+//    				double[] coorArray = new double[xyCloseList.size()];
+//    				wouData.unionShape.addLabel(wouData.key, coorArray);
+    				
+    				GeometryFactory gf = new GeometryFactory();
+    				Coordinate[] coorArray = new Coordinate[xyCloseList.size()];
+    				for(int i=0; i<xyCloseList.size(); i++){
+    						coorArray[i] = xyCloseList.get(i);
+    				}
+    					
+    				Polygon xyClosePoly = gf.createPolygon(gf.createLinearRing(coorArray), null);
+    				Point p = xyClosePoly.getCentroid();
+    				
+    				if (wouRscData.getWatchBoxNumberEnable()) {
+    					label[0] = wouData.key;
+    					if (wouRscData.getWatchBoxTimeEnable()) 
+    						label[1] = timeList.get(0);
+    					else
+    						label[1] = "";
+    				}
+    				else if (wouRscData.getWatchBoxTimeEnable()) {
+    					label[0] = timeList.get(0);
+    					label[1] = "";
+    				}
+    				else {
+    					label[0] = "";
+    					label[1] = "";
+    				}
+        			
+    				double allX = xyCloseList.get(0).x;
+    				double allY = xyCloseList.get(0).y;
+        			for (int i=1; i<xyCloseList.size(); i++) {
+        				allX += xyCloseList.get(i).x;
+        				allY += xyCloseList.get(i).y;
+        			}
+        			double[] labelLatLon = { allX/xyCloseList.size(), allY/xyCloseList.size() }; 
+//    				double[] labelLatLon = { (xyCloseList.get(0).x + xyCloseList.get(xyCloseList.size()/2).x)/2, 
+//    						(xyCloseList.get(0).y + xyCloseList.get(xyCloseList.size()/2).y)/2 }; 
+        			
+					double[] labelPix = descriptor.worldToPixel( labelLatLon );
+        			target.drawStrings(font, label,   
+        					labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
+        					new RGB[] {wouData.color, wouData.color, wouData.color},
+        					HorizontalAlignment.LEFT, 
+        					VerticalAlignment.TOP );
+        			
         			target.drawWireframeShape(wouData.unionShape, wouData.color,wouData.symbolWidth,lineStyle );
+        			
         		}
         	}
 		}
