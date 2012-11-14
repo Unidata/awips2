@@ -7,8 +7,12 @@
  */
 package gov.noaa.nws.ncep.staticdataprovider;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 
@@ -44,7 +48,7 @@ public class StationTableProvider {
 	private static StationTable vorTbl;
 
 	//merged cluster tables
-	static private HashMap<String,String> clstTbl;
+	static private HashMap<String,Set<String>> clstTbl;
 
 	//volcano table
 	private static StationTable volcanoTbl;    
@@ -112,11 +116,13 @@ public class StationTableProvider {
 	/**
 	 * Read and merge the clustering tables.
 	 */
-	public static HashMap<String,String> getClstTbl(){
+	public static HashMap<String,Set<String>> getClstTbl(){
 
 		if ( clstTbl == null ){
 
-			clstTbl = new HashMap<String, String>();
+			// The key of the map is a fips string, the value is a string that contains all fips
+			// in the cluster including the key itself in the format of fips1+fips2+...
+			clstTbl = new HashMap<String, Set<String>>();
 
 			List<Object[]> rows1 = null;
 			List<Object[]> rows2 = null;
@@ -126,6 +132,7 @@ public class StationTableProvider {
 			String querySt = "Select cntycitifipscode FROM stns.countycluststate";
 			String queryPerm = "Select cntyfipscode FROM stns.permclust";
 
+			// Query ncep database to load the optional and permanent cluster tables.
 			try {
 				rows1 = NcDirectDbQuery.executeQuery(
 						queryWfo, "ncep", QueryLanguage.SQL);
@@ -141,29 +148,70 @@ public class StationTableProvider {
 
 			}
 
-			if ( rows1 != null ){
-				if (rows2 != null ) rows1.addAll(rows2);
-				if ( rows3 != null ) rows1.addAll(rows3);
-				for ( Object[] obj : rows1){
+			//For optional cluster A+B, two entries are needed. "A: A+B" and "B: A+B"
+			List<Object[]> optional = new ArrayList< Object[] >();
+			if ( rows1 != null ) optional.addAll( rows1 );
+			if ( rows2 != null ) optional.addAll( rows2 );
+
+			for ( Object[] obj : optional ){
 					String fipsStr = (String)obj[0];
 					String strNoSpace = fipsStr.replaceAll(" ", "");
-					int index = 0;
-					do {
-						//	System.out.println(obj[0]);
-						//	System.out.println(((String)obj[0]).substring(index, index+5));
-						String key = (strNoSpace).substring(index, index+5);
-						String value = clstTbl.get(key);
-						if ( value != null ){		//make sure no overwrite
-							clstTbl.put(key, value + "+" + strNoSpace);
+				
+				StringTokenizer token = new StringTokenizer(strNoSpace, "+" );
+				
+				HashSet<String> set = new HashSet<String>();
+
+				while ( token.hasMoreTokens() ){
+					set.add( token.nextToken() );
 						}
-						else {
-							clstTbl.put(key, strNoSpace);
+				
+				for ( String fips : set ){
+					clstTbl.put( fips , (Set<String>) set.clone());
 						}
-						index += 6;
-					}while (index+5 <= strNoSpace.length());
 				}
 
+			//For permanent cluster A+C and B+C, three entries are needed.
+			// "A: A+C", "B: B+C", and "C: A+B+C"
+			if ( rows3 != null ){
+				for ( Object[] obj : rows3){
+					String fipsStr = (String)obj[0];
+					String strNoSpace = fipsStr.replaceAll(" ", "");
+					
+					StringTokenizer token = new StringTokenizer(strNoSpace, "+" );
+					
+					HashSet<String> set = new HashSet<String>();
+					
+					if ( token.hasMoreTokens() ) {
+						String firstFips = token.nextToken();
+						set.add( firstFips);
+						
+						while ( token.hasMoreTokens() ){
+							set.add( token.nextToken() );
 			}
+						
+						//First FIPS is already in optional cluster table, merge with the permanent table
+						if ( clstTbl.get( firstFips ) != null ){
+							 clstTbl.get(firstFips).addAll(set);
+						}
+						else {	//new entry
+							clstTbl.put(firstFips, (Set<String>) set.clone());
+						}
+						
+						//add the remaining FIPS in the set
+						for ( String fips : set ){
+							if ( !fips.equals( firstFips )){ 	
+								if ( clstTbl.get( fips ) != null ){ //already in the map
+									 clstTbl.get( fips ).addAll(set);
+								}
+								else {	//new entry
+									clstTbl.put(fips, (Set<String>) set.clone());
+								}
+							}
+						}
+					}
+				}
+			}
+			
 		}
 
 		return clstTbl;

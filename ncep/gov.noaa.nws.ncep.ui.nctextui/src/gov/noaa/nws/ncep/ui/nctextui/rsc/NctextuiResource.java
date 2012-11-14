@@ -14,6 +14,7 @@
  * 02/15/2012    T627       Archana    Updated the call to addRbd() to accept 
  *                                     a NCMapEditor object as one of the arguments
  *                                     Removed the call to setNcEditor()                                       
+ * 08/17/2012    T655       B. Hebbard Added paintProps as parameter to IDisplayable draw (2)
  */
 package gov.noaa.nws.ncep.ui.nctextui.rsc;
 
@@ -417,7 +418,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			for (IDisplayable each : elements)
 			{
 				try {
-					each.draw(target);
+					each.draw(target, paintProps);
 					each.dispose();
 				}
 				catch (Exception e) {
@@ -436,7 +437,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			for (IDisplayable each : elements)
 			{
 				try {
-					each.draw(target);
+					each.draw(target, paintProps);
 					each.dispose();
 				}
 				catch (Exception e) {

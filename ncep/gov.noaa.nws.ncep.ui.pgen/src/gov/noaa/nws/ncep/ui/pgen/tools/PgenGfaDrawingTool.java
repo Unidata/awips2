@@ -24,6 +24,7 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import java.util.ArrayList;
+
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -41,7 +42,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/11		#?			B. Yin		Sets vorText 
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 05/12		#808		J. Wu		Tune GFA performance for vor text
- * 
+ * 07/12        #663        Q. Zhou     Modified handleMouseDown left btn to add moveText situation. 
+ *                                      Added code to right btn to 1)exit moving text mode. 2)exit selecting mode.
+ * 										Modified handleGfaMouseDown to activate moveText btn, and move startGfaText out.
+ * 										Modified activateTool to handle non-delete situation.
+ * 										Modified handleMouseMove to add moveText situation. 
+ *										Create and modified handleGfaTextMouseMove and handleGfaMouseMove
  * </pre>
  * 
  * @author	M.Laryukhin
@@ -78,14 +84,18 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 				PgenGfaDrawingHandler handler = (PgenGfaDrawingHandler)getMouseHandler();
 				if(gfa != null) {
 					handler.points.addAll(gfa.getPoints());
+					if ( handler.elem == null ) {	//for moving gfa text from selecting mode
+						handler.elem = gfa;
+					}
 					GfaAttrDlg dlg = (GfaAttrDlg)attrDlg;
 					dlg.setGfaArea(gfa.getGfaArea());
 					dlg.setGfaBeginning(gfa.getGfaBeginning());
 					dlg.setGfaEnding(gfa.getGfaEnding());
 					dlg.setGfaStates(gfa.getGfaStates());
+					drawingLayer.setSelected(gfa);
+					editor.refresh();
 				}
-				drawingLayer.removeElement(gfa);
-				drawingLayer.setGhostLine(gfa);
+
 			} else {
 				startGfaText = false;
 			}
@@ -157,19 +167,62 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
     		DrawableType drawableType = getDrawableType(pgenType); 
 
         	if ( button == 1 ) {
-    			if (startGfaText && drawableType == DrawableType.GFA){
-            		return handleGfaMouseDown(loc, drawableType);
+        		if ( startGfaText && ((GfaAttrDlg)attrDlg).isMoveTextEnable() ) {      //if moveText button is clicked
+  
+        			Gfa newGfa = (Gfa)elem.copy();
+        			drawingLayer.replaceElement(elem, newGfa);
+        			elem = newGfa;
+        			
+        			handleGfaMouseDown(loc, drawableType); 
+        			drawingLayer.setSelected((Gfa)elem);
+        		}
+        		 
+        		else if (startGfaText && drawableType == DrawableType.GFA){			//after a GFA polygon is created
+        			startGfaText = false;
+        			drawingLayer.addElement(elem);
+        			handleGfaMouseDown(loc, drawableType); 
+        			((GfaAttrDlg)attrDlg).enableMoveTextBtn(true);
+        		}
+        		else {
+        			if ( points.size() == 0 ) {
+        				//When drawing GFA polygon, disable the moveText button in GFA dialog
+            			((GfaAttrDlg)attrDlg).enableMoveTextBtn(false);
     			}
                 points.add( loc );     
+        		}
                 
                 attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
                 return true;
             }
             else if ( button == 3 ) {
+        		//exit drawing text mode
+        		if ( startGfaText ) {
+        			startGfaText = false;
+
+        			if ( ((Gfa)elem).getGfaTextCoordinate() == null ){
+        				//if right click before adding the text
+        				((Gfa)elem).setGfaTextCoordinate(loc);
+            			drawingLayer.addElement(elem);
+            			mapEditor.refresh();
+        				points.clear();
+        			}
+        			else {
+        				//change to selecting mode to move points
+        				PgenUtil.setSelectingMode(elem);
+        				elem = null;
+        				return true;
+        			}
+        		}
+
             	if ( points.size() == 0 ) {
+
             		closeAttrDlg(attrDlg); 
             		attrDlg = null; 
+						drawingLayer.removeSelected((Gfa)elem);
+						elem = null;
             		PgenUtil.setSelectingMode();
+					
+
             	}
             	else if ( points.size() < 2 ){
                     removeClearRefresh();
@@ -200,7 +253,6 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             		//set from line
             		String vorText = Gfa.buildVorText( (Gfa)elem );
             		((Gfa)elem).setGfaVorText( vorText );
-            	    
             		((GfaAttrDlg)attrDlg).setVorText( vorText );
             		
 					startGfaText = true;
@@ -222,20 +274,13 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         }
 
 		private boolean handleGfaMouseDown(Coordinate loc, DrawableType drawableType) {
-			if ( elem == null ) {
-			    elem = def.create( drawableType, (IAttribute)attrDlg,
-					pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-			}
 			
 			((Gfa)elem).setGfaTextCoordinate(loc);
     		
-			drawingLayer.addElement(elem);
-
 			removeClearRefresh();
 			
 			((GfaAttrDlg)attrDlg).populateTagCbo();
-			
-			startGfaText = false;
+			((GfaAttrDlg)attrDlg).setDrawableElement((Gfa)elem);
 			
 			return true;
 		}
@@ -266,15 +311,21 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;
         	
         	
         	AbstractDrawableComponent ghost = null;
-    		if(startGfaText){
+    		if(startGfaText && ((GfaAttrDlg)attrDlg).isMoveTextEnable() ){
     			return handleGfaTextMouseMove(loc);
-    		} else {
+    		} 
+    		else if( startGfaText){
+    			return handleGfaMouseMove(loc);
+    		}    		
+    		else {
     			ghost = def.create(DrawableType.GFA, (IAttribute)attrDlg,
         			pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
     		}
@@ -297,11 +348,34 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			if ( shiftDown ) return false;
+			if ( !isResourceEditable() ||  shiftDown ) return false;
 			else return true;
 		}
 
 		private boolean handleGfaTextMouseMove(Coordinate loc) {
+
+			AbstractDrawableComponent ghost = null;
+//			if (drawingLayer.getActiveLayer().getDrawables().contains(elem)) {
+//				drawingLayer.removeElement(elem);
+//			}
+			
+			if (elem != null && ((Gfa)elem).getGfaTextCoordinate() != null) {
+				ghost = (Gfa)elem.copy();
+			}
+			else {
+				ghost = (Gfa)def.create(DrawableType.GFA, (IAttribute)attrDlg,
+						pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
+			}
+			
+			((Gfa)ghost).setGfaTextCoordinate(loc);
+			
+			drawingLayer.setGhostLine(ghost);
+        	mapEditor.refresh();
+			return false;
+		}
+		
+		private boolean handleGfaMouseMove(Coordinate loc) {
+
 			Gfa gfa = (Gfa)def.create(DrawableType.GFA, (IAttribute)attrDlg,
 					pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
 			gfa.setGfaTextCoordinate(loc);

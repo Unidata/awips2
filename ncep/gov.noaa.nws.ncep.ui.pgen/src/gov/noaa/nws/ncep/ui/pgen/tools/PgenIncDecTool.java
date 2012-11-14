@@ -114,6 +114,7 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 		 */
 		@Override	   	
 		public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
 			theFirstMouseX = anX;
 			theFirstMouseY = aY;
@@ -191,7 +192,7 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 		 */
 		public boolean handleMouseDownMove(int anX, int aY, int button) {
 
-			if (button != 1 ) {
+			if ( !isResourceEditable() || button != 1 ) {
 				return false;
 			}
 
@@ -228,6 +229,7 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 		 */
 		@Override
 		public boolean handleMouseUp(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
 
 			if ( button == 1 ){
 
@@ -340,6 +342,7 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseMove(int anX, int aY) {
+        	if ( !isResourceEditable() ) return false;
 
 			// draw a ghost ploygon
 			if ( polyPoints != null && !polyPoints.isEmpty() ){
@@ -375,6 +378,8 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleKeyDown(int keyCode) {
+        	if ( !isResourceEditable() ) return false;
+
 			if ( keyCode == SWT.SHIFT) {
 				shiftDown = true;
 			}
@@ -387,6 +392,8 @@ public class PgenIncDecTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleKeyUp(int keyCode) {
+        	if ( !isResourceEditable() ) return false;
+
 			if ( keyCode == SWT.SHIFT) {
 				shiftDown = false;
 			}

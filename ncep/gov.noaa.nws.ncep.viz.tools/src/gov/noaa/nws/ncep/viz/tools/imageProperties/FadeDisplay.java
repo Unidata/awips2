@@ -2,7 +2,7 @@ package gov.noaa.nws.ncep.viz.tools.imageProperties;
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.util.ArrayList;
 
@@ -23,17 +23,14 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Scale;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.viz.ui.VizWorkbenchManager;
-import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 
 /**
  * 
- * Contribution item added to the status bar which displays the image fading information.
+ * Contribution item added to the status bar which displays the image fading
+ * information.
  * 
  * <pre>
  * 
@@ -46,37 +43,36 @@ import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
  * 10/04/2010   289        Archana    Added FadeHotKeyListener
  * 03/07/2011   R1G2-9     G. Hull    implement IVizEditorChangedListener, 
  *                                    editor no longer passed from Pane Changed Listener
+ * 06/19/2012   #569       G. Hull    rm IVizEditorChangedListener. update() gets called
+ *                                    from refreshGUIElements which is called from perspective's
+ *                                    IVizEditorChangedListener
+ * 06/21/2012   #632       G. Hull    Change behaviour for multiple images. Activate if all the 
+ *                                    brightness's are the same.
+ * 07/12/2012   ####       G. Hull    rm paneChangeListener. A pane change will now call refreshGUIElements
  *                       
  * </pre>
  * 
  * @author Q. Zhou
  * @version 1
  */
-public class FadeDisplay extends ContributionItem implements IVizEditorChangedListener {
+public class FadeDisplay extends ContributionItem {
 
     private FadeHotKeyListener fadeKeyListener = null;
+
 	private Composite comp;
+
 	private Scale scale; // = null;
+
 	private Button btn0;// = null;
+
 	private Button btn50;// = null;   
+
 	private Font font = new Font(Display.getCurrent(), "Monospace", 10,
 			SWT.NORMAL);
-	private ArrayList<AbstractNatlCntrsResource<?,?>> imageResources=null;
-	private NCMapEditor activeDisp = null;
 	
-    private ISelectedPanesChangedListener paneListener = new ISelectedPanesChangedListener() {
+    private ArrayList<AbstractNatlCntrsResource<?, ?>> imageResources = null;
 
-        @Override
-        public void selectedPanesChanged(String id, IDisplayPane[] seldPanes) {
-            if (!id.equals(NCPaneManager.NC_PANE_SELECT_ACTION)) {
-                return;
-            } else if (seldPanes == null || seldPanes.length <= 0) {
-                return;
-            }
-
-            updateFadeDisplay();
-        }
-    };
+    private NCMapEditor activeDisp = null;
 
 	/**
 	 * Constructor
@@ -94,7 +90,8 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 	 */
 	@Override
 	public void fill(Composite parent) {
-		//Shell fadeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        // Shell fadeShell =
+        // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
 		comp = new Composite(parent, SWT.NONE);
 		comp.setSize(200, 55);
@@ -115,7 +112,6 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		btn50 = new Button(comp, SWT.PUSH);
 		scale = new Scale(comp, SWT.NONE);
 
-				
 		btn0.setLayoutData(new GridData(25, 25));
 		btn0.setText("0");
 		btn0.setFont(font);
@@ -123,14 +119,15 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		btn0.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				for( AbstractNatlCntrsResource<?,?> rsc : imageResources ) {
-					ImagingCapability imgCap = rsc.getCapability(ImagingCapability.class);
+                    ImagingCapability imgCap = rsc
+                            .getCapability(ImagingCapability.class);
 					imgCap.setBrightness(0);
 				}
+                scale.setEnabled(true);
 				scale.setSelection(0);
 				activeDisp.refresh();				
 			}
 		});
-
 
 		btn50.setLayoutData(new GridData(25, 25));
 		btn50.setText("N");
@@ -138,9 +135,11 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		btn50.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				for( AbstractNatlCntrsResource<?,?> rsc : imageResources ) {
-					ImagingCapability imgCap = rsc.getCapability(ImagingCapability.class);
+                    ImagingCapability imgCap = rsc
+                            .getCapability(ImagingCapability.class);
 					imgCap.setBrightness(100 / 100.0f);
 				}
+                scale.setEnabled(true);
 				scale.setSelection(100);
 				activeDisp.refresh();				
 			}
@@ -156,8 +155,11 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		scale.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
-				if (imageResources != null && imageResources.size() > 0) {
-					ImagingCapability imgCap = imageResources.get(0)
+                if (imageResources == null) {
+                    return;
+                }
+                for (AbstractNatlCntrsResource<?, ?> imgRsc : imageResources) {
+                    ImagingCapability imgCap = imgRsc
 							.getCapability(ImagingCapability.class);
 					imgCap.setBrightness(scale.getSelection() / 100.0f);
 				}
@@ -169,34 +171,7 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		btn50.setEnabled( false );
 		scale.setSelection( 0 );
 
-		// add an EditorChangedListener
-		VizWorkbenchManager.getInstance().addListener(this);
-		
 		update(); 
-	}
-
-	public void editorChanged(IDisplayPaneContainer container) {
-		
-		if( activeDisp != null ) {
-			activeDisp.removeSelectedPaneChangedListener( paneListener );
-		}
-		
-		if( container instanceof NCMapEditor ) {			
-			activeDisp = (NCMapEditor)container;
-			activeDisp.addSelectedPaneChangedListener( paneListener );
-			
-			scale.setEnabled( false );			
-			btn0.setEnabled( false );
-			btn50.setEnabled( false );
-		}
-		else {
-			activeDisp = null;
-			scale.setEnabled( false );			
-			btn0.setEnabled( false );
-			btn50.setEnabled( false );
-		}
-		
-		updateFadeDisplay();
 	}
 
 	/**
@@ -206,18 +181,17 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 	 * @return
 	 */
 	private void updateFadeDisplay() { // 
-//		NCMapEditor ed = NmapUiUtils.getActiveNatlCntrsEditor();
 		 
-		// if the editor has changed then add a pane listener on this editor and remove
-		// the old one.
-	// if( ed != activeDisp ) {
-		
-//		if( activeDisp != null ) {
-//			activeDisp.removeSelectedPaneChangedListener( paneListener );
-//		}
-//		//	activeDisp = ed;
-//    		activeDisp.addSelectedPaneChangedListener( paneListener );
-//    	}
+        scale.setEnabled(false);
+        btn0.setEnabled(false);
+        btn50.setEnabled(false);
+
+        NCMapEditor ed = NmapUiUtils.getActiveNatlCntrsEditor();
+
+        if (ed instanceof NCMapEditor) {
+            activeDisp = ed;
+        }
+
 		if( activeDisp == null ) {
 			return;
 		}
@@ -230,26 +204,53 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
     		ResourceList rscList = pane.getDescriptor().getResourceList();
        
             for( ResourcePair rp : rscList ) {
-            	if( !rp.getProperties().isSystemResource() &&
-            		rp.getResource().getCapabilities().hasCapability( ImagingCapability.class )) {
-            		imageResources.add( (AbstractNatlCntrsResource<?, ?>)rp.getResource() );            		
+                if (!rp.getProperties().isSystemResource()
+                        && rp.getResource().getCapabilities()
+                                .hasCapability(ImagingCapability.class)) {
+                    imageResources.add((AbstractNatlCntrsResource<?, ?>) rp
+                            .getResource());
+                }
+            }
+        }
+
+        int brightness = -1;
+
+        // the buttons will work with multiple resources but
+        // the scale will only work with more than one resource if all the
+        // brightness
+        // values are the same.
+        if (!imageResources.isEmpty()) {
+            brightness = (int) (imageResources.get(0)
+                    .getCapability(ImagingCapability.class).getBrightness() * 100f);
+
+            // TODO : It is possible that a rsc has no image and so there may
+            // not be a conflict. Or there may
+            // not be an image for the first frame (how does the brightness get
+            // set then?)
+            //
+            for (AbstractNatlCntrsResource<?, ?> imgRsc : imageResources) {
+                ImagingCapability imgCap = imgRsc
+                        .getCapability(ImagingCapability.class);
+                if (brightness != (int) (imgCap.getBrightness() * 100f)) {
+                    brightness = -1;
+                    scale.setToolTipText("Fade disabled due to multiple images with different brightnesses.");
+                    break;
             	}
             }
+        } else {
+            scale.setToolTipText("");
     	}
 
-    	// the scale will only work with one resource but the buttons will 
-    	// work with multiple resources.
-		scale.setEnabled( (imageResources.size() == 1) );
+        scale.setEnabled(brightness != -1);
 		
 		btn0.setEnabled( (imageResources.size() >= 1) );
 		btn50.setEnabled( (imageResources.size() >= 1) );
 
-		// load the widget with the current value from the image resource or 0 if disabled
+        // load the widget with the current value from the image resource or 0
+        // if disabled
     	if( scale.isEnabled() ) {
-    		ImagingCapability imgCap = imageResources.get(0).getCapability(ImagingCapability.class);     		
-    		scale.setSelection( (int) (imgCap.getBrightness() * 100.0f) );
-    	}
-    	else {
+            scale.setSelection(brightness);
+        } else {
     		scale.setSelection( 0 );
     	}
 	}
@@ -260,21 +261,14 @@ public class FadeDisplay extends ContributionItem implements IVizEditorChangedLi
 		updateFadeDisplay();
 	}
 
-	
-	
      @Override
     public void dispose() {
         super.dispose();
-     // add an EditorChangedListener
-        VizWorkbenchManager.getInstance().removeListener(this);
     }
-
-
 
     private class FadeHotKeyListener extends KeyAdapter{
 		@Override
 		public void keyPressed(KeyEvent e) {
-                     //no-op
 		}
 
        @Override

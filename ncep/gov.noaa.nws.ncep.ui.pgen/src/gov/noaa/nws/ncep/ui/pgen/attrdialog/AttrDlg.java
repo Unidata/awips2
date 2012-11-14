@@ -17,6 +17,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.jface.dialogs.Dialog;
@@ -56,6 +57,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.*;
  * 01/10		#182		G. Zhang	Added DrawableElement and mousehandlerName for CONVSIGMET
  * 10/10		#?			B. Yin		Changed DrawableElement de to AbstractDrawableComponent
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 08/12		#?			B. Yin		Fixed the mouse-over issue for PGEN palette.
  *
  * </pre>
  * 
@@ -278,8 +280,29 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 			getShell().setLocation(shellLocation);
 		}
 		
-   	    return super.open();
+		final Shell shell = this.getShell();
+		// When the editor pane is activated, the tool manager will re-activate all tools and thus
+		// the PGEN attribute dialog will re-open. However if the PGEN palette gets activated by a mouse
+		// click (or mouse over) before the attribute dialog is open, you will get an exception that
+		// activates PGEN palette in the middle of activating the editor. The reason why this happens is that
+		// the shell open() method forces the display to dispatch the click event on PGEN palette, which
+		// activates the PGEN palette. 
+		// To prevent this happens, the super.open() method must be invoked after the editor has been activated.
+		// We put super.open() in the UI thread, which is the same thread the activation is running, so that
+		// it is invoked after the activation.    --bingfan 8/10/12
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+			//	while (Display.getDefault().readAndDispatch()) {
+					//wait for events to finish before continue
+			//	}
+				if (!( shell == null || shell.isDisposed() )) { // make sure the dialog is not closed
+					AttrDlg.super.open();
+				}
+			}
+		});
 		
+   	    return OK;
 	}
 	
 	/** 

@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
-import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicInfoDict;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
@@ -33,6 +32,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *  09/2010        307        Greg Hull   set legendString once from the productCode
  *                                        in the metadataMap.
  *  07/2011        450        Greg Hull   NcPathManager
+ *  06/2012        #825       Greg Hull   move legendGenerator to Resource
  *                                         
  * </pre>
  * 
@@ -89,82 +89,9 @@ public class MosaicResourceData extends AbstractNatlCntrsRequestableResourceData
 	// the productName if not set.
     private Integer productCode=0;
     
-    private static MosaicInfoDict infoDict = null;
-    
-    // The legend is set from MosaicInfoDict based on 
-    // the product code which is set in the metadataMap.
     private String legendString = null; 
     
-	private static void loadRadarInfo() {
-    	String radarDirname = 
-        		NcPathManager.getInstance().getStaticFile(
-        				NcPathConstants.MOSAIC_INFO ).getParent();
-    	
-    	// Note: MosaicInfoDict actually ignores the file and uses 
-    	// the directory to find the mosaicInfo.txt file.    	
-    	infoDict = MosaicInfoDict.getInstance(radarDirname);
-    }
-
     public MosaicResourceData() {
-        this.nameGenerator = new AbstractNameGenerator() {
-
-        	// This method is not called since MosaicResource is overriding
-        	// getName()
-            @Override
-            public String getName(AbstractVizResource<?, ?> resource) {
-            	if( legendString != null ) {
-            		return legendString;
-            	}
-            	
-            	if( infoDict == null ) {
-            		loadRadarInfo();
-                	if( infoDict == null ) {	
-                		legendString = new String( "Radar Mosaic: Product Code "+
-                				Integer.toString( getProductCode()) );
-                		return legendString;
-                	}
-            	}
-            	
-        		String prodName = infoDict.getInfo(getProductCode()).getName();
-        		String unitName = infoDict.getInfo(getProductCode()).getUnit();
-        		if (unitName == null) {
-        			unitName = " ";
-        		} else {
-        			if (!unitName.contains("(")) {
-        				String temp = " (";
-        				temp += unitName + ") ";
-        				unitName = temp;
-        			}
-        			if (unitName.contains("/10")) {
-        				unitName = unitName.replace("/10", "");
-        			}
-        			if (unitName.contains("*1000")) {
-        				unitName = unitName.replace("*1000", "");
-        			}
-        		}
-
-        		legendString = new String( prodName + unitName
-        					+ (int) (Math.log(infoDict.getInfo(productCode)
-        								.getNumLevels()) / Math.log(2)) + "-bit " );
-        		return legendString;
-//                if (productName.equals("NO DATA")) {
-//                	MosaicRecord currRec = null;
-//
-//                    if (currRec != null) {
-//                        if (infoDict == null) {
-//                            loadRadarInfo();
-//                        }
-//
-//                        MosaicInfo info = infoDict.getInfo(currRec
-//                                .getProductCode());
-//                        productName = info.getName() + " "
-//                                + currRec.getDataTime().getLegendString();
-//                    }
-//                }
-//                return productName;
-            }
-
-        };
     }
 
     @Override

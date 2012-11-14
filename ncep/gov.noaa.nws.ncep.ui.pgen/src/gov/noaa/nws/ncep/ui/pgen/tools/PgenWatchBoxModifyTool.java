@@ -108,6 +108,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
+        	if ( !isResourceEditable() ) return false;
 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -152,7 +153,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
-        	
+        	if ( !isResourceEditable() ) return false;
         	if ( dontMove ) return true;
         	
         	//  Check if mouse is in geographic extent
@@ -209,6 +210,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
+        	if ( !isResourceEditable() ) return false;
         	
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){

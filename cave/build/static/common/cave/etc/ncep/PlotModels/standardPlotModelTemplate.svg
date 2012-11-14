@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<svg width="150" height="150" 
-viewBox="0 0 150 150" 
+<svg width="155" height="155" 
+viewBox="0 0 155 155" 
 overflow="visible" 
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
@@ -11,7 +11,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
                 src: url(../ncep/PlotModels/WindSymbols.svg#WindSymbols); }
        
         @font-face { font-family: "StandardFont"; 
-                     src: url(Standard.svg#Standard);  }
+                     src: url(../ncep/PlotModels/Standard.svg#Standard);  }
        
         @font-face { font-family: "CourierNormalFont";
                      src: url(../ncep/PlotModels/CourierNormal.svg#CourierNormal); }
@@ -69,9 +69,9 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
     <text position="LC" x="0"      y="15px"  style="text-anchor: middle;">err</text>   <!--Lower Center-->
     <text position="BC" x="0"      y="27px"  style="text-anchor: middle;">err</text>   <!--Bottom Center-->
     
-    <text position="UR" x="6px"   y="-10px" style="text-anchor: start;">err</text>  <!--Upper Right -->
-    <text position="MR" x="6px"   y="0"     style="text-anchor: start;">err</text>  <!--Middle Right -->
-    <text position="LR" x="6px"   y="15px"  style="text-anchor: start;">err</text> <!--Lower Right -->
+    <text position="UR" x="8px"   y="-10px" style="text-anchor: start;">err</text>  <!--Upper Right -->
+    <text position="MR" x="8px"   y="0"     style="text-anchor: start;">err</text>  <!--Middle Right -->
+    <text position="LR" x="8px"   y="15px"  style="text-anchor: start;">err</text> <!--Lower Right -->
 
     <text position="SC" x="0"      y="0"     style="font-family: WxSymbolFont">arrow</text>   
     <!-- a group element for a possible wind barb symbol. -->    

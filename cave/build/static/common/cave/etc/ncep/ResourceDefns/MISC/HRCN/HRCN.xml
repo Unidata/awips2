@@ -8,7 +8,7 @@ pluginName=tcm
 reportType=TCM
 color= {155, 155, 155}
     </resourceParameters>
-    <filterLabels>Huh,Event</filterLabels>
+    <filterLabels>Hurricane</filterLabels>
     <rscImplementation>HRCN</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

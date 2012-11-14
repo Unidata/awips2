@@ -826,6 +826,21 @@
                         <time>2010-06-30T17:00:08.419-04:00</time>
                         <location longitude="-120.68117208589054" latitude="30.0742437809133"/>
                     </extrapPoints>
+                    <extrapPoints>
+                        <time>2010-06-30T16:00:08.419-04:00</time>
+                        <location longitude="-120.46115811309699" latitude="30.0841713520117"/>
+                    </extrapPoints>
+                    <extrapPoints>
+                        <time>2010-06-30T17:00:08.419-04:00</time>
+                        <location longitude="-119.68117208589054" latitude="30.0942437809133"/>
+                    </extrapPoints>
+                    <extrapPoints>
+                        <time>2010-06-30T16:00:08.419-04:00</time>
+                        <location longitude="-118.46115811309699" latitude="31.05541713520117"/>
+                    </extrapPoints>
+                    <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
+                    <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
+                    <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
                     <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
                     <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
                 </Track>

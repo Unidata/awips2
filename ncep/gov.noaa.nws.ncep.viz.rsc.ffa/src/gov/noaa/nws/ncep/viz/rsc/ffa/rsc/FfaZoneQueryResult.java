@@ -136,11 +136,10 @@ public class FfaZoneQueryResult {
 		
 		if( list == null ){
 			logger.log(Level.WARNING, "_______ No result for fips: "+fips);
-			
 			return new ArrayList<ArrayList<Object[]>>();
 		}
 		
-		return list;//fipsMultiResultMap.get(fips);
+		return list;
 	}
 
 }
