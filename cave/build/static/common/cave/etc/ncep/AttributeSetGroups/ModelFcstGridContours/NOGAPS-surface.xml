@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>NOGAPS</resource>
+    <attrSetGroupName>surface</attrSetGroupName>
+    <attrSetNames>1000-500_thk,1000-850_thk,500mb_absv_ncf,500mb_hght,850-700_thkn,pmsl</attrSetNames>
+</AttributeSetGroup>

@@ -1,16 +1,13 @@
-
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
+import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
-
-import java.io.File;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -23,12 +20,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.viz.core.CorePlugin;
-
 
 /**
  * Load the scale bundle and merge it into the existing bundle
@@ -52,6 +46,7 @@ import com.raytheon.viz.core.CorePlugin;
  * Oct 14, 2009             B. Hebbard   Added proper zooming to the newly selected area
  * Oct 27, 2009             G. Hull      Moved out of perspectives project
  * Feb 26. 2010             G. Hull      retrieve PredefinedArea instead of a Bundle file
+ * Sep 10. 2012				B. Yin		 Remove the call to setRenderableDisplay which creates a new GLTarget
  * 
  * </pre>
  * 
@@ -88,27 +83,42 @@ public class PredefinedAreaAction extends AbstractHandler {
         NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
     	
         // get the panes to set the area in. 
-        NCDisplayPane[] displayPanes = (NCDisplayPane[]) ( editor.arePanesGeoSynced() ?
-        		editor.getDisplayPanes() : editor.getSelectedPanes() );
+        NCDisplayPane[] displayPanes = (NCDisplayPane[]) (editor
+                .arePanesGeoSynced() ? editor.getDisplayPanes() : editor
+                .getSelectedPanes());
         
         try {
-        	PredefinedArea pArea = PredefinedAreasMngr.getPredefinedArea(areaName);
+            PredefinedArea pArea = PredefinedAreasMngr
+                    .getPredefinedArea(areaName);
             
         	NCMapRenderableDisplay dispPane = pArea.getPredefinedArea();
 					
         	for( IDisplayPane pane : displayPanes ) {
-        		NCMapRenderableDisplay existingDisplay = (NCMapRenderableDisplay) pane.getRenderableDisplay();
-        		NCMapDescriptor existingMD = (NCMapDescriptor) existingDisplay.getDescriptor();
+                NCMapRenderableDisplay existingDisplay = (NCMapRenderableDisplay) pane
+                        .getRenderableDisplay();
+                NCMapDescriptor existingMD = (NCMapDescriptor) existingDisplay
+                        .getDescriptor();
 
-        		// Note: setGridGeometry does an implicit reproject of all resources
+                // Note: setGridGeometry does an implicit reproject of all
+                // resources
         		// on the descriptor, so don't need to do this explicitly
-        		existingMD.setGridGeometry( dispPane.getDescriptor().getGridGeometry());
+                existingMD.setGridGeometry(dispPane.getDescriptor()
+                        .getGridGeometry());
+                
+                existingDisplay.setZoomLevel(dispPane.getZoomLevel());
+                existingDisplay.setMapCenter(dispPane.getMapCenter());
+                existingDisplay.setPredefinedAreaName(dispPane
+                        .getPredefinedAreaName());
+                
+                pane.setZoomLevel( dispPane.getZoomLevel());
+                pane.scaleToClientArea();
+                existingDisplay.recenter(dispPane.getMapCenter());
+                existingDisplay.getView().zoom( dispPane.getZoomLevel());
+                
+                existingMD.setSuspendZoom(false);
+                ZoomUtil.allowZoom(editor);
+                VizGlobalsManager.getCurrentInstance().updateUI(editor);
 
-				NCMapRenderableDisplay newDisplay = new NCMapRenderableDisplay(existingMD);
-				newDisplay.setZoomLevel( dispPane.getZoomLevel() );
-				newDisplay.setMapCenter( dispPane.getMapCenter() );
-				newDisplay.setPredefinedAreaName( dispPane.getPredefinedAreaName() );
-				pane.setRenderableDisplay(newDisplay);
         	}
         	editor.refresh();        
 
@@ -118,8 +128,10 @@ public class PredefinedAreaAction extends AbstractHandler {
                     "Error occurred during bundle load.", e);
             ErrorDialog.openError(Display.getCurrent().getActiveShell(),
                     "ERROR", "Error occurred during bundle load.", status);
-            CorePlugin.getDefault().getLog().log(
-                    new Status(IStatus.ERROR, CorePlugin.PLUGIN_NAME,
+            CorePlugin
+                    .getDefault()
+                    .getLog()
+                    .log(new Status(IStatus.ERROR, CorePlugin.PLUGIN_NAME,
                             "Error occurred during bundle load", e));
         }
     }

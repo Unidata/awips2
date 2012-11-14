@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
+    <resourceDefnName>GEFS_ENS</resourceDefnName>
+    <resourceCategory>ENSEMBLE</resourceCategory>
+    <resourceParameters>
+primaryModel=gefs
+availableModels=gefs:01,02;gfs;nam12
+pluginName=grid
+    </resourceParameters>
+    <filterLabels>Forecast,Global,Ensemble</filterLabels>
+    <rscImplementation>EnsembleFcstGridContours</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

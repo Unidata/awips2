@@ -8,15 +8,14 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.vividsolutions.jts.geom.Coordinate;
-
-//import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
+
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a modal map tool for the PGEN selecting element function.
@@ -31,6 +30,7 @@ import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
  * 06/09			106		B. Yin		Use AbstractDrawableComponent
  * 03/10			n/a		M.Laryukhin	bug fix, null pointer exception when 
  * 										trying to delete a non-existing elememnt
+ * 07/12			748		B. Yin		Delete Outlook line its label together
  *
  * </pre>
  * 
@@ -84,6 +84,7 @@ public class PgenDeleteElement extends AbstractPgenTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
         	
         	preempt = false;
         	
@@ -110,7 +111,8 @@ public class PgenDeleteElement extends AbstractPgenTool {
         				elSelected =drawingLayer.getNearestElement(loc);
         			}	
         			else if ( elSelected instanceof Outlook && ((Outlook)elSelected).getDEs() > 1){
-        				elSelected =drawingLayer.getNearestElement(loc);
+        				AbstractDrawableComponent adc = drawingLayer.getNearestElement(loc);
+        				elSelected = adc.getParent(); 
         			}
         			
         			if (elSelected != null) {
@@ -153,7 +155,8 @@ public class PgenDeleteElement extends AbstractPgenTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return preempt;
+        	if (  !isResourceEditable() || shiftDown ) return false;
+        	else return true;
 		}
         
 

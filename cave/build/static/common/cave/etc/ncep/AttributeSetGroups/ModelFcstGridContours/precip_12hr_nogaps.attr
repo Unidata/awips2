@@ -1,0 +1,26 @@
+!
+! Restore File : precip_12hr
+!
+! Log:
+! J. Carr/NCEP	6/16/98		Created for nogaps.
+!
+GLEVEL =  0                                                                       
+GVCORD =  none                                                                    
+SKIP   =    0                                                                       
+SCALE  =   0                                                                       
+GDPFUN =  (quo(pxxm,25.4))!(quo(pxxm,25.4))
+TYPE   =    c/f!c
+CINT   =    0.1;0.25!0.25/0.5
+LINE   =    32//1/0!32//1/0
+FINT   =    .01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.25;2.5;2.75;3;3.25;3.5;3.75;4
+FLINE  =   0;21-30;14-20;5
+HILO   =    0!31;0/x#2/0.1-99//100;0/y
+HLSYM  =   0!1.5
+!CLRBAR =  1                                                                       
+WIND   =                                                                            
+TITLE  =   5/-1/~ 12-HR TOTAL PRECIPITATION ! 0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1
+GDATTIM=  f12-last-06

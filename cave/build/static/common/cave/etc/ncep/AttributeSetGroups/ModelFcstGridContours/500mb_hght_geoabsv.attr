@@ -6,22 +6,24 @@
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
 ! T. Lee/GSC		 6/99	Changed contour SKIP = 0
 ! J. Carr/HPC            7/99   Smoothed height lines. Changed contur to a 2 for height.
+! Archana/Chugach    9/2012     #866   Added CLRBAR
 !
-GLEVEL=500
-GVCORD=pres
-SKIP=
-FILTER=y
-SCALE=5                  !5             !-1
-GDPFUN=abs(avor(geo))  !abs(avor(geo))             !sm5s(hght)
-TYPE=c/f                !c             !c
-CINT=2/10/20            !2/4/8         !6
-LINE=7/5/1/2            !29/5/1/2      !5/1/2/1
-FINT=16;20;24;28;32;36;40;44
-FLINE=0;23;22;21;20;19;18;17;16
-HILO=2;6/X;N/10-99;10-99!              !
-HLSYM=
-WIND=18/1/1
-TITLE=5/0/~ @ HEIGHTS AND GEO ABS VORTICITY!0
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
+GLEVEL =  500
+GVCORD =  pres
+SKIP   =    0
+SCALE  =   5                  !5             !-1
+GDPFUN =  abs(avor(geo))//v  !v             !sm5s(hght)
+TYPE   =    c/f                !c             !c
+CINT   =    2/10/20            !2/4/8         !6
+LINE   =    7/5/1/2            !29/5/1/2      !5/1/2/1
+FINT   =    16;20;24;28;32;36;40;44
+FLINE  =   0;23-15
+HILO   =    2;6/X;N/10-99;10-99!              !
+HLSYM  =                                                                           
+!CLRBAR=  1                                                                       
+WIND   =    18/1/1
+TITLE  =   5/0/~ @ HEIGHTS AND GEO ABS VORTICITY!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

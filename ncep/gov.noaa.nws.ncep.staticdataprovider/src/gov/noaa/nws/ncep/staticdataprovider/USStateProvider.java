@@ -1,5 +1,5 @@
 /*
- * gov.noaa.nws.ncep.common.staticDataProvider.USStateProvider
+ * gov.noaa.nws.ncep.staticDataProvider.USStateProvider
  * 
  * 12 March 2012
  *

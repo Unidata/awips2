@@ -24,9 +24,11 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.UiPlugin;
 
 /**
  *  Resource Bundle Loader will load RBDs into new or existing map editors.
@@ -110,10 +112,6 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	seldRBDs.clear();
     }
 
-//    public void addRBD( RbdBundle newRBD ) {
-//    	seldRBDs.add( newRBD );
-//    }
-//
     public void addRBD( RbdBundle newRBD, NCMapEditor theEditor ) {
 
     	seldRBDs.add( new RbdBundleEditorWrapper<RbdBundle,NCMapEditor> ( newRBD, theEditor ) );
@@ -130,8 +128,9 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     		errMsg = em;
     	}
 		public void run() {
+			Status status = new Status(Status.ERROR, UiPlugin.PLUGIN_ID, 0, errMsg, null );
 			ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-					"ERROR", errMsg, null);
+					"ERROR", errMsg, status);
 		}
 	}
     
@@ -140,30 +139,10 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	return true;
     }
     
-    
 //    @Override
 //    protected IStatus run(IProgressMonitor monitor) {
     //public void loadRBDs() {
     public void run() {
-
-		// wait for the system to init
-    	/*
-		for( int i=0 ; i<15 ; i++  ) {
-			if( DataCubeContainer.isInitFinished() ) {
-//				System.out.println("DataCubeContainer isinitialized");
-				break;
-			}
-			try {
-//				System.out.println("DataCubeContainer is not initialized yet?");
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-		}
-		*/
-		
-		
-//    	RbdBundle[] rbdList  = (RbdBundle[])seldRBDs.toArray( new RbdBundle[0] );
-    	
     	RbdBundleEditorWrapper[] wrapperClassArray= ( RbdBundleEditorWrapper[] ) seldRBDs.toArray ( new RbdBundleEditorWrapper[0] );
 		
     	if( loadSelectedPaneOnly ) {
@@ -175,21 +154,15 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     
 		for ( RbdBundleEditorWrapper<RbdBundle,NCMapEditor> thisWrapper : wrapperClassArray ) {
         	
+			try {
      		 RbdBundle rbdBndl = thisWrapper.getRbdBundle();
     		
-//        	for( RbdBundle rbdBndl : rbdList ) {
-        		// initialize the timeline if it has not already
-        		// been initialized
-    // xguo,06/02/11. Not initialize time-line until the user selects it
-//        		rbdBndl.initTimeline();
-        		
         		// the editor should have already be created with the right 
         		// number of displays and matching paneLayouts 
         		NCMapEditor editor = thisWrapper.getMapEditor();
         		
         		if( editor == null ) {
-        			System.out.println("??editor is null in rbdLoader?");
-        			continue;
+        			throw new VizException("??editor is null in rbdLoader?");
         		}
         		
         		// If this editor currently has resources loaded, clear them out except for PGEN
@@ -199,6 +172,11 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		    	PaneID paneid = new PaneID(r,c);
         		    	IDisplayPane pane = editor.getDisplayPane( paneid );
         		    	
+        				if( pane == null ) {
+        					throw new VizException("Could not get pane "+paneid.toString() +
+        							" from the editor.");
+        				}
+
         		    	// don't clear this pane if we are only loading the selected pane and 
         		    	// this isn't it
         		    	if( loadSelectedPaneOnly &&
@@ -207,6 +185,9 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		    	}
         		    	
         				List<ResourcePair> rlist = ((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList();
+        				if( rlist == null ) {
+        					throw new VizException("The ResourceList is empty?");
+        				}
         				Iterator<ResourcePair> it = rlist.iterator();
         				
         				while( it.hasNext() ){
@@ -217,6 +198,7 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         				}
         			}
         		}
+        		
         		editor.setAutoUpdate(rbdBndl.isAutoUpdate() );
         		editor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
         		editor.setHideShow(false); //init to false, means rsc on
@@ -228,14 +210,13 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         			if( editor.getPaneLayout().getRows() <= rbdBndl.getSelectedPaneId().getRow() ||
         				editor.getPaneLayout().getColumns() <= rbdBndl.getSelectedPaneId().getColumn() ) {
         				
-        				System.out.println("Error: The Active Display doesn't have enough Panes"+
+        				throw new VizException("Error: The Active Display doesn't have enough Panes"+
     					" for the selected Pane: ");
-        				break;
+//        				break;
         			}
         		}
         		else if( !editor.getPaneLayout().equals( rbdBndl.getPaneLayout() ) ) {
-        			     System.out.println("PaneLayouts of the RBD and Editor don't match?");
-        			continue;
+        			throw new VizException("PaneLayouts of the RBD and Editor don't match?");
         		}
         		
         		// loop thru the panes in the RBD
@@ -260,20 +241,22 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		    			(NCMapRenderableDisplay) mapDisp, 
         		    			rbdBndl.getTimeMatcher() ) == false ) {
 
-        		    		VizApp.runAsync(new ErrorMsg("Error Loading Pane "+paneid.toString()+
-        		    				" for RBD "+ rbdBndl.getRbdName() ) );
+        		    		throw new VizException("Error Loading Pane "+paneid.toString()+
+        		    				" for RBD "+ rbdBndl.getRbdName() );
         		    	}
         		    }
         		}
 
         		editor.refresh();
         		editor.refreshGUIElements();
-//        	}
-        		
-    		removeAllSeldRBDs();
+        	}
+			catch ( VizException vizex ) {
+	    		VizApp.runAsync(
+	    				new ErrorMsg( vizex.getMessage() ) );	
+			}        		
     	}
     	
-    	// update Menu Elements for the editor
+		removeAllSeldRBDs();
     	
      //   this.cancel();  if a Job 
      //   return null;
@@ -301,9 +284,8 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	}
     	else {
     		descr.setDataTimes( dataTimes );
-    		ResourceName domRscName = timeMatcher.getDominantResourceName();
     		
-    		if( domRscName != null && domRscName.isForecastResource() ) {
+    		if( timeMatcher.isForecast() ) {
     			descr.setFrame( 0 );
     		}
     		else {
