@@ -157,6 +157,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	if ( !isResourceEditable() ) return false;
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -250,10 +251,6 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             		
             	
             		if(isTrackElement(drawableType)) {
-            			System.out.println( "interval attdlg= "+ ((TrackAttrDlg)attrDlg).getIntervalTimeString() );
-            			System.out.println( "interval track= " + ((Track)elem).getIntervalComboSelectedIndex() );
-            			System.out.println( "interval track= " + ((Track)elem).getIntervalTimeString() );
-                    			
             			displayTrackExtrapPointInfoDlg((TrackAttrDlg)attrDlg,	(Track)elem);   
             		}
 
@@ -284,7 +281,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         
         @Override
         public boolean handleMouseDownMove(int aX, int aY, int button) {
-        	if ( shiftDown ) return false;
+        	if (  !isResourceEditable() || shiftDown ) return false;
         	else return true;
         }
         
@@ -373,6 +370,8 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
+        	if ( !isResourceEditable() ) return false;
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;

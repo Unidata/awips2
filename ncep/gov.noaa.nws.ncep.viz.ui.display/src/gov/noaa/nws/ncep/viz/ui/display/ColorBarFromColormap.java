@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.measure.unit.Unit;
@@ -19,6 +20,9 @@ import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAttributesBuilder;
+import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
 
@@ -43,6 +47,14 @@ import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
  * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
  *                                        reversing the order of colors in the color-bar.                                  
  *                                         
+ * 06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
+ *                                        xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
+ *                                        isDrawBoxAroundColorBar. added the corresponding setter/getter methods
+ *                                        Added setAttributesFromColorBarAttributesBuilder()                                      
+ *07/18/12       #717       Archana       Refactored numPixelsToReAlignLabel to alignLabelInTheMiddleOfInterval
+ *                                        and added the corresponding setter/getter methods                                   
+ *                                                                                   
+ *                                                                                   
  * </pre>
  * 
  * @author ghull
@@ -56,7 +68,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	private ColorBarOrientation orientation = ColorBarOrientation.Vertical;
 
 	@XmlElement
-	private ColorBarAnchorLocation anchorLoc = ColorBarAnchorLocation.UpperLeft;
+	private ColorBarAnchorLocation anchorLoc = ColorBarAnchorLocation.LowerLeft;
 
 //	@XmlElement
 //	private String colorMapName = null;
@@ -92,12 +104,12 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	@XmlElement
 	String displayUnitStr = null;
 	
-	@XmlElement
-	@XmlJavaTypeAdapter(IntegerListAdapter.class)
-	private ArrayList<Integer> labeledPixels = new ArrayList<Integer>();
+//	@XmlElement
+//	@XmlJavaTypeAdapter(IntegerListAdapter.class)
+//	private ArrayList<Integer> labeledPixels = new ArrayList<Integer>();
 
 	private static final Float defaultLength = .5f;
-	private static final int defaultWidth = 10;
+	private static final int defaultWidth = 10; //change to 0.01
 
 	@XmlElement
 	private Float lengthAsRatio = defaultLength; // as a ratio of the screen
@@ -112,6 +124,18 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 
 	private Boolean isScalingAttemptedForThisColorMap = false;
 	
+	private ColorBarAttributesBuilder colorBarAttributesBuilder;
+
+    @XmlElement
+    private Boolean drawColorBar = true;
+    
+    @XmlElement
+    private Boolean drawBoxAroundColorBar = true;
+    
+    private double xPixelCoordFraction = 0.005;
+    
+    private double yPixelCoordFraction = 0.05;	
+	
 	/**
 	 * @param isScalingAttemptedForThisColorMap the isScalingAttemptedForThisColorMap to set
 	 */
@@ -120,7 +144,6 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		this.isScalingAttemptedForThisColorMap = isScalingAttemptedForThisColorMap;
 	}
 
-	private int numPixelsToReAlignLabel;
 	
 	/**
 	 * @return the isScalingAttemptedForThisColorMap
@@ -129,6 +152,14 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		return isScalingAttemptedForThisColorMap.booleanValue();
 	}
 
+	private boolean alignLabelInTheMiddleOfInterval;
+	
+	@Override
+	public void setAlignLabelInTheMiddleOfInterval(boolean b){
+		alignLabelInTheMiddleOfInterval = b;
+	}
+	
+	
 	public ColorBarFromColormap() {
 	}
 
@@ -150,19 +181,17 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		lengthAsRatio = cbar.lengthAsRatio;
 		widthInPixels = cbar.widthInPixels;
         reverseOrder = cbar.reverseOrder;
-        numPixelsToReAlignLabel = cbar.numPixelsToReAlignLabel;
+        alignLabelInTheMiddleOfInterval = cbar.alignLabelInTheMiddleOfInterval;
         isScalingAttemptedForThisColorMap = cbar.isScalingAttemptedForThisColorMap;
+        colorBarAttributesBuilder = cbar.colorBarAttributesBuilder;
+        alignLabelInTheMiddleOfInterval = cbar.alignLabelInTheMiddleOfInterval;
         if (cbar.displayUnitStr != null )
           displayUnitStr = new String(cbar.displayUnitStr);
 		colorMap = null;
 		if( cbar.getColorMap() != null ) {
 			setColorMap(cbar.getColorMap());
 		}
-//		for( int p=0 ; p<cbar.getNumIntervals() ; p++ ) {
-//			if( cbar.isPixelLabeled(p) ) {
-//				labelPixel(p);
-//			}
-//		}
+
 	}
 
 //	public String getColorMapName() {
@@ -306,17 +335,17 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		return orientation;
 	}
 
-	public void setOrientation(ColorBarOrientation orientation) {
-		this.orientation = orientation;
-	}
+//	public void setOrientation1(ColorBarOrientation orientation) {
+//		this.orientation = orientation;
+//	}
 
 	public ColorBarAnchorLocation getAnchorLoc() {
 		return anchorLoc;
 	}
 
-	public void setAnchorLoc(ColorBarAnchorLocation anchorLoc) {
-		this.anchorLoc = anchorLoc;
-	}
+//	public void setAnchorLoc1(ColorBarAnchorLocation anchorLoc) {
+//		this.anchorLoc = anchorLoc;
+//	}
 
 	public int getNumDecimals() {
 		return 0;
@@ -434,22 +463,46 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	}
 
 	public boolean unlabelPixel(int p) {
-		for (Integer pix : labeledPixels) {
-			if (p == pix) {
-				labeledPixels.remove(pix);
-				return true;
+
+		if ( imagePreferences == null )
+			return false;
+
+		    DataMappingPreferences dmPref = imagePreferences.getDataMapping();
+			if(dmPref != null){
+				List<DataMappingEntry>dmEntriesList =  dmPref.getEntries();
+				if (dmEntriesList != null && !dmEntriesList.isEmpty()){
+					Iterator<DataMappingEntry> itr = dmEntriesList.iterator();
+					
+					while(itr.hasNext()){
+						if(itr.next().equals(new Double(p))){
+							itr.remove();
+							break;
+						}
+					}
 			}
 		}
 		return false;
 	}
 
 	public boolean isPixelLabeled(int p) {
-		return labeledPixels.contains(new Integer(p));
+		if(imagePreferences == null)
+			return false;
+
+		DataMappingPreferences dmPref = imagePreferences.getDataMapping();
+		
+		if( dmPref == null ) 
+			return false;
+		
+		if (dmPref.getLabelValueForDataValue((double)p) == null )
+			return false;
+		else 
+			return true;
+//		return labeledPixels.contains(new Integer(p));
 	}
 
-	public void removeAllLabels() {
-		labeledPixels.clear();
-	}
+//	public void removeAllLabels() {
+//		labeledPixels.clear();
+//	}
 
 	public float getDiscreteRange() {
 		return getNumIntervals();
@@ -483,21 +536,39 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		return widthInPixels;
 	}
 
+	/**
+	 * For a pixel p, applies the corresponding label lblStr
+	 */
 	public void labelInterval(int p, String lblStr) {
 		if (lblStr != null) {
-			labelPixel(p);
+			labelPixel(p,lblStr);
 		} else {
 			unlabelPixel(p);
 		}
 	}
 
-	public void labelPixel(int p) { // , String lblStr ) {
-		for (Integer pix : labeledPixels) {
-			if (p == pix) {
-				return; // already labeled
+	public void labelPixel(int p,String lblStr) { // , String lblStr ) {
+
+		if ( lblStr == null || imagePreferences == null )
+			return;
+
+		    DataMappingPreferences dmPref = imagePreferences.getDataMapping();
+			if(dmPref != null){
+				List<DataMappingEntry>dmEntriesList =  dmPref.getEntries();
+				if (dmEntriesList != null && !dmEntriesList.isEmpty()){
+					if(!dmEntriesList.contains(new Double(p))){
+						DataMappingEntry dmEntry = new DataMappingEntry();
+						dmEntry.setPixelValue((double)p);
+						dmEntry.setLabel(lblStr);
+						dmEntriesList.add(dmEntry);
+						DataMappingEntry[] entryArray = new DataMappingEntry[dmEntriesList.size()];
+						dmEntriesList.toArray(entryArray);
+						dmPref.setSerializableEntries(entryArray);
+						imagePreferences.setDataMapping(dmPref);
+					}
 			}
 		}
-		labeledPixels.add(p);
+
 	}
 
 	public boolean isIntervalLabeled(int intrvl) {
@@ -509,8 +580,6 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	}
 
 	public void setLengthAsRatio(Float l) {
-		if ( l > 0.95 )
-			l = 0.98f;
 		lengthAsRatio = l;
 	}
 
@@ -534,8 +603,8 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 				+ ((dataUnits == null) ? 0 : dataUnits.hashCode());
 		result = prime * result
 				+ ((labelColor == null) ? 0 : labelColor.hashCode());
-		result = prime * result
-				+ ((labeledPixels == null) ? 0 : labeledPixels.hashCode());
+//		result = prime * result
+//				+ ((labeledPixels == null) ? 0 : labeledPixels.hashCode());
 		result = prime * result
 				+ ((lengthAsRatio == null) ? 0 : lengthAsRatio.hashCode());
 		result = prime * result
@@ -555,6 +624,8 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		result = prime * result
 		+ ((isScalingAttemptedForThisColorMap == null) ? 0 : isScalingAttemptedForThisColorMap.hashCode());
 				
+		result = prime * result
+		+ ((colorBarAttributesBuilder == null) ? 0 : colorBarAttributesBuilder.hashCode());
 		
 		return result;
 	}
@@ -596,11 +667,11 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 				return false;
 		} else if (!labelColor.equals(other.labelColor))
 			return false;
-		if (labeledPixels == null) {
-			if (other.labeledPixels != null)
-				return false;
-		} else if (!labeledPixels.equals(other.labeledPixels))
-			return false;
+//		if (labeledPixels == null) {
+//			if (other.labeledPixels != null)
+//				return false;
+//		} else if (!labeledPixels.equals(other.labeledPixels))
+//			return false;
 		if (lengthAsRatio == null) {
 			if (other.lengthAsRatio != null)
 				return false;
@@ -642,7 +713,12 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		} else if (!isScalingAttemptedForThisColorMap.equals(other.isScalingAttemptedForThisColorMap))
 			return false;
 		
-		//isScalingAttemptedForThisColorMap
+
+		if (colorBarAttributesBuilder == null) {
+			if (other.colorBarAttributesBuilder != null)
+				return false;
+		} else if (!colorBarAttributesBuilder.equals(other.colorBarAttributesBuilder))
+			return false;		
 		
 		return true;
 	}
@@ -701,11 +777,131 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	}
 
 	@Override
-	public int getNumPixelsToReAlignLabel(){
-		return numPixelsToReAlignLabel;
+	public boolean isAlignLabelInTheMiddleOfInterval(){
+		return alignLabelInTheMiddleOfInterval;
 	}
 	
-	public void setNumPixelsToReAlignLabel(int n){
-		numPixelsToReAlignLabel = n;
+	public void setNumPixelsToReAlignLabel(boolean n){
+		alignLabelInTheMiddleOfInterval = n;
 	}
+
+	/**
+	 * @return the colorBarAttributesBuilder
+	 */
+	public final ColorBarAttributesBuilder getColorBarAttributesBuilder() {
+		return colorBarAttributesBuilder;
+	}
+
+	/**
+	 * @param colorBarAttributesBuilder the colorBarAttributesBuilder to set
+	 */
+	public final void setColorBarAttributesBuilder(
+			ColorBarAttributesBuilder colorBarAttributesBuilder) {
+		this.colorBarAttributesBuilder = colorBarAttributesBuilder;
+	}
+
+	@Override
+	public void setOrientation(ColorBarOrientation orientation) {
+		this.orientation = orientation;
+		
+	}
+	
+	@Override
+	public void setAnchorLoc(ColorBarAnchorLocation anchorLoc) {
+         this.anchorLoc = anchorLoc;		
+	}
+
+	@Override
+	public void setAttributesFromColorBarAttributesBuilder(
+			ColorBarAttributesBuilder colorBarAttributesBuilder) {
+		/*
+		 * To be used when the GEMPAK parameter IMCBAR is implemented
+		 */
+	     if (colorBarAttributesBuilder != null ){
+	    	 
+	    	 setLengthAsRatio( (float) colorBarAttributesBuilder.getLength());
+	    	 setWidthInPixels( new Integer ( (int) colorBarAttributesBuilder.getWidth() * 1000));
+	    	 setAnchorLoc(colorBarAttributesBuilder.getAnchorLocation());
+	    	 setOrientation(colorBarAttributesBuilder.getColorBarOrientation());
+	    	 
+	    	 setXPixelCoordFraction(colorBarAttributesBuilder.getX());
+	    	 setYPixelCoordFraction(colorBarAttributesBuilder.getY());
+	    	 setLabelColor(colorBarAttributesBuilder.getColor());
+	    	 setDrawBoxAroundColorBar(colorBarAttributesBuilder.isDrawBoxAroundColorBar());
+	    	 setDrawColorBar(colorBarAttributesBuilder.isDrawColorBar() );
+	     }
+	}
+
+	/**
+	 * @return the drawColorBar
+	 */
+	public final Boolean isDrawColorBar() {
+		return drawColorBar;
+	}
+
+	/**
+	 * @param drawColorBar the drawColorBar to set
+	 */
+	public final void setDrawColorBar(Boolean drawColorBar) {
+		this.drawColorBar = drawColorBar;
+	}
+
+	/**
+	 * @return the drawBoxAroundColorBar
+	 */
+	public final Boolean isDrawBoxAroundColorBar() {
+		return drawBoxAroundColorBar;
+	}
+
+	/**
+	 * @param drawBoxAroundColorBar the drawBoxAroundColorBar to set
+	 */
+	public final void setDrawBoxAroundColorBar(Boolean drawBoxAroundColorBar) {
+		this.drawBoxAroundColorBar = drawBoxAroundColorBar;
+	}
+
+	/**
+	 * @return the xPixelCoordFraction
+	 */
+	public final double getXPixelCoordFraction() {
+		return xPixelCoordFraction;
+	}
+
+	/**
+	 * @param xPixelCoordFraction the xPixelCoordFraction to set
+	 */
+	public final void setXPixelCoordFraction(double xPixelCoordFraction) {
+		this.xPixelCoordFraction = xPixelCoordFraction;
+	}
+
+	/**
+	 * @return the yPixelCoordFraction
+	 */
+	public final double getYPixelCoordFraction() {
+		return yPixelCoordFraction;
+	}
+
+	/**
+	 * @param yPixelCoordFraction the yPixelCoordFraction to set
+	 */
+	public final void setYPixelCoordFraction(double yPixelCoordFraction) {
+		this.yPixelCoordFraction = yPixelCoordFraction;
+	}
+
+
+	@Override
+	public void removeAllLabels() {
+	       if(imagePreferences == null )
+		        return;
+	 
+	       DataMappingPreferences dmPref = imagePreferences.getDataMapping();
+	       
+	       if(dmPref == null )
+	    	   return;
+	       
+	       dmPref.getEntries().clear();
+	       
+	}
+
+
 }

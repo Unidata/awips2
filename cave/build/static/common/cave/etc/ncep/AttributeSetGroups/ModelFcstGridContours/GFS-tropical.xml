@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>GFS</resource>
     <attrSetGroupName>tropical</attrSetGroupName>
-    <attrSetNames>1000-500mb_rh,500mb_hght_absv,850-300mb_wind_shear,bl_moisture_conv_thtae,bl_thte_wind_mono,pmsl_bl_temp_wind,pmsl_thkn_850mb_wind,pmsl_and_bl_wind,precip_water_pmsl,precip_water_pmsl_mm</attrSetNames>
+    <attrSetNames>1000-500mb_rh,500mb_hght_absv,850-300mb_wind_shear,850mb_wind_pw_mm,bl_moisture_conv_thtae,bl_thte_wind_global,mlw_pmsl,pmsl_bl_temp_wind,pmsl_thkn_850mb_wind,pmsl_and_bl_wind_global,precip_water_pmsl,precip_water_pmsl_mm</attrSetNames>
 </AttributeSetGroup>

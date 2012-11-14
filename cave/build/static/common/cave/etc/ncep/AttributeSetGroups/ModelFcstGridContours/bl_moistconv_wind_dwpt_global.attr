@@ -1,0 +1,26 @@
+!
+! Restore File : bl_moistconv_wind_dwpt
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! J. Carr/HPC         5/15/97   Changed dwpc to dwpf and the cint
+!
+GLEVEL =  9950
+GVCORD =  SGMA
+SKIP   =    0/1;0
+SCALE  =   7!0!0
+GDPFUN =  sdiv(mixr(dwpc;mul(1e-2,pres@0%none));wnd)!dwpf!dwpf!dwpf ! kntv(wnd@9950%SGMA)
+TYPE   =    c/f                             !c   !c   !c    ! b
+CINT   =    1//-1!4//32 !4/32/48 !4/52
+LINE   =    32!19!5//2!6//2
+FINT   =    -7;-5;-3;-1
+FLINE  =   2;23;22;3;0
+HILO   =    0
+HLSYM  =   0!1;1//22;22/2;2/hw
+!CLRBAR=  1/V/LL!0
+WIND   =    9/0.7/2/112
+TITLE  =   1/-1/~ BL MOIST FLUX CONVERGENCE, WIND    (KTS), DEW POINT!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

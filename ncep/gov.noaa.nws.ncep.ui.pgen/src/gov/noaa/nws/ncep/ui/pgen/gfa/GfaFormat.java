@@ -58,6 +58,9 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 07/11					J. Wu		Removed the pre-clipping before snapping.
  * 07/11		?			B. Yin		Added FRZL
  * 05/12		#808		J. Wu		Update vor text for airmets.
+ * 06/12		#594		J. Wu		TTR393 - fixed invalid polygons from clipping.
+ * 08/12		#610		B. Yin		Remove M_FZLVL outlooks
+ * 08/12		#859		J. Wu		Fixed smearing when snapshots is too small.
  * 
  * </pre>
  * 
@@ -141,9 +144,18 @@ public class GfaFormat {
 				}
 			}
             
+			//make sure M_FZLVL does not generate outlooks
+			if ( !( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") &&
+					((Gfa)adc ).isSnapshot() &&
+							(Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[0] +
+							Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[1]/60.0) > 6 )) {
 			oldList.add(adc);
+			}
 			
-			if ( ( (Gfa)adc ).isSnapshot() ) {
+			if ( ( (Gfa)adc ).isSnapshot() 
+					&& !( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") &&
+							(Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[0] +
+							Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[1]/60.0) > 6 )) {
 //				oldList.add(adc);
 				newList.add(adc);
 			} 
@@ -182,7 +194,6 @@ public class GfaFormat {
 	protected void createSmears( List<AbstractDrawableComponent> list ) {
 //		System.out.println("Create Smear.....call GfaClip.getInstance().validateGfaBounds");
 //		GfaClip.getInstance().validateGfaBounds();
-//		System.out.println("Create Smear.....finish ");
 		
 		/*
 		 * Put snapshots into a tree set and sort them by fcstHr in ascending order.
@@ -205,6 +216,12 @@ public class GfaFormat {
 		 */
 		TreeSet<FcstHrListPair> splittedSS = splitSnapshots( tree );
 		
+		//Get the GFA international bounds
+		Coordinate[] intlBnds = GfaClip.getInstance().getFaInternationalBound().getGeometryN(0).getCoordinates();
+		ArrayList<Coordinate> intlBndsPts = new ArrayList<Coordinate>();
+		for ( Coordinate cc : intlBnds ) {
+		   intlBndsPts.add( cc );
+		}
 		
 		/*
 		 *  Generate smear from each FcstHrListPair.
@@ -212,7 +229,6 @@ public class GfaFormat {
 		ArrayList<ArrayList<Gfa>> listOfLists = new ArrayList<ArrayList<Gfa>>();
 		for ( FcstHrListPair pair : splittedSS ) {
 			
-
 			// Find the top/bottom, FZL top/bottom, and subtypes for the pair
 			HashMap<String, String> values = findGfaTopBots( pair.list );
 			String type = findGfaSubTypes( pair.list );
@@ -316,10 +332,10 @@ public class GfaFormat {
 			
 			if ( clipAgstIntlBnd == null || clipAgstIntlBnd.getNumGeometries() <= 0 ||
 					 !GfaClip.getInstance().isBiggerInGrid( clipAgstIntlBnd ) ) {
-				return;
+//				return;
+				continue;
 			}
 						          
-	
 			/*
 			 *  Snapping (the first point/last point are not the same)
 			 *  
@@ -341,6 +357,37 @@ public class GfaFormat {
 			ArrayList<Gfa> clippedWithRegions = GfaClip.getInstance().clipFARegions( smear, pair.original );
 			
 			if ( clippedWithRegions == null || clippedWithRegions.size() == 0 )  continue;
+			
+			
+			/*
+			 * Clipping may result in invalid polygons, when intersection points of the smear with 
+			 * the international bounds are snapped....
+			 */			
+			for ( Gfa gg: clippedWithRegions ) {
+				if ( !(gg.toPolygon().isValid()) ) {
+					ArrayList<Coordinate> newPts = new ArrayList<Coordinate>( gg.getPoints() );
+					for ( int ii = 0; ii < gg.getPoints().size(); ii++ ) {
+						int jj = ii+1;
+						if ( jj == gg.getPoints().size() ) jj = 0;
+						
+						double distance =  GfaSnap.getInstance().distance( gg.getPoints().get(ii), gg.getPoints().get(jj) );
+						if ( (distance / PgenUtil.NM2M) <= GfaSnap.CLUSTER_DIST ) {
+																			 
+							if ( intlBndsPts.contains( gg.getPoints().get(ii) ) ) {							
+								newPts.remove( gg.getPoints().get( jj ) );
+							}
+							else {
+								newPts.remove( gg.getPoints().get( ii ) );								
+							}						
+						}						
+					}
+					
+					if ( newPts.size() <  gg.getPoints().size() ) {
+						gg.setPointsOnly( newPts );
+					}
+				}
+				
+			}
 			
 			/*
 			 *  Add the new smear and its associated snapshots as attributes
@@ -376,6 +423,7 @@ public class GfaFormat {
 			listOfLists.add( clippedWithRegions );
 			
 		}
+		
 		
 		/*
 		 *  Apply other GFA rules (area, reduce points, wording ......
@@ -812,6 +860,7 @@ public class GfaFormat {
 
 		// Clone
 		HashMap<String, String> values = new HashMap<String, String>();
+		
 		for ( String key : g.getGfaValues().keySet() ) {
 			values.put(key, g.getGfaValues().get(key) );
 		}
