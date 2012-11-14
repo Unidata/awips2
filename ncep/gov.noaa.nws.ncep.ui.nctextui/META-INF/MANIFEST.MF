@@ -4,6 +4,8 @@ Bundle-Name: Nctextui Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.ui.nctextui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.ui.nctextui.Activator
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.ui;bundle-version="1.11.17",
@@ -32,3 +34,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.geotools.referencing,
  org.geotools.referencing.datum,
  org.opengis.referencing.crs
+Export-Package: gov.noaa.nws.ncep.ui.nctextui.rsc

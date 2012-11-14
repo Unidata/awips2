@@ -1,0 +1,26 @@
+!
+! Restore File : pmsl_thkn_wnd_mono
+!
+! Log:
+! J. Carr/HPC   	 7/98	Initial creation
+! J. Carr/HPC		11/98	Change color from brown to green and thickness increment from 60 to 30.
+!
+GLEVEL =  500:1000!500:1000!0!9950
+GVCORD =  pres!pres!none!sgma
+SKIP   =    0!0!0!0
+SCALE  =   -1!-1!0
+GDPFUN =  ldf(hght) ! ldf(hght) !sm9s(mul(1e-2,pmsl))! kntv(wnd)
+TYPE   =    c!c!c!b
+CINT   =    3/0/540 !3/546/999        !4
+LINE   =    23/3/2  !23/3/2          !23/1/2
+FINT   =    
+FLINE  =   
+HILO   =    !! 23;23/H#;L#/1018-1070;900-1012//30;30/y
+HLSYM  =   2;1.5//21//hw
+!CLRBAR=  1                                                                       
+WIND   =    23/0.8/1/112
+TITLE  =   23/-1/~ PMSL, 1000-500 MB THICKNESS, BL (~995 MB)WIND   =!0
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1

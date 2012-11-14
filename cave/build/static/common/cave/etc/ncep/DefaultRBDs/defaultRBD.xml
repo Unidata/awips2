@@ -55,7 +55,9 @@
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>World</mapName>
                                 <table>mapdata.world</table>
-                                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
+<!-- don't need this anymore
+                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
+-->                
                                 <geomField>the_geom</geomField>
                                 <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
@@ -68,7 +70,7 @@
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>State Boundaries</mapName>
@@ -101,8 +103,9 @@
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
+<!-- Mexico is 'disabled'. To have mexico display set the maxDisplayWidth="100000000" -->
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                                <pdProps maxDisplayWidth="1" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>Mexico</mapName>
@@ -119,8 +122,9 @@
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                                <pdProps maxDisplayWidth="1" minDisplayWidth="0"/>
                             </properties>
+<!-- Counties are 'disabled'. To display set the maxDisplayWidth="100000000" -->
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
                                 <mapName>County Boundaries</mapName>
                                 <table>mapdata.county</table>

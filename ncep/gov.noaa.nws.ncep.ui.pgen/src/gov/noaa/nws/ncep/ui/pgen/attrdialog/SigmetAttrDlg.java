@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 										Change KZOA to KZAK.
  * 03/12        #611        S. Gurung   Fixed ability to change SIGMET type (from Area to Line/Isolated and back and forth)
  * 03/12        #676        Q. Zhou     Added Issue Office dropdown list.
+ * 08/12        #612		S. Gurung   Fixed issue related to conversion of phenom Lat/Lon to prepended format
  *  </pre>
  * 
  * @author	gzhang
@@ -663,6 +664,8 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		    			String phenomLat = getPhenomLatLon(txtPheLat.getText().trim(), true);
 		    			if(!"".equals(phenomLat))
 		    				SigmetAttrDlg.this.setEditableAttrPhenomLat(phenomLat);
+		    			else
+		    				SigmetAttrDlg.this.setEditableAttrPhenomLat(null);
 		    		}
 		    	});		
 		    	txtPheLat.addFocusListener(new FocusListener() {	
@@ -674,6 +677,8 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 						public void focusLost(FocusEvent e) {
 							if (SigmetAttrDlg.this.getEditableAttrPhenomLat() != null)
 								txtPheLat.setText(SigmetAttrDlg.this.getEditableAttrPhenomLat());
+							else
+								txtPheLat.setText("???");
 						}
 		    	});	
 		    	
@@ -687,9 +692,10 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		    	txtPheLon.addListener(SWT.Modify, new Listener(){
 		    		public void handleEvent(Event e){
 		    			String phenomLon = getPhenomLatLon(txtPheLon.getText().trim(), false);		    		
-		    			if(!"".equals(phenomLon)) {
+		    			if(!"".equals(phenomLon)) 
 		    				SigmetAttrDlg.this.setEditableAttrPhenomLon(phenomLon);	
-		    			}
+		    			else
+		    				SigmetAttrDlg.this.setEditableAttrPhenomLon(null);	
 		    		}
 		    	});		    	
 		    	txtPheLon.addFocusListener(new FocusListener() {	
@@ -701,6 +707,8 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 					public void focusLost(FocusEvent e) {
 						if (SigmetAttrDlg.this.getEditableAttrPhenomLon() != null)
 							txtPheLon.setText(SigmetAttrDlg.this.getEditableAttrPhenomLon());
+						else
+							txtPheLon.setText("???");
 					}
 		    	});
 		    			    	
@@ -2554,7 +2562,8 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	
 	private String getPhenomLatLon(String input, boolean isLat) {		
 		
-		if (input.startsWith("S") || input.startsWith("W"))
+		if (input.startsWith("S") || input.startsWith("s") || input.startsWith("W") || input.startsWith("w")
+				|| input.endsWith("S") || input.endsWith("s") || input.endsWith("W") || input.endsWith("w"))
 			input = "-" + input;
     	input = input.replaceAll("[^-0-9.]","");
     	

@@ -22,6 +22,7 @@ import java.util.Vector;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -54,6 +55,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/11/11                Greg Hull       Back out #416 changes supporting SPF Mngr.
  * 10/22/11     #467       Greg Hull       replace selected resource
  * 01/05/11     #561       Greg Hull       add Locator as default selected resource
+ * 06/21/12     #646       Greg Hull       save PredefinedArea obj so we can save the 
+ *                                         mapCenter/extents/zoomLevel
  *
  * </pre>
  * 
@@ -67,7 +70,7 @@ public class RscBundleDisplayMngr  {
 		
 		private Vector<ResourceSelection> seldResources = new Vector<ResourceSelection>();
 		
-		private String  seldGeoArea = null;
+		private PredefinedArea predefinedArea = null;
 	
 		// we could use this if we want to be able to reset the area's if
 		// the user accidently changes all of them with the geoSync button.
@@ -75,7 +78,13 @@ public class RscBundleDisplayMngr  {
 
 		public PaneSelectionData( ) {
 			seldResources = new Vector<ResourceSelection>();
-			seldGeoArea = NmapCommon.getDefaultMap();
+			String areaName = NmapCommon.getDefaultMap();
+			
+			try {
+				predefinedArea = PredefinedAreasMngr.getPredefinedArea(areaName);
+			} catch (VizException e1) {
+				System.out.println("Error getting default PredefinedArea, "+areaName);
+			}
 			
 			if( baseOverlayRBT == null ) {
 				// add the 'Base' (ie geoPolitical) overlay to the list of selected Resources
@@ -96,36 +105,28 @@ public class RscBundleDisplayMngr  {
 			}
 
 			seldResources.add( baseOverlayRBT );
-			
 		}
 		
-
-		public String getGeoAreaName() {
-			return seldGeoArea;
+		public PredefinedArea getPredefinedArea() {
+			return predefinedArea;
 		}
 
-		public void setGeoAreaName( String area ) {
-			seldGeoArea = area;
+		public void setPredefinedArea( PredefinedArea pArea ) throws VizException {
+			predefinedArea = PredefinedAreasMngr.clonePredefinedArea( pArea );
+		}
+
+		public void setPredefinedArea( String areaName ) {
+			try {
+				predefinedArea = PredefinedAreasMngr.getPredefinedArea(areaName);
+			} catch (VizException e1) {
+				System.out.println("Error getting default PredefinedArea, "+areaName);
+			}
 		}
 
 		public ResourceSelection[] getSelectedResources() {
 			return seldResources.toArray( new ResourceSelection[0] );
 		}		
 
-//		public boolean addSelectedResource( ResourceName rscName ) throws VizException {
-//			for( ResourceSelection r : seldResources ) {
-//				if( rscName.equals( r.getResourceName() ) ) {
-//					return false;					
-//				}
-//			}
-//
-//			ResourceSelection rbt = ResourceFactory.createResource( rscName );
-//						
-//			seldResources.add( 0, rbt );
-//			
-//			return true;
-//		}
-		
 		public boolean addSelectedResource( ResourceSelection rbt ) {
 			for( ResourceSelection r : seldResources ) {
 				if( rbt.getResourceName().toString().equals( r.getResourceName().toString() ) ) {
@@ -163,21 +164,6 @@ public class RscBundleDisplayMngr  {
 		public void resetPane() {
 			seldResources.clear();
 			
-			// Add the default Locator
-			try {
-				ResourceDefinition locRscDefn = 
-					ResourceDefnsMngr.getInstance().getLocatorResourceDefinition(); 
-				if( locRscDefn != null ) {
-					ResourceName rscName = new ResourceName( 
-							ResourceName.OverlayRscCategory, 
-							locRscDefn.getResourceDefnName(), null ); // 'default' attrSet
-					
-					seldResources.add( ResourceFactory.createResource( rscName ) ); 				
-				}
-			} catch (VizException e) {
-				System.out.println( "Error creating the Default Locator Overlay Resource?" );
-			}
-			
 			// if clearing all resources we will remove any edits made to the base overlay.
 			if( baseOverlayRBT == null ||
 				baseOverlayRBT.getResourceData().getIsEdited() ) {
@@ -210,7 +196,6 @@ public class RscBundleDisplayMngr  {
 				}
 			}
 		}
-
 	}
 
 	// the currently selected layout (numRows,numColumns)
@@ -275,20 +260,23 @@ public class RscBundleDisplayMngr  {
 		return paneLayout;
 	}
 	
-	public void setPaneLayout(PaneLayout paneLayout) {
+	// return the selected paneId so the caller may tell if it changed.
+	public PaneID setPaneLayout(PaneLayout paneLayout) {
 		if( this.paneLayout.equals( paneLayout ) ) {
-			return;
+			return selectedPaneId;
 		}
 		
 		rbdModified = true;
 		
-		if( paneLayout.getRows() <= selectedPaneId.getRow() ||
-			paneLayout.getColumns() <= selectedPaneId.getColumn() ) {
-			
-			System.out.println("Attempting to set a paneLayout ("+paneLayout.toString()+
-					") smaller than the current selected pane: "+ selectedPaneId.toString() );
-			selectedPaneId = new PaneID(0,0);
+		if( paneLayout.getRows() <= selectedPaneId.getRow() ) {
+			selectedPaneId = new PaneID( selectedPaneId.getRow()-1, 
+										 selectedPaneId.getColumn() );
 		}
+		if( paneLayout.getColumns() <= selectedPaneId.getColumn() ) {
+			selectedPaneId = new PaneID( selectedPaneId.getRow(),
+										 selectedPaneId.getColumn()-1 );		
+		}
+		
 		this.paneLayout = paneLayout;
 		
 		setMultiPane( paneLayout.getNumberOfPanes() > 1 );
@@ -299,12 +287,13 @@ public class RscBundleDisplayMngr  {
 		// make sure there is an entry in the map for each pane
 		for( int r=0 ; r<paneLayout.getRows() ; r++ ) {
 			for( int c=0 ; c<paneLayout.getColumns() ; c++ ) {
-				if( paneSelectionDataMap.get( new PaneID(r,c).toString() ) == null ) {
+				if( !paneSelectionDataMap.containsKey( new PaneID(r,c).toString() ) ) {
 					paneSelectionDataMap.put( new PaneID(r,c).toString(), 
 						                   	  new PaneSelectionData() );
 				}
 			}
 		}		
+		return selectedPaneId;
 	}
 
 	public String getRbdName() {
@@ -349,13 +338,16 @@ public class RscBundleDisplayMngr  {
 	public void init() {
 		
 		rbdModified = false;
-		
+		rbdName = "";
 		paneSelectionDataMap.clear();
+				
+		initialTimeMatcher = new NCTimeMatcher();
 				
 		paneLayout = new PaneLayout(1,1);
 		selectedPaneId = new PaneID(0,0);
 		selectedPaneData = new PaneSelectionData();
 
+		paneSelectionDataMap.clear();
 		paneSelectionDataMap.put( selectedPaneId.toString(),
 				                  selectedPaneData );		
 		
@@ -367,7 +359,7 @@ public class RscBundleDisplayMngr  {
 		autoUpdate = false;
 	}	
 	
-	public boolean initFromRbdBundle( RbdBundle rbdBndl ) {
+	public boolean initFromRbdBundle( RbdBundle rbdBndl ) throws VizException {
 		init();
 					
 		// TODO : don't set the rbdName if it is the default RBD as a 
@@ -385,7 +377,9 @@ public class RscBundleDisplayMngr  {
     			
     			NCMapRenderableDisplay dispPane = rbdBndl.getDisplayPane(paneId);
     			
-    			setGeoAreaName( dispPane.getPredefinedAreaName() );
+//    			setGeoAreaName( dispPane.getPredefinedAreaName() );
+    			setPredefinedArea( 
+    					PredefinedAreasMngr.createPredefinedArea( dispPane ) );
 
     	    	for( ResourcePair rp : dispPane.getDescriptor().getResourceList() ) {
     	    		if( rp.getResourceData() instanceof INatlCntrsResourceData ) {
@@ -407,7 +401,7 @@ public class RscBundleDisplayMngr  {
     	    			}
     	    		}
     	    		else if( !rp.getProperties().isSystemResource() ) {
-    	    			System.out.println("Unable to load non-NC non-System Resource");
+    	    			System.out.println("Unable to load non-NC non-System Resource:"+rp.getResourceData().toString() );
     	    		}
     	    	}
 
@@ -448,6 +442,10 @@ public class RscBundleDisplayMngr  {
 //		return selectedPaneData.addSelectedResource( rscName );		
 //	}
 	
+	public void setPredefinedArea( PredefinedArea pArea ) throws VizException {
+		selectedPaneData.setPredefinedArea( pArea );
+	}
+
 	public boolean addSelectedResource( ResourceSelection rbt ) {
 		rbdModified = true;
 		return selectedPaneData.addSelectedResource( rbt );		
@@ -487,26 +485,30 @@ public class RscBundleDisplayMngr  {
 	
 	// return a list of all the Panes that are not in the layout
 	// 
-	public ArrayList<PaneID> getHiddenPaneIds() {
-		ArrayList<PaneID> hiddenPanes = new ArrayList<PaneID>();
-		
-		// loop thru all of the panes in the map and if it is not 
-		// in the current layout, add it to the list
-		for( String paneIdStr : paneSelectionDataMap.keySet() ) {
-			PaneID paneId = PaneID.parsePaneId( paneIdStr );
-			
-			if( paneId.getRow() >= paneLayout.getRows() || 
-				paneId.getColumn() >= paneLayout.getColumns() ) {
+//	public ArrayList<PaneID> getHiddenPaneIds() {
+//		ArrayList<PaneID> hiddenPanes = new ArrayList<PaneID>();
+//		
+//		// loop thru all of the panes in the map and if it is not 
+//		// in the current layout, add it to the list
+//		for( String paneIdStr : paneSelectionDataMap.keySet() ) {
+//			PaneID paneId = PaneID.parsePaneId( paneIdStr );
+//			
+//			if( paneId.getRow() >= paneLayout.getRows() || 
+//				paneId.getColumn() >= paneLayout.getColumns() ) {
+//
+//				hiddenPanes.add( paneId );
+//			}
+//		}
+//
+//		return hiddenPanes;
+//	}
 
-				hiddenPanes.add( paneId );
-			}
-		}
-
-		return hiddenPanes;
+	public String getGeoAreaName() {
+		return selectedPaneData.getPredefinedArea().getPredefinedAreaName();//GeoAreaName();
 	}
    			
-	public String getGeoAreaName() {
-		return selectedPaneData.getGeoAreaName();
+	public PredefinedArea getPredefinedArea() {
+		return selectedPaneData.getPredefinedArea();
 	}
 	
 	// If multi-pane and if geoSync is set then we will need to update all of the 
@@ -520,11 +522,11 @@ public class RscBundleDisplayMngr  {
 		
 		if( isMultiPane() && isGeoSyncPanes() ) {
 			for( PaneSelectionData paneData : paneSelectionDataMap.values() ) {
-				paneData.setGeoAreaName( areaName );
+				paneData.setPredefinedArea( areaName ); 
 			}
 		}
 		else {
-			selectedPaneData.setGeoAreaName( areaName );
+			selectedPaneData.setPredefinedArea( areaName );
 		}
 		
 		return true;
@@ -538,7 +540,8 @@ public class RscBundleDisplayMngr  {
 		
 		for( int r=0 ; r<paneLayout.getRows() ; r++ ) {
 			for( int c=0 ; c<paneLayout.getColumns() ; c++ ) {
-				paneSelectionDataMap.get( new PaneID(r,c).toString() ).setGeoAreaName( seldArea );
+				paneSelectionDataMap.get( new PaneID(r,c).toString() ).
+				          setPredefinedArea( seldArea );
 			}
 		}		
 		
@@ -599,8 +602,7 @@ public class RscBundleDisplayMngr  {
    				
    				PaneSelectionData paneData = paneSelectionDataMap.get( paneId.toString() );
    				
-   				PredefinedArea predefinedArea =
-   					     PredefinedAreasMngr.getPredefinedArea( paneData.getGeoAreaName() );
+   				PredefinedArea predefinedArea = paneData.getPredefinedArea();
 
    				NCMapRenderableDisplay dispPane = predefinedArea.getPredefinedArea();
    						

@@ -146,9 +146,9 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
         	//System.out.println("changeFrame");
         	if(rscHandler == null)
         		return;
-        	// we will have to do conversion here
-        	IFrameCoordinator.FrameChangeOperation dop = IFrameCoordinator.FrameChangeOperation.valueOf(operation.name());
-        	IFrameCoordinator.FrameChangeMode dmode = IFrameCoordinator.FrameChangeMode.valueOf(mode.name());
+        		// we will have to do conversion here
+        		IFrameCoordinator.FrameChangeOperation dop = IFrameCoordinator.FrameChangeOperation.valueOf(operation.name());
+        		IFrameCoordinator.FrameChangeMode dmode = IFrameCoordinator.FrameChangeMode.valueOf(mode.name());
         	rscHandler.setSteppingTimeLine(dop, dmode);
 
         }

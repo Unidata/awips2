@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.Spenes;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
@@ -59,8 +60,7 @@ public class CategoryFilter implements ElementFilter {
 			else if ( adc instanceof Text && 
 					  adc.getParent().getParent() != null &&
 					  adc.getParent().getParent() instanceof Outlook ){
-				//exclude text in outlook
-				return false;
+				return true;
 			}
 			else if	( adc.getParent().getPgenCategory() != null &&
 					  adc.getParent().getPgenCategory().equalsIgnoreCase("MET") ) { 
@@ -75,7 +75,8 @@ public class CategoryFilter implements ElementFilter {
 			}
 			else if ( adc instanceof Gfa ||
 					  adc instanceof TCAElement ||
-					  adc instanceof Tcm ){
+					  adc instanceof Tcm ||
+					  adc instanceof Spenes ){
 				return true;
 			}
 			

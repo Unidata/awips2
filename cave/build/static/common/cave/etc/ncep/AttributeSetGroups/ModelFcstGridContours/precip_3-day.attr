@@ -3,26 +3,27 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
-! D.W.Plummer/NCEP	 8/97	Changed TEXT size 1.2 to 1
+! D.W.Plummer/NCEP	 8/97	Added FILTER = parameter
 ! J. Carr/HPC            2/99   Removed the contour from type and left just fill
 !
-GLEVEL=0                                                                     
-GVCORD=none                                                                    
-SKIP=
-FILTER=y
-SCALE=0                                                                     
-GDPFUN=p72i
-TYPE=f                                                                   
-CINT=
-LINE=
-FINT=.01;.1;.25;.5;.75;1;1.5;2;2.5;3;4;5;6;7;8;9;10                          
-FLINE=0;21-30;14-20;5                                                         
-HILO=31;0/x#2/0.1-99//100;0/y
-HLSYM=1.5                                                                     
-WIND=
-TITLE=5/-1/3-day (F72-F144) PCPN ! 0                                          
-COLORS=2                                                                       
-MARKER=2                                                                       
-GRDLBL=5                                                                       
-GDATTIM=F144
+GLEVEL =  0                                                                     
+GVCORD =  none                                                                    
+SKIP   =    0                                                                       
+SCALE  =   0                                                                     
+GDPFUN =  p72i
+TYPE   =    f                                                                   
+CINT   =    
+LINE   =                                                             
+FINT   =    .01;.1;.25;.5;.75;1;1.5;2;2.5;3;4;5;6;7;8;9;10                          
+FLINE  =   0;21-30;14-20;5                                                         
+HILO   =    31;0/x#2/0.1-99//100;0/y
+HLSYM  =   1.5                                                                     
+!CLRBAR=  1/V/LL!0                                                                
+WIND   =    
+TITLE  =   5/-1/3-day (F72-F144) PCPN ! 0                                          
+COLORS =  2                                                                       
+MARKER =  2                                                                       
+GRDLBL =  5                                                                       
+FILTER =  1
+GDATTIM=  f72-last-06
+

@@ -38,6 +38,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 08/2011					T. Lee		ATCF and Ensemble storm tracks	
+ * 06/2012       #606       G. Hull     constructDataURI() after setReportType so it gets into the URI	
  * 
  * </pre>
  * 
@@ -114,7 +115,6 @@ public class StormTrackDecoder extends AbstractDecoder {
             try {
             	record.setTraceId(traceId);
             	record.setPluginName(pluginName);
-            	record.constructDataURI();
 
             	/*
             	 * Set report type in record.
@@ -124,6 +124,9 @@ public class StormTrackDecoder extends AbstractDecoder {
             	} else {
             		record.setReportType("ATCF");
             	}                             
+
+            	record.constructDataURI();
+
             } catch (PluginException e) {
             	throw new DecoderException(
             			"StormTrack WARNING:  Unable to construct dataURI--exception:  ",

@@ -5,23 +5,23 @@
         plugin="ncuair" name="standard"       
         svgTemplate="standardPlotModelTemplate.svg">
 		
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="TMPC">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="TMPC">
             <Position>UL</Position>
             <Color red="255" green="0" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STDZ">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STDZ">
             <Position>UR</Position>
             <Color red="255" green="255" blue="0"/>
         </PlotModelElement>
-       <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="DWPC">
+       <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="DWPC">
             <Position>LL</Position>
             <Color red="0" green="255" blue="0"/>
         </PlotModelElement>
-        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="STID">
+        <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Standard" textSize="14" paramName="STID">
         	<Position>LR</Position>
         	<Color red="205" green="133" blue="0"/>
     	</PlotModelElement>
-        <PlotModelElement symbolSize="2" textStyle="Normal" textFont="Helvetica" textSize="14" paramName="BRBK">
+        <PlotModelElement symbolSize="2" textStyle="Normal" textFont="Standard" textSize="14" paramName="BRBK">
             <Position>WD</Position>
             <Color red="0" green="255" blue="255"/>
         </PlotModelElement>
