@@ -5,21 +5,22 @@
 ! J. Carr/HPC	 6/98	Initial creation
 ! J. Carr/HPC    7/99   Changed title. Smoothed height. Changed contur to 2 for height.
 !
-GLEVEL=500
-GVCORD=pres
-SKIP=
-FILTER=y
-SCALE=9                                 !5                 !-1
-GDPFUN=sm5s(sm5s(adv(avor(wnd),wnd)))    !(abs(avor(wnd)))  !sm5s(hght)
-TYPE=c/f                               !c                 !c
-CINT=3                                 !3/3               !6
-LINE=32/1/1/0                          !7/2/2/2           !20/1/2/1
-FINT=-12;-9;-6;-3;3;6;9;12
-FLINE=29;30;25;24;0;14;15;17;5
-HILO=!2;6/X;N/10-99;10-99!
-HLSYM=0          
-WIND=18/1/1
-TITLE=5/0/~ @ HEIGHT, VORTICITY, VORTICITY ADV|~ @ HGHT, VORT ADV!0
-COLORS=2         
-MARKER=2        
-GRDLBL=5                                                                       
+GLEVEL =  500
+GVCORD =  pres
+SKIP   =    0          
+SCALE  =   9                                 !5                 !-1
+GDPFUN =  sm5s(sm5s(adv(avor(wnd),wnd)))    !(abs(avor(wnd)))  !sm5s(hght)
+TYPE   =    c/f                               !c                 !c
+CINT   =    3                                 !3/3               !6
+LINE   =    32/1/1/0                          !7/2/2/2           !20/1/2/1
+FINT   =    -12;-9;-6;-3;3;6;9;12
+FLINE  =   29;30;25;24;0;14;15;17;5
+HILO   =                                      !2;6/X;N/10-99;10-99!
+HLSYM  =   0          
+!CLRBAR=  1        
+WIND   =    18/1/1
+TITLE  =   5/0/~ @ HEIGHT, VORTICITY AND VORTICITY ADV|~ @ HGHT AND VORT ADV!0
+COLORS =  2         
+MARKER =  2        
+GRDLBL =  5                                                                       
+FILTER =  1

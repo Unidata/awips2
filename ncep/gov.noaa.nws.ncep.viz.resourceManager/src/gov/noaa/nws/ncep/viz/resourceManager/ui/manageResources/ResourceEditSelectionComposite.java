@@ -59,10 +59,6 @@ public class ResourceEditSelectionComposite extends Composite {
 	
 	private ResourceDefnsMngr rscDefnsMngr;
 	
-//	private Button fcstRscCatBtn;
-//	private Button obsAnlRscCatBtn;
-//	private Boolean fcstCatSelected = false;
-	
 	private ResourceName seldResourceName = null;
 	
 	private String prevSeldCat = "";
@@ -326,7 +322,7 @@ public class ResourceEditSelectionComposite extends Composite {
 			@Override
 			public Object[] getElements(Object inputElement) {
 				
-				return rscDefnsMngr.getResourceCategories( );
+				return rscDefnsMngr.getResourceCategories( true ); // include disabled defns
 			}
 
 			@Override
@@ -352,8 +348,11 @@ public class ResourceEditSelectionComposite extends Composite {
 				}
 				
 				try {
-					List<ResourceDefinition> rscTypes = rscDefnsMngr.getResourceDefnsForCategory( 
-							seldResourceName.getRscCategory(), null, false );
+					List<ResourceDefinition> rscTypes = 
+						rscDefnsMngr.getResourceDefnsForCategory( 
+							seldResourceName.getRscCategory(), null, 
+							false, true ); // no generated types and all disabled types
+					
 					return rscTypes.toArray(new ResourceDefinition[0]); 					
 				}
 				catch ( VizException e ) {

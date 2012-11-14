@@ -3,27 +3,27 @@
 flashFloodAdvisoryEnable=true
 flashFloodAdvisoryColor=RGB {0, 255, 0}
 flashFloodAdvisorySymbolWidth=2
-flashFloodAdvisorySymbolSize=1
+flashFloodAdvisorySymbolSize=2
 !
 flashFloodWarningEnable=true
 flashFloodWarningColor=RGB {255, 255, 0}
 flashFloodWarningSymbolWidth=2
-flashFloodWarningSymbolSize=1
+flashFloodWarningSymbolSize=2
 !
 flashFloodWatchEnable=true
-flashFloodWatchColor=RGB {145, 44, 238}
+flashFloodWatchColor=RGB {236, 114, 11}
 flashFloodWatchSymbolWidth=2
-flashFloodWatchSymbolSize=1
+flashFloodWatchSymbolSize=2
 !
 flashFloodStatementEnable=true
-flashFloodStatementColor=RGB {205, 133, 0}
+flashFloodStatementColor=RGB {242, 250, 16}
 flashFloodStatementSymbolWidth=2
-flashFloodStatementSymbolSize=1
+flashFloodStatementSymbolSize=2
 !
 timeEnable=true
-countyOrZoneNameEnable=true
-immediateCauseEnable=true
-outlineEnable=true
+countyOrZoneNameEnable=false
+immediateCauseEnable=false
+outlineEnable=false
 !
 !outlineLineWidth=3.0
 !symbolSizeScale=1.0

@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Surface wind speeds over oceans and Great Lakes
+displayUnitStr=GenericPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

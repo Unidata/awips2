@@ -80,6 +80,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 08/31/11		  #456	   Gang Zhang	AWW fix	   
  * 02/16/2012     #555     S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords().                               
  * 05/23/2012     785      Q. Zhou      Added getName for legend.
+ * 08/17/2012     655      B. Hebbard   Added paintProps as parameter to IDisplayable draw
+ * 09/11/2012     854      Q. Zhou      Modified time string and alignment in drawLabel().
  * </pre>
  * 
  * @author ujosyula 
@@ -333,7 +335,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 		        	DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
 	    			ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
 	    			for (IDisplayable each : displayEls) {
-	    				each.draw(target);
+	    				each.draw(target, paintProps);
 	    				each.dispose();
 	    			}
 					
@@ -359,28 +361,30 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 			
 				if( labelPix != null ){
 					String[] text = new String[2];
+					List<String> enabledText = new ArrayList<String>();
 
-					text[0]=" "+warnData.countyNames.get(i);
+					if(warnRscData.getCountyNameEnable() ){
+						enabledText.add(warnData.countyNames.get(i));
+					}
+					
+					if(warnRscData.getTimeEnable() ){
 					DataTime startTime = new DataTime( warnData.eventTime.getValidPeriod().getStart() );
 					DataTime endTime = new DataTime( warnData.eventTime.getValidPeriod().getEnd() );
-					text[1] = " "+startTime.toString().substring(11, 16)
-								 + "-" + endTime.toString().substring(11, 16);
-
-					if(!warnRscData.getTimeEnable() ){
-						//text[1] = null;
-						text[1] = "";
+						String temp = startTime.toString().substring(11, 13) +startTime.toString().substring(14, 16)
+									 + "-" + endTime.toString().substring(11, 13) +startTime.toString().substring(14, 16);
+						enabledText.add(temp);
 					}
 
-					if(!warnRscData.getCountyNameEnable() ){
-						//text[0]=null;
-						text[0]="";
-					}
+					for (int j=enabledText.size(); j<2; j++)
+						enabledText.add("");
+					
+					text = enabledText.toArray(text);
 
 					target.drawStrings(font, text,   
 							labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
 							new RGB[] {color, color},
-							HorizontalAlignment.CENTER,//T456: .LEFT,2011-08-30 Dave 
-							VerticalAlignment.MIDDLE );
+							HorizontalAlignment.LEFT,//T456: .LEFT,2011-08-30 Dave 
+							VerticalAlignment.TOP );
 				}
 			}
 		}

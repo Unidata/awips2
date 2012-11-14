@@ -9,6 +9,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileManageDialog1;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -65,11 +66,12 @@ public class PgenFileManageHandler extends AbstractTool {
     	    }
     	}
     	else {    // "Save As"
-    		PgenFileManageDialog file_dlg = null;
+//    		PgenFileManageDialog file_dlg = null;
+    		PgenFileManageDialog1 file_dlg = null;
 
     		if ( file_dlg == null ) {
     			try {	
-    				file_dlg = new PgenFileManageDialog( shell, btnClicked );   
+    				file_dlg = new PgenFileManageDialog1( shell, btnClicked );   
     				file_dlg.setBlockOnOpen(true);
     			}
     			catch (VizException e) {

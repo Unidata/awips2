@@ -265,7 +265,10 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 				rd.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
 			}
 
-	    	if( rd.usesInventory() && !rd.isInventoryInitialized() ) {
+	    	if( rd.usesInventory() && 
+	    		rd.getInventoryEnabled() &&
+	    	   !rd.isInventoryInitialized() ) {
+	    		
 	    		createInvDefns.add( rd.createNcInventoryDefinition() );
 	    	}
 	    }
@@ -398,6 +401,10 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 	    	else {
 	    		rscDefn.validateResourceParameters();
 	    			    		
+	    		if( resourceDefnsMap.containsKey( rscDefn.getResourceDefnName() ) ) {
+	    			throw new VizException("Failed to create Rsc Defn '"+rscDefn.getResourceDefnName()+
+	    					"' from file: "+rscDefnFile.getAbsolutePath()+ " because there is another Rsc Defn with this name.");
+	    		}
     			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
     			
     			if( rscImpl.equals( "Locator" ) ) {
@@ -744,8 +751,8 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 		if( !rd.getRscTypeGenerator().isEmpty() ) {
 			if( rscName.getRscType().indexOf(
 					ResourceName.generatedTypeDelimiter ) == -1 ) {
-				out.println("ResourceName "+rscName.toString() + " is expecting a "+
-						"generated type from the "+ rd.getRscTypeGenerator() );
+//				out.println("ResourceName "+rscName.toString() + " is expecting a "+
+//						"generated type from the "+ rd.getRscTypeGenerator() );
 				return false;
 			}
 		}
@@ -754,8 +761,8 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 			rscName.getRscGroup().isEmpty() ) {
 
 			if( rd.applyAttrSetGroups() || !rd.getSubTypeGenerator().isEmpty() ) {
-				out.println("ResourceName "+rscName.toString() + " is expecting a "+
-				"generated sub-type from "+ rd.getSubTypeGenerator() );
+//				out.println("ResourceName "+rscName.toString() + " is expecting a "+
+//				"generated sub-type from "+ rd.getSubTypeGenerator() );
 				return false;				
 			}				
 		}
@@ -990,11 +997,11 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 		return null;
 	}
 
-	public String[] getResourceCategories( ) {
+	public String[] getResourceCategories( boolean includeDisabled ) {
 		ArrayList<String> catsList = new ArrayList<String>();
 
     	for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-    		if( rscDefn.getIsEnabled() ) {
+    		if( includeDisabled || rscDefn.getIsEnabled() ) {
         		String rscCat = rscDefn.getResourceCategory();
     			
     			if( !catsList.contains( rscCat ) ) {
@@ -1352,20 +1359,23 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 	}
 	
     public  List<ResourceDefinition> getResourceDefnsForCategory( String rscCat ) throws VizException {
-    	return getResourceDefnsForCategory(rscCat, "", false );
+    	return getResourceDefnsForCategory(rscCat, "", false, true );
     }
 
     public  List<ResourceDefinition> getResourceDefnsForCategory( 
-    		String rscCat, String filterStr, Boolean includeGeneratedTypes ) 
+    		String rscCat, String filterStr, 
+    		Boolean includeGeneratedTypes,
+    		Boolean includeDisabledRscDefns ) 
     						throws VizException {
     	List<ResourceDefinition> resourceDefnsList = new ArrayList<ResourceDefinition>();
        	
        	// for other resources, get all of the resources in the given category.
        	//
     	for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-//    		if( !rscDefn.getIsEnabled() ) {
-//    			continue;
-//    		}
+
+    		if( !includeDisabledRscDefns && !rscDefn.getIsEnabled() ) {
+    			continue;
+    		}
     		
     		if( filterStr == null || filterStr.isEmpty() ||
     			rscDefn.getFilterLabels().contains( filterStr ) ) {
@@ -1592,75 +1602,83 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
        		}
        		return new String[0];
        	}
+    	else {
+    		// if there is supposed to be a generated group but there is none
+    		// then 
+    		if( matchGroup &&
+    			rscName.getRscGroup().isEmpty() &&
+    		   !rscDefn.getSubTypeGenerator().isEmpty() ) {
+    			return new String[0];
+    		}
+    		else {
+    			return getAvailAttrSets( rscDefn ).toArray( new String[0] );
+    		}
+    	}
+    }
 
-//       	if( matchGroup &&
-//       		( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) ) { //|| 
-////       		  rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) ) {
-//       			
-//       		String rscGrp = rscName.getRscGroup();
-//       		// map from the subType to a list of 'keys' for available attributes.  
-//       		HashMap<String, ArrayList<String>> subTypesMap = rscDefn.getSubTypesMap();
-//       		
-//       		if( rscGrp == null || rscGrp.isEmpty() ) {
-//       			if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-////       				out.println("Sanity Check: Satellite resource should have a group. " );
-//       				return new String[0]; //       				
-//       			}
-//       			else { // Radar Mosaic
-//       				return getAvailAttrSets( rscDefn ).toArray( new String[0] ); 
-//       			}
-//       		}
-//       		
-//       		ArrayList<String> attrSets = new ArrayList<String>();
-//       		
-//       		ArrayList<String> availAttrSetKeys = subTypesMap.get( rscGrp );
-//       		if( availAttrSetKeys == null ) {
-//   				out.println("Sanity Check: Satellite subType is not in the subTypeMap?? " );
-//   				return new String[0]; //       				
-//       		}
-//       		
-//       		for( String asName : getAvailAttrSets( rscDefn ) ) {
-////				try {
-//					ResourceName fullRscName = new ResourceName( rscName );
-//					fullRscName.setRscAttrSetName(asName);
+    public List<ResourceName> getAllSelectableResourceNamesForResourcDefn(
+    								ResourceDefinition rscDefn ) throws VizException {
+		List<ResourceName> rscNamesList = new ArrayList<ResourceName>();
+		
+		// build a list of all the possible requestable resourceNames
 //					
-//					AttributeSet aset = getAttrSet( fullRscName );
-//					HashMap<String, String> attrsMap = aset.getAttributes(); 
-//						//readAttrSetFile( getAttrSet( fullRscName ).getFile() );
+		ResourceName rscName = new ResourceName();
+		String rscCat = rscDefn.getResourceCategory();
+		rscName.setRscCategory( rscCat );
+
+		// TODO : need to improve the way this works. Never liked it.
 //           		
-//					if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-//						if( !attrsMap.containsKey("imageType") ) {
-//							out.println("Sanity Check: Satellite attrSets must have an "+
-//							" 'imageType' parameter." );
-//						}
-//						else {
-//							if( availAttrSetKeys.contains( attrsMap.get( "imageType" ) ) ) {
-//								attrSets.add( asName );
-//							}
-//						}
-//					}
-//					else if( rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) {
-//						if( !attrsMap.containsKey("productName") ) {
-//							out.println("Sanity Check: Radar attrSets must have an "+
-//							" 'productName' parameter." );
-//						}
-//						else {
-//							if( availAttrSetKeys.contains( attrsMap.get( "productName" ) ) ) {
-//								attrSets.add( asName );
-//							}
-//						}
-//					} 
-////				} catch (VizException e) {
-////					out.println("Error parsing AttrSet "+asName+" : "+e.getMessage() );
-////				}
-//       		}
-//       		return attrSets.toArray( new String[0] );
+		List<String> rscTypes = new ArrayList();
+		
+//		if( rscDefn.getRscTypeGenerator().isEmpty() ) {
+//			rscTypes.add( rscDefn.getResourceDefnName() );
 //       	}
 //       	else {
-       		return getAvailAttrSets( rscDefn ).toArray( new String[0] );
+//			rscTypes = rscDefn.getGeneratedTypesList();			
 //       	}		
+		
+		rscTypes.add( rscName.getRscType() );
+		
+		for( String rscType : rscTypes ) {
+			ResourceDefinition rd  = getResourceDefinition( rscType ); //: getResourceDefnsForCategory( rscCat, "", true, false ) ) {
+
+//			// check that this is 
+//			String rscType = rd.getResourceDefnName();
+
+			rscName.setRscType( rscType );
+
+			List<String> asgList;
+
+			if( rd.applyAttrSetGroups() ) {
+				asgList = getAttrSetGroupNamesForResource( rscType );
+			}
+			else {
+				asgList = rd.generatedSubTypesList();				
     }
     
+			if( asgList.isEmpty() ) {
+				rscName.setRscGroup( "" );
+
+				for( String attrSet : getAttrSetsForResource(rscName, false ) ) {
+					rscName.setRscAttrSetName( attrSet );
+					rscNamesList.add( new ResourceName( rscName ) );
+				}					
+			}
+			else {
+				for( String rscGroup : asgList ) {
+
+					rscName.setRscGroup( rscGroup );
+
+					for( String attrSet : getAttrSetsForResource(rscName, false ) ) {
+						rscName.setRscAttrSetName( attrSet );
+						rscNamesList.add( new ResourceName( rscName ) );
+					}
+				}
+			}
+		}
+		
+		return rscNamesList;
+    }
     
     public String getResourceImplementation( String rscType ) {
        	ResourceDefinition rscDefn = getResourceDefinition( rscType );
@@ -2140,7 +2158,7 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 			if( invDefnsMap.containsKey( invDefn ) ) {
 				rscDefn.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
 			}
-			else {				
+			else if( rscDefn.usesInventory() ) {				
 				InventoryLoaderJob invLoader = new InventoryLoaderJob( invDefn, false );
 				
 				invLoader.schedule();
@@ -2161,9 +2179,13 @@ public class ResourceDefnsMngr implements ILocalizationFileObserver {
 				}
 
 				rscDefn.setInventoryAlias( invDefn.getInventoryName() );//Initialized( true );
-			}
 			
 			rscDefn.enableInventoryUse();
+			}
+			else {
+				rscDefn.disableInventoryUse();
+			}
+	
 			
 		} catch (SerializationException e) {
 			throw new VizException("Error Serializing AttrSetGroup file:"+e.getMessage() );
