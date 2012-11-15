@@ -61,8 +61,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2009            mschenke     Initial creation
- * Jul 24, 2012             njensen         Enhanced logging
+ * Aug 3, 2009             mschenke    Initial creation
+ * Jul 24, 2012            njensen     Enhanced logging
+ * Nov 15, 2012 1322       djohnson    Publicize ability to specify specific httpAddress.
  * 
  * </pre>
  * 
@@ -268,7 +269,7 @@ public class ThriftClient {
         return rval;
     }
 
-    private static Object sendRequest(IServerRequest request, String httpAddress)
+    public static Object sendRequest(IServerRequest request, String httpAddress)
             throws VizException {
         return sendRequest(request, httpAddress, "/thrift");
     }
