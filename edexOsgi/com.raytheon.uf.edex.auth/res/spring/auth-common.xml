@@ -11,6 +11,24 @@
 
 	<bean id="routeWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
 		<property name="server" ref="serializeServer"/>
-	</bean>    
-  
+	</bean>
+
+    <bean id="serverPrivilegedRequestHandler" class="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler">
+        <constructor-arg ref="handlerRegistry" />
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
+        <constructor-arg ref="serverPrivilegedRequestHandler"/>
+    </bean>
+    
+    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
+        <!-- This bean will cause all RequestRouter.route(request) calls to be processed internally to EDEX -->
+    </bean>
+
+    <bean factory-bean="requestRouterRegistry" factory-method="register">
+        <constructor-arg value="request.server" />
+        <constructor-arg ref="requestServiceRouter" />
+    </bean>
+    
 </beans>
