@@ -90,6 +90,7 @@ import com.raytheon.viz.ghg.monitor.filter.GhgFilterEngine;
 import com.raytheon.viz.ghg.monitor.listener.GhgMonitorFilterChangeListener;
 import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.statusline.EdgeLayout;
 import com.raytheon.viz.ui.statusline.EdgeLayout.EdgeLayoutData;
 import com.raytheon.viz.ui.statusline.EdgeLayout.EdgeLayoutData.EdgeAffinity;
@@ -109,6 +110,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 17Jun2008    1157       MW Fegan    Pass configuration to sub-dialogs.
  * 15 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
+ *                                      Changes for non-blocking GhgAlertDlg.
  * 
  * </pre>
  * 
@@ -123,6 +125,8 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             .getHandler(GhgMonitorDlg.class);
 
     private static final Map<String, GhgConfigData.DataEnum> labelToEnumMap;
+
+    private GhgAlertDlg alertDlg;
 
     /**
      * Active group one string.
@@ -1082,15 +1086,25 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Define Alerts dialog.
      */
     private void showDefineAlertsDialog() {
-        GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgAlertDlg alertDlg = new GhgAlertDlg(getShell());
-        alertDlg.setAlerts(configuration.getAlerts());
-        GhgAlertsConfigData rtnAlerts = (GhgAlertsConfigData) alertDlg.open();
+        if (alertDlg == null) {
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            alertDlg = new GhgAlertDlg(getShell());
+            alertDlg.setAlerts(configuration.getAlerts());
+            alertDlg.setCloseCallback(new ICloseCallback() {
 
-        // null is returned if the dialog is canceled
-        if (rtnAlerts != null) {
-            configuration.setAlerts(rtnAlerts);
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof GhgAlertsConfigData) {
+                        GhgAlertsConfigData rtnAlerts = (GhgAlertsConfigData) returnValue;
+                        GhgConfigData configuration = GhgConfigData
+                                .getInstance();
+                        configuration.setAlerts(rtnAlerts);
+                    }
+                    alertDlg = null;
+                }
+            });
         }
+        alertDlg.open();
     }
 
     /**
