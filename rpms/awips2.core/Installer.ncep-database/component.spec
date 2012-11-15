@@ -383,4 +383,7 @@ exit 0
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadWrqpf.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadXrainsort.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadZones.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addUgcMzbnd.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/fixMzbnds.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadClimodata.sql
 /awips2/database/sqlScripts/share/sql/ncep/shapefiles
