@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ------------- --------------------------
  * May 28, 2009 #2159      Richard Peter Initial Creation.
  * Nov 14, 2012 #1298      rferrel       Changes for non-blocking DisplayAttributesDialog.
+ *                                        Changes for non-blocking MoveWeatherElementDialog.
  * </pre>
  * 
  * @author rjpeter
@@ -151,10 +152,13 @@ public class TitleBarMouseHandler extends MouseHandler {
                     public void run() {
                         Shell shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
+                        // The dialog being opened is modal to the parent
+                        // dialog. This will prevent the launching of another
+                        // dialog until the modal dialog is closed.
                         MoveWeatherElementDialog dialog = new MoveWeatherElementDialog(
                                 shell, teBar.getTemporalEditor(), parm, teBar,
                                 barList);
-                        dialog.setBlockOnOpen(true);
+                        dialog.setBlockOnOpen(false);
                         dialog.open();
                     }
                 });
