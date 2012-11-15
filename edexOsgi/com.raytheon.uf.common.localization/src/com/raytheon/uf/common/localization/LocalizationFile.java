@@ -269,33 +269,28 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
      * @return the file
      */
     public File getFile(boolean retrieveFile) throws LocalizationException {
-        try {
-            FileLocker.lock(this, file, Type.WRITE);
-            if (retrieveFile) {
-                fileRequested = true;
-            }
-            if (isAvailableOnServer && retrieveFile) {
-                if (isDirectory) {
-                    file.mkdirs();
-                }
-                adapter.retrieve(this);
-            }
-
-            if (isDirectory == false && !file.exists()) {
-                try {
-                    file.getParentFile().mkdirs();
-                } catch (Throwable t) {
-                    // try to create the file's directory automatically, but if
-                    // it fails, don't report it as it is just something to do
-                    // to help the user of the file for easier creation of the
-                    // file
-                }
-            }
-
-            return file;
-        } finally {
-            FileLocker.unlock(this, file);
+        if (retrieveFile) {
+            fileRequested = true;
         }
+        if (isAvailableOnServer && retrieveFile) {
+            if (isDirectory) {
+                file.mkdirs();
+            }
+            adapter.retrieve(this);
+        }
+
+        if (isDirectory == false && !file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+            } catch (Throwable t) {
+                // try to create the file's directory automatically, but if
+                // it fails, don't report it as it is just something to do
+                // to help the user of the file for easier creation of the
+                // file
+            }
+        }
+
+        return file;
     }
 
     /**
