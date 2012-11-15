@@ -333,6 +333,7 @@ public class FileLocker {
         if (!gotLock) {
             System.err.println("Failed to obtain lock for: " + file
                     + ", returning anyway");
+            Thread.dumpStack();
         }
         lock.lockFile = lockFile;
         return lock;
