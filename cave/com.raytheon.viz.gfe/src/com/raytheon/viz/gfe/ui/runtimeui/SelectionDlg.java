@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ----------  ----------- --------------------------
  * Feb 9, 2010  3353        njensen  Initial creation
  * Jul 13,2011  9291        rferrel  Convert to subclass of CaveJFACEDialog.
+ * Nov 15,2012  1298        rferrel     Code cleanup for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
         this.name = title;
         this.dataMgr = dataMgr;
         this.fieldDefs = fieldDefs;
-        this.setShellStyle(SWT.MODELESS | SWT.TITLE | SWT.RESIZE);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE);
     }
 
     /*
