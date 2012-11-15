@@ -535,6 +535,13 @@ public class LocalizationManager implements IPropertyChangeListener {
 
     }
 
+    /**
+     * Retrieves the LocalizationFile contents from the localization server.
+     * Locks on the file
+     * 
+     * @param file
+     * @throws LocalizationOpFailedException
+     */
     protected void retrieve(LocalizationFile file)
             throws LocalizationOpFailedException {
         try {
