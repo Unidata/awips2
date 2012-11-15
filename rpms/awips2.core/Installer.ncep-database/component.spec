@@ -278,6 +278,9 @@ exit 0
 
 %postun
 
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
 %files
 %defattr(-,awips,fxalpha,-)
 %dir /awips2
