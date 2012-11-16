@@ -34,8 +34,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.localization.Checksum;
-import com.raytheon.uf.common.localization.FileLocker;
-import com.raytheon.uf.common.localization.FileLocker.Type;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -123,12 +121,13 @@ public class UtilityManager {
      * @throws EdexException
      */
     private static String getFileChecksum(File file) throws EdexException {
-        FileLocker.lock(UtilityManager.class, file, Type.WRITE);
+        // TODO: Fix FileLocker so it never times out in test driver
         File checksumFile = getChecksumFile(file);
         String chksum = null;
         try {
             if (checksumFile.exists()
                     && checksumFile.lastModified() >= file.lastModified()) {
+
                 BufferedReader reader = new BufferedReader(new FileReader(
                         checksumFile));
                 try {
@@ -144,8 +143,6 @@ public class UtilityManager {
         } catch (Exception e) {
             // log, no checksum will be provided
             logger.error("Error determing file checksum for: " + file, e);
-        } finally {
-            FileLocker.unlock(UtilityManager.class, file);
         }
         return chksum;
     }
