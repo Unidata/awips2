@@ -35,12 +35,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 
 /**
@@ -60,7 +60,8 @@ import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class RadarResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RadarResourceData.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarResourceData.class);
 
     @XmlAttribute
     protected String pointID = "";
@@ -226,6 +227,21 @@ public class RadarResourceData extends AbstractRequestableResourceData {
             all = times.toArray(new DataTime[0]);
         }
         return all;
+    }
+
+    @Override
+    public void update(AlertMessage... messages) {
+        for (AlertMessage message : messages) {
+            // since radar dataTimes are expected to set the level value,
+            // need to do that here.
+            Object timeObj = message.decodedAlert.get("dataTime");
+            if (timeObj instanceof DataTime) {
+                DataTime time = (DataTime) timeObj;
+                time.setLevelValue(((Number) message.decodedAlert
+                        .get("primaryElevationAngle")).doubleValue());
+            }
+        }
+        super.update(messages);
     }
 
 }
