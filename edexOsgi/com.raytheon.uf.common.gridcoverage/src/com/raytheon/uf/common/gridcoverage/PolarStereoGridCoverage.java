@@ -144,7 +144,7 @@ public class PolarStereoGridCoverage extends GridCoverage {
                             getLowerLeftLon(), subGrid, this.nx, this.ny,
                             dxMeter, dyMeter, fromLatLon, toLatLon, false);
                 } catch (GridCoverageException e) {
-                    statusHandler.handle(Priority.WARN, "Grib coverage ["
+                    statusHandler.handle(Priority.WARN, "Grid coverage ["
                             + this.getName() + "] not applicable to this site");
                     return null;
                 }
