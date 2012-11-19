@@ -73,6 +73,7 @@ import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -659,10 +660,37 @@ public class ContourSupport {
             // Use referenced envelope to go from screen crs into image crs.
             ReferencedEnvelope screenRefEnvelope = new ReferencedEnvelope(
                     screenCRSEnvelope);
-            screenRefEnvelope = screenRefEnvelope
-                    .transform(
-                            imageGridGeometry.getCoordinateReferenceSystem(),
-                            true, 200);
+            try {
+                screenRefEnvelope = screenRefEnvelope.transform(
+                        imageGridGeometry.getCoordinateReferenceSystem(), true,
+                        200);
+            } catch (TransformException e) {
+                // If the corners of the screen envelope are invalid in the
+                // source crs then the referenced envelope fails so this is the
+                // backup plan. This is known to hit when displaying North Polar
+                // Stereographic data on a Equidistant cyclindrical projection
+                // that extends to the south pole.
+
+                // Start with the full image envelope
+                ReferencedEnvelope imageRefEnvelope = new ReferencedEnvelope(
+                        imageGeometry2D.getEnvelope2D());
+                // transform to screen space.
+                imageRefEnvelope = imageRefEnvelope.transform(
+                        screenRefEnvelope.getCoordinateReferenceSystem(), true,
+                        200);
+                // intersect the transformed envelope with the visible portion
+                // of screen. Hopefully this intersection will eliminate the
+                // invalid points in the original screen envelope.
+                Envelope intersectingEnv = screenRefEnvelope
+                        .intersection(imageRefEnvelope);
+                screenRefEnvelope = new ReferencedEnvelope(intersectingEnv,
+                        screenRefEnvelope.getCoordinateReferenceSystem());
+                // transform the intersection back to image space, now it is
+                // hopefully a subgrid.
+                screenRefEnvelope = screenRefEnvelope.transform(
+                        imageGridGeometry.getCoordinateReferenceSystem(), true,
+                        200);
+            }
             // Convert from image crs to image grid space.
             GridEnvelope2D screenImageGridEnvelope = imageGeometry2D
                     .worldToGrid(new Envelope2D(screenRefEnvelope));
@@ -744,7 +772,19 @@ public class ContourSupport {
                         screenImageGridEnvelope.getHigh(1));
             }
         } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
+            statusHandler.handle(Priority.WARN,
+                    "Cannot compute subgrid, contouring may be slow.", e);
+            // Don't use a subgrid, just contour the complete image.
+            // This may result in doing way to much contouring which can be
+            // slow, but it is better than no contouring at all. It's also worth
+            // noting that it gets slower as you zoom in and more contours are
+            // generated, but as you zoom in it also becomes more likely you
+            // will be successful in your transformation since the smaller area
+            // is less likely to contain invalid points.
+            env.setRange(0, imageGridGeometry.getGridRange().getLow(0),
+                    imageGridGeometry.getGridRange().getHigh(0));
+            env.setRange(1, imageGridGeometry.getGridRange().getLow(1),
+                    imageGridGeometry.getGridRange().getHigh(1));
         }
         System.out.println("*** Subgrid: " + env);
         return env;
