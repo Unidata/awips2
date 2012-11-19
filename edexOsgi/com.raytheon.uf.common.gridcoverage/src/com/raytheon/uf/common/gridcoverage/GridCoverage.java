@@ -60,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * Base class for encapsulating grib spatial information
+ * Base class for encapsulating grid spatial information
  * 
  * <pre>
  * 
@@ -85,8 +85,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
-        implements
-        ISpatialObject {
+        implements ISpatialObject {
 
     private static final long serialVersionUID = -1355232934065074837L;
 
@@ -248,7 +247,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     }
 
     /**
-     * Initializes the grib coverage object. Initialization should entail
+     * Initializes the grid coverage object. Initialization should entail
      * creation of the crs and geometry object as well as assigning the id field
      * 
      * @throws GridCoverageException
@@ -391,8 +390,8 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         if (gridGeometry == null) {
             gridGeometry = MapUtil.getGridGeometry(this);
         }
-    
-    return gridGeometry;
+
+        return gridGeometry;
     }
 
     public void setGridGeometry(GridGeometry2D gridGeometry) {
