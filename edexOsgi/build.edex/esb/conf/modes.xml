@@ -163,7 +163,6 @@
 		<include>management-common.xml</include>
 	 	<include>database-common.xml</include>
 		<include>auth-common.xml</include>
-        <include>router-common.xml</include>
         <include>event-ingest.xml</include>
 		<!-- ncep excludes until tested -->
 		<exclude>ncgrib-common.xml</exclude>
@@ -290,7 +289,6 @@
         <include>management-common.xml</include>
         <include>database-common.xml</include>
         <include>auth-common.xml</include>
-        <include>router-common.xml</include>
         <include>stats-common.xml</include>
         <include>event-ingest.xml</include>
     </mode>
