@@ -14,4 +14,3 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.common.dataplugin.grib
