@@ -26,7 +26,8 @@
         <!-- This bean will cause all RequestRouter.route(request) calls to be processed internally to EDEX -->
     </bean>
 
-    <bean factory-bean="requestRouterRegistry" factory-method="register">
+    <bean id="registerRequestServiceRouter" factory-bean="requestRouterRegistry"
+        factory-method="register">
         <constructor-arg value="request.server" />
         <constructor-arg ref="requestServiceRouter" />
     </bean>
