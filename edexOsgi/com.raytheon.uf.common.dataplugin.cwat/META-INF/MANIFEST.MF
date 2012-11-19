@@ -15,4 +15,3 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.cwat,
  com.raytheon.uf.common.dataplugin.cwat.dao
-Import-Package: com.raytheon.uf.common.dataplugin.grib
