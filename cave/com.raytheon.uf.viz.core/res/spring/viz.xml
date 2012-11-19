@@ -34,6 +34,10 @@
    </bean>  -->
 
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+   
+   <bean id="requestRouterRegistry"
+        class="com.raytheon.uf.common.serialization.comm.RequestRouter"
+        factory-method="getRouterRegistry" />
 
     <bean id="requestServiceRouter" class="com.raytheon.uf.viz.core.requests.ServerRequestRouter">
         <!-- This bean will cause all RequestRouter.route(request) calls to be serialized over to EDEX -->
