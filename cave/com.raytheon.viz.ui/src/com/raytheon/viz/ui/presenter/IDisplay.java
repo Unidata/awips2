@@ -20,8 +20,9 @@
 package com.raytheon.viz.ui.presenter;
 
 /**
- * A view interface that defines methods all views should provide an
- * implementation for.
+ * Interface representing a way to display something to the user. This interface
+ * can be used in lieu of the IPresenterView where legacy code does not support
+ * a presenter.
  * 
  * <pre>
  * 
@@ -29,50 +30,25 @@ package com.raytheon.viz.ui.presenter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012 0743       djohnson     Initial creation
- * Nov 20, 2012 1322       djohnson     Extend IDisplay for displayYesNoPopup.
+ * Nov 20, 2012 1286       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public interface IPresenterView extends IDisplay {
+
+public interface IDisplay {
 
     /**
-     * Performs initialization of the view.
-     */
-    void init();
-
-    /**
-     * Display a popup message.
+     * Displays a prompt, returning the Yes/No response of the user.
      * 
      * @param title
-     *            the title
+     *            the title for the message box
      * @param message
-     *            the message
+     *            the message to prompt
+     * @return true if the user chooses yes
      */
-    void displayPopup(String title, String message);
+    boolean displayYesNoPopup(String title, String message);
 
-    /**
-     * Display an error popup message.
-     * 
-     * @param title
-     *            the title
-     * @param message
-     *            the message
-     */
-    void displayErrorPopup(String title, String message);
-
-    /**
-     * Display a cancel/ok popup.
-     * 
-     * @param title
-     *            the title
-     * @param message
-     *            the message
-     * 
-     * @return boolean true if OK clicked, false if Cancel
-     */
-    boolean displayOkCancelPopup(String title, String message);
 }
