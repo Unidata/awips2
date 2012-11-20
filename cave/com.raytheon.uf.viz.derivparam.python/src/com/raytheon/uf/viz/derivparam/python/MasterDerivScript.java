@@ -61,7 +61,7 @@ public class MasterDerivScript extends PythonInterpreter {
 
     private static final String DATA_NAME = "Data";
 
-    private Map<Object, String> prevArgs = new HashMap<Object, String>();
+    private final Map<Object, List<String>> prevArgs = new HashMap<Object, List<String>>();
 
     /**
      * Constructor
@@ -86,7 +86,14 @@ public class MasterDerivScript extends PythonInterpreter {
             throws JepException {
         this.prevArgs.clear();
         executeFunctionInternal(name, args);
-        cleanupGlobals();
+        jep.eval("globalsRef=globals()");
+        for (List<String> pArgs : prevArgs.values()) {
+            for (String arg : pArgs) {
+                jep.eval(arg + " = None");
+                jep.eval("del globalsRef['" + arg + "']");
+            }
+        }
+
         this.prevArgs.clear();
         return getExecutionResult();
     }
@@ -122,7 +129,7 @@ public class MasterDerivScript extends PythonInterpreter {
     protected void evaluateArgument(String argName, Object argValue)
             throws JepException {
         if (prevArgs.containsKey(argValue)) {
-            jep.eval(argName + " = " + prevArgs.get(argValue));
+            jep.eval(argName + " = " + prevArgs.get(argValue).get(0));
         } else if (argValue instanceof List) {
             @SuppressWarnings({ "rawtypes" })
             List valList = (List) argValue;
@@ -222,7 +229,7 @@ public class MasterDerivScript extends PythonInterpreter {
                 // create a list of arrays
                 jep.eval(argName + " = []");
                 for (int argIdx = 0; argIdx < valList.length; argIdx++) {
-                    IDataRecord val = (IDataRecord) valList[argIdx];
+                    IDataRecord val = valList[argIdx];
                     jep.eval(argName + ".append(None)");
                     // setNumeric won't work with indexed objects
                     evaluateArgument("__tmp", val);
@@ -248,7 +255,12 @@ public class MasterDerivScript extends PythonInterpreter {
         } else {
             super.evaluateArgument(argName, argValue);
         }
-        prevArgs.put(argValue, argName);
+        List<String> pArgs = prevArgs.get(argValue);
+        if (pArgs == null) {
+            pArgs = new ArrayList<String>();
+            prevArgs.put(argValue, pArgs);
+        }
+        pArgs.add(argName);
     }
 
     /**
