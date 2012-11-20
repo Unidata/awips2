@@ -73,36 +73,47 @@ public class StatsRecord extends PersistableDataObject {
     @DynamicSerializeElement
     private byte[] event;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Calendar getDate() {
         return date;
-    }
-
-    public void setDate(Calendar date) {
-        this.date = date;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
     }
 
     public byte[] getEvent() {
         return event;
     }
 
+    public String getEventType() {
+        return eventType;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setDate(Calendar date) {
+        this.date = date;
+    }
+
     public void setEvent(byte[] event) {
         this.event = event;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(getEventType() + " ");
+        sb.append(getDate() + " ");
+        sb.append(getId() + " ");
+        return sb.toString();
+
     }
 
 }
