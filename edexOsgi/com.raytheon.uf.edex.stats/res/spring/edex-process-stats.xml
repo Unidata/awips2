@@ -16,7 +16,7 @@
         <constructor-arg value="${stats.scanInterval}"/> 
     </bean>
 
-   	<bean id="edexStatsRegistered" factory-bean="contextManager"
+   	<bean id="edexStatsRegistered" factory-bean="clusteredCamelContextMgr"
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="edexStats-camel"/>
   	</bean>  

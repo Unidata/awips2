@@ -11,4 +11,5 @@ Require-Bundle: com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.event;bundle-version="1.0.0"
