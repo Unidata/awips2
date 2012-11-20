@@ -33,17 +33,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Statistics Configuration Event xml element.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 6, 2012    728      mpduff      Initial creation.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -73,59 +73,10 @@ public class StatisticsEvent {
     private List<StatisticsAggregate> aggregateList;
 
     /**
-     * @return the type
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * @return the displayName
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * @param displayName the displayName to set
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     * @return the groupList
-     */
-    public List<StatisticsGroup> getGroupList() {
-        return groupList;
-    }
-
-    /**
-     * @param groupList the groupList to set
-     */
-    public void setGroupList(List<StatisticsGroup> groupList) {
-        this.groupList = groupList;
-    }
-
-    /**
      * @return the aggregateList
      */
     public List<StatisticsAggregate> getAggregateList() {
         return aggregateList;
-    }
-
-    /**
-     * @param aggregateList the aggregateList to set
-     */
-    public void setAggregateList(List<StatisticsAggregate> aggregateList) {
-        this.aggregateList = aggregateList;
     }
 
     /**
@@ -136,9 +87,63 @@ public class StatisticsEvent {
     }
 
     /**
-     * @param category the category to set
+     * @return the displayName
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * @return the groupList
+     */
+    public List<StatisticsGroup> getGroupList() {
+        return groupList;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param aggregateList
+     *            the aggregateList to set
+     */
+    public void setAggregateList(List<StatisticsAggregate> aggregateList) {
+        this.aggregateList = aggregateList;
+    }
+
+    /**
+     * @param category
+     *            the category to set
      */
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    /**
+     * @param displayName
+     *            the displayName to set
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * @param groupList
+     *            the groupList to set
+     */
+    public void setGroupList(List<StatisticsGroup> groupList) {
+        this.groupList = groupList;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
     }
 }

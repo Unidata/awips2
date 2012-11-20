@@ -19,15 +19,18 @@
  **/
 package com.raytheon.uf.edex.stats.util;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -38,11 +41,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.stats.xml.Aggregate;
-import com.raytheon.uf.edex.stats.xml.GroupBy;
-import com.raytheon.uf.edex.stats.xml.Item;
-import com.raytheon.uf.edex.stats.xml.Statistics;
 
 /**
  * Archives the data in the aggregate_bucket table to an xml file.
@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.stats.xml.Statistics;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez     Initial creation.
+ * Nov 09, 2012            dhladky      Changed to CSV output
  * 
  * </pre>
  * 
@@ -60,9 +61,6 @@ import com.raytheon.uf.edex.stats.xml.Statistics;
  * 
  */
 public class Archiver {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(Archiver.class);
 
     private class StatisticsKey {
         public String eventType;
@@ -76,10 +74,10 @@ public class Archiver {
             if (o != null && o instanceof StatisticsKey) {
                 StatisticsKey other = (StatisticsKey) o;
 
-                return (this.eventType.equals(other.eventType)
-                        && this.timeRange.getStart().equals(
-                                other.timeRange.getStart()) && this.timeRange
-                        .getEnd().equals(other.timeRange.getEnd()));
+                return eventType.equals(other.eventType)
+                        && timeRange.getStart().equals(
+                                other.timeRange.getStart())
+                        && timeRange.getEnd().equals(other.timeRange.getEnd());
             }
 
             return false;
@@ -91,39 +89,98 @@ public class Archiver {
         }
     }
 
-    /** Marshaller object */
-    private Marshaller marshaller;
+    private static final String COMMA = ",";
 
-    /** JAXB context */
-    private JAXBContext jax;
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Archiver.class);
 
-    private IPathManager pm = PathManagerFactory.getPathManager();
+    private final IPathManager pm = PathManagerFactory.getPathManager();
 
-    private LocalizationContext context = pm.getContext(
+    private final LocalizationContext context = pm.getContext(
             LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
 
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss");
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    private SimpleDateFormat fileDateFormatter = new SimpleDateFormat(
-            "yyyyMMdd_HHmm");
+    private static final String FILE_DATE_FORMAT = "yyyyMMdd_HHmm";
 
-    public Archiver() throws JAXBException {
-        jax = JAXBContext.newInstance(new Class[] { Statistics.class });
-        this.marshaller = jax.createMarshaller();
+    private static final Pattern PERIOD_PATTERN = Pattern.compile("\\.");
+
+    public Archiver() {
+
     }
 
     /**
-     * Writes the statistics xml to disk.
+     * Creates a filename in the format /stats/aggregates/group...
+     * /eventType.start-end.dat
      * 
-     * @param statistics
-     * @throws JAXBException
+     * @param items
+     * @return
      */
-    public void writeToDisk(String filename, Statistics statistics)
-            throws JAXBException {
-        LocalizationFile siteLocalization = pm.getLocalizationFile(context,
-                filename);
-        marshaller.marshal(statistics, siteLocalization.getFile());
+    private String createFilename(TimeRange tr, String eventType, String group) {
+
+        SimpleDateFormat fileDateFormatter = new SimpleDateFormat(
+                FILE_DATE_FORMAT);
+        StringBuilder sb = new StringBuilder("stats/aggregates");
+        String[] chunks = PERIOD_PATTERN.split(eventType);
+        sb.append("/");
+        sb.append(group);
+        sb.append("/");
+        sb.append(chunks[chunks.length - 1]);
+        sb.append(".");
+        sb.append(fileDateFormatter.format(tr.getStart()));
+        sb.append("-");
+        sb.append(fileDateFormatter.format(tr.getEnd()));
+        sb.append(".csv");
+
+        return sb.toString();
+    }
+
+    /**
+     * Used for outputting the stats as CSV
+     * 
+     * @return
+     */
+    private String getCSVOutput(AggregateRecord agrec,
+            SimpleDateFormat dateFormat) {
+
+        StringBuilder sb = new StringBuilder();
+
+        String eventType = agrec.getEventType();
+        Calendar startDate = agrec.getStartDate();
+        Calendar endDate = agrec.getEndDate();
+        String grouping = agrec.getGrouping();
+        String field = agrec.getField();
+        double max = agrec.getMax();
+        double min = agrec.getMin();
+        double sum = agrec.getSum();
+        double count = agrec.getCount();
+
+        if (eventType != null) {
+            sb.append(eventType).append(COMMA);
+        }
+
+        if (startDate != null) {
+            sb.append(dateFormat.format(startDate.getTime()))
+                    .append(COMMA);
+        }
+
+        if (endDate != null) {
+            sb.append(dateFormat.format(endDate.getTime())).append(
+                    COMMA);
+        }
+        if (grouping != null) {
+            sb.append(grouping).append(COMMA);
+        }
+        if (field != null) {
+            sb.append(field).append(COMMA);
+        }
+
+        sb.append(max).append(COMMA);
+        sb.append(min).append(COMMA);
+        sb.append(sum).append(COMMA);
+        sb.append(count);
+
+        return sb.toString();
     }
 
     /**
@@ -153,108 +210,63 @@ public class Archiver {
         }
 
         for (StatisticsKey key : statisticsMap.keySet()) {
-            Statistics statistics = new Statistics();
-            statistics.setEventType(key.eventType);
-            statistics.setStart(dateFormatter.format(key.timeRange.getStart()));
-            statistics.setEnd(dateFormatter.format(key.timeRange.getEnd()));
-            statistics.setGroupBy(createGroupBy(key.grouping));
-            statistics.setAggregates(createAggregates(statisticsMap.get(key)));
 
-            String filename = createFilename(key.timeRange, statistics);
+            String eventType = key.eventType;
+            String grouping = key.grouping;
+            List<AggregateRecord> records = statisticsMap.get(key);
+
+            String filename = createFilename(key.timeRange, eventType, grouping);
             try {
-                writeToDisk(filename, statistics);
+                writeToFile(filename, records);
             } catch (JAXBException e) {
                 statusHandler.error("Unable to write statistics file "
                         + filename, e);
             }
         }
-
     }
 
     /**
-     * Creates a filename in the format
-     * /stats/aggregates/groupBy{0}/groupby{1}...
-     * /group{n}/eventType.start-end.dat
+     * Writes the statistics xml to disk.
      * 
-     * @param items
-     * @return
+     * @param statistics
+     * @throws JAXBException
      */
-    private String createFilename(TimeRange tr, Statistics statistics) {
-        StringBuffer sb = new StringBuffer("stats/aggregates");
-        for (Item item : statistics.getGroupBy().getAttributes()) {
-            sb.append("/" + item.getResult());
-        }
-        sb.append("/" + statistics.getEventType() + "."
-                + fileDateFormatter.format(tr.getStart()) + "-"
-                + fileDateFormatter.format(tr.getEnd()) + ".dat");
+    public void writeToFile(String filename, List<AggregateRecord> records)
+            throws JAXBException {
 
-        return sb.toString();
-    }
+        BufferedWriter bw = null;
+        SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+        LocalizationFile siteLocalization = pm.getLocalizationFile(context,
+                filename);
+        String outputFilePath = siteLocalization.getFile().getAbsolutePath();
+        // pre-create directories if necessary
+        siteLocalization.getFile().getParentFile().mkdirs();
+        // Write this to output CSV
+        try {
+            bw = new BufferedWriter(new FileWriter(
+                    outputFilePath));
+            if (bw != null) {
+                for (AggregateRecord agrec : records) {
+                    bw.write(getCSVOutput(agrec, dateFormatter));
+                    bw.newLine();
+                }
+            }
 
-    /**
-     * Transforms the grouping string from the record into a GroupBy object.
-     * 
-     * @param recordGroupBy
-     * @return
-     */
-    private GroupBy createGroupBy(String recordGroupBy) {
-        GroupBy groupBy = new GroupBy();
-        String[] groups = recordGroupBy.split("-");
-        Item[] attributes = new Item[groups.length];
+        } catch (IOException e) {
 
-        for (int i = 0; i < groups.length; i++) {
-            String[] g = groups[i].split(":");
-
-            String name = g[0];
-            String result = g[1];
-
-            Item item = new Item();
-            item.setName(name);
-            item.setResult(result);
-            attributes[i] = item;
-        }
-
-        groupBy.setAttributes(attributes);
-
-        return groupBy;
-    }
-
-    /**
-     * Transforms the records into Aggregate objects
-     * 
-     * @param aggregateRecordList
-     * @return
-     */
-    private Aggregate[] createAggregates(
-            List<AggregateRecord> aggregateRecordList) {
-        Aggregate[] aggregates = new Aggregate[aggregateRecordList.size()];
-
-        for (int i = 0; i < aggregates.length; i++) {
-            AggregateRecord record = aggregateRecordList.get(i);
-            Aggregate aggregate = new Aggregate();
-            aggregate.setField(record.getField());
-
-            Item sumItem = new Item();
-            sumItem.setName("sum");
-            sumItem.setResult(String.valueOf(record.getSum()));
-
-            Item minItem = new Item();
-            minItem.setName("min");
-            minItem.setResult(String.valueOf(record.getMin()));
-
-            Item maxItem = new Item();
-            sumItem.setName("max");
-            sumItem.setResult(String.valueOf(record.getMax()));
-
-            Item countItem = new Item();
-            minItem.setName("count");
-            minItem.setResult(String.valueOf(record.getCount()));
-
-            aggregate.setFunctions(new Item[] { sumItem, minItem, maxItem,
-                    countItem });
-            aggregates[i] = aggregate;
+            statusHandler.handle(Priority.ERROR, "Failed to write File: "
+                    + outputFilePath, e);
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "failed to close CSV output file stream. "
+                                    + filename, e);
+                }
+            }
         }
 
-        return aggregates;
     }
 }
