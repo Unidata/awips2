@@ -29,7 +29,7 @@ import org.apache.camel.Header;
 import org.apache.camel.Headers;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.event.ProcessEvent;
+import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -66,6 +66,41 @@ public class ProcessUtil {
         }
 
     };
+
+    /**
+     * Get the value of a specified property if it exists.
+     * 
+     * @param <T>
+     *            Type of the receiving variable.
+     * @param headers
+     *            Map of header properties.
+     * @param propertyName
+     *            Name of the property to get.
+     * @return Value of the requested property. Null if the property does not
+     *         exist.
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T getHeaderProperty(Map<?, ?> headers,
+            Object propertyName) {
+
+        Object o = headers.get(propertyName);
+
+        T result = null;
+        if (o != null) {
+            result = (T) o;
+        }
+        return result;
+    }
+
+    /**
+     * Return an incoming array as an Iterator to the elements.
+     * 
+     * @param objects
+     * @return
+     */
+    public static Iterator<?> iterate(PluginDataObject[] objects) {
+        return Arrays.asList(objects).iterator();
+    }
 
     public void delete(@Header(value = "ingestFileName") String path) {
         File f = new File(path);
@@ -108,7 +143,7 @@ public class ProcessUtil {
         DecimalFormat df = FORMAT.get();
         if (dequeueTime != null) {
             long elapsedMilliseconds = curTime - dequeueTime;
-            double elapsed = (elapsedMilliseconds) / 1000.0;
+            double elapsed = elapsedMilliseconds / 1000.0;
             sb.append(" processed in: ");
             sb.append(df.format(elapsed));
             sb.append(" (sec)");
@@ -118,7 +153,7 @@ public class ProcessUtil {
         Long enqueueTime = getHeaderProperty(headers, "enqueueTime");
         if (enqueueTime != null) {
             long latencyMilliseconds = curTime - enqueueTime;
-            double latency = (latencyMilliseconds) / 1000.0;
+            double latency = latencyMilliseconds / 1000.0;
             sb.append(" Latency: ");
             sb.append(df.format(latency));
             sb.append(" (sec)");
@@ -133,40 +168,5 @@ public class ProcessUtil {
         } else {
             handler.handle(Priority.INFO, "No logging information available");
         }
-    }
-
-    /**
-     * Return an incoming array as an Iterator to the elements.
-     * 
-     * @param objects
-     * @return
-     */
-    public static Iterator<?> iterate(PluginDataObject[] objects) {
-        return Arrays.asList(objects).iterator();
-    }
-
-    /**
-     * Get the value of a specified property if it exists.
-     * 
-     * @param <T>
-     *            Type of the receiving variable.
-     * @param headers
-     *            Map of header properties.
-     * @param propertyName
-     *            Name of the property to get.
-     * @return Value of the requested property. Null if the property does not
-     *         exist.
-     */
-    @SuppressWarnings("unchecked")
-    private static <T> T getHeaderProperty(Map<?, ?> headers,
-            Object propertyName) {
-
-        Object o = headers.get(propertyName);
-
-        T result = null;
-        if (o != null) {
-            result = (T) o;
-        }
-        return result;
     }
 }
