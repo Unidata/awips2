@@ -39,20 +39,20 @@ import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Subscribes to the event bus and stores them in the appropriate stats table
- *
- *
+ * 
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Removed instance variable of event bus.
  * Nov 07, 2012   1317     mpduff      Updated config files.
- *
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- *
+ * 
  */
 public class StatsHandler {
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -62,6 +62,21 @@ public class StatsHandler {
             StatsRecord.class));
 
     private static Set<String> validEventTypes = new HashSet<String>();
+
+    /**
+     * Set the valid event types.
+     * 
+     * @param configurations
+     *            List of StatisticsConfig objects
+     */
+    public static void setValidEventTypes(List<StatisticsConfig> configurations) {
+        validEventTypes = new HashSet<String>();
+        for (StatisticsConfig config : configurations) {
+            for (StatisticsEvent event : config.getEvents()) {
+                validEventTypes.add(event.getType());
+            }
+        }
+    }
 
     /**
      * Registers StatsHandler with the event bus
@@ -84,23 +99,9 @@ public class StatsHandler {
                 record.setEventType(clazz);
                 record.setEvent(bytes);
                 dao.persist(record);
+
             } catch (SerializationException e) {
                 statusHandler.error("Error transforming to Thrift.", e);
-            }
-        }
-    }
-
-    /**
-     * Set the valid event types.
-     *
-     * @param configurations
-     *            List of StatisticsConfig objects
-     */
-    public static void setValidEventTypes(List<StatisticsConfig> configurations) {
-        validEventTypes = new HashSet<String>();
-        for (StatisticsConfig config : configurations) {
-            for (StatisticsEvent event : config.getEvents()) {
-                validEventTypes.add(event.getType());
             }
         }
     }
