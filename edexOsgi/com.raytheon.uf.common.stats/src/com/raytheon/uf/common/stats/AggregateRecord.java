@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez     Initial creation
+ * Nov 12, 2012            dhladky      Updates some things for stats
  * 
  * </pre>
  * 
@@ -56,6 +57,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class AggregateRecord extends PersistableDataObject {
+
+    private static final long serialVersionUID = -4553588456131256014L;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -102,88 +105,88 @@ public class AggregateRecord extends PersistableDataObject {
         this.eventType = eventType;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.grouping = groupings;
+        grouping = groupings;
         this.field = field;
-    }
-
-    public Calendar getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Calendar startDate) {
-        this.startDate = startDate;
-    }
-
-    public Calendar getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Calendar endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getGrouping() {
-        return grouping;
-    }
-
-    public void setGrouping(String grouping) {
-        this.grouping = grouping;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
-    public double getMax() {
-        return max;
-    }
-
-    public void setMax(double max) {
-        this.max = max;
-    }
-
-    public double getMin() {
-        return min;
-    }
-
-    public void setMin(double min) {
-        this.min = min;
-    }
-
-    public double getSum() {
-        return sum;
-    }
-
-    public void setSum(double sum) {
-        this.sum = sum;
     }
 
     public double getCount() {
         return count;
     }
 
-    public void setCount(double count) {
-        this.count = count;
+    public Calendar getEndDate() {
+        return endDate;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public String getGrouping() {
+        return grouping;
     }
 
     public Integer getId() {
         return id;
     }
 
+    public double getMax() {
+        return max;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public Calendar getStartDate() {
+        return startDate;
+    }
+
+    public double getSum() {
+        return sum;
+    }
+
+    public void setCount(double count) {
+        this.count = count;
+    }
+
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public void setGrouping(String grouping) {
+        this.grouping = grouping;
+    }
+
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public void setStartDate(Calendar startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
     }
 
 }
