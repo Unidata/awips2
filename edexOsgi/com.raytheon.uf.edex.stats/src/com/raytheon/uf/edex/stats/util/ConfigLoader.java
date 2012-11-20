@@ -40,19 +40,19 @@ import com.raytheon.uf.edex.stats.xml.Statistics;
 
 /**
  * Loads StatisticsConfig files from localization.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Updated error handling and validated config files.
  * Nov 07, 2012   1317     mpduff      Update config files.
- *
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- *
+ * 
  */
 public class ConfigLoader {
 
@@ -74,6 +74,15 @@ public class ConfigLoader {
     private final List<StatisticsConfig> configurations = new ArrayList<StatisticsConfig>();
 
     private final String STATS_DIR = "stats";
+
+    /**
+     * Returns a list of all StatisticsConfig files.
+     * 
+     * @return
+     */
+    public List<StatisticsConfig> getConfigurations() {
+        return configurations;
+    }
 
     /**
      * Loads the StatisticsConfig files in the STATS_DIR directory.
@@ -106,7 +115,7 @@ public class ConfigLoader {
 
     /**
      * Removes the aggregate if its not a numerical parameter.
-     *
+     * 
      * @param config
      */
     private StatisticsConfig validateAggregates(StatisticsConfig config)
@@ -114,7 +123,7 @@ public class ConfigLoader {
         List<StatisticsAggregate> aggregates = new ArrayList<StatisticsAggregate>();
         for (StatisticsEvent event : config.getEvents()) {
             Class<?> clazz = Class.forName(event.getType());
-
+            aggregates = new ArrayList<StatisticsAggregate>();
             for (StatisticsAggregate aggregate : event.getAggregateList()) {
                 String aggregateField = aggregate.getField();
                 try {
@@ -135,14 +144,5 @@ public class ConfigLoader {
         }
 
         return config;
-    }
-
-    /**
-     * Returns a list of all StatisticsConfig files.
-     *
-     * @return
-     */
-    public List<StatisticsConfig> getConfigurations() {
-        return configurations;
     }
 }
