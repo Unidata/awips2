@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.stats;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -67,15 +68,15 @@ public class StatsPurge {
 
     private Archiver archiver;
 
-    private CoreDao aggregateRecordDao = new CoreDao(DaoConfig.forClass(
+    private final CoreDao aggregateRecordDao = new CoreDao(DaoConfig.forClass(
             "metadata", AggregateRecord.class));
 
-    private CoreDao statsRecordDao = new CoreDao(DaoConfig.forClass("metadata",
-            StatsRecord.class));
+    private final CoreDao statsRecordDao = new CoreDao(DaoConfig.forClass(
+            "metadata", StatsRecord.class));
 
-    private PurgeRuleSet aggregatePurgeRules;
+    private final PurgeRuleSet aggregatePurgeRules;
 
-    private PurgeRuleSet statsPurgeRules;
+    private final PurgeRuleSet statsPurgeRules;
 
     public StatsPurge() {
         aggregatePurgeRules = readPurgeRules("aggregatePurgeRules.xml");
@@ -83,10 +84,6 @@ public class StatsPurge {
         try {
             archiver = new Archiver();
             purgeStats();
-        } catch (JAXBException e) {
-            statusHandler
-                    .error("Error starting up archiver. Aggregates will not be archived. ",
-                            e);
         } catch (DataAccessLayerException e) {
             statusHandler
                     .error("Error purging stats on start up. Stats will not be purged. ",
@@ -95,30 +92,48 @@ public class StatsPurge {
     }
 
     /**
-     * Reads the purge files.
+     * Purges records from the aggregate table and writes them to disk.
      */
-    private PurgeRuleSet readPurgeRules(String xml) {
-        PurgeRuleSet purgeRules = null;
-        try {
-            File file = PathManagerFactory.getPathManager().getStaticFile(
-                    "purge/" + xml);
-            if (file != null) {
-                try {
-                    purgeRules = (PurgeRuleSet) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(file);
-                } catch (SerializationException e) {
-                    statusHandler.error("Error deserializing purge rule " + xml
-                            + "!");
-                }
+    public void purgeAggregates() throws JAXBException,
+            DataAccessLayerException {
+        if (aggregatePurgeRules != null) {
+            Calendar expiration = Calendar.getInstance(TimeZone
+                    .getTimeZone("GMT"));
+            DatabaseQuery query = new DatabaseQuery(AggregateRecord.class);
+            List<PurgeRule> allRules = new ArrayList<PurgeRule>();
 
-            } else {
-                statusHandler.error(xml
-                        + " rule not defined!!  Data will not be purged.");
+            // check for specific rules, if none, apply defaults
+            if (!aggregatePurgeRules.getRules().isEmpty()) {
+                allRules.addAll(aggregatePurgeRules.getRules());
+            } else if (!aggregatePurgeRules.getDefaultRules().isEmpty()) {
+                allRules.addAll(aggregatePurgeRules.getDefaultRules());
             }
-        } catch (Exception e) {
-            statusHandler.error("Error reading purge file " + xml, e);
+
+            for (PurgeRule rule : allRules) {
+                if (rule.isPeriodSpecified()) {
+                    long ms = rule.getPeriodInMillis();
+                    int minutes = new Long(ms / (1000 * 60)).intValue();
+                    expiration.add(Calendar.MINUTE, -minutes);
+
+                    query.addQueryParam("endDate", expiration,
+                            QueryOperand.LESSTHAN);
+
+                    List<?> objects = aggregateRecordDao.queryByCriteria(query);
+
+                    if (!objects.isEmpty()) {
+                        AggregateRecord[] aggregateRecords = new AggregateRecord[objects
+                                .size()];
+
+                        for (int i = 0; i < aggregateRecords.length; i++) {
+                            aggregateRecords[i] = (AggregateRecord) objects
+                                    .get(i);
+                        }
+                        archiver.writeToDisk(aggregateRecords);
+                        aggregateRecordDao.deleteAll(objects);
+                    }
+                }
+            }
         }
-        return purgeRules;
     }
 
     /**
@@ -145,36 +160,30 @@ public class StatsPurge {
     }
 
     /**
-     * Purges records from the aggregate table and writes them to disk.
+     * Reads the purge files.
      */
-    public void purgeAggregates() throws JAXBException,
-            DataAccessLayerException {
-        if (aggregatePurgeRules != null) {
-            Calendar expiration = Calendar.getInstance(TimeZone
-                    .getTimeZone("GMT"));
-            DatabaseQuery query = new DatabaseQuery(AggregateRecord.class);
+    private PurgeRuleSet readPurgeRules(String xml) {
+        PurgeRuleSet purgeRules = null;
+        try {
+            File file = PathManagerFactory.getPathManager().getStaticFile(
+                    "purge/" + xml);
+            if (file != null) {
+                try {
+                    purgeRules = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                            PurgeRuleSet.class, file);
 
-            for (PurgeRule rule : aggregatePurgeRules.getRules()) {
-                if (rule.isPeriodSpecified()) {
-                    long ms = rule.getPeriodInMillis();
-                    int minutes = new Long(ms / (1000 * 60)).intValue();
-                    expiration.add(Calendar.MINUTE, -minutes);
-                    query.addQueryParam("endDate", expiration,
-                            QueryOperand.LESSTHAN);
-                    List<?> objects = aggregateRecordDao.queryByCriteria(query);
-                    if (!objects.isEmpty()) {
-                        AggregateRecord[] aggregateRecords = new AggregateRecord[objects
-                                .size()];
-
-                        for (int i = 0; i < aggregateRecords.length; i++) {
-                            aggregateRecords[i] = (AggregateRecord) objects
-                                    .get(i);
-                        }
-                        archiver.writeToDisk(aggregateRecords);
-                        aggregateRecordDao.deleteAll(objects);
-                    }
+                } catch (SerializationException e) {
+                    statusHandler.error("Error deserializing purge rule " + xml
+                            + "!");
                 }
+
+            } else {
+                statusHandler.error(xml
+                        + " rule not defined!!  Data will not be purged.");
             }
+        } catch (Exception e) {
+            statusHandler.error("Error reading purge file " + xml, e);
         }
+        return purgeRules;
     }
 }
