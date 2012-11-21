@@ -31,6 +31,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
@@ -64,7 +65,8 @@ public class PointMetadataContainer extends MetadataContainer {
     public PointMetadataContainer(
             Map<String, RequestConstraint> originalConstraints,
             List<String> requestedParameters, PointDataCubeAdapter pdca) {
-        super(originalConstraints);
+        super(originalConstraints, new AvailabilityContainer(
+                originalConstraints));
         this.requestedParameters = requestedParameters;
         this.pdca = pdca;
     }
