@@ -22,16 +22,17 @@ package com.raytheon.uf.viz.monitor.thresholds;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
+import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.filename.DefaultFilenameMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
@@ -58,6 +59,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  */
 public abstract class AbstractThresholdMgr {
     protected MonitorConfigurationManager areaConfigMgr = null;
+
     /**
      * Default file name for the FOG display thresholds.
      */
@@ -149,13 +151,13 @@ public abstract class AbstractThresholdMgr {
                 loadDefaultDisplayThreshold();
             } else {
                 currFullDisplayXmlFileName = getDisplayThresholdPath()
-                + defaultFileNameMgr.getDefaultThresholdFilename();
+                        + defaultFileNameMgr.getDefaultThresholdFilename();
                 displayThreshMgr = new ThresholdMgr(currFullDisplayXmlFileName);
                 displayThreshMgr.readThresholdXml();
             }
         } else {
             currFullDisplayXmlFileName = getDisplayThresholdPath()
-            + defDisplayThreshName;
+                    + defDisplayThreshName;
             displayThreshMgr = new ThresholdMgr(currFullDisplayXmlFileName);
             loadDefaultDisplayThreshold();
         }
@@ -164,7 +166,7 @@ public abstract class AbstractThresholdMgr {
          * Setup the Fog monitor threshold manager
          */
         currFullMonitorXmlFileName = getMonitorThresholdPath()
-        + defMonitorThreshName;
+                + defMonitorThreshName;
 
         monitorThreshMgr = new ThresholdMgr(currFullMonitorXmlFileName);
         if (validateFileName(currFullMonitorXmlFileName) == true) {
@@ -281,18 +283,21 @@ public abstract class AbstractThresholdMgr {
 
         return CellType.NotMonitored;
     }
-    
+
     /**
-     * Determines Table Cell Type for a directional variable such as 
-     * Wind Direction or Swell Direction 
+     * Determines Table Cell Type for a directional variable such as Wind
+     * Direction or Swell Direction
+     * 
      * @param dataUsage
      * @param areaID
      * @param keyFrom
      * @param keyTo
      * @param value
-     * @return Cell Type 
+     * @return Cell Type
      */
-    public CellType getDirectionalThresholdValueCellType(DataUsageKey dataUsage, String areaID, String keyFrom, String keyTo, double value) {
+    public CellType getDirectionalThresholdValueCellType(
+            DataUsageKey dataUsage, String areaID, String keyFrom,
+            String keyTo, double value) {
         if (hasArea(areaID, dataUsage) == false) {
             return CellType.NotMonitored;
         }
@@ -315,44 +320,47 @@ public abstract class AbstractThresholdMgr {
             redTo = displayThreshMgr.getRedValue(areaID, keyTo);
             yellowFrom = displayThreshMgr.getYellowValue(areaID, keyFrom);
             yellowTo = displayThreshMgr.getYellowValue(areaID, keyTo);
-            return calcDirectionalCellType(redFrom, redTo, yellowFrom, yellowTo, value);
+            return calcDirectionalCellType(redFrom, redTo, yellowFrom,
+                    yellowTo, value);
         } else if (dataUsage == DataUsageKey.MONITOR) {
             redFrom = monitorThreshMgr.getRedValue(areaID, keyFrom);
             redTo = monitorThreshMgr.getRedValue(areaID, keyTo);
             yellowFrom = monitorThreshMgr.getYellowValue(areaID, keyFrom);
             yellowTo = monitorThreshMgr.getYellowValue(areaID, keyTo);
-            return calcDirectionalCellType(redFrom, redTo, yellowFrom, yellowTo, value);
+            return calcDirectionalCellType(redFrom, redTo, yellowFrom,
+                    yellowTo, value);
         }
 
         return CellType.NotMonitored;
     }
-    
-    private CellType calcDirectionalCellType(double redFrom, double redTo, double yellowFrom, double yellowTo, double value) {
 
-    	if ( redFrom < redTo ) {
-    		if ( value > redFrom && value < redTo ) {
-    			return CellType.R;
-    		} 
-    	}
-    	
-    	if ( redFrom > redTo ) {
-    		if ( value > redFrom || value < redTo ) {
-    			return CellType.R;
-    		}
-    	}
-    	
-    	if ( yellowFrom < yellowTo ) {
-    		if ( value > yellowFrom && value < yellowTo ) {
-    			return CellType.Y;
-    		} 
-    	}
-    	
-    	if ( yellowFrom > yellowTo ) {
-    		if ( value > yellowFrom || value < yellowTo ) {
-    			return CellType.Y;
-    		}
-    	}
-    	
+    private CellType calcDirectionalCellType(double redFrom, double redTo,
+            double yellowFrom, double yellowTo, double value) {
+
+        if (redFrom < redTo) {
+            if (value > redFrom && value < redTo) {
+                return CellType.R;
+            }
+        }
+
+        if (redFrom > redTo) {
+            if (value > redFrom || value < redTo) {
+                return CellType.R;
+            }
+        }
+
+        if (yellowFrom < yellowTo) {
+            if (value > yellowFrom && value < yellowTo) {
+                return CellType.Y;
+            }
+        }
+
+        if (yellowFrom > yellowTo) {
+            if (value > yellowFrom || value < yellowTo) {
+                return CellType.Y;
+            }
+        }
+
         return CellType.G;
     }
 
@@ -360,11 +368,12 @@ public abstract class AbstractThresholdMgr {
             double value) {
         Boolean redIsHigher = MonitorConfigConstants.rValueIsHigher(key,
                 appName);
-        // SK. Take integer part of data for threshold comparison to avoid color confusion.
-        // To be consistent with table display for which Math.round() is used, 
+        // SK. Take integer part of data for threshold comparison to avoid color
+        // confusion.
+        // To be consistent with table display for which Math.round() is used,
         // [zhao 10/06/2011]
-        value = Math.round( new Float(value) );
-        
+        value = Math.round(new Float(value));
+
         if (redIsHigher == null) {
             if (red <= yellow) {
                 if (value <= red) {
@@ -403,7 +412,7 @@ public abstract class AbstractThresholdMgr {
 
         return CellType.NotMonitored;
     }
-    
+
     /**
      * Set the default display threshold file name.
      * 
@@ -414,7 +423,7 @@ public abstract class AbstractThresholdMgr {
         if (fileName == null) {
             defaultFileNameMgr.setDefaultThresholdFilename("");
             currFullDisplayXmlFileName = getDisplayThresholdPath()
-            + defDisplayThreshName;
+                    + defDisplayThreshName;
             return;
         }
 
@@ -455,9 +464,9 @@ public abstract class AbstractThresholdMgr {
 
         if (filename == null || filename.trim().length() == 0) {
             currFullDisplayXmlFileName = getDisplayThresholdPath()
-            + defDisplayThreshName;
+                    + defDisplayThreshName;
 
-            ArrayList<String> areaIDs = null;
+            List<String> areaIDs = null;
 
             try {
                 areaIDs = areaConfigMgr.getAreaList();
@@ -484,9 +493,9 @@ public abstract class AbstractThresholdMgr {
 
     public void loadDefaultMonitorThreshold() {
         currFullMonitorXmlFileName = getMonitorThresholdPath()
-        + defMonitorThreshName;
+                + defMonitorThreshName;
 
-        ArrayList<String> areaIDs = null;
+        List<String> areaIDs = null;
 
         try {
             areaIDs = areaConfigMgr.getAreaList();
