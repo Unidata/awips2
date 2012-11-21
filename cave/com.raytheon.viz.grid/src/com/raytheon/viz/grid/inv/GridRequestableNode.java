@@ -228,7 +228,8 @@ public class GridRequestableNode extends AbstractBaseDataNode {
     }
 
     @Override
-    public DbQueryRequest getAvailabilityRequest() {
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
         if (GridTimeCache.getInstance().getTimes(this) != null) {
             return null;
         }
@@ -251,15 +252,17 @@ public class GridRequestableNode extends AbstractBaseDataNode {
     }
 
     @Override
-    public Set<TimeAndSpace> getAvailability(Object response)
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
             throws VizException {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
         if (response == null) {
             result = GridTimeCache.getInstance().getTimes(this);
             if (result == null) {
                 // Oh No! the cache has been cleared since we made our request.
-                response = ThriftClient.sendRequest(getAvailabilityRequest());
-                return getAvailability(response);
+                response = ThriftClient
+                        .sendRequest(getAvailabilityRequest(originalConstraints));
+                return getAvailability(originalConstraints, response);
             }
             GridTimeCache.getInstance().setTimes(this, result);
         } else if (response instanceof DbQueryResponse) {

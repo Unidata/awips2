@@ -126,12 +126,14 @@ public class PointDataLevelNode extends AbstractBaseDataNode {
     }
 
     @Override
-    public DbQueryRequest getAvailabilityRequest() {
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
         return null;
     }
 
     @Override
-    public Set<TimeAndSpace> getAvailability(Object response) {
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response) {
         return AvailabilityContainer.AGNOSTIC_SET;
     }
 
