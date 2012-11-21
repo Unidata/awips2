@@ -72,7 +72,8 @@ public abstract class AbstractBaseDataNode extends AbstractRequestableNode {
      * 
      * @return
      */
-    public abstract DbQueryRequest getAvailabilityRequest();
+    public abstract DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints);
 
     /**
      * Optional method to provide a request to the DataContainer so that it can
@@ -102,7 +103,8 @@ public abstract class AbstractBaseDataNode extends AbstractRequestableNode {
      * @return the TimeAndSpace when this node has available data.
      * @throws VizException
      */
-    public abstract Set<TimeAndSpace> getAvailability(Object response)
+    public abstract Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
             throws VizException;
 
     /**
