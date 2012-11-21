@@ -29,6 +29,7 @@ import java.util.Set;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
@@ -106,7 +107,8 @@ public class OrLevelNode extends AbstractDerivedDataNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> availability) throws VizException {
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         for (AbstractRequestableNode node : nodes) {
             result.put(node, availability);

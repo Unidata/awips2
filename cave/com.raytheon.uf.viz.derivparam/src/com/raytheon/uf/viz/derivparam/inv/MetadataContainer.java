@@ -63,12 +63,17 @@ public class MetadataContainer {
 
     protected final Map<String, RequestConstraint> originalConstraints;
 
+    protected final AvailabilityContainer availabilityContainer;
+
     protected Map<AbstractRequestableNode, Set<TimeAndSpace>> availCache = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
 
     protected Map<AbstractRequestableNode, Set<AbstractRequestableData>> dataCache = new HashMap<AbstractRequestableNode, Set<AbstractRequestableData>>();
 
-    public MetadataContainer(Map<String, RequestConstraint> originalConstraints) {
+    public MetadataContainer(
+            Map<String, RequestConstraint> originalConstraints,
+            AvailabilityContainer availabilityContainer) {
         this.originalConstraints = originalConstraints;
+        this.availabilityContainer = availabilityContainer;
     }
 
     /**
@@ -173,7 +178,8 @@ public class MetadataContainer {
         if (node instanceof AbstractDerivedDataNode) {
             AbstractDerivedDataNode derivedNode = (AbstractDerivedDataNode) node;
             Map<AbstractRequestableNode, Set<TimeAndSpace>> avail = derivedNode
-                    .getDataDependency(new HashSet<TimeAndSpace>(availability));
+                    .getDataDependency(new HashSet<TimeAndSpace>(availability),
+                            availabilityContainer);
 
             for (Entry<AbstractRequestableNode, Set<TimeAndSpace>> entry : avail
                     .entrySet()) {

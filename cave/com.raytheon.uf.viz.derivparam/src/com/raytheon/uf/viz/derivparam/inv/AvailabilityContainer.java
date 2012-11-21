@@ -31,6 +31,8 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -65,9 +67,16 @@ public class AvailabilityContainer {
             .unmodifiableSet(new HashSet<TimeAndSpace>(Arrays
                     .asList(new TimeAndSpace())));
 
+    protected final Map<String, RequestConstraint> originalConstraints;
+
     protected Map<AbstractBaseDataNode, DbQueryRequest> requestCache = new HashMap<AbstractBaseDataNode, DbQueryRequest>();
 
     protected Map<AbstractRequestableNode, Set<TimeAndSpace>> availabilityCache = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+
+    public AvailabilityContainer(
+            Map<String, RequestConstraint> originalConstraints) {
+        this.originalConstraints = originalConstraints;
+    }
 
     /**
      * Get the availability in Time and space for a given node.
@@ -144,7 +153,8 @@ public class AvailabilityContainer {
         }
         if (node instanceof AbstractBaseDataNode) {
             AbstractBaseDataNode dataNode = (AbstractBaseDataNode) node;
-            requestCache.put(dataNode, dataNode.getAvailabilityRequest());
+            requestCache.put(dataNode,
+                    dataNode.getAvailabilityRequest(originalConstraints));
         } else if (node instanceof AbstractDerivedDataNode) {
             AbstractDerivedDataNode dataNode = (AbstractDerivedDataNode) node;
             for (Dependency d : dataNode.getDependencies()) {
@@ -160,30 +170,46 @@ public class AvailabilityContainer {
      * @throws VizException
      */
     protected void processRequests() throws VizException {
-        List<AbstractBaseDataNode> nodes = new ArrayList<AbstractBaseDataNode>();
-        List<DbQueryRequest> requests = new ArrayList<DbQueryRequest>();
-        for (Entry<AbstractBaseDataNode, DbQueryRequest> entry : requestCache
-                .entrySet()) {
-            if (availabilityCache.containsKey(entry.getKey())) {
-                continue;
-            } else if (entry.getValue() == null) {
-                availabilityCache.put(entry.getKey(), entry.getKey()
-                        .getAvailability(null));
-            } else {
-                nodes.add(entry.getKey());
-                requests.add(entry.getValue());
-            }
-        }
-        if (nodes.isEmpty()) {
-            return;
-        }
+        List<DbQueryRequest> requests = getAvailabilityRequests();
         DbQueryRequestSet requestSet = new DbQueryRequestSet();
         requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
         DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
                 .sendRequest(requestSet);
-        for (int i = 0; i < nodes.size(); i++) {
-            availabilityCache.put(nodes.get(i),
-                    nodes.get(i).getAvailability(responseSet.getResults()[i]));
+        DbQueryResponse[] responses = responseSet.getResults();
+        Map<DbQueryRequest, DbQueryResponse> responseMap = new HashMap<DbQueryRequest, DbQueryResponse>(
+                (int) (responses.length / 0.75) + 1, 0.75f);
+        for (int i = 0; i < responses.length; i++) {
+            responseMap.put(requests.get(i), responses[i]);
+        }
+        setAvailabilityResponses(responseMap);
+    }
+
+    public synchronized List<DbQueryRequest> getAvailabilityRequests() {
+        List<DbQueryRequest> requests = new ArrayList<DbQueryRequest>(
+                requestCache.size());
+        for (Entry<AbstractBaseDataNode, DbQueryRequest> entry : requestCache
+                .entrySet()) {
+            if (availabilityCache.containsKey(entry.getKey())) {
+                continue;
+            } else if (entry.getValue() != null) {
+                requests.add(entry.getValue());
+            }
+        }
+        return requests;
+    }
+
+    public synchronized void setAvailabilityResponses(
+            Map<DbQueryRequest, DbQueryResponse> responses) throws VizException {
+        for (Entry<AbstractBaseDataNode, DbQueryRequest> entry : requestCache
+                .entrySet()) {
+            DbQueryResponse response = null;
+            if (availabilityCache.containsKey(entry.getKey())) {
+                continue;
+            } else if (entry.getValue() != null) {
+                response = responses.get(entry.getValue());
+            }
+            availabilityCache.put(entry.getKey(), entry.getKey()
+                    .getAvailability(originalConstraints, response));
         }
     }
 
