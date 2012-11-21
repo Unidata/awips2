@@ -68,19 +68,9 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
 
 public class DerivedLevelNode extends AbstractDerivedDataNode {
 
-    private static final int TIME_QUERY_CACHE_TIME = 30000;
-
     private Map<IDerivParamField, AbstractRequestableData> fieldStaticData = null;
 
     private Map<DerivParamField, AbstractRequestableNode> fields = null;
-
-    /**
-     * Time cache should be reset every time a time query is performed and then
-     * it can be used to correlate times when requesting data.
-     */
-    private Map<DerivParamField, Set<TimeAndSpace>> availCache = null;
-
-    private long lastTimeQuery = 0;
 
     private int dt;
 
@@ -193,21 +183,16 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
     public Set<TimeAndSpace> getAvailability(
             Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        this.lastTimeQuery = System.currentTimeMillis();
         TimeAndSpaceMatcher matcher = getMatcher();
-        Map<DerivParamField, Set<TimeAndSpace>> availCache = new HashMap<DerivParamField, Set<TimeAndSpace>>();
         // We have a derived parameter for the requested grid
         Set<TimeAndSpace> availableDataTimes = null;
         if (fields == null) {
             availableDataTimes = AvailabilityContainer.AGNOSTIC_SET;
-            availCache.put(null, availableDataTimes);
-            this.availCache = availCache;
             return availableDataTimes;
         }
         for (DerivParamField field : fields.keySet()) {
             AbstractRequestableNode node = fields.get(field);
             Set<TimeAndSpace> queryDataTimes = availability.get(node);
-            availCache.put(field, queryDataTimes);
             if (queryDataTimes != null && queryDataTimes.size() > 0) {
                 Map<TimeAndSpace, TimeAndSpace> shiftMap = shiftTime(field,
                         queryDataTimes);
@@ -230,30 +215,19 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
             }
         }// FIELD_LOOP
 
-        if (availableDataTimes != null) {
-            availCache.put(null, availableDataTimes);
-            this.availCache = availCache;
-        } else {
-            availCache = new HashMap<DerivParamField, Set<TimeAndSpace>>();
+        if (availableDataTimes == null) {
             availableDataTimes = new HashSet<TimeAndSpace>(0);
-            availCache.put(null, availableDataTimes);
-            this.availCache = availCache;
         }
         return availableDataTimes;
     }
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> availability) throws VizException {
-        if (this.availCache == null
-                || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
-                        .currentTimeMillis()) {
-            new AvailabilityContainer().getAvailability(this);
-        }
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
         TimeAndSpaceMatcher matcher = getMatcher();
-        Map<DerivParamField, Set<TimeAndSpace>> availCache = this.availCache;
-        availability = matcher.match(availability, availCache.get(null))
-                .keySet();
+        availability = matcher.match(availability,
+                availabilityContainer.getAvailability(this)).keySet();
         if (availability.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -261,7 +235,8 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
         if (fields != null) {
             for (Entry<DerivParamField, AbstractRequestableNode> field : fields
                     .entrySet()) {
-                Set<TimeAndSpace> queryTimes = availCache.get(field.getKey());
+                Set<TimeAndSpace> queryTimes = availabilityContainer
+                        .getAvailability(field.getValue());
                 Map<TimeAndSpace, TimeAndSpace> shiftMap = shiftTime(
                         field.getKey(), queryTimes);
                 if (shiftMap != null) {
@@ -299,14 +274,19 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
             Set<TimeAndSpace> availability,
             Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        if (this.availCache == null
-                || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
-                        .currentTimeMillis()) {
-            new AvailabilityContainer().getAvailability(this);
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> availCache = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>(
+                (int) (dependencyData.size() / 0.75) + 1, 0.75f);
+        for (AbstractRequestableNode node : fields.values()) {
+            Set<AbstractRequestableData> dataSet = dependencyData.get(node);
+            Set<TimeAndSpace> tas = new HashSet<TimeAndSpace>(
+                    (int) (dataSet.size() / 0.75) + 1, 0.75f);
+            for (AbstractRequestableData data : dataSet) {
+                tas.add(data.getTimeAndSpace());
+            }
+            availCache.put(node, tas);
         }
         TimeAndSpaceMatcher matcher = getMatcher();
-        Map<DerivParamField, Set<TimeAndSpace>> availCache = this.availCache;
-        availability = matcher.match(availability, availCache.get(null))
+        availability = matcher.match(availability, getAvailability(availCache))
                 .keySet();
         if (availability.isEmpty()) {
             return Collections.emptySet();
@@ -344,7 +324,7 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
                 DerivParamField field = (DerivParamField) ifield;
                 AbstractRequestableNode fieldNode = fields.get(field);
 
-                Set<TimeAndSpace> fieldAvailability = availCache.get(field);
+                Set<TimeAndSpace> fieldAvailability = availCache.get(fieldNode);
                 Map<TimeAndSpace, TimeAndSpace> shiftMap = shiftTime(field,
                         fieldAvailability);
                 if (shiftMap != null) {
