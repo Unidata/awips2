@@ -107,12 +107,14 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
     }
 
     @Override
-    public DbQueryRequest getAvailabilityRequest() {
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
         return null;
     }
 
     @Override
-    public Set<TimeAndSpace> getAvailability(Object response)
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
             throws VizException {
         Set<TimeAndSpace> resultsSet = RadarUpdater.getInstance()
                 .getTimes(this);
