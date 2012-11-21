@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.datastructure.DecisionTree;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.grid.data.GridRequestableData;
@@ -65,8 +66,9 @@ public class GridMetadataContainer extends MetadataContainer {
      * @param originalConstraints
      */
     public GridMetadataContainer(
-            Map<String, RequestConstraint> originalConstraints) {
-        super(originalConstraints);
+            Map<String, RequestConstraint> originalConstraints,
+            AvailabilityContainer availabilityContainer) {
+        super(originalConstraints, availabilityContainer);
     }
 
     @Override
@@ -106,6 +108,7 @@ public class GridMetadataContainer extends MetadataContainer {
         requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
         DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
                 .sendRequest(requestSet);
+
         Map<AbstractRequestableNode, Set<AbstractRequestableData>> dataCache = new HashMap<AbstractRequestableNode, Set<AbstractRequestableData>>();
         GridRequestableDataFactory grdf = GridRequestableDataFactory
                 .getInstance();
@@ -128,6 +131,7 @@ public class GridMetadataContainer extends MetadataContainer {
         }
         this.dataCache.putAll(dataCache);
         super.processRequests();
+
     }
 
     /**
