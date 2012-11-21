@@ -79,7 +79,8 @@ public class PointAccumLevelNode extends AbstractDerivedDataNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> availability) throws VizException {
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> rval = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         for (AbstractRequestableNode idNode : idNodes) {
             rval.put(idNode, availability);

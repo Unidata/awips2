@@ -31,6 +31,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.AggregateRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher.MatchResult;
@@ -134,7 +135,8 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> availability) {
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) {
         TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
         matcher.setIgnoreRange(true);
         Set<TimeAndSpace> sourceAvailability = new HashSet<TimeAndSpace>(
