@@ -101,26 +101,38 @@ public class VIIRSRequestableLevelNode extends AbstractBaseDataNode {
             return false;
         return true;
     }
-    
+
     public Map<String, RequestConstraint> getRequestConstraintMap() {
         return requestConstraints;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getAvailabilityRequest()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#
+     * getAvailabilityRequest()
      */
     @Override
-    public DbQueryRequest getAvailabilityRequest() {
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                originalConstraints);
+        constraints.putAll(requestConstraints);
+        constraints.put("pluginName", new RequestConstraint("viirs"));
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(VIIRSDataRecord.class.getName());
         request.addRequestField("dataTime");
         request.setDistinct(true);
-        request.setConstraints(requestConstraints);
+        request.setConstraints(constraints);
         return request;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getDataRequest(java.util.Map, java.util.Set)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getDataRequest
+     * (java.util.Map, java.util.Set)
      */
     @Override
     public DbQueryRequest getDataRequest(
@@ -136,24 +148,33 @@ public class VIIRSRequestableLevelNode extends AbstractBaseDataNode {
         return request;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getAvailability(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getAvailability
+     * (java.lang.Object)
      */
     @Override
-    public Set<TimeAndSpace> getAvailability(Object response)
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
             throws VizException {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
-            DbQueryResponse dbresponse = (DbQueryResponse) response;
-            for (Map<String, Object> map : dbresponse.getResults()) {
-                DataTime time = (DataTime) map.get("dataTime");
-                
-                result.add(new TimeAndSpace(time));
-            }
+        DbQueryResponse dbresponse = (DbQueryResponse) response;
+        for (Map<String, Object> map : dbresponse.getResults()) {
+            DataTime time = (DataTime) map.get("dataTime");
+
+            result.add(new TimeAndSpace(time));
+        }
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getData(java.util.Map, java.util.Set, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getData(java
+     * .util.Map, java.util.Set, java.lang.Object)
      */
     @Override
     public Set<AbstractRequestableData> getData(
