@@ -33,6 +33,7 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
@@ -120,7 +121,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> times) {
+            Set<TimeAndSpace> times, AvailabilityContainer availabilityContainer) {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         result.put(sourceNode, getSourceAvailability(times));
         return result;
