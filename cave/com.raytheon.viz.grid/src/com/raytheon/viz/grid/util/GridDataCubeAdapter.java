@@ -495,16 +495,18 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     @Override
     protected MetadataContainer createMetadataContainer(
             Map<String, RequestConstraint> constraints) {
-        return new GridMetadataContainer(constraints);
+        return new GridMetadataContainer(constraints,
+                createAvailabilityContainer(constraints));
     }
 
     @Override
-    protected AvailabilityContainer createAvailabilityContainer() {
+    protected AvailabilityContainer createAvailabilityContainer(
+            Map<String, RequestConstraint> constraints) {
         // using a grid specific container which is able to merge constraints
         // will result in faster database queries, however the extra processing
         // time it takes to route the times to the correct nodes is larger than
         // the time saved.
-        return super.createAvailabilityContainer();
+        return super.createAvailabilityContainer(constraints);
     }
 
 }
