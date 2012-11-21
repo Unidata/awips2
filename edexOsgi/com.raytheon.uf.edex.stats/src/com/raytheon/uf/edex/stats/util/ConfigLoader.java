@@ -36,23 +36,22 @@ import com.raytheon.uf.common.stats.xml.StatisticsConfig;
 import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.stats.xml.Statistics;
 
 /**
  * Loads StatisticsConfig files from localization.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Updated error handling and validated config files.
  * Nov 07, 2012   1317     mpduff      Update config files.
- * 
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * 
+ *
  */
 public class ConfigLoader {
 
@@ -62,8 +61,7 @@ public class ConfigLoader {
     private static final JAXBManager jaxbManager;
     static {
         try {
-            jaxbManager = new JAXBManager(StatisticsConfig.class,
-                    Statistics.class);
+            jaxbManager = new JAXBManager(StatisticsConfig.class);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -77,7 +75,7 @@ public class ConfigLoader {
 
     /**
      * Returns a list of all StatisticsConfig files.
-     * 
+     *
      * @return
      */
     public List<StatisticsConfig> getConfigurations() {
@@ -115,7 +113,7 @@ public class ConfigLoader {
 
     /**
      * Removes the aggregate if its not a numerical parameter.
-     * 
+     *
      * @param config
      */
     private StatisticsConfig validateAggregates(StatisticsConfig config)
