@@ -22,14 +22,19 @@ package com.raytheon.uf.viz.derivparam.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -38,6 +43,7 @@ import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
@@ -91,20 +97,49 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
             throws VizException {
-        AvailabilityContainer container = createAvailabilityContainer();
-
+        List<AvailabilityContainer> containers = new ArrayList<AvailabilityContainer>(
+                requests.size());
+        List<List<DbQueryRequest>> requestLists = new ArrayList<List<DbQueryRequest>>(
+                requests.size());
+        List<DbQueryRequest> fullList = new ArrayList<DbQueryRequest>(
+                requests.size());
         for (TimeQueryRequest request : requests) {
+            AvailabilityContainer container = createAvailabilityContainer(request
+                    .getQueryTerms());
             List<AbstractRequestableNode> requestNodes = evaluateRequestConstraints(request
                     .getQueryTerms());
             // pull out time queries and bulk submit
             for (AbstractRequestableNode requestNode : requestNodes) {
                 container.prepareRequests(requestNode);
             }
+            containers.add(container);
+            List<DbQueryRequest> containerRequests = container
+                    .getAvailabilityRequests();
+            requestLists.add(containerRequests);
+            fullList.addAll(containerRequests);
         }
 
+        // bulk up all the requests.
+        DbQueryRequestSet requestSet = new DbQueryRequestSet();
+        requestSet.setQueries(fullList.toArray(new DbQueryRequest[0]));
+        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
+                .sendRequest(requestSet);
+        DbQueryResponse[] responses = responseSet.getResults();
+        int responseIndex = 0;
         List<List<DataTime>> finalResponse = new ArrayList<List<DataTime>>(
                 requests.size());
-        for (TimeQueryRequest request : requests) {
+        for (int i = 0; i < requests.size(); i += 1) {
+            TimeQueryRequest request = requests.get(i);
+            AvailabilityContainer container = containers.get(i);
+            // set the bulked responses back into the container
+            List<DbQueryRequest> containerRequests = requestLists.get(i);
+            Map<DbQueryRequest, DbQueryResponse> responseMap = new HashMap<DbQueryRequest, DbQueryResponse>(
+                    (int) (containerRequests.size() / 0.75) + 1, 0.75f);
+            for (int j = 0; j < containerRequests.size(); j += 1) {
+                responseMap.put(containerRequests.get(j),
+                        responses[responseIndex++]);
+            }
+            container.setAvailabilityResponses(responseMap);
             List<AbstractRequestableNode> requestNodes = evaluateRequestConstraints(request
                     .getQueryTerms());
             // pull the actual results from the cache
@@ -197,7 +232,6 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
         for (AbstractRequestableNode request : requests) {
             container.prepareRequests(request, availability);
         }
-
         for (AbstractRequestableNode request : requests) {
             requesters.addAll(container.getData(request, availability));
         }
@@ -207,11 +241,13 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
 
     protected MetadataContainer createMetadataContainer(
             Map<String, RequestConstraint> constraints) {
-        return new MetadataContainer(constraints);
+        return new MetadataContainer(constraints,
+                createAvailabilityContainer(constraints));
     }
 
-    protected AvailabilityContainer createAvailabilityContainer() {
-        return new AvailabilityContainer();
+    protected AvailabilityContainer createAvailabilityContainer(
+            Map<String, RequestConstraint> constraints) {
+        return new AvailabilityContainer(constraints);
     }
 
     /*
