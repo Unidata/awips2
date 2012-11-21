@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ui.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,137 +27,105 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Dialog for deleting stations.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
- *
+ * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class DeleteStationDlg extends Dialog
-{
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-    
-    /**
-     * The display control.
-     */
-    private Display display;
-    
-    /**
-     * Return value when the shell is disposed.
-     */
-    private Boolean returnValue = false;
-    
-    /**
-     * Dialog title.
-     */
-    private String dialogTitle;
-    
+public class DeleteStationDlg extends CaveSWTDialog {
+
     /**
      * Station list control.
      */
     private List stationList;
-    
+
     /**
      * Control font.
      */
     private Font controlFont;
-    
+
+    /**
+     * Area configuration manager.
+     */
+    private MonitorConfigurationManager configMan;
+
     /**
      * Constructor.
-     * @param parent Parent shell.
-     * @param appName Application name.
+     * 
+     * @param parent
+     *            Parent shell.
+     * @param appName
+     *            Application name.
      */
-    public DeleteStationDlg(Shell parent, CommonConfig.AppName appName)
-    {    
-        super(parent, 0);
-        
-        dialogTitle = appName.toString() + ": Delete a Newly Entered Station";
+    public DeleteStationDlg(Shell parent, AppName appName) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        setText(appName.toString() + ": Delete a Newly Entered Station");
+        configMan = getConfigManager(appName);
     }
-    
-    /**
-     * Open method used to display the dialog.
-     * @return True/False.
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    public Object open()
-    {        
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText(dialogTitle);
-        
-        // Create the main layout for the shell.
+    @Override
+    protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 2;
         mainLayout.marginWidth = 2;
         mainLayout.verticalSpacing = 2;
         shell.setLayout(mainLayout);
-      
-        // Initialize all of the controls and layouts
-        initializeComponents();
-        
-        populate();
-        
-        shell.pack();
-        
-        shell.open();
-        while (!shell.isDisposed())
-        {
-            if (!display.readAndDispatch())
-            {
-                display.sleep();
-            }
-        }
-        
-        controlFont.dispose();
-        
-        return returnValue;
+        return mainLayout;
     }
-    
-    /**
-     * Initialize the components on the display.
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    private void initializeComponents()
-    {
+    @Override
+    protected void initializeComponents(Shell shell) {
+        setReturnValue(false);
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-        
         createListControl();
-        
         createBottomButtons();
+        populate();
     }
-    
+
     /**
      * Create the list control.
      */
-    private void createListControl()
-    {
+    private void createListControl() {
         Composite listComp = new Composite(shell, SWT.NONE);
         listComp.setLayout(new GridLayout(1, false));
-        
         Label stationLbl = new Label(listComp, SWT.NONE);
         stationLbl.setText("Available Stations to delete:");
-        
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 350;
         gd.heightHint = 250;
@@ -167,62 +133,92 @@ public class DeleteStationDlg extends Dialog
         stationList.setFont(controlFont);
         stationList.setLayoutData(gd);
     }
-    
+
     /**
      * Create the Delete Station and Close buttons.
      */
-    private void createBottomButtons()
-    {        
+    private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
         mainButtonComp.setLayout(new GridLayout(1, false));
         mainButtonComp.setLayoutData(gd);
-        
+
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, false));
         buttonComp.setLayoutData(gd);
-        
+
         gd = new GridData(120, SWT.DEFAULT);
         Button deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete Station");
         deleteBtn.setLayoutData(gd);
-        deleteBtn.addSelectionListener(new SelectionAdapter()
-        {
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event)
-            {
+            public void widgetSelected(SelectionEvent event) {
                 deleteSelected();
             }
         });
-        
+
         gd = new GridData(120, SWT.DEFAULT);
         Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
-        closeBtn.addSelectionListener(new SelectionAdapter()
-        {
+        closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event)
-            {
-                shell.dispose();
+            public void widgetSelected(SelectionEvent event) {
+                setReturnValue(true);
+                close();
             }
         });
     }
-    
+
+    /**
+     * Populate list of added stations.
+     */
     private void populate() {
-        FogMonitorConfigurationManager configMan = FogMonitorConfigurationManager.getInstance();
-        
-        ArrayList<String> addedStations = configMan.getAddedStations();
-        stationList.setItems(addedStations.toArray(new String[addedStations.size()]));
+        java.util.List<String> addedStations = configMan.getAddedStations();
+        stationList.setItems(addedStations.toArray(new String[addedStations
+                .size()]));
     }
-    
+
+    /**
+     * Delete stations from the list.
+     */
     private void deleteSelected() {
-        FogMonitorConfigurationManager configMan = FogMonitorConfigurationManager.getInstance();
-        
-        String selection = stationList.getItem(stationList.getSelectionIndex());
-        
-        configMan.removeStation(selection);
-        stationList.remove(stationList.getSelectionIndex());
+        if (stationList.getItemCount() != 0) {
+            String selection = stationList.getItem(stationList
+                    .getSelectionIndex());
+            configMan.removeStation(selection);
+            stationList.remove(stationList.getSelectionIndex());
+            populate();
+        }
+    }
+
+    /**
+     * Gets Configuration Manager.
+     * 
+     * @param app
+     * @return manager
+     */
+    private MonitorConfigurationManager getConfigManager(AppName app) {
+        MonitorConfigurationManager mngr = null;
+        if (app == AppName.FOG) {
+            mngr = FogMonitorConfigurationManager.getInstance();
+        } else if (app == AppName.SAFESEAS) {
+            mngr = SSMonitorConfigurationManager.getInstance();
+        } else if (app == AppName.SNOW) {
+            mngr = SnowMonitorConfigurationManager.getInstance();
+        }
+        return mngr;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        controlFont.dispose();
     }
 }
