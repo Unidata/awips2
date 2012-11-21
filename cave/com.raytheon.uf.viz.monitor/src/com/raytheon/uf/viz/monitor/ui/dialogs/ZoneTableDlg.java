@@ -148,7 +148,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public ObConst.VarName varName;
 
     /** Application name. **/
-    protected final CommonConfig.AppName appName;
+    protected final AppName appName;
 
     /** Table attribute dialog. **/
     private TableAttribDlg attrDlg;
@@ -207,15 +207,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
 
     /** Data source. **/
     public String dataSrc = "METAR";
-
-    /** trend plots. **/
-    private TrendPlotDlg tpd, tpdHodo;
-
-    /** Hodograph. **/
-    private HodographDlg hodographDlg;
-
-    /** History table. **/
-    private ObsHistTableDlg obsHstTblDlg;
 
     /** dispose action. **/
     protected abstract void shellDisposeAction();
@@ -614,7 +605,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * (int, int)
      */
     public void launchTrendPlot(int rowIndex, int colIndex) {
-
         setRowIndex(rowIndex);
         setColIndex(colIndex);
         String colKey = config.getTableColumnKeys(appName)[colIndex];
@@ -630,7 +620,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         dlgTitle = getTrendPlotName(prodArray) + " Trend Plot for " + station
                 + "#" + dataSrc;
         if (graphType == GraphType.Trend) {
-            if (mustCreate(tpd) || !openedDlgs.containsKey(dlgTitle)) {
+            TrendPlotDlg tpd = (TrendPlotDlg) openedDlgs.get(dlgTitle);
+            if (tpd == null) {
                 tpd = new TrendPlotDlg(getShell(), selectedZone, station,
                         prodArray, dataSrc, dlgTitle);
                 tpd.setCloseCallback(new ICloseCallback() {
@@ -641,10 +632,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
                 });
                 openedDlgs.put(dlgTitle, tpd);
                 tpd.setData(obData);
-                tpd.open();
-            } else {
-                openedDlgs.get(dlgTitle).bringToTop();
             }
+            tpd.open();
         }
         if (graphType == GraphType.HodoWindDir) {
             // get data for a hodograph trend plot
@@ -652,9 +641,9 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
                     station, varName, ObConst.ProductName.UNDEFINED_PRODUCT);
             if (dataset != null && !dataset.isEmpty()) {
                 float[] thresholds = dataset.getDualValuedThresholds();
-
-                if (mustCreate(hodographDlg)
-                        || !openedDlgs.containsKey(dlgTitle)) {
+                HodographDlg hodographDlg = (HodographDlg) openedDlgs
+                        .get(dlgTitle);
+                if (hodographDlg == null) {
                     hodographDlg = new HodographDlg(getShell(), station,
                             dataSrc, dlgTitle);
                     hodographDlg.setCloseCallback(new ICloseCallback() {
@@ -677,14 +666,13 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
                             thresholds[3]);
                     hodographDlg.setRedThreshold(thresholds[0], thresholds[1]);
                     hodographDlg.setHodoGraphData(dataset.getDataSet());
-                    hodographDlg.open();
-                } else {
-                    openedDlgs.get(dlgTitle).bringToTop();
                 }
+                hodographDlg.open();
             } else {
                 prodArray = new ArrayList<String>();
                 prodArray.add("VAR_" + varName.name());
-                if (mustCreate(tpdHodo) || !openedDlgs.containsKey(dlgTitle)) {
+                TrendPlotDlg tpdHodo = (TrendPlotDlg) openedDlgs.get(dlgTitle);
+                if (tpdHodo == null) {
                     tpdHodo = new TrendPlotDlg(getShell(), selectedZone,
                             station, prodArray, dataSrc, dlgTitle);
                     tpdHodo.setCloseCallback(new ICloseCallback() {
@@ -695,10 +683,8 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
                     });
                     openedDlgs.put(dlgTitle, tpdHodo);
                     tpdHodo.setData(obData);
-                    tpdHodo.open();
-                } else {
-                    openedDlgs.get(dlgTitle).bringToTop();
                 }
+                tpdHodo.open();
             }
         }
     }
@@ -712,11 +698,9 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     public void launchObHistoryTable(int rowIndex) {
         String station = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
-
         ObStnHourReports report = obData.getObHourReports()
                 .getObZoneHourReports(selectedZone)
                 .getObStnHourReports(station);
-
         if (report.getStationCenter() != null) {
             lat = report.getStationCenter()[1];
             lon = report.getStationCenter()[0];
@@ -724,11 +708,10 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             lat = 0.0;
             lon = 0.0;
         }
-
+        // Set dialog index
+        String dialogID = appName.name() + station;
         MonitorConfigurationManager configMgr = getConfigMgr();
-
         ObsHistType histType = configMgr.getStationType(selectedZone, station);
-
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
@@ -736,16 +719,28 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         if (appName == AppName.SNOW && histType == ObsHistType.Maritime) {
             return;
         }
-        if (mustCreate(obsHstTblDlg)) {
+        ObsHistTableDlg obsHstTblDlg = (ObsHistTableDlg) openedDlgs
+                .get(dialogID);
+        if (obsHstTblDlg == null) {
             obsHstTblDlg = new ObsHistTableDlg(getShell(),
                     obData.getHistTableData(selectedZone, station, histType),
-                    station, lat, lon, obData.getAppName(), histType);
-            obsHstTblDlg.open();
-        } else {
-            obsHstTblDlg.bringToTop();
+                    appName, station, lat, lon, histType, dialogID);
+            obsHstTblDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    openedDlgs.remove(returnValue);
+                }
+            });
+            openedDlgs.put(dialogID, obsHstTblDlg);
         }
+        obsHstTblDlg.open();
     }
 
+    /**
+     * Gets Configuration manager.
+     * 
+     * @return manager
+     */
     protected abstract MonitorConfigurationManager getConfigMgr();
 
     /**
@@ -825,7 +820,9 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     }
 
     /**
-     * @return linkedToFrame
+     * Linked To Frame
+     * 
+     * @return True/False
      */
     public boolean isLinkedToFrame() {
         return linkedToFrame;
@@ -841,7 +838,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Handls checkbox "Link to frame"
+     * Handles checkbox "Link to frame"
      */
     protected void handleLinkToFrame() {
         linkedToFrame = linkToFrameChk.getSelection();
@@ -860,22 +857,42 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /**
      * Initiates array of products to plot
      * 
-     * @return
+     * @return variable names
      */
     protected abstract void initiateProdArray();
 
+    /**
+     * Gets row index.
+     * 
+     * @return rowIndex
+     */
     public int getRowIndex() {
         return rowIndex;
     }
 
+    /**
+     * Sets row index.
+     * 
+     * @param rowIndex
+     */
     public void setRowIndex(int rowIndex) {
         this.rowIndex = rowIndex;
     }
 
+    /**
+     * Gets column index.
+     * 
+     * @return colIndex
+     */
     public int getColIndex() {
         return colIndex;
     }
 
+    /**
+     * Sets column index.
+     * 
+     * @param colIndex
+     */
     public void setColIndex(int colIndex) {
         this.colIndex = colIndex;
     }
