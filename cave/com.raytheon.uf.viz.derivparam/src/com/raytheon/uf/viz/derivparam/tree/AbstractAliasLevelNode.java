@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
@@ -116,7 +117,7 @@ public abstract class AbstractAliasLevelNode extends AbstractDerivedDataNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> times) {
+            Set<TimeAndSpace> times, AvailabilityContainer container) {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         result.put(sourceNode, times);
         return result;
