@@ -207,24 +207,20 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      * @param shell
      */
     public void launchDialog(String type, Shell shell) {
-
         if (type.equals("zone")) {
-            if (zoneDialog == null || zoneDialog.getShell() == null
-                    || zoneDialog.isDisposed()) {
+            if (zoneDialog == null) {
                 zoneDialog = new SSZoneTableDlg(shell, obData);
                 addMonitorListener(zoneDialog);
                 zoneDialog.addMonitorControlListener(this);
                 fireMonitorEvent(zoneDialog.getClass().getName());
-                zoneDialog.open();
-            } else {
-                zoneDialog.bringToTop();
             }
+            zoneDialog.open();
         } else if (type.equals("area")) {
             if (areaDialog == null) {
                 areaDialog = new SSMonitoringAreaConfigDlg(shell,
                         "Safe Seas Monitor Area Configuration");
-                areaDialog.open();
             }
+            areaDialog.open();
         }
     }
 
@@ -465,7 +461,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
             zoneDialog = null;
         }
         if (areaDialog != null) {
-            areaDialog.shellDisposeDialog();
+            areaDialog.close();
             areaDialog = null;
         }
     }
@@ -492,7 +488,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      */
     public Map<String, Geometry> getMonitoringAreaGeometries() {
         if (zoneGeometries == null) {
-            ArrayList<String> zones = getMonitorAreaConfig().getAreaList();
+            List<String> zones = getMonitorAreaConfig().getAreaList();
             zoneGeometries = new HashMap<String, Geometry>();
             for (String zone : zones) {
                 try {
