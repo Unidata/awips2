@@ -77,7 +77,8 @@ public class HeightOfLevelNode extends AbstractDerivedDataNode {
 
     @Override
     public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
-            Set<TimeAndSpace> availability) throws VizException {
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         result.put(latNode, availability);
         result.put(lonNode, availability);
