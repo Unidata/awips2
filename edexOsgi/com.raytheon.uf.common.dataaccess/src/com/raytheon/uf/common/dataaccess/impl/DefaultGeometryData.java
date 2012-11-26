@@ -54,7 +54,7 @@ public class DefaultGeometryData implements IGeometryData {
     /**
      * A simple object to hold a value, type, and unit of a parameter
      */
-    public class GeomData {
+    private class GeomData {
         private Object value;
 
         private Type type;
@@ -196,7 +196,78 @@ public class DefaultGeometryData implements IGeometryData {
         return locationName;
     }
 
-    public void addData(String parameter, GeomData data) {
+    /**
+     * Adds data for this IGeometryData
+     * 
+     * @param parameter
+     *            the parameter name
+     * @param value
+     *            the value of the parameter
+     */
+    public void addData(String parameter, Object value) {
+        addData(parameter, value, null, null);
+    }
+
+    /**
+     * Adds data for this IGeometryData
+     * 
+     * @param parameter
+     *            the parameter name
+     * @param value
+     *            the value of the parameter
+     * @param type
+     *            the type of the value
+     */
+    public void addData(String parameter, Object value, Type type) {
+        addData(parameter, value, type, null);
+    }
+
+    /**
+     * Adds data for this IGeometryData
+     * 
+     * @param parameter
+     *            the parameter name
+     * @param value
+     *            the value of the parameter
+     * @param unit
+     *            the unit of the value
+     */
+    public void addData(String parameter, Object value, Unit<?> unit) {
+        addData(parameter, value, null, unit);
+    }
+
+    /**
+     * Adds data for this IGeometryData
+     * 
+     * @param parameter
+     *            the parameter name
+     * @param value
+     *            the value of the parameter
+     * @param type
+     *            the type of the value
+     * @param unit
+     *            the unit of the value
+     */
+    public void addData(String parameter, Object value, Type type, Unit<?> unit) {
+        GeomData data = new GeomData();
+        data.value = value;
+        data.unit = unit;
+        data.type = type;
+        if (data.type == null) {
+            if (data.value instanceof String) {
+                data.type = Type.STRING;
+            } else if (data.value instanceof Double) {
+                // TODO do these ifs work or will any number fall into
+                // the first one?
+                data.type = Type.DOUBLE;
+            } else if (data.value instanceof Integer) {
+                data.type = Type.INT;
+            } else if (data.value instanceof Long) {
+                data.type = Type.LONG;
+            } else if (data.value instanceof Float) {
+                data.type = Type.FLOAT;
+            }
+        }
         this.dataMap.put(parameter, data);
     }
 
