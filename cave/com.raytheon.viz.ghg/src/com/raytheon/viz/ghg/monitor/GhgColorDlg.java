@@ -22,6 +22,7 @@ package com.raytheon.viz.ghg.monitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
@@ -47,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
+ * 28 NOV 2012  1353       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -55,6 +57,10 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelChange;
  * 
  */
 public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
+
+    final private String FOREGROUND_KEY = "Foreground_key";
+
+    final private String BACKGROUND_KEY = "Background_key";
 
     /**
      * Alert level 1 radio button.
@@ -90,6 +96,11 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
      * Test product radio button.
      */
     private Button testProductRdo;
+
+    /**
+     * Currently selected radio button.
+     */
+    private Button selectedRdo;
 
     /**
      * Label displaying the selected foreground and background colors.
@@ -143,7 +154,7 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
      *            Parent Shell.
      */
     public GhgColorDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("GHG Color Dialog");
     }
 
@@ -206,91 +217,78 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
         colorSchemeGroup.setLayoutData(gd);
         colorSchemeGroup.setText(" Color Scheme ");
 
+        // Listener to update color based on the radio button selection.
+        SelectionListener listener = new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                Button button = (Button) event.widget;
+                if (button.getSelection()) {
+                    RGB rgb = (RGB) button.getData(FOREGROUND_KEY);
+                    foregroundColorWheel.setColor(rgb);
+                    rgb = (RGB) button.getData(BACKGROUND_KEY);
+                    backGroundColorWheel.setColor(rgb);
+                    selectedRdo = button;
+                }
+            }
+        };
+
         alertLvl1Rdo = new Button(colorSchemeGroup, SWT.RADIO);
         alertLvl1Rdo.setText("Alert Level 1");
         alertLvl1Rdo.setSelection(true);
-        alertLvl1Rdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getAlertLvl1Colors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getAlertLvl1Colors().getBackgroundRgb());
-
-            }
-        });
+        selectedRdo = alertLvl1Rdo;
+        alertLvl1Rdo.setData(FOREGROUND_KEY, ghgConfigData.getAlertLvl1Colors()
+                .getForegroundRgb());
+        alertLvl1Rdo.setData(BACKGROUND_KEY, ghgConfigData.getAlertLvl1Colors()
+                .getBackgroundRgb());
+        alertLvl1Rdo.addSelectionListener(listener);
 
         alertLvl2Rdo = new Button(colorSchemeGroup, SWT.RADIO);
         alertLvl2Rdo.setText("Alert Level 2");
-        alertLvl2Rdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getAlertLvl2Colors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getAlertLvl2Colors().getBackgroundRgb());
-            }
-        });
+        alertLvl2Rdo.setData(FOREGROUND_KEY, ghgConfigData.getAlertLvl2Colors()
+                .getForegroundRgb());
+        alertLvl2Rdo.setData(BACKGROUND_KEY, ghgConfigData.getAlertLvl2Colors()
+                .getBackgroundRgb());
+        alertLvl2Rdo.addSelectionListener(listener);
 
         expiredAlertRdo = new Button(colorSchemeGroup, SWT.RADIO);
         expiredAlertRdo.setText("Expired Alert");
-        expiredAlertRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getExpiredAlertColors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getExpiredAlertColors().getBackgroundRgb());
-            }
-        });
+        expiredAlertRdo.setData(FOREGROUND_KEY, ghgConfigData
+                .getExpiredAlertColors().getForegroundRgb());
+        expiredAlertRdo.setData(BACKGROUND_KEY, ghgConfigData
+                .getExpiredAlertColors().getBackgroundRgb());
+        expiredAlertRdo.addSelectionListener(listener);
 
         mapSectionsRdo = new Button(colorSchemeGroup, SWT.RADIO);
         mapSectionsRdo.setText("Map Selections");
-        mapSectionsRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getMapSelectionsColors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getMapSelectionsColors().getBackgroundRgb());
-            }
-        });
+        mapSectionsRdo.setData(FOREGROUND_KEY, ghgConfigData
+                .getMapSelectionsColors().getForegroundRgb());
+        mapSectionsRdo.setData(BACKGROUND_KEY, ghgConfigData
+                .getMapSelectionsColors().getBackgroundRgb());
+        mapSectionsRdo.addSelectionListener(listener);
 
         regEntriesRdo = new Button(colorSchemeGroup, SWT.RADIO);
         regEntriesRdo.setText("Regular Entries");
-        regEntriesRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getRegularEntriesColors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getRegularEntriesColors().getBackgroundRgb());
-            }
-        });
+        regEntriesRdo.setData(FOREGROUND_KEY, ghgConfigData
+                .getRegularEntriesColors().getForegroundRgb());
+        regEntriesRdo.setData(BACKGROUND_KEY, ghgConfigData
+                .getRegularEntriesColors().getBackgroundRgb());
+        regEntriesRdo.addSelectionListener(listener);
 
         monitorSelectionsRdo = new Button(colorSchemeGroup, SWT.RADIO);
         monitorSelectionsRdo.setText("Monitor Selections");
-        monitorSelectionsRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getMonitorSelectionsColors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getMonitorSelectionsColors().getBackgroundRgb());
-            }
-        });
+        monitorSelectionsRdo.setData(FOREGROUND_KEY, ghgConfigData
+                .getMonitorSelectionsColors().getForegroundRgb());
+        monitorSelectionsRdo.setData(BACKGROUND_KEY, ghgConfigData
+                .getMonitorSelectionsColors().getBackgroundRgb());
+        monitorSelectionsRdo.addSelectionListener(listener);
 
         testProductRdo = new Button(colorSchemeGroup, SWT.RADIO);
         testProductRdo.setText("Test Product");
-        testProductRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                foregroundColorWheel.setColor(ghgConfigData
-                        .getTestProductsColors().getForegroundRgb());
-                backGroundColorWheel.setColor(ghgConfigData
-                        .getTestProductsColors().getBackgroundRgb());
-            }
-        });
+        testProductRdo.setData(FOREGROUND_KEY, ghgConfigData
+                .getTestProductsColors().getForegroundRgb());
+        testProductRdo.setData(BACKGROUND_KEY, ghgConfigData
+                .getTestProductsColors().getBackgroundRgb());
+        testProductRdo.addSelectionListener(listener);
     }
 
     /**
@@ -345,7 +343,8 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(true);
-                shell.dispose();
+                saveButtonColor();
+                close();
             }
         });
 
@@ -357,7 +356,7 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setReturnValue(false);
-                shell.dispose();
+                close();
             }
         });
     }
@@ -371,71 +370,54 @@ public class GhgColorDlg extends CaveSWTDialog implements IColorWheelChange {
             labelForeGroundColor.dispose();
             labelForeGroundColor = new Color(getDisplay(), rgb);
             colorLabel.setForeground(labelForeGroundColor);
-            updateSelectedColor(rgb, true);
+            selectedRdo.setData(FOREGROUND_KEY, rgb);
         } else {
             labelBackGroundColor.dispose();
             labelBackGroundColor = new Color(getDisplay(), rgb);
             colorLabel.setBackground(labelBackGroundColor);
-            updateSelectedColor(rgb, false);
+            selectedRdo.setData(BACKGROUND_KEY, rgb);
         }
     }
 
     /**
-     * Update the color schemes based on the colors in the color wheel.
-     * 
-     * @param rgb
-     *            RGB color.
-     * @param foreground
-     *            If true, the foreground RGB is updated. If false, the the
-     *            background RGB is updated.
+     * Color changes are being applied save them back to the GhgConfigData.
      */
-    private void updateSelectedColor(RGB rgb, boolean foreground) {
-        // Determine which color scheme is selected and then update the
-        // associated configuration data foreground/background color.
-        if (alertLvl1Rdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getAlertLvl1Colors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getAlertLvl1Colors().setBackgroundRgb(rgb);
-            }
-        } else if (alertLvl2Rdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getAlertLvl2Colors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getAlertLvl2Colors().setBackgroundRgb(rgb);
-            }
-        } else if (expiredAlertRdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getExpiredAlertColors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getExpiredAlertColors().setBackgroundRgb(rgb);
-            }
-        } else if (mapSectionsRdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getMapSelectionsColors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getMapSelectionsColors().setBackgroundRgb(rgb);
-            }
-        } else if (regEntriesRdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getRegularEntriesColors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getRegularEntriesColors().setBackgroundRgb(rgb);
-            }
-        } else if (monitorSelectionsRdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getMonitorSelectionsColors()
-                        .setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getMonitorSelectionsColors()
-                        .setBackgroundRgb(rgb);
-            }
-        } else if (testProductRdo.getSelection() == true) {
-            if (foreground == true) {
-                ghgConfigData.getTestProductsColors().setForegroundRgb(rgb);
-            } else {
-                ghgConfigData.getTestProductsColors().setBackgroundRgb(rgb);
-            }
-        }
+    private void saveButtonColor() {
+        RGB rgb = null;
+
+        rgb = (RGB) alertLvl1Rdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getAlertLvl1Colors().setForegroundRgb(rgb);
+        rgb = (RGB) alertLvl1Rdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getAlertLvl1Colors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) alertLvl2Rdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getAlertLvl2Colors().setForegroundRgb(rgb);
+        rgb = (RGB) alertLvl2Rdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getAlertLvl2Colors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) expiredAlertRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getExpiredAlertColors().setForegroundRgb(rgb);
+        rgb = (RGB) expiredAlertRdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getExpiredAlertColors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) mapSectionsRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getMapSelectionsColors().setForegroundRgb(rgb);
+        rgb = (RGB) mapSectionsRdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getMapSelectionsColors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) regEntriesRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getRegularEntriesColors().setForegroundRgb(rgb);
+        rgb = (RGB) regEntriesRdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getRegularEntriesColors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) monitorSelectionsRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getMonitorSelectionsColors().setForegroundRgb(rgb);
+        rgb = (RGB) monitorSelectionsRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getMonitorSelectionsColors().setBackgroundRgb(rgb);
+
+        rgb = (RGB) testProductRdo.getData(FOREGROUND_KEY);
+        ghgConfigData.getTestProductsColors().setForegroundRgb(rgb);
+        rgb = (RGB) testProductRdo.getData(BACKGROUND_KEY);
+        ghgConfigData.getTestProductsColors().setBackgroundRgb(rgb);
     }
 }
