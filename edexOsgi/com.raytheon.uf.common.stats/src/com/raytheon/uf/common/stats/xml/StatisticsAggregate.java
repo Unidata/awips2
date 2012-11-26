@@ -56,6 +56,10 @@ public class StatisticsAggregate {
     @DynamicSerializeElement
     private String displayName;
 
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String displayUnit;
+
     /**
      * @return the field
      */
@@ -84,5 +88,19 @@ public class StatisticsAggregate {
      */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    /**
+     * @return the displayUnit
+     */
+    public String getDisplayUnit() {
+        return displayUnit;
+    }
+
+    /**
+     * @param displayUnit the displayUnit to set
+     */
+    public void setDisplayUnit(String displayUnit) {
+        this.displayUnit = displayUnit;
     }
 }
