@@ -83,8 +83,8 @@ public class DataFactoryRegistry {
      *            the factory that will support requests of this datatype and
      *            type
      */
-    public void register(String datatype, Class<IDataRequest<?>> requestType,
-            IDataFactory<?, ?> factory) {
+    public IDataFactory<?, ?> register(String datatype,
+            Class<IDataRequest<?>> requestType, IDataFactory<?, ?> factory) {
         Map<Class<IDataRequest<?>>, IDataFactory<?, ?>> requestTypeMap = datatypeMap
                 .get(datatype);
         if (requestTypeMap == null) {
@@ -92,6 +92,7 @@ public class DataFactoryRegistry {
             datatypeMap.put(datatype, requestTypeMap);
         }
         requestTypeMap.put(requestType, factory);
+        return factory;
     }
 
     /**
