@@ -20,7 +20,9 @@
 package com.raytheon.uf.common.stats.xml;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -77,13 +79,13 @@ public class StatisticsConfig implements ISerializableObject {
      * @return List<String> of categories
      */
     public List<String> getCategories() {
-        List<String> categories = new ArrayList<String>();
+        Set<String> categories = new HashSet<String>();
         if (events != null && events.size() > 0) {
             for (StatisticsEvent event : events) {
                 categories.add(event.getCategory());
             }
         }
 
-        return categories;
+        return new ArrayList<String>(categories);
     }
 }
