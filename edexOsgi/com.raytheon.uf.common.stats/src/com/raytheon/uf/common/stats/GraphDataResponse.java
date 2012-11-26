@@ -17,73 +17,74 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.stats.xml;
+package com.raytheon.uf.common.stats;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.List;
 
+import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.stats.data.GraphData;
+import com.raytheon.uf.common.stats.xml.StatisticsConfig;
 
 /**
- *
+ * Response object for the GraphDataRequest.
  *
  * <pre>
  *
  * SOFTWARE HISTORY
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012            jsanchez     Made serializable.
+ * Sep 11, 2012    728     mpduff      Initial creation
  *
  * </pre>
  *
- * @author jsanchez
- *
+ * @author mpduff
+ * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class Item {
-    @XmlAttribute
+public class GraphDataResponse implements ISerializableObject {
     @DynamicSerializeElement
-    private String name;
+    private GraphData graphData;
 
-    @XmlAttribute
     @DynamicSerializeElement
-    private String result;
+    private List<StatisticsConfig> configList;
 
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String displayName;
+    public GraphDataResponse() {
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     /**
-     * @param displayName the displayName to set
+     * @return the configList
      */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public List<StatisticsConfig> getConfigList() {
+        return configList;
     }
 
     /**
-     * @return the displayName
+     * @param configList
+     *            the configList to set
      */
-    public String getDisplayName() {
-        return displayName;
+    public void setConfigList(List<StatisticsConfig> configList) {
+        this.configList = configList;
     }
 
+    /**
+     * Set the GraphData object
+     *
+     * @param graphData
+     */
+    public void setGraphData(GraphData graphData) {
+        this.graphData = graphData;
+    }
+
+    /**
+     * Get the GraphData object
+     *
+     * @return
+     */
+    public GraphData getGraphData() {
+        return this.graphData;
+    }
 }
