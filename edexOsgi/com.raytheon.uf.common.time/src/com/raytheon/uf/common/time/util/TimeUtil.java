@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,18 +31,19 @@ import com.raytheon.uf.common.time.SimulatedTime;
 
 /**
  * Utilities for time, some extracted from Util.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 02, 2009            njensen     Initial creation
  * Sep 11, 2012 1154       djohnson    Add MILLIS constants and isNewerDay().
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
- * 
+ * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -54,11 +55,11 @@ public class TimeUtil {
      * only want to keep track of times in a conditional sense, such as if a
      * logging priority is enabled. This is an example of the Null Object
      * pattern.
-     * 
+     *
      * @see http://en.wikipedia.org/wiki/Null_Object_pattern
-     * 
+     *
      * @author djohnson
-     * 
+     *
      */
     private static class NullClock extends AbstractTimer {
         @Override
@@ -70,9 +71,9 @@ public class TimeUtil {
     /**
      * Delegates the retrieval of the current time to the system clock.
      * Production code will always use this.
-     * 
+     *
      * @author djohnson
-     * 
+     *
      */
     private static class SystemTimeStrategy implements ITimeStrategy {
         @Override
@@ -94,6 +95,8 @@ public class TimeUtil {
     public static final long MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
 
     public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * 7;
+
+    public static final long MILLIS_PER_MONTH = MILLIS_PER_DAY * 30;
 
     public static final long MILLIS_PER_YEAR = 3600 * 24 * 1000 * 365;
 
@@ -123,7 +126,7 @@ public class TimeUtil {
 
     /**
      * Converts a Calendar in the local time zone to a GMT date
-     * 
+     *
      * @param cal
      *            A Calendar object in the local time zone
      * @return The GMT date
@@ -154,7 +157,7 @@ public class TimeUtil {
      * configured the system to a specific time. Those purposes are handled by
      * the {@link SimulatedTime} class. The {@link Date} and {@link Calendar}
      * returning methods in this class will delegate to {@link SimulatedTime}.
-     * 
+     *
      * @see {@link SimulatedTime}
      * @return the current time in milliseconds
      */
@@ -164,7 +167,7 @@ public class TimeUtil {
 
     /**
      * Formats a calendar object into the following format yyyy-MM-dd_HH:mm:ss.S
-     * 
+     *
      * @param cal
      *            The calendar to format
      * @return The formatted result
@@ -182,7 +185,7 @@ public class TimeUtil {
     /**
      * Retrieve date as a string in the index standard format: yyyy-MM-dd
      * kk:mm:ss.SSS
-     * 
+     *
      * @param aCalendar
      *            A Calendar instance
      * @return The formatted date string from the Calendar instance
@@ -194,7 +197,7 @@ public class TimeUtil {
     /**
      * Retrieve date as a string in the index standard format: yyyy-MM-dd
      * kk:mm:ss.SSS
-     * 
+     *
      * @param aDate
      *            A Date instance
      * @return The formatted date string from the Date instance
@@ -225,7 +228,7 @@ public class TimeUtil {
      * Retrieve a {@link ITimer} instance that will only actually keep track of
      * time if the specified priority level is enabled. This allows efficient
      * use of system resources, while calling code need not change.
-     * 
+     *
      * @param handler
      *            the handler to use to check for a priority level being enabled
      * @param priority
@@ -240,7 +243,7 @@ public class TimeUtil {
     /**
      * Retrieve a {@link ITimer} that allows the demarcation of arbitrary start
      * and stop times.
-     * 
+     *
      * @return a {@link ITimer}
      */
     public static ITimer getTimer() {
@@ -250,7 +253,7 @@ public class TimeUtil {
     /**
      * Check whether the time represented by a {@link Date} is a new day
      * compared to another {@link Date} object.
-     * 
+     *
      * @param earlierDate
      *            the earlier date
      * @param laterDate
@@ -277,7 +280,7 @@ public class TimeUtil {
      * Return a new {@link Calendar} instance. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     * 
+     *
      * @see {@link SimulatedTime}
      * @return the calendar
      */
@@ -291,7 +294,7 @@ public class TimeUtil {
      * Return a new {@link Calendar} instance for the specified {@link TimeZone}
      * . This method delegates to the {@link SimulatedTime} class to determine
      * the currently configured system time.
-     * 
+     *
      * @param timeZone
      *            the time zone
      * @see {@link SimulatedTime}
@@ -307,7 +310,7 @@ public class TimeUtil {
      * Return a new {@link Date} instance. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     * 
+     *
      * @see {@link SimulatedTime}
      * @return the current {@link Date}
      */
@@ -319,7 +322,7 @@ public class TimeUtil {
      * Return a new ImmutableDate. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     * 
+     *
      * @see {@link SimulatedTime}
      * @return an immutable date for the current time
      */
