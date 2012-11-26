@@ -32,6 +32,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -55,6 +57,9 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2011 8065       rferrel     Initial creation
+ * Nov 11, 2012 1298       rferrel     Non-blocking dialog discovered problem
+ *                                      adding dispose listener when not on the
+ *                                      UI thread.
  * 
  * </pre>
  * 
@@ -111,6 +116,8 @@ public class PythonCacheGuidanceJob extends
      */
     boolean suspendJob;
 
+    private boolean disposeSet;
+
     /**
      * Obtain the singleton instance of this class.
      * 
@@ -122,6 +129,12 @@ public class PythonCacheGuidanceJob extends
                     "AvnFPS Cache Python Guidance");
             instance.setSystem(true);
             instance.schedule();
+        }
+
+        // Only setup dispose listener first time on the UI thread.
+        if (instance.disposeSet == false && Display.getCurrent() != null) {
+            instance.setupDispose();
+            instance.disposeSet = true;
         }
         return instance;
     }
@@ -138,7 +151,7 @@ public class PythonCacheGuidanceJob extends
         suspendMonitor = new Object();
         suspendJob = false;
         waitList = new ArrayList<CacheGuidanceRequest>();
-        setupDispose();
+        disposeSet = false;
     }
 
     /**
@@ -191,14 +204,15 @@ public class PythonCacheGuidanceJob extends
      * is running.
      */
     private void setupDispose() {
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .addDisposeListener(new DisposeListener() {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        shell.addDisposeListener(new DisposeListener() {
 
-                    @Override
-                    public void widgetDisposed(DisposeEvent e) {
-                        shutdown();
-                    }
-                });
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                shutdown();
+            }
+        });
     }
 
     /**
