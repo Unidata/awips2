@@ -20,8 +20,8 @@
 package com.raytheon.uf.common.dataaccess.exception;
 
 /**
- * An exception for when the data is time agnostic and time requests are not
- * supported.
+ * An exception for when a request is sent that a factory cannot process without
+ * one or more specific identifiers.
  * 
  * <pre>
  * 
@@ -29,7 +29,7 @@ package com.raytheon.uf.common.dataaccess.exception;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2012            njensen     Initial creation
+ * Nov 13, 2012            njensen     Initial creation
  * 
  * </pre>
  * 
@@ -37,14 +37,14 @@ package com.raytheon.uf.common.dataaccess.exception;
  * @version 1.0
  */
 
-public class TimeAgnosticDataException extends DataAccessException {
+public class MissingRequiredIdentifierException extends DataAccessException {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
      */
-    public TimeAgnosticDataException() {
+    public MissingRequiredIdentifierException() {
         super();
     }
 
@@ -54,7 +54,7 @@ public class TimeAgnosticDataException extends DataAccessException {
      * @param message
      *            the error message
      */
-    public TimeAgnosticDataException(String message) {
+    public MissingRequiredIdentifierException(String message) {
         super(message);
     }
 
@@ -66,7 +66,7 @@ public class TimeAgnosticDataException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public TimeAgnosticDataException(String message, Throwable cause) {
+    public MissingRequiredIdentifierException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -76,7 +76,7 @@ public class TimeAgnosticDataException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public TimeAgnosticDataException(Throwable cause) {
+    public MissingRequiredIdentifierException(Throwable cause) {
         super(cause);
     }
 
