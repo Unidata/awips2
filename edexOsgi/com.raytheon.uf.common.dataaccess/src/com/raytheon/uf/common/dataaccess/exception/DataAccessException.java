@@ -44,7 +44,7 @@ public abstract class DataAccessException extends RuntimeException {
      * Constructor
      */
     public DataAccessException() {
-
+        super();
     }
 
     /**
