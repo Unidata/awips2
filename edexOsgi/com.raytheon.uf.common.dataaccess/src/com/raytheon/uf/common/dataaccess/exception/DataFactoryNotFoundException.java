@@ -44,7 +44,7 @@ public class DataFactoryNotFoundException extends DataAccessException {
      * Constructor
      */
     public DataFactoryNotFoundException() {
-
+        super();
     }
 
     /**
