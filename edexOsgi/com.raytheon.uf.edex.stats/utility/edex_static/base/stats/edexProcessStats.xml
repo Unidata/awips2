@@ -4,8 +4,8 @@
         displayName="Processing Events" category="Data Ingest Events">
         <statisticsGroup name="pluginName" displayName="Data Type" />
         <statisticsAggregate field="processingTime"
-            displayName="Processing Time" unit="ms" />
+            displayName="Processing Time" displayUnit="ms" />
         <statisticsAggregate field="processingLatency"
-            displayName="Processing Latency" unit="ms" />
+            displayName="Processing Latency" displayUnit="ms" />
     </statisticsEvent>
 </statisticsConfig>
