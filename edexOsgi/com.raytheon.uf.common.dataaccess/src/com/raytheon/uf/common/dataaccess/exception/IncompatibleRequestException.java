@@ -20,7 +20,8 @@
 package com.raytheon.uf.common.dataaccess.exception;
 
 /**
- * An exception for when the data does not support location names.
+ * An exception for when an IDataFactory cannot handle a request due to specific
+ * values on the request.
  * 
  * <pre>
  * 
@@ -28,7 +29,7 @@ package com.raytheon.uf.common.dataaccess.exception;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2012            njensen     Initial creation
+ * Nov 13, 2012            njensen     Initial creation
  * 
  * </pre>
  * 
@@ -36,15 +37,15 @@ package com.raytheon.uf.common.dataaccess.exception;
  * @version 1.0
  */
 
-public class LocationNameUnsupportedException extends DataAccessException {
+public class IncompatibleRequestException extends DataAccessException {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
      */
-    public LocationNameUnsupportedException() {
-
+    public IncompatibleRequestException() {
+        super();
     }
 
     /**
@@ -53,7 +54,7 @@ public class LocationNameUnsupportedException extends DataAccessException {
      * @param message
      *            the error message
      */
-    public LocationNameUnsupportedException(String message) {
+    public IncompatibleRequestException(String message) {
         super(message);
     }
 
@@ -65,7 +66,7 @@ public class LocationNameUnsupportedException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public LocationNameUnsupportedException(String message, Throwable cause) {
+    public IncompatibleRequestException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -75,7 +76,7 @@ public class LocationNameUnsupportedException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public LocationNameUnsupportedException(Throwable cause) {
+    public IncompatibleRequestException(Throwable cause) {
         super(cause);
     }
 
