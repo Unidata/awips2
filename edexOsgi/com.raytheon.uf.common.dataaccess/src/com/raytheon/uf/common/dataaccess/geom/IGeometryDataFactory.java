@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataaccess.geom;
 
 import com.raytheon.uf.common.dataaccess.IDataFactory;
-import com.raytheon.uf.common.dataaccess.exception.LocationNameUnsupportedException;
 
 /**
  * IDataFactory for any data that is non-gridded, for example points or
@@ -52,7 +51,6 @@ public interface IGeometryDataFactory extends
      *            the request to find matching location names for
      * @return the available location names that match the request
      */
-    public String[] getAvailableLocationNames(IGeometryRequest request)
-            throws LocationNameUnsupportedException;
+    public String[] getAvailableLocationNames(IGeometryRequest request);
 
 }
