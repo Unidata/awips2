@@ -20,7 +20,8 @@
 package com.raytheon.uf.common.dataaccess.exception;
 
 /**
- * An exception for when the data does not support bounding envelopes.
+ * An exception for when there is an error performing the underlying factory
+ * specific retrieval for data.
  * 
  * <pre>
  * 
@@ -28,7 +29,7 @@ package com.raytheon.uf.common.dataaccess.exception;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2012            njensen     Initial creation
+ * Nov 14, 2012            njensen     Initial creation
  * 
  * </pre>
  * 
@@ -36,15 +37,15 @@ package com.raytheon.uf.common.dataaccess.exception;
  * @version 1.0
  */
 
-public class EnvelopeUnsupportedException extends DataAccessException {
+public class DataRetrievalException extends DataAccessException {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor
      */
-    public EnvelopeUnsupportedException() {
-
+    public DataRetrievalException() {
+        super();
     }
 
     /**
@@ -53,7 +54,7 @@ public class EnvelopeUnsupportedException extends DataAccessException {
      * @param message
      *            the error message
      */
-    public EnvelopeUnsupportedException(String message) {
+    public DataRetrievalException(String message) {
         super(message);
     }
 
@@ -65,7 +66,7 @@ public class EnvelopeUnsupportedException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public EnvelopeUnsupportedException(String message, Throwable cause) {
+    public DataRetrievalException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -75,7 +76,7 @@ public class EnvelopeUnsupportedException extends DataAccessException {
      * @param cause
      *            the cause of the error
      */
-    public EnvelopeUnsupportedException(Throwable cause) {
+    public DataRetrievalException(Throwable cause) {
         super(cause);
     }
 
