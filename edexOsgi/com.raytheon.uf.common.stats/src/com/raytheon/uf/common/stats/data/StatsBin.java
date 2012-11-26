@@ -17,73 +17,75 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.stats.xml;
+package com.raytheon.uf.common.stats.data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.stats.AggregateRecord;
 
 /**
- *
+ * A bin of Statistical data.
  *
  * <pre>
  *
  * SOFTWARE HISTORY
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012            jsanchez     Made serializable.
+ * Sep 11, 2012   723      mpduff      Initial creation
  *
  * </pre>
  *
- * @author jsanchez
- *
+ * @author mpduff
+ * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class Item {
-    @XmlAttribute
+public class StatsBin {
+    /** Millisecond value for this bin */
+    private long binMillis;
+
+    /** List of AggregateRecords */
     @DynamicSerializeElement
-    private String name;
+    private final List<AggregateRecord> data = new ArrayList<AggregateRecord>();
 
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String result;
+    /** Constructor */
+    public StatsBin() {
 
-    @XmlAttribute
-    @DynamicSerializeElement
-    private String displayName;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     /**
-     * @param displayName the displayName to set
+     * @return the binMillis
      */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public long getBinMillis() {
+        return binMillis;
     }
 
     /**
-     * @return the displayName
+     * @param binMillis
+     *            the binMillis to set
      */
-    public String getDisplayName() {
-        return displayName;
+    public void setBinMillis(long binMillis) {
+        this.binMillis = binMillis;
     }
 
+    /**
+     * Add an AggregateRecord object.
+     *
+     * @param record
+     */
+    public void setData(AggregateRecord record) {
+        this.data.add(record);
+    }
+
+    /**
+     * Get the AggregateRecord objects
+     *
+     * @return
+     */
+    public List<AggregateRecord> getData() {
+        return data;
+    }
 }
