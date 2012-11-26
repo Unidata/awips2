@@ -19,6 +19,7 @@
 
    <requires>
       <import feature="com.raytheon.uf.edex.common.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.edex.event.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
@@ -170,20 +171,6 @@
 
    <plugin
          id="com.raytheon.uf.edex.maintenance"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.event"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.event"
          download-size="0"
          install-size="0"
          version="0.0.0"
