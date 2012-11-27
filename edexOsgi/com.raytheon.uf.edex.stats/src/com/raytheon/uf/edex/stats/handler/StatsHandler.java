@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.stats.handler;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.event.EventBus;
+import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
 /**
  * Subscribes to the event bus and stores them in the appropriate stats table
@@ -81,8 +83,31 @@ public class StatsHandler {
     /**
      * Registers StatsHandler with the event bus
      */
-    public StatsHandler() {
+    public StatsHandler() throws Exception {
+        loadEventValidTypes();
         EventBus.getInstance().register(this);
+    }
+
+    /**
+     * Loads the stats configuration to determine the events to track.
+     * 
+     * TODO: Update ConfigLoader to be instance and have file time checking to
+     * know if config needs to be reloaded.
+     * 
+     * @throws Exception
+     */
+    protected void loadEventValidTypes() throws Exception {
+        ConfigLoader configLoader = new ConfigLoader();
+        configLoader.load();
+        HashSet<String> myValidEventTypes = new HashSet<String>();
+
+        for (StatisticsConfig config : configLoader.getConfigurations()) {
+            for (StatisticsEvent event : config.getEvents()) {
+                myValidEventTypes.add(event.getType());
+            }
+        }
+
+        validEventTypes = Collections.unmodifiableSet(myValidEventTypes);
     }
 
     @Subscribe
