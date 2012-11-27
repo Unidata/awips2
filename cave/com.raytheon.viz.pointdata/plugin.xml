@@ -130,7 +130,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="D2D"
-          extensionFilter="svg,py"
+          extensionFilter=".svg,.py"
           localizationType="CAVE_STATIC"
           name="Plot Models"
           value="plotModels" 
