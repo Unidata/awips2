@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.stats.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +34,11 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -45,6 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.stats.GraphDataRequest;
 import com.raytheon.uf.common.stats.GraphDataResponse;
 import com.raytheon.uf.common.stats.data.GraphData;
+import com.raytheon.uf.common.stats.util.DataViewUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -136,6 +140,9 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /** Data type (field) of the data */
     private String dataTypeID;
 
+    /** Data view combo */
+    private Combo viewCombo;
+
     /**
      * Constructor.
      *
@@ -197,9 +204,43 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         groupComp.setLayout(gl);
         groupComp.setLayoutData(gd);
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, true);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, true);
+        gl = new GridLayout(2, false);
+        Composite ctrlComp = new Composite(leftComp, SWT.NONE);
+        ctrlComp.setLayout(gl);
+        ctrlComp.setLayoutData(gd);
+
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, false, true);
+        gl = new GridLayout(2, false);
+        Composite dataComp = new Composite(ctrlComp, SWT.NONE);
+        dataComp.setLayout(gl);
+        dataComp.setLayoutData(gd);
+
+        Label graphLabel = new Label(dataComp, SWT.NONE);
+        graphLabel.setText("Graph: ");
+
+        List<String> viewList = new ArrayList<String>();
+        viewList.add(DataViewUtils.DataView.AVG.getView());
+        viewList.add(DataViewUtils.DataView.MIN.getView());
+        viewList.add(DataViewUtils.DataView.MAX.getView());
+        viewList.add(DataViewUtils.DataView.SUM.getView());
+        viewList.add(DataViewUtils.DataView.COUNT.getView());
+
+        gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+        viewCombo = new Combo(dataComp, SWT.READ_ONLY);
+        viewCombo.setLayoutData(gd);
+        viewCombo.setItems(viewList.toArray(new String[viewList.size()]));
+        viewCombo.select(0);
+        viewCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleDataViewChange();
+            }
+        });
+
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, true);
         gl = new GridLayout(4, false);
-        Composite btnComp = new Composite(leftComp, SWT.NONE);
+        Composite btnComp = new Composite(ctrlComp, SWT.NONE);
         btnComp.setLayout(gl);
         btnComp.setLayoutData(gd);
 
@@ -509,6 +550,15 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
             this.statusHandler.handle(Priority.ERROR, "Error Requesting Data",
                     e);
         }
+    }
+
+    /**
+     * Handler for data view combo box change.
+     */
+    private void handleDataViewChange() {
+        String view = viewCombo.getText();
+        this.displayCanvas.setView(view);
+        this.displayCanvas.redraw();
     }
 
     /**
