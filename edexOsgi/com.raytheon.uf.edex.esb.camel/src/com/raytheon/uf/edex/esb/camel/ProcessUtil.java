@@ -55,6 +55,8 @@ public class ProcessUtil {
     protected static final IUFStatusHandler handler = UFStatus
             .getNamedHandler("Ingest");
 
+    protected static final EventBus eventBus = EventBus.getInstance();
+
     protected transient final static ThreadLocal<DecimalFormat> FORMAT = new ThreadLocal<DecimalFormat>() {
 
         @Override
@@ -164,7 +166,7 @@ public class ProcessUtil {
         // error occurred and statement logged incorrectly
         if ((processEvent.getProcessingLatency() > 0)
                 && (processEvent.getProcessingTime() > 0)) {
-            EventBus.getInstance().publish(processEvent);
+            eventBus.publish(processEvent);
         }
 
         // Make sure we have something to log.
