@@ -197,6 +197,7 @@
 		<include>parameter-common.xml</include>
 		<include>gridcoverage-.*.xml</include>
 		<include>grid-common.xml</include>
+		<include>database-common.xml</include>
 		<include>radar-common.xml</include>
 		<include>text-common.xml</include>
 		<include>level-common.xml</include>
