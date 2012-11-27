@@ -6,7 +6,6 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * 
@@ -36,11 +35,11 @@ public class EventBus {
     static {
         int threadCount = 15;
         try {
-            threadCount = Integer.parseInt((String) EDEXUtil
-                    .getESBComponent("eventBusThreadCount"));
+            threadCount = Integer.parseInt(System.getProperty(
+                    "eventBusThreadCount", "15"));
         } catch (Exception e) {
-            statusHandler.error(
-                    "Unable to set thread pool size from spring; defaulting size to "
+            statusHandler
+                    .error("Unable to set thread pool size from property eventBusThreadCount; defaulting size to "
                             + threadCount + ".", e);
         }
         asyncEventBus = new AsyncEventBus("EventBus",
