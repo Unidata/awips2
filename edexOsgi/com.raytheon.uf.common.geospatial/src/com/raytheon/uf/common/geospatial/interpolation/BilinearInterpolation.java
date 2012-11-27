@@ -50,8 +50,8 @@ public class BilinearInterpolation implements Interpolation {
         double value = 0.0f;
         double missing = 1.0f;
 
-        int xi = (int) x;
-        int yi = (int) y;
+        int xi = (int) Math.floor(x);
+        int yi = (int) Math.floor(y);
         // Upper left corner
         double xWeight = 1 - x + xi;
         double yWeight = 1 - y + yi;
