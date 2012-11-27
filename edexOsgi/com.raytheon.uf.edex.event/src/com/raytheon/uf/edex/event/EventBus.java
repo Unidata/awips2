@@ -41,10 +41,9 @@ public class EventBus {
         } catch (Exception e) {
             statusHandler.error(
                     "Unable to set thread pool size from spring; defaulting size to "
-                            + threadCount + ".",
-                            e);
+                            + threadCount + ".", e);
         }
-        asyncEventBus = new AsyncEventBus(
+        asyncEventBus = new AsyncEventBus("EventBus",
                 Executors.newFixedThreadPool(threadCount));
     }
 
