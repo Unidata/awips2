@@ -147,6 +147,8 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.feature.awips" />
+			<param name="omit"
+				value="false" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -334,6 +336,18 @@
 			</classpath>
 		</java>
 		
+		<!-- Record that the feature has been built (for now) -->
+		<if>
+			<not>
+				<isset property="omit" />
+			</not>
+			<then>
+				<echo message="${feature}${line.separator}"
+					file="${basedir}/cave/p2/dist/features.txt"
+					append="true" />
+			</then>
+		</if>
+
 		<!-- Package The Repository -->
 		<zip
 			destfile="${basedir}/cave/p2/dist/${feature}-repo-${build.os}.${build.arch}.zip"
