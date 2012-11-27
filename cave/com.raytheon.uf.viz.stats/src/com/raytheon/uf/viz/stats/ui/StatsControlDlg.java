@@ -378,6 +378,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         displayBtn.setLayoutData(btnData);
         displayBtn.setText("Display");
         displayBtn.setToolTipText("Display the Statistical Data");
+        displayBtn.setEnabled(false);
         displayBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
