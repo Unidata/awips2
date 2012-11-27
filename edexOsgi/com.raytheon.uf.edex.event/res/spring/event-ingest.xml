@@ -2,28 +2,22 @@
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  
-  	<bean id="eventBusThreadCount" class="java.lang.String">
-		<constructor-arg type="java.lang.String" value="15" />
-	</bean>
-    <bean id="logHandler" class="com.raytheon.uf.edex.event.handler.LogHandler"/>   
-	   	
+
    	<bean id="jms-notify" class="org.apache.camel.component.jms.JmsComponent">
         <constructor-arg ref="jmsIngestNotifyConfig" />
-		<property name="taskExecutor" ref="notifyThreadPool" />		
+		<property name="taskExecutor" ref="notifyThreadPool" />
 	</bean>
-	
+
 	<bean id="jmsIngestNotifyConfig" class="org.apache.camel.component.jms.JmsConfiguration"
 			factory-bean="jmsConfig" factory-method="copy">
 	</bean>
-	
+
 	<bean id="notifyThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="1" />
 		<property name="maxPoolSize" value="1" />
 	</bean> 
-   
 </beans>

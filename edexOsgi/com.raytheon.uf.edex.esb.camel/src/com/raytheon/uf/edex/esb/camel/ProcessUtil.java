@@ -160,7 +160,12 @@ public class ProcessUtil {
             processEvent.setProcessingLatency(latencyMilliseconds);
         }
 
-        EventBus.getInstance().publish(processEvent);
+        // processing in less than 0 millis isn't trackable, usually due to an
+        // error occurred and statement logged incorrectly
+        if ((processEvent.getProcessingLatency() > 0)
+                && (processEvent.getProcessingTime() > 0)) {
+            EventBus.getInstance().publish(processEvent);
+        }
 
         // Make sure we have something to log.
         if (sb.length() > 0) {
