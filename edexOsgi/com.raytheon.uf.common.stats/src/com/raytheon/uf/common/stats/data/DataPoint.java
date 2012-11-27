@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.stats.data;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,21 +31,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.stats.util.DataViewUtils;
 
 /**
  * Class holding an x,y data point and other associated information for the
  * point.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2012            mpduff     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -79,12 +81,6 @@ public class DataPoint implements Comparable<DataPoint> {
     private long x;
 
     /**
-     * Y value
-     */
-    @DynamicSerializeElement
-    protected double y = 0.0;
-
-    /**
      * Text display for the sampling of this point
      */
     @DynamicSerializeElement
@@ -92,38 +88,26 @@ public class DataPoint implements Comparable<DataPoint> {
 
     /** Min value */
     @DynamicSerializeElement
-    private double min = Integer.MAX_VALUE;
+    private BigDecimal min = new BigDecimal(Integer.MAX_VALUE);
 
     /** Max value */
     @DynamicSerializeElement
-    private double max = Integer.MIN_VALUE;
+    private BigDecimal max = new BigDecimal(Integer.MIN_VALUE);
 
     /** Count */
     @DynamicSerializeElement
-    private double count = 0;
+    private BigDecimal count = new BigDecimal(0);
 
     /** Sum */
     @DynamicSerializeElement
-    private double sum;
+    private BigDecimal sum = new BigDecimal(0);
 
     /** Constructor */
     public DataPoint() {
-
-    }
-
-    /**
-     * @return the y
-     */
-    public double getY() {
-        return this.getAvg();
-    }
-
-    /**
-     * @param y
-     *            the y to set
-     */
-    public void setY(double y) {
-        this.y += y;
+        sum = sum.setScale(1, BigDecimal.ROUND_HALF_UP);
+        min = min.setScale(1, BigDecimal.ROUND_HALF_UP);
+        max = max.setScale(1, BigDecimal.ROUND_HALF_UP);
+        count = count.setScale(1, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -136,15 +120,15 @@ public class DataPoint implements Comparable<DataPoint> {
 
     /**
      * Get the sample text for this point object
-     *
+     * 
      * @return the sample text string
      */
-    public String getSampleText() {
+    public String getSampleText(String view) {
         SimpleDateFormat dateFormat = sdf.get();
         DecimalFormat decimalFormat = decFormat.get();
 
         return dateFormat.format(new Date(x)) + "Z, "
-                + decimalFormat.format(getAvg());
+                + decimalFormat.format(getValue(view));
     }
 
     /**
@@ -182,18 +166,20 @@ public class DataPoint implements Comparable<DataPoint> {
      * @return the min
      */
     public double getMin() {
-        return min;
+        return min.doubleValue();
     }
 
     /**
      * Set the min value if it is less than the current min.
-     *
+     * 
      * @param min
      *            the min to set
      */
     public void setMin(double min) {
-        if (this.min > min) {
-            this.min = min;
+        if (this.min.doubleValue() > min) {
+            BigDecimal m = new BigDecimal(min);
+            m = m.setScale(1, BigDecimal.ROUND_HALF_UP);
+            this.min = m;
         }
     }
 
@@ -201,18 +187,19 @@ public class DataPoint implements Comparable<DataPoint> {
      * @return the max
      */
     public double getMax() {
-        return max;
+        return max.doubleValue();
     }
 
     /**
      * Set the max value if it is greater than the current max.
-     *
+     * 
      * @param max
      *            the max to set
      */
     public void setMax(double max) {
-        if (this.max < max) {
-            this.max = max;
+        if (this.max.doubleValue() < max) {
+            this.max = new BigDecimal(max);
+            this.max = this.max.setScale(1, BigDecimal.ROUND_HALF_UP);
         }
     }
 
@@ -220,7 +207,7 @@ public class DataPoint implements Comparable<DataPoint> {
      * @return the count
      */
     public double getCount() {
-        return count;
+        return count.doubleValue();
     }
 
     /**
@@ -228,23 +215,26 @@ public class DataPoint implements Comparable<DataPoint> {
      *            the count to set
      */
     public void setCount(double count) {
-        this.count = count;
+        this.count = new BigDecimal(count);
+        this.count = this.count.setScale(1, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
-     *
+     * 
      * @param count
      *            the count to add
      */
     public void addToCount(double count) {
-        this.count += count;
+        BigDecimal cnt = new BigDecimal(count);
+        cnt = cnt.setScale(1, BigDecimal.ROUND_HALF_UP);
+        this.count = this.count.add(cnt);
     }
 
     /**
      * @return the sum
      */
     public double getSum() {
-        return sum;
+        return sum.doubleValue();
     }
 
     /**
@@ -252,17 +242,39 @@ public class DataPoint implements Comparable<DataPoint> {
      *            the sum to set
      */
     public void setSum(double sum) {
-        this.sum += sum;
+        BigDecimal s = new BigDecimal(sum);
+        s = s.setScale(1, BigDecimal.ROUND_HALF_UP);
+        this.sum = this.sum.add(s);
     }
 
     /**
      * @return the avg
      */
     public double getAvg() {
-        if (count > 0) {
-            return this.sum / count;
+        if (count.doubleValue() > 0) {
+            return sum.divide(count, BigDecimal.ROUND_HALF_UP).doubleValue();
         }
 
         return 0;
+    }
+
+    /**
+     * Get the value for the provided data view type.
+     * 
+     * @param view
+     *            the view type
+     */
+    public double getValue(String view) {
+        if (view.equals(DataViewUtils.DataView.AVG.getView())) {
+            return getAvg();
+        } else if (view.equals(DataViewUtils.DataView.MIN.getView())) {
+            return getMin();
+        } else if (view.equals(DataViewUtils.DataView.MAX.getView())) {
+            return getMax();
+        } else if (view.equals(DataViewUtils.DataView.SUM.getView())) {
+            return getSum();
+        } else {
+            return getCount();
+        }
     }
 }
