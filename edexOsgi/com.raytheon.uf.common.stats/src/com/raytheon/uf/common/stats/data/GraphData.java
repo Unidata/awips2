@@ -197,11 +197,11 @@ public class GraphData {
      *
      * @return
      */
-    public double getMinValue(Set<String> visibleDataSet) {
+    public double getMinValue(Set<String> visibleDataSet, String view) {
         double min = Double.MAX_VALUE;
         for (String key : statsDataMap.keySet()) {
             if (visibleDataSet.contains(key)) {
-                double minVal = statsDataMap.get(key).getMinValue();
+                double minVal = statsDataMap.get(key).getMinValue(view);
                 if (minVal < min) {
                     min = minVal;
                 }
@@ -216,11 +216,11 @@ public class GraphData {
      *
      * @return
      */
-    public double getMaxValue(Set<String> visibleDataSet) {
+    public double getMaxValue(Set<String> visibleDataSet, String view) {
         double max = Double.MIN_VALUE;
         for (String key : statsDataMap.keySet()) {
             if (visibleDataSet.contains(key)) {
-                double maxVal = statsDataMap.get(key).getMaxValue();
+                double maxVal = statsDataMap.get(key).getMaxValue(view);
                 if (maxVal > max) {
                     max = maxVal;
                 }
