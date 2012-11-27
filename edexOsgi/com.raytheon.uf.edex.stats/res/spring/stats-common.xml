@@ -9,10 +9,13 @@
 		<property name="pluginFQN" value="com.raytheon.uf.common.stats" />
 		<property name="database" value="metadata" />
 	</bean>
-	
+
 	<bean id="statsRegister" factory-bean="dbPluginRegistry" factory-method="register">
 		<constructor-arg value="stats"/>
 		<constructor-arg ref="statsDatabaseProperties"/>
 	</bean>
-	
+
+    <bean id="statsHandler" 
+       class="com.raytheon.uf.edex.stats.handler.StatsHandler" 
+       depends-on="eventBusThreadCount"/>
 </beans>
