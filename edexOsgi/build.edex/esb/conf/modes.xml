@@ -79,7 +79,7 @@
 	</mode>
 	<mode name="registry">
 		<include>ebxml.*\.xml</include>
-        <include>event-ingest.xml</include>
+        <includeMode>statsTemplate</includeMode>
 	</mode>
 	<mode name="datadelivery">
         <includeMode>registry</includeMode>
@@ -149,7 +149,6 @@
 		<exclude>qpf-ingest.xml</exclude>
 		<exclude>fssobs-ingest.xml</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
-		<exclude>stats-ingest.xml</exclude>
 	</mode>
 	<mode name="ingestGrib">
 		<include>time-common.xml</include>
@@ -172,6 +171,7 @@
 		<exclude>h5uair-common.xml</exclude>
 		<exclude>h5scd-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
+        <includeMode>statsTemplate</includeMode>
         <includeMode>excludeDpaAndOgc</includeMode>
 	</mode>
 	<!-- Runs separate now, not just high mem -->
@@ -214,6 +214,7 @@
 		<exclude>ncgrib-common.xml</exclude>
 		<exclude>nctext-common.xml</exclude>
         <includeMode>excludeDpaAndOgc</includeMode>
+        <includeMode>statsTemplate</includeMode>
 	</mode>
 
 	<!-- modes listed below are not supported in a production setting, they 
@@ -272,6 +273,10 @@
         <exclude>.*datadelivery-registry.*</exclude>
         <includeMode>datadeliverytemplate</includeMode>
     </mode>
+    <mode name="statsTemplate" template="true">
+        <include>event-common.xml</include>
+        <include>stats-common.xml</include>
+    </mode>
     <mode name="datadeliverytemplate" template="true">
         <include>.*datadelivery.*</include>
         <include>.*bandwidth.*</include>
@@ -289,8 +294,8 @@
         <include>management-common.xml</include>
         <include>database-common.xml</include>
         <include>auth-common.xml</include>
-        <include>stats-common.xml</include>
         <include>event-ingest.xml</include>
+        <includeMode>statsTemplate</includeMode>
     </mode>
     <mode name="excludeDpaAndOgc" template="true">
         <!-- exclude dpa services -->
