@@ -128,6 +128,36 @@ public class StatsData {
     }
 
     /**
+     * @return the minValue
+     */
+    public Double getMinValue(String view) {
+        double minValue = Integer.MAX_VALUE;
+
+        for (DataPoint point : pointList) {
+            if (point.getValue(view) < minValue) {
+                minValue = point.getValue(view);
+            }
+        }
+
+        return minValue;
+    }
+
+    /**
+     * @return the minValue
+     */
+    public Double getMaxValue(String view) {
+        double maxValue = Integer.MIN_VALUE;
+
+        for (DataPoint point : pointList) {
+            if (point.getValue(view) > maxValue) {
+                maxValue = point.getValue(view);
+            }
+        }
+
+        return maxValue;
+    }
+
+    /**
      * @return the maxValue
      */
     public Double getMaxValue() {
