@@ -1880,7 +1880,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.config.ConfigAdapter"
           localizationType="CAVE_STATIC"
           name="Config Files"
@@ -1888,7 +1888,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="xml"
+          extensionFilter=".xml"
           localizationType="COMMON_STATIC"
           name="Edit Areas"
           recursive="false"
@@ -1896,7 +1896,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="txt"
+          extensionFilter=".txt"
           localizationType="COMMON_STATIC"
           name="Edit Area Groups"
           recursive="false"
@@ -1904,7 +1904,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="xml"
+          extensionFilter=".xml"
           localizationType="COMMON_STATIC"
           name="Sample Points"
           recursive="true"
@@ -1912,7 +1912,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.procedures.ProceduresAdapter"
           localizationType="CAVE_STATIC"
           name="Procedures"
@@ -1920,7 +1920,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.smarttool.SmartToolAdapter"
           localizationType="CAVE_STATIC"
           name="Smart Tools"
@@ -1928,7 +1928,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.textproduct.TextProductAdapter"
           localizationType="CAVE_STATIC"
           name="Text Products"
@@ -1937,7 +1937,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="SELECTTR"
+          extensionFilter=".SELECTTR"
           localizationType="COMMON_STATIC"
           name="Time Range"
           recursive="true"
@@ -1945,7 +1945,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.textproduct.TextUtilityAdapter"
           localizationType="CAVE_STATIC"
           name="Text Utilities"
@@ -1954,7 +1954,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="py"
+          extensionFilter=".py"
           localizationAdapter="com.raytheon.viz.gfe.smarttool.UtilityAdapter"
           localizationType="CAVE_STATIC"
           name="Utilities"
@@ -1968,7 +1968,7 @@
     </path>
     <path
           application="GFE"
-          extensionFilter="xml"
+          extensionFilter=".xml"
           localizationType="CAVE_STATIC"
           name="Weather Element Groups"
           recursive="true"
