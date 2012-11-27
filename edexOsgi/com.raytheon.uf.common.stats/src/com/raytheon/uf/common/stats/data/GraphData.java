@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -185,6 +186,44 @@ public class GraphData {
             double maxVal = statsDataMap.get(key).getMaxValue();
             if (maxVal > max) {
                 max = maxVal;
+            }
+        }
+
+        return max;
+    }
+
+    /**
+     * Get the smallest value in the data set.
+     *
+     * @return
+     */
+    public double getMinValue(Set<String> visibleDataSet) {
+        double min = Double.MAX_VALUE;
+        for (String key : statsDataMap.keySet()) {
+            if (visibleDataSet.contains(key)) {
+                double minVal = statsDataMap.get(key).getMinValue();
+                if (minVal < min) {
+                    min = minVal;
+                }
+            }
+        }
+
+        return min;
+    }
+
+    /**
+     * Get the largest value in the data set.
+     *
+     * @return
+     */
+    public double getMaxValue(Set<String> visibleDataSet) {
+        double max = Double.MIN_VALUE;
+        for (String key : statsDataMap.keySet()) {
+            if (visibleDataSet.contains(key)) {
+                double maxVal = statsDataMap.get(key).getMaxValue();
+                if (maxVal > max) {
+                    max = maxVal;
+                }
             }
         }
 

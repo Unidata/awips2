@@ -563,8 +563,10 @@ public class StatsDisplayCanvas extends Canvas {
 
         gc.drawPolyline(yAxis);
 
-        double minVal = graphData.getMinValue();
-        double maxVal = graphData.getMaxValue();
+        Map<String, RGB> groupSettings = callback.getGroupSettings();
+
+        double minVal = graphData.getMinValue(groupSettings.keySet());
+        double maxVal = graphData.getMaxValue(groupSettings.keySet());
         int numberTicks = 4;
         double inc = 5;
         double minScaleVal = 0;
