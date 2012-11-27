@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.stats.data.DataPoint;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsData;
+import com.raytheon.uf.common.stats.util.DataViewUtils;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -192,6 +193,9 @@ public class StatsDisplayCanvas extends Canvas {
 
     /** Largest value in the data set */
     private double maxValue;
+
+    private String view = DataViewUtils.DataView.AVG.getView(); // Defaults to
+                                                                // average
 
     /**
      * Constructor
@@ -565,20 +569,19 @@ public class StatsDisplayCanvas extends Canvas {
 
         Map<String, RGB> groupSettings = callback.getGroupSettings();
 
-        double minVal = graphData.getMinValue(groupSettings.keySet());
-        double maxVal = graphData.getMaxValue(groupSettings.keySet());
+        double minVal = graphData.getMinValue(groupSettings.keySet(), view);
+        double maxVal = graphData.getMaxValue(groupSettings.keySet(), view);
         int numberTicks = 4;
         double inc = 5;
         double minScaleVal = 0;
         double maxScaleVal = 10;
-        if (minVal != minValue || maxVal != maxValue) {
-            scalingManager = new ScaleManager(minVal, maxVal);
-            numberTicks = scalingManager.getMajorTickCount();
-            inc = scalingManager.getMajorTickIncrement();
+        scalingManager = new ScaleManager(minVal, maxVal);
+        numberTicks = scalingManager.getMajorTickCount();
+        inc = scalingManager.getMajorTickIncrement();
 
-            minScaleVal = scalingManager.getMinScaleValue();
-            maxScaleVal = scalingManager.getMaxScaleValue();
-        }
+        minScaleVal = scalingManager.getMinScaleValue();
+        maxScaleVal = scalingManager.getMaxScaleValue();
+
         double yVal = minScaleVal;
 
         // Draw the axis tick marks
@@ -612,7 +615,8 @@ public class StatsDisplayCanvas extends Canvas {
         String unit = this.graphData.getDisplayUnit();
         StringBuilder yAxisLabel = new StringBuilder(graphTitle);
 
-        if (unit != null && !unit.equalsIgnoreCase(COUNT) && unit.length() > 0) {
+        if (unit != null && !unit.equalsIgnoreCase(COUNT) && unit.length() > 0
+                && !view.equals(DataViewUtils.DataView.COUNT.getView())) {
             yAxisLabel.append(" (").append(unit).append(")");
         }
 
@@ -668,7 +672,23 @@ public class StatsDisplayCanvas extends Canvas {
                         int lastYpix = -999;
                         for (DataPoint point : dataMap) {
                             long x = point.getX();
-                            double y = point.getY();
+                            double y;
+
+                            if (view.equals(DataViewUtils.DataView.AVG
+                                    .getView())) {
+                                y = point.getAvg();
+                            } else if (view.equals(DataViewUtils.DataView.MIN
+                                    .getView())) {
+                                y = point.getMin();
+                            } else if (view.equals(DataViewUtils.DataView.MAX
+                                    .getView())) {
+                                y = point.getMax();
+                            } else if (view.equals(DataViewUtils.DataView.SUM
+                                    .getView())) {
+                                y = point.getSum();
+                            } else {
+                                y = point.getCount();
+                            }
                             int yPix = y2pixel(minScaleVal, maxScaleVal, y);
                             int xPix = (int) ((x - startMillis)
                                     / millisPerPixelX + GRAPH_BORDER);
@@ -750,7 +770,7 @@ public class StatsDisplayCanvas extends Canvas {
                             sb.append(key).append(colon);
                             DataPoint point = graphData.getStatsData(key)
                                     .getData(key).get(idx);
-                            sb.append(point.getSampleText());
+                            sb.append(point.getSampleText(view));
                         }
                     }
                     idx++;
@@ -822,5 +842,13 @@ public class StatsDisplayCanvas extends Canvas {
      */
     public void setGraphData(GraphData graphData) {
         this.graphData = graphData;
+    }
+
+    /**
+     * Set the view type.
+     * @param view The view type
+     */
+    public void setView(String view) {
+        this.view = view;
     }
 }
