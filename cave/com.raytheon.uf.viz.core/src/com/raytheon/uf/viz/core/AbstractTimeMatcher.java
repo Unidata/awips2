@@ -21,6 +21,10 @@ package com.raytheon.uf.viz.core;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -30,7 +34,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
- * TODO Add Description
+ * Abstract time matching object, by default does nothing
  * 
  * <pre>
  * 
@@ -44,8 +48,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @author chammack
  * @version 1.0
  */
-
-public abstract class AbstractTimeMatcher {
+@XmlAccessorType(XmlAccessType.NONE)
+public abstract class AbstractTimeMatcher implements ISerializableObject {
 
     /**
      * Trigger the time matcher to update time information on this resource the
@@ -76,21 +80,6 @@ public abstract class AbstractTimeMatcher {
      */
     public abstract void handleRemove(AbstractVizResource<?, ?> resource,
             IDescriptor descriptor);
-
-    /**
-     * Change time match basis
-     * 
-     * @param resource
-     * @param descriptor
-     */
-    public abstract void changeTimeMatchBasis(AbstractVizResource<?, ?> resource);
-
-    /**
-     * Get the time match basis
-     * 
-     * @return
-     */
-    public abstract AbstractVizResource<?, ?> getTimeMatchBasis();
 
     /**
      * Perform an initial load of PluginDataObjects utilizing the time matcher
