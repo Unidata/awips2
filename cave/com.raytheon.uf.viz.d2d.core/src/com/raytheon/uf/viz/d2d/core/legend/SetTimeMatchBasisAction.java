@@ -17,13 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ui.cmenu;
+package com.raytheon.uf.viz.d2d.core.legend;
 
 import org.eclipse.jface.action.IAction;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -32,7 +33,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
+import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
+import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
  * Time match basis action, sets the selected resource as the time match basis
@@ -90,8 +92,10 @@ public class SetTimeMatchBasisAction extends AbstractRightClickAction {
             try {
                 AbstractDescriptor descriptor = (AbstractDescriptor) rsc
                         .getDescriptor();
-                descriptor.getTimeMatcher().changeTimeMatchBasis(rsc);
-                descriptor.getTimeMatcher().redoTimeMatching(descriptor);
+                D2DTimeMatcher tm = (D2DTimeMatcher) descriptor
+                        .getTimeMatcher();
+                tm.changeTimeMatchBasis(rsc);
+                tm.redoTimeMatching(descriptor);
 
                 for (IDisplayPane pane : container.getDisplayPanes()) {
                     if (pane.getDescriptor() != descriptor) {
@@ -115,8 +119,8 @@ public class SetTimeMatchBasisAction extends AbstractRightClickAction {
     public boolean isChecked() {
         boolean tmb = false;
         AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
-        AbstractVizResource<?, ?> basis = rsc.getDescriptor().getTimeMatcher()
-                .getTimeMatchBasis();
+        AbstractVizResource<?, ?> basis = ((D2DTimeMatcher) rsc.getDescriptor()
+                .getTimeMatcher()).getTimeMatchBasis();
 
         if (basis == rsc) {
             tmb = true;
@@ -142,21 +146,12 @@ public class SetTimeMatchBasisAction extends AbstractRightClickAction {
     @Override
     public boolean isHidden() {
         AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
-        if (rsc.hasCapability(TimeMatchBasisCapability.class) == false) {
-            if (rsc.hasCapability(BlendableCapability.class)) {
-                ResourceList list = rsc
-                        .getCapability(BlendableCapability.class)
-                        .getResourceList();
-                for (ResourcePair rp : list) {
-                    if (rp.getResource().hasCapability(
-                            TimeMatchBasisCapability.class)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+        AbstractTimeMatcher tm = rsc.getDescriptor().getTimeMatcher();
+        if (tm instanceof D2DTimeMatcher) {
+            // If on D2DTimeMatcher, hide only if time agnostic resource
+            return rsc.isTimeAgnostic();
         }
-        return false;
+        return true;
     }
 
 }
