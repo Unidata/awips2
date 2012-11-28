@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.radar.RadarHelper;
@@ -114,7 +113,6 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
         getCapabilities().removeCapability(ImagingCapability.class);
         getCapabilities().removeCapability(RangeRingsOverlayCapability.class);
-        getCapabilities().removeCapability(TimeMatchBasisCapability.class);
 
         this.dataTimes = new ArrayList<DataTime>();
     }

@@ -48,7 +48,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
@@ -100,7 +99,6 @@ public class RadarGraphResource extends
 
         getCapabilities().removeCapability(ImagingCapability.class);
         getCapabilities().removeCapability(RangeRingsOverlayCapability.class);
-        getCapabilities().removeCapability(TimeMatchBasisCapability.class);
 
         this.dataTimes = new ArrayList<DataTime>();
         this.allDataGraphSets = new HashMap<DataTime, Map<GraphPosition, CellTrendGraph>>();
@@ -428,7 +426,8 @@ public class RadarGraphResource extends
     private CellTrendDataPacket getNearestCell(String point,
             Map<RadarDataKey, RadarDataPoint> symbologyData) {
 
-        Coordinate pointCoord = PointsDataManager.getInstance().getCoordinate(point);
+        Coordinate pointCoord = PointsDataManager.getInstance().getCoordinate(
+                point);
 
         CellTrendDataPacket nearestCell = null;
         CellTrendDataPacket currCell = null;
