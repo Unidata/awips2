@@ -59,6 +59,7 @@ import com.raytheon.viz.aviation.climatology.WeatherPlotDialog;
 import com.raytheon.viz.aviation.editor.ITafSettable;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg.TafSettings;
+import com.raytheon.viz.aviation.guidance.PythonGuidanceJob;
 import com.raytheon.viz.aviation.guidance.ViewerTab;
 import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.monitor.CcfpMonitorObserver;
@@ -141,6 +142,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/11/2012   1229        rferrel     Changes for non-blocking TafViewerEditorDlg.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/26/2012   1298        rferrel     Non-blocking dialog cleanup.
+ * 11/28/2012   1363        rferrel     Dispose of PythonGuidanceJob when closing.
  * </pre>
  * 
  * @author grichard
@@ -895,6 +897,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
 
         tveDlg.disposeDialog();
         PythonCacheGuidanceJob.dispose();
+        PythonGuidanceJob.dispose();
         return close();
     }
 
