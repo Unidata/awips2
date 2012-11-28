@@ -475,11 +475,12 @@ public class FFMPUtils {
      * @return
      */
     public static FFMPCounty getCounty(Long pfaf, String mode) {
-    	
-    	String ftxt = (pfaf>=10000 ? ""+pfaf : "0"+pfaf);// DR 15164
-    	
+
+        String ftxt = (pfaf >= 10000 ? "" + pfaf : "0" + pfaf);// DR 15164
+
         String sql = "SELECT county.countyname, county.state FROM "
-                + " mapdata.county WHERE county.fips = '" + ftxt/*pfaf*/ + "'";// DR 15164
+                + " mapdata.county WHERE county.fips = '" + ftxt/* pfaf */+ "'";// DR
+                                                                                // 15164
 
         ISpatialQuery sq = null;
         FFMPCounty county = new FFMPCounty();
@@ -627,10 +628,23 @@ public class FFMPUtils {
      */
     @SuppressWarnings("unchecked")
     public static ArrayList<?> getCountyInfo(Long fips, String mode) {
-    	String ftxt = (fips>=10000 ? ""+fips : "0"+fips);// DR 15108: add a leading 0 to 4-digit FIPS. 
+        String ftxt = (fips >= 10000 ? "" + fips : "0" + fips);// DR 15108: add
+                                                               // a leading 0 to
+                                                               // 4-digit FIPS.
         String sql1 = "SELECT county.gid from " + FFMPUtils.COUNTY_TABLE
-                + " WHERE county.fips = '" + ftxt/*fips*/ + "'";// DR 15108: use the 5-digit FIPS string.
-        System.out.println("___FFMPUtils.getCountyInfo(): county FIPS: "+ftxt);//Not a debug statement but for Template generation.
+                + " WHERE county.fips = '" + ftxt/* fips */+ "'";// DR 15108:
+                                                                 // use the
+                                                                 // 5-digit FIPS
+                                                                 // string.
+        System.out
+                .println("___FFMPUtils.getCountyInfo(): county FIPS: " + ftxt);// Not
+                                                                               // a
+                                                                               // debug
+                                                                               // statement
+                                                                               // but
+                                                                               // for
+                                                                               // Template
+                                                                               // generation.
         ISpatialQuery sq1 = null;
         ArrayList<Long> gids = new ArrayList<Long>();
 
@@ -914,13 +928,16 @@ public class FFMPUtils {
      * @param id
      * @return
      */
-    public static String getFFGDataURI(String parameter, String plugin) {
+    public static String getFFGDataURI(String rfc, String parameter,
+            String plugin) {
 
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
         request.addRequestField("dataURI");
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
+        request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
+                "FFG-" + rfc.substring(1)));
         request.setOrderByField("dataTime.refTime", OrderMode.DESC);
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
