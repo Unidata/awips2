@@ -1065,7 +1065,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                             String plugin = getSourceConfig().getSource(source)
                                     .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(source, plugin));
+                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
+                                    plugin));
                         }
                     }
                 }
