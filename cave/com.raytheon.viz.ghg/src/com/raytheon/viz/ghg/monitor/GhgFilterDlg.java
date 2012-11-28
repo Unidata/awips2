@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 17Jun2008    1157       MW Fegan    Hooked in configuration.
+ * 28 Nov 2012  1353       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -73,7 +74,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class GhgFilterDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgFilterDlg.class);
 
     /**
@@ -118,7 +119,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
     /**
      * Array of filter group containers that contain the list controls.
      */
-    private ArrayList<GhgFilterListGroup> listGroupArray;
+    private List<GhgFilterListGroup> listGroupArray;
 
     /**
      * Combine Geo ID check box.
@@ -186,7 +187,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
      *            Parent Shell.
      */
     public GhgFilterDlg(Shell parent, GhgDataFilter filter) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("GHG Monitor Filter Dialog");
 
         this.filter = filter;

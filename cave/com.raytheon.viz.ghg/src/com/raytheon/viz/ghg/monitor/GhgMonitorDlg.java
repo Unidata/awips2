@@ -134,6 +134,8 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
     private GhgFontDlg fontDlg;
 
+    private GhgSaveDeleteFilterDlg saveFilterDlg;
+
     /**
      * Active group one string.
      */
@@ -943,11 +945,27 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Save the current filter.
      */
     private void saveCurrentFilter() {
-        // Show the Save Filter dialog.
+        if (saveFilterDlg == null) {
+            // Show the Save Filter dialog.
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            saveFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
+                    configuration.getFilterNames(), true);
+            saveFilterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        doSaveCurrentFilter(returnValue.toString());
+                    }
+                    saveFilterDlg = null;
+                }
+            });
+        }
+        saveFilterDlg.open();
+    }
+
+    private void doSaveCurrentFilter(String name) {
         GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgSaveDeleteFilterDlg saveFilterDlg = new GhgSaveDeleteFilterDlg(
-                getShell(), configuration.getFilterNames(), true);
-        String name = (String) saveFilterDlg.open();
 
         // If no name was selected then return.
         if (name == null) {
@@ -976,12 +994,27 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Delete a named filter.
      */
     private void deleteNamedFilter() {
-        // Show the Delete Filter dialog.
-        GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgSaveDeleteFilterDlg deleteFilterDlg = new GhgSaveDeleteFilterDlg(
-                getShell(), configuration.getFilterNames(), false);
-        String name = (String) deleteFilterDlg.open();
+        if (deleteFilterDlg == null) {
+            // Show the Delete Filter dialog.
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            deleteFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
+                    configuration.getFilterNames(), false);
+            deleteFilterDlg.setCloseCallback(new ICloseCallback() {
 
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        doDeleteNamedFilter(returnValue.toString());
+                    }
+                    deleteFilterDlg = null;
+                }
+            });
+        }
+        deleteFilterDlg.open();
+    }
+
+    private void doDeleteNamedFilter(String name) {
+        GhgConfigData configuration = GhgConfigData.getInstance();
         // If no name was selected then return.
         if (name == null) {
             return;
@@ -1080,12 +1113,21 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the filter dialog.
      */
     private void showFilterDialog() {
-        GhgConfigData configuration = GhgConfigData.getInstance();
+        if (filterDlg == null) {
+            final GhgConfigData configuration = GhgConfigData.getInstance();
 
-        GhgFilterDlg filterDlg = new GhgFilterDlg(getShell(),
-                configuration.getCurrentFilter());
+            filterDlg = new GhgFilterDlg(getShell(),
+                    configuration.getCurrentFilter());
+            filterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    filterDisplay.updateFilter(configuration.getCurrentFilter().name);
+                    filterDlg = null;
+                }
+            });
+        }
         filterDlg.open();
-        filterDisplay.updateFilter(configuration.getCurrentFilter().name);
     }
 
     /**
