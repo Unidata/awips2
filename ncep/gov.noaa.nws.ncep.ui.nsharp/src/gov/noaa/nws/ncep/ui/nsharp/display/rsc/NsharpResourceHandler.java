@@ -1597,7 +1597,7 @@ public class NsharpResourceHandler {
 		}*/
 		//set data time to descriptor
 		//this is necessary for looping	
-        if (( skewtPaneRsc.getDescriptor().getTimeMatcher() == null ||  skewtPaneRsc.getDescriptor().getTimeMatcher().getTimeMatchBasis() == null)&& !getTimeMatcher) {
+        if (( skewtPaneRsc.getDescriptor().getFramesInfo().getFrameCount() == 0)&& !getTimeMatcher) {
             //DataTime[] dataTimes = new DataTime[dataTimelineList.size()];
         	//Chin Note: we just have to do this once and set dataTimes size bigger than 1. 
         	//Nsharp handles changing frame itself. It just need system to send change frame notice. 
