@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.stats.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,12 +31,17 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsBin;
 import com.raytheon.uf.common.stats.data.StatsData;
 import com.raytheon.uf.common.stats.data.StatsLabelData;
 import com.raytheon.uf.common.stats.util.UnitUtils;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -57,11 +63,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 
 public class StatsDataAccumulator {
-    private final Pattern COLON_PATTERN = Pattern.compile(":");
+    private static final Pattern COLON_PATTERN = Pattern.compile(":");
 
-    private final Pattern DASH_PATTERN = Pattern.compile("-");
+    private static final Pattern DASH_PATTERN = Pattern.compile("-");
 
-    private final String COLON = ":";
+    private static final String COLON = ":";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StatsDataAccumulator.class);
 
     /** List of records */
     private AggregateRecord[] records;
@@ -241,13 +250,24 @@ public class StatsDataAccumulator {
      * @param groups
      *            List of groups
      */
+    @SuppressWarnings("unchecked")
     private void gather(UnitUtils unitUtils, List<String> groups) {
         createStatsDataMap(unitUtils, groups);
         calculateBins();
         for (String key : statsDataMap.keySet()) {
+            Map<Long, StatsBin> newMap = Collections.emptyMap();
+            try {
+                newMap = SerializationUtil.transformFromThrift(Map.class,
+                        SerializationUtil.transformToThrift(bins));
+            } catch (SerializationException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Error serializing/deserializing StatsBin data.  Skipping...",
+                                e);
+            }
             StatsData data = statsDataMap.get(key);
-            data.setBins(bins);
-            data.accumulate(key);
+            data.setBins(newMap);
+            data.accumulate();
             statsDataMap.put(key, data);
         }
     }
