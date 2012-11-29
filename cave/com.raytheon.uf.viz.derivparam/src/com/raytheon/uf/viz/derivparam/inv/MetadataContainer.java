@@ -121,12 +121,12 @@ public class MetadataContainer {
     private Set<AbstractRequestableData> getData(AbstractRequestableNode node,
             Set<TimeAndSpace> availability, boolean doRequests)
             throws VizException {
-        if (availability == null || availability.isEmpty()) {
-            return Collections.emptySet();
-        }
-
         if (dataCache.containsKey(node)) {
             return dataCache.get(node);
+        } else if (availability == null || availability.isEmpty()) {
+            Set<AbstractRequestableData> data = Collections.emptySet();
+            dataCache.put(node, data);
+            return data;
         }
         if (doRequests) {
             generateAvailability(node, availability);
