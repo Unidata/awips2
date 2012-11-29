@@ -54,7 +54,7 @@ public class PlotModelDataDefinition extends
     public PlotModelDataDefinition() {
         productName = "plotModels";
         displayName = "Plot Models";
-        order = new String[] { "pluginName", "type", "svg", "level" };
+        order = new String[] { "type", "svg", "level" };
         loadProperties = new LoadProperties();
     }
 
@@ -89,7 +89,7 @@ public class PlotModelDataDefinition extends
     public HashMap<String, RequestConstraint> getProductParameters(
             String[] selection, String[] order) {
         HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(order[0], new RequestConstraint(selection[1]));
+        queryList.put(PLUGIN_NAME, new RequestConstraint(selection[1]));
         PointDataInventory inv = getInventory();
         if (!inv.getTypeKey(selection[1])
                 .equals(PointDataInventory.PLUGIN_NAME)) {
@@ -129,7 +129,7 @@ public class PlotModelDataDefinition extends
         String param = null;
         if (selection.length == 1) {
             results = inv.getPlugins().toArray(new String[0]);
-            param = order[0];
+            param = PLUGIN_NAME;
             return formatData(param, results);
         }
         String source = selection[1];
@@ -151,13 +151,13 @@ public class PlotModelDataDefinition extends
         }
         if ((hasType && selection.length == 3) || selection.length == 2) {
             results = getModels(source);
-            param = order[2];
+            param = order[1];
             return formatData(param, results);
         }
 
         if ((hasType && selection.length == 4) || selection.length == 3) {
             results = getLevels(source, selection[selection.length - 1]);
-            param = order[3];
+            param = order[2];
             return formatData(param, results);
         }
         return null;
@@ -169,13 +169,13 @@ public class PlotModelDataDefinition extends
         Arrays.sort(parameters);
         List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
         for (int i = 0; i < parameters.length; i++) {
-            if (param == order[2]) {
+            if (param == order[1]) {
                 labels.add(new ProductBrowserLabel(parameters[i].replace(
                         ".svg", ""), parameters[i]));
             } else {
                 labels.add(new ProductBrowserLabel(parameters[i], parameters[i]));
             }
-            labels.get(i).setProduct(param == order[3]);
+            labels.get(i).setProduct(param == order[2]);
         }
         return labels;
     }

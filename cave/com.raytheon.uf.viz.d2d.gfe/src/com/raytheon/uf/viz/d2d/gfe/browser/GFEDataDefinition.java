@@ -75,8 +75,7 @@ public class GFEDataDefinition extends
     public GFEDataDefinition() {
         productName = "gfe";
         displayName = "GFE";
-        order = new String[] { GFEUtil.PLUGIN_NAME, SITE_ID, MODEL_NAME,
-                PARM_NAME, PARM_LEVEL };
+        order = new String[] { SITE_ID, MODEL_NAME, PARM_NAME, PARM_LEVEL };
         order = getOrder();
         loadProperties = new GridLoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -116,9 +115,6 @@ public class GFEDataDefinition extends
                 getProductParameters(new String[0], null));
         List<String> result = new ArrayList<String>();
         for (String orderString : order) {
-            if (orderString == order[0]) {
-                continue;
-            }
             List<ProductBrowserLabel> labels = formatData(orderString,
                     parameters);
             for (ProductBrowserLabel label : labels) {
@@ -202,20 +198,23 @@ public class GFEDataDefinition extends
         String parmLevel = "%";
 
         HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(order[0], new RequestConstraint(productName));
-        for (int i = 1; i < selection.length; i++) {
-            if (order[i].equals(SITE_ID)) {
-                siteId = selection[i];
-            } else if (order[i].equals(MODEL_NAME)) {
-                modelName = selection[i];
-            } else if (order[i].equals(MODEL_TIME)) {
-                modelTime = selection[i];
-            } else if (order[i].equals(DB_TYPE)) {
-                dbType = selection[i];
-            } else if (order[i].equals(PARM_NAME)) {
-                parmName = selection[i];
-            } else if (order[i].equals(PARM_LEVEL)) {
-                parmLevel = selection[i];
+        queryList.put(PLUGIN_NAME, new RequestConstraint(productName));
+        if (selection.length > 1) {
+            String[] usedSelection = realignSelection(selection);
+            for (int i = 0; i < usedSelection.length; i++) {
+                if (order[i].equals(SITE_ID)) {
+                    siteId = usedSelection[i];
+                } else if (order[i].equals(MODEL_NAME)) {
+                    modelName = usedSelection[i];
+                } else if (order[i].equals(MODEL_TIME)) {
+                    modelTime = usedSelection[i];
+                } else if (order[i].equals(DB_TYPE)) {
+                    dbType = usedSelection[i];
+                } else if (order[i].equals(PARM_NAME)) {
+                    parmName = usedSelection[i];
+                } else if (order[i - 1].equals(PARM_LEVEL)) {
+                    parmLevel = usedSelection[i];
+                }
             }
         }
         String parmId = String.format(GFEUtil.PARM_ID_FORMAT, parmName,
