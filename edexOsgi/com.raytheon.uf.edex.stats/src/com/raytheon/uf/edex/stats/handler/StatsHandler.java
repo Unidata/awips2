@@ -97,7 +97,7 @@ public class StatsHandler {
      * @throws Exception
      */
     protected void loadEventValidTypes() throws Exception {
-        ConfigLoader configLoader = new ConfigLoader();
+        ConfigLoader configLoader = ConfigLoader.getInstance();
         configLoader.load();
         HashSet<String> myValidEventTypes = new HashSet<String>();
 
