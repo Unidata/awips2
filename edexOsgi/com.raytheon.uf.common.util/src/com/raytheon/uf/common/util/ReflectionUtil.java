@@ -83,7 +83,7 @@ public final class ReflectionUtil {
         }
     }
 
-    public static Object getter(Object object, String name)
+    public static Method getGetterMethod(Class<?> clazz, String name)
             throws ReflectionException {
         // Assume camel cased names - capitalize first letter...
         String method = Character.toUpperCase(name.charAt(0))
@@ -92,13 +92,23 @@ public final class ReflectionUtil {
             Method m;
             try {
                 // Try common 'get' first...
-                m = object.getClass().getMethod("get" + method);
+                m = clazz.getMethod("get" + method);
             } catch (NoSuchMethodException e) {
                 // Try 'is' as a prefix
-                m = object.getClass().getMethod("is" + method);
+                m = clazz.getMethod("is" + method);
             }
 
-            return m.invoke(object, (Object[]) null);
+            return m;
+        } catch (Exception e) {
+            throw new ReflectionException(e);
+        }
+    }
+
+    public static Object getter(Object object, String name)
+            throws ReflectionException {
+        try {
+            return getGetterMethod(object.getClass(), name).invoke(object,
+                    (Object[]) null);
         } catch (Exception e) {
             throw new ReflectionException(e);
         }
