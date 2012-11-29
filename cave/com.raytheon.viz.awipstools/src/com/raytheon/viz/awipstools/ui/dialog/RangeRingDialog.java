@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      unapplied points.
  *  07-31-12     #875       rferrel    Use MenuButton to show points in groups.
  *  11-05-12     #1304      rferrel    Added Point Change Listener.
+ *  11-29-12     #1365      rferrel    Properly close dialog when not on UI thread.
  * 
  * </pre>
  * 
@@ -614,13 +615,21 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
+     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
+     * java.lang.Object)
+     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (object instanceof Boolean) {
             boolean b = (Boolean) object;
             if (b == false) {
                 this.resourceData.removeChangeListener(this);
-                close();
+                performClose();
             }
             return;
         } else if (object instanceof RangeRing[]) {
@@ -641,11 +650,27 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         } else if (object instanceof EditableCapability) {
             if (!((EditableCapability) object).isEditable()) {
                 this.resourceData.removeChangeListener(this);
-                close();
+                performClose();
             }
         }
     }
 
+    /**
+     * Close dialog when not on the UI thread.
+     */
+    private void performClose() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                close();
+            }
+        });
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.Dialog#close()
+     */
     @Override
     public boolean close() {
         // passing true tells the resource that editable should be turned off
@@ -654,6 +679,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         return super.close();
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.points.IPointChangedListener#pointChanged()
+     */
     @Override
     public void pointChanged() {
         VizApp.runAsync(new Runnable() {
