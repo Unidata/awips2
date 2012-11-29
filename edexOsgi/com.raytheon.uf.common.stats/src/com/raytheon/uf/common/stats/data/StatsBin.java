@@ -45,6 +45,7 @@ import com.raytheon.uf.common.stats.AggregateRecord;
 @DynamicSerialize
 public class StatsBin {
     /** Millisecond value for this bin */
+    @DynamicSerializeElement
     private long binMillis;
 
     /** List of AggregateRecords */
