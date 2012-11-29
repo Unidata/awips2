@@ -665,12 +665,12 @@ public class StatsDisplayCanvas extends Canvas {
 
                     if (data != null) {
                         // Loop over all group members
-                        List<DataPoint> dataMap = data.getData(key);
+                        List<DataPoint> dataList = data.getData();
                         long startMillis = graphData.getTimeRange().getStart()
                                 .getTime();
                         int lastXpix = -999;
                         int lastYpix = -999;
-                        for (DataPoint point : dataMap) {
+                        for (DataPoint point : dataList) {
                             long x = point.getX();
                             double y;
 
@@ -752,6 +752,7 @@ public class StatsDisplayCanvas extends Canvas {
         int x = e.x;
         int y = e.y;
         final String colon = ": ";
+        final String nl = "\n";
         StringBuilder sb = new StringBuilder();
         GraphData graphData = callback.getGraphData();
         if (graphData == null) {
@@ -765,11 +766,11 @@ public class StatsDisplayCanvas extends Canvas {
                         // if true then data are on the graph
                         if (rect.contains(x, y)) {
                             if (sb.length() > 0) {
-                                sb.append("\n");
+                                sb.append(nl);
                             }
                             sb.append(key).append(colon);
                             DataPoint point = graphData.getStatsData(key)
-                                    .getData(key).get(idx);
+                                    .getData().get(idx);
                             sb.append(point.getSampleText(view));
                         }
                     }
