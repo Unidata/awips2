@@ -574,7 +574,7 @@ public class ProductBrowserView extends ViewPart {
                             ti.setData(((AbstractRequestableProductBrowserDataDefinition<?>) prod).productName);
                             ti.setData(
                                     "product",
-                                    ((AbstractRequestableProductBrowserDataDefinition<?>) prod).order.length == 1 ? true
+                                    ((AbstractRequestableProductBrowserDataDefinition<?>) prod).order.length == 0 ? true
                                             : false);
                         } else {
                             ti.setData(prod.displayName);
