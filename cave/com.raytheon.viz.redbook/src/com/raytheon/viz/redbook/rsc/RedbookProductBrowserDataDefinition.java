@@ -65,7 +65,7 @@ public class RedbookProductBrowserDataDefinition extends
     public RedbookProductBrowserDataDefinition() {
         productName = "redbook";
         displayName = "Redbook";
-        order = new String[] { "pluginName", "wmoTTAAii" };
+        order = new String[] { "wmoTTAAii" };
         order = getOrder();
         try {
             mapping = null;
