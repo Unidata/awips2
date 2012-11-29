@@ -43,17 +43,17 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
 /**
  * Graph Data Request Handler.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2012   728      mpduff      Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -98,13 +98,13 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
 
     /**
      * Get the statistical configuration objects and add them to the response.
-     *
+     * 
      * @return GraphDataResponse
-     *
+     * 
      * @throws Exception
      */
     private GraphDataResponse getMetaData() throws Exception {
-        ConfigLoader loader = new ConfigLoader();
+        ConfigLoader loader = ConfigLoader.getInstance();
         loader.load();
         List<StatisticsConfig> configList = loader.getConfigurations();
         GraphDataResponse response = new GraphDataResponse();
@@ -115,7 +115,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
 
     /**
      * Get the Graph Data object and add it to the response.
-     *
+     * 
      * @param request
      *            The request object
      * @return GraphDataResponse
@@ -136,8 +136,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
         }
 
         if (request.getField() != null) {
-            query.addQueryParam(FIELD, request.getField(),
-                    QueryOperand.EQUALS);
+            query.addQueryParam(FIELD, request.getField(), QueryOperand.EQUALS);
         }
 
         List<?> results = dao.queryByCriteria(query);
@@ -171,7 +170,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
 
     /**
      * Convert a Date object to Calendar object.
-     *
+     * 
      * @param date
      * @return Calendar object
      */
@@ -184,7 +183,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
 
     /**
      * Get the display unit.
-     *
+     * 
      * @param dataType
      * @param type
      * @param category
@@ -192,7 +191,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
      */
     private String getDisplayUnit(String category, String type, String dataType)
             throws Exception {
-        ConfigLoader loader = new ConfigLoader();
+        ConfigLoader loader = ConfigLoader.getInstance();
         loader.load();
         List<StatisticsConfig> configList = loader.getConfigurations();
 
