@@ -78,14 +78,19 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2010 #4517      lvenable     Initial creation
- * Dec 12, 2011 #11225     gzhang		Large font for FFG value,expiration time 
+ * Dec 12, 2011 #11225     gzhang		Large font for FFG value,expiration time
+ * Nov 29, 2012 #1353      rferrel      Make dialog non-blocking.
+ *                                       Changes for non-blocking AboutDlg.
+ *                                       Changes for non-blocking AcknowledgmentsDlg.
+ *                                       Changes for non-blocking HelpDlg.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGData {
+public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
+        IFFFGData {
     private final String MODIFIED = "Modified";
 
     /**
@@ -196,7 +201,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
     /**
      * Array of source composites on the display.
      */
-    private ArrayList<SourceComp> sourceCompArray;
+    private java.util.List<SourceComp> sourceCompArray;
 
     /**
      * Maximum number of source columns that can be displayed.
@@ -255,21 +260,21 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
     private Composite statusComp;
 
     private SimpleDateFormat statusFormat;
-    
+
     private Thread dataRetrieveThread = null;
-    
+
     private LinkedHashMap<String, SrcDisplayDurationData> guidances;
-    
+
     /**
      * large Text Font
      */
     private Font largeTextFont;
-    
+
     /**
      * large Spinner Font
      */
     private Font largeSipnnerFont;
-    
+
     /**
      * Constructor.
      * 
@@ -277,11 +282,12 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
      *            Parent shell.
      */
     public FFFGDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
         this.getParent().setCursor(
                 this.getParent().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         setText("Forced Flash Flood Guidance");
-        
+
         sourceCompArray = new ArrayList<SourceComp>();
         labelFont = new Font(getDisplay(), "Sans", 9, SWT.BOLD);
         listFont = new Font(getDisplay(), "Monospace", 9, SWT.NORMAL);
@@ -301,12 +307,12 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         labelFont.dispose();
         listFont.dispose();
         statusFont.dispose();
-        
-        if(largeSipnnerFont != null) 	
-        	largeSipnnerFont.dispose();
-        
-        if(largeTextFont != null)		
-        	largeTextFont.dispose();
+
+        if (largeSipnnerFont != null)
+            largeSipnnerFont.dispose();
+
+        if (largeTextFont != null)
+            largeTextFont.dispose();
     }
 
     /*
@@ -332,7 +338,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         dlgData.setCallback(this);
         dataRetrieveThread = new Thread(dlgData);
         dataRetrieveThread.start();
-        
+
         createMenus();
         createCurrentFileLabel();
         createMainFFFGComposite();
@@ -545,7 +551,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         ffgValueTF.setText("1.0");
         largeTextFont = getLargeFont(ffgValueTF);
         ffgValueTF.setFont(largeTextFont);
-        
+
         Label expireLbl = new Label(ffgExpireComp, SWT.NONE);
         expireLbl.setText("Enter expiration time (hour): ");
 
@@ -557,7 +563,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         expireTimeSpnr.setSelection(12);
         largeSipnnerFont = getLargeFont(expireTimeSpnr);
         expireTimeSpnr.setFont(largeSipnnerFont);
-        
+
         /*
          * CWA-Wide header
          */
@@ -777,14 +783,14 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
             @Override
             public void widgetSelected(SelectionEvent e) {
                 getParent().setCursor(
-                        getParent().getDisplay()
-                                .getSystemCursor(SWT.CURSOR_WAIT));
+                        getParent().getDisplay().getSystemCursor(
+                                SWT.CURSOR_WAIT));
                 shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 applyDataAction();
                 updateFileStatusLabel(false);
                 getParent().setCursor(
-                        getParent().getDisplay()
-                                .getSystemCursor(SWT.CURSOR_ARROW));
+                        getParent().getDisplay().getSystemCursor(
+                                SWT.CURSOR_ARROW));
                 shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 
                 saveFileAs();
@@ -1088,14 +1094,14 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
         ArrayList<SourceCompData> srcCompData = getSourceCompData();
         ArrayList<ArrayList<FFFGBasinIdXML>> basinList = new ArrayList<ArrayList<FFFGBasinIdXML>>();
-        for (SourceCompData scd: srcCompData) {
+        for (SourceCompData scd : srcCompData) {
             ArrayList<FFFGBasinIdXML> list = new ArrayList<FFFGBasinIdXML>();
             ArrayList<ValueNameIdData> dataList = scd.getCountyBasinData();
-            for (ValueNameIdData vni: dataList) {
+            for (ValueNameIdData vni : dataList) {
                 // Get the basins for each county
                 ArrayList<Long> pfafs = templates.getAllAggregatePfafs(
                         vni.getId(), "COUNTY");
-                for (long pfaf: pfafs) {
+                for (long pfaf : pfafs) {
                     list.add(new FFFGBasinIdXML(pfaf, vni.getValue()));
                 }
             }
@@ -1121,7 +1127,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         if (expHoursInMillis == 0) {
             return expHoursInMillis;
         }
-        
+
         long expTimeInMillis = SimulatedTime.getSystemTime().getTime()
                 .getTime()
                 + expHoursInMillis;
@@ -1139,7 +1145,6 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
 
         for (SourceComp sc : sourceCompArray) {
             if (sc.hasData() == true) {
-//                sc.getSourceData().printData(); // TODO - remove print statement
                 srcCompData.add(sc.getSourceData());
             }
         }
@@ -1473,8 +1478,8 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
                 FFMPBasinMetaData basinMetaData;
 
                 for (FFMPCounty county : countyArray) {
-                    pfafArray = templates.getAllAggregatePfafs(
-                            county.getGid(), "COUNTY");
+                    pfafArray = templates.getAllAggregatePfafs(county.getGid(),
+                            "COUNTY");
 
                     for (Long pfaf : pfafArray) {
                         basinMetaData = templates.getBasin(pfaf);
@@ -1552,7 +1557,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
 
         updateBasinCountLabel();
     }
-    
+
     /**
      * Get the basin sort by type that determines how the basin is sorted.
      * 
@@ -1704,16 +1709,19 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
      * Help menu popup.
      */
     private void callHelpDlg() {
-        helpDlg = new HelpDlg(shell);
+        if (helpDlg == null) {
+            helpDlg = new HelpDlg(shell);
+        }
         helpDlg.open();
-
     }
 
     /*
      * About menu popup
      */
     private void callAboutDlg() {
-        aboutDlg = new AboutDlg(shell);
+        if (aboutDlg == null) {
+            aboutDlg = new AboutDlg(shell);
+        }
         aboutDlg.open();
     }
 
@@ -1721,7 +1729,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
      * Acknowledgments menu popup
      */
     private void callAcknowledgmentsDlg() {
-        acknowledgmentsDlg = new AcknowledgmentsDlg(shell);
+        if (acknowledgmentsDlg == null) {
+            acknowledgmentsDlg = new AcknowledgmentsDlg(shell);
+        }
         acknowledgmentsDlg.open();
     }
 
@@ -1738,7 +1748,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         /*
          * Start the array at one since we never delete the first source
          * component. Add the correct number of sources.
-         */        
+         */
         for (int i = 1; i < scdArray.size(); i++) {
             addNewSource(scdArray.get(i));
         }
@@ -1772,22 +1782,23 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
             displayMessageBox("No Data", sb.toString(), SWT.ICON_WARNING);
             return;
         }
- 
+
         ArrayList<ArrayList<FFFGBasinIdXML>> basinList = new ArrayList<ArrayList<FFFGBasinIdXML>>();
-        for (SourceCompData scd: srcCompData) {
+        for (SourceCompData scd : srcCompData) {
             ArrayList<FFFGBasinIdXML> list = new ArrayList<FFFGBasinIdXML>();
             ArrayList<ValueNameIdData> dataList = scd.getCountyBasinData();
-            for (ValueNameIdData vni: dataList) {
+            for (ValueNameIdData vni : dataList) {
                 // Get the basins for each county
                 ArrayList<Long> pfafs = templates.getAllAggregatePfafs(
                         vni.getId(), "COUNTY");
-                for (long pfaf: pfafs) {
+                for (long pfaf : pfafs) {
                     list.add(new FFFGBasinIdXML(pfaf, vni.getValue()));
                 }
             }
             basinList.add(list);
         }
-        fdm.saveUpdateUserXML(calculateExpTimeInMillis(), srcCompData, basinList);
+        fdm.saveUpdateUserXML(calculateExpTimeInMillis(), srcCompData,
+                basinList);
 
         // Update the File name label
         fileNameLbl.setText(fdm.getUserFileName());
@@ -1824,14 +1835,14 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         }
 
         ArrayList<ArrayList<FFFGBasinIdXML>> basinList = new ArrayList<ArrayList<FFFGBasinIdXML>>();
-        for (SourceCompData scd: srcCompData) {
+        for (SourceCompData scd : srcCompData) {
             ArrayList<FFFGBasinIdXML> list = new ArrayList<FFFGBasinIdXML>();
             ArrayList<ValueNameIdData> dataList = scd.getCountyBasinData();
-            for (ValueNameIdData vni: dataList) {
+            for (ValueNameIdData vni : dataList) {
                 // Get the basins for each county
                 ArrayList<Long> pfafs = templates.getAllAggregatePfafs(
                         vni.getId(), "COUNTY");
-                for (long pfaf: pfafs) {
+                for (long pfaf : pfafs) {
                     list.add(new FFFGBasinIdXML(pfaf, vni.getValue()));
                 }
             }
@@ -2101,8 +2112,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
     }
 
     /**
-     * populate the dialog with the data retrieved
-     * via FFFGData.
+     * populate the dialog with the data retrieved via FFFGData.
      */
     private void populateDialog() {
         populateCountyLists();
@@ -2113,9 +2123,10 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         sc.populateSourceComp();
 
         statusLbl.setText("");
-        this.getParent().setCursor(
-                this.getParent().getDisplay()
-                        .getSystemCursor(SWT.CURSOR_ARROW));
+        this.getParent()
+                .setCursor(
+                        this.getParent().getDisplay()
+                                .getSystemCursor(SWT.CURSOR_ARROW));
     }
 
     /*
@@ -2142,7 +2153,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         return false;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setCounties()
      */
     @Override
@@ -2150,7 +2163,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         this.counties = counties;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setTemplates()
      */
     @Override
@@ -2158,20 +2173,28 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         this.templates = templates;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setGuidances(java.util.LinkedHashMap)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setGuidances(java.util
+     * .LinkedHashMap)
      */
     @Override
     public void setGuidances(
             LinkedHashMap<String, SrcDisplayDurationData> guidances) {
-        this.guidances = guidances;        
+        this.guidances = guidances;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setDataLoadComplete(boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ffmp.fffg.IFFFGData#setDataLoadComplete(boolean
+     * )
      */
     @Override
-    public void dataLoadComplete() { 
+    public void dataLoadComplete() {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -2179,30 +2202,30 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
             }
         });
     }
-    
-    
+
     /**
-     * FFFG GUI large font for:
-     * Text ffgValueTF and Spinner expireTimeSpnr.
+     * FFFG GUI large font for: Text ffgValueTF and Spinner expireTimeSpnr.
      * 
-     * @param ctrl: Control to change Font
-     * @return:		large Font
+     * @param ctrl
+     *            : Control to change Font
+     * @return: large Font
      */
-	private Font getLargeFont(org.eclipse.swt.widgets.Control ctrl){
-				
-		if(ctrl == null)
-			return new Font(getDisplay(), new org.eclipse.swt.graphics.FontData());		
-		
-		Font font = ctrl.getFont();
-		org.eclipse.swt.graphics.FontData[] fontData = font.getFontData();
-				
-		for(int i=0; i<fontData.length; i++){
-			fontData[i].setStyle(SWT.BOLD);
-			fontData[i].setHeight(16);
-		}
-		
-		return new Font(getDisplay(), fontData);
-		
-	}
-	
+    private Font getLargeFont(org.eclipse.swt.widgets.Control ctrl) {
+
+        if (ctrl == null)
+            return new Font(getDisplay(),
+                    new org.eclipse.swt.graphics.FontData());
+
+        Font font = ctrl.getFont();
+        org.eclipse.swt.graphics.FontData[] fontData = font.getFontData();
+
+        for (int i = 0; i < fontData.length; i++) {
+            fontData[i].setStyle(SWT.BOLD);
+            fontData[i].setHeight(16);
+        }
+
+        return new Font(getDisplay(), fontData);
+
+    }
+
 }
