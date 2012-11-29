@@ -194,7 +194,7 @@ public class StatsData {
      *            The key
      * @return List of DataPoint objects
      */
-    public List<DataPoint> getData(String key) {
+    public List<DataPoint> getData() {
         Collections.sort(pointList);
         return pointList;
     }
@@ -255,7 +255,7 @@ public class StatsData {
     /**
      * Accumulates the AggregateRecord objects into the correct bins.
      */
-    public void accumulate(String key) {
+    public void accumulate() {
         pointList.clear();
         for (AggregateRecord record : recordList) {
             Date startDate = record.getStartDate().getTime();
@@ -267,7 +267,7 @@ public class StatsData {
             }
         }
 
-        createPoints(key);
+        createPoints();
     }
 
     /**
@@ -275,7 +275,7 @@ public class StatsData {
      *
      * @param dataKey
      */
-    private void createPoints(String dataKey) {
+    private void createPoints() {
         // Bins are created, now make the graph group member and point objects
         // convert the data values before storing in the data object
         double conversion = unitUtils.getConversion();
