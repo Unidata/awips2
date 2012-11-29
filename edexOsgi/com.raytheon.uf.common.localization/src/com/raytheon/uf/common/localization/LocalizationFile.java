@@ -34,6 +34,7 @@ import com.raytheon.uf.common.localization.ILocalizationAdapter.ListResponse;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -165,7 +166,7 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
     private LocalizationLevel protectedLevel;
 
     /** File changed observers */
-    private Set<ILocalizationFileObserver> observers = new HashSet<ILocalizationFileObserver>();
+    private final Set<ILocalizationFileObserver> observers = new HashSet<ILocalizationFileObserver>();
 
     /** Flag to set if file has been requested */
     protected boolean fileRequested = false;
@@ -187,8 +188,8 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
      * @return
      */
     boolean isNull() {
-        return adapter == null && path == null && context == null
-                && file == null;
+        return (adapter == null) && (path == null) && (context == null)
+                && (file == null);
     }
 
     LocalizationFile(ILocalizationAdapter adapter, LocalizationContext context,
@@ -279,7 +280,7 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
             adapter.retrieve(this);
         }
 
-        if (isDirectory == false && !file.exists()) {
+        if ((isDirectory == false) && !file.exists()) {
             try {
                 file.getParentFile().mkdirs();
             } catch (Throwable t) {
@@ -352,8 +353,8 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
             // Read in the bytes
             int offset = 0;
             int numRead = 0;
-            while (offset < rval.length
-                    && (numRead = is.read(rval, offset, rval.length - offset)) >= 0) {
+            while ((offset < rval.length)
+                    && ((numRead = is.read(rval, offset, rval.length - offset)) >= 0)) {
                 offset += numRead;
             }
 
@@ -548,7 +549,7 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
      * @return true if the file exists
      */
     public boolean exists() {
-        return isNull() == false && adapter.exists(this);
+        return (isNull() == false) && adapter.exists(this);
     }
 
     /**
@@ -594,6 +595,44 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
                         "Error notifying observer of file change", t);
             }
         }
+    }
+
+    /**
+     * Returns the object version of this jaxb serialized file. Returns null if
+     * the file does not exist or is empty.
+     * 
+     * @param <T>
+     * @param resultClass
+     * @param manager
+     * @return
+     * @throws LocalizationException
+     */
+    public <T> T jaxbUnmarshal(Class<T> resultClass, JAXBManager manager)
+            throws LocalizationException {
+        File f = getFile();
+        if (f.exists() && (f.length() > 0)) {
+            InputStream is = null;
+            try {
+                is = openInputStream();
+                T object = resultClass.cast(manager
+                        .jaxbUnmarshalFromInputStream(is));
+                return object;
+            } catch (Exception e) {
+                throw new LocalizationException("Could not unmarshal file "
+                        + file.getName(), e);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        statusHandler.handle(Priority.WARN,
+                                "Failed to close input stream for file", e);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
