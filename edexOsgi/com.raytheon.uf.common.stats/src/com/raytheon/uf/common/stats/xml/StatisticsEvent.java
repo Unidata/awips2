@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.stats.xml;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -71,6 +73,12 @@ public class StatisticsEvent {
     @XmlElements({ @XmlElement(name = "statisticsAggregate", type = StatisticsAggregate.class) })
     @DynamicSerializeElement
     private List<StatisticsAggregate> aggregateList;
+
+    private Class<? extends Event> typeClass = null;
+
+    private List<Method> groupByMethods = null;
+
+    private List<Method> aggregateMethods = null;
 
     /**
      * @return the aggregateList
@@ -146,4 +154,29 @@ public class StatisticsEvent {
     public void setType(String type) {
         this.type = type;
     }
+
+    public Class<? extends Event> getTypeClass() {
+        return typeClass;
+    }
+
+    public void setTypeClass(Class<? extends Event> typeClass) {
+        this.typeClass = typeClass;
+    }
+
+    public List<Method> getGroupByMethods() {
+        return groupByMethods;
+    }
+
+    public void setGroupByMethods(List<Method> groupByMethods) {
+        this.groupByMethods = groupByMethods;
+    }
+
+    public List<Method> getAggregateMethods() {
+        return aggregateMethods;
+    }
+
+    public void setAggregateMethods(List<Method> aggregateMethods) {
+        this.aggregateMethods = aggregateMethods;
+    }
+
 }
