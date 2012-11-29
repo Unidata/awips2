@@ -109,8 +109,8 @@ public class GridProductBrowserDataDefinition extends
     public GridProductBrowserDataDefinition() {
         productName = GridInventory.PLUGIN_NAME;
         displayName = "Grid";
-        order = new String[] { GridInventory.PLUGIN_NAME_QUERY,
-                GridInventory.MODEL_NAME_QUERY, GridInventory.PARAMETER_QUERY,
+        order = new String[] { GridInventory.MODEL_NAME_QUERY,
+                GridInventory.PARAMETER_QUERY,
                 GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
         order = getOrder();
         loadProperties = new LoadProperties();
