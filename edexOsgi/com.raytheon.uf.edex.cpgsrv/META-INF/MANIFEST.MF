@@ -10,7 +10,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.edex.common,
  com.raytheon.uf.common.status;bundle-version="1.10.13",
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
- com.raytheon.edex.ingestsrv
+ com.raytheon.edex.ingestsrv,
+ com.raytheon.uf.common.stats;bundle-version="1.0.0",
+ com.raytheon.uf.edex.event;bundle-version="1.0.0",
+ com.raytheon.uf.common.event;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.cpgsrv
