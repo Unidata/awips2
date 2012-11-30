@@ -21,7 +21,7 @@ package com.raytheon.viz.gfe.ifpimage;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collection;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +35,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -99,13 +100,9 @@ public class ImageLegendResource extends GFELegendResource {
 
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
-        Date date = this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime();
-        DataTime dt = new DataTime(date);
-
-        Parm[] parms = orderParms(descriptor);
-
-        LegendData[] data = makeLegend(parms, dt);
+        Map<Parm, ResourcePair> parmRscMap = new HashMap<Parm, ResourcePair>();
+        Collection<Parm> parms = getLegendOrderedParms(descriptor, parmRscMap);
+        LegendData[] data = makeLegend(parms, parmRscMap);
 
         LegendEntry[] entries = new LegendEntry[data.length];
         for (int i = 0; i < entries.length; ++i) {
@@ -116,17 +113,22 @@ public class ImageLegendResource extends GFELegendResource {
         return entries;
     }
 
-    private LegendData[] makeLegend(Parm[] parms, DataTime curTime) {
+    private LegendData[] makeLegend(Collection<Parm> parms,
+            Map<Parm, ResourcePair> parmRscMap) {
+        FramesInfo currInfo = descriptor.getFramesInfo();
+        DataTime curTime = currInfo.getCurrentFrame();
+
         // loop through the grids
         List<LegendData> legendData = new ArrayList<LegendData>();
-        for (int i = parms.length - 1; i >= 0; i--) {
-            Parm parm = parms[i];
-            String parmName = parm.getParmID().getParmName();
-            ResourcePair rp = this.parmToRscMap.get(parm);
+        for (Parm parm : parms) {
+            ResourcePair rp = parmRscMap.get(parm);
             GFEResource rsc = (GFEResource) rp.getResource();
+            String parmName = parm.getParmID().getParmName();
             ResourceProperties props = rp.getProperties();
             LegendData data = new LegendData();
             data.resource = rp;
+
+            DataTime curRscTime = currInfo.getTimeForResource(rsc);
 
             // color for the text
             if ((props.isVisible())
@@ -175,36 +177,32 @@ public class ImageLegendResource extends GFELegendResource {
                 snap.setTimeZone(TimeZone.getTimeZone(tz));
                 formatter.format(snapshotFormat.replaceAll("\\%", "%1\\$t"),
                         snap);
-            } else {
-                // get the valid time for the grid, get the time format
-                gd = rsc.getParm().getGridInventory(curTime.getValidPeriod());
-                if (gd.length > 0) {
-                    TimeRange tr = gd[0].getGridTime();
-                    if (durationFormat != null) {
-                        timeString += durationString(tr);
-                    }
-                    if (startFormat != null) {
-                        Calendar start = Calendar.getInstance();
-                        start.setTimeZone(TimeZone.getTimeZone(tz));
-                        start.setTime(tr.getStart());
-                        formatter.format(
-                                startFormat.replaceAll("\\%", "%1\\$t"), start);
-                    }
-                    if (endFormat != null) {
-                        Calendar end = Calendar.getInstance();
-                        end.setTimeZone(TimeZone.getTimeZone(tz));
-                        end.setTime(tr.getEnd());
-                        formatter.format(endFormat.replaceAll("\\%", "%1\\$t"),
-                                end);
-                    }
-
+            } else if (curRscTime != null) {
+                TimeRange tr = curRscTime.getValidPeriod();
+                if (durationFormat != null) {
+                    timeString += durationString(tr);
                 }
+                if (startFormat != null) {
+                    Calendar start = Calendar.getInstance();
+                    start.setTimeZone(TimeZone.getTimeZone(tz));
+                    start.setTime(tr.getStart());
+                    formatter.format(startFormat.replaceAll("\\%", "%1\\$t"),
+                            start);
+                }
+                if (endFormat != null) {
+                    Calendar end = Calendar.getInstance();
+                    end.setTimeZone(TimeZone.getTimeZone(tz));
+                    end.setTime(tr.getEnd());
+                    formatter
+                            .format(endFormat.replaceAll("\\%", "%1\\$t"), end);
+                }
+
             }
 
             timeString += formatter.toString();
             timeString = timeString.replaceAll("\\[UNITS\\]", units);
 
-            if (snapshotTime || gd.length > 0) {
+            if (snapshotTime || curRscTime != null) {
                 // now prefix the parameter name
                 String name = null;
 
