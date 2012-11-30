@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import org.apache.commons.lang.Validate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -80,8 +79,7 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class D2DTimeMatcher extends AbstractTimeMatcher implements
-        ISerializableObject {
+public class D2DTimeMatcher extends AbstractTimeMatcher {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DTimeMatcher.class);
@@ -409,10 +407,12 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             TimeMatchingConfiguration config = getConfiguration(timeMatchBasis
                     .getLoadProperties());
             DataTime[] times = config.getLastFrameTimes();
-            if (times == null || config.getLastBaseTimes() != null) {
+            if (times == null || config.getLastBaseTimes() != null
+                    || config.getLastFrameCount() != numberOfFrames) {
                 times = makeEmptyLoadList(numberOfFrames, timeMatchBasis);
                 config.setLastFrameTimes(times);
                 config.setLastBaseTimes(null);
+                config.setLastFrameCount(numberOfFrames);
             }
             if (times != null) {
                 return times;
@@ -781,15 +781,12 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         return dataTimesToLoad;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Changes the time match basis for the time matcher to be the specified
+     * resource
      * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractTimeMatcher#changeTimeMatchBasis(com
-     * .raytheon.uf.viz.core.rsc.AbstractVizResource,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
+     * @param resource
      */
-    @Override
     public void changeTimeMatchBasis(AbstractVizResource<?, ?> resource) {
         if (timeMatchBasis != resource) {
             if (timeMatchBasis != null) {
@@ -814,7 +811,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         }
     }
 
-    @Override
+    /**
+     * Returns the time match basis for the D2DTimeMatcher
+     * 
+     * @return
+     */
     public AbstractVizResource<?, ?> getTimeMatchBasis() {
         return timeMatchBasis;
     }
