@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2010            rjpeter     Initial creation
+ * Nov 30, 2012            dhladky     Added queue and dequeue times for stats
  * 
  * </pre>
  * 
@@ -58,6 +59,30 @@ public class URIGenerateMessage implements ISerializableObject {
     @DynamicSerializeElement
     protected Date currentTime = null;
 
+    /** logged time */
+    @DynamicSerializeElement
+    protected Long enQueuedTime = null;
+
+    /** time used for matching comparisons */
+    @DynamicSerializeElement
+    protected Long deQueuedTime = null;
+
+    public Long getEnQueuedTime() {
+        return enQueuedTime;
+    }
+
+    public void setEnQueuedTime(Long enQueuedTime) {
+        this.enQueuedTime = enQueuedTime;
+    }
+
+    public Long getDeQueuedTime() {
+        return deQueuedTime;
+    }
+
+    public void setDeQueuedTime(Long deQueuedTime) {
+        this.deQueuedTime = deQueuedTime;
+    }
+
     public URIGenerateMessage() {
     }
 
@@ -66,6 +91,7 @@ public class URIGenerateMessage implements ISerializableObject {
         setCurrentTime(filter.getCurrentTime());
         setUris(filter.getURIs());
         setValidTime(filter.getValidTime());
+        setEnQueuedTime(System.currentTimeMillis());
     }
 
     /**
