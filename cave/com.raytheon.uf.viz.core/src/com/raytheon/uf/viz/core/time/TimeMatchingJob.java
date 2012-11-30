@@ -120,23 +120,28 @@ public class TimeMatchingJob extends Job {
         try {
             long t0 = System.currentTimeMillis();
             request.getTimeMatcher().redoTimeMatching(request);
-            System.out.println("time matching took: "
-                    + (System.currentTimeMillis() - t0));
+            long time = (System.currentTimeMillis() - t0);
+            if (time > 0) {
+                System.out.println("time matching took: " + time + "ms");
+            }
             if (!this.keepAround) {
                 map.remove(request);
             } else {
                 this.keepAround = false;
             }
-            request.getRenderableDisplay().refresh();
-            if (request.getRenderableDisplay().getContainer() instanceof IEditorPart) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        VizGlobalsManager.getCurrentInstance().updateUI(
-                                request.getRenderableDisplay().getContainer(),
-                                request.getRenderableDisplay());
-                    }
-                });
+            if (request.getRenderableDisplay() != null) {
+                request.getRenderableDisplay().refresh();
+                if (request.getRenderableDisplay().getContainer() instanceof IEditorPart) {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            VizGlobalsManager.getCurrentInstance().updateUI(
+                                    request.getRenderableDisplay()
+                                            .getContainer(),
+                                    request.getRenderableDisplay());
+                        }
+                    });
+                }
             }
         } catch (Throwable e) {
             statusHandler.handle(Priority.CRITICAL,

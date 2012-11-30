@@ -39,7 +39,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -80,7 +79,6 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
         // remove the uneeded capabilities
         getCapabilities().removeCapability(ImagingCapability.class);
         getCapabilities().removeCapability(RangeRingsOverlayCapability.class);
-        getCapabilities().removeCapability(TimeMatchBasisCapability.class);
 
         color = getCapability(ColorableCapability.class).getColor();
     }
