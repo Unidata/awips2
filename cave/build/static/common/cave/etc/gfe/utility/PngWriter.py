@@ -42,7 +42,6 @@ from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisMode as VisM
 class PngWriter:
     def __init__(self, conf="testIFPImage", userName="", baseTime=None,
       timeRange=None, usrTimeRange=None):
-        from com.raytheon.viz.gfe.core import DataManager
         from com.raytheon.uf.viz.core.localization import LocalizationManager
         self.site = LocalizationManager.getInstance().getCurrentSite()
         
@@ -54,7 +53,9 @@ class PngWriter:
         
         self.baseTime = baseTime
 
-        self.dm = DataManager.getInstance(None)
+        # Create GFEPainter first and get DataManager from painter
+        self.viz = self.createPainter()
+        self.dm = self.viz.getDataManager();
 
         LogStream.logEvent("Configuration File: ", conf)
 
@@ -222,27 +223,36 @@ class PngWriter:
         else:                
             return default
 
-    def paint(self, dir):
-        #mmgr = self.dm.mapMgr()
-        mv = []
-        mids = []
+    def createPainter(self):
+        # Extract properties needed to construct painter
         height = self.getConfig('Png_height', None, int)
         width = self.getConfig('Png_width', None, int)
-        localFlag = self.getConfig('Png_localTime', 0, int)
-        snapshotTime = self.getConfig('Png_snapshotTime', 0, int)
-        useLegend = self.getConfig('Png_legend', 1, int)
-        maps = self.getConfig('MapBackgrounds_default', [])
         leftExpand = self.getConfig('OfficeDomain_expandLeft', 10, int)
         rightExpand = self.getConfig('OfficeDomain_expandRight', 10, int)
         topExpand = self.getConfig('OfficeDomain_expandTop', 10, int)
         bottomExpand = self.getConfig('OfficeDomain_expandBottom', 10, int)
+        mask = self.getConfig(self.site + '_mask', None)
+        wholeDomain = self.getConfig('Png_wholeDomain', 0, int)
+        
+        #TODO handle transparent background
+        bgColor, trans = self.getBG()   
+        
+        return GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain, bgColor)
+
+    def paint(self, dir):
+        #mmgr = self.dm.mapMgr()
+        mv = []
+        mids = []
+        localFlag = self.getConfig('Png_localTime', 0, int)
+        snapshotTime = self.getConfig('Png_snapshotTime', 0, int)
+        useLegend = self.getConfig('Png_legend', 1, int)
+        maps = self.getConfig('MapBackgrounds_default', [])
         fitToDataArea = self.getConfig('Png_fitToDataArea', None)
         omitColorbar = self.getConfig('Png_omitColorBar', 0, int)
         showLogo = self.getConfig('Png_logo', None)
         logoString = self.getConfig('Png_logoString', None)  
         smooth = self.getConfig('Png_smoothImage', 0, int)      
         fexten = self.getFileType()
-        mask = self.getConfig(self.site + '_mask', None) 
 
         # get the fit to data edit area, and set the active edit area
         if fitToDataArea is not None:
@@ -255,12 +265,8 @@ class PngWriter:
                     self.dm.getRefManager().setActiveRefSet(refdata) 
 
         maskBasedOnHistory = self.getConfig('Png_historyMask', 0, int)
-        wholeDomain = self.getConfig('Png_wholeDomain', 0, int)
 
-        #TODO handle transparent background
-        bgColor, trans = self.getBG()   
-        
-        viz = GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain, bgColor)
+        viz = self.viz
 
         if not omitColorbar:
             viz.enableColorbar()
@@ -270,39 +276,18 @@ class PngWriter:
         # allow user to specify precise interval for creation of images
         # rather than the automatically generated set
         paintInterval  = self.getConfig('Png_interval', None, int)
-        if paintInterval is None:
-            parmList = ArrayList();
-            for p in prms:
-                parmList.add(p)
-            jtimes = self.dm.getParmManager().calcStepTimes(parmList,
-                       self.dm.getParmManager().getSystemTimeRange())
-            times = []
-            for i in xrange(jtimes.size()):
-                times.append(AbsTime.AbsTime(jtimes.get(i)))
-        else:
+        if paintInterval is not None:
+            # Interval specified, create interval time matcher
             paintIntervalOffset = self.getConfig('Png_intervalOffset', 0, int)
             if paintInterval < 0:
                 paintInterval = 1
             if paintInterval > 24:
                 paintInterval = 24
-            paintInterval = paintInterval * 3600   # into seconds
-            paintIntervalOffset = paintIntervalOffset * 3600
-            systemTime = TimeRange.TimeRange(self.dm.getParmManager().getSystemTimeRange())
-            firstTime = systemTime.startTime()
-            lastTime = systemTime.endTime()
-            times = []
-            unixT = firstTime.unixTime()
-            t = int(int(unixT)/int(paintInterval))*paintInterval\
-                + paintIntervalOffset
-            t = AbsTime.AbsTime(t)
-            while t <= lastTime:
-                if t >= firstTime:
-                    times.append(t)
-                t = t + paintInterval
-                
-        if len(times) == 0:
-            LogStream.logEvent("No grids to generate")
-                           
+            from com.raytheon.viz.gfe.core import GFEIntervalTimeMatcher
+            tm = GFEIntervalTimeMatcher()
+            tm.setTimeMatchingInterval(paintInterval, paintIntervalOffset, self.dm.getParmManager().getSystemTimeRange())
+            viz.getDescriptor().setTimeMatcher(tm)
+
         if useLegend:
             snapshotTime = self.getConfig('Png_snapshotTime', 1, int)
             descName = self.getConfig('Png_descriptiveWeName', 'SHORT')
@@ -369,14 +354,18 @@ class PngWriter:
                 
         self.initSamples()
         
+        # Verify all resources are time matched before painting
+        desc = viz.getDescriptor()
+        desc.redoTimeMatching()
+        times = desc.getFramesInfo().getFrameTimes()
+        
         # paint once to get map retrieval started
         if len(times) > 0:
             viz.paint(times[0])
 
-        for t in times:
-            paintTime = t
-            if paintTime and self.overlapsWithGrids(prms, paintTime):
-                self.dm.getSpatialDisplayManager().setSpatialEditorTime(paintTime.javaDate())
+        for frame in times:
+            paintTime = AbsTime.AbsTime(frame.getRefTime())
+            if self.overlapsWithGrids(prms, paintTime.javaDate()):
                 visualInfo = []
                 for p in prms:
                     griddata = p.overlappingGrid(paintTime.javaDate())
@@ -401,12 +390,12 @@ class PngWriter:
                             RGBColors.getColorName(p.getDisplayAttributes().getBaseColor()), p.getDisplayAttributes().getVisMode().toString() == 'Image')                        
                     visualInfo.append(info)
 
-                viz.paint(paintTime)
-                fname = self.getFileName(dir, t) + '.' + fexten
+                viz.paint(frame)
+                fname = self.getFileName(dir, paintTime) + '.' + fexten
                 viz.outputFiles(fname, showLogo, logoString)
                 self.writeInfo(dir, paintTime, visualInfo)
             else:
-                LogStream.logEvent("No grids to generate for ", `t`)
+                LogStream.logEvent("No grids to generate for ", `paintTime`)
 
         visuals = None
         mv = None
@@ -415,20 +404,13 @@ class PngWriter:
 
     # return true if there is grid data that overlaps with time t
     def overlapsWithGrids(self, prms, t):
-        totalTR = None
         for p in prms:
-            grid = p.overlappingGrid(t.javaDate())
+            grid = p.overlappingGrid(t)
             if grid is not None:
                 gridTime = TimeRange.TimeRange(grid.getGridTime())
-                if totalTR is None:
-                    totalTR = gridTime
-                else:
-                    totalTR.combineWith(gridTime)
-        if totalTR is not None and totalTR.contains(t) and \
-          self.pngTimeRange.overlaps(totalTR):
-            return 1
-        else:
-            return 0
+                if self.pngTimeRange.overlaps(gridTime):
+                    return 1
+        return 0
 
 def usage():
     msg = """
