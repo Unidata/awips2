@@ -23,7 +23,7 @@ from com.raytheon.uf.viz.core.map import MapDescriptor
 from com.raytheon.uf.viz.core.rsc.capabilities import ColorableCapability,\
     OutlineCapability, LabelableCapability, MagnificationCapability, ColorMapCapability
 from com.raytheon.viz.core import ColorUtil
-from com.raytheon.viz.gfe.core import DataManager, GFEMapRenderableDisplay
+from com.raytheon.viz.gfe.core import DataManagerOffscreenFactory, GFEMapRenderableDisplay
 from com.raytheon.viz.gfe.ifpimage import GfeImageUtil, ImageLegendResource
 from com.raytheon.viz.gfe.rsc import GFEResource, GFESystemResource
 from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_EditorType as EditorType
@@ -56,7 +56,9 @@ import VizPainter
 class GFEPainter(VizPainter.VizPainter):
 
     def __init__(self, imageWidth=None, imageHeight=None, expandLeft=25.0, expandRight=25.0, expandTop=25.0, expandBottom=25.0, mask=None, wholeDomain=0, bgColor=None):
-        self.dataMgr = DataManager.getInstance(None)
+        # Create empty display and data manager for display
+        display = GFEMapRenderableDisplay()
+        self.dataMgr = DataManagerOffscreenFactory.getInstance(display)
         self.refId = None
         envelope = None
         gloc = self.dataMgr.getParmManager().compositeGridLocation()
@@ -70,10 +72,10 @@ class GFEPainter(VizPainter.VizPainter):
         if imageHeight is not None:
             imageHeight = Integer(int(imageHeight))
         geom = GfeImageUtil.getLocationGeometry(gloc, envelope, imageWidth, imageHeight, expandLeft / 100.0, expandRight / 100.0, expandTop / 100.0, expandBottom / 100.0)
-        display = GFEMapRenderableDisplay(MapDescriptor(geom))
-        display.setDataManager(self.dataMgr)
-        desc = display.getDescriptor()
-        self.dataMgr.getSpatialDisplayManager().setDescriptor(desc)
+        
+        # Create descriptor for display
+        desc = MapDescriptor(geom)
+        display.setDescriptor(desc)
         VizPainter.VizPainter.__init__(self, display, backgroundColor=bgColor)
 
         gfeSystem = GFESystemResource(self.dataMgr)
@@ -201,6 +203,3 @@ class GFEPainter(VizPainter.VizPainter):
             self.outputImage(finalBuf, filename)
         else:
             self.outputImage(rendered, filename)
-
-    def _changeTime(self, time):
-        pass
