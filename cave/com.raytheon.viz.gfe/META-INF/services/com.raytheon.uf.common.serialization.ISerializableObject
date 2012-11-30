@@ -1,4 +1,6 @@
 com.raytheon.viz.gfe.core.GFEMapRenderableDisplay
+com.raytheon.viz.gfe.core.GFETimeMatcher
+com.raytheon.viz.gfe.core.GFEIntervalTimeMatcher
 com.raytheon.viz.gfe.rsc.GFELegendResourceData
 com.raytheon.viz.gfe.rsc.GFEResourceData
 com.raytheon.uf.common.site.xml.AdjacentWfoXML
