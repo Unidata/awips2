@@ -67,6 +67,9 @@ public class TimeMatchingConfiguration {
     // The result of the last time matching.
     private DataTime[] lastFrameTimes;
 
+    // The number of frames time matched against
+    private int lastFrameCount;
+
     /**
      * Default Constructor
      */
@@ -228,6 +231,14 @@ public class TimeMatchingConfiguration {
 
     public void setLastFrameTimes(DataTime[] lastFrameTimes) {
         this.lastFrameTimes = lastFrameTimes;
+    }
+
+    public void setLastFrameCount(int lastFrameCount) {
+        this.lastFrameCount = lastFrameCount;
+    }
+
+    public int getLastFrameCount() {
+        return lastFrameCount;
     }
 
 }
