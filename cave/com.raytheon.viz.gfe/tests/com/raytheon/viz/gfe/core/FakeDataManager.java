@@ -72,7 +72,7 @@ public class FakeDataManager extends DataManager {
     private AutoSaveJob autoSaveJob;
 
     public FakeDataManager() throws GFEServerException {
-        super();
+        super(new DataManagerOffscreenFactory(), null);
         parmManager = super.getParmManager();
         spatialDisplayManager = super.getSpatialDisplayManager();
         parmOp = super.getParmOp();
