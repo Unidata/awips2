@@ -111,8 +111,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 17Jun2008    1157       MW Fegan    Pass configuration to sub-dialogs.
  * 15 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
  *                                      Changes for non-blocking GhgAlertDlg.
- * 28 Nov 2012  1353       rferrel     Changes for non-blocking GhgColorDlg.
- *                                      Changes for non-blocking GhgFontDlg.
+ * 03 Dec 2012  1353       rferrel     Changes for non-blocking GhgFilterDlg.
+ *                                      Changes for non-blocking GhgSaveDeleteFilterDlg.
  * 
  * </pre>
  * 
@@ -132,7 +132,9 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
     private GhgColorDlg colorDlg;
 
-    private GhgFontDlg fontDlg;
+    private GhgFilterDlg filterDlg;
+
+    private GhgSaveDeleteFilterDlg deleteFilterDlg;
 
     private GhgSaveDeleteFilterDlg saveFilterDlg;
 
@@ -1114,7 +1116,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      */
     private void showFilterDialog() {
         if (filterDlg == null) {
-            final GhgConfigData configuration = GhgConfigData.getInstance();
+            GhgConfigData configuration = GhgConfigData.getInstance();
 
             filterDlg = new GhgFilterDlg(getShell(),
                     configuration.getCurrentFilter());
@@ -1122,7 +1124,9 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    filterDisplay.updateFilter(configuration.getCurrentFilter().name);
+                    if (returnValue instanceof String) {
+                        filterDisplay.updateFilter(returnValue.toString());
+                    }
                     filterDlg = null;
                 }
             });
@@ -1159,22 +1163,14 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Font dialog.
      */
     private void showFontDialog() {
-        if (fontDlg == null) {
-            fontDlg = new GhgFontDlg(getShell(), GhgConfigData.getInstance());
-            fontDlg.setCloseCallback(new ICloseCallback() {
+        GhgFontDlg fontDlg = new GhgFontDlg(getShell(),
+                GhgConfigData.getInstance());
+        currentFontData = (FontData) fontDlg.open();
 
-                @Override
-                public void dialogClosed(Object returnValue) {
-                    if (returnValue instanceof FontData) {
-                        FontData currentFontData = (FontData) returnValue;
-                        // Update the data fonts in the table.
-                        ghgTableComp.updateTableFont(currentFontData);
-                    }
-                    fontDlg = null;
-                }
-            });
+        // Update the data fonts in the table.
+        if (currentFontData != null) {
+            ghgTableComp.updateTableFont(currentFontData);
         }
-        fontDlg.open();
     }
 
     /**
