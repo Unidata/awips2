@@ -111,6 +111,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 17Jun2008    1157       MW Fegan    Pass configuration to sub-dialogs.
  * 15 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
  *                                      Changes for non-blocking GhgAlertDlg.
+ * 28 Nov 2012  1353       rferrel     Changes for non-blocking GhgColorDlg.
+ *                                      Changes for non-blocking GhgFontDlg.
  * 
  * </pre>
  * 
@@ -121,12 +123,16 @@ import com.raytheon.viz.ui.statusline.StatusStore;
 public class GhgMonitorDlg extends CaveSWTDialog implements
         GhgMonitorFilterChangeListener, GhgMonitorZoneSelectionListener,
         INotificationObserver {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgMonitorDlg.class);
 
     private static final Map<String, GhgConfigData.DataEnum> labelToEnumMap;
 
     private GhgAlertDlg alertDlg;
+
+    private GhgColorDlg colorDlg;
+
+    private GhgFontDlg fontDlg;
 
     /**
      * Active group one string.
@@ -1111,28 +1117,47 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Font dialog.
      */
     private void showFontDialog() {
-        GhgFontDlg fontDlg = new GhgFontDlg(getShell(),
-                GhgConfigData.getInstance());
-        currentFontData = (FontData) fontDlg.open();
+        if (fontDlg == null) {
+            fontDlg = new GhgFontDlg(getShell(), GhgConfigData.getInstance());
+            fontDlg.setCloseCallback(new ICloseCallback() {
 
-        // Update the data fonts in the table.
-        if (currentFontData != null) {
-            ghgTableComp.updateTableFont(currentFontData);
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof FontData) {
+                        FontData currentFontData = (FontData) returnValue;
+                        // Update the data fonts in the table.
+                        ghgTableComp.updateTableFont(currentFontData);
+                    }
+                    fontDlg = null;
+                }
+            });
         }
+        fontDlg.open();
     }
 
     /**
      * Display the Color dialog.
      */
     private void showColorDialog() {
-        GhgColorDlg colorDlg = new GhgColorDlg(getShell());
-        boolean changeColor = (Boolean) colorDlg.open();
+        if (colorDlg == null) {
+            colorDlg = new GhgColorDlg(getShell());
+            colorDlg.setCloseCallback(new ICloseCallback() {
 
-        // Update the alert colors in the table
-        if (changeColor == true) {
-            ghgTableComp.updateDataColors();
-            ghgMapComponent.updateMapColors();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Boolean) {
+                        boolean changeColor = (Boolean) returnValue;
+                        // Update the alert colors in the table
+                        if (changeColor == true) {
+                            ghgTableComp.updateDataColors();
+                            ghgMapComponent.updateMapColors();
+                        }
+                    }
+                    colorDlg = null;
+                }
+            });
         }
+        colorDlg.open();
     }
 
     public void refresh(boolean getData) {
