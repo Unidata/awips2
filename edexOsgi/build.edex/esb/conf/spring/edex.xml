@@ -4,9 +4,12 @@
   xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:util="http://www.springframework.org/schema/util"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
   
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
@@ -371,6 +374,9 @@
         <constructor-arg ref="serverPrivilegedRequestHandler" />
     </bean>
 
+    <util:constant id="requestServerKey"
+        static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
+    
     <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
         <!-- This bean will cause all RequestRouter.route(request) calls 
             to be processed internally to EDEX -->
@@ -378,7 +384,7 @@
 
     <bean id="registerRequestServiceRouter" factory-bean="requestRouterRegistry"
         factory-method="register">
-        <constructor-arg value="request.server" />
+        <constructor-arg ref="requestServerKey" />
         <constructor-arg ref="requestServiceRouter" />
     </bean>
     
