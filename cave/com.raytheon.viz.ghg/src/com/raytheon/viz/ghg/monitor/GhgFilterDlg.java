@@ -212,40 +212,39 @@ public class GhgFilterDlg extends CaveSWTDialog {
         createDismissButton();
 
         setInitialDialogState();
-
-        // updateListBoxes();
     }
 
-    // /**
-    // * Updates the configuration object prior to dialog close.
-    // */
-    // private void updateFilterConfig() {
-    // /* update the state of the current hazards only check-box */
-    // filter.currentHazards = showCurrentHazardsChk.getSelection();
-    //
-    // /* update the state of the filter boxes */
-    // for (int i = 0; i < filterArray.length; i++) {
-    // GhgConfigData.AlertsFilterEnum type = filterArray[i];
-    // GhgFilterListGroup group = listGroupArray.get(i);
-    // filter.setFilterByType(type, group.getSelections());
-    // }
-    //
-    // /* update the state of the Record Consolidation check-boxes */
-    // filter.combineGeoId = combineGeoIdChk.getSelection();
-    // filter.combineSegments = combineSegmentsChk.getSelection();
-    // filter.combinePurgeTimes = combinePurgeTimesChk.getSelection();
-    // filter.combineActions = combineActionsChk.getSelection();
-    //
-    // /* update the state of the Filter Override check-boxes */
-    // filter.includeAlerts = incAlertsChk.getSelection();
-    // filter.includeMapSelections = incMapSelectionsChk.getSelection();
-    // filter.includePastEvents = incPastEventsChk.getSelection();
-    // filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
-    //
-    // filter.name = "<Custom>";
-    //
-    // GhgConfigData.getInstance().setCurrentFilter(filter);
-    // }
+    /**
+     * Updates the configuration object prior to dialog close.
+     */
+    private void updateFilterConfig() {
+        /* update the state of the current hazards only check-box */
+        filter.currentHazards = showCurrentHazardsChk.getSelection();
+
+        /* update the state of the filter boxes */
+        for (int i = 0; i < filterArray.length; i++) {
+            GhgConfigData.AlertsFilterEnum type = filterArray[i];
+            GhgFilterListGroup group = listGroupArray.get(i);
+            filter.setFilterByType(type, group.getSelections());
+        }
+
+        /* update the state of the Record Consolidation check-boxes */
+        filter.combineGeoId = combineGeoIdChk.getSelection();
+        filter.combineSegments = combineSegmentsChk.getSelection();
+        filter.combinePurgeTimes = combinePurgeTimesChk.getSelection();
+        filter.combineActions = combineActionsChk.getSelection();
+
+        /* update the state of the Filter Override check-boxes */
+        filter.includeAlerts = incAlertsChk.getSelection();
+        filter.includeMapSelections = incMapSelectionsChk.getSelection();
+        filter.includePastEvents = incPastEventsChk.getSelection();
+        filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+
+        filter.name = "<Custom>";
+
+        GhgConfigData.getInstance().setCurrentFilter(filter);
+        setReturnValue(filter.name);
+    }
 
     /**
      * Sets the initial state of the dialog based on current configuration.
@@ -608,8 +607,8 @@ public class GhgFilterDlg extends CaveSWTDialog {
         dismissBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // updateFilterConfig();
-                shell.dispose();
+                updateFilterConfig();
+                close();
             }
         });
     }
