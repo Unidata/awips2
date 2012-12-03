@@ -32,7 +32,24 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class HelpDlg extends CaveSWTDialog{
+/**
+ * Dialog to dispaly FFFG help.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Nov 29, 2012 1353       rferrel     Made dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class HelpDlg extends CaveSWTDialog {
     /**
      * Create the label object.
      */
@@ -46,12 +63,13 @@ public class HelpDlg extends CaveSWTDialog{
      */
 
     public HelpDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Help for ForcedFFG");
-   }
+    }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -59,12 +77,12 @@ public class HelpDlg extends CaveSWTDialog{
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
-   
+
         // Initialize layout
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 270;
-        helpLbl=new Label(shell,SWT.None);
+        helpLbl = new Label(shell, SWT.None);
         helpLbl.setLayoutData(gd);
 
         // Add a close button
@@ -85,32 +103,33 @@ public class HelpDlg extends CaveSWTDialog{
         });
 
         populateDlg();
-}
- 
+    }
+
     private void populateDlg() {
-        String helpText = "  -  To add FFG to counties: Left click on the county name \n"+
-                          "     in the leftmost column and click on the button \n"+
-                          "     'Add/Update selected County(ies)' \n"+
-                          "  -  To add FFG to basins: Left click on the basin name \n"+
-                          "     in the leftmost column and click on the button \n"+
-                          "     'Add/Update selected Basin(s)' \n"+
-                          "  -  To remove FFG from counties: Left click on the county name \n"+
-                          "     in the rightmost column and click on the button \n"+
-                          "     'Remove County(ies)' \n"+
-                          "  -  To remove FFG from basins: Left click on the basin name \n"+
-                          "     in the rightmost column and click on the button \n"+
-                          "     'Remove Basin(s)' \n"+
-                          "  -  Basin value override county value.\n"+
-                          "  -  County value override CWA value.\n"+
-                          "  -  Visit http://www.nws.noaa.gov/mdl/ffmp/ \n"+
-                          "     for more details.";
+        String helpText = "  -  To add FFG to counties: Left click on the county name \n"
+                + "     in the leftmost column and click on the button \n"
+                + "     'Add/Update selected County(ies)' \n"
+                + "  -  To add FFG to basins: Left click on the basin name \n"
+                + "     in the leftmost column and click on the button \n"
+                + "     'Add/Update selected Basin(s)' \n"
+                + "  -  To remove FFG from counties: Left click on the county name \n"
+                + "     in the rightmost column and click on the button \n"
+                + "     'Remove County(ies)' \n"
+                + "  -  To remove FFG from basins: Left click on the basin name \n"
+                + "     in the rightmost column and click on the button \n"
+                + "     'Remove Basin(s)' \n"
+                + "  -  Basin value override county value.\n"
+                + "  -  County value override CWA value.\n"
+                + "  -  Visit http://www.nws.noaa.gov/mdl/ffmp/ \n"
+                + "     for more details.";
 
         this.helpLbl.setText(helpText);
         this.shell.pack();
-     }
+    }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -118,4 +137,3 @@ public class HelpDlg extends CaveSWTDialog{
         super.disposed();
     }
 }
-
