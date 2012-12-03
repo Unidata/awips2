@@ -60,6 +60,9 @@ import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.SourceCompData;
 import com.raytheon.uf.common.monitor.config.ValueNameIdData;
 import com.raytheon.uf.common.monitor.xml.FFFGBasinIdXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
@@ -67,6 +70,7 @@ import com.raytheon.uf.viz.monitor.ffmp.fffg.RetrieveMergeDlg.RetrieveMergeActio
 import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg;
 import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg.DialogType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * 
@@ -83,6 +87,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                       Changes for non-blocking AboutDlg.
  *                                       Changes for non-blocking AcknowledgmentsDlg.
  *                                       Changes for non-blocking HelpDlg.
+ *                                       Changes for non-blocking RetrieveMergeDlg.
+ *                                       Changes for non-blocking LoadSaveDeleteSelectDlg.
  * 
  * </pre>
  * 
@@ -91,6 +97,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         IFFFGData {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFFGDlg.class);
+
     private final String MODIFIED = "Modified";
 
     /**
@@ -217,6 +226,21 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
      * Dialog prompting the user for retrieving options.
      */
     private RetrieveMergeDlg retMergeDlg;
+
+    /**
+     * Dialog prompting the user for save file.
+     */
+    private LoadSaveDeleteSelectDlg saveDlg;
+
+    /**
+     * Dialog prompting the user for delete file.
+     */
+    private LoadSaveDeleteSelectDlg deleteDlg;
+
+    /**
+     * Dialog for getting file to retrieve.
+     */
+    private LoadSaveDeleteSelectDlg loadDlg;
 
     /**
      * Popup for Help menu item
@@ -1575,32 +1599,73 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
      * Retrieve saved data.
      */
     private void retrieveSavedData() {
-        RetrieveMergeAction action = RetrieveMergeDlg.RetrieveMergeAction.CANCEL;
-
-        if (isDialogClear() && (fileNameLbl.getText().trim().length() == 0)) {
-            action = RetrieveMergeAction.RETRIEVE;
-        } else {
-            if (retMergeDlg == null) {
-                retMergeDlg = new RetrieveMergeDlg(shell);
-                action = retMergeDlg.open();
-                retMergeDlg = null;
-            }
-        }
-
-        if (action == RetrieveMergeAction.CANCEL) {
+        if (loadDlg != null) {
+            // The RetriveMergeDlg has done its work but still waiting for the
+            // user to pick file to retrive.
+            loadDlg.open();
             return;
         }
 
+        if (isDialogClear() && (fileNameLbl.getText().trim().length() == 0)) {
+            return;
+        } else {
+            if (retMergeDlg == null) {
+                retMergeDlg = new RetrieveMergeDlg(shell);
+                retMergeDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof RetrieveMergeAction) {
+                            RetrieveMergeAction action = (RetrieveMergeAction) returnValue;
+                            getRetrieveFilename(action);
+                        }
+                        retMergeDlg = null;
+                    }
+                });
+            }
+            retMergeDlg.open();
+        }
+    }
+
+    /**
+     * Get file to retrieve and then perform the action.
+     * 
+     * @param action
+     */
+    private void getRetrieveFilename(final RetrieveMergeAction action) {
+
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
-        LoadSaveDeleteSelectDlg loadDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.OPEN, fdm.getFFFGDataFilePath(),
-                fdm.getFFFGMasterFileName());
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+        loadDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.OPEN,
+                fdm.getFFFGDataFilePath(), fdm.getFFFGMasterFileName());
+
+        loadDlg.setCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (returnValue instanceof LocalizationFile) {
+                    LocalizationFile fileName = (LocalizationFile) returnValue;
+                    doRetrieveSavedData(action, fileName);
+                }
+                loadDlg = null;
+            }
+        });
+        loadDlg.open();
+    }
+
+    /**
+     * Perform the desired and and update the display.
+     * 
+     * @param action
+     * @param fileName
+     */
+    private void doRetrieveSavedData(RetrieveMergeAction action,
+            LocalizationFile fileName) {
 
         if (fileName == null) {
             return;
         }
+        FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
         fdm.loadUserFFFGData(fileName.getFile().getName());
 
@@ -1812,16 +1877,28 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
      * Save the file to a user selected file name.
      */
     private void saveFileAs() {
-        FFFGDataMgr fdm = FFFGDataMgr.getInstance();
+        if (saveDlg == null) {
+            FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
-        LoadSaveDeleteSelectDlg loadDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.SAVE_AS, fdm.getFFFGDataFilePath(),
-                fdm.getFFFGMasterFileName());
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+            saveDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.SAVE_AS,
+                    fdm.getFFFGDataFilePath(), fdm.getFFFGMasterFileName());
+            saveDlg.setCloseCallback(new ICloseCallback() {
 
-        if (fileName == null) {
-            return;
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doSaveFileAs(fileName);
+                    }
+                    saveDlg = null;
+                }
+            });
         }
+        saveDlg.open();
+    }
+
+    private void doSaveFileAs(LocalizationFile fileName) {
+        FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
         ArrayList<SourceCompData> srcCompData = getSourceCompData();
 
@@ -1861,20 +1938,32 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
     }
 
     /**
-     * Delete that user selected file.
+     * Delete the user selected file.
      */
     private void deleteFile() {
-        FFFGDataMgr fdm = FFFGDataMgr.getInstance();
+        if (deleteDlg == null) {
+            FFFGDataMgr fdm = FFFGDataMgr.getInstance();
 
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.DELETE, fdm.getFFFGDataFilePath(),
-                fdm.getFFFGMasterFileName());
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
+            deleteDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.DELETE,
+                    fdm.getFFFGDataFilePath(), fdm.getFFFGMasterFileName());
+            deleteDlg.setCloseCallback(new ICloseCallback() {
 
-        if (fileName == null) {
-            setStatusMsg("FileName is null...");
-            return;
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doDeleteFile(fileName);
+                    }
+                    deleteDlg = null;
+                };
+            });
         }
+        deleteDlg.open();
+    }
+
+    private void doDeleteFile(LocalizationFile fileName) {
+        FFFGDataMgr fdm = FFFGDataMgr.getInstance();
+        String name = fileName.getFile().getName();
 
         try {
             if (fileName.getFile().getName().compareTo(fdm.getUserFileName()) == 0) {
@@ -1882,12 +1971,13 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
                 fileNameLbl.setText("");
                 updateFileStatusLabel(false);
             }
-            String name = fileName.getFile().getName();
             fileName.delete();
             setStatusMsg("Deleted " + name + " successfully. ");
             fileName = null;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to delete file \""
+                    + fileName.toString() + "\"", e);
+            setStatusMsg("Problem deleting file: " + name);
         }
     }
 
