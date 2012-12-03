@@ -2,8 +2,11 @@
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:util="http://www.springframework.org/schema/util"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
   
 	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
 	   <property name="socketTimeout" value="330000"/>
@@ -35,16 +38,24 @@
 
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
    
+   <!-- These util:constant beans should not be required, they overwrite the ones in *-common.xml files for CAVE since
+        CAVE just gets a ClassNotFoundException on boot... 
+        someday the reason should be figured out and these beans removed -->
+   <util:constant id="requestServerKey"
+        static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
+   
+   <!-- Register routers -->
    <bean id="requestRouterRegistry"
         class="com.raytheon.uf.common.serialization.comm.RequestRouter"
         factory-method="getRouterRegistry" />
 
     <bean id="requestServiceRouter" class="com.raytheon.uf.viz.core.requests.ServerRequestRouter">
+        <constructor-arg ref="requestServerKey" />
         <!-- This bean will cause all RequestRouter.route(request) calls to be serialized over to EDEX -->
     </bean>
 
     <bean factory-bean="requestRouterRegistry" factory-method="register">
-        <constructor-arg value="request.server" />
+        <constructor-arg ref="requestServerKey" />
         <constructor-arg ref="requestServiceRouter" />
     </bean>
 
