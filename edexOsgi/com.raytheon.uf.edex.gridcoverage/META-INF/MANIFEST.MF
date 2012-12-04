@@ -21,3 +21,4 @@ Import-Package: com.raytheon.edex.db.dao,
  org.hibernate.criterion,
  org.springframework.orm.hibernate3.support
 Export-Package: com.raytheon.uf.edex.gridcoverage
+Require-Bundle: com.raytheon.uf.edex.database
