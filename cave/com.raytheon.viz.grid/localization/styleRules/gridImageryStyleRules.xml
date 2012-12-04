@@ -4519,16 +4519,14 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>in</displayUnits>
-			<range levelScale="LOG">
+			<range>
 				<minValue>0.0</minValue>
-<!-- 				<maxValue>16</maxValue>-->
+ 				<maxValue>16</maxValue>
 			</range>
 			<defaultColormap>Grid/gridded data</defaultColormap>
-			<!-- 
 			<colorbarLabeling>
-				<values>1 2 4 6 6.667 10 12 15</values>
+				<increment>2</increment>
 			</colorbarLabeling>
-			-->
 		</imageStyle>
 	</styleRule>
 	<styleRule>
