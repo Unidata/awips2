@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -37,6 +38,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ffti.FFTIControlDlg;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/27/10       4265       dhladky     Initial Creation.
+ * 12/05/2012    1353       rferrel     Changes for non-blocking FFTIControlDlg.
  * 
  * </pre>
  * 
@@ -49,18 +51,19 @@ public class FFTIAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
-        System.out.println("Activating/Action the FFTI dialogs...");
-
-        if ((fftiControlDlg == null) || fftiControlDlg.isDisposed()) {
+        // Must create new dialog when old is closed instead of just opening the
+        // old dialog again. This will restore the dialog to the last saved
+        // changes.
+        if (fftiControlDlg == null || fftiControlDlg.getShell() == null
+                || fftiControlDlg.isDisposed()) {
             fftiControlDlg = new FFTIControlDlg(shell);
-            fftiControlDlg.open();
-            fftiControlDlg = null;
         }
+        fftiControlDlg.open();
+        shell.setCursor(null);
         return null;
     }
-
 }
