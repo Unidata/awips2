@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
+import com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.edittool.GridID;
@@ -73,7 +74,8 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
  * @version 1.0
  */
 
-public class GridManager implements IGridManager {
+public class GridManager implements IGridManager,
+        ISpatialEditorTimeChangedListener {
     /**
      * Job to scroll the grid manager horizontally
      */
@@ -233,15 +235,6 @@ public class GridManager implements IGridManager {
     private ScrolledComposite gridScrolledComp;
 
     private ScrolledComposite teScrolledComp;
-
-    private Date selectedTime;
-
-    /**
-     * @return the selectedTime
-     */
-    public Date getSelectedTime() {
-        return selectedTime;
-    }
 
     private DataManager dataManager;
 
@@ -554,6 +547,9 @@ public class GridManager implements IGridManager {
         if (updateJob.getState() == Job.NONE) {
             updateJob.schedule();
         }
+
+        dataManager.getSpatialDisplayManager()
+                .addSpatialEditorTimeChangedListener(this);
     }
 
     public TimeRange getVisibleTimeRange() {
@@ -652,26 +648,6 @@ public class GridManager implements IGridManager {
         }
     }
 
-    @Override
-    public void nextSelectedGrid() {
-        gridCanvas.nextSelectedGrid();
-    }
-
-    @Override
-    public void previousSelectedGrid() {
-        gridCanvas.previousSelectedGrid();
-    }
-
-    @Override
-    public void firstSelectedGrid() {
-        gridCanvas.firstSelectedGrid();
-    }
-
-    @Override
-    public void lastSelectedGrid() {
-        gridCanvas.lastSelectedGrid();
-    }
-
     protected void startScrolling(int i) {
         scrollJob.setIncrement(i);
         scrollJob.schedule();
@@ -751,10 +727,16 @@ public class GridManager implements IGridManager {
 
     @Override
     public void setSelectedTime(Date selectedTime) {
-        this.selectedTime = selectedTime;
         dataManager.getSpatialDisplayManager().setSpatialEditorTime(
                 selectedTime);
         redraw();
+    }
+
+    /**
+     * @return the selectedTime
+     */
+    public Date getSelectedTime() {
+        return dataManager.getSpatialDisplayManager().getSpatialEditorTime();
     }
 
     protected void syncSelectTR(Date t) {
@@ -808,5 +790,17 @@ public class GridManager implements IGridManager {
 
         service.refreshElements(
                 "com.raytheon.viz.gfe.actions.SelectGridsWhenStepping", null);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener#
+     * spatialEditorTimeChanged(java.util.Date)
+     */
+    @Override
+    public void spatialEditorTimeChanged(Date date) {
+        syncSelectTR(date);
+        redraw();
     }
 }
