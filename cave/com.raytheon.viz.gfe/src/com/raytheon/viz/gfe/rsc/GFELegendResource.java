@@ -21,24 +21,22 @@ package com.raytheon.viz.gfe.rsc;
 
 import static com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode.IMAGE;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.WeakHashMap;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -48,6 +46,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -74,9 +73,9 @@ import com.raytheon.viz.gfe.edittool.GridID;
 import com.raytheon.viz.ui.input.InputAdapter;
 
 /**
- *
+ * 
  * Port of SELegendVisual from AWIPS I GFE
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -85,7 +84,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
  * 07/10/2012   15186      ryu         Clean up initInternal per Ron
  * </pre>
- *
+ * 
  * @author chammack
  * @version 1.0
  */
@@ -107,7 +106,7 @@ public class GFELegendResource extends
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see java.lang.Enum#toString()
          */
         @Override
@@ -222,8 +221,6 @@ public class GFELegendResource extends
 
     protected IGraphicsTarget lastTarget;
 
-    protected Map<Parm, ResourcePair> parmToRscMap;
-
     private GridID qvGrid;
 
     private IInputHandler handler = new GFELegendInputHandler();
@@ -252,7 +249,6 @@ public class GFELegendResource extends
         resourceDateFormat = new SimpleDateFormat("E HH'Z' dd-MMM-yy");
         resourceDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.dataManager = dataManager;
-        parmToRscMap = new WeakHashMap<Parm, ResourcePair>();
 
         String s = Activator.getDefault().getPreferenceStore()
                 .getString("LegendMode");
@@ -273,7 +269,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Object#finalize()
      */
     @SuppressWarnings("unchecked")
@@ -290,7 +286,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.core.legend.ILegendDecorator#getLegendData(com.raytheon
      * .viz.core.drawables.IDescriptor)
@@ -322,27 +318,55 @@ public class GFELegendResource extends
 
     }
 
+    /**
+     * Gets an ordered collection of Parms to display for the legend.
+     * 
+     * @param descriptor
+     * @param parmRscMap
+     *            optional map to create Parm->ResourcePair mapping for parms
+     *            returned
+     * @return
+     */
+    protected Collection<Parm> getLegendOrderedParms(IDescriptor descriptor,
+            Map<Parm, ResourcePair> parmRscMap) {
+        List<Parm> parms = new ArrayList<Parm>();
+        for (ResourcePair rp : descriptor.getResourceList()) {
+            if (rp.getResource() instanceof GFEResource) {
+                Parm parm = ((GFEResource) rp.getResource()).getParm();
+                if (qvGrid == null
+                        || (qvGrid != null && qvGrid.getParm() == parm)) {
+                    parms.add(parm);
+                    if (parmRscMap != null) {
+                        parmRscMap.put(parm, rp);
+                    }
+                    if (qvGrid != null) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        Collections.sort(parms);
+        Collections.reverse(parms);
+        return parms;
+    }
+
     private LegendData[] getLegendDataGrids(IDescriptor descriptor) {
         int lengthOfTime = "144h Tue 19Z 12-Sep-06".length();
 
         List<LegendData> legendDataList = new ArrayList<LegendData>();
 
-        Date date = this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime();
-        DataTime dt = new DataTime(date);
+        FramesInfo currInfo = descriptor.getFramesInfo();
 
         Parm activeParm = dataManager.getSpatialDisplayManager()
                 .getActivatedParm();
         StringBuilder labelBuilder = new StringBuilder();
 
-        Parm[] parms;
+        Map<Parm, ResourcePair> parmRscMap = new HashMap<Parm, ResourcePair>();
+        Collection<Parm> parms = getLegendOrderedParms(descriptor, parmRscMap);
         Parm qvParm = null;
-        if (qvGrid == null) {
-            parms = orderParms(descriptor);
-        } else {
+        if (qvGrid != null) {
             qvParm = qvGrid.getParm();
-            parms = new Parm[] { qvParm };
-            dt = new DataTime(qvGrid.getDate());
         }
 
         int[] lengths = getLongestFields(parms);
@@ -350,12 +374,11 @@ public class GFELegendResource extends
         ParmID topoID = dataManager.getTopoManager().getCompositeParmID();
 
         // Topmost resources: GFE Parms
-        for (int i = parms.length - 1; i >= 0; i--) {
-            Parm parm = parms[i];
+        for (Parm parm : parms) {
             ParmID parmId = parm.getParmID();
             DatabaseID dbId = parmId.getDbId();
             StringBuilder sb = new StringBuilder();
-            ResourcePair rp = parmToRscMap.get(parm);
+            ResourcePair rp = parmRscMap.get(parm);
             GFEResource rsc = (GFEResource) rp.getResource();
             LegendData ld = new LegendData();
             ResourceProperties props = rp.getProperties();
@@ -450,25 +473,19 @@ public class GFELegendResource extends
                 addSpaces(sb, diff + 3);
 
                 labelBuilder.setLength(0);
-                if (dt != null) {
-                    IGridData[] gd = parm.getGridInventory(dt.getValidPeriod());
-                    if ((gd == null) || (gd.length == 0)) {
-                        labelBuilder.append(" <No Grid>");
-                    } else if (!parm.getGridInfo().isTimeIndependentParm()) {
-                        TimeRange tr = gd[0].getGridTime();
+                if (parm.getGridInfo().isTimeIndependentParm()) {
+                    labelBuilder.append(" Persistent");
+                } else {
+                    DataTime currRscTime = currInfo.getTimeForResource(rsc);
+                    if (currRscTime != null) {
+                        TimeRange tr = currRscTime.getValidPeriod();
                         labelBuilder.append(String.format("%3d",
                                 tr.getDuration() / 3600000));
                         labelBuilder.append("h ");
                         labelBuilder.append(resourceDateFormat.format(tr
                                 .getStart()));
                     } else {
-                        labelBuilder.append(" Persistent");
-                    }
-
-                }
-                if (labelBuilder.length() == 0) {
-                    if (parm.getGridInfo().isTimeIndependentParm()) {
-                        labelBuilder.append(" Persistent");
+                        labelBuilder.append(" <No Grid>");
                     }
                 }
 
@@ -528,7 +545,7 @@ public class GFELegendResource extends
 
     /**
      * Get the legend mode
-     *
+     * 
      * @return the legend mode
      */
     public LegendMode getLegendMode() {
@@ -538,14 +555,14 @@ public class GFELegendResource extends
     /**
      * Works in a single pass to perform the operations performed in AWIPS I
      * getLargestLevelName, etc.
-     *
+     * 
      * The fields in order: <LI>FieldName <LI>LevelName <LI>Units <LI>ModelName
-     *
-     *
+     * 
+     * 
      * @param descriptor
      * @return
      */
-    private int[] getLongestFields(Parm[] parms) {
+    private int[] getLongestFields(Collection<Parm> parms) {
         // Iterator<ResourcePair> rl = descriptor.getResourceList().iterator();
         int[] sz = new int[4];
         StringBuilder labelBuilder = new StringBuilder();
@@ -604,34 +621,6 @@ public class GFELegendResource extends
         return sz;
     }
 
-    /**
-     * Create a map between parms and gfe resources. This will avoid expensive
-     * searching
-     *
-     * @param descriptor
-     * @return
-     */
-    protected Parm[] orderParms(IDescriptor descriptor) {
-        Iterator<ResourcePair> rl = descriptor.getResourceList().iterator();
-
-        parmToRscMap.clear();
-        while (rl.hasNext()) {
-            ResourcePair rp = rl.next();
-            if (rp.getResource() instanceof GFEResource) {
-                GFEResource gfeRsc = (GFEResource) rp.getResource();
-                parmToRscMap.put(gfeRsc.getParm(), rp);
-            }
-        }
-
-        // Now sort the parms in the proper order
-        // This will put them in the desired order, even if the actual order has
-        // been changed to facilitate proper rendering order
-        Parm[] parms = parmToRscMap.keySet().toArray(
-                new Parm[parmToRscMap.size()]);
-        Arrays.sort(parms);
-        return parms;
-    }
-
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
@@ -677,7 +666,7 @@ public class GFELegendResource extends
 
     /**
      * Set the legend mode
-     *
+     * 
      * @param mode
      *            the legend mode
      */
@@ -688,7 +677,7 @@ public class GFELegendResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
      * com.raytheon.viz.gfe.core.msgs.Message)
