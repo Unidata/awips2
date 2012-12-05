@@ -46,8 +46,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -58,6 +56,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.actions.FormatterlauncherAction;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
@@ -144,7 +143,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
             keybindingsCreated = true;
         }
 
-        DataManager dm = DataManager.getInstance(perspectiveWindow);
+        DataManager dm = DataManagerUIFactory.getInstance(perspectiveWindow);
         IRenderableDisplay display = pane.getRenderableDisplay();
         if (display instanceof GFEMapRenderableDisplay) {
             ((GFEMapRenderableDisplay) display).setDataManager(dm);
@@ -176,15 +175,11 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                         + GFESpatialDisplayManager.class.getName());
             }
         }
-
-        DataManager.fireChangeListener();
     }
 
     @Override
     public void activate() {
         super.activate();
-
-        DataManager.fireChangeListener();
 
         // Hack to disable editor closing
         IWorkbenchPage activePage = perspectiveWindow.getActivePage();
@@ -220,11 +215,12 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         super.close();
 
         try {
-            DataManager dm = DataManager.findInstance(perspectiveWindow);
+            DataManager dm = DataManagerUIFactory
+                    .findInstance(perspectiveWindow);
             if (dm != null) {
                 ISpatialDisplayManager mgr = dm.getSpatialDisplayManager();
                 if (mgr instanceof GFESpatialDisplayManager) {
-                    ((GFESpatialDisplayManager) mgr).depopulate();
+                    ((GFESpatialDisplayManager) mgr).dispose();
                 } else {
                     throw new IllegalStateException(this.getClass().getName()
                             + " must be used with "
@@ -237,7 +233,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     e);
         }
 
-        DataManager.dispose(perspectiveWindow);
+        DataManagerUIFactory.dispose(perspectiveWindow);
 
         // Put on own thread so close is not slowed down.
         new Thread(new Runnable() {
@@ -408,30 +404,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public void addContextMenuItems(IMenuManager menuManager,
             IDisplayPaneContainer container, IDisplayPane pane) {
         super.addContextMenuItems(menuManager, container, pane);
-
-        DataManager dataManager = DataManager.getCurrentInstance();
-        if (dataManager != null) {
-            // Don't add menu items for the resource if mouse is in the colorbar
-
-            // code for corrected mouse X and Y copied from
-            // GFEColorbarResource
-            IDisplayPane displayPane = container.getActiveDisplayPane();
-            int x = displayPane.getLastClickX();
-            int y = displayPane.getLastClickY();
-            org.eclipse.swt.graphics.Rectangle bounds = displayPane.getBounds();
-            IExtent extent = displayPane.getRenderableDisplay().getExtent();
-            double correctedX = x * (extent.getMaxX() - extent.getMinX())
-                    / bounds.width + extent.getMinX();
-            double correctedY = y * (extent.getMaxY() - extent.getMinY())
-                    / bounds.height + extent.getMinY();
-
-            PixelExtent colorBarExtent = dataManager.getSpatialDisplayManager()
-                    .getColorbarExtent();
-            if (colorBarExtent != null
-                    && colorBarExtent.contains(correctedX, correctedY)) {
-                return;
-            }
-        }
         menuManager.add(new ZoomMenuAction(container));
     }
 }
