@@ -110,7 +110,7 @@
     </levels>
   </gribParameterInfo>
   <gribParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_ecmwf</short_name>
+    <short_name>tp6hr</short_name>
     <long_name>total precipitation</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
