@@ -169,24 +169,20 @@ public class SnowMonitor extends ObsMonitor {
      * @param shell
      */
     public void launchDialog(String type, Shell shell) {
-
         if (type.equals("zone")) {
-            if (zoneDialog == null || zoneDialog.getShell() == null
-                    || zoneDialog.isDisposed()) {
+            if (zoneDialog == null) {
                 zoneDialog = new SnowZoneTableDlg(shell, obData);
                 addMonitorListener(zoneDialog);
                 zoneDialog.addMonitorControlListener(this);
                 fireMonitorEvent(zoneDialog.getClass().getName());
-                zoneDialog.open();
-            } else {
-                zoneDialog.bringToTop();
             }
+            zoneDialog.open();
         } else if (type.equals("area")) {
             if (areaDialog == null) {
                 areaDialog = new SnowMonitoringAreaConfigDlg(shell,
                         "SNOW Monitor Area Configuration");
-                areaDialog.open();
             }
+            areaDialog.open();
         }
     }
 
@@ -263,7 +259,7 @@ public class SnowMonitor extends ObsMonitor {
         try {
             SnowMonitorConfigurationManager areaConfig = getMonitorAreaConfig();
             for (String zone : areaConfig.getAreaList()) {
-                ArrayList<String> stations = areaConfig.getAreaStations(zone);
+                List<String> stations = areaConfig.getAreaStations(zone);
                 zones.put(zone, stations);
             }
         } catch (Exception e) {
@@ -408,7 +404,7 @@ public class SnowMonitor extends ObsMonitor {
             zoneDialog = null;
         }
         if (areaDialog != null) {
-            areaDialog.shellDisposeDialog();
+            areaDialog.close();
             areaDialog = null;
         }
     }
