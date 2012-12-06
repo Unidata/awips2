@@ -29,9 +29,6 @@ import jep.JepException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -62,6 +59,9 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Apr 14, 2011 8065       rferrel     Implemented enqueue to place
  *                                     Alerts at the front of the queue
  *                                     and work with data caching.
+ * Nov 28, 2012 1363        rferrel    No longer add a dispose listner so the
+ *                                      creation of instance can be done on
+ *                                      any thread.
  * 
  * </pre>
  * 
@@ -107,7 +107,6 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
         super(name);
         suspendMonitor = new Object();
         suspendJob = false;
-        setupDispose();
     }
 
     /**
@@ -145,6 +144,13 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
             instance.schedule();
         }
         return instance;
+    }
+
+    public final static synchronized void dispose() {
+        if (instance != null) {
+            instance.shutdown();
+            instance = null;
+        }
     }
 
     /**
@@ -195,20 +201,6 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
             instance.suspendJob = false;
             instance.suspendMonitor.notify();
         }
-    }
-
-    /**
-     * Set up dispose listener to clean up when Cave goes away.
-     */
-    private void setupDispose() {
-
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .addDisposeListener(new DisposeListener() {
-                    @Override
-                    public void widgetDisposed(DisposeEvent e) {
-                        shutdown();
-                    }
-                });
     }
 
     /*
