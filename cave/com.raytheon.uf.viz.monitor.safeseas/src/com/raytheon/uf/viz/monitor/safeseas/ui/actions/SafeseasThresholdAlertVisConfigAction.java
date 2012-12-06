@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSDispMonThreshDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
+ * Dec  6 2012  #1351      skorolev   Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -46,26 +47,20 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSDispMonThreshDlg;
  */
 
 public class SafeseasThresholdAlertVisConfigAction extends AbstractHandler {
-    
+
     private SSDispMonThreshDlg ssMonitorDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        
-        System.out.println("Activating/Action the SafeSeas Alrt Vis Config...");
-       
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        
-        if (ssMonitorDlg == null)
-        {
-            ssMonitorDlg = new SSDispMonThreshDlg(shell, CommonConfig.AppName.SAFESEAS, DataUsageKey.MONITOR);
-            ssMonitorDlg.open();
-            ssMonitorDlg = null;
+        if (ssMonitorDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            ssMonitorDlg = new SSDispMonThreshDlg(shell,
+                    CommonConfig.AppName.SAFESEAS, DataUsageKey.MONITOR);
+
         }
-        
+        ssMonitorDlg.open();
         return null;
     }
 
 }
-
-
