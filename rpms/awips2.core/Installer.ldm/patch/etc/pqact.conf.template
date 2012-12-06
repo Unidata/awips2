@@ -164,15 +164,17 @@ HDS	^(YVW[ABCDGJM][0-9][0-9]) KKCI (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/
 	FILE	-overwrite -log -close -edex	/data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\6/GRID\7/\9Z_\(10)_\(11)-\1_KKCI_\2\3\4_(seq).\5.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[LM].[ABDHMNRSTU].*KWB.*       /Grid/SBN/rawGrib2
+# AWIPS1 OCONUS:	GRID    ^[LM].[ABCDGHMNORSTUVX].*KWB.*       /Grid/SBN/rawGrib2
 # LTHO70 KWBC 011800 !grib2/ncep/GFS/#213/201102011800F120/TMPK/700 hPa PRES
 
-NGRID	^([LM].[ABDHMNRSTU].{1,3}) (KWB.) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+NGRID	^([LM].[ABCDGHMNORSTUVX].{1,3}) (KWB.) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # MosGuidance, perhaps others?
 # LVUC00 KWBQ 271200 !grib2/ncep/GFS/#197/FHRS//LVL
 # Maint : fixed pattern at F...
-HDS	^([LM].[ABDHMNRSTU].{1,3}) (KWB.) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+# OCONUS: Added CEFG
+HDS	^([LM].[ABCDEFGHMNRSTU].{1,3}) (KWB.) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[LM].[MN].98.*KWNH             /Grid/SBN/rawGrib2
@@ -183,9 +185,15 @@ NGRID	^([LM].[MN].98) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]
 HDS	^([LM].[MN].98) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
+# AWIPS1 OCONUS:	GRID    ^L.R....*KWNH             /Grid/SBN/rawGrib2
+
+NGRID	^(L.R...) (KWNH) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
+
 # AWIPS1: 	GRID    ^[LM].E.*KWBD*                  /Grid/SBN/rawGrib2
+# AWIPS1 OCONUS: 	GRID    ^[LM].[EF].*KWBD*                  /Grid/SBN/rawGrib2
 # MUEU98 KWBD 020600 !grib2/ncep/DGEX_115/#185/201102020600F090/UREL/10 m HGHT
-NGRID	^([LM].E.{1,3}) (KWBD) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+NGRID	^([LM].[EF].{1,3}) (KWBD) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^L.U.*KWBN*                     /Grid/SBN/rawGrib2
@@ -251,15 +259,17 @@ EXP	(.*ecmwf_decrypted.*)
 	FILE	-overwrite -log -close -edex	\1
 
 # AWIPS1:	GRID    ^E.[ABCGHI].*KWBJ               /Grid/SBN/rawGrib2
+# AWIPS1 OCONUS:	GRID    ^E.[ABCDEFGHI].*KWBJ               /Grid/SBN/rawGrib2
 # EWAW88 KWBJ 021200 !grib2/ncep/GMGWM/#255/201102021200F180/WSTP/0 - NONE
 
-NGRID	^(E.[ABCGHI].{1,3}) (KWBJ) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+NGRID	^(E.[ABCDEFGHI].{1,3}) (KWBJ) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^[LM].[AB].*KWBS*              /Grid/SBN/rawGrib2
+# AWIPS1 OCONUS:	GRID    ^[LM].[ABCDE].*KWBS*              /Grid/SBN/rawGrib2
 # LMDA98 KWBS 160000 !grib2/ncep/WRF_EM/#130/201012160000F000/WXTZ/0 - NONE 
 
-ANY	^([LM].[AB].{1,3}) (KWBS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
+ANY	^([LM].[ABCDE].{1,3}) (KWBS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
 	FILE	-overwrite -log -close -edex	/data_store/\6/(\3:yyyy)(\3:mm)\3/\4/\7/GRID\8/\(10)Z_\(11)_\(12)-\1_\2_\3\4\5_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^LGXT[0-2][0-9].*KNHC           /Grid/SBN/rawGrib2
@@ -302,11 +312,12 @@ HDS	^(IUPT0[1-4]|IUPT40|IUAK01) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex    /data_store/profiler/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 # AWIPS1: 	POINT	^IUSZ[4-9][0-9].*		/ispan/bufr/raob
+# AWIPS1 OCONUS:	POINT   ^IUSZ[0-9][0-9].*                 /ispan/bufr/raob
 # IUSZ53 KWBC 020205
 # AWIPS1:	POINT   ^IUSY[4][0-9].*                 /ispan/bufr/raob
 # IUSY41 KWBC 020030
 
-HDS	^(IUS(Z[4-9]|Y4)[0-9]) ([A-Z]{4}) (..)(..)(..)
+HDS	^(IUS(Z[0-9]|Y4)[0-9]) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex    /data_store/bufrua/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).bufr.%Y%m%d%H
 
 # AWIPS1: TEXT	^SFUS41.*			/ispan/binLightning
@@ -545,8 +556,9 @@ IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)
 # JSML30 KWNO 021800
 
 # AWIPS1:	POINT   ^JSMF1[1-6].KWNO.*             /ispan/bufr/GFSLAMP
+# AWIPS1 OCONUS:	POINT   ^JSMF1[0-7].KWNO.*             /ispan/bufr/GFSLAMP
 # JSMF12 KWNO 022200
-HDS	^(JSM([TL]..|F1[1-6])) (....) (..)(..)(..)
+HDS	^(JSM([TL]..|F1[0-7])) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex    /data_store/bufrmos/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).bufr.%Y%m%d%H
 
 # AWIPS1:	POINT   ^IUAX0[12].*			/ispan/bufr/acars
@@ -625,3 +637,7 @@ HDS	^(JSXX(0[1-9]|10)) (.{4}) (..)(..)(..)
 # AWIPS2 distribution file bufrmthdw.xml: ^JUTX(([2-4]1)|53).* 
 HDS	^(JUTX(([2-4]1)|53)) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex   /data_store/bufrmthdw/(\5:yyyy)(\5:mm)\5/\6/\1_\4_\5\6\7_(seq).bufr.%Y%m%d%H
+
+# New NPP/VIIRS data 
+NOTHER	^(TIP...) (KNES) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/sat/%Y%m\(3)/\(4)/VIIRS/\1_\2_\3\4\5_(seq).%Y%m%d
