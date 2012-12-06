@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core,
  org.geotools,
  com.raytheon.viz.ui,
- org.apache.commons.lang
+ org.apache.commons.lang,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.viz.geotiff.rsc
