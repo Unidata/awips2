@@ -17,13 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.geospatial.interpolation.data;
+package com.raytheon.edex.plugin.gfe.server.handler.svcbu;
 
-import javax.measure.converter.UnitConverter;
+import com.raytheon.edex.plugin.gfe.svcbackup.SvcBackupUtil;
+import com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * A data source that converts requested values to a unit with the specified
- * converter.
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -31,37 +33,26 @@ import javax.measure.converter.UnitConverter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2012            njensen     Initial creation
+ * Nov 14, 2012            jdynina     Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author jdynina
  * @version 1.0
  */
 
-public class UnitConvertingDataSource implements DataSource {
+public class NcCheckRequestHandler implements IRequestHandler<NcCheckRequest>{
 
-    protected UnitConverter unitConverter;
-
-    protected DataSource wrappedSource;
-
-    /**
-     * Constructor
-     * 
-     * @param converter
-     *            the unit converter to apply when getting the values in the
-     *            data source
-     * @param source
-     *            the source to get values from
-     */
-    public UnitConvertingDataSource(UnitConverter converter, DataSource source) {
-        this.unitConverter = converter;
-        this.wrappedSource = source;
+    public Object handleRequest(NcCheckRequest request)
+            throws Exception {
+        ServerResponse<String> sr = new ServerResponse<String>();
+        if (!isNationalCenter()) {
+            sr.addMessage("Site is not a national center.");
+        }
+        return sr;
     }
 
-    @Override
-    public double getDataValue(int x, int y) {
-        return unitConverter.convert(wrappedSource.getDataValue(x, y));
+    public boolean isNationalCenter() {
+        return SvcBackupUtil.ncCheck();
     }
-
 }
