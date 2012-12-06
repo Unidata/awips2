@@ -353,48 +353,6 @@ public abstract class AbstractSpatialDisplayManager implements
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getColorMapParameters
-     * (com.raytheon.viz.gfe.core.parm.Parm)
-     */
-    @Override
-    public ColorMapParameters getColorMapParameters(Parm p)
-            throws GFEOperationFailedException {
-        for (IDescriptor descriptor : getDescriptors()) {
-            ColorMapParameters cmap = getColorMapParameters(p, descriptor);
-            if (cmap != null) {
-                return cmap;
-            }
-        }
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getColorMapParameters
-     * (com.raytheon .viz.gfe.core.parm.Parm)
-     */
-    @Override
-    public ColorMapParameters getColorMapParameters(Parm p,
-            IDescriptor descriptor) throws GFEOperationFailedException {
-        List<GFEResource> resourceList = descriptor.getResourceList()
-                .getResourcesByTypeAsType(GFEResource.class);
-        for (GFEResource gfeRsc : resourceList) {
-            if (gfeRsc.getParm().equals(p)) {
-                return gfeRsc.getCapability(ColorMapCapability.class)
-                        .getColorMapParameters();
-            }
-
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setDisplayMode(com.raytheon
      * .viz.gfe.core.parm.Parm,
      * com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode)
