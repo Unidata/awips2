@@ -1,0 +1,70 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="gridNotifyQueue"
+		class="com.raytheon.edex.plugin.grib.notify.GribNotifyQueue">
+		<property name="destinationUri" value="jms-generic:queue:gridNotification"/>
+    </bean>
+
+	<bean id="gridStaticDataGenerator"
+	    class="com.raytheon.edex.plugin.grib.topo.StaticDataGenerator"
+	    factory-method="getInstance" depends-on="gridcoveragelookup"/>
+
+    <bean id="gridProcessCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="grid-process"/>
+  	</bean>
+
+	<camelContext id="grid-process" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+
+		<!-- Begin Grid Process Route -->
+		<route id="gridProcessRoute">
+			<from uri="directvm:gridProcessRoute" />
+				<doTry>
+					<pipeline>
+						<bean ref="persist" method="persist" />
+						<bean ref="index" method="index" />
+						<bean ref="processUtil" method="log" />
+						<multicast parallelProcessing="false">
+							<!-- send to alerts -->
+							<to uri="directvm:gridIngestAlert"/>
+							<!-- notify grid -->
+							<to uri="directvm:gridNotification"/>
+							<!-- generate topo -->
+							<to uri="vm:gridStaticTopoGen"/>
+						</multicast>
+					</pipeline>
+					<doCatch>
+						<exception>java.lang.Throwable</exception>
+							<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					</doCatch>
+				</doTry>
+		</route>
+
+		<route id="gridIngestAlert">
+			<from uri="directvm:gridIngestAlert" />
+			<bean ref="toDataURI" method="toDataURI" />
+			<to uri="vm:stageNotification" />
+		</route>
+
+		<route id="gridNotification">
+			<from uri="directvm:gridNotification"/>
+			<bean ref="gridNotifyQueue" method="addRecords"/>
+		</route>
+
+		<route id="gridStaticTopoGen">
+			<from uri="vm:staticTopoGenerator" />
+			<bean ref="gridStaticDataGenerator"/>
+			<multicast parallelProcessing="false">
+				<to uri="directvm:gridIngestAlert"/>
+				<to uri="directvm:gridNotification"/>
+			</multicast>
+		</route>
+
+	</camelContext>
+</beans>
