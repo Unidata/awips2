@@ -53,11 +53,13 @@ import org.eclipse.ui.actions.ActionFactory;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
+// import com.raytheon.viz.aviation.cachedata.PythonCacheGuidanceJob;
 import com.raytheon.viz.aviation.climatology.ClimateMenuDlg;
 import com.raytheon.viz.aviation.climatology.WeatherPlotDialog;
 import com.raytheon.viz.aviation.editor.ITafSettable;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg;
 import com.raytheon.viz.aviation.editor.TafViewerEditorDlg.TafSettings;
+import com.raytheon.viz.aviation.guidance.PythonGuidanceJob;
 import com.raytheon.viz.aviation.guidance.ViewerTab;
 import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.monitor.CcfpMonitorObserver;
@@ -139,6 +141,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/11/2012   1229        jkorman     Changes for BackupDialog to support non-blocking.     
  * 10/11/2012   1229        rferrel     Changes for non-blocking TafViewerEditorDlg.
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
+ * 11/28/2012   1363        rferrel     Dispose of PythonGuidanceJob when closing.
  * </pre>
  * 
  * @author grichard
@@ -892,9 +895,9 @@ public class TafMonitorDlg extends CaveSWTDialog {
         }
 
         tveDlg.disposeDialog();
-        // shell.dispose();
-        close();
-        return true;
+        // PythonCacheGuidanceJob.dispose();
+        PythonGuidanceJob.dispose();
+        return close();
     }
 
     private void populateStationsOfInterest() {
