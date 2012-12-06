@@ -261,7 +261,9 @@ public class ShapefileResource extends
         if (isShadedCalculated
                 && getCapability(ShadeableCapability.class).getShadingField() != null
                 && shadedShape != null && shadedShape.isDrawable()) {
-            aTarget.drawShadedShape(shadedShape, alpha);
+            float opacity = getCapability(ShadeableCapability.class)
+                    .getOpacity();
+            aTarget.drawShadedShape(shadedShape, alpha * opacity);
         }
 
         if (getCapability(OutlineCapability.class).isOutlineOn()
@@ -269,7 +271,8 @@ public class ShapefileResource extends
             aTarget.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),
                     getCapability(OutlineCapability.class).getOutlineWidth(),
-                    getCapability(OutlineCapability.class).getLineStyle());
+                    getCapability(OutlineCapability.class).getLineStyle(),
+                    alpha);
         }
 
         if (getCapability(LabelableCapability.class).getLabelField() != null
