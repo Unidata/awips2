@@ -180,6 +180,13 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
                 // Fix Arrays.binarySearch returning -insertionIndex-1
                 currIdx = -currIdx - 1;
             }
+
+            // Cap index to ensure within bounds of times
+            if (currIdx < 0) {
+                currIdx = 0;
+            } else if (currIdx >= descriptorTimes.length) {
+                currIdx = descriptorTimes.length - 1;
+            }
         } else {
             currIdx = 0;
         }
