@@ -1144,6 +1144,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         Point buttonLoc = getDisplay().map(configSummaryBtn, null, x,
                 y + configSummaryBtn.getSize().y);
 
+        // Create each time since data may have changed. Since the dialog closes
+        // with either a mouse click or moving the mouse off the dialog nothing
+        // can be done by the user until the non-blocking dialog is close.
         ConfigSummaryDlg cfgSumDlg = new ConfigSummaryDlg(shell, buttonLoc,
                 cfgSumData);
         cfgSumDlg.open();
@@ -1254,13 +1257,11 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void displayThresholdsDialog(ThreshColNames colName) {
-        if ((attrThreshDlg == null) || (attrThreshDlg.isDisposed() == true)) {
+        if (attrThreshDlg == null) {
             attrThreshDlg = new AttributeThresholdDlg(shell, colName, this);
-            attrThreshDlg.open();
-            attrThreshDlg = null;
-        } else {
-            attrThreshDlg.newThreshold(colName);
         }
+        attrThreshDlg.open();
+        attrThreshDlg.newThreshold(colName);
     }
 
     /**
