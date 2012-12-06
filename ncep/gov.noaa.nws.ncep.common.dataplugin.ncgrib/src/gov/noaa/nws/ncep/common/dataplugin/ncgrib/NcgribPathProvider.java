@@ -77,7 +77,7 @@ public class NcgribPathProvider extends DefaultPathProvider {
 
     @Override
     public String getHDFFileName(String pluginName, IPersistable persistable) {
-        Integer partition = persistable.getHdfFileId();
+//        Integer partition = persistable.getHdfFileId();
 
         if (persistable == null) {
             throw new IllegalArgumentException(
@@ -89,17 +89,21 @@ public class NcgribPathProvider extends DefaultPathProvider {
                     "Argument persistable is of wrong type. Expected "
                             + NcgribRecord.class + " but got "
                             + persistable.getClass());
-        }
-
-        if (partition == null) {
-            throw new IllegalArgumentException(
-                    "Expected argument hdfFileId not set on object "
-                            + persistable.toString());
         } else if (pluginName == null) {
             throw new IllegalArgumentException(
                     "Expected argument pluginName not set on object "
                             + persistable.toString());
         }
+
+//        if (partition == null) {
+//            throw new IllegalArgumentException(
+//                    "Expected argument hdfFileId not set on object "
+//                            + persistable.toString());
+//        } else if (pluginName == null) {
+//            throw new IllegalArgumentException(
+//                    "Expected argument pluginName not set on object "
+//                            + persistable.toString());
+//        }
 
         NcgribRecord pdo = (NcgribRecord) persistable;
         StringBuffer sb = new StringBuffer();
