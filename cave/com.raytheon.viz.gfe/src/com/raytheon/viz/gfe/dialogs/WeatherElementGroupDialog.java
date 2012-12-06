@@ -53,6 +53,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * 02/22/2008              Eric Babin  Initial Creation
  * 04/17/2009   #2282      rjpeter     Added confirmation message on delete.
+ * 11/20/2012   DR 15532   jzeng       Added popup dialog to make sure group saved with 
+ * 									   valid characters
  * </pre>
  * 
  * @author ebabin
@@ -193,9 +195,9 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     @Override
     protected void okPressed() {
         boolean ok = true;
-
-        if (!saveType) {
-            String groupName = getSelectedItem();
+        String groupName = getSelectedItem();
+        
+        if (!saveType) {            
             if (!FileUtil.isValidFilename(groupName)) {
                 MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
                         | SWT.OK);
@@ -226,6 +228,17 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
                                 + " is protected or an invalid name.");
                 ok = false;
             }
+
+            if (!FileUtil.isValidFilename(groupName)) {
+                MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
+                        | SWT.OK);
+                mb.setText("Invalid Group Name");
+                mb.setMessage("Group name may only contain the following characters: "
+                        + FileUtil.VALID_FILENAME_CHARS);
+                mb.open();
+                ok = false;
+            }
+
         }
 
         if (ok) {
