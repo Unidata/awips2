@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.monitor.thresholds;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXB;
 
@@ -30,6 +31,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.monitor.xml.AreaThresholdXML;
 import com.raytheon.uf.viz.monitor.xml.AreaXML;
 import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
@@ -45,6 +49,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
+ * Dec 4,  2012 #1351      skorolev     Cleaned code
  * 
  * </pre>
  * 
@@ -52,6 +57,10 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * @version 1.0
  */
 public class ThresholdMgr {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ThresholdMgr.class);
+
     /**
      * Threshold XML data.
      */
@@ -80,12 +89,9 @@ public class ThresholdMgr {
             cfgXML = null;
             IPathManager pm = PathManagerFactory.getPathManager();
             File path = pm.getStaticFile(currFullPathAndFileName);
-
-            System.out.println("**** path = " + path);
-
             cfgXML = JAXB.unmarshal(path, ThresholdsXML.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, e.getMessage());
         }
     }
 
@@ -98,22 +104,14 @@ public class ThresholdMgr {
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         LocalizationFile locFile = pm.getLocalizationFile(context,
                 currFullPathAndFileName);
-
         if (locFile.getFile().getParentFile().exists() == false) {
-            System.out.println("Creating new directory");
-
-            if (locFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("Could not create new directory...");
-            }
+            locFile.getFile().getParentFile().mkdirs();
         }
-
         try {
-            System.out.println("Saving -- "
-                    + locFile.getFile().getAbsolutePath());
             JAXB.marshal(cfgXML, locFile.getFile());
             locFile.save();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, e.getMessage());
         }
     }
 
@@ -139,22 +137,17 @@ public class ThresholdMgr {
      * @return True if the configuration XML was successfully created.
      */
     public boolean createConfigFromDefaults(String fullDefaultPathName,
-            ArrayList<String> areaIDs, ArrayList<String> keys) {
+            List<String> areaIDs, ArrayList<String> keys) {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
             File path = pm.getStaticFile(fullDefaultPathName);
-
-            System.out.println("*** create from defaults path = " + path);
-
             ThresholdsXML cfgXmlDefaults = JAXB.unmarshal(path,
                     ThresholdsXML.class);
-
             createXmlFromDefaults(cfgXmlDefaults, areaIDs, keys);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, e.getMessage());
             return false;
         }
-
         return true;
     }
 
@@ -170,25 +163,27 @@ public class ThresholdMgr {
      *            values.
      */
     private void createXmlFromDefaults(ThresholdsXML cfgXmlDefaults,
-            ArrayList<String> areaIDs, ArrayList<String> keys) {
+            List<String> areaIDs, ArrayList<String> keys) {
         cfgXML = new ThresholdsXML();
-
         createAreas(cfgXmlDefaults, areaIDs, keys);
     }
 
+    /**
+     * Creates Areas.
+     * 
+     * @param defaultThreshXML
+     * @param areaIDs
+     * @param keys
+     */
     private void createAreas(ThresholdsXML defaultThreshXML,
-            ArrayList<String> areaIDs, ArrayList<String> keys) {
+            List<String> areaIDs, ArrayList<String> keys) {
         ArrayList<AreaXML> areas = new ArrayList<AreaXML>();
-
         for (String areaID : areaIDs) {
             AreaXML area = new AreaXML();
             area.setAreaId(areaID);
-
             createAreaThreshold(area, defaultThreshXML, keys);
-
             areas.add(area);
         }
-
         cfgXML.setAreas(areas);
     }
 
@@ -206,7 +201,6 @@ public class ThresholdMgr {
     private void createAreaThreshold(AreaXML area,
             ThresholdsXML defaultThreshXML, ArrayList<String> keys) {
         ArrayList<AreaThresholdXML> areaThreshArray = new ArrayList<AreaThresholdXML>();
-
         for (String key : keys) {
             AreaThresholdXML areaThresh = new AreaThresholdXML();
             areaThresh.setKey(key);
@@ -214,10 +208,8 @@ public class ThresholdMgr {
                     .getRedValue(key));
             areaThresh.setYellow(defaultThreshXML.getAreas().get(0)
                     .getYellowValue(key));
-
             areaThreshArray.add(areaThresh);
         }
-
         area.setAreaThresholds(areaThreshArray);
     }
 
@@ -294,41 +286,41 @@ public class ThresholdMgr {
         return this.cfgXML;
     }
 
+    /**
+     * Sets the threshold XML.
+     * 
+     * @param newCfgXML
+     */
     public void setThresholdXML(ThresholdsXML newCfgXML) {
         this.cfgXML = newCfgXML;
     }
 
+    /**
+     * Gets Thresholds Xml Copy.
+     * 
+     * @return newThreshXML
+     */
     public ThresholdsXML getThresholdsXmlCopy() {
         ThresholdsXML newThreshXML = new ThresholdsXML();
-
         ArrayList<AreaXML> currAreas = cfgXML.getAreas();
         ArrayList<AreaXML> newAreas = new ArrayList<AreaXML>();
-
         for (AreaXML currAreaXML : currAreas) {
             AreaXML newAreaXML = new AreaXML();
             newAreaXML.setAreaId(currAreaXML.getAreaId());
-
             ArrayList<AreaThresholdXML> currAreaThreshholds = currAreaXML
                     .getAreaThresholds();
             ArrayList<AreaThresholdXML> newAreaThreshholds = new ArrayList<AreaThresholdXML>();
-
             for (AreaThresholdXML currAreaThreshXML : currAreaThreshholds) {
                 AreaThresholdXML newAreaThreshXML = new AreaThresholdXML();
                 newAreaThreshXML.setKey(currAreaThreshXML.getKey());
                 newAreaThreshXML.setRed(currAreaThreshXML.getRed());
                 newAreaThreshXML.setYellow(currAreaThreshXML.getYellow());
-
                 newAreaThreshholds.add(newAreaThreshXML);
             }
-
             newAreaXML.setAreaThresholds(newAreaThreshholds);
-
             newAreas.add(newAreaXML);
-
         }
-
         newThreshXML.setAreas(newAreas);
-
         return newThreshXML;
     }
 }
