@@ -244,11 +244,11 @@ NGRID	^(LAMA98) (KNES) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0
 
 HDS	^([LM].Z.{1,3}) KWBX (..)(..)(..)
 	PIPE	-close /usr/local/ldm/decoders/decrypt_file
-	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/ECMWF_HiRes/\1_KWBX_\2\3\4_(seq).grib2.%Y%m%d%H
+	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/ECMWF_HiRes/ecmwf_decrypted_\1_KWBX_\2\3\4_(seq).grib2.%Y%m%d%H
 
 
-EXP	^/data_store/grib2/ECMWF_HiRes/ecmwf_raw/(ecmwf_decrypted.*)
-	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/ECMWF_HiRes/\1_KWBX_\2\3\4_(seq).grib2.%Y%m%d%H
+EXP	(.*ecmwf_decrypted.*)
+	FILE	-overwrite -log -close -edex	\1
 
 # AWIPS1:	GRID    ^E.[ABCGHI].*KWBJ               /Grid/SBN/rawGrib2
 # EWAW88 KWBJ 021200 !grib2/ncep/GMGWM/#255/201102021200F180/WSTP/0 - NONE

@@ -2,26 +2,46 @@
 <gribParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>0</fcst>
+    <fcst>21600</fcst>
     <fcst>43200</fcst>
+    <fcst>64800</fcst>
     <fcst>86400</fcst>
+    <fcst>108000</fcst>
     <fcst>129600</fcst>
+    <fcst>151200</fcst>
     <fcst>172800</fcst>
+    <fcst>194400</fcst>
     <fcst>216000</fcst>
+    <fcst>237600</fcst>
     <fcst>259200</fcst>
+    <fcst>280800</fcst>
     <fcst>302400</fcst>
+    <fcst>324000</fcst>
     <fcst>345600</fcst>
+    <fcst>367200</fcst>
     <fcst>388800</fcst>
+    <fcst>410400</fcst>
     <fcst>432000</fcst>
+    <fcst>453600</fcst>
     <fcst>475200</fcst>
+    <fcst>496800</fcst>
     <fcst>518400</fcst>
+    <fcst>540000</fcst>
     <fcst>561600</fcst>
+    <fcst>583200</fcst>
     <fcst>604800</fcst>
+    <fcst>626400</fcst>
     <fcst>648000</fcst>
+    <fcst>669600</fcst>
     <fcst>691200</fcst>
+    <fcst>712800</fcst>
     <fcst>734400</fcst>
+    <fcst>756000</fcst>
     <fcst>777600</fcst>
+    <fcst>799200</fcst>
     <fcst>820800</fcst>
-    <fcst>864000</fcst>
+    <fcst>842400</fcst>
+    <fcst>864000</fcst>    
   </valtimeMINUSreftime>
   <gribParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticXspacing</short_name>
