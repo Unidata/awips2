@@ -48,7 +48,9 @@ Bundle-ClassPath: common-2.2.1.jar,
  gt-xsd-ows-2.6.4.jar,
  net.opengis.ows-2.6.4.jar,
  net.opengis.wfs-2.6.4.jar,
- net.opengis.wfsv-2.6.4.jar
+ net.opengis.wfsv-2.6.4.jar,
+ gt-directory-2.6.4.jar,
+ gt-data-2.6.4.jar
 Bundle-Vendor: Raytheon-bundled OSS
 Export-Package: com.vividsolutions.jts,
  com.vividsolutions.jts.algorithm,
@@ -102,6 +104,7 @@ Export-Package: com.vividsolutions.jts,
  org.geotools.data,
  org.geotools.data.collection,
  org.geotools.data.crs,
+ org.geotools.data.directory,
  org.geotools.data.jdbc,
  org.geotools.data.jdbc.attributeio,
  org.geotools.data.jdbc.datasource,
