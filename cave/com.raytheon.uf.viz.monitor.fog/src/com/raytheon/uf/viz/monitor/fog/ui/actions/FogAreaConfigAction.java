@@ -25,8 +25,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 
 /**
@@ -49,18 +47,13 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 
 public class FogAreaConfigAction extends AbstractHandler {
 
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FogAreaConfigAction.class);
-
     private FogMonitoringAreaConfigDlg areaDialog;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (areaDialog == null || areaDialog.getShell() == null
-                || areaDialog.isDisposed()) {
+        if (areaDialog == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
             areaDialog = new FogMonitoringAreaConfigDlg(shell,
                     "Fog Monitor Area Configuration");
         }

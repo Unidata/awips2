@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Jun 16, 2012 14386      zhao Modified the notify method
  * Oct 30, 2012            skorolev    Changed HashMap to Map
  * Nov 11, 2012 1297       skorolev    Added initiateProdArray
+ * Dec  7, 2012 #1351      skorolev    Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -103,9 +104,8 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         if (fogThreshDlg == null) {
             fogThreshDlg = new FogMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.FOG, DataUsageKey.DISPLAY);
-            fogThreshDlg.open();
-            fogThreshDlg = null;
         }
+        fogThreshDlg.open();
     }
 
     /*
