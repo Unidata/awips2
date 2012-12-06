@@ -162,27 +162,27 @@ public class ChangeLineStyleAction extends AbstractRightClickAction implements
             super(style.toString());
             this.style = style;
 
-            int[] dashes = null;
-            switch (style) {
-            case DASHED:
-                dashes = new int[] { 4, 4 };
-                break;
-            case DASHED_LARGE:
-                dashes = new int[] { 12, 4 };
-                break;
-            case DOTTED:
-                dashes = new int[] { 1, 1 };
-                break;
-            case DASH_DOTTED:
-                dashes = new int[] { 3, 2, 1, 2 };
-                ;
-                break;
-            case DEFAULT:
-            case SOLID:
-            default:
-                dashes = null;
-                break;
-            }
+            int[] dashes = style.getSWTLineStyle();
+            // switch (style) {
+            // case DASHED:
+            // dashes = new int[] { 4, 4 };
+            // break;
+            // case DASHED_LARGE:
+            // dashes = new int[] { 12, 4 };
+            // break;
+            // case DOTTED:
+            // dashes = new int[] { 1, 1 };
+            // break;
+            // case DASH_DOTTED:
+            // dashes = new int[] { 3, 2, 1, 2 };
+            // ;
+            // break;
+            // case DEFAULT:
+            // case SOLID:
+            // default:
+            // dashes = null;
+            // break;
+            // }
 
             boolean selected = style == getTopMostSelectedResource()
                     .getCapability(OutlineCapability.class).getLineStyle();
