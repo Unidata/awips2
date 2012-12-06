@@ -143,6 +143,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 11/02/2012   DR 15455   Qinglu Lin  Added setWarningAction(), called redrawBoxFromTrack() while
  *                                     warningAction is neither null nor WarningAction.NEW, removed 
  *                                     some code from redrawBoxFromHatched().                                    
+ * 11/15/2012   DR 15430   D. Friedman Use correct county/zone in createGeometryForWatches.
  * 
  * </pre>
  * 
@@ -975,7 +976,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry area = buildArea(polygon);
         for (ActiveTableRecord activeTableRecord : records) {
             Map<String, String[]> countyMap = FipsUtil
-                    .parseCountyHeader(activeTableRecord.getCountyheader());
+                    .parseCountyHeader(activeTableRecord.getUgcZone());
             // get area with precalculated area
             activeTableRecord.setGeometry(getArea(area, countyMap));
         }
