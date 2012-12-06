@@ -6,6 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.geotiff.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core
+Eclipse-BuddyPolicy: registered, ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
