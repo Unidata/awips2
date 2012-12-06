@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Dec 18, 2009 3424       zhao        use ObMultiHrsReports for obs data archive
  * July 20,2010 4891       skorolev    added code to fireDialogShutdown
  * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
+ * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
  * 
  * </pre>
  * 
@@ -118,9 +119,8 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
         if (snowThreshDlg == null) {
             snowThreshDlg = new SnowMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.SNOW, DataUsageKey.DISPLAY);
-            snowThreshDlg.open();
-            snowThreshDlg = null;
         }
+        snowThreshDlg.open();
     }
 
     /*
