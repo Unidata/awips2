@@ -50,6 +50,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Jun 04  2012	 14710	   Xiaochuan 	The rank value should take  
  * 										from STRENGTH_RANK instead  
  * 										of 2D_STRENGTH_RANK.
+ * Nov 09  2012	 15586	   Xiaochuan	In dataRowFormat, set MSI maximum  
+ * 										size to 5.
  * 
  * </pre>
  * 
@@ -135,7 +137,7 @@ public class GraphicDataUtil {
                     RadarDataPoint currPoint = symbologyData.get(key);
 
                     if (currPoint.isVisible() || !checkVisibility) {
-                        String dataRowFormat = " %4.4s %7.7s@%3.3s %9.9s %7.7s   r%-2.2s   %4.4s %8.8s %8.8s %8.8s %8.8s";
+                        String dataRowFormat = " %4.4s %7.7s@%3.3s %9.9s %7.7s   r%-2.2s   %5.5s %8.8s %8.8s %8.8s %8.8s";
 
                         AreaComponent currFeature;
                         HashMap<Integer, HashMap<Integer, GenericDataComponent>> currPointData = currPoint

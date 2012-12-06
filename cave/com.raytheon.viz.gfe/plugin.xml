@@ -256,11 +256,6 @@
 		<command id="com.raytheon.viz.gfe.actions.showISCSampleOfficial"
 			name="showIscSampleOfficial">
 		</command>
-		<command id="com.raytheon.viz.gfe.showSendISCDialog" name="showSendISCDialog">
-		</command>
-		<command id="com.raytheon.viz.gfe.actions.showISCRequest"
-			name="showISCRequest">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping"
 			name="SelectGridsWhenStepping">
 		</command>
@@ -849,20 +844,6 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowSendISCDialog"
-			commandId="com.raytheon.viz.gfe.showSendISCDialog">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
-		<handler class="com.raytheon.viz.gfe.actions.ShowISCRequestAction"
-			commandId="com.raytheon.viz.gfe.actions.showISCRequest">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping"
 			commandId="com.raytheon.viz.gfe.actions.SelectGridsWhenStepping">
             <activeWhen>
@@ -1300,20 +1281,6 @@
           visible="true">
     </separator>
     			<dynamic class="com.raytheon.viz.gfe.menu.ISCMenuEnabler" id="com.raytheon.viz.gfe.menu.ISCMenuEnabler"/>
-				<!--<command commandId="com.raytheon.viz.gfe.showSendISCDialog"
-					label="Send Intersite Grids..." style="push">
-				</command>
-				
-				<command commandId="com.raytheon.viz.gfe.actions.showISCRequest"
-					label="ISC Request/Reply..." style="push">
-				</command>
-				
-    <command
-          commandId="com.raytheon.viz.gfe.iscSendEnable"
-          label="ISC Send Enable"
-          style="toggle">
-    </command>
-    -->
 			</menu>
 			<menu label="Products" mnemonic="P">
 				<visibleWhen>
