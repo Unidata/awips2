@@ -57,6 +57,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 02/22/2008              Eric Babin  Initial Creation
  * 04/17/2009   #2282      rjpeter     Added confirmation message on delete.
  * 11/14/2012   #1298      rferrel     Changes for non-blocking dialog.
+ * 11/20/2012   DR 15532   jzeng       Added popup dialog to make sure group saved with 
+ * 									   valid characters
  * </pre>
  * 
  * @author ebabin
