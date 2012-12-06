@@ -2288,7 +2288,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                populateDialog();
+                if (!shell.isDisposed()) {
+                    populateDialog();
+                }
             }
         });
     }
