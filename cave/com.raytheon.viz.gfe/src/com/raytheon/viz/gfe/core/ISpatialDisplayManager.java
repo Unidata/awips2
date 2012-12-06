@@ -195,28 +195,6 @@ public interface ISpatialDisplayManager {
             ISpatialEditorTimeChangedListener listener);
 
     /**
-     * NOTE: This only works for continuous colormaps--otherwise returns null
-     * 
-     * @param p
-     *            the parm to check
-     * @return the color map parameters
-     */
-    public ColorMapParameters getColorMapParameters(Parm p)
-            throws GFEOperationFailedException;
-
-    /**
-     * NOTE: This only works for continuous colormaps--otherwise returns null
-     * 
-     * @param p
-     *            the parm to check
-     * @param descriptor
-     *            TODO
-     * @return the color map parameters
-     */
-    public ColorMapParameters getColorMapParameters(Parm p,
-            IDescriptor descriptor) throws GFEOperationFailedException;
-
-    /**
      * Add an edit tool to the display
      * 
      * @param editTool
