@@ -49,8 +49,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
@@ -191,10 +194,15 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
         if (!parmList.contains(parm)) {
             super.addParm(parm, ts);
 
-            try {
-                IColorMap colorMap = DataManager.getCurrentInstance()
-                        .getSpatialDisplayManager().getColorMapParameters(parm)
-                        .getColorMap();
+            IColorMap colorMap = null;
+            ResourcePair rsc = DataManagerUIFactory.getCurrentInstance()
+                    .getSpatialDisplayManager().getResourcePair(parm);
+            if (rsc != null) {
+                colorMap = rsc.getResource()
+                        .getCapability(ColorMapCapability.class)
+                        .getColorMapParameters().getColorMap();
+            }
+            if (colorMap != null) {
                 List<Color> colorList = new ArrayList<Color>();
                 Display display = Display.getCurrent();
 
@@ -207,11 +215,11 @@ public class TemporalEditorNumericBar extends AbstractTemporalEditorBar
                 }
 
                 parmColorMap.put(parm, colorList);
-            } catch (GFEOperationFailedException e) {
+            } else {
                 statusHandler.handle(
                         Priority.PROBLEM,
                         "Could not determine colormap for Parm["
-                                + parm.getFormattedString() + "]", e);
+                                + parm.getFormattedString() + "]");
             }
 
             scaleVisual.setParms(parmList);
