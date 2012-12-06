@@ -25,8 +25,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 
 /**
@@ -49,18 +47,13 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 
 public class SnowAreaConfigAction extends AbstractHandler {
 
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SnowAreaConfigAction.class);
-
     private SnowMonitoringAreaConfigDlg configDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (configDlg == null || configDlg.getShell() == null
-                || configDlg.isDisposed()) {
+        if (configDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
             configDlg = new SnowMonitoringAreaConfigDlg(shell,
                     "SNOW Monitor Area Configuration");
         }
