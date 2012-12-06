@@ -287,7 +287,7 @@ public class AttributesDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
