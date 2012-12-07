@@ -103,6 +103,8 @@
 		<include>auth-common.xml</include>
 		<!-- grid specific services -->
 		<include>grib-common.xml</include>
+		<include>grid-process.xml</include>
+		<include>gridcoverage-.*.xml</include>
 		<include>grib-distribution.xml</include>
 		<include>grib-datadelivery.xml</include>
 		<include>level-common.xml</include>
@@ -120,7 +122,8 @@
 	<mode name="ingest">
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
-		<exclude>grib-ingest.xml</exclude>
+		<exclude>grib-decode.xml</exclude>
+		<exclude>grid-process.xml</exclude>
 		<exclude>ncgrib-ingest.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
@@ -152,8 +155,11 @@
 	</mode>
 	<mode name="ingestGrib">
 		<include>time-common.xml</include>
+		<include>auth-common.xml</include>
+		<include>nwsauth-request.xml</include>
 		<include>grib-common.xml</include>
-		<include>grib-ingest.xml</include>
+		<include>grib-decode.xml</include>
+		<include>grid-process.xml</include>
 		<include>level-common.xml</include>
 	 	<include>grid-common.xml</include>
 	 	<include>gridcoverage-.*.xml</include>
@@ -161,7 +167,6 @@
 		<include>persist-ingest.xml</include>
 		<include>management-common.xml</include>
 	 	<include>database-common.xml</include>
-		<include>auth-common.xml</include>
         <include>event-ingest.xml</include>
 		<!-- ncep excludes until tested -->
 		<exclude>ncgrib-common.xml</exclude>
@@ -222,7 +227,8 @@
 		are for DEVELOPMENT purposes only -->
 	<mode name="grib">
 		<include>grib-common.xml</include>
-		<include>grib-ingest.xml</include>
+		<include>grib-decode.xml</include>
+		<include>grid-process.xml</include>
 		<include>grib-distribution.xml</include>
 		<include>level-common.xml</include>
 		<include>persist-ingest.xml</include>
@@ -279,12 +285,15 @@
         <include>stats-common.xml</include>
     </mode>
     <mode name="datadeliverytemplate" template="true">
+        <include>database-common.xml</include>
         <include>.*datadelivery.*</include>
         <include>.*bandwidth.*</include>
         <!-- Exclude the inmemory versions of Spring files -->
         <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
         <include>time-common.xml</include>
-        <include>grib-common.xml</include>
+        <include>auth-common.xml</include>
+        <include>nwsauth-request.xml</include>
+        <include>grid-process.xml</include>
         <include>grid-common.xml</include>
         <include>gridcoverage-.*.xml</include>
         <include>parameter-common.xml</include>     
@@ -293,8 +302,6 @@
         <include>level-common.xml</include>
         <include>persist-ingest.xml</include>
         <include>management-common.xml</include>
-        <include>database-common.xml</include>
-        <include>auth-common.xml</include>
         <include>event-ingest.xml</include>
         <includeMode>statsTemplate</includeMode>
     </mode>
