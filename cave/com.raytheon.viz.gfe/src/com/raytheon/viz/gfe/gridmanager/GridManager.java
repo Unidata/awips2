@@ -76,6 +76,14 @@ import com.raytheon.viz.gfe.temporaleditor.TemporalEditor;
 
 public class GridManager implements IGridManager,
         ISpatialEditorTimeChangedListener {
+
+    private class RedrawRunnable implements Runnable {
+        @Override
+        public void run() {
+            redraw();
+        }
+    }
+
     /**
      * Job to scroll the grid manager horizontally
      */
@@ -245,6 +253,8 @@ public class GridManager implements IGridManager,
     private int selectionEnd;
 
     private boolean selectionActive;
+
+    private Runnable redraw = new RedrawRunnable();
 
     /**
      * @return the selectionActive
@@ -801,6 +811,6 @@ public class GridManager implements IGridManager,
     @Override
     public void spatialEditorTimeChanged(Date date) {
         syncSelectTR(date);
-        redraw();
+        VizApp.runAsync(redraw);
     }
 }
