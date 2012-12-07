@@ -151,6 +151,7 @@ import com.vividsolutions.jts.geom.Point;
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
  * 31 July  2012 14517         mpduff      Fix for blanking map on update.
  * 14 Sep 2012   1048         njensen      Code cleanup
+ * 07 Dec 2012   1353         rferrel      Changes for non-blocking FFMPSplash dialog.
  * 
  * </pre>
  * 
@@ -1225,7 +1226,7 @@ public class FFMPResource extends
                 }
             } else {
                 if (getResourceData().getMonitor().ffmpSplash != null) {
-                    getResourceData().getMonitor().ffmpSplash.disposeDialog();
+                    getResourceData().getMonitor().ffmpSplash.close();
                     getResourceData().getMonitor().ffmpSplash = null;
                 }
             }
