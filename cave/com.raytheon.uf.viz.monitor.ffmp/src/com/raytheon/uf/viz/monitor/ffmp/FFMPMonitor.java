@@ -87,6 +87,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 04/03/10     4494        D. Hladky   Initial release
+ * 12/07/12     1353        rferrel     Changes for non-blocking FFMPSplash.
  * 
  * </pre>
  * 
@@ -150,6 +151,11 @@ public class FFMPMonitor extends ResourceMonitor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPMonitor.class);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ResourceMonitor#nullifyMonitor()
+     */
     @Override
     public void nullifyMonitor() {
 
@@ -182,7 +188,7 @@ public class FFMPMonitor extends ResourceMonitor {
                 }
             }
         }
-        
+
         ffmpData = null;
         ffmpAvailableUriQueryDates = null;
         ffmpAvailableUris = null;
@@ -193,11 +199,25 @@ public class FFMPMonitor extends ResourceMonitor {
         System.gc();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ResourceMonitor#thresholdUpdate(com.raytheon
+     * .uf.viz.monitor.events.IMonitorThresholdEvent)
+     */
     @Override
     public void thresholdUpdate(IMonitorThresholdEvent me) {
         // TODO Auto-generated method stub
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ResourceMonitor#configUpdate(com.raytheon
+     * .uf.viz.monitor.events.IMonitorConfigurationEvent)
+     */
     @Override
     public void configUpdate(IMonitorConfigurationEvent me) {
         // updates the config
@@ -388,9 +408,10 @@ public class FFMPMonitor extends ResourceMonitor {
         }
 
         if (source != null) {
-            
+
             boolean dupOverride = false;
-            if (getSourceConfig().getSource(source).getSourceType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            if (getSourceConfig().getSource(source).getSourceType()
+                    .equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
                 dupOverride = true;
             }
 
@@ -525,7 +546,8 @@ public class FFMPMonitor extends ResourceMonitor {
                             SourceXML sourceXML = fscm.getSource(fsource);
                             FFMPCacheRecord ffmpRec = populateFFMPRecord(true,
                                     fdataUri, fsiteKey, fsource, fhuc);
-                            //FFMPRecord ffmpRec = loadRecordFromDatabase(fdataUri);
+                            // FFMPRecord ffmpRec =
+                            // loadRecordFromDatabase(fdataUri);
                             File loc = HDF5Util.findHDF5Location(ffmpRec);
                             IDataStore dataStore = DataStoreFactory
                                     .getDataStore(loc);
@@ -545,9 +567,10 @@ public class FFMPMonitor extends ResourceMonitor {
                                         ffmpRec.getSourceName(), fbasin);
                             }
                         } catch (Throwable e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "FFMP Can't retrieve FFMP URI, "
-                                                + fdataUri, e);
+                            statusHandler
+                                    .handle(Priority.PROBLEM,
+                                            "FFMP Can't retrieve FFMP URI, "
+                                                    + fdataUri, e);
                         }
                     }
                 }
@@ -605,7 +628,7 @@ public class FFMPMonitor extends ResourceMonitor {
             statusHandler.handle(Priority.WARN,
                     "FFMP Can't find availble URI list for, " + sourceName, e);
         }
-        
+
         return uris;
     }
 
@@ -647,12 +670,12 @@ public class FFMPMonitor extends ResourceMonitor {
         Date previousQueryTime = ffmpAvailableUriQueryDates.get(siteKey).get(
                 sourceName);
         SourceXML source = getSourceConfig().getSource(sourceName);
-        
-        if (source.getSourceType().equals(
-                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-        	// Always look back for guidance types because of long expiration times,
-        	// prevents mosaic brittleness from occurring.
-        	retrieveNew = true;
+
+        if (source.getSourceType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
+            // Always look back for guidance types because of long expiration
+            // times,
+            // prevents mosaic brittleness from occurring.
+            retrieveNew = true;
         }
 
         if (retrieveNew
@@ -945,14 +968,16 @@ public class FFMPMonitor extends ResourceMonitor {
         FFMPResourceData frd = resource.getResourceData();
 
         if (loadType == LOADER_TYPE.SECONDARY) {
-            //hucsToLoad.remove("ALL");
-            //hucsToLoad.remove(getConfig().getFFMPConfigData().getLayer());
-            timeBack = new Date(resource.getMostRecentTime().getTime() - (6 * 1000 * 24));
+            // hucsToLoad.remove("ALL");
+            // hucsToLoad.remove(getConfig().getFFMPConfigData().getLayer());
+            timeBack = new Date(resource.getMostRecentTime().getTime()
+                    - (6 * 1000 * 24));
             frd.timeBack = timeBack;
         } else if (loadType == LOADER_TYPE.TERTIARY) {
             hucsToLoad.clear();
             hucsToLoad.add("ALL");
-            timeBack = new Date(resource.getMostRecentTime().getTime() - (3600 * 1000 * 24));
+            timeBack = new Date(resource.getMostRecentTime().getTime()
+                    - (3600 * 1000 * 24));
         }
 
         frd.floader = new FFMPDataLoader(frd, timeBack, startTime, loadType,
@@ -974,6 +999,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
                 if (ffmpSplash == null) {
                     ffmpSplash = new FFMPSplash(fshell);
+                    ffmpSplash.open();
                     // latch
                     int count = 0;
                     while (!getTemplates(fsiteKey).done) {
@@ -981,14 +1007,14 @@ public class FFMPMonitor extends ResourceMonitor {
                         try {
                             count++;
                             if (count == 50) {
-                                ffmpSplash.disposeDialog();
+                                ffmpSplash.close();
                                 break;
                             }
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             if (ffmpSplash != null) {
-                                ffmpSplash.disposeDialog();
+                                ffmpSplash.close();
                             }
                         }
                     }
@@ -1042,7 +1068,7 @@ public class FFMPMonitor extends ResourceMonitor {
                 }
             });
         } else {
-            resource.basinTableDlg.getShell().setActive();
+            resource.basinTableDlg.open();
         }
     }
 
@@ -1060,7 +1086,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
     public synchronized void splashDisposeAndDataLoad(FFMPResource resource) {
         if (ffmpSplash != null) {
-            ffmpSplash.disposeDialog();
+            ffmpSplash.close();
             ffmpSplash = null;
 
             if (resource.isFirst) {
@@ -1080,7 +1106,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
     public void forceKillFFMPSplash() {
         if (ffmpSplash != null) {
-            ffmpSplash.disposeDialog();
+            ffmpSplash.close();
             ffmpSplash = null;
         }
     }
@@ -1122,9 +1148,10 @@ public class FFMPMonitor extends ResourceMonitor {
             }
             res.getResourceData().floader = null;
             int val = siteCount.get(res.getSiteKey());
-            
+
             // clear out the cache
-            for (Entry<String, FFMPCacheRecord> entry: ffmpData.get(res.getSiteKey()).entrySet()){
+            for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(
+                    res.getSiteKey()).entrySet()) {
                 entry.getValue().closeCache();
             }
 
@@ -2121,15 +2148,8 @@ public class FFMPMonitor extends ResourceMonitor {
                     // based on "duration". A horizontal line (composed of two
                     // points) will be drawn to represent the precip during
                     // each "duration" period.
-                    if ((secondsL < 0) || (secondsR > t1.getTime() / 1000)) { // gage
-                                                                                // data
-                                                                                // ahead
-                                                                                // of
-                                                                                // or
-                                                                                // beyond
-                                                                                // radar
-                                                                                // time
-                                                                                // range
+                    if ((secondsL < 0) || (secondsR > t1.getTime() / 1000)) {
+                        // gage data ahead of or beyond radar time range
                         continue;
                     } else {
                         gageAccu += (Float) data1Dur.get(i)[5];
@@ -2347,7 +2367,7 @@ public class FFMPMonitor extends ResourceMonitor {
         }
 
         public void load() {
-            
+
             if (fffmpRec != null) {
 
                 ConcurrentMap<String, String> uris = getUriMap(fsiteKey,
@@ -2378,7 +2398,8 @@ public class FFMPMonitor extends ResourceMonitor {
                             curRecord = ffmpData.get(fsiteKey).get(mySource);
                             if (curRecord == null) {
                                 curRecord = new FFMPCacheRecord(fffmpRec,
-                                        mySource, getRunConfig().getRunner(wfo).getCacheDir());
+                                        mySource, getRunConfig().getRunner(wfo)
+                                                .getCacheDir());
                                 ffmpData.get(fsiteKey).put(mySource, curRecord);
                             }
                         }
@@ -2409,7 +2430,8 @@ public class FFMPMonitor extends ResourceMonitor {
                                     "Retrieving and Populating URI: , "
                                             + dataUri);
                             curRecord.retrieveMapFromDataStore(dataStore,
-                                    dataUri, getTemplates(fffmpRec.getSiteKey()), fhuc,
+                                    dataUri,
+                                    getTemplates(fffmpRec.getSiteKey()), fhuc,
                                     fffmpRec.getDataTime().getRefTime(),
                                     fffmpRec.getSourceName());
                         } catch (Exception e) {
@@ -2492,7 +2514,7 @@ public class FFMPMonitor extends ResourceMonitor {
         }
 
         public void run() {
-            
+
             SourceXML source = getSourceConfig().getSource(fsourceName);
 
             if (furiMap != null) {
