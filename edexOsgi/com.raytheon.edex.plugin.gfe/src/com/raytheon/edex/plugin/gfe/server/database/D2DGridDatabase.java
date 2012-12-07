@@ -108,12 +108,12 @@ public class D2DGridDatabase extends VGridDatabase {
             .getNamedHandler("GFEPerformanceLogger");
 
     /** The remap object used for resampling grids */
-    private Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
+    private final Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
 
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputLoc;
 
-    private List<ParmID> parms;
+    private final List<ParmID> parms;
 
     public static final String GRID_LOCATION_CACHE_KEY = "GfeLocations";
 
@@ -394,7 +394,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
             List<TimeRange> timeRanges) {
 
-        List<IGridSlice> data = new ArrayList<IGridSlice>();
+        List<IGridSlice> data = new ArrayList<IGridSlice>(timeRanges.size());
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
         for (TimeRange tr : timeRanges) {
             GridParmInfo gpi = getGridParmInfo(id).getPayload();
@@ -415,7 +415,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
             List<TimeRange> timeRanges, boolean convertUnit) {
 
-        List<IGridSlice> data = new ArrayList<IGridSlice>();
+        List<IGridSlice> data = new ArrayList<IGridSlice>(timeRanges.size());
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
         for (TimeRange tr : timeRanges) {
             GridParmInfo gpi = getGridParmInfo(id).getPayload();
@@ -429,6 +429,7 @@ public class D2DGridDatabase extends VGridDatabase {
                                 + " TimeRange: " + tr, e);
             }
         }
+
         sr.setPayload(data);
         return sr;
     }
@@ -550,7 +551,7 @@ public class D2DGridDatabase extends VGridDatabase {
             RemapGrid remap = getOrCreateRemap(d2dRecord.getLocation());
             retVal = remap.remap(bdata, fillV, gpi.getMaxValue(),
                     gpi.getMinValue(), gpi.getMinValue());
-            if (convertUnit && d2dRecord != null) {
+            if (convertUnit && (d2dRecord != null)) {
                 convertUnits(d2dRecord, retVal, gpi.getUnitObject());
             }
         } catch (Exception e) {
@@ -651,7 +652,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         String mappedModel = config.d2dModelNameMapping(dbId.getModelName());
 
-        if (uRecord != null && vRecord != null) {
+        if ((uRecord != null) && (vRecord != null)) {
             // Gets the raw grid data from the D2D grib HDF5 files
             Grid2DFloat uData = getRawGridData(uRecord);
             Grid2DFloat vData = getRawGridData(vRecord);
@@ -688,7 +689,7 @@ public class D2DGridDatabase extends VGridDatabase {
                         "Unable to retrieve wind grids from D2D database", e);
             }
 
-            if (sRecord != null && dRecord != null) {
+            if ((sRecord != null) && (dRecord != null)) {
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat sData = getRawGridData(sRecord);
                 Grid2DFloat dData = getRawGridData(dRecord);
@@ -914,8 +915,8 @@ public class D2DGridDatabase extends VGridDatabase {
         // no-op
     }
 
-    public static boolean isNonAccumDuration(ParmID id, List<TimeRange> times)
-            throws GfeConfigurationException {
+    public static boolean isNonAccumDuration(ParmID id,
+            Collection<TimeRange> times) throws GfeConfigurationException {
         boolean isAccum = false;
         try {
             isAccum = IFPServerConfigManager
@@ -925,14 +926,19 @@ public class D2DGridDatabase extends VGridDatabase {
         } catch (GfeConfigurationException e) {
             throw e;
         }
-        boolean isDuration = false;
-        for (TimeRange time : times) {
-            if (time.getDuration() > 0) {
-                isDuration = true;
-                break;
+
+        if (!isAccum) {
+            boolean isDuration = false;
+            for (TimeRange time : times) {
+                if (time.getDuration() > 0) {
+                    isDuration = true;
+                    break;
+                }
             }
+            return !isAccum && isDuration;
         }
-        return !isAccum && isDuration;
+
+        return !isAccum;
     }
 
 }
