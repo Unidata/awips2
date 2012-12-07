@@ -19,7 +19,10 @@
  **/
 package com.raytheon.uf.common.util.algorithm;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.SortedSet;
 
 /**
@@ -32,13 +35,13 @@ import java.util.SortedSet;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2012 1389       djohnson     Initial creation
+ * Dec 07, 2012 1389       djohnson     Create an adapter and use Collections.binarySearch().
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
 public class AlgorithmUtil {
 
     /**
@@ -102,6 +105,55 @@ public class AlgorithmUtil {
     }
 
     /**
+     * An adapter that maps a {@link Comparable} function to a
+     * {@link Comparator} in order to use the
+     * {@link Collections#binarySearch(List, Object, Comparator)} method.
+     */
+    private static final class JavaCollectionsBinarySearchAdapter<T> implements
+            Comparator<T> {
+        private final Comparable<T> function;
+
+        private int iterations;
+
+        /**
+         * Constructor.
+         * 
+         * @param function
+         *            the function to adapt be used in a comparator
+         */
+        private JavaCollectionsBinarySearchAdapter(Comparable<T> function) {
+            this.function = function;
+        }
+
+        /**
+         * Applies the function to the first argument, which is the item in the
+         * collection. The second argument is ignored.
+         * 
+         * @param collectionItem
+         *            the value from the collection
+         * @param ignoredArgument
+         *            ignored, required by the interface definition
+         * @return 0 if the value satisfies the function, < 0 if the value is
+         *         too low, > 0 if the value is too high
+         */
+        @Override
+        public int compare(T collectionItem, T ignoredArgument) {
+            iterations++;
+            return function.compareTo(collectionItem);
+        }
+
+        /**
+         * Get the number of iterations it took to find the argument satisfying
+         * the function.
+         * 
+         * @return the iterations
+         */
+        public int getIterations() {
+            return iterations;
+        }
+    }
+
+    /**
      * Performs a binary search of a {@link SortedSet} of {@link Comparable}s,
      * applying the specified {@link Comparable} function on each item until it
      * returns an equals response, via the integer 0.
@@ -118,31 +170,17 @@ public class AlgorithmUtil {
      * @return the response
      */
     public static <T extends Comparable<T>> IBinarySearchResponse<T> binarySearch(
-            SortedSet<T> items, Comparable<T> function) {
-        int start = 0;
-        int end = items.size() - 1;
-        int iterations = 0;
+            SortedSet<T> items, final Comparable<T> function) {
 
-        while (start <= end) {
-            iterations++;
-            int midPt = (start + end) / 2;
+        List<T> listItems = new ArrayList<T>(items);
+        final JavaCollectionsBinarySearchAdapter<T> comparator = new JavaCollectionsBinarySearchAdapter<T>(function);
 
-            int i = 0;
-            T midValue = null;
-            for (Iterator<T> iter = items.iterator(); i <= midPt; i++) {
-                midValue = iter.next();
-            }
+        final int foundIndex = Collections.binarySearch(listItems, null,
+                comparator);
+        final int iterations = comparator.getIterations();
+        final T result = (foundIndex > -1) ? listItems.get(foundIndex) : null;
 
-            final int compareResult = function.compareTo(midValue);
-            if (compareResult == 0) {
-                return new BinarySearchResponse<T>(midValue, iterations);
-            } else if (compareResult < 0) {
-                start = midPt + 1;
-            } else {
-                end = midPt - 1;
-            }
-        }
-        return new BinarySearchResponse<T>(null, iterations);
+        return new BinarySearchResponse<T>(result, iterations);
     }
 
 }
