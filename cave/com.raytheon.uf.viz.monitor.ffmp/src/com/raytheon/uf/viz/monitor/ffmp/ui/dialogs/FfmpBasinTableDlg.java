@@ -86,6 +86,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataLoader;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataUpdate;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Main FFMP dialog.
@@ -102,6 +103,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      ColorCell is true.
  * Dec 06, 2012 1353       rferrel      Code clean up.
  *                                       Changes for non-blocking AttributesDlg.
+ *                                       Changes for non-blocking AttributeThresholdDlg.
+ *                                       Changes for non-blocking LoadSaveConfigDlg.
  * 
  * </pre>
  * 
@@ -114,6 +117,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FfmpBasinTableDlg.class);
+
+    private LoadSaveConfigDlg loadDlg;
+
+    private LoadSaveConfigDlg saveDlg;
 
     private List<FFMPTableDataLoader> retrievalQueue = new ArrayList<FFMPTableDataLoader>();
 
@@ -1714,36 +1721,47 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void retrieveConfiguration() {
+        if (loadDlg == null) {
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.OPEN);
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN);
+            loadDlg.setCloseCallback(new ICloseCallback() {
 
-        if (fileName == null) {
-            return;
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        ffmpConfig.loadNewConfig(fileName);
+
+                        refreshDisplay(false);
+                    } else {
+                        shell.setCursor(null);
+                    }
+                    loadDlg = null;
+                }
+            });
         }
-
-        ffmpConfig.loadNewConfig(fileName);
-
-        refreshDisplay(false);
+        loadDlg.open();
     }
 
     private void saveConfiguration() {
 
-        LoadSaveConfigDlg saveDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS);
-        LocalizationFile fileName = (LocalizationFile) saveDlg.open();
+        if (saveDlg == null) {
 
-        if (fileName == null) {
-            return;
+            saveDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS);
+            saveDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        fileName.getFile().getParentFile().mkdirs();
+                        ffmpConfig.saveFFMPBasinConfig(fileName);
+                    }
+                    saveDlg = null;
+                }
+            });
         }
-
-        if (fileName.getFile().getParentFile().mkdirs() == false) {
-            System.out.println("Did not not create directory(ies): "
-                    + fileName.toString());
-        }
-
-        ffmpConfig.saveFFMPBasinConfig(fileName);
+        saveDlg.open();
     }
 
     /**
