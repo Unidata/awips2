@@ -65,17 +65,17 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class DamDisplayControlDlg extends CaveSWTDialog {
-    private static final String GREATER_THAN = "greater than";
+    private final String GREATER_THAN = "greater than";
 
-    private static final String EQUAL_TO = "equal to";
+    private final String EQUAL_TO = "equal to";
 
-    private static final String LESS_THAN = "less than";
+    private final String LESS_THAN = "less than";
 
-    private static final String ALL = "All";
+    private final String ALL = "All";
 
-    private static final String CENTER_LAT_TOKEN = "hv_center_lat";
+    private final String CENTER_LAT_TOKEN = "hv_center_lat";
 
-    private static final String CENTER_LON_TOKEN = "hv_center_lon";
+    private final String CENTER_LON_TOKEN = "hv_center_lon";
 
     /**
      * Dam volume combo box.
@@ -161,13 +161,18 @@ public class DamDisplayControlDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public DamDisplayControlDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Dam Display Control");
 
         waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
         arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
@@ -176,6 +181,13 @@ public class DamDisplayControlDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -384,9 +396,10 @@ public class DamDisplayControlDlg extends CaveSWTDialog {
                 PointDataControlManager pdcManager = PointDataControlManager
                         .getInstance();
                 DamLocationResource dlr = pdcManager.getDamLocationResource();
-                dlr.unload();
-                pdcManager.setRedraw(true);
-
+                if (dlr != null) {
+                    dlr.unload();
+                    pdcManager.setRedraw(true);
+                }
             }
 
         });
