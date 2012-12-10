@@ -1336,7 +1336,7 @@ public class MapUtil {
      * @return
      * @throws TransformException
      */
-    public static synchronized Envelope reprojectAndIntersect(
+    public static ReferencedEnvelope reprojectAndIntersect(
             Envelope sourceEnvelope, Envelope targetEnvelope)
             throws TransformException {
         try {
@@ -1393,25 +1393,25 @@ public class MapUtil {
             MathTransform mt = CRS.findMathTransform(
                     targetEnvelope.getCoordinateReferenceSystem(),
                     sourceEnvelope.getCoordinateReferenceSystem());
-            DirectPosition2D top = new DirectPosition2D(
-                    targetEnvelope.getMedian(0), targetEnvelope.getMaximum(1));
-            DirectPosition2D bot = new DirectPosition2D(
-                    targetEnvelope.getMedian(0), targetEnvelope.getMinimum(1));
-            DirectPosition2D left = new DirectPosition2D(
-                    targetEnvelope.getMinimum(0), targetEnvelope.getMedian(1));
-            DirectPosition2D right = new DirectPosition2D(
-                    targetEnvelope.getMaximum(0), targetEnvelope.getMedian(1));
-            for (DirectPosition2D edge : new DirectPosition2D[] { top, bot,
-                    left, right }) {
-                if (!result.contains(edge)) {
-                    try {
-                        DirectPosition2D tmp = new DirectPosition2D();
-                        mt.transform(edge, tmp);
-                        if (sourceRefEnvelope.contains(tmp)) {
-                            result.expandToInclude(edge.x, edge.y);
+            double[] xTestPoints = { targetEnvelope.getMinimum(0),
+                    targetEnvelope.getMedian(0), targetEnvelope.getMaximum(0) };
+            double[] yTestPoints = { targetEnvelope.getMinimum(1),
+                    targetEnvelope.getMedian(1), targetEnvelope.getMaximum(1) };
+
+            for (double xTestPoint : xTestPoints) {
+                for (double yTestPoint : yTestPoints) {
+                    DirectPosition2D edge = new DirectPosition2D(xTestPoint,
+                            yTestPoint);
+                    if (!result.contains(edge)) {
+                        try {
+                            DirectPosition2D tmp = new DirectPosition2D();
+                            mt.transform(edge, tmp);
+                            if (sourceRefEnvelope.contains(tmp)) {
+                                result.expandToInclude(edge.x, edge.y);
+                            }
+                        } catch (Exception ex) {
+                            ;// ignore, can't expand the envelope.
                         }
-                    } catch (Exception ex) {
-                        ;// ignore, can't expand the envelope.
                     }
                 }
             }
