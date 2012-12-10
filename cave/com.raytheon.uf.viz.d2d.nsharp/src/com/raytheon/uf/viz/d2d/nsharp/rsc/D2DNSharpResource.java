@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -188,7 +189,13 @@ public class D2DNSharpResource extends
                 return handler;
             }
         }
-        throw new VizException("Unable to find a NsharpResourceHandler.");
+        NsharpResourceHandler handler = new NsharpResourceHandler(
+                new IRenderableDisplay[] { descriptor.getRenderableDisplay() },
+                null);
+        for (NsharpAbstractPaneResource paneRsc : paneRscs) {
+            paneRsc.setRscHandler(handler);
+        }
+        return handler;
     }
 
     @Override
