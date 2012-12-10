@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  randerso    Initial Creation.
+ * 12/10/2013   1353        rferrel     Changes for non-blocking DamDisplayControlDlg.
  * 
  * </pre>
  * 
@@ -46,15 +47,25 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class DamDisplayAction extends AbstractHandler {
+    private DamDisplayControlDlg damDisplayDlg;
 
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    DamDisplayControlDlg damDisplayDlg = new DamDisplayControlDlg(shell);
-	    damDisplayDlg.open();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (damDisplayDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            damDisplayDlg = new DamDisplayControlDlg(shell);
+        }
+        damDisplayDlg.open();
 
-		return null;
-	}
+        return null;
+    }
 
 }
