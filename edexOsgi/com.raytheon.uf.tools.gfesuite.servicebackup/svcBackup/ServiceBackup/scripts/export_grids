@@ -118,13 +118,18 @@ perform_export() {
 	  #check if the netcdf file is there;if not,exit
 	  if [ $? -ne 0 ]
 	  then
-	      $LOGGER "ifpnetCDF failed. Export exits."
-	      rm -f ${lockFile}
-	      $LOGGER 100
 	      NETCDF_SUCCESS=0
 	      if [ $NATIONAL_CENTER != 1 ] && [ "$1" != "-c" ] 
 	      then
-	          exit 1
+		netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
+                if [ "$netcdf_error" != "" ]; then
+                    NETCDF_SUCCESS=1
+                else
+		    $LOGGER "ifpnetCDF failed. Export exits."
+                    rm -f ${lockFile}
+                    $LOGGER 100
+                    exit 1
+                fi
               fi
 	  fi
       else
@@ -136,13 +141,18 @@ perform_export() {
 	  #check if the netcdf file is there;if not,exit
 	  if [ $? -ne 0 ]
 	  then
-	      $LOGGER "ifpnetCDF failed. Export exits."
-	      rm -f ${lockFile}
-	      $LOGGER 100
 	      NETCDF_SUCCESS=0
 	      if [ $NATIONAL_CENTER != 1 ] && [ "$1" != "-c" ]
-              then	
-	          exit 1
+              then
+		netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
+                if [ "$netcdf_error" != "" ]; then
+                  NETCDF_SUCCESS=1
+                else
+		  $LOGGER "ifpnetCDF failed. Export exits."
+                  rm -f ${lockFile}
+                  $LOGGER 100
+                  exit 1
+                fi
 	      fi	
 	  fi
       fi
@@ -153,14 +163,19 @@ perform_export() {
       #check if the netcdf file is there;if not,exit before we call msg_send
       if [ $? -ne 0 ]
       then
-		$LOGGER ifpnetCDF failed.
-		rm -f ${lockFile}
-		$LOGGER 100
-		NETCDF_SUCCESS=0
-		if [ $NATIONAL_CENTER != 1 ] && [ "$1" != "-c" ]
-                then
-		    exit 1
-		fi
+	NETCDF_SUCCESS=0
+	if [ $NATIONAL_CENTER != 1 ] && [ "$1" != "-c" ]
+        then
+	  netcdf_error=`grep "Some of the requested time ranges are not in the inventory" $logfile`
+	  if [ "$netcdf_error" != "" ]; then
+	    NETCDF_SUCCESS=1
+	  else
+	    $LOGGER "ifpnetCDF failed."
+            rm -f ${lockFile}
+            $LOGGER 100
+	    exit 1
+	  fi
+	fi
       fi
   fi
 
