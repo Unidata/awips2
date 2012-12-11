@@ -164,6 +164,10 @@
 
    <includes
          id="com.raytheon.uf.viz.npp.feature"
+         version="0.0.0"/>      
+         
+   <includes
+         id="com.raytheon.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
 
    <requires>
