@@ -390,6 +390,17 @@ public class GribSpatialCache {
         }
     }
 
+    /**
+     * Final step of subgrid generation, based off the two Coordinates generate
+     * a subgrid coverage, insert it into the db and add it to caches.
+     * 
+     * @param modelName
+     * @param coverage
+     * @param lowerLeft
+     * @param upperRight
+     * @return true on success, false if something went wrong, so no subgrid is
+     *         available. This method will log errors and return false
+     */
     private boolean trim(String modelName, GridCoverage coverage,
             Coordinate lowerLeft, Coordinate upperRight) {
         SubGrid subGrid = new SubGrid();
