@@ -40,7 +40,7 @@
 	        <substitute key="stationId" value="31168"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Nikolayevsk-n Amur (31369)" id="raobNikolayevsk-nAmur"
+	                menuText="Nikolayevsk-na Amur (31369)" id="raobNikolayevsk-nAmur"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="31369"/>
 	    </contribute>
@@ -75,7 +75,7 @@
 	        <substitute key="stationId" value="31873"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Ternej (31909)" id="raobTernej"
+	                menuText="Terney (31909)" id="raobTernej"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="31909"/>
 	    </contribute>
@@ -90,7 +90,7 @@
 	        <substitute key="stationId" value="32098"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-                    menuText="Juzhno-Kurilsk (32165)" id="raobJuzhno-Kurilsk"
+                    menuText="Yuzhno-Kuril'SK (32165)" id="raobJuzhno-Kurilsk"
                     editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
             <substitute key="stationId" value="32165"/>
         </contribute>
@@ -100,7 +100,7 @@
             <substitute key="stationId" value="32186"/>
         </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Yuzhno-Kuril'SK (32217)" id="raobYuzhno-KurilSK"
+	                menuText="Severo-Kuril'SK (32217)" id="raobYuzhno-KurilSK"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="32217"/>
 	    </contribute>
@@ -115,9 +115,9 @@
 	        <substitute key="stationId" value="32477"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Nikol'skoye (32616)" id="raobNikol'skoye"
+	                menuText="Nikol'skoye (32618)" id="raobNikol'skoye"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-	        <substitute key="stationId" value="32616"/>
+	        <substitute key="stationId" value="32618"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Khabarovsk (RUHB)" id="raobKhabarovsk"

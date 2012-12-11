@@ -93,6 +93,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Oct  22, 2009   #3348       bsteffen    limit number of frames in sidepane rather than reseting
  *      Jul 1, 2010     #6146       bkowal      Updates the legend mode so that smaller panes will 
  *                                              now include a legend
+ *      Nov 20, 2012   DR 15524    M.Porricelli Changed so interactive screens still editable when
+ *                                              swapped to side panel
  * 
  * </pre>
  * 
@@ -602,11 +604,12 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                 if (editableResource != null) {
                     EditableManager.makeEditable(editableResource, false);
                 }
+                
+                this.editableResource = editableResource;                
                 if (this.editableResource != null) {
                     EditableManager.makeEditable(this.editableResource, true);
                 }
-                this.editableResource = editableResource;
-
+            	
                 theEditor.getBackgroundColor().setColor(BGColorMode.EDITOR,
                         myRenderables[0].getBackgroundColor());
 
