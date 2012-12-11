@@ -266,18 +266,18 @@
 			<param name="feature"
 				value="com.raytheon.uf.viz.ncep.perspective.feature" />
 		</antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature"
-                value="com.raytheon.uf.viz.nwsauth.feature" />
-        </antcall>
+                <antcall target="p2.build.repo">
+                    <param name="feature"
+                        value="com.raytheon.uf.viz.nwsauth.feature" />
+                </antcall>
 		<antcall target="p2.build.repo">
 		     <param name="feature"
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
-        <antcall target="p2.build.repo">
-        	<param name="feature"
-        		value="com.raytheon.uf.viz.kml.export.feature" />
-        </antcall>		
+                <antcall target="p2.build.repo">
+                	<param name="feature"
+                		value="com.raytheon.uf.viz.kml.export.feature" />
+                </antcall>		
                 <antcall target="p2.build.repo">
                     <param name="feature"
                           value="com.raytheon.uf.viz.npp.feature" />
@@ -285,6 +285,10 @@
                 <antcall target="p2.build.repo">
                      <param name="feature"
                           value="com.raytheon.uf.viz.collaboration.feature" />
+                </antcall>
+                <antcall target="p2.build.repo">
+                     <param name="feature"
+                          value="com.raytheon.uf.viz.gisdatastore.feature" />
                 </antcall>
 
 		<antcall target="cleanup.features" />
