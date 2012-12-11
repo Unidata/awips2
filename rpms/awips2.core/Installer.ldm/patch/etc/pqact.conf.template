@@ -5,6 +5,7 @@
 # 20120905           1090 jkorman     Corrected several patterns as well as
 #                                     combining similar patterns.
 #20121009            1252 jkorman     Corrections and additions from Dale Morris.
+#20121211            1411 rferrel     More corrections and additions from Dale Morris.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -348,7 +349,7 @@ IDS|DDPLUS	^(AG..[0-9][0-9]) (KWB.) (..)(..)(..)
 #shef
 IDS|DDPLUS	^(A[BS]..[0-9][0-9]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
-IDS|DDPLUS	^(AG..[0-9][0-9]) (KALR|KFWR|KKRF|KMSR|KORN|KPTR|KRHA|KRSA|KSTR|KTAR|KTIR|KTUR|KTUA)(..)(..)(..)
+IDS|DDPLUS	^(AG..[0-9][0-9]) (KALR|KFWR|KKRF|KMSR|KORN|KPTR|KRHA|KRSA|KSTR|KTAR|KTIR|KTUR|KTUA) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 IDS|DDPLUS	^(SR..[0-9][0-9]) (....) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
@@ -421,11 +422,6 @@ IDS|DDPLUS	^(S[AP].{4}) (.{4}) (..)(..)(..)
 #IDS|DDPLUS	^(SAAK7.) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
-# AWIPS1:	RADAR	^SDUS[23578].*|^NXUS6.*		/radar/raw
-#		RADAR	^SDUS3.*			/radar/text
-#		TEXT    ^SDUS4([0789].*|[1-6].[^K]*|[1-6].K[^W]*|[1-6].KW[^B]*|[1-6].KWB[^C]*)    /radar/text
-# ** TO BE LOCALIZED *** 
-
 # already included in text pattern
 #IDS|DDPLUS	^(S[AP]CN[345].) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
@@ -442,7 +438,7 @@ IDS|DDPLUS	^(S[MIN]V[DCE]..|SSV[DX]..) (.{4}) (..)(..)(..)
 # SXUS20 KWNB 022200 RRX
 # AWIPS1:	TEXT	^VHVD.*KWNB.*   		/point/maritime/Raw
 # VHVD29 KWNB 022340 /pMOBP29
-IDS|DDPLUS	^(SXUS2[0123]|VHVD29) KWNB (..)(..)(..)
+IDS|DDPLUS	^(SXUS2[0123]) KWNB (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/maritime/(\2:yyyy)(\2:mm)\2/\3/\1_KWNB_\2\3\4_(seq).%Y%m%d%H
 
 
@@ -484,7 +480,7 @@ IDS|DDPLUS	^(V.{5}) (.{4}) (..)(..)(..)
 #    ^(NWU)S\d{2} KWNS.*
 #
 # Change suggested by Dale Morris 
-IDS|DDPLUS	^(W.....) (.{4}) (..)(..)(..)
+IDS|DDPLUS	^(W[BD-RTUW-Z]....) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/wwa/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:       TEXT    ^WAUS4[1-6].*                /aiv/advisories/Raw
@@ -505,7 +501,7 @@ IDS|DDPLUS	^(W.....) (.{4}) (..)(..)(..)
 # WSUS33 KKCI 030055 /pSIGW 
 # TEXT    ^WSUS3[123].*                   /aiv/convSIGMET/Raw 
 IDS|DDPLUS	^(WSUS3[123]) (.{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/convsigment/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/convsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # Aviation patterns : AIRMETS : CONUS
 # TEXT    ^WAUS4[1-6].*                /aiv/advisories/Raw
@@ -515,7 +511,7 @@ IDS|DDPLUS	^(WSUS3[123]) (.{4}) (..)(..)(..)
 # Aviation patterns : NON-CONVECTIVE SIGMETS : CONUS
 # TEXT    ^W[CSV]US0[1-6].*             /aiv/advisories/Raw
 IDS|DDPLUS	^(W[ACSV]US[04][1-6]) (.{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/nonconvsigment/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/nonconvsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # airmet
 IDS|DDPLUS	^(WAUS4[1-6]) (.{4}) (..)(..)(..)
@@ -641,3 +637,21 @@ HDS	^(JUTX(([2-4]1)|53)) (.{4}) (..)(..)(..)
 # New NPP/VIIRS data 
 NOTHER	^(TIP...) (KNES) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/sat/%Y%m\(3)/\(4)/VIIRS/\1_\2_\3\4\5_(seq).%Y%m%d
+
+# AWIPS1:	RADAR	^SDUS[23578].*|^NXUS6.*		/radar/raw
+#		RADAR	^SDUS3.*			/radar/text
+#		TEXT    ^SDUS4([0789].*|[1-6].[^K]*|[1-6].K[^W]*|[1-6].KW[^B]*|[1-6].KWB[^C]*)    /radar/text
+# ** TO BE LOCALIZED ***
+# radar modifications 5/15/2012 comment out the previous radar config and add local radars
+#
+#ANY	^(SDUS[234578].) (K|P|T)(OUN|FWD|ICT|TSA) (..)(..)(..) /p(...)(OKC|TLX|FDR|VNX|FWS|GRK|DAL|DFW|TUL|INX|SRX)
+#	FILE	-overwrite -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\2\8_\7_\4\5\6-\1_\2\3_(seq).rad.%Y%m%d%H
+#
+#ANY	^(SDUS4.) (KWBC) (..)(..)(..) /p(...)(OKC|TLX|FDR|VNX|FWS|GRK|DAL|DFW|TUL|INX|SRX)
+#	FILE	-overwrite -close -edex -log	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/K\7/\6/K\7_\6_\3\4\5-\1_\2_(seq).txt.%Y%m%d%H
+#IDS|DDPLUS	^(NXUS6.) (K|P|T)(...) (..)(..)(..) /p(GSM)(OKC|TLX|FDR|VNX|FWS|GRK|DAL|DFW|TUL|INX|SRX)
+#	FILE	-overwrite -log -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\2\8_\7_\4\5\6-\1_\2\3_(seq).rad.%Y%m%d%H
+#
+#example to show P and T radrs (AK, HI, and PR)
+#IDPS|DDPLUS	^(NXUS6.) (P|T)(...) (..)(..)(..) /p(GSM)(...)
+#	FILE	-overwrite -log -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\2\8_\7_\4\5\6-\1_\2\3_(seq).rad.%Y%m%d%H
