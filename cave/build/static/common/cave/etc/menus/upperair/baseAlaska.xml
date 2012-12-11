@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Adark/Davis AFB, AK (70454)" id="raobDavisAFB_AK"
+	                menuText="Adak/Davis AFB, AK (70454)" id="raobDavisAFB_AK"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="70454"/>
 	    </contribute>
