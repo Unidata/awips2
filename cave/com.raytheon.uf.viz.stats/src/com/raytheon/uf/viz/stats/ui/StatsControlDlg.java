@@ -62,17 +62,17 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 
 /**
  * Stats graphing control dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2012            mpduff     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -160,8 +160,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Constructor.
-     *
-     * @param parent parent Shell
+     * 
+     * @param parent
+     *            parent Shell
      */
     public StatsControlDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
@@ -401,10 +402,13 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Display an informational popup message to the user.
-     *
-     * @param title The title
-     * @param message The message
-     * @param type Type of message
+     * 
+     * @param title
+     *            The title
+     * @param message
+     *            The message
+     * @param type
+     *            Type of message
      */
     public void displayPopup(String title, String message, int type) {
         MessageBox messageDialog = new MessageBox(getShell(), type);
@@ -415,8 +419,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Set the data types.
-     *
-     * @param dataTypes String[] of data types
+     * 
+     * @param dataTypes
+     *            String[] of data types
      */
     public void setDataTypes(String[] dataTypes) {
         if (dataTypes != null) {
@@ -429,11 +434,11 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Date/Time selection handler
      */
     protected void handleDateTimeSelection() {
-        AwipsCalendar ac = new AwipsCalendar(getShell(), selectedDate, true);
+        AwipsCalendar ac = new AwipsCalendar(getShell(), selectedDate, 1);
         Object obj = ac.open();
 
-        if ((obj != null) && (obj instanceof Calendar)) {
-            selectedDate = ((Calendar) obj).getTime();
+        if ((obj != null) && (obj instanceof Date)) {
+            selectedDate = (Date) obj;
             dateTimeSelectedLabel.setText(getFormattedDate(selectedDate));
         }
     }
@@ -647,8 +652,9 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Format the date.
-     *
-     * @param date The date to format
+     * 
+     * @param date
+     *            The date to format
      * @return the formated string
      */
     private String getFormattedDate(Date date) {
