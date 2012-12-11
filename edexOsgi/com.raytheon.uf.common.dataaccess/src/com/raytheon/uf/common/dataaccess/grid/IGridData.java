@@ -24,7 +24,6 @@ import javax.measure.unit.Unit;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataaccess.IData;
-import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDestination;
 
@@ -54,13 +53,6 @@ public interface IGridData extends IData {
      * @return the parameter of the data
      */
     public String getParameter();
-
-    /**
-     * Gets the level of the data
-     * 
-     * @return the level of the data
-     */
-    public Level getLevel();
 
     /**
      * Gets the GridGeometry of the data
