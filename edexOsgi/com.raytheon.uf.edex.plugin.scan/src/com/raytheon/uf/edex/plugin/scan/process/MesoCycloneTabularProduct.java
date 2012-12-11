@@ -55,13 +55,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/07/2009   2037       dhladky      Initial Creation.
- * 02/23/2012	14536	   Xiaochuan	Add method getIdsFromGraphicBlock() to 
- * 										hold the ids that have the same order   
- * 										as the ids in source file.
- *
- *
+ * ------------ -------- ----------- --------------------------
+ * 05/07/2009   2037     dhladky     Initial Creation.
+ * 02/23/2012	14536	 Xiaochuan	 Add method getIdsFromGraphicBlock() to 
+ * 									 hold the ids that have the same order   
+ * 									 as the ids in source file.
+ * 11/13/2012	14368	 Xiaochuan	 Required to set alarm time in a quiet time period 
+ * 									 from the last event to new event (new storm come in).
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -132,12 +133,12 @@ public class MesoCycloneTabularProduct extends RadarProduct {
                                 + " over the last " + alarms.getMesoAlarmTime()
                                 + " minutes.");
 
-                        previousTime = rec.getDataTime().getRefTime();
-
                         EDEXUtil.sendMessageAlertViz(Priority.SIGNIFICANT,
                                 RadarConstants.PLUGIN_ID, SCAN, "RADAR",
                                 alarmString.toString(), null, null);
                     }
+                    previousTime = rec.getDataTime().getRefTime();
+                    
                 }
             }
 
