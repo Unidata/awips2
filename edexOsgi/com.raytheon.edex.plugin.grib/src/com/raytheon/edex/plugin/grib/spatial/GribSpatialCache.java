@@ -41,6 +41,7 @@ import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.Corner;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
@@ -121,6 +122,12 @@ public class GribSpatialCache {
      */
     private Map<String, SubGridDef> subGridDefMap;
 
+    /**
+     * Map of coverage id to the number of columns in world wrap or -1 for no
+     * wrapping.
+     */
+    private Map<Integer, Integer> worldWrapMap;
+
     private FileDataList fileDataList;
 
     private long fileScanTime = 0;
@@ -146,6 +153,7 @@ public class GribSpatialCache {
         definedSubGridMap = new HashMap<String, SubGrid>();
         subGridCoverageMap = new HashMap<String, GridCoverage>();
         subGridDefMap = new HashMap<String, SubGridDef>();
+        worldWrapMap = new HashMap<Integer, Integer>();
         scanFiles();
     }
 
@@ -348,35 +356,66 @@ public class GribSpatialCache {
                     upperRightPosition, PixelOrientation.CENTER,
                     referenceCoverage);
 
-            SubGrid subGrid = new SubGrid();
-            subGrid.setLowerLeftLon(lowerLeftPosition.x);
-            subGrid.setLowerLeftLat(lowerLeftPosition.y);
-            subGrid.setUpperRightLon(upperRightPosition.x);
-            subGrid.setUpperRightLat(upperRightPosition.y);
-
-            // verify numbers in -180 -> 180 range
-            subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid
-                    .getLowerLeftLon()));
-            subGrid.setUpperRightLon(MapUtil.correctLon(subGrid
-                    .getUpperRightLon()));
-
-            GridCoverage subGridCoverage = coverage.trim(subGrid);
-
-            if (subGridCoverage != null) {
+            return trim(modelName, coverage, lowerLeftPosition, upperRightPosition);
+        } else {
+            Integer wrapCount = worldWrapMap.get(coverage.getId());
+            if (wrapCount == null) {
+                wrapCount = GridGeometryWrapChecker.checkForWrapping(coverage
+                        .getGridGeometry());
+                worldWrapMap.put(coverage.getId(), wrapCount);
+            }
+            if(wrapCount > 0 && wrapCount < coverage.getNx()){
+                // make sure that there is data going around the world only
+                // once, if the data starts another iteration around the world,
+                // subgrid it to cut off the extra data. This mostly hits to
+                // remove one redundant column.
+                Coordinate upperRightPosition = new Coordinate(wrapCount - 1, 0);
+                upperRightPosition = MapUtil.gridCoordinateToLatLon(upperRightPosition,
+                        PixelOrientation.CENTER, coverage);
                 try {
-                    subGridCoverage = insert(subGridCoverage);
-                } catch (Exception e) {
-                    logger.error(e.getLocalizedMessage(), e);
+                    Coordinate lowerLeftPosition = new Coordinate(
+                            coverage.getLowerLeftLon(),
+                            coverage.getLowerLeftLat());
+                    return trim(modelName, coverage, lowerLeftPosition,
+                            upperRightPosition);
+                } catch (GridCoverageException e) {
+                    logger.error(
+                            "Failed to generate sub grid for world wide grid: "
+                                    + modelName, e);
                     return false;
                 }
-                subGridCoverageMap.put(subGridKey(modelName, coverage),
-                        subGridCoverage);
-                definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
+            }else{
+                return false;
             }
-            return true;
-        } else {
-            return false;
         }
+    }
+
+    private boolean trim(String modelName, GridCoverage coverage,
+            Coordinate lowerLeft, Coordinate upperRight) {
+        SubGrid subGrid = new SubGrid();
+        subGrid.setLowerLeftLon(lowerLeft.x);
+        subGrid.setLowerLeftLat(lowerLeft.y);
+        subGrid.setUpperRightLon(upperRight.x);
+        subGrid.setUpperRightLat(upperRight.y);
+
+        // verify numbers in -180 -> 180 range
+        subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid.getLowerLeftLon()));
+        subGrid.setUpperRightLon(MapUtil.correctLon(subGrid.getUpperRightLon()));
+
+        GridCoverage subGridCoverage = coverage.trim(subGrid);
+
+        if (subGridCoverage != null) {
+            try {
+                subGridCoverage = insert(subGridCoverage);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage(), e);
+                return false;
+            }
+            subGridCoverageMap.put(subGridKey(modelName, coverage),
+                    subGridCoverage);
+            definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
+        }
+        return true;
     }
 
     /**
