@@ -186,7 +186,7 @@ public class AutoDailyQC {
          * 0 represents the time frame 12 - 18, 1 represents time frame 18-00, 2
          * represents time frame 00-06Z, 3 represents time frame 06-12z
          */
-        if (precip_flag == true) {
+        /*if (precip_flag == true) {
             if (DailyQcUtils.curHr18_00 == 1) {
                 DailyQcUtils.pdata[0].used[1] = 0;
                 DailyQcUtils.pdata[0].used[2] = 0;
@@ -200,7 +200,7 @@ public class AutoDailyQC {
                 DailyQcUtils.pdata[0].used[3] = 0;
                 DailyQcUtils.pdata[0].used[4] = 0;
             }
-        } else if (freezingl_flag == true) {
+        } else*/ if (freezingl_flag == true) {
             if (DailyQcUtils.curHr18_00 == 1) {
                 DailyQcUtils.zdata[0].used[1] = 0;
                 DailyQcUtils.zdata[0].used[2] = 0;
@@ -345,6 +345,13 @@ public class AutoDailyQC {
                         WriteQPFGrids wq = new WriteQPFGrids();
                         wq.write_qpf_grids(dbuf);
 
+                        //copy data from DailyQcUtils.pcp.value to datavals
+                        for (int y = 0; y < hrap_grid.maxj; y++) {
+                            for (int x = 0; x < hrap_grid.maxi; x++) {
+                                datavals[x][y] = (DailyQcUtils.pcp.value[x][y] / 100.f);
+                            }
+                        }
+                        
                         /* output grid to file in grib format */
 
                         // create netCDF file from data, write it out then call
