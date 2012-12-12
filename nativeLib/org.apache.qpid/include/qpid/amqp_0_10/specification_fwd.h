@@ -402,7 +402,10 @@ inline SerializeAs<ErrorType, uint8_t> serializable(ErrorType& e) {
     return SerializeAs<ErrorType, uint8_t>(e);
 }
 class ErrorCheck;
+class TimerWakeup;
+class TimerDrop;
 class Shutdown;
+class DeliverToQueue;
 
 } // namespace cluster
 
@@ -415,6 +418,8 @@ class Announce;
 class DeliverClose;
 class DeliverDoOutput;
 class Abort;
+class ShadowSetUser;
+class ShadowPrepare;
 class ConsumerState;
 class DeliveryRecord;
 class TxStart;
@@ -434,6 +439,8 @@ class Exchange;
 class Queue;
 class ExpiryId;
 class AddQueueListener;
+class ManagementSetupState;
+class Config;
 
 } // namespace cluster_connection
 
