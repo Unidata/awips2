@@ -25,7 +25,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -266,7 +265,7 @@ public interface IRenderableDisplay extends IRenderable {
     /**
      * Triggers the clearing of the RenderableDisplay
      */
-    public void clear(IDisplayPane parentPane);
+    public void clear();
 
     /**
      * Set the background color of the display
