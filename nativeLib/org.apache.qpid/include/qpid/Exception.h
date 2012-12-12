@@ -26,9 +26,7 @@
 #include "qpid/framing/constants.h"
 #include "qpid/framing/enum.h"
 #include "qpid/sys/StrError.h"
-#include "qpid/Msg.h"
 #include "qpid/CommonImportExport.h"
-#include <memory>
 #include <string>
 #include <errno.h>
 
