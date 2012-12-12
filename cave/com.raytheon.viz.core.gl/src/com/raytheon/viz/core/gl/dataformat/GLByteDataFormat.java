@@ -69,6 +69,28 @@ public class GLByteDataFormat extends AbstractGLColorMapDataFormat {
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return 0;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return 0xFF;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.gl.dataprep.AbstractGLColorMapDataFormat#
      * getCopyBackBuffer()
      */
