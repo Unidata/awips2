@@ -140,6 +140,26 @@ public class GLColormappedImage extends AbstractGLImage implements
         return data.getTexId();
     }
 
+    /**
+     * the absolute minimum value of a pixel in this image. {@link Double#NaN}
+     * if no absolute minimum exists
+     * 
+     * @return
+     */
+    public double getDataMin() {
+        return data.getDataMin();
+    }
+
+    /**
+     * the absolute maximum value of a pixel in this image. {@link Double#NaN}
+     * if no absolute maximum exists
+     * 
+     * @return
+     */
+    public double getDataMax() {
+        return data.getDataMax();
+    }
+
     /*
      * (non-Javadoc)
      * 
