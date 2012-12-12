@@ -58,6 +58,28 @@ public class GLFloatDataFormat extends AbstractGLColorMapDataFormat {
         return GL.GL_FLOAT;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return Double.NaN;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return Double.NaN;
+    }
+
     @Override
     public FloatBuffer getCopybackBuffer(GLColorMapData data) {
         int width = data.getDimensionSize(0);
