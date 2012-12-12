@@ -43,7 +43,7 @@ import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData
  */
 public class GLColorMapData {
 
-    private AbstractGLColorMapDataFormat dataFormat;
+    private final AbstractGLColorMapDataFormat dataFormat;
 
     private Buffer data;
 
@@ -55,8 +55,8 @@ public class GLColorMapData {
 
     public GLColorMapData(ColorMapData cmData,
             AbstractGLColorMapDataFormat dataFormat) {
-        this.dimensions = cmData.getDimensions();
         this.dataFormat = dataFormat;
+        this.dimensions = cmData.getDimensions();
         this.dataType = cmData.getDataType();
         this.textureType = dataFormat.getTextureType();
         this.data = dataFormat.formatForGL(cmData.getBuffer(), this);
@@ -92,6 +92,14 @@ public class GLColorMapData {
 
     public int getCopyBackTextureType() {
         return dataFormat.getCopyBackTextureType();
+    }
+
+    public double getDataFormatMin() {
+        return dataFormat.getDataFormatMin();
+    }
+
+    public double getDataFormatMax() {
+        return dataFormat.getDataFormatMax();
     }
 
     public Buffer getCopybackBuffer() {
