@@ -50,7 +50,6 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -59,6 +58,7 @@ import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
 import com.raytheon.viz.grid.inv.GridInventory;
+import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 
 /**
@@ -113,7 +113,7 @@ public class GridProductBrowserDataDefinition extends
                 GridInventory.PARAMETER_QUERY,
                 GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
         order = getOrder();
-        loadProperties = new LoadProperties();
+        loadProperties = new GridLoadProperties();
         loadProperties.setResourceType(getResourceType());
     }
 
