@@ -51,6 +51,7 @@ class FieldTable
     typedef boost::shared_ptr<FieldValue> ValuePtr;
     typedef std::map<std::string, ValuePtr> ValueMap;
     typedef ValueMap::iterator iterator;
+    typedef ValueMap::const_iterator const_iterator;
     typedef ValueMap::const_reference const_reference;
     typedef ValueMap::reference reference;
     typedef ValueMap::value_type value_type;
@@ -104,7 +105,7 @@ class FieldTable
     ValueMap::iterator end() { return values.end(); }
     ValueMap::iterator find(const std::string& s) { return values.find(s); }
 
-    std::pair <ValueMap::iterator, bool> insert(const ValueMap::value_type&);
+    QPID_COMMON_EXTERN std::pair <ValueMap::iterator, bool> insert(const ValueMap::value_type&);
     QPID_COMMON_EXTERN ValueMap::iterator insert(ValueMap::iterator, const ValueMap::value_type&);
     void clear() { values.clear(); }
 
