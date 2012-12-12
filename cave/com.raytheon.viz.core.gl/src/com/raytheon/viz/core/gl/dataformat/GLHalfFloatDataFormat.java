@@ -67,6 +67,28 @@ public class GLHalfFloatDataFormat extends AbstractGLColorMapDataFormat {
         return GL.GL_HALF_FLOAT_ARB;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return Double.NaN;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#
+     * getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return Double.NaN;
+    }
+
     @Override
     public ShortBuffer getCopybackBuffer(GLColorMapData data) {
         int width = getAlignedWidth(data.getDimensionSize(0));
