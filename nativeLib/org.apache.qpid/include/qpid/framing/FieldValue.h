@@ -83,7 +83,7 @@ class FieldValue {
     FieldValue(): data(0) {};
     // Default assignment operator is fine
     void setType(uint8_t type);
-    QPID_COMMON_EXTERN uint8_t getType();
+    QPID_COMMON_EXTERN uint8_t getType() const;
     Data& getData() { return *data; }
     uint32_t encodedSize() const { return 1 + data->encodedSize(); };
     bool empty() const { return data.get() == 0; }
@@ -99,6 +99,7 @@ class FieldValue {
 
     template <class T, int W> T getIntegerValue() const;
     template <class T, int W> T getFloatingPointValue() const;
+    template <int W> void getFixedWidthValue(unsigned char*) const;
     template <class T> bool get(T&) const;
 
   protected:
@@ -122,7 +123,7 @@ template <>
 inline bool FieldValue::convertsTo<std::string>() const { return data->convertsToString(); }
 
 template <>
-inline int FieldValue::get<int>() const { return data->getInt(); }
+inline int FieldValue::get<int>() const { return static_cast<int>(data->getInt()); }
 
 template <>
 inline int64_t FieldValue::get<int64_t>() const { return data->getInt(); }
@@ -202,8 +203,18 @@ inline T FieldValue::getFloatingPointValue() const {
         T value;
         uint8_t* const octets = convertIfRequired(fwv->rawOctets(), W);
         uint8_t* const target = reinterpret_cast<uint8_t*>(&value);
-        for (uint i = 0; i < W; ++i) target[i] = octets[i];
+        for (size_t i = 0; i < W; ++i) target[i] = octets[i];
         return value;
+    } else {
+        throw InvalidConversionException();
+    }
+}
+
+template <int W> void FieldValue::getFixedWidthValue(unsigned char* value) const
+{
+    FixedWidthValue<W>* const fwv = dynamic_cast< FixedWidthValue<W>* const>(data.get());
+    if (fwv) {
+        for (size_t i = 0; i < W; ++i) value[i] = fwv->rawOctets()[i];
     } else {
         throw InvalidConversionException();
     }
@@ -324,6 +335,16 @@ class Str16Value : public FieldValue {
     QPID_COMMON_EXTERN Str16Value(const std::string& v);
 };
 
+class Var16Value : public FieldValue {
+  public:
+    QPID_COMMON_EXTERN Var16Value(const std::string& v, uint8_t code);
+};
+
+class Var32Value : public FieldValue {
+  public:
+    QPID_COMMON_EXTERN Var32Value(const std::string& v, uint8_t code);
+};
+
 class Struct32Value : public FieldValue {
   public:
     QPID_COMMON_EXTERN Struct32Value(const std::string& v);
@@ -415,6 +436,11 @@ class ListValue : public FieldValue {
   public:
     typedef List ValueType;
     QPID_COMMON_EXTERN ListValue(const List&);
+};
+
+class UuidValue : public FieldValue {
+  public:
+    QPID_COMMON_EXTERN UuidValue(const unsigned char*);
 };
 
 template <class T>
