@@ -57,6 +57,26 @@ public abstract class AbstractGLColorMapDataFormat {
     public abstract int getTextureInternalFormat();
 
     /**
+     * Gets the absolute minimum value a pixel can have in this format. For
+     * example, the minimum value for an unsigned byte is 0, signed byte is
+     * -127, etc. {@link Double#NaN} can be returned in case no absolute minimum
+     * exists (such as case with floats and doubles)
+     * 
+     * @return
+     */
+    public abstract double getDataFormatMin();
+
+    /**
+     * Gets the absolute maximum value a pixel can have in this format. For
+     * example, the minimum value for an unsigned byte is 255, signed byte is
+     * 128, etc. {@link Double#NaN} can be returned in case no absolute maximum
+     * exists (such as case with floats and doubles)
+     * 
+     * @return
+     */
+    public abstract double getDataFormatMax();
+
+    /**
      * Create a buffer object for specified data for copying data from out of GL
      * 
      * @param data
