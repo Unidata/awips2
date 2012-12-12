@@ -298,10 +298,7 @@ public class FFGGridResource extends
         }
 
         if (gridDisplay == null) {
-            gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this,
-                    target.getViewType());
-            gridDisplay.init(target);
-
+            gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this);
         }
 
         gridDisplay.paint(target, paintProps);
