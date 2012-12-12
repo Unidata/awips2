@@ -76,6 +76,28 @@ public class GLSignedByteDataFormat extends GLByteDataFormat {
      * (non-Javadoc)
      * 
      * @see
+     * com.raytheon.viz.core.gl.dataformat.GLByteDataFormat#getDataFormatMin()
+     */
+    @Override
+    public double getDataFormatMin() {
+        return Byte.MIN_VALUE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.dataformat.GLByteDataFormat#getDataFormatMax()
+     */
+    @Override
+    public double getDataFormatMax() {
+        return Byte.MAX_VALUE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * com.raytheon.viz.core.gl.dataformat.GLByteDataFormat#getTextureType()
      */
     @Override
