@@ -23,6 +23,7 @@
  */
 
 #include "qpid/Exception.h"
+#include "qpid/Msg.h"
 
 #include <cerrno>
 #include <assert.h>
