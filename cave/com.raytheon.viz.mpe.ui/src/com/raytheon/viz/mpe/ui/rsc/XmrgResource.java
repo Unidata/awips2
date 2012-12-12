@@ -122,7 +122,7 @@ public class XmrgResource extends
 
     private static final GeometryFactory gf = new GeometryFactory();
 
-	private static final double MILLICVT = 25.4;
+    private static final double MILLICVT = 25.4;
 
     private XmrgFile xmrg;
 
@@ -464,10 +464,7 @@ public class XmrgResource extends
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
-                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this,
-                        target.getViewType());
-                gridDisplay.init(target);
-
+                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this);
             }
 
             GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -582,11 +579,11 @@ public class XmrgResource extends
                         } else if (s > 0 && s <= 24) {
                             s = 0;
                         }
-                        if ((cv_use.equalsIgnoreCase("Locbias") || cv_use.equalsIgnoreCase("height") || cv_use.equalsIgnoreCase("locspan") ||
-                    	tempsval == -1))
-                        {
+                        if ((cv_use.equalsIgnoreCase("Locbias")
+                                || cv_use.equalsIgnoreCase("height")
+                                || cv_use.equalsIgnoreCase("locspan") || tempsval == -1)) {
                             f = (float) parameters.getDataToDisplayConverter()
-                                .convert(s);
+                                    .convert(s);
                         } else {
                             f = (float) (s / 100 / MILLICVT);
                         }
