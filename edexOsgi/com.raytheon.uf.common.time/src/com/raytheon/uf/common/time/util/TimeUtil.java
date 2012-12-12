@@ -31,9 +31,9 @@ import com.raytheon.uf.common.time.SimulatedTime;
 
 /**
  * Utilities for time, some extracted from Util.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -41,9 +41,9 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Sep 11, 2012 1154       djohnson    Add MILLIS constants and isNewerDay().
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
- *
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -55,11 +55,11 @@ public class TimeUtil {
      * only want to keep track of times in a conditional sense, such as if a
      * logging priority is enabled. This is an example of the Null Object
      * pattern.
-     *
+     * 
      * @see http://en.wikipedia.org/wiki/Null_Object_pattern
-     *
+     * 
      * @author djohnson
-     *
+     * 
      */
     private static class NullClock extends AbstractTimer {
         @Override
@@ -71,9 +71,9 @@ public class TimeUtil {
     /**
      * Delegates the retrieval of the current time to the system clock.
      * Production code will always use this.
-     *
+     * 
      * @author djohnson
-     *
+     * 
      */
     private static class SystemTimeStrategy implements ITimeStrategy {
         @Override
@@ -102,18 +102,26 @@ public class TimeUtil {
 
     public static final int SECONDS_PER_MINUTE = 60;
 
-    // create instance of simple date format on class load, as instantiating it
-    // is expensive the SimpleDateFormat class is not thread-safe,
-    // so calling methods use synchronized
-    private static SimpleDateFormat sdf = new SimpleDateFormat(
-            "yyyy-MM-dd_HH:mm:ss.S");
+    private static ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
 
-    private static SimpleDateFormat sqlSdf = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss.S");
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.S");
+            return sdf;
+        }
 
-    static {
-        sqlSdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    };
+
+    private static ThreadLocal<SimpleDateFormat> sqlSdf = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return sdf;
+        }
+
+    };
 
     static final ITimeStrategy SYSTEM_TIME_STRATEGY = new SystemTimeStrategy();
 
@@ -126,26 +134,15 @@ public class TimeUtil {
 
     /**
      * Converts a Calendar in the local time zone to a GMT date
-     *
+     * 
      * @param cal
      *            A Calendar object in the local time zone
      * @return The GMT date
      */
     public static Date calendarToGMT(Calendar cal) {
-        Date dt = null;
-        synchronized (sdf) {
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            String str = formatCalendar(cal);
-            sdf.setTimeZone(TimeZone.getDefault());
-            try {
-                dt = sdf.parse(str);
-            } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        return dt;
+        Calendar copy = (Calendar) cal.clone();
+        copy.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return copy.getTime();
     }
 
     /**
@@ -157,7 +154,7 @@ public class TimeUtil {
      * configured the system to a specific time. Those purposes are handled by
      * the {@link SimulatedTime} class. The {@link Date} and {@link Calendar}
      * returning methods in this class will delegate to {@link SimulatedTime}.
-     *
+     * 
      * @see {@link SimulatedTime}
      * @return the current time in milliseconds
      */
@@ -167,25 +164,21 @@ public class TimeUtil {
 
     /**
      * Formats a calendar object into the following format yyyy-MM-dd_HH:mm:ss.S
-     *
+     * 
      * @param cal
      *            The calendar to format
      * @return The formatted result
      */
     public static String formatCalendar(Calendar cal) {
-        String format = null;
-
-        synchronized (sdf) {
-            sdf.setTimeZone(cal.getTimeZone());
-            format = sdf.format(cal.getTime());
-        }
-        return format;
+        SimpleDateFormat mySdf = sdf.get();
+        mySdf.setTimeZone(cal.getTimeZone());
+        return mySdf.format(cal.getTime());
     }
 
     /**
      * Retrieve date as a string in the index standard format: yyyy-MM-dd
      * kk:mm:ss.SSS
-     *
+     * 
      * @param aCalendar
      *            A Calendar instance
      * @return The formatted date string from the Calendar instance
@@ -197,7 +190,7 @@ public class TimeUtil {
     /**
      * Retrieve date as a string in the index standard format: yyyy-MM-dd
      * kk:mm:ss.SSS
-     *
+     * 
      * @param aDate
      *            A Date instance
      * @return The formatted date string from the Date instance
@@ -211,7 +204,7 @@ public class TimeUtil {
     public static long formattedDateToLong(String formattedDate) {
         long retVal = 0;
         try {
-            retVal = sdf.parse(formattedDate).getTime();
+            retVal = sdf.get().parse(formattedDate).getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -219,16 +212,14 @@ public class TimeUtil {
     }
 
     public static String formatToSqlTimestamp(Date aDate) {
-        synchronized (sqlSdf) {
-            return sqlSdf.format(aDate);
-        }
+        return sqlSdf.get().format(aDate);
     }
 
     /**
      * Retrieve a {@link ITimer} instance that will only actually keep track of
      * time if the specified priority level is enabled. This allows efficient
      * use of system resources, while calling code need not change.
-     *
+     * 
      * @param handler
      *            the handler to use to check for a priority level being enabled
      * @param priority
@@ -243,7 +234,7 @@ public class TimeUtil {
     /**
      * Retrieve a {@link ITimer} that allows the demarcation of arbitrary start
      * and stop times.
-     *
+     * 
      * @return a {@link ITimer}
      */
     public static ITimer getTimer() {
@@ -253,7 +244,7 @@ public class TimeUtil {
     /**
      * Check whether the time represented by a {@link Date} is a new day
      * compared to another {@link Date} object.
-     *
+     * 
      * @param earlierDate
      *            the earlier date
      * @param laterDate
@@ -271,16 +262,16 @@ public class TimeUtil {
         Calendar laterCal = TimeUtil.newCalendar(timeZone);
         laterCal.setTime(laterDate);
 
-        return laterCal.get(Calendar.DAY_OF_YEAR) > earlierCal
-                .get(Calendar.DAY_OF_YEAR)
-                || laterCal.get(Calendar.YEAR) > earlierCal.get(Calendar.YEAR);
+        return (laterCal.get(Calendar.DAY_OF_YEAR) > earlierCal
+                .get(Calendar.DAY_OF_YEAR))
+                || (laterCal.get(Calendar.YEAR) > earlierCal.get(Calendar.YEAR));
     }
 
     /**
      * Return a new {@link Calendar} instance. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     *
+     * 
      * @see {@link SimulatedTime}
      * @return the calendar
      */
@@ -294,7 +285,7 @@ public class TimeUtil {
      * Return a new {@link Calendar} instance for the specified {@link TimeZone}
      * . This method delegates to the {@link SimulatedTime} class to determine
      * the currently configured system time.
-     *
+     * 
      * @param timeZone
      *            the time zone
      * @see {@link SimulatedTime}
@@ -310,7 +301,7 @@ public class TimeUtil {
      * Return a new {@link Date} instance. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     *
+     * 
      * @see {@link SimulatedTime}
      * @return the current {@link Date}
      */
@@ -322,7 +313,7 @@ public class TimeUtil {
      * Return a new ImmutableDate. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
-     *
+     * 
      * @see {@link SimulatedTime}
      * @return an immutable date for the current time
      */
