@@ -9,13 +9,13 @@
 	<classpathentry kind="lib" path="commons-lang-2.3.jar"/>
 	<classpathentry kind="lib" path="commons-pool-1.5.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="ecore-2.2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="geoapi-2.3-M1.jar"/>
-	<classpathentry exported="true" kind="lib" path="geoapi-pending-2.3-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="geoapi-2.3-M1.jar" sourcepath="geoapi-2.3-M1-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="geoapi-pending-2.3-M1.jar" sourcepath="geoapi-pending-2.3-M1-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-api-2.6.4.jar" sourcepath="gt-api-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-coverage-2.6.4.jar" sourcepath="gt-coverage-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-cql-2.6.4.jar"/>
-        <classpathentry exported="true" kind="lib" path="gt-data-2.6.4.jar" sourcepath="gt-data-2.6.4-sources.zip"/>
-        <classpathentry exported="true" kind="lib" path="gt-directory-2.6.4.jar" sourcepath="gt-directory-2.6.4-sources.zip"/>
+	<classpathentry exported="true" kind="lib" path="gt-data-2.6.4.jar" sourcepath="gt-data-2.6.4-sources.zip"/>
+	<classpathentry exported="true" kind="lib" path="gt-directory-2.6.4.jar" sourcepath="gt-directory-2.6.4-sources.zip"/>
 	<classpathentry exported="true" kind="lib" path="gt-epsg-wkt-2.6.4.jar" sourcepath="gt-epsg-wkt-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-geotiff-2.6.4.jar" sourcepath="gt-geotiff-2.6.4-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-graph-2.6.4.jar" sourcepath="gt-graph-2.6.4-sources.jar"/>
