@@ -113,6 +113,12 @@
 			<fileset dir="${workspace.dir}"
 				includes="de.*/**" />
 		</copy>
+		
+		<echo message="PLUGINS: it.*/**" />
+		<copy todir="${basedir}/cave/p2/plugins">
+			<fileset dir="${workspace.dir}"
+				includes="it.*/**" />
+		</copy>
 		<!-- END: Copy The Plugins -->
 		
 		<!-- Copy The Features -->
