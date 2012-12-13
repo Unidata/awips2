@@ -437,7 +437,6 @@ public class GFEDao extends DefaultPluginDao {
             }
         });
 
-        // we gain nothing by removing from hdf5
         Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
                 .getHdf5FilesAndGroups(GridDatabase.gfeBaseDataDir, parmId,
                         times);
@@ -445,20 +444,21 @@ public class GFEDao extends DefaultPluginDao {
                 .entrySet()) {
             File hdf5File = entry.getKey();
             IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
+            String[] groupsToDelete = entry.getValue().getSecond();
 
             try {
-                String[] groupsToDelete = entry.getValue().getSecond();
-                for (String grp : groupsToDelete) {
-                    dataStore.delete(grp);
+                dataStore.delete(groupsToDelete);
+
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.handle(Priority.DEBUG,
+                            "Deleted: " + Arrays.toString(groupsToDelete)
+                                    + " from " + hdf5File.getName());
                 }
-
-                statusHandler.handle(Priority.DEBUG,
-                        "Deleted: " + Arrays.toString(groupsToDelete)
-                                + " from " + hdf5File.getName());
-
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error deleting hdf5 records", e);
+                statusHandler.handle(
+                        Priority.WARN,
+                        "Error deleting hdf5 record(s) from file: "
+                                + hdf5File.getPath(), e);
             }
         }
     }
