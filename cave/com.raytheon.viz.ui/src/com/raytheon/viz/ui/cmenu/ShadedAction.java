@@ -24,14 +24,17 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.viz.ui.dialogs.SetOpacityDialog;
+import com.raytheon.viz.ui.dialogs.SetOpacityDialog.IOpacityChangedListener;
 
 /**
  * Action to set the shading field for a resource
@@ -217,10 +220,25 @@ public class ShadedAction extends AbstractRightClickAction implements
          */
         @Override
         public void run() {
-            AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
+            final AbstractVizResource<?, ?> rsc = getTopMostSelectedResource();
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            SetOpacityDialog dlg = new SetOpacityDialog(shell, rsc);
+            float opacity = rsc.getCapability(ShadeableCapability.class)
+                    .getOpacity();
+            RGB rgb;
+            if (rsc.hasCapability(ColorableCapability.class)) {
+                rgb = rsc.getCapability(ColorableCapability.class).getColor();
+            } else {
+                rgb = new RGB(0, 255, 255);
+            }
+            SetOpacityDialog dlg = new SetOpacityDialog(shell, opacity, rgb);
+            dlg.addOpacityChangedListener(new IOpacityChangedListener() {
+                @Override
+                public void opacityChanged(float opacity) {
+                    rsc.getCapability(ShadeableCapability.class).setOpacity(
+                            opacity);
+                }
+            });
             dlg.open();
         }
     }
