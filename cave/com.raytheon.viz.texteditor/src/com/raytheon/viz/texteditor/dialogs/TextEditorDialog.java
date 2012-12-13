@@ -303,6 +303,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      Do not use changed BBB from OUPResponse.
  * 17OCT2012   1229         rferrel     Changes for non-blocking SWTMessageBox.
  * 05Nov2012   15560        S. Naples   Added check to see if we are in edit mode before capturing keys.
+ * 13Dec2012   1353         rferrel     Change to make edit cancel message not
+ *                                       dispaly the red had kill job message.
  * </pre>
  * 
  * @author lvenable
@@ -395,10 +397,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     };
 
     private static final int PAGE_SCROLL_LINES = 20;
-
-    private static final int MIN_WIDTH = 760;
-
-    private static final int MIN_HEIGHT = 635;
 
     private static final int EDITOR_WIDTH = 80;
 
@@ -1245,10 +1243,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void shellClosed(ShellEvent event) {
                     if (inEditMode) {
-                        cancelDoClose = true;
-                        cancelEditor(true);
-                        bringToTop();
                         event.doit = false;
+                        cancelDoClose = true;
+                        bringToTop();
+                        cancelEditor(true);
                         return;
                     }
 
@@ -3532,9 +3530,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
             public void verifyKey(VerifyEvent event) {
                 // Ignore edit keys when not in edit mode.
-            	if (textEditor.getEditable() == false){
-            		return;
-            	}
+                if (textEditor.getEditable() == false) {
+                    return;
+                }
                 if (event.keyCode == SWT.DEL || event.character == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
@@ -4422,7 +4420,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     public void hideDialog() {
-        if (disposeOnExit == true) {
+        if (disposeOnExit == false) {
+            hide();
             return;
         }
 
@@ -4589,7 +4588,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend, true)) {
+                if ((inEditMode || resend)
+                        && saveEditedProduct(false, resend, true)) {
                     inEditMode = false;
                 }
 
@@ -4635,7 +4635,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText()));
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend, false)) {
+                if ((inEditMode || resend)
+                        && saveEditedProduct(false, resend, false)) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -6790,7 +6791,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     statusHandler.handle(p, response.getMessage());
                 } else {
                     // no failure
-                    // As of DR 15418, nothing is done with response.getChangedBBB()
+                    // As of DR 15418, nothing is done with
+                    // response.getChangedBBB()
                 }
 
                 Thread.interrupted();
