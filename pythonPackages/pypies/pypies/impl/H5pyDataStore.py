@@ -322,9 +322,16 @@ class H5pyDataStore(IDataStore.IDataStore):
         try:
             locs = request.getLocations()
             for dataset in locs:
-                ds = self.__getNode(f, None, dataset)
-                grp = ds.parent
-                grp.id.unlink(ds.name)
+                ds = None
+
+                try :
+                    ds = self.__getNode(f, None, dataset)
+                except Exception, e:
+                    logger.warn('Unable to find uri [' + str(dataset) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+
+                if ds:
+                    grp = ds.parent
+                    grp.id.unlink(ds.name)
 
         finally:
             # check if file has any remaining data sets
