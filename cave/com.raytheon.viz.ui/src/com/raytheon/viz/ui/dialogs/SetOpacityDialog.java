@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.ui.dialogs;
 
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -36,10 +37,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
-
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 
 /**
  * TODO Add Description
@@ -60,15 +57,23 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 
 public class SetOpacityDialog extends CaveJFACEDialog {
 
-    private AbstractVizResource<?, ?> resource;
+    public static interface IOpacityChangedListener {
+        public void opacityChanged(float opacity);
+    }
+
+    private ListenerList listenerList;
 
     private float originalOpacity;
 
     private float opacity;
 
-    public SetOpacityDialog(Shell parentShell, AbstractVizResource<?, ?> rsc) {
+    private RGB color;
+
+    public SetOpacityDialog(Shell parentShell, float originalOpacity, RGB color) {
         super(parentShell);
-        this.resource = rsc;
+        this.opacity = this.originalOpacity = originalOpacity;
+        this.color = color;
+        this.listenerList = new ListenerList();
     }
 
     @Override
@@ -103,8 +108,6 @@ public class SetOpacityDialog extends CaveJFACEDialog {
         scale.setLayoutData(layoutData);
         scale.setMinimum(0);
         scale.setMaximum(100);
-        opacity = originalOpacity = resource.getCapability(
-                ShadeableCapability.class).getOpacity();
 
         scale.setSelection((int) (originalOpacity * 100));
 
@@ -124,10 +127,9 @@ public class SetOpacityDialog extends CaveJFACEDialog {
                 Scale scale = (Scale) e.widget;
                 label.setText(scale.getSelection() + "%");
                 opacity = scale.getSelection() / 100.0f;
-                resource.getCapability(ShadeableCapability.class).setOpacity(
-                        opacity);
-                resource.issueRefresh();
                 canvas.redraw();
+
+                fireListeners(opacity);
             }
         });
 
@@ -141,19 +143,15 @@ public class SetOpacityDialog extends CaveJFACEDialog {
         gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
         gc.fillRectangle(rect1);
 
-        Rectangle rect2 = new Rectangle(rect1.x + rect1.width / 2, rect1.y,
-                rect1.width / 2, rect1.height);
-        gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_WHITE));
-        gc.fillRectangle(rect2);
+        int dx = rect1.width / 5;
+        int dy = rect1.height / 5;
 
-        RGB rgb;
-        if (resource.hasCapability(ColorableCapability.class)) {
-            rgb = resource.getCapability(ColorableCapability.class).getColor();
-        } else {
-            rgb = new RGB(0, 255, 255);
-        }
+        Rectangle rect2 = new Rectangle(rect1.x + dx, rect1.y + dy, rect1.width
+                - 2 * dx, rect1.height - 2 * dy);
+        gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_WHITE));
+        gc.drawRectangle(rect2);
 
-        Color color = new Color(gc.getDevice(), rgb);
+        Color color = new Color(gc.getDevice(), this.color);
         gc.setBackground(color);
         gc.setAlpha((int) (opacity * 255));
         gc.fillRectangle(rect1);
@@ -162,9 +160,41 @@ public class SetOpacityDialog extends CaveJFACEDialog {
 
     @Override
     protected void cancelPressed() {
-        resource.getCapability(ShadeableCapability.class).setOpacity(
-                originalOpacity);
-        resource.issueRefresh();
+        opacity = originalOpacity;
+        fireListeners(opacity);
         super.cancelPressed();
+    }
+
+    /**
+     * Add listener to be notified when opacity is changed
+     * 
+     * @param listener
+     */
+    public void addOpacityChangedListener(IOpacityChangedListener listener) {
+        this.listenerList.add(listener);
+    }
+
+    /**
+     * Remove opacity changed listener
+     * 
+     * @param listener
+     */
+    public void removeOpacityChangedListener(IOpacityChangedListener listener) {
+        this.listenerList.remove(listener);
+    }
+
+    private void fireListeners(float opacity) {
+        for (Object listener : listenerList.getListeners()) {
+            ((IOpacityChangedListener) listener).opacityChanged(opacity);
+        }
+    }
+
+    /**
+     * Get selected opacity
+     * 
+     * @return the opacity
+     */
+    public float getOpacity() {
+        return opacity;
     }
 }
