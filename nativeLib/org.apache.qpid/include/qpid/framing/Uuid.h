@@ -61,7 +61,7 @@ struct Uuid : public boost::array<uint8_t, 16> {
     void clear();
 
     /** Test for null (all zeros). */
-    bool isNull() const;
+    QPID_COMMON_EXTERN bool isNull() const;
     operator bool() const { return !isNull(); }
     bool operator!() const { return isNull(); }
 
