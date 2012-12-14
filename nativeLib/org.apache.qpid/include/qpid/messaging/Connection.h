@@ -21,27 +21,32 @@
  * under the License.
  *
  */
+#include "qpid/messaging/ImportExport.h"
+
+#include "qpid/messaging/Handle.h"
+#include "qpid/messaging/exceptions.h"
+#include "qpid/types/Variant.h"
+
 #include <string>
-#include "qpid/client/ClientImportExport.h"
-#include "qpid/client/Handle.h"
-#include "qpid/messaging/Variant.h"
 
 namespace qpid {
-namespace client {
-
-template <class> class PrivateImplRef;
-
-}
-
 namespace messaging {
 
+template <class> class PrivateImplRef;
 class ConnectionImpl;
 class Session;
 
-class Connection : public qpid::client::Handle<ConnectionImpl>
+/**  \ingroup messaging 
+ * A connection represents a network connection to a remote endpoint.
+ */
+
+class Connection : public qpid::messaging::Handle<ConnectionImpl>
 {
   public:
-    /**
+    QPID_MESSAGING_EXTERN Connection(ConnectionImpl* impl);
+    QPID_MESSAGING_EXTERN Connection(const Connection&);
+    QPID_MESSAGING_EXTERN Connection();
+    /**  
      * Current implementation supports the following options:
      * 
      *     username
@@ -49,56 +54,55 @@ class Connection : public qpid::client::Handle<ConnectionImpl>
      *     heartbeat
      *     tcp-nodelay
      *     sasl-mechanism
+     *     sasl-service
      *     sasl-min-ssf
      *     sasl-max-ssf
+     *     transport
      * 
-     * (note also bounds, locale, max-channels and max-framesize, but not sure whether those should be docuemented here)
+     * Reconnect behaviour can be controlled through the following options:
      * 
-     * Retry behaviour can be controlled through the following options:
+     *     reconnect: true/false (enables/disables reconnect entirely)
+     *     reconnect-timeout: number of seconds (give up and report failure after specified time)
+     *     reconnect-limit: n (give up and report failure after specified number of attempts)
+     *     reconnect-interval-min: number of seconds (initial delay between failed reconnection attempts)
+     *     reconnect-interval-max: number of seconds (maximum delay between failed reconnection attempts)
+     *     reconnect-interval: shorthand for setting the same reconnect_interval_min/max
+     *     reconnect-urls: list of alternate urls to try when connecting
      *
-     *     reconnection-timeout - determines how long it will try to
-     *                            reconnect for -1 means forever, 0
-     *                            means don't try to reconnect
-     *     min-retry-interval
-     *     max-retry-interval
-     * 
-     *     The retry-interval is the time that the client waits for
-     *     after a failed attempt to reconnect before retrying. It
+     *     The reconnect-interval is the time that the client waits
+     *     for after a failed attempt to reconnect before retrying. It
      *     starts at the value of the min-retry-interval and is
      *     doubled every failure until the value of max-retry-interval
      *     is reached.
-     * 
-     *
      */
-    static QPID_CLIENT_EXTERN Connection open(const std::string& url, const Variant::Map& options = Variant::Map());
+    QPID_MESSAGING_EXTERN Connection(const std::string& url, const qpid::types::Variant::Map& options = qpid::types::Variant::Map());
+    /**
+     * Creates a connection using an option string of the form
+     * {name:value,name2:value2...}, see above for options supported.
+     * 
+     * @exception InvalidOptionString if the string does not match the correct syntax
+     */
+    QPID_MESSAGING_EXTERN Connection(const std::string& url, const std::string& options);
+    QPID_MESSAGING_EXTERN ~Connection();
+    QPID_MESSAGING_EXTERN Connection& operator=(const Connection&);
+    QPID_MESSAGING_EXTERN void setOption(const std::string& name, const qpid::types::Variant& value);
+    QPID_MESSAGING_EXTERN void open();
+    QPID_MESSAGING_EXTERN bool isOpen();
+    /**
+     * Closes a connection and all sessions associated with it. An
+     * opened connection must be closed before the last handle is
+     * allowed to go out of scope.
+     */
+    QPID_MESSAGING_EXTERN void close();
+    QPID_MESSAGING_EXTERN Session createTransactionalSession(const std::string& name = std::string());
+    QPID_MESSAGING_EXTERN Session createSession(const std::string& name = std::string());
 
-    QPID_CLIENT_EXTERN Connection(ConnectionImpl* impl = 0);
-    QPID_CLIENT_EXTERN Connection(const Connection&);
-    QPID_CLIENT_EXTERN ~Connection();
-    QPID_CLIENT_EXTERN Connection& operator=(const Connection&);
-    QPID_CLIENT_EXTERN void close();
-    QPID_CLIENT_EXTERN Session newSession(bool transactional, const std::string& name = std::string());
-    QPID_CLIENT_EXTERN Session newSession(const std::string& name = std::string());
-    QPID_CLIENT_EXTERN Session newSession(const char* name);
-
-    QPID_CLIENT_EXTERN Session getSession(const std::string& name) const;
+    QPID_MESSAGING_EXTERN Session getSession(const std::string& name) const;
+    QPID_MESSAGING_EXTERN std::string getAuthenticatedUsername();
   private:
-  friend class qpid::client::PrivateImplRef<Connection>;
+  friend class qpid::messaging::PrivateImplRef<Connection>;
 
 };
-
-struct InvalidOptionString : public qpid::Exception 
-{
-    InvalidOptionString(const std::string& msg);
-};
-
-/**
- * TODO: need to change format of connection option string (currently
- * name1=value1&name2=value2 etc, should probably use map syntax as
- * per address options.
- */
-QPID_CLIENT_EXTERN void parseOptionString(const std::string&, Variant::Map&);
-QPID_CLIENT_EXTERN Variant::Map parseOptionString(const std::string&);
 
 }} // namespace qpid::messaging
 
