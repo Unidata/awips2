@@ -130,11 +130,16 @@ struct ControlHandler:
     public cluster::ConfigChange::Handler,
     public cluster::MessageExpired::Handler,
     public cluster::ErrorCheck::Handler,
+    public cluster::TimerWakeup::Handler,
+    public cluster::TimerDrop::Handler,
     public cluster::Shutdown::Handler,
+    public cluster::DeliverToQueue::Handler,
     public cluster-connection::Announce::Handler,
     public cluster-connection::DeliverClose::Handler,
     public cluster-connection::DeliverDoOutput::Handler,
     public cluster-connection::Abort::Handler,
+    public cluster-connection::ShadowSetUser::Handler,
+    public cluster-connection::ShadowPrepare::Handler,
     public cluster-connection::ConsumerState::Handler,
     public cluster-connection::DeliveryRecord::Handler,
     public cluster-connection::TxStart::Handler,
@@ -153,7 +158,9 @@ struct ControlHandler:
     public cluster-connection::Exchange::Handler,
     public cluster-connection::Queue::Handler,
     public cluster-connection::ExpiryId::Handler,
-    public cluster-connection::AddQueueListener::Handler
+    public cluster-connection::AddQueueListener::Handler,
+    public cluster-connection::ManagementSetupState::Handler,
+    public cluster-connection::Config::Handler
 {
 };
 
