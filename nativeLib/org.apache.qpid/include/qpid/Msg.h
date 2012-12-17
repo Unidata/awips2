@@ -69,9 +69,7 @@ inline std::ostream& operator<<(std::ostream& o, const Msg& m) {
 }
 
 /** Construct a message using operator << and append (file:line) */
-#define QUOTE_(x) #x
-#define QUOTE(x) QUOTE_(x)
-#define QPID_MSG(message) (::qpid::Msg() << message << " (" __FILE__ ":" QUOTE(__LINE__) ")")
+#define QPID_MSG(message) ::qpid::Msg() << message << " (" << __FILE__ << ":" << __LINE__ << ")"
 
 } // namespace qpid
 
