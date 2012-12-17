@@ -102,6 +102,10 @@ public class GLColorMapData {
         return dataFormat.getDataFormatMax();
     }
 
+    public boolean isDataFormatScaled() {
+        return dataFormat.isScaled();
+    }
+
     public Buffer getCopybackBuffer() {
         return dataFormat.getCopybackBuffer(this);
     }
