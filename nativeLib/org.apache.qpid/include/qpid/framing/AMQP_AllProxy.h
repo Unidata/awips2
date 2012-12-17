@@ -440,28 +440,18 @@ class AMQP_AllProxy:
                     bool active,
                     const Uuid& clusterId,
                     uint8_t storeState,
-                    const Uuid& shutdownId,
-                    const string& firstConfig);
+                    const Uuid& shutdownId);
         
         QPID_COMMON_EXTERN virtual void ready(const string& url);
         
-        QPID_COMMON_EXTERN virtual void configChange(const string& members,
-                    const string& joined,
-                    const string& left);
+        QPID_COMMON_EXTERN virtual void configChange(const string& current);
         
         QPID_COMMON_EXTERN virtual void messageExpired(uint64_t id);
         
         QPID_COMMON_EXTERN virtual void errorCheck(uint8_t type,
                     const SequenceNumber& frameSeq);
         
-        QPID_COMMON_EXTERN virtual void timerWakeup(const string& name);
-        
-        QPID_COMMON_EXTERN virtual void timerDrop(const string& name);
-        
         QPID_COMMON_EXTERN virtual void shutdown(const Uuid& shutdownId);
-        
-        QPID_COMMON_EXTERN virtual void deliverToQueue(const string& queue,
-                    const string& message);
         
     };
     
@@ -473,22 +463,13 @@ class AMQP_AllProxy:
         public:
         ClusterConnection(FrameHandler& f) : Proxy(f) {}
         static ClusterConnection& get(AMQP_AllProxy& proxy) { return proxy.getClusterConnection(); }
-        QPID_COMMON_EXTERN virtual void announce(const string& managementId,
-                    uint32_t ssf,
-                    const string& authid,
-                    bool nodict,
-                    const string& username,
-                    const string& initialFrames);
+        QPID_COMMON_EXTERN virtual void announce(uint32_t ssf);
         
         QPID_COMMON_EXTERN virtual void deliverClose();
         
         QPID_COMMON_EXTERN virtual void deliverDoOutput(uint32_t limit);
         
         QPID_COMMON_EXTERN virtual void abort();
-        
-        QPID_COMMON_EXTERN virtual void shadowSetUser(const string& userId);
-        
-        QPID_COMMON_EXTERN virtual void shadowPrepare(const string& managementId);
         
         QPID_COMMON_EXTERN virtual void consumerState(const string& name,
                     bool blocked,
@@ -536,7 +517,6 @@ class AMQP_AllProxy:
         
         QPID_COMMON_EXTERN virtual void shadowReady(uint64_t memberId,
                     uint64_t connectionId,
-                    const string& managementId,
                     const string& userName,
                     const string& fragment,
                     uint32_t sendMax);
@@ -558,15 +538,6 @@ class AMQP_AllProxy:
         
         QPID_COMMON_EXTERN virtual void addQueueListener(const string& queue,
                     uint32_t consumer);
-        
-        QPID_COMMON_EXTERN virtual void managementSetupState(uint64_t objectNum,
-                    uint16_t bootSequence,
-                    const Uuid& brokerId,
-                    const string& vendor,
-                    const string& product,
-                    const string& instance);
-        
-        QPID_COMMON_EXTERN virtual void config(const string& encoded);
         
     };
     
