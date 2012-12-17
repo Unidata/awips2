@@ -116,6 +116,7 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2-python-pycairo"
    buildRPM "awips2-java"
    buildRPM "awips2"
+   buildRPM "awips2-python-shapely"
    buildRPM "awips2-notification"
 
    exit 0
@@ -202,7 +203,7 @@ if [ "${1}" = "-full" ]; then
    fi
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-notification"
-
+   buildRPM "awips2-python-shapely"
    exit 0
 fi
 
