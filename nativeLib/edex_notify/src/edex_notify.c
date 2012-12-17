@@ -44,10 +44,10 @@
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
-		printf("Usage: %s <URL amqp:tcp:HOST:PORT >\n", argv[0]);
+		printf("Usage:\nedex_notify <URL amqp:tcp:HOST:PORT >");
 		return 1;
 	} else {
-		printf("Connecting to %s\n", argv[1]);
+		printf("Connecting to %s", argv[1]);
 	}
 	CEdexNotification * cedex = NULL;
 	cedex = get_notification_instance(argv[1]);
