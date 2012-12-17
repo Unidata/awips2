@@ -44,6 +44,7 @@ class ClusterInitialStatusBody : public ModelMethod {
     Uuid clusterId;
     uint8_t storeState;
     Uuid shutdownId;
+    string firstConfig;
     uint16_t flags;
 public:
     static const ClassId CLASS_ID = 0x80;
@@ -53,17 +54,20 @@ public:
         bool _active,
         const Uuid& _clusterId,
         uint8_t _storeState,
-        const Uuid& _shutdownId) : 
+        const Uuid& _shutdownId,
+        const string& _firstConfig) : 
         version(_version),
         clusterId(_clusterId),
         storeState(_storeState),
         shutdownId(_shutdownId),
+        firstConfig(_firstConfig),
         flags(0){
         setActive(_active);
         flags |= (1 << 8);
         flags |= (1 << 10);
         flags |= (1 << 11);
         flags |= (1 << 12);
+        flags |= (1 << 13);
     }
     ClusterInitialStatusBody(ProtocolVersion=ProtocolVersion())  : version(0), storeState(0), flags(0) {}
     
@@ -85,10 +89,14 @@ public:
     QPID_COMMON_EXTERN const Uuid& getShutdownId() const;
     QPID_COMMON_EXTERN bool hasShutdownId() const;
     QPID_COMMON_EXTERN void clearShutdownIdFlag();
+    QPID_COMMON_EXTERN void setFirstConfig(const string& _firstConfig);
+    QPID_COMMON_EXTERN const string& getFirstConfig() const;
+    QPID_COMMON_EXTERN bool hasFirstConfig() const;
+    QPID_COMMON_EXTERN void clearFirstConfigFlag();
     typedef void ResultType;
 
     template <class T> ResultType invoke(T& invocable) const {
-        return invocable.initialStatus(getVersion(), getActive(), getClusterId(), getStoreState(), getShutdownId());
+        return invocable.initialStatus(getVersion(), getActive(), getClusterId(), getStoreState(), getShutdownId(), getFirstConfig());
     }
 
     using  AMQMethodBody::accept;
