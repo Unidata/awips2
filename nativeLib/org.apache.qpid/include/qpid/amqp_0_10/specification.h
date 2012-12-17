@@ -3299,7 +3299,6 @@ struct InitialStatus:
     Uuid clusterId;
     StoreState storeState;
     Uuid shutdownId;
-    Str16 firstConfig;
     
     static const char* NAME;
     static const uint8_t CODE=0x5;
@@ -3310,13 +3309,12 @@ struct InitialStatus:
         Bit active_=Bit(),
         const Uuid& clusterId_=Uuid(),
         const cluster::StoreState& storeState_=cluster::StoreState(),
-        const Uuid& shutdownId_=Uuid(),
-        const Str16& firstConfig_=Str16()
+        const Uuid& shutdownId_=Uuid()
     );
     void accept(Visitor&);
     void accept(ConstVisitor&) const;
     template <class S> void serialize(S& s) {
-        s(version)(active)(clusterId)(storeState)(shutdownId)(firstConfig);
+        s(version)(active)(clusterId)(storeState)(shutdownId);
     }
     
     struct Handler
@@ -3326,14 +3324,13 @@ struct InitialStatus:
             Bit active_,
             const Uuid& clusterId_,
             const cluster::StoreState& storeState_,
-            const Uuid& shutdownId_,
-            const Str16& firstConfig_
+            const Uuid& shutdownId_
         );
     };
     
     template <class T> void invoke(T& target)const
     {
-        target.clusterInitialStatus(version, active, clusterId, storeState, shutdownId, firstConfig );
+        target.clusterInitialStatus(version, active, clusterId, storeState, shutdownId );
     }
 };
 inline Packer<InitialStatus> serializable(InitialStatus& x) { return Packer<InitialStatus>(x); }
@@ -3375,37 +3372,29 @@ bool operator==(const Ready&, const Ready&);
 struct ConfigChange:
     public Control
 {
-    Vbin16 members;
-    Vbin16 joined;
-    Vbin16 left;
+    Vbin16 current;
     
     static const char* NAME;
     static const uint8_t CODE=0x11;
     static const uint8_t CLASS_CODE=cluster::CODE;
     static const char* CLASS_NAME;
-    explicit ConfigChange(
-        const Vbin16& members_=Vbin16(),
-        const Vbin16& joined_=Vbin16(),
-        const Vbin16& left_=Vbin16()
-    );
+    explicit ConfigChange(const Vbin16& current_=Vbin16());
     void accept(Visitor&);
     void accept(ConstVisitor&) const;
     template <class S> void serialize(S& s) {
-        s(members)(joined)(left);
+        s(current);
     }
     
     struct Handler
     {
         void clusterConfigChange(
-            const Vbin16& members_,
-            const Vbin16& joined_,
-            const Vbin16& left_
+            const Vbin16& current_
         );
     };
     
     template <class T> void invoke(T& target)const
     {
-        target.clusterConfigChange(members, joined, left );
+        target.clusterConfigChange(current );
     }
 };
 inline Packer<ConfigChange> serializable(ConfigChange& x) { return Packer<ConfigChange>(x); }
@@ -3481,70 +3470,6 @@ inline Packer<ErrorCheck> serializable(ErrorCheck& x) { return Packer<ErrorCheck
 std::ostream& operator << (std::ostream&, const ErrorCheck&);
 bool operator==(const ErrorCheck&, const ErrorCheck&);
 
-struct TimerWakeup:
-    public Control
-{
-    Str16 name;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x15;
-    static const uint8_t CLASS_CODE=cluster::CODE;
-    static const char* CLASS_NAME;
-    explicit TimerWakeup(const Str16& name_=Str16());
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(name);
-    }
-    
-    struct Handler
-    {
-        void clusterTimerWakeup(
-            const Str16& name_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterTimerWakeup(name );
-    }
-};
-inline Packer<TimerWakeup> serializable(TimerWakeup& x) { return Packer<TimerWakeup>(x); }
-std::ostream& operator << (std::ostream&, const TimerWakeup&);
-bool operator==(const TimerWakeup&, const TimerWakeup&);
-
-struct TimerDrop:
-    public Control
-{
-    Str16 name;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x16;
-    static const uint8_t CLASS_CODE=cluster::CODE;
-    static const char* CLASS_NAME;
-    explicit TimerDrop(const Str16& name_=Str16());
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(name);
-    }
-    
-    struct Handler
-    {
-        void clusterTimerDrop(
-            const Str16& name_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterTimerDrop(name );
-    }
-};
-inline Packer<TimerDrop> serializable(TimerDrop& x) { return Packer<TimerDrop>(x); }
-std::ostream& operator << (std::ostream&, const TimerDrop&);
-bool operator==(const TimerDrop&, const TimerDrop&);
-
 struct Shutdown:
     public Control
 {
@@ -3577,43 +3502,6 @@ inline Packer<Shutdown> serializable(Shutdown& x) { return Packer<Shutdown>(x); 
 std::ostream& operator << (std::ostream&, const Shutdown&);
 bool operator==(const Shutdown&, const Shutdown&);
 
-struct DeliverToQueue:
-    public Control
-{
-    Str16 queue;
-    Vbin32 message;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x21;
-    static const uint8_t CLASS_CODE=cluster::CODE;
-    static const char* CLASS_NAME;
-    explicit DeliverToQueue(
-        const Str16& queue_=Str16(),
-        const Vbin32& message_=Vbin32()
-    );
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(queue)(message);
-    }
-    
-    struct Handler
-    {
-        void clusterDeliverToQueue(
-            const Str16& queue_,
-            const Vbin32& message_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterDeliverToQueue(queue, message );
-    }
-};
-inline Packer<DeliverToQueue> serializable(DeliverToQueue& x) { return Packer<DeliverToQueue>(x); }
-std::ostream& operator << (std::ostream&, const DeliverToQueue&);
-bool operator==(const DeliverToQueue&, const DeliverToQueue&);
-
 } // namespace cluster
 
 
@@ -3623,46 +3511,29 @@ namespace cluster_connection {
 struct Announce:
     public Control
 {
-    Str16 managementId;
     Uint32 ssf;
-    Str16 authid;
-    Bit nodict;
-    Str32 username;
-    Str32 initialFrames;
     
     static const char* NAME;
     static const uint8_t CODE=0x1;
     static const uint8_t CLASS_CODE=cluster_connection::CODE;
     static const char* CLASS_NAME;
-    explicit Announce(
-        const Str16& managementId_=Str16(),
-        Uint32 ssf_=Uint32(),
-        const Str16& authid_=Str16(),
-        Bit nodict_=Bit(),
-        const Str32& username_=Str32(),
-        const Str32& initialFrames_=Str32()
-    );
+    explicit Announce(Uint32 ssf_=Uint32());
     void accept(Visitor&);
     void accept(ConstVisitor&) const;
     template <class S> void serialize(S& s) {
-        s(managementId)(ssf)(authid)(nodict)(username)(initialFrames);
+        s(ssf);
     }
     
     struct Handler
     {
         void clusterConnectionAnnounce(
-            const Str16& managementId_,
-            Uint32 ssf_,
-            const Str16& authid_,
-            Bit nodict_,
-            const Str32& username_,
-            const Str32& initialFrames_
+            Uint32 ssf_
         );
     };
     
     template <class T> void invoke(T& target)const
     {
-        target.clusterConnectionAnnounce(managementId, ssf, authid, nodict, username, initialFrames );
+        target.clusterConnectionAnnounce(ssf );
     }
 };
 inline Packer<Announce> serializable(Announce& x) { return Packer<Announce>(x); }
@@ -3758,70 +3629,6 @@ struct Abort:
 inline Packer<Abort> serializable(Abort& x) { return Packer<Abort>(x); }
 std::ostream& operator << (std::ostream&, const Abort&);
 bool operator==(const Abort&, const Abort&);
-
-struct ShadowSetUser:
-    public Control
-{
-    Str16 userId;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x0E;
-    static const uint8_t CLASS_CODE=cluster_connection::CODE;
-    static const char* CLASS_NAME;
-    explicit ShadowSetUser(const Str16& userId_=Str16());
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(userId);
-    }
-    
-    struct Handler
-    {
-        void clusterConnectionShadowSetUser(
-            const Str16& userId_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterConnectionShadowSetUser(userId );
-    }
-};
-inline Packer<ShadowSetUser> serializable(ShadowSetUser& x) { return Packer<ShadowSetUser>(x); }
-std::ostream& operator << (std::ostream&, const ShadowSetUser&);
-bool operator==(const ShadowSetUser&, const ShadowSetUser&);
-
-struct ShadowPrepare:
-    public Control
-{
-    Str16 managementId;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x0F;
-    static const uint8_t CLASS_CODE=cluster_connection::CODE;
-    static const char* CLASS_NAME;
-    explicit ShadowPrepare(const Str16& managementId_=Str16());
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(managementId);
-    }
-    
-    struct Handler
-    {
-        void clusterConnectionShadowPrepare(
-            const Str16& managementId_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterConnectionShadowPrepare(managementId );
-    }
-};
-inline Packer<ShadowPrepare> serializable(ShadowPrepare& x) { return Packer<ShadowPrepare>(x); }
-std::ostream& operator << (std::ostream&, const ShadowPrepare&);
-bool operator==(const ShadowPrepare&, const ShadowPrepare&);
 
 struct ConsumerState:
     public Control
@@ -4250,7 +4057,6 @@ struct ShadowReady:
 {
     Uint64 memberId;
     Uint64 connectionId;
-    Str16 managementId;
     Str8 userName;
     Str32 fragment;
     Uint32 sendMax;
@@ -4262,7 +4068,6 @@ struct ShadowReady:
     explicit ShadowReady(
         Uint64 memberId_=Uint64(),
         Uint64 connectionId_=Uint64(),
-        const Str16& managementId_=Str16(),
         const Str8& userName_=Str8(),
         const Str32& fragment_=Str32(),
         Uint32 sendMax_=Uint32()
@@ -4270,7 +4075,7 @@ struct ShadowReady:
     void accept(Visitor&);
     void accept(ConstVisitor&) const;
     template <class S> void serialize(S& s) {
-        s(memberId)(connectionId)(managementId)(userName)(fragment)(sendMax);
+        s(memberId)(connectionId)(userName)(fragment)(sendMax);
     }
     
     struct Handler
@@ -4278,7 +4083,6 @@ struct ShadowReady:
         void clusterConnectionShadowReady(
             Uint64 memberId_,
             Uint64 connectionId_,
-            const Str16& managementId_,
             const Str8& userName_,
             const Str32& fragment_,
             Uint32 sendMax_
@@ -4287,7 +4091,7 @@ struct ShadowReady:
     
     template <class T> void invoke(T& target)const
     {
-        target.clusterConnectionShadowReady(memberId, connectionId, managementId, userName, fragment, sendMax );
+        target.clusterConnectionShadowReady(memberId, connectionId, userName, fragment, sendMax );
     }
 };
 inline Packer<ShadowReady> serializable(ShadowReady& x) { return Packer<ShadowReady>(x); }
@@ -4532,87 +4336,6 @@ struct AddQueueListener:
 inline Packer<AddQueueListener> serializable(AddQueueListener& x) { return Packer<AddQueueListener>(x); }
 std::ostream& operator << (std::ostream&, const AddQueueListener&);
 bool operator==(const AddQueueListener&, const AddQueueListener&);
-
-struct ManagementSetupState:
-    public Control
-{
-    Uint64 objectNum;
-    Uint16 bootSequence;
-    Uuid brokerId;
-    Str32 vendor;
-    Str32 product;
-    Str32 instance;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x36;
-    static const uint8_t CLASS_CODE=cluster_connection::CODE;
-    static const char* CLASS_NAME;
-    explicit ManagementSetupState(
-        Uint64 objectNum_=Uint64(),
-        Uint16 bootSequence_=Uint16(),
-        const Uuid& brokerId_=Uuid(),
-        const Str32& vendor_=Str32(),
-        const Str32& product_=Str32(),
-        const Str32& instance_=Str32()
-    );
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(objectNum)(bootSequence)(brokerId)(vendor)(product)(instance);
-    }
-    
-    struct Handler
-    {
-        void clusterConnectionManagementSetupState(
-            Uint64 objectNum_,
-            Uint16 bootSequence_,
-            const Uuid& brokerId_,
-            const Str32& vendor_,
-            const Str32& product_,
-            const Str32& instance_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterConnectionManagementSetupState(objectNum, bootSequence, brokerId, vendor, product, instance );
-    }
-};
-inline Packer<ManagementSetupState> serializable(ManagementSetupState& x) { return Packer<ManagementSetupState>(x); }
-std::ostream& operator << (std::ostream&, const ManagementSetupState&);
-bool operator==(const ManagementSetupState&, const ManagementSetupState&);
-
-struct Config:
-    public Control
-{
-    Str32 encoded;
-    
-    static const char* NAME;
-    static const uint8_t CODE=0x37;
-    static const uint8_t CLASS_CODE=cluster_connection::CODE;
-    static const char* CLASS_NAME;
-    explicit Config(const Str32& encoded_=Str32());
-    void accept(Visitor&);
-    void accept(ConstVisitor&) const;
-    template <class S> void serialize(S& s) {
-        s(encoded);
-    }
-    
-    struct Handler
-    {
-        void clusterConnectionConfig(
-            const Str32& encoded_
-        );
-    };
-    
-    template <class T> void invoke(T& target)const
-    {
-        target.clusterConnectionConfig(encoded );
-    }
-};
-inline Packer<Config> serializable(Config& x) { return Packer<Config>(x); }
-std::ostream& operator << (std::ostream&, const Config&);
-bool operator==(const Config&, const Config&);
 
 } // namespace cluster_connection
 

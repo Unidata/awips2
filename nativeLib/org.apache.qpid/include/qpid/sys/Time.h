@@ -58,15 +58,20 @@ class Duration;
  * accessors to its internal state. If you think you want to replace its value,
  * you need to construct a new AbsTime and assign it, viz:
  *
- *  AbsTime when = now();
+ *  AbsTime when = AbsTime::now();
  *  ...
  *  when = AbsTime(when, 2*TIME_SEC); // Advance timer 2 secs
  *
- * AbsTime is not intended to be used to represent calendar dates/times
- * but you can construct a Duration since the Unix Epoch, 1970-1-1-00:00,
- * so that you can convert to a date/time if needed:
+ * If for some reason you need access to the internal nanosec value you need
+ * to convert the AbsTime to a Duration and use its conversion to int64_t, viz:
  *
- *  int64_t nanosec_since_epoch = Duration(EPOCH, now());
+ *  AbsTime now = AbsTime::now();
+ *
+ *  int64_t ns = Duration(now);
+ *
+ * However note that the nanosecond value that is returned here is not
+ * defined to be anything in particular and could vary from platform to
+ * platform.
  *
  * There are some sensible operations that are currently missing from
  * AbsTime, but nearly all that's needed can be done with a mixture of
@@ -79,22 +84,20 @@ class Duration;
  */
 class AbsTime {
     friend class Duration;
-    friend class Condition;
 
     TimePrivate timepoint;
 
 public:
-
-    inline AbsTime() : timepoint() {}
+    QPID_COMMON_EXTERN inline AbsTime() {}
     QPID_COMMON_EXTERN AbsTime(const AbsTime& time0, const Duration& duration);
     // Default assignment operation fine
     // Default copy constructor fine
 
     QPID_COMMON_EXTERN static AbsTime now();
     QPID_COMMON_EXTERN static AbsTime FarFuture();
-    QPID_COMMON_EXTERN static AbsTime Epoch();
-
+    const TimePrivate& getPrivate(void) const { return timepoint; }
     bool operator==(const AbsTime& t) const { return t.timepoint == timepoint; }
+    template <class S> void serialize(S& s) { s(timepoint); }
 
     friend bool operator<(const AbsTime& a, const AbsTime& b);
     friend bool operator>(const AbsTime& a, const AbsTime& b);
@@ -119,7 +122,8 @@ class Duration {
     friend class AbsTime;
 
 public:
-    QPID_COMMON_EXTERN inline Duration(int64_t time0 = 0);
+    QPID_COMMON_EXTERN inline Duration(int64_t time0);
+    QPID_COMMON_EXTERN explicit Duration(const AbsTime& time0);
     QPID_COMMON_EXTERN explicit Duration(const AbsTime& start, const AbsTime& finish);
     inline operator int64_t() const;
 };
@@ -151,9 +155,6 @@ const Duration TIME_NSEC = 1;
 
 /** Value to represent an infinite timeout */
 const Duration TIME_INFINITE = std::numeric_limits<int64_t>::max();
-
-/** Absolute time point for the Unix epoch: 1970-01-01T00:00:00 */
-const AbsTime EPOCH = AbsTime::Epoch();
 
 /** Time greater than any other time */
 const AbsTime FAR_FUTURE = AbsTime::FarFuture();
