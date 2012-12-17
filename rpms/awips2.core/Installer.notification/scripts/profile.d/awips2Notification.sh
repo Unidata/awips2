@@ -8,7 +8,7 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 # Determine Where awips2-notification Has Been Installed.
-NOTIFICATION_INSTALL="/awips2/notification"
+NOTIFICATION_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-notification`
 if [ "${NOTIFICATION_INSTALL}" = "" ]; then
    return
 fi

@@ -63,11 +63,6 @@ class QPID_COMMON_EXTERN Manageable
     //  method being called and must be down-cast to the appropriate sub class
     //  before use.
     virtual status_t ManagementMethod(uint32_t methodId, Args& args, std::string& text);
-
-    //  This optional method can be overridden to allow the agent application to
-    //  authorize method invocations.  Return true iff the authenticated user identified
-    //  in userId us authorized to execute the method.
-    virtual bool AuthorizeMethod(uint32_t methodId, Args& args, const std::string& userId);
 };
 
 inline Manageable::~Manageable(void) {}

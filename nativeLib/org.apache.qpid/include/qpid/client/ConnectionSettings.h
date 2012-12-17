@@ -22,9 +22,13 @@
  *
  */
 
+#include "qpid/Options.h"
+#include "qpid/log/Options.h"
+#include "qpid/Url.h"
 #include "qpid/client/ClientImportExport.h"
-#include "qpid/sys/IntegerTypes.h"
-#include <string>
+
+#include <iostream>
+#include <exception>
 
 namespace qpid {
 
@@ -103,7 +107,7 @@ struct ConnectionSettings {
      * Limit the size of the connections send buffer . The buffer
      * is limited to bounds * maxFrameSize.
      */
-    unsigned int bounds;
+    uint bounds;
     /**
      * If true, TCP_NODELAY will be set for the connection.
      */
@@ -116,12 +120,12 @@ struct ConnectionSettings {
      * Minimum acceptable strength of any SASL negotiated security
      * layer. 0 means no security layer required.
      */
-    unsigned int minSsf;
+    uint minSsf;
     /**
      * Maximum acceptable strength of any SASL negotiated security
      * layer. 0 means no security layer allowed.
      */
-    unsigned int maxSsf;
+    uint maxSsf;
 };
 
 }} // namespace qpid::client

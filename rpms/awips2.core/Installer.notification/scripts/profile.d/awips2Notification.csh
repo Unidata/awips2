@@ -1,7 +1,7 @@
 #!/bin/csh
 
 # Determine where notification has been installed.
-set NOTIFICATION_INSTALL="/awips2/notification"
+set NOTIFICATION_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-notification`
 
 if $?LD_LIBRARY_PATH then
    setenv LD_LIBRARY_PATH ${NOTIFICATION_INSTALL}/lib:$LD_LIBRARY_PATH
