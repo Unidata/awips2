@@ -127,6 +127,7 @@ if [ "${1}" = "-python-qpid" ]; then
    #buildRPM "awips2-postgresql"
    #buildRPM "awips2-psql"
    #buildRPM "awips2-tools"
+   buildRPM "awips2-python-shapely"
 
    exit 0
 fi
@@ -249,6 +250,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
    buildRPM "awips2-httpd-collaboration"
+   buildRPM "awips2-python-shapely"
 
    exit 0
 fi
@@ -278,6 +280,7 @@ if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-python-shapely"
    buildQPID -ade
    if [ $? -ne 0 ]; then
       exit 1
