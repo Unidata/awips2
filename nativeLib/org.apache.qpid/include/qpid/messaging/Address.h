@@ -21,20 +21,28 @@
  * under the License.
  *
  */
-#include "qpid/messaging/ImportExport.h"
-
-#include "qpid/messaging/exceptions.h"
-#include "qpid/types/Variant.h"
-
 #include <string>
+#include "qpid/Exception.h"
+#include "qpid/messaging/Variant.h"
+#include "qpid/client/ClientImportExport.h"
 #include <ostream>
 
 namespace qpid {
 namespace messaging {
 
+struct InvalidAddress : public qpid::Exception 
+{
+    InvalidAddress(const std::string& msg);
+};
+
+struct MalformedAddress : public qpid::Exception 
+{
+    MalformedAddress(const std::string& msg);
+};
+
 class AddressImpl;
 
-/**   \ingroup messaging 
+/**
  * Represents an address to which messages can be sent and from which
  * messages can be received. Often a simple name is sufficient for
  * this, however this can be augmented with a subject pattern and
@@ -57,105 +65,111 @@ class AddressImpl;
  *
  * <table border=0> 
  * 
- * <tr valign=top>
- *   <td>create</td>
- *   <td>Indicate whether the address should be automatically created
- *       or not. Can be one of <i>always</i>, <i>never</i>,
- *       <i>sender</i> or <i>receiver</i>. The properties of the node
- *       to be created can be specified via the node options (see
- *       below).
- *   </td>
- * </tr>
+ * <tr valign=top><td>create</td><td>Indicate whether the address should be
+ * automatically created or not. Can be one of <i>always</i>,
+ * <i>never</i>, <i>sender</i> or <i>receiver</i>. The properties of
+ * the node to be created can be specified via the node-properties
+ * option (see below).</td></tr>
  * 
- * <tr valign=top>
- *   <td>assert</td>
- *   <td>Indicate whether or not to assert any specified node
- *       properties(see below) match the address. Can be one of
- *       <i>always</i>, <i>never</i>, <i>sender</i> or
- *       <i>receiver</i>.
- *   </td>
- * </tr>
+ * <tr valign=top><td>assert</td><td>Indicate whether or not to assert any specified
+ * node-properties match the address. Can be one of <i>always</i>,
+ * <i>never</i>, <i>sender</i> or <i>receiver</i>.</td></tr>
  * 
- * <tr valign=top>
- *   <td>delete</td>
- *   <td>Indicate whether or not to delete the addressed node when a
- *       sender or receiver is cancelled. Can be one of <i>always</i>,
- *       <i>never</i>, <i>sender</i> or <i>receiver</i>.
- *   </td>
- * </tr>
+ * <tr valign=top><td>delete</td><td>Indicate whether or not to delete the addressed
+ * nide when a sender or receiver is cancelled. Can be one of <i>always</i>,
+ * <i>never</i>, <i>sender</i> or <i>receiver</i>.</td></tr>
  *
- * <tr valign=top>
- *   <td>node</td>
-
- *   <td>A nested map describing properties of the addressed
- *       node. Current properties supported are type (topic or queue),
- *       durable (boolean), x-declare and x-bindings. The x-declare
- *       option is a nested map in whcih protocol amqp 0-10 specific
- *       options for queue or exchange declare can be specified. The
- *       x-bindings option is a nested list, each element of which can
- *       specify a queue, an exchange, a binding-key and arguments,
- *       which are used to establish a binding on create. The node
- *       will be used if queue or exchange values are not specified.
- *   </td>
- * </tr>
- *
- * <tr valign=top>
- *   <td>link</td>
- *   <td>A nested map through which properties of the 'link' from
- *       sender/receiver to node can be configured. Current propeties
- *       are name, durable, realiability, x-declare, x-subscribe and
- *       x-bindings.
- *   </td>
- * </tr>
+ * <tr valign=top><td>node-properties</td><td>A nested map of properties of the addressed
+ * entity or 'node'. These can be used when automatically creating it,
+ * or to assert certain properties.
  * 
- * For receivers there is one other option of interest:
+ * The valid node-properties are:
+ * <ul>
+ * <li>type - queue or topic</li>
  * 
- * <table border=0 valign=top>
- * <tr valign=top><td>mode</td><td>(only relevant for queues)
- * indicates whether the subscribe should consume (the default) or
- * merely browse the messages. Valid values are 'consume' and
- * 'browse'</td></tr>
+ * <li>durable - true or false</li>
+ * 
+ * <li>x-properties - a nested map that can contain implementation or
+ * protocol specifiec extedned properties. For the amqp 0-10 mapping,
+ * the fields in queue- or exchange- declare can be specified in here;
+ * anything that is not recognised as one of those will be passed
+ * through in the arguments field.,/li>
+ * </ul>
+ * </td></tr>
+ * 
  * </table>
  * 
- * An address has value semantics.
+ * For receivers there are some further options of interest:
+ * 
+ * <table border=0 valign=top>
+ * 
+ * <tr valign=top><td>no-local</td><td>(only relevant for topics at present) specifies that the
+ * receiver does not want to receiver messages published to the topic
+ * that originate from a sender on the same connection</td></tr>
+ *
+ * <tr valign=top><td>browse</td><td>(only relevant for queues) specifies that the receiver
+ * does not wish to consume the messages, but merely browse them</td></tr>
+ * 
+ * <tr valign=top><td>durable</td><td>(only relevant for topics at present) specifies that a
+ * durable subscription is required</td></tr>
+ * 
+ * <tr valign=top><td>reliability</td><td>indicates the level of reliability that the receiver
+ * expects. Can be one of unreliable, at-most-once, at-least-once or
+ * exactly-once (the latter is not yet correctly supported).</td></tr>
+ * 
+ * <tr valign=top><td>filter</td><td>(only relevant for topics at present) allows bindings to
+ * be created for the queue that match the given criteris (or list of
+ * criteria).</td></tr>
+ * 
+ * <tr valign=top><td>x-properties</td><td>allows protocol or implementation specific options
+ * to be specified for a receiver; this is a nested map and currently
+ * the implementation only recognises two specific nested properties
+ * within it (all others are passed through in the arguments of the
+ * message-subscribe command):
+ * 
+ * <ul>
+ *     <li>exclusive, which requests an exclusive subscription and
+ *     is only relevant for queues</li>
+ *
+ *     <li>x-queue-arguments, which ais only relevant for topics and
+ *     allows arguments to the queue-declare for the subscription
+ *     queue to be specified</li>
+ * </ul>
+ * </td></tr>
+ * </table>
  */
 class Address
 {
   public:
-    QPID_MESSAGING_EXTERN Address();
-    QPID_MESSAGING_EXTERN Address(const std::string& address);
-    QPID_MESSAGING_EXTERN Address(const std::string& name, const std::string& subject,
-                               const qpid::types::Variant::Map& options, const std::string& type = "");
-    QPID_MESSAGING_EXTERN Address(const Address& address);
-    QPID_MESSAGING_EXTERN ~Address();
-    QPID_MESSAGING_EXTERN Address& operator=(const Address&);
-    QPID_MESSAGING_EXTERN const std::string& getName() const;
-    QPID_MESSAGING_EXTERN void setName(const std::string&);
-    QPID_MESSAGING_EXTERN const std::string& getSubject() const;
-    QPID_MESSAGING_EXTERN void setSubject(const std::string&);
-    QPID_MESSAGING_EXTERN const qpid::types::Variant::Map& getOptions() const;
-    QPID_MESSAGING_EXTERN qpid::types::Variant::Map& getOptions();
-    QPID_MESSAGING_EXTERN void setOptions(const qpid::types::Variant::Map&);
+    QPID_CLIENT_EXTERN Address();
+    QPID_CLIENT_EXTERN Address(const std::string& address);
+    QPID_CLIENT_EXTERN Address(const std::string& name, const std::string& subject,
+                               const Variant::Map& options, const std::string& type = "");
+    QPID_CLIENT_EXTERN Address(const Address& address);
+    QPID_CLIENT_EXTERN ~Address();
+    QPID_CLIENT_EXTERN Address& operator=(const Address&);
+    QPID_CLIENT_EXTERN const std::string& getName() const;
+    QPID_CLIENT_EXTERN void setName(const std::string&);
+    QPID_CLIENT_EXTERN const std::string& getSubject() const;
+    QPID_CLIENT_EXTERN void setSubject(const std::string&);
+    QPID_CLIENT_EXTERN bool hasSubject() const;
+    QPID_CLIENT_EXTERN const Variant::Map& getOptions() const;
+    QPID_CLIENT_EXTERN Variant::Map& getOptions();
+    QPID_CLIENT_EXTERN void setOptions(const Variant::Map&);
 
-    QPID_MESSAGING_EXTERN std::string getType() const;
-    /**
-     * The type of and addressed node influences how receivers and
-     * senders are constructed for it. It also affects how a reply-to
-     * address is encoded. If the type is not specified in the address
-     * itself, it will be automatically determined by querying the
-     * broker. The type can be explicitly set to prevent this if
-     * needed.
-     */
-    QPID_MESSAGING_EXTERN void setType(const std::string&);
+    QPID_CLIENT_EXTERN std::string getType() const;
+    QPID_CLIENT_EXTERN void setType(const std::string&);
 
-    QPID_MESSAGING_EXTERN std::string str() const;
-    QPID_MESSAGING_EXTERN operator bool() const;
-    QPID_MESSAGING_EXTERN bool operator !() const;
+    QPID_CLIENT_EXTERN const Variant& getOption(const std::string& key) const;
+
+    QPID_CLIENT_EXTERN std::string toStr() const;
+    QPID_CLIENT_EXTERN operator bool() const;
+    QPID_CLIENT_EXTERN bool operator !() const;
   private:
     AddressImpl* impl;
 };
 
-QPID_MESSAGING_EXTERN std::ostream& operator<<(std::ostream& out, const Address& address);
+QPID_CLIENT_EXTERN std::ostream& operator<<(std::ostream& out, const Address& address);
 
 }} // namespace qpid::messaging
 

@@ -65,7 +65,7 @@ void Condition::wait(Mutex& mutex) {
 
 bool Condition::wait(Mutex& mutex, const AbsTime& absoluteTime){
     struct timespec ts;
-    toTimespec(ts, Duration(EPOCH, absoluteTime));
+    toTimespec(ts, Duration(absoluteTime));
     int status = pthread_cond_timedwait(&condition, &mutex.mutex, &ts);
     if (status != 0) {
         if (status == ETIMEDOUT) return false;

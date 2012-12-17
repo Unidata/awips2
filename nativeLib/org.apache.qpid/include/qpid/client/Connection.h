@@ -28,8 +28,6 @@
 #include "qpid/client/ConnectionSettings.h"
 #include "qpid/framing/ProtocolVersion.h"
 
-#include "boost/function.hpp"
-
 namespace qpid {
 
 struct Url;
@@ -73,15 +71,11 @@ class Connection
 
   public:
     /**
-     * Creates a Connection object, but does not open the connection.
+     * Creates a connection object, but does not open the connection.
      * @see open()
      */
     QPID_CLIENT_EXTERN Connection();
 
-    /**
-     * Destroys a Connection object but does not close the connection if it
-     * was open. @see close()
-     */
     QPID_CLIENT_EXTERN ~Connection();
 
     /**
@@ -218,7 +212,7 @@ class Connection
      */
     QPID_CLIENT_EXTERN const ConnectionSettings& getNegotiatedSettings();
 
-  friend struct ConnectionAccess; ///<@internal
+  friend class ConnectionAccess; ///<@internal
   friend class SessionBase_0_10; ///<@internal
 };
 

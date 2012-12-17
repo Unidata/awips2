@@ -35,20 +35,8 @@ then
    exit 1
 fi
 
-if [ -d ${RPM_BUILD_ROOT} ]; then
-   rm -rf ${RPM_BUILD_ROOT}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 PROFILE_D_DIR="rpms/awips2.core/Installer.notification/scripts/profile.d"
 cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
@@ -79,20 +67,24 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-BUILD_NATIVE="%{_baseline_workspace}/build.native"
+RPM_CORE_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core"
+NOTIFICATION_TAR_FILE_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/src"
+NOTIFICATION_TAR_FILE="${NOTIFICATION_TAR_FILE_DIR}/edex_com.tar.bz2"
 
-pushd . > /dev/null 2>&1
-cd ${BUILD_NATIVE}
-/bin/bash build-notification.sh %{_baseline_workspace} \
-   %{_uframe_eclipse} ${RPM_BUILD_ROOT}
+cd ${RPM_BUILD_ROOT}/awips2
+/bin/gtar -xpf ${NOTIFICATION_TAR_FILE}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-rm -rf ${RPM_BUILD_ROOT}/workspace_
+
+cp -r ${RPM_BUILD_ROOT}/awips2/edex_com/* \
+   ${RPM_BUILD_ROOT}/awips2/notification/
 if [ $? -ne 0 ]; then
    exit 1
 fi
-popd > /dev/null 2>&1
+# Remove the boost rpms directory
+rm -rf ${RPM_BUILD_ROOT}/awips2/notification/rpms
+rm -rf ${RPM_BUILD_ROOT}/awips2/edex_com
 
 copyLegal "awips2/notification"
 
@@ -146,6 +138,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %docdir /awips2/notification/licenses
 %dir /awips2/notification/licenses
 /awips2/notification/licenses/*
+%doc /awips2/notification/README
 %dir /awips2/notification/src
 /awips2/notification/src/*
 
