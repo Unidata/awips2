@@ -4,7 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>edex_com</project>
-		<project>org.apache.qpid</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
