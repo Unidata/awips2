@@ -128,16 +128,11 @@ class AMQP_AllOperations::Invoker:
     QPID_COMMON_EXTERN void visit(const ClusterConfigChangeBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterMessageExpiredBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterErrorCheckBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterTimerWakeupBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterTimerDropBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterShutdownBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterDeliverToQueueBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionAnnounceBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliverCloseBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliverDoOutputBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionAbortBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionShadowSetUserBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionShadowPrepareBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionConsumerStateBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliveryRecordBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionTxStartBody& body);
@@ -157,8 +152,6 @@ class AMQP_AllOperations::Invoker:
     QPID_COMMON_EXTERN void visit(const ClusterConnectionQueueBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionExpiryIdBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionAddQueueListenerBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionManagementSetupStateBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionConfigBody& body);
 };
 
 class AMQP_AllOperations::ConnectionHandler::Invoker:
@@ -344,10 +337,7 @@ class AMQP_AllOperations::ClusterHandler::Invoker:
     QPID_COMMON_EXTERN void visit(const ClusterConfigChangeBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterMessageExpiredBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterErrorCheckBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterTimerWakeupBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterTimerDropBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterShutdownBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterDeliverToQueueBody& body);
 };
 
 class AMQP_AllOperations::ClusterConnectionHandler::Invoker:
@@ -361,8 +351,6 @@ class AMQP_AllOperations::ClusterConnectionHandler::Invoker:
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliverCloseBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliverDoOutputBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionAbortBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionShadowSetUserBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionShadowPrepareBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionConsumerStateBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionDeliveryRecordBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionTxStartBody& body);
@@ -382,8 +370,6 @@ class AMQP_AllOperations::ClusterConnectionHandler::Invoker:
     QPID_COMMON_EXTERN void visit(const ClusterConnectionQueueBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionExpiryIdBody& body);
     QPID_COMMON_EXTERN void visit(const ClusterConnectionAddQueueListenerBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionManagementSetupStateBody& body);
-    QPID_COMMON_EXTERN void visit(const ClusterConnectionConfigBody& body);
 };
 
 }} // namespace qpid::framing

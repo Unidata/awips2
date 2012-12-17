@@ -96,24 +96,6 @@ struct Statement {
     } while(0)
 
 /**
- * FLAG must be a boolean variable. Assigns FLAG to true iff logging
- * is enabled for LEVEL in the calling context.  Use when extra
- * support code is needed to generate log messages, to ensure that it
- * is only run if the logging level is enabled.
- * e.g.
- * bool logWarning;
- * QPID_LOG_TEST(LEVEL, logWarning);
- * if (logWarning) { do stuff needed for warning log messages }
- */
-#define QPID_LOG_TEST(LEVEL, FLAG)                              \
-    do {                                                        \
-        using ::qpid::log::Statement;                           \
-        static Statement stmt_= QPID_LOG_STATEMENT_INIT(LEVEL); \
-        static Statement::Initializer init_(stmt_);             \
-        FLAG = stmt_.enabled;                                   \
-    } while(0)
-
-/**
  * Macro for log statements. Example of use:
  * @code
  * QPID_LOG(debug, "There are " << foocount << " foos in the bar.");

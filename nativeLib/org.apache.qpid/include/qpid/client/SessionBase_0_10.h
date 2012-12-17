@@ -99,7 +99,6 @@ class SessionBase_0_10 {
 
     QPID_CLIENT_EXTERN bool isValid() const;
 
-    QPID_CLIENT_EXTERN Connection getConnection();
   protected:
     boost::shared_ptr<SessionImpl> impl;
   friend class SessionBase_0_10Access;

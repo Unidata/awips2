@@ -43,8 +43,9 @@ class Buffer
     uint32_t position;
     uint32_t r_position;
 
-  public:
     void checkAvailable(uint32_t count) { if (position + count > size) throw OutOfBounds(); }
+
+  public:
 
     /** Buffer input/output iterator.
      * Supports using an amqp_0_10::Codec with a framing::Buffer.
@@ -75,7 +76,6 @@ class Buffer
     QPID_COMMON_EXTERN uint32_t available() { return size - position; }
     QPID_COMMON_EXTERN uint32_t getSize() { return size; }
     QPID_COMMON_EXTERN uint32_t getPosition() { return position; }
-    QPID_COMMON_EXTERN void setPosition(uint32_t p) { position = p; }
     QPID_COMMON_EXTERN Iterator getIterator() { return Iterator(*this); }
     QPID_COMMON_EXTERN char* getPointer() { return data; }
 
