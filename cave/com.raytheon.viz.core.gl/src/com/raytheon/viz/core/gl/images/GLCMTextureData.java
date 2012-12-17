@@ -200,6 +200,10 @@ public class GLCMTextureData implements IImageCacheable {
         return data.getDataFormatMax();
     }
 
+    public boolean isDataFormatScaled() {
+        return data.isDataFormatScaled();
+    }
+
     public int getTexId() {
         if (isLoaded()) {
             ImageCache.getInstance(CacheType.TEXTURE).put(this);

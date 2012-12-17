@@ -43,16 +43,23 @@ import javax.media.opengl.GL;
 public abstract class AbstractGLColorMapDataFormat {
 
     /**
-     * GL textureType id
+     * Return the texture's data type
      * 
-     * @return
+     * Example: GL.GL_FLOAT
+     * 
+     * @return the data type of the texture
+     * 
      */
     public abstract int getTextureType();
 
     /**
-     * GL Internal texture format
+     * Return the texture's internal format
      * 
-     * @return
+     * This is the format of the texture after driver manipulation
+     * 
+     * Example: GL.GL_LUMINANCE8
+     * 
+     * @return the texture internal format
      */
     public abstract int getTextureInternalFormat();
 
@@ -83,6 +90,17 @@ public abstract class AbstractGLColorMapDataFormat {
      * @return
      */
     public abstract Buffer getCopybackBuffer(GLColorMapData data);
+
+    /**
+     * Specifies if the data format type's values are scaled when copied to GL
+     * and referenced in shader. True means the values will by default be scaled
+     * to -1 to 1, false indicates shader will receive values as is
+     * 
+     * @return
+     */
+    public boolean isScaled() {
+        return true;
+    }
 
     /**
      * Get the value at position x,y for the given GL Data
@@ -148,8 +166,11 @@ public abstract class AbstractGLColorMapDataFormat {
     }
 
     /**
+     * Return the texture's format
      * 
-     * @return the texture format for this data, passed into glTexImage2D
+     * Example: GL.GL_LUMINANCE
+     * 
+     * @return the texture format
      */
     public int getTextureFormat() {
         return GL.GL_LUMINANCE;
