@@ -55,16 +55,15 @@ namespace console {
                                    client::ConnectionSettings& settings);
         QPID_CONSOLE_EXTERN ~Broker();
 
-        QPID_CONSOLE_EXTERN bool isConnected() const { return connected; }
-        QPID_CONSOLE_EXTERN const std::string& getError() const { return error; }
-        QPID_CONSOLE_EXTERN const std::string& getSessionId() const { return amqpSessionId; }
-        QPID_CONSOLE_EXTERN const framing::Uuid& getBrokerId() const { return brokerId; }
-        QPID_CONSOLE_EXTERN uint32_t getBrokerBank() const { return 1; }
-        QPID_CONSOLE_EXTERN void addBinding(const std::string& key) {
+        bool isConnected() const { return connected; }
+        const std::string& getError() const { return error; }
+        const std::string& getSessionId() const { return amqpSessionId; }
+        const framing::Uuid& getBrokerId() const { return brokerId; }
+        uint32_t getBrokerBank() const { return 1; }
+        void addBinding(const std::string& key) {
             connThreadBody.bindExchange("qpid.management", key);
         }
         QPID_CONSOLE_EXTERN std::string getUrl() const;
-        QPID_CONSOLE_EXTERN void waitForStable();
 
     private:
         friend class SessionManager;
@@ -118,6 +117,7 @@ namespace console {
         void received(client::Message& msg);
         void resetAgents();
         void updateAgent(const Object& object);
+        void waitForStable();
         void incOutstanding();
         void decOutstanding();
         void setBrokerId(const framing::Uuid& id) { brokerId = id; }
