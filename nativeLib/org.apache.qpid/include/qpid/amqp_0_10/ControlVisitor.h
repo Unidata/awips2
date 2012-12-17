@@ -69,16 +69,11 @@ struct ControlVisitor
     virtual void visit(cluster::ConfigChange&) = 0;
     virtual void visit(cluster::MessageExpired&) = 0;
     virtual void visit(cluster::ErrorCheck&) = 0;
-    virtual void visit(cluster::TimerWakeup&) = 0;
-    virtual void visit(cluster::TimerDrop&) = 0;
     virtual void visit(cluster::Shutdown&) = 0;
-    virtual void visit(cluster::DeliverToQueue&) = 0;
     virtual void visit(cluster-connection::Announce&) = 0;
     virtual void visit(cluster-connection::DeliverClose&) = 0;
     virtual void visit(cluster-connection::DeliverDoOutput&) = 0;
     virtual void visit(cluster-connection::Abort&) = 0;
-    virtual void visit(cluster-connection::ShadowSetUser&) = 0;
-    virtual void visit(cluster-connection::ShadowPrepare&) = 0;
     virtual void visit(cluster-connection::ConsumerState&) = 0;
     virtual void visit(cluster-connection::DeliveryRecord&) = 0;
     virtual void visit(cluster-connection::TxStart&) = 0;
@@ -98,8 +93,6 @@ struct ControlVisitor
     virtual void visit(cluster-connection::Queue&) = 0;
     virtual void visit(cluster-connection::ExpiryId&) = 0;
     virtual void visit(cluster-connection::AddQueueListener&) = 0;
-    virtual void visit(cluster-connection::ManagementSetupState&) = 0;
-    virtual void visit(cluster-connection::Config&) = 0;
 };
 struct ConstControlVisitor
 {
@@ -138,16 +131,11 @@ struct ConstControlVisitor
     virtual void visit(const cluster::ConfigChange&) = 0;
     virtual void visit(const cluster::MessageExpired&) = 0;
     virtual void visit(const cluster::ErrorCheck&) = 0;
-    virtual void visit(const cluster::TimerWakeup&) = 0;
-    virtual void visit(const cluster::TimerDrop&) = 0;
     virtual void visit(const cluster::Shutdown&) = 0;
-    virtual void visit(const cluster::DeliverToQueue&) = 0;
     virtual void visit(const cluster-connection::Announce&) = 0;
     virtual void visit(const cluster-connection::DeliverClose&) = 0;
     virtual void visit(const cluster-connection::DeliverDoOutput&) = 0;
     virtual void visit(const cluster-connection::Abort&) = 0;
-    virtual void visit(const cluster-connection::ShadowSetUser&) = 0;
-    virtual void visit(const cluster-connection::ShadowPrepare&) = 0;
     virtual void visit(const cluster-connection::ConsumerState&) = 0;
     virtual void visit(const cluster-connection::DeliveryRecord&) = 0;
     virtual void visit(const cluster-connection::TxStart&) = 0;
@@ -167,8 +155,6 @@ struct ConstControlVisitor
     virtual void visit(const cluster-connection::Queue&) = 0;
     virtual void visit(const cluster-connection::ExpiryId&) = 0;
     virtual void visit(const cluster-connection::AddQueueListener&) = 0;
-    virtual void visit(const cluster-connection::ManagementSetupState&) = 0;
-    virtual void visit(const cluster-connection::Config&) = 0;
 };
 
 }} // namespace qpid::amqp_0_10
