@@ -75,7 +75,7 @@ public class GLHalfFloatDataFormat extends AbstractGLColorMapDataFormat {
      */
     @Override
     public double getDataFormatMin() {
-        return Double.NaN;
+        return -GL_HALF_FLOAT_MAX;
     }
 
     /*
@@ -86,7 +86,19 @@ public class GLHalfFloatDataFormat extends AbstractGLColorMapDataFormat {
      */
     @Override
     public double getDataFormatMax() {
-        return Double.NaN;
+        return GL_HALF_FLOAT_MAX;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat#isScaled
+     * ()
+     */
+    @Override
+    public boolean isScaled() {
+        return false;
     }
 
     @Override
