@@ -1,4 +1,29 @@
 # /-\-/-\-/-\-/-\- acq_patterns.template /-\-/-\-/-\-/-\-
+# This file is a template for creating a pqact.conf file for organizing distributed data obtained
+# using the ldm administration. 
+#
+# All data is placed in the recommended subdirectories of /data_store based on patterns for the data
+#-product identifier.. For example satellite data is placed in /data_store/sat/ and grib2 data is
+# placed in /data_store/grib2/.
+#
+# The data file is then placed in subdirectories based on the identifier's day and hour values.
+# All identifiers have a 6 digit string indicating day, hour and minute for the data. For example an
+# identifier for grib2 arriving on December 18, 2012 with a time string 180006 has a day of 18 an hour
+# of 00 and minute of 06.  Ldm can determine the year and month based on when it receives the identifier.
+# Using this information the grib2 file will be placed in a subdirectory based on year, month and day
+# and this directory would contain directories for the hour. For the above example the file would be
+# placed in:
+#
+# /data_store/grib2/20121218/00/filename
+#
+# The filename will have an extension based on 4 digit year, 2 digit month, 2 digit day and 2 digit hour
+# of the time received. This may be different form the time in the identifier. For example a grib2
+# file name may look like the following:
+#
+# LJPZ98_KNHC_180002_9748544.grib2.2012121800
+# 
+#####
+# History log
 #
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
@@ -12,10 +37,15 @@
 ANY	^([PQ][A-Z0-9]{3,5}) (....) (..)(..)(..) !redbook [^/]*/([^/]*)/([^/]*)/([^/]*)/([0-9]{8})
 	FILE	-overwrite -log -close -edex	/data_store/redbook/(\3:yyyy)(\3:mm)\3/\4/\8/\4\5Z_\8_\7_\6-\1_\2_(seq).rb.%Y%m%d%H
 
+# satellites
 # AWIPS 1 PATTERN IMAGE	^T.*				/sat/SBN/Raw
 # satz/ch2/GOES-11/WV/20110201 1830/NHEM-COMP/24km/ TIGF05 KNES 011830
 NIMAGE	^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[^ ]*) ([^ ]*) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/sat/(\(10):yyyy)(\(10):mm)\(10)/\(11)/\2/\(11)\(12)Z_\3_\7_\6_\8_\9_(seq).satz.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/sat/(\(10):yyyy)(\(10):mm)\(10)/\(11)/\2/\(11)\(12)Z_\3_\7_\6-\8_\9_(seq).satz.%Y%m%d%H
+
+# New NPP/VIIRS data 
+NOTHER	^(TIP...) (KNES) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/sat/(\3:yyyy)(\3:mm)\3/\(4)/VIIRS/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS 1 PATTERN GRID    ^YEI.[89]8.*KWNH                /img/SBN/Raw
 # YEIN98 KWNH 011800 /mRFC_QPF !grib/ncep/RFC_QPF/#218/201102011800/F018/APCP/sfc/
@@ -201,7 +231,7 @@ NGRID	^([LM].[EF].{1,3}) (KWBD) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([
 # LAUE06 KWBN 021200 !grib2/ncep/NDFD/#197/201102021200F096/CLD/0 - NONE
 
 #NGRID	^(L.U.*) (KWBN) (..)(..)(..) .*!(grib|grib2)/.*/(.*)/#(.*)/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-#	FILE	-overwrite -log -close -edex	/data_store/\6/GRID\8/\7/\9/\(10)Z_\(11)_\(12)-\1_\2_(seq).\6.%Y%m%d
+#	FILE	-overwrite -log -close -edex	/data_store/\6/GRID\8/\7/\9/\(10)Z_\(11)_\(12)-\1_\2_(seq).\6.%Y%m%d%H
 
 # AWIPS1:	GRID    ^L[AB]U[ABC].*KWNO*             /Grid/SBN/rawGrib2
 # LBUB05 KWNO 012200 !grib2/ncep/LAMP/#197/201102012200F007/CTSTM02/0 - NONE
@@ -336,7 +366,7 @@ IDS|DDPLUS	^(M[A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # summaries
 #IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
@@ -420,11 +450,11 @@ IDS|DDPLUS	^(S[AP].{4}) (.{4}) (..)(..)(..)
 
 # already included in text pattern
 #IDS|DDPLUS	^(SAAK7.) (....) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(S[AP]CN[345].) (....) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:	TEXT	^SMV[DCE].* 			/point/maritime/Raw
 # AWIPS1:	TEXT	^SIV[DCE].* 			/point/maritime/Raw
@@ -444,7 +474,7 @@ IDS|DDPLUS	^(SXUS2[0123]) KWNB (..)(..)(..)
 
 # SHEF 
 IDS|DDPLUS	^(SO.{4}) (.{4}) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/SHEF/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/shef/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 
 # AWIPS1: 	OTHER   ^UAUS31.*                       /point/aircraft/Raw
@@ -488,14 +518,14 @@ IDS|DDPLUS	^(W[BD-RTUW-Z]....) (.{4}) (..)(..)(..)
 
 # already included in text pattern
 #IDS|DDPLUS     ^(WAUS4[1-6]) (....) (..)(..)(..)
-#       FILE    -overwrite -log -close   /data_store/airmet/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#       FILE    -overwrite -log -close   /data_store/airmet/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:       TEXT    ^W[CSV]US0[1-6].*             /aiv/advisories/Raw
 # WSUS06 KKCI 030129
 
 # already included in text pattern
 #IDS|DDPLUS     ^(W[CSV]US0[1-6]) (....) (..)(..)(..)
-#       FILE    -overwrite -log -close   /data_store/nonconvsigmet/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#       FILE    -overwrite -log -close   /data_store/nonconvsigmet/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1: 	TEXT    ^WSUS3[123].*                   /aiv/convSIGMET/Raw
 # WSUS33 KKCI 030055 /pSIGW 
@@ -506,7 +536,7 @@ IDS|DDPLUS	^(WSUS3[123]) (.{4}) (..)(..)(..)
 # Aviation patterns : AIRMETS : CONUS
 # TEXT    ^WAUS4[1-6].*                /aiv/advisories/Raw
 #IDS|DDPLUS      ^(WAUS4[1-6]) (.{4}) (..)(..)(..)
-#	FILE	-overwrite -log -close -edex	/data_store/airmet/%Y%m%d/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close -edex	/data_store/airmet/%Y%m%d/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # Aviation patterns : NON-CONVECTIVE SIGMETS : CONUS
 # TEXT    ^W[CSV]US0[1-6].*             /aiv/advisories/Raw
@@ -518,9 +548,9 @@ IDS|DDPLUS	^(WAUS4[1-6]) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/airmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 # intlsigmets
 IDS|DDPLUS	^(W[CSV]PA((0[1-9])|(1[1-3]))) (PHFO) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4/\1_\5_\6\7\8_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4_\1_\5_\6\7\8_(seq).%Y%m%d%H
 IDS|DDPLUS	^(W[CSV]NT((0[1-9])|(1[1-3]))) (KKCI) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4/\1_\5_\6\7\8_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\6:yyyy)(\6:mm)\6/\7/\4_\1_\5_\6\7\8_(seq).%Y%m%d%H
 IDS|DDPLUS	^(WAAK4[789]) (PAWU) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/intlsigmet/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)
@@ -528,19 +558,19 @@ IDS|DDPLUS	^(W[CSV]PN0[1-6]) (KKCI) (..)(..)(..)
 
 # already included in text pattern
 #IDS|DDPLUS	^(S[IMN]V[DCE]..|SSV[DX]..) (....) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(SXUS2[0123]) (KWNB) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(VHVD..) (KWNB) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/sfcobs/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # already included in text pattern
 #IDS|DDPLUS	^(SM(US|CN|MX)..) (....) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/sfcobs/\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d
+#	FILE	-overwrite -log -close    /data_store/sfcobs/\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d%H
 
 # AWIPS1:	POINT   ^JSMT2[1-6].*			/ispan/bufr/AVN
 # AWIPS1:	POINT   ^JSMT4[1-6].*			/ispan/bufr/NGM
@@ -633,10 +663,6 @@ HDS	^(JSXX(0[1-9]|10)) (.{4}) (..)(..)(..)
 # AWIPS2 distribution file bufrmthdw.xml: ^JUTX(([2-4]1)|53).* 
 HDS	^(JUTX(([2-4]1)|53)) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex   /data_store/bufrmthdw/(\5:yyyy)(\5:mm)\5/\6/\1_\4_\5\6\7_(seq).bufr.%Y%m%d%H
-
-# New NPP/VIIRS data 
-NOTHER	^(TIP...) (KNES) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/sat/%Y%m\(3)/\(4)/VIIRS/\1_\2_\3\4\5_(seq).%Y%m%d
 
 # AWIPS1:	RADAR	^SDUS[23578].*|^NXUS6.*		/radar/raw
 #		RADAR	^SDUS3.*			/radar/text
