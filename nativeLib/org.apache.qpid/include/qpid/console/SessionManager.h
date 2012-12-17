@@ -138,20 +138,6 @@ class SessionManager
     QPID_CONSOLE_EXTERN void bindClass(const std::string& packageName,
                                        const std::string& className);
 
-    /** Request events from a particular package.
-     *
-     * Note that this method is only meaningful if a ConsoleListener was provided at session
-     * creation and if the 'userBindings' flag was set to true.
-     *
-     * @param classKey Class key of event of interest
-     * @param packageName Name of package of event of interest.
-     * @param eventName Name of event of interest. Default=All events defined by package.
-     */
-    QPID_CONSOLE_EXTERN void bindEvent(const ClassKey& classKey);
-    QPID_CONSOLE_EXTERN void bindEvent(const std::string& packageName,
-                                       const std::string& eventName="");
-
-
     /** Get a list of qmf agents known to the session manager.
      *
      *@param agents Vector of Agent objects returned by the session manager.
