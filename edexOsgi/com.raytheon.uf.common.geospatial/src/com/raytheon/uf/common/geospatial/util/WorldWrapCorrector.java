@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.opengis.geometry.Envelope;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,7 +66,16 @@ public class WorldWrapCorrector {
      * @param descriptor
      */
     public WorldWrapCorrector(GeneralGridGeometry worldGeometry) {
-        checker = new WorldWrapChecker(worldGeometry);
+        this(worldGeometry.getEnvelope());
+    }
+
+    /**
+     * Constructs a world wrap corrector for the specified world CRS Envelope
+     * 
+     * @param worldEnvelope
+     */
+    public WorldWrapCorrector(Envelope worldEnvelope) {
+        checker = new WorldWrapChecker(worldEnvelope);
     }
 
     /**
@@ -293,14 +303,14 @@ public class WorldWrapCorrector {
         double minOffset = 0.0, maxOffset = 0.0;
         Coordinate[] coords = geom.getCoordinates();
         int length = coords.length;
-        for (int i = 0; i < length; ++i) {
-            int ip1 = (i + 1) % length;
+        // Never check last point because we dont' ever want to offset first
+        // point (i+1)
+        for (int i = 0; i < length - 1; ++i) {
+            int ip1 = i + 1;
             Coordinate a = coords[i];
             Coordinate b = coords[ip1];
 
-            if (ip1 != 0) {
-                b.x += currOffset;
-            }
+            b.x += currOffset;
 
             Boolean low = null;
             if (a.x - b.x > 180.0) {
