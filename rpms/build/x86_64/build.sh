@@ -116,6 +116,7 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2-python-pycairo"
    buildRPM "awips2-java"
    buildRPM "awips2"
+   buildRPM "awips2-notification"
 
    exit 0
 fi
@@ -145,6 +146,7 @@ if [ "${1}" = "-delta" ]; then
       exit 1
    fi
    buildRPM "awips2-edex-environment"
+   buildRPM "awips2-notification"
 
    exit 0
 fi
@@ -199,6 +201,7 @@ if [ "${1}" = "-full" ]; then
       exit 1
    fi
    buildRPM "awips2-edex-environment"
+   buildRPM "awips2-notification"
 
    exit 0
 fi
@@ -231,7 +234,11 @@ if [ "${1}" = "-edex" ]; then
 fi
 
 if [ "${1}" = "-qpid" ]; then
-   echo "INFO: AWIPS II currently does not support a 64-bit version of QPID."
+   buildQPID
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
    exit 0
 fi
 
