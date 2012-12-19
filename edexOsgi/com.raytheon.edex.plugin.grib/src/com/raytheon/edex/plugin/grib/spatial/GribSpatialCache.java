@@ -21,11 +21,9 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +35,6 @@ import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.GribModelLookup;
-import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -176,41 +173,6 @@ public class GribSpatialCache {
             rval = GridCoverageLookup.getInstance()
                     .getCoverage(coverage, false);
         }
-        return rval;
-    }
-
-    /**
-     * For a grib model name return all GridCoverages that are defined in the
-     * gribModels file for that model. For models which use subgrids this will
-     * return the subgridded coverages. For models that are not defined or
-     * models that do not specify a specific grid this will return an empty
-     * list.
-     * 
-     * @param modelName
-     * @return
-     */
-    public List<GridCoverage> getGridsForModel(String modelName) {
-        List<GridCoverage> rval = new ArrayList<GridCoverage>();
-        if (modelName != null) {
-            GridModel model = GribModelLookup.getInstance().getModelByName(
-                    modelName);
-            if (model != null) {
-                for (String coverageName : model.getAllGrids()) {
-                    GridCoverage coverage = getGridByName(coverageName);
-                    if (coverage != null) {
-                        rval.add(coverage);
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < rval.size(); i++) {
-            GridCoverage subGrid = getSubGridCoverage(modelName, rval.get(i));
-            if (subGrid != null) {
-                rval.remove(i);
-                rval.add(i, subGrid);
-            }
-        }
-
         return rval;
     }
 
