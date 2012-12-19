@@ -93,6 +93,9 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
         Set<AbstractRequestableData> records = new HashSet<AbstractRequestableData>();
         for (TimeAndSpace ast : availability) {
             Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
+            if (needed.isEmpty()) {
+                continue;
+            }
             Map<TimeAndSpace, MatchResult> matched = matcher.match(needed,
                     dataMap.keySet());
             if (TimeAndSpaceMatcher.getAll1(matched).containsAll(needed)) {
@@ -123,12 +126,13 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
         Set<TimeAndSpace> goodAvail = new HashSet<TimeAndSpace>();
         for (TimeAndSpace ast : allAvail) {
             Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
-            Set<TimeAndSpace> matchedNeeded = TimeAndSpaceMatcher
-                    .getAll1(matcher.match(needed, allAvail));
-            if (matchedNeeded.containsAll(needed)) {
-                goodAvail.add(ast);
+            if (!needed.isEmpty()) {
+                Set<TimeAndSpace> matchedNeeded = TimeAndSpaceMatcher
+                        .getAll1(matcher.match(needed, allAvail));
+                if (matchedNeeded.containsAll(needed)) {
+                    goodAvail.add(ast);
+                }
             }
-
         }
         return goodAvail;
     }
@@ -139,14 +143,10 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
             AvailabilityContainer availabilityContainer) {
         TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
         matcher.setIgnoreRange(true);
-        Set<TimeAndSpace> sourceAvailability = new HashSet<TimeAndSpace>(
-                availability);
+        Set<TimeAndSpace> sourceAvailability = new HashSet<TimeAndSpace>();
         for (TimeAndSpace ast : availability) {
             Set<TimeAndSpace> needed = calculateNeededAvailability(ast);
-            Set<TimeAndSpace> matchedAvail = TimeAndSpaceMatcher
-                    .getAll1(matcher.match(needed, availability));
-            sourceAvailability.addAll(matchedAvail);
-
+            sourceAvailability.addAll(needed);
         }
         Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
         result.put(sourceNode, sourceAvailability);
