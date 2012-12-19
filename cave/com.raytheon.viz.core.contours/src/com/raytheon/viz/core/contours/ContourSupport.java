@@ -364,7 +364,7 @@ public class ContourSupport {
                 float min = Float.POSITIVE_INFINITY;
                 float max = Float.NEGATIVE_INFINITY;
                 for (float f : data1D) {
-                    if (f != Util.GRID_FILL_VALUE) {
+                    if (f != Util.GRID_FILL_VALUE && !Float.isNaN(f)) {
                         min = Math.min(min, f);
                         max = Math.max(max, f);
                     }
