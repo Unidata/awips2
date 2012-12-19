@@ -101,4 +101,9 @@
 	<alias base="WD">WDIR</alias>
 	<alias base="WS">WIND</alias>
 	<alias base="WGS">WGS</alias>
+	<alias base="MSG">MNTSF</alias>
+	<alias base="SVV">SGCVV</alias>
+	<alias base="GVV">DZDT</alias>
+	<alias base="KI">KX</alias>
+	<alias base="TKE">tke</alias>
 </aliasList>
