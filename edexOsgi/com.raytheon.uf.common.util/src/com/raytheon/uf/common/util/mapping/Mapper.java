@@ -264,4 +264,47 @@ public abstract class Mapper {
         }
     }
 
+    /**
+     * Provides same functionality as lookupBaseNamesOrNull but is more
+     * convenient when only alias is expected.
+     * 
+     * @param alias
+     * @param namespace
+     * @return
+     * @throws MultipleMappingException
+     */
+    public String lookupBaseNameOrNull(String alias, String namespace)
+            throws MultipleMappingException {
+        Set<String> baseNames = lookupBaseNamesOrNull(alias, namespace);
+        if (baseNames == null || baseNames.isEmpty()) {
+            return null;
+        } else if (baseNames.size() == 1) {
+            return baseNames.iterator().next();
+        } else {
+            throw new MultipleMappingException(false, alias, namespace,
+                    baseNames);
+        }
+    }
+
+    /**
+     * Provides same functionality as lookupAliasesOrNull but is more convenient
+     * when only one base name is expected.
+     * 
+     * @param base
+     * @param namespace
+     * @return
+     * @throws MultipleMappingException
+     */
+    public String lookupAliasOrNull(String base, String namespace)
+            throws MultipleMappingException {
+        Set<String> aliases = lookupAliasesOrNull(base, namespace);
+        if (aliases == null) {
+            return null;
+        } else if (aliases.size() == 1) {
+            return aliases.iterator().next();
+        } else {
+            throw new MultipleMappingException(true, base, namespace, aliases);
+        }
+    }
+
 }
