@@ -166,6 +166,7 @@ public class GridModel implements ISerializableObject {
     /**
      * @return the paramInfo
      */
+    @Deprecated
     public String getParamInfo() {
         return paramInfo;
     }
@@ -174,6 +175,7 @@ public class GridModel implements ISerializableObject {
      * @param paramInfo
      *            the paramInfo to set
      */
+    @Deprecated
     public void setParamInfo(String paramInfo) {
         this.paramInfo = paramInfo;
     }
