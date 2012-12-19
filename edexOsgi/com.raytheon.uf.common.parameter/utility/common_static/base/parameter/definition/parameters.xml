@@ -499,4 +499,29 @@
 		<abbreviation>WGS</abbreviation>
 		<unit>m/s</unit>
 	</parameter>
+	<parameter>
+		<name>Montgomery Stream Function</name>
+		<abbreviation>MSG</abbreviation>
+		<unit>m^2/s^2</unit>
+	</parameter>
+	<parameter>
+		<name>Sigma Coordinate Vertical Velocity</name>
+		<abbreviation>SVV</abbreviation>
+		<unit>/s</unit>
+	</parameter>
+	<parameter>
+		<name>Geometric Vertical Velocity</name>
+		<abbreviation>GVV</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>K Index</name>
+		<abbreviation>KI</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Turbulent Kinetic Energy</name>
+		<abbreviation>TKE</abbreviation>
+		<unit>J/kg</unit>
+	</parameter>
 </parameterList>
