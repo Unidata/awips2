@@ -2609,6 +2609,9 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 			return;
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
+		if (ext.getWidth() == 0.0 || ext.getHeight() == 0.0) {
+            return;
+        }
 		//System.out.println("skewtPane: handleResize");
    	 	this.rectangle = new Rectangle((int)ext.getMinX(), (int) ext.getMinY(),
    			 (int) ext.getWidth(), (int) ext.getHeight());
