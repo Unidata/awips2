@@ -333,17 +333,17 @@ public class FileLocker {
         boolean gotLock = false;
         File lockFile = new File(parentDir, "." + file.getName() + "_LOCK");
         try {
-            gotLock = lockFile.createNewFile();
-            if (!gotLock) {
-                long waitInterval = 500;
-                long tryCount = MAX_WAIT / waitInterval;
-                for (int i = 0; !gotLock && i < tryCount; ++i) {
-                    try {
-                        Thread.sleep(waitInterval);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
-                    gotLock = lockFile.createNewFile();
+            long waitInterval = 500;
+            long tryCount = MAX_WAIT / waitInterval;
+            long fileTime;
+            for (int i = 0; !gotLock && i < tryCount; ++i) {
+                gotLock = lockFile.createNewFile()
+                        || ((fileTime = lockFile.lastModified()) > 0 && (System
+                                .currentTimeMillis() - fileTime) > MAX_WAIT);
+                try {
+                    Thread.sleep(waitInterval);
+                } catch (InterruptedException e) {
+                    // Ignore
                 }
             }
         } catch (IOException e) {
@@ -355,6 +355,7 @@ public class FileLocker {
                     + ", returning anyway");
             Thread.dumpStack();
         }
+        lockFile.setLastModified(System.currentTimeMillis());
         lock.lockFile = lockFile;
         return gotLock;
     }
