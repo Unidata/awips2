@@ -103,7 +103,7 @@
 		<include>auth-common.xml</include>
 		<!-- grid specific services -->
 		<include>grib-common.xml</include>
-		<include>grid-process.xml</include>
+		<include>grid-staticdata-process.xml</include>
 		<include>gridcoverage-.*.xml</include>
 		<include>grib-distribution.xml</include>
 		<include>grib-datadelivery.xml</include>
@@ -123,7 +123,7 @@
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
 		<exclude>grib-decode.xml</exclude>
-		<exclude>grid-process.xml</exclude>
+		<exclude>grid-staticdata-process.xml</exclude>
 		<exclude>ncgrib-ingest.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
@@ -159,7 +159,7 @@
 		<include>nwsauth-request.xml</include>
 		<include>grib-common.xml</include>
 		<include>grib-decode.xml</include>
-		<include>grid-process.xml</include>
+		<include>grid-staticdata-process.xml</include>
 		<include>level-common.xml</include>
 	 	<include>grid-common.xml</include>
 	 	<include>gridcoverage-.*.xml</include>
@@ -228,7 +228,7 @@
 	<mode name="grib">
 		<include>grib-common.xml</include>
 		<include>grib-decode.xml</include>
-		<include>grid-process.xml</include>
+		<include>grid-staticdata-process.xml</include>
 		<include>grib-distribution.xml</include>
 		<include>level-common.xml</include>
 		<include>persist-ingest.xml</include>
@@ -293,7 +293,7 @@
         <include>time-common.xml</include>
         <include>auth-common.xml</include>
         <include>nwsauth-request.xml</include>
-        <include>grid-process.xml</include>
+        <include>grid-staticdata-process.xml</include>
         <include>grid-common.xml</include>
         <include>gridcoverage-.*.xml</include>
         <include>parameter-common.xml</include>     
