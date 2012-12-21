@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>2592000</fcst>
+    <fcst>7776000</fcst>
+    <fcst>10368000</fcst>
+    <fcst>12960000</fcst>
+    <fcst>15552000</fcst>
+    <fcst>18144000</fcst>
+    <fcst>20736000</fcst>
+    <fcst>23328000</fcst>
+    <fcst>25920000</fcst>
+    <fcst>28512000</fcst>
+    <fcst>31104000</fcst>
+    <fcst>33696000</fcst>
+    <fcst>36288000</fcst>
+    <fcst>38880000</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ppnn</short_name>
+    <long_name>Probability of precip near normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ppnn</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ppbn</short_name>
+    <long_name>Probability of precip below normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ppbn</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ptan</short_name>
+    <long_name>Probability of temperature above normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ptan</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ptbn</short_name>
+    <long_name>Probability of temperature below normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ptbn</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ppan</short_name>
+    <long_name>Probability of precip above normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ppan</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>ptnn</short_name>
+    <long_name>Probability of temperature near normal</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ptnn</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

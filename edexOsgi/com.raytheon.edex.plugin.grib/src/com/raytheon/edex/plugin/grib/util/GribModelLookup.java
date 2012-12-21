@@ -40,9 +40,12 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.mapping.Alias;
+import com.raytheon.uf.common.util.mapping.AliasList;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 public class GribModelLookup {
@@ -122,10 +125,6 @@ public class GribModelLookup {
 
     public GridModel getModelByName(String name) {
         return modelsByName.get(name);
-    }
-
-    public Map<String, GridModel> getModelByNameMap() {
-        return modelsByName;
     }
 
     public Set<String> getModelNames() {
@@ -251,6 +250,8 @@ public class GribModelLookup {
                         "grid" + IPathManager.SEPARATOR + "models", // Win32
                         new String[] { ".xml" }, false, true);
 
+        List<Alias> aliasList = new ArrayList<Alias>(legacyFiles.length * 64);
+
         for (LocalizationFile modelFile : legacyFiles) {
             try {
                 GridModelSet fileSet = JAXB.unmarshal(modelFile.getFile(),
@@ -265,21 +266,57 @@ public class GribModelLookup {
                     info.setDt(model.getDt());
                     info.setAlias(model.getAlias());
                     infoList.add(info);
+                    if (model.getParamInfo() != null) {
+                        aliasList.add(new Alias(model.getName(), model
+                                .getParamInfo()));
+                    }
                 }
-                DatasetInfoSet infoSet = new DatasetInfoSet();
-                infoSet.setInfos(infoList);
                 LocalizationFile file = PathManagerFactory.getPathManager()
                         .getLocalizationFile(
                                 commonStaticSite,
                                 "/grid/datasetInfo/imported-"
                                         + modelFile.getFile().getName());
                 if (!file.exists()) {
+                    DatasetInfoSet infoSet = new DatasetInfoSet();
+                    infoSet.setInfos(infoList);
                     JAXB.marshal(infoSet, file.getFile());
                     file.save();
                 }
             } catch (Exception e) {
                 throw new GribException("Unable to unmarshal grib models file:"
                         + modelFile);
+            }
+        }
+        if (!aliasList.isEmpty()) {
+            LocalizationFile file = PathManagerFactory.getPathManager()
+                    .getLocalizationFile(
+                            commonStaticSite,
+                            "/grid/dataset/alias/gfeParamInfo.xml");
+            if (!file.exists()) {
+                LocalizationContext commonStaticBase = PathManagerFactory
+                        .getPathManager()
+                        .getContext(
+                                LocalizationContext.LocalizationType.COMMON_STATIC,
+                                LocalizationContext.LocalizationLevel.BASE);
+                LocalizationFile baseFile = PathManagerFactory.getPathManager()
+                        .getLocalizationFile(commonStaticBase,
+                                "/grid/dataset/alias/gfeParamInfo.xml");
+                AliasList al = null;
+                if (baseFile.exists()) {
+                    al = JAXB.unmarshal(file.getFile(), AliasList.class);
+                    al.getAliasList().addAll(aliasList);
+                } else {
+                    al = new AliasList();
+                    al.setAliasList(aliasList);
+                    al.setNamespace("gfeParamInfo");
+                }
+                JAXB.marshal(al, file.getFile());
+                try {
+                    file.save();
+                } catch (LocalizationOpFailedException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to save gfe ParamInfo aliases", e);
+                }
             }
         }
         return modelSet;
