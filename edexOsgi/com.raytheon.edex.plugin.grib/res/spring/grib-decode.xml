@@ -32,7 +32,7 @@
 	<bean id="largeFileLockRelease" class="com.raytheon.edex.plugin.grib.GribLockRelease" />
 
     <bean id="gribDecodeCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="gridProcessCamelRegistered">
+		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="grib-decode"/>
   	</bean>
 
@@ -91,8 +91,8 @@
 								<!-- send for processing -->
 								<bean ref="gribPostProcessor" method="process" />
 								<multicast parallelProcessing="false">
-									<!-- send to persistence and topo -->
-									<to uri="directvm:gridProcessRoute" />
+									<!-- send to persistence -->
+									<to uri="directvm:persistIndexAlert" />
 									<!-- send to transform -->
 									<to uri="directvm:gridToGrib"/>
 								</multicast>
