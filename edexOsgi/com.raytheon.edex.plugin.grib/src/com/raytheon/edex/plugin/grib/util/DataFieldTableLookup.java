@@ -59,15 +59,9 @@ public class DataFieldTableLookup {
 
     private final Pattern DASH = Pattern.compile("-");
 
-    private final Pattern UNDERSCORE = Pattern.compile("_");
-
     private final Pattern NEWLINE = Pattern.compile("\n");
 
     private final Pattern PIPE = Pattern.compile("\\|");
-
-    private final Map<String, String> data2cdl = new HashMap<String, String>();
-
-    private final Map<String, String> cdl2data = new HashMap<String, String>();
 
     private final Map<String, String> data2name = new HashMap<String, String>();
 
@@ -103,7 +97,7 @@ public class DataFieldTableLookup {
                 continue;
             }
             String[] parts = PIPE.split(line);
-            if (parts.length < 2) {
+            if (parts.length < 5) {
                 // invalid line
                 continue;
             }
@@ -111,39 +105,11 @@ public class DataFieldTableLookup {
             if (data.isEmpty()) {
                 continue;
             }
-            String cdl = parts[1].trim();
-            if (!cdl.isEmpty()) {
-                data2cdl.put(data, cdl);
-                cdl2data.put(cdl, data);
-            }
-            if (parts.length < 5) {
-                // invalid line
-                continue;
-            }
             String name = parts[4].trim();
             if (!name.isEmpty()) {
                 data2name.put(data, name);
             }
         }
-    }
-
-    public String lookupCdlName(String dataField) {
-        String retVal = data2cdl.get(dataField);
-        if (retVal == null) {
-            retVal = data2cdl.get(DASH.matcher(dataField).replaceAll("_"));
-            if (retVal == null) {
-                retVal = dataField;
-            }
-        }
-        return retVal;
-    }
-
-    public String lookupDataName(String cdlField) {
-        String retVal = cdl2data.get(cdlField);
-        if (retVal != null) {
-            retVal = UNDERSCORE.matcher(retVal).replaceAll("-");
-        }
-        return retVal;
     }
 
     public String lookupName(String dataField) {
