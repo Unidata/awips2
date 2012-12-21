@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>10800</fcst>
+    <fcst>21600</fcst>
+    <fcst>32400</fcst>
+    <fcst>43200</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>sacc</short_name>
+    <long_name>snow accumulation</long_name>
+    <units>kg/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pvv</short_name>
+    <long_name>Pressure vertical velocity</long_name>
+    <units>Pa/s</units>
+    <valid_range>-10.0</valid_range>
+    <valid_range>10.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>40</n3D>
+    <levelsDesc>SFC  MB 1050-100 by 25</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pot</short_name>
+    <long_name>potential temperature</long_name>
+    <units>degrees Kelvin</units>
+    <valid_range>-75.0</valid_range>
+    <valid_range>125.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>TROP</levelsDesc>
+    <levels>
+      <level>TROP</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>vw</short_name>
+    <long_name>v-component wind</long_name>
+    <units>meters/second</units>
+    <valid_range>-300.0</valid_range>
+    <valid_range>300.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>41</n3D>
+    <levelsDesc>SFC  MB 1050-100 by 25  TROP</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+      <level>TROP</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>cp</short_name>
+    <long_name>convective precipitation</long_name>
+    <units>millimeters</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>gh</short_name>
+    <long_name>geopotential height</long_name>
+    <units>meters</units>
+    <valid_range>-300.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>39</n3D>
+    <levelsDesc>MB 1050-100 by 25</levelsDesc>
+    <levels>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/second</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>rh</short_name>
+    <long_name>relative humidity</long_name>
+    <units>percent</units>
+    <valid_range>-10.0</valid_range>
+    <valid_range>110.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>39</n3D>
+    <levelsDesc>MB 1050-100 by 25</levelsDesc>
+    <levels>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>mmsp</short_name>
+    <long_name>MAPS mean sea level pressure</long_name>
+    <units>pascals</units>
+    <valid_range>80000.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>st</short_name>
+    <long_name>soil temperature</long_name>
+    <units>kg/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>cape</short_name>
+    <long_name>Convective Available Potential Energy</long_name>
+    <units>J/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>400.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>lhf</short_name>
+    <long_name>latent heat flux</long_name>
+    <units>W / m**2</units>
+    <valid_range>-10000.0</valid_range>
+    <valid_range>10000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>smc</short_name>
+    <long_name>soil moisture</long_name>
+    <units>meter/meter</units>
+    <valid_range>-200.0</valid_range>
+    <valid_range>200.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>uw</short_name>
+    <long_name>u-component wind</long_name>
+    <units>meters/second</units>
+    <valid_range>-300.0</valid_range>
+    <valid_range>300.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>41</n3D>
+    <levelsDesc>SFC  MB 1050-100 by 25  TROP</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+      <level>TROP</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>cin</short_name>
+    <long_name>Convective Inhibition</long_name>
+    <units>J/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>400.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pr</short_name>
+    <long_name>precipitation rate</long_name>
+    <units>Kg / m**2 / s</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>p</short_name>
+    <long_name>pressure</long_name>
+    <units>pascals</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>150000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>sh</short_name>
+    <long_name>specific humidity</long_name>
+    <units>kg/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>t</short_name>
+    <long_name>temperature</long_name>
+    <units>degrees celcius</units>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>39</n3D>
+    <levelsDesc>MB 1050-100 by 25</levelsDesc>
+    <levels>
+      <level>MB1050</level>
+      <level>MB1025</level>
+      <level>MB1000</level>
+      <level>MB975</level>
+      <level>MB950</level>
+      <level>MB925</level>
+      <level>MB900</level>
+      <level>MB875</level>
+      <level>MB850</level>
+      <level>MB825</level>
+      <level>MB800</level>
+      <level>MB775</level>
+      <level>MB750</level>
+      <level>MB725</level>
+      <level>MB700</level>
+      <level>MB675</level>
+      <level>MB650</level>
+      <level>MB625</level>
+      <level>MB600</level>
+      <level>MB575</level>
+      <level>MB550</level>
+      <level>MB525</level>
+      <level>MB500</level>
+      <level>MB475</level>
+      <level>MB450</level>
+      <level>MB425</level>
+      <level>MB400</level>
+      <level>MB375</level>
+      <level>MB350</level>
+      <level>MB325</level>
+      <level>MB300</level>
+      <level>MB275</level>
+      <level>MB250</level>
+      <level>MB225</level>
+      <level>MB200</level>
+      <level>MB175</level>
+      <level>MB150</level>
+      <level>MB125</level>
+      <level>MB100</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>shf</short_name>
+    <long_name>sensible heat flux</long_name>
+    <units>kg/kg</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>0.10000000149</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>nlrs</short_name>
+    <long_name>net longwave radiation at surface</long_name>
+    <units>pascals</units>
+    <valid_range>80000.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>lgsp</short_name>
+    <long_name>large scale precipitation</long_name>
+    <units>Kg / m**2</units>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>vpt</short_name>
+    <long_name>virtual potential temperature</long_name>
+    <units>degrees Kelvin</units>
+    <valid_range>-75.0</valid_range>
+    <valid_range>125.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>
