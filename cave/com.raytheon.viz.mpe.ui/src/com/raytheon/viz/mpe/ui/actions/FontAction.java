@@ -22,12 +22,10 @@ package com.raytheon.viz.mpe.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 
 /**
  * Sets the font size on the display managers for an editor. Updates radio state
@@ -54,13 +52,7 @@ public class FontAction extends AbstractHandler {
             return null;
         }
         String newVal = event.getParameter(RadioState.PARAMETER_ID);
-        HandlerUtil.updateRadioState(event.getCommand(), newVal);
-
-        IEditorPart part = (IEditorPart) EditorUtil
-                .getActiveEditorAs(IDisplayPaneContainer.class);
-        if (part != null) {
-            ((IDisplayPaneContainer) part).refresh();
-        }
+        MPEDisplayManager.setFontId(newVal);
         return null;
     }
 }

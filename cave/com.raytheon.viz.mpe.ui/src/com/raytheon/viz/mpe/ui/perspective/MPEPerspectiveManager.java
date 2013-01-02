@@ -28,29 +28,35 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.menus.IMenuService;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DescriptorMap;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.hydrocommon.actions.SetProjection;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.GroupEditPrecipStns;
 import com.raytheon.viz.mpe.ui.actions.GroupEditTempStns;
 import com.raytheon.viz.mpe.ui.actions.MPESelectPaneAction;
+import com.raytheon.viz.mpe.ui.dialogs.ChooseDataPeriodDialog;
 import com.raytheon.viz.mpe.ui.dialogs.EditFreezeStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.EditPrecipStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.EditTempStationsDialog;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -59,7 +65,7 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Perspective manager for MPE Perspective
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -75,18 +81,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MPEPerspectiveManager.class);
 
-    /** The MPE Perspective Class */
-    public static final String MPE_PERSPECTIVE = MPEPerspective.ID_PERSPECTIVE;
-
-    private IContextActivation activation;
-
-    private boolean first = false;
+    private static final String MPE = "mpe";
 
     @Override
     public void open() {
+        // First time opened, set perspective default background color
         String cval = AppsDefaults.getInstance().getToken(
                 "mpe_map_background_color");
         if (cval != null) {
@@ -95,61 +95,78 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
             BackgroundColor.getInstance(page.getPerspective()).setColor(
                     BGColorMode.EDITOR, color);
         }
-        loadDefaultBundle("mpe/default-procedure.xml");
-        first = true;
-        populate(true);
+
+        openNewEditor();
+
+        Shell shell = perspectiveWindow.getShell();
+        ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(shell);
+        dialog.open();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#openNewEditor
+     * ()
+     */
     @Override
-    public void activate() {
-        if (perspectiveEditors.size() == 0 && opened) {
-            opened = false;
-            first = true;
-            super.activate();
-        } else if (perspectiveEditors.size() != 0 && opened) {
-            super.activate();
-            first = false;
-            populate(false);
-        } else {
-            super.activate();
-            populate(true);
-        }
-    }
-
-    @Override
-    public void close() {
-        super.close();
-        depopulate();
-    }
-
-    @Override
-    public void deactivate() {
-        super.deactivate();
-        depopulate();
-    }
-
-    private void populate(boolean pro) {
-        IDisplayPaneContainer currentEditor = EditorUtil
-                .getActiveVizContainer();
-        if (currentEditor != null) {
-            if (pro == true) {
-                SetProjection.setDefaultProjection(currentEditor, "mpe");
-            }
-            try {
-                MPEDisplayManager.populate(perspectiveWindow, pro, first);
-                first = false;
-            } catch (VizException e) {
-                statusHandler.handle(Priority.CRITICAL, "Error populating", e);
-            }
-        }
-    }
-
-    private void depopulate() {
+    public AbstractEditor openNewEditor() {
         try {
-            MPEDisplayManager.dePopulate(perspectiveWindow);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.CRITICAL, "Error depopulating", e);
+            // Unmarshal default bundle xml
+            Object unmarshalled = SerializationUtil.getJaxbManager()
+                    .jaxbUnmarshalFromXmlFile(
+                            PathManagerFactory.getPathManager().getStaticFile(
+                                    MPE + IPathManager.SEPARATOR
+                                            + "default-bundle.xml"));
+            if (unmarshalled instanceof Bundle) {
+                // Load Bundle to perspective window in new editor
+                Bundle b = (Bundle) unmarshalled;
+                String editorId = b.getEditor();
+                if (editorId != null) {
+                    IRenderableDisplay[] displays = b.getDisplays();
+                    if (displays.length > 0) {
+                        editorId = DescriptorMap.getEditorId(displays[0]
+                                .getDescriptor().getClass().getName());
+                        AbstractEditor editor = UiUtil.createEditor(
+                                perspectiveWindow, editorId, displays);
+                        if (editor != null) {
+                            initialize(editor);
+                            return editor;
+                        } else {
+                            throw new VizException(
+                                    "Failed to open new editor on window");
+                        }
+                    } else {
+                        throw new SerializationException(
+                                "No displays to load found in MPE default bundle XML");
+                    }
+                }
+            } else {
+                throw new SerializationException(
+                        "Unexpected type deserialied from mpe bundle file. Expected "
+                                + Bundle.class.getSimpleName()
+                                + ", got "
+                                + (unmarshalled != null ? unmarshalled
+                                        .getClass().getSimpleName() : null));
+            }
+        } catch (Exception e) {
+            UFStatus.getHandler().handle(Priority.PROBLEM,
+                    "Error opening new MPE editor: " + e.getLocalizedMessage(),
+                    e);
         }
+        return null;
+    }
+
+    /**
+     * Initializes a newly created MPE editor
+     * 
+     * @param editor
+     * @return
+     */
+    private static void initialize(AbstractEditor editor) {
+        // Project editor
+        SetProjection.setDefaultProjection(editor, MPE);
     }
 
     @Override
@@ -183,15 +200,6 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                                     ll));
                             return true;
                         }
-                    } else if (MPEDisplayManager.getCurrent().isTimeLapseMode()) {
-                        // Stop the loop where it is
-                        LoopProperties loopProps = container
-                                .getLoopProperties();
-                        if (loopProps != null) {
-                            loopProps.setLooping(false);
-                        }
-
-                        return true;
                     }
                 } else if (mouseButton == 3) {
                     Coordinate ll = container.translateClick(x, y);

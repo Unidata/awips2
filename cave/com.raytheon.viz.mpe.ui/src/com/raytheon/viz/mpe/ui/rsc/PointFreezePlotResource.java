@@ -481,7 +481,7 @@ public class PointFreezePlotResource extends
         this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, get from factory
-        font = fontFactory.getMPEFont(displayMgr.getFontState());
+        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isZflag() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();

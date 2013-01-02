@@ -19,32 +19,34 @@
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
- * TODO Add Description
+ * MPE Users guide specifies this command should clear all MPE data from screen
+ * and if in split screen mode, return to full screen
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 6, 2008            randerso     Initial creation
+ * Jan 3, 2012            mschenke     Initial creation
+ * 
  * </pre>
  * 
- * @author randerso
+ * @author mschenke
  * @version 1.0
  */
 
-public class ClearMPEData extends AbstractHandler {
+public class ClearMPEData extends FullScreen {
 
     /*
      * (non-Javadoc)
@@ -54,33 +56,17 @@ public class ClearMPEData extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        IDisplayPaneContainer editor = EditorUtil.getActiveVizContainer();
-        IDisplayPane pane = null;
-        MPEDisplayManager displayMgr = null;
-        if (editor instanceof IMultiPaneEditor) {
-            IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
-            if (multiPane.getNumberofPanes() > 1) {
-                for (int i = 0; i < multiPane.getNumberofPanes(); i++) {
-                    pane = multiPane.getDisplayPanes()[i];
-                    displayMgr = MPEDisplayManager.getInstance(pane);
-                    displayMgr.clearMPEData();
-                }
-                displayMgr.setDisplayedResource(null);
-            } else {
-                pane = multiPane.getDisplayPanes()[0];
-                displayMgr = MPEDisplayManager.getInstance(pane);
-                displayMgr.clearMPEData();
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        IEditorPart editor = HandlerUtil.getActiveEditor(event);
+        if (editor instanceof IDisplayPaneContainer) {
+            IDisplayPaneContainer container = (IDisplayPaneContainer) editor;
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                pane.clear();
             }
-        } else if (editor != null) {
-            pane = editor.getDisplayPanes()[0];
-            displayMgr = MPEDisplayManager.getInstance(pane);
-            displayMgr.clearMPEData();
-            displayMgr.setDisplayedResource(null);
         }
-        
+        // Ensure in full screen
+        super.execute(event);
         TransmitRFCBiasProvider.setEnabled(false);
         return null;
     }
-
 }

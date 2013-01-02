@@ -23,6 +23,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.SaveBestEstimateProvider;
 import com.raytheon.viz.ui.EditorUtil;
@@ -59,11 +60,9 @@ public class FullScreen extends AbstractHandler {
 
         if (container instanceof IMultiPaneEditor) {
             IMultiPaneEditor multiPane = (IMultiPaneEditor) container;
-            int numPanes = multiPane.getNumberofPanes();
-            while (numPanes > 1) {
-                multiPane.hidePane(multiPane.getDisplayPanes()[numPanes - 1]);
-                multiPane.removePane(multiPane.getDisplayPanes()[numPanes - 1]);
-                numPanes = multiPane.displayedPaneCount();
+            IDisplayPane[] panes = multiPane.getDisplayPanes();
+            for (int i = 1; i < panes.length; ++i) {
+                multiPane.removePane(panes[i]);
             }
         }
 
