@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences;
@@ -133,7 +134,7 @@ public class PlotGriddedFreezeResource extends
 
     public PlotGriddedFreezeResource(MPEDisplayManager displayMgr,
             LoadProperties loadProperties, List<Colorvalue> colorSet) {
-        super(new XmrgResourceData(), loadProperties);
+        super(new GenericResourceData(), loadProperties);
         this.displayMgr = displayMgr;
         this.colorSet = colorSet;
     }
