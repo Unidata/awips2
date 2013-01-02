@@ -227,7 +227,7 @@ public class RadarSpanDialog extends Dialog {
         bd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
         Label tmslotLbl = new Label(dtLblComp, SWT.CENTER);
         tmslotLbl.setLayoutData(bd);
-        Date dt = MPEDisplayManager.getCurrent().getCurrentDate();
+        Date dt = MPEDisplayManager.getCurrent().getCurrentEditDate();
         String dt3 = st3sdf.format(dt);
         tmslotLbl.setText(dt3 + "z");
 
