@@ -23,12 +23,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
+import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.AddPseudoGageResource;
+import com.raytheon.viz.mpe.ui.rsc.IMpeResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEGageResource;
 import com.raytheon.viz.mpe.ui.rsc.MPELegendResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEPolygonResource;
@@ -52,7 +56,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEPolygonResource;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "mpeMapRenderableDisplay")
-public class MPEMapRenderableDisplay extends MapRenderableDisplay {
+public class MPEMapRenderableDisplay extends PlainMapRenderableDisplay {
 
     public MPEMapRenderableDisplay() {
         super();
@@ -60,6 +64,33 @@ public class MPEMapRenderableDisplay extends MapRenderableDisplay {
 
     public MPEMapRenderableDisplay(MapDescriptor desc) {
         super(desc);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay#setDescriptor
+     * (com.raytheon.uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public void setDescriptor(IDescriptor desc) {
+        super.setDescriptor(desc);
+        if (desc.getTimeMatcher() == null) {
+            desc.setTimeMatcher(new MPETimeMatcher());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay#dispose()
+     */
+    @Override
+    public void dispose() {
+        super.dispose();
+        MPEDisplayManager.disposeDisplay(this);
     }
 
     @Override
@@ -84,6 +115,24 @@ public class MPEMapRenderableDisplay extends MapRenderableDisplay {
         resourceList.add(ResourcePair
                 .constructSystemResourcePair(new GenericResourceData(
                         MPEGageResource.class)));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay#clear(com
+     * .raytheon.uf.viz.core.IDisplayPane)
+     */
+    @Override
+    public void clear() {
+        ResourceList list = descriptor.getResourceList();
+        for (AbstractVizResource<?, ?> rsc : list
+                .getResourcesByType(IMpeResource.class)) {
+            if (rsc.getProperties().isSystemResource() == false) {
+                list.removeRsc(rsc);
+            }
+        }
     }
 
 }

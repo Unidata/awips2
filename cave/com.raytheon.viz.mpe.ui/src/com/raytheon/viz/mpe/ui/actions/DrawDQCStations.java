@@ -28,8 +28,8 @@ import java.util.TimeZone;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -243,8 +243,8 @@ public class DrawDQCStations {
         if (instance == null) {
             instance = new DrawDQCStations();
         }
-        mpd.clearMPEData();
         display = mpd.getRenderableDisplay();
+        display.clear();
         md = (IMapDescriptor) display.getDescriptor();
 
         List<MPELegendResource> rscs = display.getDescriptor()
