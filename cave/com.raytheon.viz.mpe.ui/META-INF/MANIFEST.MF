@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
  com.raytheon.uf.viz.application,
- com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174"
+ com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.mpe.ui.dialogs.gagetable.xml,
  com.raytheon.viz.mpe.ui.displays,
