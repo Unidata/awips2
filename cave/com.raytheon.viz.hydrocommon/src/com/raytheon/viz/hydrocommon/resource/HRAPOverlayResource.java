@@ -19,13 +19,15 @@
  **/
 package com.raytheon.viz.hydrocommon.resource;
 
-import java.awt.Rectangle;
-
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.hydro.spatial.HRAP;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -36,7 +38,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * HydroView and MPE HRAP overlay resource.
@@ -56,123 +57,76 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class HRAPOverlayResource extends
         AbstractVizResource<HRAPOverlayResourceData, MapDescriptor> {
-    private Rectangle hrapExtent;
 
-    private IWireframeShape grid = null;
+    private IWireframeShape grid;
 
     protected HRAPOverlayResource(HRAPOverlayResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
     }
 
-    /**
-     * Paint the grid on the map.
-     * 
-     * @param target
-     *            The IGraphicsTarget
-     */
-    private void paintGrid(IGraphicsTarget target) {
-        if ((grid != null)
-                && (getCapability(OutlineCapability.class).isOutlineOn())) {
-            try {
-                target.drawWireframeShape(grid, new RGB(255, 255, 255),
-                        getCapability(OutlineCapability.class)
-                                .getOutlineWidth(),
-                        getCapability(OutlineCapability.class).getLineStyle());
-            } catch (VizException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Load the IWireframeShape
-     * 
-     * @param target
-     *            The IGraphicsTarget
-     * @return The IWireframeShape
-     */
-    private IWireframeShape loadGrid(IGraphicsTarget target) {
-        int x1;
-        int y1;
-        int x2;
-        int y2;
-
-        if (hrapExtent == null) {
-            try {
-                hrapExtent = HRAPCoordinates.getHRAPCoordinates();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        IWireframeShape grid = target.createWireframeShape(false, descriptor);
-
-        HRAP hrap = HRAP.getInstance();
-        try {
-            HRAPSubGrid subGrid = hrap.getHRAPSubGrid(hrapExtent);
-            int minX = subGrid.getExtent().x;
-            int minY = subGrid.getExtent().y;
-            int nx = subGrid.getNx();
-            int ny = subGrid.getNy();
-            int maxX = minX + nx;
-            int maxY = minY + ny;
-
-            // Vertical Lines
-            for (int i = 0; i < nx + 1; i++) {
-                x1 = minX + i;
-                y1 = minY;
-                x2 = minX + i;
-                y2 = maxY;
-                Coordinate[] ca = new Coordinate[2];
-                ca[0] = new Coordinate(x1, y1);
-                ca[0] = hrap.gridCoordinateToLatLon(ca[0],
-                        PixelOrientation.CENTER);
-                ca[1] = new Coordinate(x2, y2);
-                ca[1] = hrap.gridCoordinateToLatLon(ca[1],
-                        PixelOrientation.CENTER);
-                grid.addLineSegment(ca);
-            }
-
-            // Horizontal lines
-            for (int i = 0; i < ny + 1; i++) {
-                x1 = minX;
-                y1 = minY + i;
-                x2 = maxX;
-                y2 = minY + i;
-
-                Coordinate[] ca = new Coordinate[2];
-                ca[0] = new Coordinate(x1, y1);
-                ca[0] = hrap.gridCoordinateToLatLon(ca[0],
-                        PixelOrientation.CENTER);
-                ca[1] = new Coordinate(x2, y2);
-                ca[1] = hrap.gridCoordinateToLatLon(ca[1],
-                        PixelOrientation.CENTER);
-                grid.addLineSegment(ca);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return grid;
-    }
-
     @Override
     protected void disposeInternal() {
         if (grid != null) {
             grid.dispose();
+            grid = null;
         }
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        grid = loadGrid(target);
+        grid = target.createWireframeShape(false, descriptor);
+        try {
+            GridGeometry2D gridGeometry = MapUtil
+                    .getGridGeometry(new HRAPSubGrid(HRAPCoordinates
+                            .getHRAPCoordinates()));
+            MathTransform mt = TransformFactory.gridCellToGridCell(
+                    gridGeometry, PixelInCell.CELL_CORNER,
+                    descriptor.getGridGeometry(), PixelInCell.CELL_CENTER);
+            GridEnvelope ge = gridGeometry.getGridRange();
+            int minX = ge.getLow(0);
+            int width = ge.getSpan(0) + 1;
+            int minY = ge.getLow(1);
+            int height = ge.getSpan(1) + 1;
+
+            for (int x = 0; x < width; ++x) {
+                double[][] line = new double[height][];
+                for (int y = 0; y < height; ++y) {
+                    double[] out = new double[2];
+                    mt.transform(new double[] { minX + x, minY + y }, 0, out,
+                            0, 1);
+                    line[y] = out;
+                }
+                grid.addLineSegment(line);
+            }
+
+            for (int y = 0; y < height; ++y) {
+                double[][] line = new double[height][];
+                for (int x = 0; x < width; ++x) {
+                    double[] out = new double[2];
+                    mt.transform(new double[] { minX + x, minY + y }, 0, out,
+                            0, 1);
+                    line[x] = out;
+                }
+                grid.addLineSegment(line);
+            }
+
+            grid.compile();
+        } catch (Exception e) {
+            throw new VizException("Error creating HRAP Overlay", e);
+        }
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        paintGrid(target);
+        if (grid != null) {
+            OutlineCapability outline = getCapability(OutlineCapability.class);
+            if (outline.isOutlineOn()) {
+                target.drawWireframeShape(grid, new RGB(255, 255, 255),
+                        outline.getOutlineWidth(), outline.getLineStyle());
+            }
+        }
     }
 
     @Override

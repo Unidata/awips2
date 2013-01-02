@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.mpe.ui.dialogs.timelapse;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,7 +34,9 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -178,10 +181,17 @@ public class TimeLapseDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                int hours = Integer.parseInt(hourSpinner.getText());
-                MPEDisplayManager man = MPEDisplayManager.getCurrent();
-                man.setTimeLapseHours(hours);
-                shell.dispose();
+                IDisplayPaneContainer container = EditorUtil
+                        .getActiveVizContainer();
+                if (container != null) {
+                    int hours = Integer.parseInt(hourSpinner.getText());
+                    MPEDisplayManager.startLooping(container, hours);
+                    close();
+                } else {
+                    MessageDialog.openError(getShell(),
+                            "Could not start time lapse",
+                            "No editor active to start time lapse on");
+                }
             }
         });
 

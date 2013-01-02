@@ -22,95 +22,49 @@ package com.raytheon.viz.mpe.ui.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 
-import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.datastructure.LoopProperties;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.timelapse.TimeLapseDlg;
-import com.raytheon.viz.mpe.ui.rsc.TimeLapseResource;
-import com.raytheon.viz.ui.EditorUtil;
 
 /**
- * Action class for MPE's Time Lapse Function.
+ * Time lapse action, can start/stop time lapsing in MPE
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 10, 2009            mpduff     Initial creation
+ * Dec 7, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
- * @author mpduff
+ * @author mschenke
  * @version 1.0
  */
-
 public class TimeLapseAction extends AbstractHandler {
-    private static AbstractVizResource<?, ?> prevRsc = null;
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        MPEDisplayManager dman = MPEDisplayManager.getCurrent();
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-
-        IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
-        if (container != null) {
-            LoopProperties loopProps = container.getLoopProperties();
-            int frameRate = Integer.parseInt(AppsDefaults.getInstance()
-                    .getToken("hydroview_mpe_timelapse", "1000"));
-            loopProps.setFwdFrameTime(frameRate);
-
-            if (!dman.isTimeLapseMode()) {
-                prevRsc = dman.getDisplayedResource();
-            }
-
-            String selection = event.getParameter("Hour");
-            if (selection.equalsIgnoreCase("6")) {
-                dman.setTimeLapseHours(6);
-                dman.setTimeLapseMode(true);
-                loopProps.setLooping(true);
-                dman.displayTimeLapse();
-            } else if (selection.equalsIgnoreCase("12")) {
-                dman.setTimeLapseHours(12);
-                dman.setTimeLapseMode(true);
-                loopProps.setLooping(true);
-                dman.displayTimeLapse();
-            } else if (selection.equalsIgnoreCase("24")) {
-                dman.setTimeLapseHours(24);
-                dman.setTimeLapseMode(true);
-                loopProps.setLooping(true);
-                dman.displayTimeLapse();
-            } else if (selection.equalsIgnoreCase("O")) {
-                TimeLapseDlg tld = new TimeLapseDlg(shell);
-                tld.open();
-                dman.setTimeLapseMode(true);
-                loopProps.setLooping(true);
-                dman.displayTimeLapse();
-            } else if (selection.equalsIgnoreCase("E")) {
-                dman.setTimeLapseHours(0);
-                dman.setTimeLapseMode(false);
-                loopProps.setLooping(false);
-                IRenderableDisplay display = MPEDisplayManager.getCurrent()
-                        .getRenderableDisplay();
-                IDescriptor descriptor = display.getDescriptor();
-                TimeLapseResource timeLapseRsc = (TimeLapseResource) dman
-                        .getDisplayedResource();
-                if (descriptor.getResourceList().containsRsc(timeLapseRsc)) {
-                    descriptor.getResourceList().removeRsc(timeLapseRsc);
-                }
-                if (timeLapseRsc != null) {
-                    timeLapseRsc.dispose();
-                }
-                dman.setDisplayedResource(prevRsc);
-                display.getContainer().refresh();
+        IEditorPart part = HandlerUtil.getActiveEditor(event);
+        if (part instanceof IDisplayPaneContainer) {
+            IDisplayPaneContainer container = (IDisplayPaneContainer) part;
+            String hourId = event.getParameter("Hour");
+            if ("E".equals(hourId)) {
+                // End looping
+                MPEDisplayManager.stopLooping(container);
+            } else if ("O".equals(hourId)) {
+                // Open looping dialog
+                TimeLapseDlg dialog = new TimeLapseDlg(part.getEditorSite()
+                        .getShell());
+                dialog.open();
+            } else {
+                // Loop for specified number of hours
+                int hour = Integer.parseInt(hourId);
+                MPEDisplayManager.startLooping(container, hour);
             }
         }
 

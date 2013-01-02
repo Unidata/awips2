@@ -22,7 +22,6 @@ package com.raytheon.viz.mpe.ui.rsc;
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
@@ -38,7 +37,6 @@ import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
@@ -56,6 +54,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences;
@@ -87,7 +86,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class RadarCoverageResource extends
-        AbstractVizResource<XmrgResourceData, MapDescriptor> implements
+        AbstractVizResource<GenericResourceData, MapDescriptor> implements
         IMpeResource {
     private static final String RADAR_COVERAGE = "Radar Coverage Map";
 
@@ -423,36 +422,6 @@ public class RadarCoverageResource extends
             contourDisplay.dispose();
             contourDisplay = null;
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
-    @Override
-    public String inspect(ReferencedCoordinate coord) throws VizException {
-        Map<String, Object> Values = interrogate(coord);
-        if (Values == null) {
-            return "NO DATA";
-        } else {
-            return Values.get("Value").toString();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
-    @Override
-    public Map<String, Object> interrogate(ReferencedCoordinate coord)
-            throws VizException {
-        return null;
     }
 
     /**
