@@ -124,8 +124,6 @@
                                 <mapName>State/County Boundaries</mapName>
                             </resourceData>
                         </resource>
-                        <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
-                        <numberOfFrames>12</numberOfFrames>
                         <gridGeometry envelopeMaxY="4023747.8031403385" envelopeMinY="-535763.0304681085" envelopeMaxX="2889016.9103023135" envelopeMinX="-3217360.2108624117" rangeY="0 9999" rangeX="0 13391">
                             <CRS>PROJCS["Lambert_Conformal_Conic_1SP", 
   GEOGCS["WGS84(DD)", 

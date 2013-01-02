@@ -270,7 +270,7 @@ public class GageTableDataManager {
         MPEDataManager mpeDataManager = MPEDataManager.getInstance();
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
 
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
         String radarId = "ZZZ";
         HRAPSubGrid subGrid = null;
         DisplayFieldData dataType = DisplayFieldData.Index;
@@ -337,7 +337,7 @@ public class GageTableDataManager {
     public short[][] getXmrgData(String path, String type, Rectangle extent)
             throws IOException {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
 
         if (type.equalsIgnoreCase(GageTableProductManager.MPE_AVGRMOSAIC)) {
             if ((avgrMosaic == null) || !currentDate.equals(dataDate)) {
@@ -926,7 +926,7 @@ public class GageTableDataManager {
             String cv_use = dataType.getCv_use();
             String dirname = appsDefaults.getToken(dataType.getDirToken());
             String fname = FileUtil.join(dirname,
-                    cv_use + sdf.format(displayManager.getCurrentDate()) + "z");
+                    cv_use + sdf.format(displayManager.getCurrentEditDate()) + "z");
 
             Rectangle extent = dataManager.getHRAPExtent();
 
@@ -966,7 +966,7 @@ public class GageTableDataManager {
      */
     public List<MPEGageData> readGageData() {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
 
         if ((mpeGageDataList == null) || !currentDate.equals(dataDate)) {
             MPEDataManager mpeDataManager = MPEDataManager.getInstance();
