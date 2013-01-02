@@ -37,8 +37,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
+import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -275,22 +276,29 @@ public class DeletePolygonDlg extends CaveSWTDialog {
     }
 
     /**
-     * Populate the dialog.
+     * Populate the dialog with polygon edits from {@link PolygonEditManager}
      */
     private void populateDlg() {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        Date currentDate = displayManager.getCurrentDate();
-        PolygonDataManager polyManager = PolygonDataManager.getInstance();
-        dateTimeTF.setText(sdf.format(currentDate));
+        Date editDate = displayManager.getCurrentEditDate();
+        DisplayFieldData fieldData = displayManager.getDisplayFieldType();
+        dateTimeTF.setText(sdf.format(editDate));
 
         polygonListBox.removeAll();
 
         String type = displayManager.getDisplayFieldType().getCv_use()
                 .toUpperCase();
         productTF.setText(type);
+        polygonList = PolygonEditManager.getPolygonEdits(fieldData, editDate);
+        recreatePolygonListBox();
+    }
 
-        // Get the polygons
-        polygonList = polyManager.getPolygonList();
+    /**
+     * Recreates the polygonListBox based on polygonList field
+     */
+    private void recreatePolygonListBox() {
+        int[] selected = polygonListBox.getSelectionIndices();
+        polygonListBox.removeAll();
         for (int i = 0; i < polygonList.size(); i++) {
             RubberPolyData data = polygonList.get(i);
             String number = String.valueOf(i + 1);
@@ -304,76 +312,53 @@ public class DeletePolygonDlg extends CaveSWTDialog {
                 persist = "T";
             }
 
-            String action = null;
-            if (data.isLower_flag()) {
-                action = "Lower";
-            } else if (data.isRaise_flag()) {
-                action = "Raise";
-            } else if (data.isScale_flag()) {
-                action = "Scale";
-            } else if (data.isSet_flag()) {
-                action = "Set";
-            } else if (data.isSnow_flag()) {
-                action = "Snow";
-            } else {
-                action = "Sub";
-            }
-
-            if (action.equals("Sub")) {
+            PolygonEditAction action = data.getEditAction();
+            if (action == PolygonEditAction.SUB) {
                 String value = data.getSubDrawSource().getCv_use();
                 polygonListBox.add(String.format(format2, number, displayed,
-                        persist, action, value));
+                        persist, action.toPrettyName(), value));
             } else {
-                double value = data.getPrecipValue() / 100;
+                double value = data.getPrecipValue();
                 polygonListBox.add(String.format(format, number, displayed,
-                        persist, action, value));
+                        persist, action.toPrettyName(), value));
             }
         }
+        int numGood = 0;
+        for (int idx : selected) {
+            if (idx >= 0 && idx < polygonListBox.getItemCount()) {
+                numGood += 1;
+            }
+        }
+        int[] newSelected = new int[numGood];
+        int i = 0;
+        for (int idx : selected) {
+            if (idx >= 0 && idx < polygonListBox.getItemCount()) {
+                newSelected[i++] = idx;
+            }
+        }
+        polygonListBox.select(newSelected);
     }
 
     /**
      * Delete the selected polygon.
      */
     private void delete() {
-        PolygonDataManager dataMgr = PolygonDataManager.getInstance();
-
         // Make sure a selection has been made.
         if (polygonListBox.getSelectionIndex() < 0) {
             return;
         }
+        // Remove selected from list and apply
         polygonList.remove(polygonListBox.getSelectionIndex());
-        dataMgr.setPolygonList(polygonList);
-
-        polygonListBox.removeAll();
-        populateDlg();
-
-        PrecipPolyUtils.writePolygons();
-
-        applyPolygons();
+        applyPolygonList();
     }
 
     /**
      * Delete all polygons.
      */
     private void deleteAll() {
-        PolygonDataManager dataMgr = PolygonDataManager.getInstance();
-
-        // Clear the list and list widget
+        // Clear the list and apply
         polygonList.clear();
-        polygonListBox.removeAll();
-
-        // Update the xmrg data by rereading the file
-        XmrgResource xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                .getDisplayedResource();
-        xmrgRsc.updateXmrg(true);
-
-        // MPEDisplayManager.getCurrent().getPolyResource()
-        // .setNumDrawPrecipPoly(0);
-        // TODO: Figure out what to do
-
-        // Remove the polygon file since all polygons were deleted
-        PrecipPolyUtils.writePolygons();
-        dataMgr.setPolygonList(null);
+        applyPolygonList();
     }
 
     /**
@@ -386,28 +371,19 @@ public class DeletePolygonDlg extends CaveSWTDialog {
      *            The polygon to display/undisplay
      */
     private void display(boolean display, int polygon) {
-        PolygonDataManager dataMgr = PolygonDataManager.getInstance();
-        if (polygon != -1) {
-            dataMgr.getPolygonList().get(polygon).setVisible(display);
-            populateDlg();
+        if (polygon >= 0 && polygon < polygonList.size()) {
+            RubberPolyData data = polygonList.get(polygon);
+            data.setVisible(display);
+            applyPolygonList();
         }
-        applyPolygons();
     }
 
-    /**
-     * Apply all of the RubberPolyData modifications to the data
-     */
-    private void applyPolygons() {
-        PolygonDataManager dataMgr = PolygonDataManager.getInstance();
-        XmrgResource xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                .getDisplayedResource();
-        xmrgRsc.updateXmrg(true);
-
-        for (RubberPolyData polyData : dataMgr.getPolygonList()) {
-            PrecipPolyUtils.writeDrawPrecipData(polyData, false);
-        }
-
-        xmrgRsc.updateXmrg(false);
-        xmrgRsc.issueRefresh();
+    private void applyPolygonList() {
+        MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
+        DisplayFieldData fieldData = displayManager.getDisplayFieldType();
+        Date editDate = displayManager.getCurrentEditDate();
+        PolygonEditManager.writePolygonEdits(fieldData, editDate, polygonList);
+        recreatePolygonListBox();
     }
+
 }

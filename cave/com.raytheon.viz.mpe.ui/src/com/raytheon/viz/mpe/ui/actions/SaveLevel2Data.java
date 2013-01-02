@@ -2543,7 +2543,7 @@ public class SaveLevel2Data {
     private void cancel_dbase() {
         // String qcarea = DailyQcUtils.currentQcArea;
         qdays = DailyQcUtils.qcDays;
-        currntDate = MPEDisplayManager.getCurrent().getCurrentDate();
+        currntDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
 
         /* The datasets have all been QC'd and saved to the database. */
         /* Go ahead and load the new DailyQC dataset. */
