@@ -25,11 +25,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEPolygonResource;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.input.EditableManager;
 
 /**
@@ -51,11 +52,12 @@ public class DrawPolygonAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart activeEditor = (IEditorPart) EditorUtil
-                .getActiveEditorAs(IDisplayPaneContainer.class);
-        if (activeEditor != null) {
-            IDisplayPane first = ((IDisplayPaneContainer) activeEditor)
-                    .getDisplayPanes()[0];
+        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        if (activeEditor instanceof IDisplayPaneContainer) {
+            IDisplayPaneContainer container = (IDisplayPaneContainer) activeEditor;
+            MPEDisplayManager.stopLooping(container);
+            // Can only draw on top display when in split screen
+            IDisplayPane first = container.getDisplayPanes()[0];
             List<MPEPolygonResource> rscs = first.getDescriptor()
                     .getResourceList()
                     .getResourcesByTypeAsType(MPEPolygonResource.class);

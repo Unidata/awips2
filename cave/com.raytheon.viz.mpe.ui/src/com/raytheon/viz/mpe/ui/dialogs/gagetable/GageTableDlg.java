@@ -88,6 +88,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
+import com.raytheon.viz.mpe.ui.IEditTimeChangedListener;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableColumnData;
 import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSettings;
@@ -109,7 +110,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * @version 1.0
  */
 
-public class GageTableDlg extends JFrame {
+public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     private static final long serialVersionUID = -4230332238083384449L;
 
     /**
@@ -200,6 +201,8 @@ public class GageTableDlg extends JFrame {
      */
     private final Map<String, GageTableRowData> editMap = new HashMap<String, GageTableRowData>();
 
+    private MPEDisplayManager displayManager;
+
     /**
      * Constructor.
      */
@@ -230,8 +233,8 @@ public class GageTableDlg extends JFrame {
 
         readSettingsFile();
 
-        MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        currentDate = displayManager.getCurrentDate();
+        displayManager = MPEDisplayManager.getCurrent();
+        currentDate = displayManager.getCurrentEditDate();
 
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
@@ -271,9 +274,9 @@ public class GageTableDlg extends JFrame {
         setLocation(xCoord - (bounds.width / 2), yCoord - (bounds.height / 2));
 
         setVisible(true);
-//        tableModel.refreshTable();
+        // tableModel.refreshTable();
 
-        displayManager.setGageTableDlgReference(this);
+        displayManager.registerEditTimeChangedListener(this);
     }
 
     /**
@@ -551,7 +554,6 @@ public class GageTableDlg extends JFrame {
             tableModel = null;
             setVisible(false);
             GageTableDataManager.setNull();
-            MPEDisplayManager.getCurrent().setGageTableDlgReference(null);
             dispose();
         }
     }
@@ -1366,7 +1368,6 @@ public class GageTableDlg extends JFrame {
         setVisible(false);
         tableModel = null;
         GageTableDataManager.setNull();
-        MPEDisplayManager.getCurrent().setGageTableDlgReference(null);
         dispose();
     }
 
@@ -1427,4 +1428,30 @@ public class GageTableDlg extends JFrame {
         GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
         GageTableProductManager.getInstance().fireUpdateEvent(event);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.mpe.ui.IEditTimeChangedListener#editTimeChanged(java
+     * .util.Date, java.util.Date)
+     */
+    @Override
+    public void editTimeChanged(Date oldTime, Date newTime) {
+        updateDate(newTime);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.Window#dispose()
+     */
+    @Override
+    public void dispose() {
+        if (displayManager != null) {
+            displayManager.unregisterEditTimeChangedListener(this);
+        }
+        super.dispose();
+    }
+
 }
