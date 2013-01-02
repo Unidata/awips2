@@ -19,6 +19,10 @@
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
@@ -26,12 +30,19 @@ import javax.measure.converter.UnitConverter;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
+import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.geospatial.ISpatialQuery;
+import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.geospatial.SpatialQueryResult;
+import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -43,6 +54,7 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters.LabelEntry;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -51,8 +63,13 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
 import com.raytheon.uf.viz.core.sampling.ISamplingResource;
+import com.raytheon.viz.mpe.MPEDateFormatter;
+import com.raytheon.viz.mpe.MPEInterrogationConstants;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
@@ -62,6 +79,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * The MPE Legend Resource
@@ -81,8 +99,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class MPELegendResource extends
-        AbstractVizResource<GenericResourceData, IDescriptor> implements
-        IMpeResource, IContextMenuContributor, ISamplingResource {
+        AbstractLegendResource<GenericResourceData> implements IMpeResource,
+        IContextMenuContributor, ISamplingResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MPELegendResource.class);
 
@@ -121,6 +139,8 @@ public class MPELegendResource extends
         }
     };
 
+    private static final String LAT_LON_FORMAT_STR = "%5.2f";
+
     private MPEDisplayManager displayMgr;
 
     private double scale;
@@ -130,8 +150,6 @@ public class MPELegendResource extends
     private double textSpace;
 
     private AbstractVizResource<?, ?> rsc;
-
-    private DisplayFieldData otherDispType;
 
     private final String rfc = MPEDataManager.getInstance().getRFC();
 
@@ -148,6 +166,9 @@ public class MPELegendResource extends
     private MPEFontFactory fontFactory;
 
     private IFont font;
+
+    private SimpleDateFormat legendFormat = MPEDateFormatter
+            .createSimpleDateFormat(MPEDateFormatter.MMM_dd_yyyy_HH);
 
     public MPELegendResource(GenericResourceData rscData,
             LoadProperties loadProps) {
@@ -197,7 +218,7 @@ public class MPELegendResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         // Fonts are shared and cached, no need to init or dispose
-        font = fontFactory.getMPEFont(displayMgr.getFontState());
+        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
         IExtent screenExtent = paintProps.getView().getExtent();
 
         scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
@@ -226,35 +247,21 @@ public class MPELegendResource extends
                     screenExtent.getMinX(), screenExtent.getMaxX(), yMax,
                     textHeight, padding);
         } else {
-            yMax = drawMpeLegend(target, paintProps.getAlpha(),
-                    screenExtent.getMinX(), screenExtent.getMaxX(), yMax,
-                    textHeight, padding);
+            yMax = drawMpeLegend(target, paintProps, screenExtent.getMinX(),
+                    screenExtent.getMaxX(), yMax, textHeight, padding);
         }
 
         target.setupClippingPlane(screenExtent);
+        super.paintInternal(target, paintProps);
     }
 
-    private double drawMpeLegend(IGraphicsTarget target, float alpha,
-            double xMin, double xMax, double yMax, double textHeight,
-            double padding) throws VizException {
+    private double drawMpeLegend(IGraphicsTarget target,
+            PaintProperties paintProps, double xMin, double xMax, double yMax,
+            double textHeight, double padding) throws VizException {
+        // TODO: Pass in expected resource
+        float alpha = paintProps.getAlpha();
         double legendHeight = 0;
-        rsc = displayMgr.getDisplayedResource();
-
-        if (rsc == null) {
-            for (ResourcePair pair : descriptor.getResourceList()) {
-                if (pair.getResource() instanceof XmrgResource) {
-
-                    displayMgr = ((XmrgResource) pair.getResource())
-                            .getDisplayMgr();
-                    rsc = displayMgr.getDisplayedResource();
-                    if (!rsc.getStatus().equals(ResourceStatus.INITIALIZED)) {
-                        rsc.init(null);
-                    }
-                }
-            }
-        }
-
-        otherDispType = displayMgr.getOtherDispType();
+        rsc = displayMgr.getDisplayedFieldResource();
 
         if (rsc != null) {
             if (rsc.getStatus().equals(ResourceStatus.INITIALIZED)) {
@@ -312,15 +319,20 @@ public class MPELegendResource extends
                 target.drawColorRamp(cmap);
                 y1 += cmapHeight;
 
-                if (!(otherDispType == null)
-                        && (otherDispType.equals(DisplayFieldData.multiHour))) {
+                int accum = 0;
+                if (rsc instanceof MPEFieldResource) {
+                    // IMPEResource.getAccumulationInterval()?
+                    accum = ((MPEFieldResource) rsc).getResourceData()
+                            .getAccumulationInterval();
+                }
 
+                String dateStr = legendFormat.format(paintProps.getFramesInfo()
+                        .getTimeForResource(rsc).getRefTime())
+                        + "z";
+                if (accum > 0) {
                     String qpeString = String.format(
-                            "%d hr Accumulated %s For %s Ending %s (in)",
-                            MPEDisplayManager.getCurrent().getAccum_interval(),
-                            MPEDisplayManager.getCurrent()
-                                    .getDisplayFieldType().toString(), rfc,
-                            MPEDisplayManager.getCurrent().getCurrentDate());
+                            "%d hr Accumulated %s For %s Ending %sz (in)",
+                            accum, rsc.getName(), rfc, dateStr);
 
                     double xLoc = xMin + padding;
                     strings.setText(qpeString, textColor);
@@ -329,7 +341,9 @@ public class MPELegendResource extends
                     strings.setCoordinates(xLoc, y1);
                     target.drawStrings(strings);
                 } else {
-                    strings.setText(rsc.getName(), textColor);
+                    String fieldString = String.format("%s site=%s %s",
+                            dateStr, rfc, rsc.getName());
+                    strings.setText(fieldString, textColor);
                     double xLoc = xMin + padding;
                     strings.horizontalAlignment = HorizontalAlignment.LEFT;
                     strings.verticallAlignment = VerticalAlignment.TOP;
@@ -347,6 +361,7 @@ public class MPELegendResource extends
             double padding) throws VizException {
         double legendHeight = 0;
 
+        // TODO: pass in expected resource type
         rsc = displayMgr.getDisplayedResource();
 
         double cmapHeight = textHeight * 1.25;
@@ -441,7 +456,8 @@ public class MPELegendResource extends
         RGB textColor = new RGB(255, 255, 255);
         DrawableString strings = new DrawableString("", textColor);
         strings.font = font;
-        if (isSampling() && rsc != null) {
+        if (isSampling() && rsc != null
+                && rsc.getStatus() == ResourceStatus.INITIALIZED) {
             legendHeight = textSpace + 2 * padding;
             width = (xMax - xMin)
                     / 25
@@ -451,7 +467,6 @@ public class MPELegendResource extends
                     - legendHeight, yMax);
             target.drawShadedRect(legendExtent, new RGB(0, 0, 0), alpha, null);
 
-            Map<String, Object> values = getMpeInfo(rsc);
             String hrapX = "9999";
             String hrapY = "9999";
             String value = "-----";
@@ -460,14 +475,41 @@ public class MPELegendResource extends
             String lon = "99.99";
             String lat = "9999.99";
 
+            Map<String, Object> values = getMpeInfo(rsc);
             if (values != null) {
-                hrapX = values.get("X").toString();
-                hrapY = values.get("Y").toString();
-                value = values.get("Value").toString();
-                county = values.get("County").toString();
-                basin = values.get("Basin").toString();
-                lon = values.get("Lon").toString();
-                lat = values.get("Lat").toString();
+                String gridValue = (String) values
+                        .get(MPEInterrogationConstants.INTERROGATE_VALUE_LABEL);
+                if (gridValue != null) {
+                    value = gridValue;
+                }
+            }
+
+            values = getMpeInfo(this);
+            if (values != null) {
+                Coordinate gridCell = (Coordinate) values
+                        .get(MPEInterrogationConstants.INTERROGATE_GRID_CELL);
+                if (gridCell != null) {
+                    hrapX = Integer.toString((int) gridCell.x);
+                    hrapY = Integer.toString((int) gridCell.y);
+                }
+
+                Coordinate latLon = (Coordinate) values
+                        .get(MPEInterrogationConstants.INTERROGATE_LAT_LON);
+                if (latLon != null) {
+                    lon = String.format(LAT_LON_FORMAT_STR, latLon.x);
+                    lat = String.format(LAT_LON_FORMAT_STR, latLon.y);
+                }
+
+                String countyValue = (String) values
+                        .get(MPEInterrogationConstants.INTERROGATE_COUNTY);
+                if (countyValue != null) {
+                    county = countyValue;
+                }
+                String basinValue = (String) values
+                        .get(MPEInterrogationConstants.INTERROGATE_BASIN);
+                if (basinValue != null) {
+                    basin = basinValue;
+                }
             }
 
             double x = xMin + padding;
@@ -546,6 +588,57 @@ public class MPELegendResource extends
         }
         textColor = null;
         return yMax - legendHeight;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
+     * .uf.common.geospatial.ReferencedCoordinate)
+     */
+    @Override
+    public Map<String, Object> interrogate(ReferencedCoordinate coord)
+            throws VizException {
+        try {
+            Map<String, Object> values = new HashMap<String, Object>();
+            Coordinate latLon = coord.asLatLon();
+
+            // Get hrap grid cell
+            Coordinate hrapCell = coord.asGridCell(HRAP.getInstance()
+                    .getGridGeometry(), PixelInCell.CELL_CENTER);
+            values.put(MPEInterrogationConstants.INTERROGATE_GRID_CELL,
+                    hrapCell);
+
+            values.put(MPEInterrogationConstants.INTERROGATE_LAT_LON, latLon);
+
+            ISpatialQuery query = SpatialQueryFactory.create();
+
+            com.vividsolutions.jts.geom.Point point = new GeometryFactory()
+                    .createPoint(latLon);
+
+            SpatialQueryResult[] results = query.query("county",
+                    new String[] { "countyname" }, point, null, false,
+                    SearchMode.WITHIN);
+
+            String county = "Not Defined";
+            if ((results != null) && (results.length > 0)) {
+                county = (String) results[0].attributes.get("countyname");
+            }
+            values.put(MPEInterrogationConstants.INTERROGATE_COUNTY, county);
+
+            results = query.query("basins", new String[] { "name" }, point,
+                    null, false, SearchMode.WITHIN);
+            String basin = "Not Defined";
+            if ((results != null) && (results.length > 0)) {
+                basin = (String) results[0].attributes.get("name");
+            }
+            values.put(MPEInterrogationConstants.INTERROGATE_BASIN, basin);
+
+            return values;
+        } catch (Exception e) {
+            throw new VizException("Error interrogating MPE legend resource", e);
+        }
     }
 
     private Map<String, Object> getMpeInfo(AbstractVizResource<?, ?> resource) {
@@ -705,6 +798,68 @@ public class MPELegendResource extends
     public void setSampling(boolean sampling) {
         displayInfo = sampling;
         issueRefresh();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.legend.ILegendDecorator#getLegendData(com.raytheon
+     * .uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public LegendEntry[] getLegendData(IDescriptor descriptor) {
+        FramesInfo frameInfo = descriptor.getFramesInfo();
+        List<LegendData> labels = new ArrayList<LegendData>();
+        ResourceList resourceList = descriptor.getResourceList();
+        if (resourceList != null) {
+            for (int i = 0; i < resourceList.size(); i++) {
+                ResourcePair resourcePair = resourceList.get(i);
+                // See if resource is a system resource (does not
+                // participate in legend)
+                boolean system = resourcePair.getProperties()
+                        .isSystemResource();
+                // See if resource is visible
+                boolean vis = resourcePair.getProperties().isVisible();
+                AbstractVizResource<?, ?> rsc = resourcePair.getResource();
+                if (system) {
+                    continue;
+                } else {
+                    LegendData legend = new LegendData();
+                    if (rsc == null) {
+                        continue;
+                    } else if (rsc.getStatus() != ResourceStatus.INITIALIZED) {
+                        continue;
+                    } else {
+                        legend.label = rsc.getName();
+                        legend.resource = resourcePair;
+                        if (rsc.isTimeAgnostic() == false) {
+                            DataTime date = frameInfo.getTimeForResource(rsc);
+                            String time = " No Data Available";
+                            if (date != null) {
+                                time = " - " + date.getLegendString() + "z";
+                            }
+                            legend.label += time;
+                        }
+                    }
+
+                    if (!vis) {
+                        legend.color = new RGB(50, 50, 50);
+                    } else {
+                        legend.color = rsc.getCapability(
+                                ColorableCapability.class).getColor();
+                    }
+                    labels.add(legend);
+                }
+            }
+        }
+
+        LegendEntry[] entries = new LegendEntry[labels.size()];
+        for (int i = 0; i < entries.length; ++i) {
+            entries[i] = new LegendEntry();
+            entries[i].legendParts = new LegendData[] { labels.get(i) };
+        }
+        return entries;
     }
 
 }

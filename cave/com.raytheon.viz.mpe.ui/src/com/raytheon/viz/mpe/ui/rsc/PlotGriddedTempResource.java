@@ -67,6 +67,7 @@ import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
+import com.raytheon.viz.hydrocommon.resource.XmrgResourceData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
