@@ -19,16 +19,10 @@
 # further licensing information.
 ##
 
-export INIT_MEM=512 # in Meg
-
-if [ $HIGH_MEM_FLAG == "on" ]; then
-    export MAX_MEM=1536 # in Meg
-else
-    export MAX_MEM=896 # in Meg
-fi
+export MAX_MEM=1536 # in Meg
 export METADATA_POOL_MIN=10
-export EDEX_DEBUG_PORT=5011
-export EDEX_JMX_PORT=1622
+export EDEX_DEBUG_PORT=5009
+export EDEX_JMX_PORT=1620
 export LOG4J_CONF=log4j-registry.xml
-export MGMT_PORT=9607
+export MGMT_PORT=9605
 
