@@ -8,6 +8,57 @@
       </layout> 
    </appender>
 
+   <!-- harvester log --> 
+   <appender name="HarvesterLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-harvester-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+   
+   <!-- BandwidthManager log --> 
+   <appender name="BandwidthManagerLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-bandwidth-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender> 
+
+   <!-- registry log --> 
+   <appender name="RegistryLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-registry-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender> 
+
+   <!-- Purge log -->
+   <appender name="PurgeLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-purge-%d{yyyyMMdd}.log"/>
+      </rollingPolicy>
+
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/>
+      </layout>
+   </appender>
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.edex.log.ThreadBasedAppender">
+      <param name="ThreadPatterns" value="HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*"/>
+      <param name="DefaultAppender" value="console"/>
+      <appender-ref ref="console"/>
+      <appender-ref ref="HarvesterLog"/>
+   </appender>
+
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
@@ -62,9 +113,44 @@
       <level value="WARN" />
    </logger>
 
+   <logger name="com.raytheon.uf.common.datadelivery.registry" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="RegistryLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.common.registry" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="RegistryLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.edex.registry" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="RegistryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.edex.ebxml" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="RegistryLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.edex.datadelivery.harvester.purge" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="PurgeLog"/>
+   </logger>
+
    <!-- default logging --> 
    <root> 
       <level value="INFO"/>
-      <appender-ref ref="console"/>
+      <appender-ref ref="ThreadBasedLog"/>
     </root> 
 </log4j:configuration> 
