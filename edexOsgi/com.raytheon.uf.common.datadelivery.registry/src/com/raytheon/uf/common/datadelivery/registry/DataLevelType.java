@@ -42,7 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class DataLevelType implements ISerializableObject, Serializable {
 
     private static final long serialVersionUID = -6953092339309118122L;
-    
+
     /**
      * Unique key for the object.
      */
@@ -64,6 +64,19 @@ public class DataLevelType implements ISerializableObject, Serializable {
     public DataLevelType(LevelType levelType) {
         this.type = levelType;
         layer = new ArrayList<Double>();
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param copy
+     */
+    public DataLevelType(DataLevelType copy) {
+        this.type = copy.type;
+        this.unit = copy.unit;
+        if (copy.layer != null) {
+            this.layer = new ArrayList<Double>(copy.layer);
+        }
     }
 
     @XmlAttribute
@@ -268,7 +281,7 @@ public class DataLevelType implements ISerializableObject, Serializable {
     public String getDescription() {
         return (type != null) ? type.getDescription() : null;
     }
-    
+
     /**
      * A unique key for this object.
      * 
@@ -278,7 +291,7 @@ public class DataLevelType implements ISerializableObject, Serializable {
         if (this.key == null) {
             this.key = this.type + this.unit;
         }
-        
+
         return key;
     }
 
