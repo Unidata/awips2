@@ -27,6 +27,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 import com.raytheon.viz.ui.widgets.duallist.IUpdate;
@@ -50,10 +51,12 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  */
 
 public class LevelParameterSelection extends Composite implements IUpdate {
-    
+
     private final List<String> levelList;
 
     private final List<String> paramList;
+
+    private final DataLevelType levelType;
 
     /** Dual list for levels */
     private DualList dualLevelList;
@@ -64,7 +67,7 @@ public class LevelParameterSelection extends Composite implements IUpdate {
     private final ISubset callback;
 
     private final String id;
-     
+
     /** Flag to determine if tab has changed */
     private boolean isDirty = false;
 
@@ -73,15 +76,17 @@ public class LevelParameterSelection extends Composite implements IUpdate {
      * 
      * @param parent
      * @param style
+     * @param levelType
      * @param levelList
      * @param paramList
      * @param callback
      * @param id
      */
     public LevelParameterSelection(Composite parent, int style,
-            List<String> levelList, List<String> paramList, ISubset callback,
-            String id) {
+            DataLevelType levelType, List<String> levelList,
+            List<String> paramList, ISubset callback, String id) {
         super(parent, style);
+        this.levelType = levelType;
         this.levelList = levelList;
         this.paramList = paramList;
         this.callback = callback;
@@ -117,7 +122,7 @@ public class LevelParameterSelection extends Composite implements IUpdate {
         paramConfig.setListWidth(100);
         paramConfig.setShowUpDownBtns(false);
         paramConfig.setFullList(paramList);
-        
+
         dualParamList = new DualList(this, SWT.NONE, paramConfig, this);
     }
 
@@ -130,7 +135,8 @@ public class LevelParameterSelection extends Composite implements IUpdate {
     @Override
     public void hasEntries(boolean entries) {
         if (dualParamList != null && dualLevelList != null) {
-            if (dualParamList.getItemCount() > 0 && this.dualLevelList.getItemCount() > 0) {
+            if (dualParamList.getItemCount() > 0
+                    && this.dualLevelList.getItemCount() > 0) {
                 callback.updateSelectionState(true, id);
             } else {
                 callback.updateSelectionState(false, id);
@@ -192,7 +198,8 @@ public class LevelParameterSelection extends Composite implements IUpdate {
      */
     public boolean shouldExpand() {
         if (dualParamList != null && dualLevelList != null) {
-            if (dualParamList.getItemCount() > 0 && this.dualLevelList.getItemCount() > 0) {
+            if (dualParamList.getItemCount() > 0
+                    && this.dualLevelList.getItemCount() > 0) {
                 return true;
             }
         } else {
@@ -203,25 +210,27 @@ public class LevelParameterSelection extends Composite implements IUpdate {
 
         return false;
     }
-    
+
     /**
      * Action when selecting Parameters on the vertical tab.
      * 
      * @param levelList
      */
     public void selectLevels(ArrayList<String> levelList) {
-        dualLevelList.selectItems(levelList.toArray(new String[levelList.size()]));
+        dualLevelList
+                .selectItems(levelList.toArray(new String[levelList.size()]));
     }
-    
+
     /**
      * Action when selecting Parameters on the vertical tab.
      * 
      * @param paramList
      */
     public void selectParameters(ArrayList<String> paramList) {
-        dualParamList.selectItems(paramList.toArray(new String[paramList.size()]));
+        dualParamList
+                .selectItems(paramList.toArray(new String[paramList.size()]));
     }
-    
+
     /**
      * Set isDirty flag.
      * 
@@ -235,11 +244,16 @@ public class LevelParameterSelection extends Composite implements IUpdate {
      * Set parameters to clean.
      */
     public void setClean() {
-       isDirty = false;
+        isDirty = false;
     }
 
     @Override
     public void selectionChanged() {
         isDirty = true;
     }
+
+    public DataLevelType getLevelType() {
+        return levelType;
+    }
+
 }
