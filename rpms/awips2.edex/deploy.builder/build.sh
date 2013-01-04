@@ -80,6 +80,26 @@ else
    echo "Building for architecture ... ${EDEX_BUILD_ARCH}."
 fi
 
+function patchDDSpecification()
+{
+   # copy the standard rpm feature specification into the
+   # data delivery rpm project directory
+   cp -v Installer.edex-component/component.spec \
+      Installer.edex-datadelivery/component.spec
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi   
+
+   # apply the specification patch
+   pushd . > /dev/null 2>&1
+   cd Installer.edex-datadelivery
+   patch -p1 -i datadelivery.patch0
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   popd > /dev/null 2>&1
+}
+
 function buildRPM()
 {
    # Arguments:
@@ -134,9 +154,17 @@ cd ../
 buildRPM "Installer.edex-base"
 buildRPM "Installer.edex-configuration"
 buildRPM "Installer.edex-shapefiles"
+# only build edex-datadelivery if it is present
+# (this logic will be removed once edex-datadelivery has been integrated)
+if [ -f ${WORKSPACE}/build.edex/edex/dist/edex-datadelivery.zip ]; then
+   # build the edex-datadelivery rpm
+   export COMPONENT_NAME="edex-datadelivery"
+   patchDDSpecification
+   buildRPM "Installer.edex-datadelivery"
+   unset COMPONENT_NAME
+fi
 # For, now edex-native is always a 32-bit rpm.
 export TARGET_BUILD_ARCH="i386"
-##buildRPM "Installer.edex-ost"
 buildRPM "Installer.edex-native"
 # Reset the target architecture for the remaining rpms.
 setTargetArchitecture
@@ -145,7 +173,11 @@ DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
 do
    edex_component=`python -c "zipFile='${edex_zip}'; componentName=zipFile.replace('.zip',''); print componentName;"`
+   # do not build edex-datadelivery since it is now built differently from the other edex feature rpms
+   # since this is currently the only case, the exclusion will be hard-coded
    
-   export COMPONENT_NAME="${edex_component}"
-   buildRPM "Installer.edex-component"
+   if [ ! "${edex_component}" = "edex-datadelivery" ]; then
+      export COMPONENT_NAME="${edex_component}"
+      buildRPM "Installer.edex-component"
+   fi
 done
