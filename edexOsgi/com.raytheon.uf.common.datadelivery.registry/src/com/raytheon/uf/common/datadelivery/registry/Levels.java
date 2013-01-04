@@ -69,6 +69,24 @@ public class Levels implements ISerializableObject, Serializable {
     @DynamicSerializeElement
     private List<Integer> selectedLevelIndices;
 
+    /**
+     * Copy constructor
+     * 
+     * @param copy
+     */
+    public Levels(Levels copy) {
+        this.name = copy.name;
+        this.levelType = copy.levelType;
+        this.requestLevelEnd = copy.requestLevelEnd;
+        this.requestLevelStart = copy.requestLevelStart;
+        this.level = new ArrayList<Double>(copy.level);
+        this.dz = copy.dz;
+        if (selectedLevelIndices != null) {
+            this.selectedLevelIndices = new ArrayList<Integer>(
+                    copy.selectedLevelIndices);
+        }
+    }
+
     public Integer getLevelType() {
         return levelType;
     }
@@ -152,8 +170,6 @@ public class Levels implements ISerializableObject, Serializable {
         return name;
     }
 
-
-
     /**
      * @return the selectedLevelIndices
      */
@@ -169,35 +185,35 @@ public class Levels implements ISerializableObject, Serializable {
         this.selectedLevelIndices = selectedLevelIndices;
     }
 
-	/**
-	 * Gets the level breakups needed to split retrievals for a subscription
-	 * 
-	 * @return
-	 */
+    /**
+     * Gets the level breakups needed to split retrievals for a subscription
+     * 
+     * @return
+     */
     public List<List<Integer>> getLevelSequences(int sfactor) {
-		
+
         List<List<Integer>> sequences = new ArrayList<List<Integer>>();
         List<Integer> al = new ArrayList<Integer>();
-		
-		if (selectedLevelIndices.size() > 0) {
-			int previous = selectedLevelIndices.get(0);
-			al.add(previous);
-			for (int i = 1; i < selectedLevelIndices.size(); i++) {
-				int next = selectedLevelIndices.get(i);
-				if (next - previous == 1 && al.size() <= sfactor) {
-					al.add(next);
-					previous = next;
-				} else {
-					sequences.add(al);
-					al = new ArrayList<Integer>();
-					al.add(next);
-					previous = next;
-				}
-			}
 
-			sequences.add(al);
-		}
+        if (selectedLevelIndices.size() > 0) {
+            int previous = selectedLevelIndices.get(0);
+            al.add(previous);
+            for (int i = 1; i < selectedLevelIndices.size(); i++) {
+                int next = selectedLevelIndices.get(i);
+                if (next - previous == 1 && al.size() <= sfactor) {
+                    al.add(next);
+                    previous = next;
+                } else {
+                    sequences.add(al);
+                    al = new ArrayList<Integer>();
+                    al.add(next);
+                    previous = next;
+                }
+            }
 
-		return sequences;
+            sequences.add(al);
+        }
+
+        return sequences;
     }
 }
