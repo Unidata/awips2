@@ -397,7 +397,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
                     u.setEnvelope(groupDefinition.getEnvelope());
                     u.setNumFcstHours(subscription.getTime()
                             .getSelectedTimeIndices().size());
-                    u.setNumParameters(subscription.getParameter().size());
+                    u.determineNumberRequestedGrids(subscription.getParameter());
 
                     Coverage cov = new GriddedCoverage();
                     cov.setEnvelope(groupDefinition.getEnvelope());
@@ -602,7 +602,6 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
      */
     @Override
     public boolean displayYesNoPopup(String title, String message) {
-        return DataDeliveryUtils.showYesNoMessage(getShell(), title,
-                message) == SWT.YES;
+        return DataDeliveryUtils.showYesNoMessage(getShell(), title, message) == SWT.YES;
     }
 }
