@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.retrieval.util;
 
+import java.util.List;
 import java.util.Map;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -27,10 +28,12 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Data Structure for calculating Data Set Size.
@@ -45,7 +48,7 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
  * Aug 12, 2012  1022      djohnson   Stop coordinates on GriddedCoverage from being corrupted.
  * Oct 31, 2012  1278      mpduff     Clarified a Javadoc comment.
  * Dec 10, 2012  1259      bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
- *
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -68,7 +71,7 @@ public class DataSizeUtils {
             GriddedCoverage griddedCov = (GriddedCoverage) ra.getCoverage();
             int nx = griddedCov.getGridCoverage().getNx();
             int ny = griddedCov.getGridCoverage().getNy();
-        
+
             long l = st.getRequestBytesPerParameterPerLevel(nx * ny);
 
             l = l / bytesPerKilobyte;
@@ -90,14 +93,11 @@ public class DataSizeUtils {
     /** Data Set Size */
     private long size = 0;
 
-    /** Full Data Set Size */
+    /** Full Data Set Size in bytes */
     private long fullSize = -999;
 
-    /** Number of parameters */
-    private int numParameters = 0;
-
-    /** Number of levels */
-    private int numLevels = 0;
+    /** Number of requested grids */
+    private int numRequestedGrids = 0;
 
     /** Number of forecast hours */
     private int numFcstHours = 0;
@@ -121,16 +121,6 @@ public class DataSizeUtils {
      */
     public DataSizeUtils(DataSet dataSet) {
         this.dataSet = dataSet;
-    }
-
-    /**
-     * Add to the number of levels.
-     * 
-     * @param levels
-     *            Number of levels to add
-     */
-    public void addToLevelCount(int levels) {
-        numLevels += levels;
     }
 
     private void calculateGridCells() {
@@ -160,33 +150,29 @@ public class DataSizeUtils {
         return dataSet;
     }
 
+    public long getDataSetSizeInBytes() {
+        long l = numRequestedGrids
+                * numFcstHours
+                * dataSet.getServiceType().getRequestBytesPerParameterPerLevel(
+                        numberOfGridCells);
+        return l;
+    }
+
     /**
      * Returns the estimated data set size in KB.
      * 
      * @return
      */
     public long getDataSetSize() {
-        // Handle the case where the level is surface only, must artificially
-        // set numLevels to 1
-        int numberOfLevels = numLevels;
-        if (numberOfLevels == 0 && numParameters > 0) {
-            numberOfLevels = 1;
-        }
-        long l = numParameters
-                * numberOfLevels
-                * numFcstHours
-                * dataSet.getServiceType().getRequestBytesPerParameterPerLevel(
-                        numberOfGridCells);
-
-        return l / bytesPerKilobyte;
+        return getDataSetSizeInBytes() / bytesPerKilobyte;
     }
 
     /**
-     * REturns the estimated full dataset size.
+     * Returns the estimated full dataset size in bytes.
      * 
      * @return
      */
-    public long getFullSize() {
+    public long getFullSizeInBytes() {
         if (dataSet != null) {
             if (fullSize == -999) {
                 Coverage cov = dataSet.getCoverage();
@@ -198,26 +184,37 @@ public class DataSizeUtils {
                     long fcstHrs = dataSet instanceof GriddedDataSet ? ((GriddedDataSet) dataSet)
                             .getForecastHours().size() : 1;
                     Map<String, Parameter> paramMap = dataSet.getParameters();
-                    long numParams = paramMap.size();
-                    long numLevels = 0;
+
+                    // get the number of grids available
+                    long numGridsAvailable = 0;
 
                     for (Parameter p : paramMap.values()) {
-                        numLevels += p.getLevels().getLevel().size();
+                        int numLevels = p.getLevels().getLevel().size();
+
+                        // parameter is always at least on one level, level just
+                        // may not be named/enumerated
+                        numGridsAvailable += (numLevels > 0 ? numLevels : 1);
                     }
 
                     fullSize = fcstHrs
-                            * numParams
-                            * numLevels
+                            * numGridsAvailable
                             * dataSet.getServiceType()
                                     .getRequestBytesPerParameterPerLevel(
                                             numCells);
-
-                    fullSize /= bytesPerKilobyte;
                 }
             }
         }
 
         return fullSize;
+    }
+
+    /**
+     * Returns the estimated full dataset size in KB.
+     * 
+     * @return
+     */
+    public long getFullSize() {
+        return getFullSizeInBytes() / bytesPerKilobyte;
     }
 
     public int getNumberOfGridCells() {
@@ -232,20 +229,6 @@ public class DataSizeUtils {
     }
 
     /**
-     * @return the numLevels
-     */
-    public int getNumLevels() {
-        return numLevels;
-    }
-
-    /**
-     * @return the numParameters
-     */
-    public int getNumParameters() {
-        return numParameters;
-    }
-
-    /**
      * @return the size
      */
     public long getSize() {
@@ -253,25 +236,10 @@ public class DataSizeUtils {
     }
 
     /**
-     * Increment the number of levels by one.
-     */
-    public void incrementLevelCount() {
-        numLevels++;
-    }
-
-    /**
-     * Increment the number of parameters by one.
-     */
-    public void incrementParamCount() {
-        numParameters++;
-    }
-
-    /**
      * Reset the state of this object
      */
     public void reset() {
-        numLevels = 0;
-        numParameters = 0;
+        numRequestedGrids = 0;
         size = 0;
         dataSet = null;
     }
@@ -300,26 +268,31 @@ public class DataSizeUtils {
     }
 
     /**
-     * @param numLevels
-     *            the numLevels to set
+     * @param numRequestedGrids
+     *            the numRequestedGrids to set
      */
-    public void setNumLevels(int numLevels) {
-        this.numLevels = numLevels;
-    }
+    public void determineNumberRequestedGrids(List<Parameter> parameterList) {
+        int numGrids = 0;
 
-    /**
-     * @param numParameters
-     *            the numParameters to set
-     */
-    public void setNumParameters(int numParameters) {
-        this.numParameters = numParameters;
-    }
+        // Get the number of requested grids
+        if (!CollectionUtil.isNullOrEmpty(parameterList)) {
+            for (Parameter par : parameterList) {
+                Levels parLevels = par.getLevels();
+                int numSelectedLevels = parLevels.getSelectedLevelIndices()
+                        .size();
+                if (numSelectedLevels < 1) {
+                    // if parameter is not available on more than level, then by
+                    // default the single level is selected
+                    if (parLevels.size() <= 1) {
+                        numSelectedLevels = 1;
+                    }
+                    // else user did not select any levels for this parameter
+                }
 
-    /**
-     * @param size
-     *            the size to set
-     */
-    public void setSize(long size) {
-        this.size = size;
+                numGrids += numSelectedLevels;
+            }
+        }
+
+        this.numRequestedGrids = numGrids;
     }
 }
