@@ -53,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.GriddedTimingSelectionPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.GriddedTimingSubsetPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
@@ -263,9 +264,8 @@ public class GriddedSubsetManagerDlg
 
         // Update the data set size label text.
 
-        // Get the number of parameters and levels
-        dataSize.setNumParameters(vTab.getNumParams());
-        dataSize.setNumLevels(vTab.getNumLevels());
+        // Get the number of requested grids
+        dataSize.determineNumberRequestedGrids(vTab.getParameters());
 
         // Get the temporal data
         int numFcstHours = this.timingTabControls.getSelectedFcstHours().length;
@@ -276,8 +276,10 @@ public class GriddedSubsetManagerDlg
 
         dataSize.setEnvelope(envelope);
 
-        this.sizeLbl.setText(dataSize.getDataSetSize() + " KB of "
-                + dataSize.getFullSize() + " KB");
+        this.sizeLbl.setText(SizeUtil.prettyByteSize(dataSize
+                .getDataSetSizeInBytes())
+                + " of "
+                + SizeUtil.prettyByteSize(dataSize.getFullSizeInBytes()));
     }
 
     /**
