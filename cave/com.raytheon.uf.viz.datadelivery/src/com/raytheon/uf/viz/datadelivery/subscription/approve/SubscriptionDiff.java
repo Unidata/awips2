@@ -249,11 +249,11 @@ public class SubscriptionDiff {
 
         // Check for new or removed parameters
         for (Parameter p : subParamList) {
-            subParams.add(p.getName());
+            subParams.add(p.getProviderName());
         }
 
         for (Parameter p : pendingSubParamList) {
-            pendingSubParams.add(p.getName());
+            pendingSubParams.add(p.getProviderName());
         }
 
         // Check for new parameters, if in pending list, but not sub list
@@ -275,11 +275,12 @@ public class SubscriptionDiff {
         ArrayList<ParameterDiff> parameterDiffList = new ArrayList<ParameterDiff>();
         if (subParamList.size() > pendingSubParamList.size()) {
             for (Parameter p : subParamList) {
-                if (subParams.contains(p.getName())) {
+                if (subParams.contains(p.getProviderName())) {
                     // See if anything changed for this parameter, which is
                     // layer or fcstHr
                     for (Parameter pendingP : pendingSubParamList) {
-                        if (p.getName().equals(pendingP.getName())) {
+                        if (p.getProviderName().equals(
+                                pendingP.getProviderName())) {
                             parameterDiffList
                                     .add(new ParameterDiff(p, pendingP));
                             break;
@@ -289,11 +290,12 @@ public class SubscriptionDiff {
             }
         } else {
             for (Parameter pendingP : pendingSubParamList) {
-                if (subParams.contains(pendingP.getName())) {
+                if (subParams.contains(pendingP.getProviderName())) {
                     // See if anything changed for this parameter, which is
                     // layer or fcstHr
                     for (Parameter p : subParamList) {
-                        if (p.getName().equals(pendingP.getName())) {
+                        if (p.getProviderName().equals(
+                                pendingP.getProviderName())) {
                             parameterDiffList
                                     .add(new ParameterDiff(p, pendingP));
                             break;
@@ -327,8 +329,8 @@ public class SubscriptionDiff {
 
         for (Parameter p : pendingSubParamList) {
             for (String newParameter : newParameters) {
-                if (p.getName().equals(newParameter)) {
-                    tmpBuffer.append("Parameter: ").append(p.getName())
+                if (p.getProviderName().equals(newParameter)) {
+                    tmpBuffer.append("Parameter: ").append(p.getProviderName())
                             .append(nl);
                     if (p.getLevelType().size() > 0) {
                         List<DataLevelType> dltList = p.getLevelType();
