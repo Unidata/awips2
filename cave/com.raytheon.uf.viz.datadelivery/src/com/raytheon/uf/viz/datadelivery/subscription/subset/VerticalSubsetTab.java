@@ -154,8 +154,6 @@ public class VerticalSubsetTab extends SubsetTab implements
         for (String levelLabel : levelDisplayMap.keySet()) {
             DataLevelType levelType = levelDisplayMap.get(levelLabel);
             ExpandItem item = new ExpandItem(expandBar, SWT.NONE);
-            // Store this for later use
-            item.setData(dataSet.getParameters());
             item.setText(levelLabel);
             item.setImage(filterImgs
                     .getExpandItemImage(ExpandItemState.NoEntries));
@@ -165,8 +163,8 @@ public class VerticalSubsetTab extends SubsetTab implements
                     dataSet.getParameters());
 
             LevelParameterSelection lps = new LevelParameterSelection(
-                    expandBar, SWT.BORDER, levelList, paramList, this,
-                    levelLabel);
+                    expandBar, SWT.BORDER, levelType, levelList, paramList,
+                    this, levelLabel);
             item.setHeight(lps.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
             item.setControl(lps);
         }
@@ -322,27 +320,17 @@ public class VerticalSubsetTab extends SubsetTab implements
                 continue;
             }
 
+            DataLevelType levelType = lps.getLevelType();
             String[] selectedLevels = lps.getSelectedLevels();
             String[] selectedParameters = lps.getSelectedParameters();
-            @SuppressWarnings("unchecked")
-            Map<String, Parameter> parameterMap = (Map<String, Parameter>) item
-                    .getData();
+            Map<String, Parameter> parameterMap = dataSet.getParameters();
 
-            // TODO - Phase 2 can have multiple levels per parameter
-            // Here are taking the parameter only because it only has one level
-            // type
             for (String parameter : selectedParameters) {
                 Parameter param = parameterMap.get(parameter);
                 if (param != null) {
-                    List<DataLevelType> levels = param.getLevelType();
-                    for (DataLevelType levelType : levels) {
-                        if (param.getLevelType().contains(levelType)) {
-                            Parameter p = copyParameter(param, selectedLevels,
-                                    levelType);
-                            selectedParameterObjs.add(p);
-                            continue;
-                        }
-                    }
+                    Parameter p = copyParameter(param, selectedLevels,
+                            levelType);
+                    selectedParameterObjs.add(p);
                 }
             }
         }
@@ -366,36 +354,23 @@ public class VerticalSubsetTab extends SubsetTab implements
      */
     private Parameter copyParameter(Parameter param, String[] selectedLevels,
             DataLevelType levelType) {
+        Parameter myParameterCopy = new Parameter(param);
+        // add just the selected level type
+        ArrayList<DataLevelType> myLevelTypes = new ArrayList<DataLevelType>();
+        myLevelTypes.add(levelType);
+        myParameterCopy.setLevelType(myLevelTypes);
 
-        final String paramName = param.getName();
-
-        Levels levels = null;
-        Parameter parameter = null;
-        for (Parameter p : dataSet.getParameters().values()) {
-            if (p.getName().equals(paramName)) {
-                parameter = p;
-                levels = p.getLevels();
-                levels.setLevelType(levelType.getId());
-                break;
-            }
-        }
-
-        if (parameter == null) {
-            throw new IllegalStateException(String.format(
-                    "Unable to find parameter [%s] on the DataSet!", paramName));
-        }
-
-        List<Double> levelsList = new ArrayList<Double>();
+        List<Double> levelsList = new ArrayList<Double>(selectedLevels.length);
         for (String s : selectedLevels) {
             levelsList.add(Double.parseDouble(s));
         }
 
         Collections.sort(levelsList);
-        if (levelType.getId() == DataLevelType.LevelType.MB
-                .getLevelTypeId()) {
+        if (levelType.getId() == DataLevelType.LevelType.MB.getLevelTypeId()) {
             Collections.reverse(levelsList);
         }
 
+        Levels levels = myParameterCopy.getLevels();
         List<Double> availableLevels = levels.getLevel();
         List<Integer> indices = new ArrayList<Integer>();
 
@@ -405,22 +380,7 @@ public class VerticalSubsetTab extends SubsetTab implements
 
         levels.setSelectedLevelIndices(indices);
 
-        Parameter p = new Parameter();
-
-        if (parameter.getEnsemble() != null) {
-            p.setEnsemble(parameter.getEnsemble());
-        }
-        p.setBaseType(param.getBaseType());
-        p.setDataType(param.getDataType());
-        p.setDefinition(param.getDefinition());
-        p.setMissingValue(param.getMissingValue());
-        p.setName(paramName);
-        p.setProviderName(param.getProviderName());
-        p.setUnits(param.getUnits());
-        p.setLevels(levels);
-        p.addLevelType(levelType);
-
-        return p;
+        return myParameterCopy;
     }
 
     /*
@@ -563,42 +523,6 @@ public class VerticalSubsetTab extends SubsetTab implements
         }
 
         return vertList;
-    }
-
-    /**
-     * Get the number of parameters
-     * 
-     * @return The number of parameters
-     */
-    public int getNumParams() {
-        int numParams = 0;
-
-        // Get the number of parameters
-        ArrayList<Parameter> parameterList = getParameters();
-        if (parameterList != null && parameterList.size() > 0) {
-            numParams += parameterList.size();
-        }
-
-        return numParams;
-    }
-
-    /**
-     * Get the number of levels
-     * 
-     * @return The number of levels
-     */
-    public int getNumLevels() {
-        int numLevels = 0;
-
-        // Get the number of levels
-        ArrayList<Parameter> parameterList = getParameters();
-        if (parameterList != null && parameterList.size() > 0) {
-            for (Parameter par : parameterList) {
-                numLevels += par.getLevels().getSelectedLevelIndices().size();
-            }
-        }
-
-        return numLevels;
     }
 
     /**

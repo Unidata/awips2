@@ -54,9 +54,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject({ "name", "dataType" })
 public class Parameter implements ISerializableObject, Serializable {
 
-	private static final long serialVersionUID = -2332611624661834210L;
+    private static final long serialVersionUID = -2332611624661834210L;
 
-	public Parameter() {
+    public Parameter() {
 
     }
 
@@ -110,6 +110,32 @@ public class Parameter implements ISerializableObject, Serializable {
     @SlotAttributeConverter(ParameterLevelsConverter.class)
     @RegistryObjectAssociation(ParameterLevelsResolver.class)
     private Levels levels;
+
+    /**
+     * Copy constructor
+     * 
+     * @param copy
+     */
+    public Parameter(Parameter copy) {
+        this.name = copy.name;
+        this.providerName = copy.providerName;
+        this.definition = copy.definition;
+        this.units = copy.units;
+        this.dataType = copy.dataType;
+        this.missingValue = copy.missingValue;
+        this.fillValue = copy.fillValue;
+        this.ensemble = copy.ensemble;
+        this.baseType = copy.baseType;
+
+        // deep copy
+        if (copy.levelType != null) {
+            this.levelType = new ArrayList<DataLevelType>(copy.levelType.size());
+            for (DataLevelType dlt : copy.levelType) {
+                this.levelType.add(new DataLevelType(dlt));
+            }
+        }
+        this.levels = new Levels(copy.levels);
+    }
 
     public String getName() {
         return name;
