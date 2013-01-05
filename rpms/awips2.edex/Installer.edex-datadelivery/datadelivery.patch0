@@ -1,6 +1,6 @@
 diff -crB a/component.spec b/component.spec
-*** a/component.spec	2013-01-04 11:35:41.000000000 -0600
---- b/component.spec	2013-01-04 11:35:57.000000000 -0600
+*** a/component.spec	2013-01-05 09:43:38.000000000 -0600
+--- b/component.spec	2013-01-05 09:49:43.000000000 -0600
 ***************
 *** 1,13 ****
   #
@@ -48,7 +48,7 @@ diff -crB a/component.spec b/component.spec
   requires: awips2-edex-base
   requires: awips2-python
 ***************
-*** 40,57 ****
+*** 40,58 ****
      rm -rf %{_build_root}
   fi
   mkdir -p %{_build_root}
@@ -67,7 +67,8 @@ diff -crB a/component.spec b/component.spec
   %post
   %preun
   %postun
---- 40,80 ----
+  
+--- 40,88 ----
      rm -rf %{_build_root}
   fi
   mkdir -p %{_build_root}
@@ -94,21 +95,29 @@ diff -crB a/component.spec b/component.spec
 + if [ $? -ne 0 ]; then
 +    exit 1
 + fi
++ # rename the script to prevent naming conflicts during installation
++ pushd . > /dev/null 2>&1
++ cd %{_build_root}/etc/init.d
++ mv edexServiceList edexServiceList-datadelivery
++ popd > /dev/null 2>&1
 + 
   %pre
-+ # since, we will be overriding the services that are started
-+ # we will begin by removing any existing edexServiceList scripts
+  %post
++ # replace the service list script with the datadelivery service list script
 + if [ -f /etc/init.d/edexServiceList ]; then
 +    rm -f /etc/init.d/edexServiceList
 +    if [ $? -ne 0 ]; then
-+       # fail the install
 +       exit 1
 +    fi
 + fi
++ mv /etc/init.d/edexServiceList-datadelivery /etc/init.d/edexServiceList
++ if [ $? -ne 0 ]; then
++    exit 1
++ fi
 + 
-  %post
   %preun
   %postun
+  
 ***************
 *** 63,66 ****
   %defattr(644,awips,fxalpha,755)
@@ -116,11 +125,10 @@ diff -crB a/component.spec b/component.spec
   %dir /awips2/edex
 ! /awips2/edex/*
 \ No newline at end of file
---- 86,91 ----
+--- 93,98 ----
   %defattr(644,awips,fxalpha,755)
   %dir /awips2
   %dir /awips2/edex
 ! /awips2/edex/*
 ! 
 ! %attr(744,root,root) /etc/init.d/*
-\ No newline at end of file
