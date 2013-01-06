@@ -52,7 +52,7 @@ DIST_NATIVE="%{_baseline_workspace}/dist.native"
 PACKAGES="%{_awipscm_share}/packages"
 # extract the native libraries
 /bin/tar -xpf ${DIST_NATIVE}/i386-pc-linux-gnu.tar \
-   -C %{_build_root}/awips2 edex/lib edex/bin
+   -C %{_build_root}/awips2 ./edex/lib ./edex/bin
 if [ $? -ne 0 ]; then
    exit 1
 fi
