@@ -2,7 +2,5 @@
 <purgeRuleSet>
 	<defaultRule>
 		<versionsToKeep>24</versionsToKeep>
-		<delta>=00-01:00:00</delta>
-		<round>00-01:00:00</round>
 	</defaultRule>
 </purgeRuleSet>

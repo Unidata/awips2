@@ -127,6 +127,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.
  * Sep 18, 2012   15332    jsanchez    Used a new warning text handler.
  * Nov  9, 1202   DR 15430 D. Friedman Improve watch inclusion.
+ * Nov 26, 2012   15550    Qinglu Lin  For CAN to EXP, added TMLtime to context.
+ * Nov 30, 2012   15571    Qinglu Lin  For NEW, assigned simulatedTime to TMLtime; For COR, used stormLocs 
+ *                                     in oldWarn.
+ * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
+ *                                     while loc is null.  
  * </pre>
  * 
  * @author njensen
@@ -368,8 +373,6 @@ public class TemplateRunner {
 
             // CAN and EXP products follow different rules as followups
             if (!(selectedAction == WarningAction.CAN || selectedAction == WarningAction.EXP)) {
-                Coordinate[] stormLocs = warngenLayer
-                        .getStormLocations(stormTrackState);
                 wx = new Wx(config, stormTrackState,
                         warngenLayer.getStormLocations(stormTrackState),
                         startTime.getTime(), DateUtil.roundDateTo15(endTime)
@@ -391,7 +394,10 @@ public class TemplateRunner {
                 context.put("duration", duration);
 
                 context.put("event", eventTime);
-                context.put("TMLtime", eventTime);
+                if (selectedAction == WarningAction.COR)
+                	context.put("TMLtime", eventTime);
+                else
+                	context.put("TMLtime", simulatedTime);
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
                 context.put("areaPoly", GisUtil.convertCoords(warngenLayer
@@ -433,13 +439,25 @@ public class TemplateRunner {
                     motionDirection -= 360;
                 }
                 context.put("movementDirection", motionDirection);
+                Coordinate[] stormLocs = warngenLayer
+                        .getStormLocations(stormTrackState);
                 // Convert to Point2D representation as Velocity requires
                 // getX() and getY() methods which Coordinate does not have
-                Coordinate[] newStormLocs = GisUtil.d2dCoordinates(stormLocs);
-                Point2D.Double[] coords = new Point2D.Double[newStormLocs.length];
-                for (int i = 0; i < newStormLocs.length; i++) {
-                    coords[i] = new Point2D.Double(newStormLocs[i].x,
-                            newStormLocs[i].y);
+                if (selectedAction == WarningAction.COR) {
+                    AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
+                            threeLetterSiteId).getNewestByTracking(etn, phenSig);
+                    String loc = oldWarn.getLoc();
+                    if (loc != null) {
+                    	Geometry locGeom = wkt.read(loc);
+                    	stormLocs = locGeom.getCoordinates();
+                    }
+                } else {
+                	stormLocs = GisUtil.d2dCoordinates(stormLocs);
+                }
+                Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
+                for (int i = 0; i < stormLocs.length; i++) {
+                    coords[i] = new Point2D.Double(stormLocs[i].x,
+                            stormLocs[i].y);
                 }
                 context.put("eventLocation", coords);
                 t0 = System.currentTimeMillis();
@@ -453,6 +471,7 @@ public class TemplateRunner {
                         threeLetterSiteId).getNewestByTracking(etn, phenSig);
                 context.put("now", simulatedTime);
                 context.put("event", eventTime);
+                context.put("TMLtime", eventTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
                 Calendar canOrExpCal = Calendar.getInstance();
@@ -468,13 +487,21 @@ public class TemplateRunner {
                         .getCoordinates()));
                 // If there is no storm track
                 if (oldWarn.getLoc() != null) {
-                    Geometry locGeom = wkt.read(oldWarn.getLoc());
-                    Coordinate[] locs = locGeom.getCoordinates();
                     // Convert to Point2D representation as Velocity requires
                     // getX() and getY() methods which Coordinate does not have
-                    Point2D.Double[] coords = new Point2D.Double[locs.length];
+                    Point2D.Double[] coords;
+                    Coordinate[] locs;
+                    if (selectedAction == WarningAction.CAN) {
+                    	locs = warngenLayer.getStormLocations(stormTrackState);
+                    	locs = GisUtil.d2dCoordinates(locs);
+                    	coords = new Point2D.Double[locs.length];
+                    } else {
+                        Geometry locGeom = wkt.read(oldWarn.getLoc());
+                        locs = locGeom.getCoordinates();
+                    	coords = new Point2D.Double[locs.length];
+                    }
                     for (int i = 0; i < locs.length; i++) {
-                        coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                    	coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
                     }
                     context.put("eventLocation", coords);
                     double motionDirection = oldWarn.getMotdir();
@@ -921,10 +948,7 @@ public class TemplateRunner {
                 System.out.println("getWatches.createWatchGeometry time: "
                         + (t1 - t0));
 
-                t0 = System.currentTimeMillis();
                 rval = processATEntries(activeTable, warngenLayer);
-                System.out.println("getWatches.createPoritions time: "
-                        + (t1 - t0));
             }
         }
 
@@ -1007,6 +1031,10 @@ public class TemplateRunner {
             if (!ar.getGeometry().isEmpty())
                 work.valid = true;
 
+            /* TODO: Currently adding all zones to the list even if they
+             * are not in the CWA.  Validation is currently done in
+             * determineAffectedPortions to avoid redundant work.
+             */
             work.ugcZone.add(ar.getUgcZone()); 
         }
 
@@ -1017,7 +1045,7 @@ public class TemplateRunner {
              */
             if (!work.valid)
                 continue;
-            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw));
+            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw))
                 rval.addWaw(work.waw);
         }
 
@@ -1026,7 +1054,8 @@ public class TemplateRunner {
 
     /**
      * Given the list of counties in a watch, fill out the "portions" part of
-     * the given WeatherAdvisoryWatch
+     * the given WeatherAdvisoryWatch.  Also checks if the given counties are
+     * actually in the CWA.
      * 
      * @param ugcs
      * @param asc
@@ -1041,25 +1070,36 @@ public class TemplateRunner {
         HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
         for (String ugc : ugcs) {
-            for (Entry<String, String[]> e : FipsUtil.parseCountyHeader(ugc).entrySet()) {
-                String stateAbbrev = e.getKey();
-                if (e.getValue().length != 1) // either zero or more than one
-                                              // would be wrong
-                    statusHandler.handle(Priority.ERROR,
-                            "Invalid ugczone in active table entry");
-                Set<String> feAreas = map.get(stateAbbrev);
-                if (feAreas == null) {
-                    feAreas = new HashSet<String>();
-                    map.put(stateAbbrev, feAreas);
-                }
-                try {
-                    feAreas.add(getFeArea(stateAbbrev, e.getValue()[0], asc,
-                            geoData));
-                } catch (RuntimeException exc) {
-                    statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
-                    return false;
-                }
+            Map<String, String[]> parsed = FipsUtil.parseCountyHeader(ugc);
+            Entry<String, String[]> e = null;
+
+            // Either zero or more than one sates/counties would be wrong
+            if (parsed.size() != 1
+                    || (e = parsed.entrySet().iterator().next()).getValue().length != 1) {
+                statusHandler.handle(Priority.ERROR,
+                        "Invalid ugczone in active table entry: " + ugc);
+                continue;
             }
+
+            String stateAbbrev = e.getKey();
+            String feArea = null;
+            try {
+                feArea = getFeArea(stateAbbrev, e.getValue()[0], asc,
+                        geoData);
+            } catch (RuntimeException exc) {
+                statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                return false;
+            }
+            if (feArea == NOT_IN_CWA)
+                continue;
+            
+            Set<String> feAreas = map.get(stateAbbrev);
+            if (feAreas == null) {
+                feAreas = new HashSet<String>();
+                map.put(stateAbbrev, feAreas);
+            }
+            if (feArea != null)
+                feAreas.add(feArea);
         }
 
         ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
@@ -1074,8 +1114,6 @@ public class TemplateRunner {
             }
             portion.partOfParentRegion = Area
                     .converFeAreaToPartList(mungeFeAreas(e.getValue()));
-            System.out.format("Munged %s to %s (%s)\n", e.getValue(),
-                    mungeFeAreas(e.getValue()), portion.partOfParentRegion);
             portions.add(portion);
         }
         waw.setPortions(portions);
@@ -1196,7 +1234,17 @@ public class TemplateRunner {
         }
         return null;
     }
+    
+    private static String NOT_IN_CWA = new String("NOT_IN_CWA");
 
+    /** Determines if the given UGC is in the CWA and if it is, returns
+     * the portion of the CWA.
+     * @param stateAbbrev
+     * @param ugc
+     * @param asc
+     * @param geoData
+     * @return
+     */
     private static String getFeArea(String stateAbbrev, String ugc,
             AreaSourceConfiguration asc, GeospatialData[] geoData) {
         for (GeospatialData g : geoData) {
@@ -1206,7 +1254,8 @@ public class TemplateRunner {
                 return (String) g.attributes.get(asc.getFeAreaField());
         }
 
-        return null;
+        // TODO: Is this the correct way to determine if the county is in the CWA?
+        return NOT_IN_CWA;
     }
 
 }
