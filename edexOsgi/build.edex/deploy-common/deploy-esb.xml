@@ -1,7 +1,7 @@
-<project name="deploy.esb" default="main">
-	<import file="${basedir}/deploy-common/deploy-web.xml" />
+<project name="deploy.esb" default="main">	
+	<import file="deploy-web.xml" />
 	
-	<target name="main">
+	<target name="main">		
 		<!-- on a developer machine, the following directories should
 		     already exist. -->
 		<mkdir dir="${edex.root.directory}/lib" />
@@ -49,6 +49,7 @@
         <delete>
             <fileset dir="${edex.root.directory}/conf">
                 <include name="**" />
+                <exclude name="**/site/**"/>
             </fileset>
         </delete>
 	</target>

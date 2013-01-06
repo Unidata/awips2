@@ -142,8 +142,6 @@ ALLOW	EXP	^.*	.*
 
 ALLOW	IDS|DDPLUS	^.*	.*	SXUS2[03-9].KWOH|SXUS[3-9].KWOH|SXUS8[0-3].KWOH|SRUS[2-8].KWOH
 
-ALLOW	NOTHER	^.*	.*
-
 #
 # Give permission to the Unidata Program Center
 ALLOW	ANY	^[a-z].*\.unidata\.ucar\.edu\.?$	.*

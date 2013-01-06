@@ -25,6 +25,7 @@ import java.util.Date;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile.ModifiableLocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 
 /**
@@ -43,19 +44,6 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
  * @version 1.0
  */
 public interface ILocalizationAdapter {
-
-    /**
-     * Retrieves the directory name for the given localization type.
-     * 
-     * @param type
-     *            the localization type
-     * @return the directory name of the directory where the localization type
-     *         should be stored. The returned string is the directory name only,
-     *         NOT the fully qualified path.
-     * 
-     * @see #getPath(LocalizationContext, String)
-     */
-    public abstract String getDirNameForType(LocalizationType type);
 
     /**
      * Return the fully qualified path given a localization context and a file
@@ -93,19 +81,14 @@ public interface ILocalizationAdapter {
             throws LocalizationOpFailedException;
 
     /**
-     * Save a file given it's local pointer, a localization context and a file
-     * name
+     * Save a file a modifiable localization file
      * 
-     * @param localFile
-     *            the local file pointer
-     * @param context
-     *            the localization context
-     * @param fileName
-     *            the file name
+     * @param file
+     *            the modifiable localization file
      * @throws LocalizationOpFailedException
      */
-    public abstract boolean save(File localFile, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException;
+    public abstract boolean save(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException;
 
     /**
      * List a directory given a set of contexts and a path.
@@ -162,18 +145,14 @@ public interface ILocalizationAdapter {
             LocalizationLevel level);
 
     /**
-     * Delete a file given a local file pointer, context and filename
+     * Delete a file given a modifiable localization file
      * 
      * @param file
-     *            the file pointer
-     * @param context
-     *            the localization context
-     * @param fileName
-     *            the name of the file on the server
+     *            the modifiable localization file
      * @throws LocalizationOpFailedException
      */
-    public abstract boolean delete(File file, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException;
+    public abstract boolean delete(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException;
 
     public abstract String[] getContextList(LocalizationLevel level)
             throws LocalizationOpFailedException;

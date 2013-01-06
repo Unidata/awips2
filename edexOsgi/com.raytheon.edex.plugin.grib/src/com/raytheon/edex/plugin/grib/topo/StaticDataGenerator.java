@@ -25,38 +25,48 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.measure.unit.SI;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
-import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
+import com.raytheon.edex.plugin.grib.util.GribModelLookup;
 import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
+import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.plugin.grib.util.ParameterInfo;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridData;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
+import com.raytheon.uf.edex.plugin.grid.topo.StaticTopoData;
 
 /**
  * Populates the data store with static data which includes topo,spacing, and
@@ -105,14 +115,62 @@ public class StaticDataGenerator implements Processor {
     }
 
     private StaticDataGenerator() {
-        // Force initialization of static topo data
-        StaticTopoData.getInstance();
+        checkModelTopo();
+    }
+
+    /**
+     * Private method used by the initialization code to see if the static topo
+     * data for a coverage has been initialized
+     */
+    private void checkModelTopo() {
+        Map<String, GridModel> models = GribModelLookup.getInstance()
+                .getModelByNameMap();
+
+        List<String> modelsToProcess = new LinkedList<String>(models.keySet());
+        int size = modelsToProcess.size();
+        while (size > 0) {
+            Iterator<String> iter = modelsToProcess.iterator();
+            while (iter.hasNext()) {
+                String name = iter.next();
+                boolean processed = false;
+                if (GribParamInfoLookup.getInstance().getParameterInfo(name,
+                        "staticTopo") != null) {
+                    processed = true;
+                    for (GridCoverage coverage : GribSpatialCache.getInstance()
+                            .getGridsForModel(name)) {
+                        processed &= StaticTopoData.getInstance()
+                                .checkModelTopo(coverage);
+                    }
+                } else {
+                    processed = true;
+                }
+
+                // remove the item from the queue
+                if (processed) {
+                    iter.remove();
+                }
+            }
+
+            int curSize = modelsToProcess.size();
+            if (curSize > 0 && curSize == size) {
+                // we still have items to process and we didn't process any then
+                // they are in process by another server and we need to sleep
+                // and try again
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+
+            size = curSize;
+        }
     }
 
     @Override
     public void process(Exchange exchange) throws Exception {
         Object payload = exchange.getIn().getBody();
-        List<GribRecord> stopoRecords = null;
+        List<GridRecord> stopoRecords = null;
 
         if (payload instanceof PluginDataObject[]) {
             PluginDataObject[] records = (PluginDataObject[]) payload;
@@ -121,10 +179,10 @@ public class StaticDataGenerator implements Processor {
                 exchange.getOut().setFault(true);
             }
 
-            stopoRecords = new ArrayList<GribRecord>(records.length);
+            stopoRecords = new ArrayList<GridRecord>(records.length);
             for (PluginDataObject pdo : records) {
                 try {
-                    List<GribRecord> staticRecords = checkForStaticTopo((GribRecord) pdo);
+                    List<GridRecord> staticRecords = checkForStaticTopo((GridRecord) pdo);
                     if (staticRecords != null && !staticRecords.isEmpty()) {
                         stopoRecords.addAll(staticRecords);
                     }
@@ -136,7 +194,7 @@ public class StaticDataGenerator implements Processor {
         } else {
             statusHandler.handle(Priority.ERROR,
                     "StaticTopoGenerator received unhandled message type. Expected: "
-                            + (new GribRecord[0].getClass().toString())
+                            + (new GridRecord[0].getClass().toString())
                             + " received: " + payload.getClass());
         }
 
@@ -145,37 +203,36 @@ public class StaticDataGenerator implements Processor {
             exchange.getOut().setFault(true);
         } else {
             exchange.getOut().setBody(
-                    stopoRecords.toArray(new GribRecord[stopoRecords.size()]));
+                    stopoRecords.toArray(new GridRecord[stopoRecords.size()]));
         }
     }
 
-    private List<GribRecord> checkForStaticTopo(GribRecord record)
+    private List<GridRecord> checkForStaticTopo(GridRecord record)
             throws Exception {
-        GribDao dao = new GribDao();
-        GribModel model = record.getModelInfo();
+        GridDao dao = new GridDao();
         ParameterInfo topoParamInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), STATIC_TOPO);
+                .getParameterInfo(record.getDatasetId(), STATIC_TOPO);
         ParameterInfo spacingParamInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), STATIC_SPACING);
+                .getParameterInfo(record.getDatasetId(), STATIC_SPACING);
         ParameterInfo coriolisParamInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), STATIC_CORIOLIS);
+                .getParameterInfo(record.getDatasetId(), STATIC_CORIOLIS);
         if (topoParamInfo == null && spacingParamInfo == null
                 && coriolisParamInfo == null) {
             return Collections.emptyList();
         }
 
-        GribRecord staticTopoGribRecord = null;
-        GribRecord staticXSpacingRecord = null;
-        GribRecord staticYSpacingRecord = null;
-        GribRecord staticCoriolisRecord = null;
+        GridRecord staticTopoGridRecord = null;
+        GridRecord staticXSpacingRecord = null;
+        GridRecord staticYSpacingRecord = null;
+        GridRecord staticCoriolisRecord = null;
         ConcurrentMap<Date, ConcurrentMap<Integer, String>> stModelCache = staticTopoTimeCache
-                .get(model.getModelName());
+                .get(record.getDatasetId());
 
         if (stModelCache == null) {
             // should only ever have 1 refTime in it
             stModelCache = new ConcurrentHashMap<Date, ConcurrentMap<Integer, String>>(
                     4);
-            staticTopoTimeCache.put(model.getModelName(), stModelCache);
+            staticTopoTimeCache.put(record.getDatasetId(), stModelCache);
         }
 
         DataTime dataTime = record.getDataTime();
@@ -199,26 +256,27 @@ public class StaticDataGenerator implements Processor {
              * If it is Geopotential Height at Surface and this model contains
              * staticTop, then store a staticTopoRecord
              */
-            if ((model.getParameterAbbreviation().equals(
-                    GEOPOTENTIAL_HEIGHT_PARAM) || model
-                    .getParameterAbbreviation().equals(GEOMETRIC_HEIGHT_PARAM))
-                    && model.getLevelName().equals(SURFACE_LEVEL)) {
+            if ((record.getParameter().getAbbreviation()
+                    .equals(GEOPOTENTIAL_HEIGHT_PARAM) || record.getParameter()
+                    .getAbbreviation().equals(GEOMETRIC_HEIGHT_PARAM))
+                    && record.getLevel().getMasterLevel().getName()
+                            .equals(SURFACE_LEVEL)) {
                 if (ct == null) {
                     ct = getStaticTopoClusterLock(record);
                 }
 
                 float[] rawData = (float[]) record.getMessageData();
                 FloatDataRecord staticTopoData = new FloatDataRecord(
-                        STATIC_TOPO, "/", rawData, 2, new long[] {
-                                record.getModelInfo().getLocation().getNx(),
-                                record.getModelInfo().getLocation().getNy() });
-                staticTopoGribRecord = createTopoRecord(record);
+                        STATIC_TOPO, "/" + record.getLocation().getId(),
+                        rawData, 2, new long[] { record.getLocation().getNx(),
+                                record.getLocation().getNy() });
+                staticTopoGridRecord = createTopoRecord(record);
                 staticXSpacingRecord = createXSpacing(record);
                 staticYSpacingRecord = createYSpacing(record);
                 staticCoriolisRecord = createCoriolis(record);
                 IDataStore dataStore = null;
-                if (staticTopoGribRecord != null) {
-                    dataStore = dao.getDataStore(staticTopoGribRecord);
+                if (staticTopoGridRecord != null) {
+                    dataStore = dao.getDataStore(staticTopoGridRecord);
                 } else if (staticXSpacingRecord != null) {
                     dataStore = dao.getDataStore(staticXSpacingRecord);
                 } else if (staticYSpacingRecord != null) {
@@ -232,25 +290,25 @@ public class StaticDataGenerator implements Processor {
                 StorageStatus status = dataStore.store(StoreOp.REPLACE);
                 StorageException[] se = status.getExceptions();
                 if (se == null || se.length == 0) {
-                    persistStaticDataToDatabase(dao, staticTopoGribRecord,
+                    persistStaticDataToDatabase(dao, staticTopoGridRecord,
                             staticXSpacingRecord, staticYSpacingRecord,
                             staticCoriolisRecord);
                     stRefTimeCache.put(dataTime.getFcstTime(), "");
                 } else {
                     statusHandler.handle(Priority.ERROR,
                             "Error persisting staticTopo data to hdf5", se[0]);
-                    staticTopoGribRecord = null;
+                    staticTopoGridRecord = null;
                 }
             } else if (!stRefTimeCache.containsKey(dataTime.getFcstTime())) {
                 // double check cache in case lock had to wait for running to
                 // finish
-                staticTopoGribRecord = createTopoRecord(record);
+                staticTopoGridRecord = createTopoRecord(record);
                 staticXSpacingRecord = createXSpacing(record);
                 staticYSpacingRecord = createYSpacing(record);
                 staticCoriolisRecord = createCoriolis(record);
                 IDataStore dataStore = null;
-                if (staticTopoGribRecord != null) {
-                    dataStore = dao.getDataStore(staticTopoGribRecord);
+                if (staticTopoGridRecord != null) {
+                    dataStore = dao.getDataStore(staticTopoGridRecord);
                 } else if (staticXSpacingRecord != null) {
                     dataStore = dao.getDataStore(staticXSpacingRecord);
                 } else if (staticYSpacingRecord != null) {
@@ -262,18 +320,20 @@ public class StaticDataGenerator implements Processor {
 
                 try {
                     // check if its already been stored
-                    dataSets = dataStore.getDatasets("/");
+                    dataSets = dataStore.getDatasets("/"
+                            + record.getLocation().getId());
                 } catch (Exception e) {
                     // Ignore
                 }
                 if (dataSets == null
                         || (dataSets != null && !Arrays.asList(dataSets)
                                 .contains(STATIC_TOPO))) {
-                    if (staticTopoGribRecord != null) {
+                    if (staticTopoGridRecord != null) {
                         FloatDataRecord staticTopoRecord = StaticTopoData
                                 .getInstance().getStopoData(
-                                        record.getModelInfo().getModelName());
-                        staticTopoRecord.setGroup("/");
+                                        record.getLocation());
+                        staticTopoRecord.setGroup("/"
+                                + record.getLocation().getId());
                         staticTopoRecord.setName(STATIC_TOPO);
                         dataStore.addDataRecord(staticTopoRecord);
                     }
@@ -283,7 +343,7 @@ public class StaticDataGenerator implements Processor {
                     StorageException[] se = status.getExceptions();
                     if (se == null || se.length == 0) {
                         // store to database
-                        persistStaticDataToDatabase(dao, staticTopoGribRecord,
+                        persistStaticDataToDatabase(dao, staticTopoGridRecord,
                                 staticXSpacingRecord, staticYSpacingRecord,
                                 staticCoriolisRecord);
                         stRefTimeCache.put(dataTime.getFcstTime(), "");
@@ -292,11 +352,11 @@ public class StaticDataGenerator implements Processor {
                         statusHandler.handle(Priority.ERROR,
                                 "Error persisting staticTopo data to hdf5",
                                 se[0]);
-                        staticTopoGribRecord = null;
+                        staticTopoGridRecord = null;
                     }
                 } else {
                     // dataset existed verify in database
-                    persistStaticDataToDatabase(dao, staticTopoGribRecord,
+                    persistStaticDataToDatabase(dao, staticTopoGridRecord,
                             staticXSpacingRecord, staticYSpacingRecord,
                             staticCoriolisRecord);
                     stRefTimeCache.put(dataTime.getFcstTime(), "");
@@ -308,9 +368,9 @@ public class StaticDataGenerator implements Processor {
                         .getDetails());
             }
         }
-        List<GribRecord> staticRecords = new ArrayList<GribRecord>();
-        if (staticTopoGribRecord != null) {
-            staticRecords.add(staticTopoGribRecord);
+        List<GridRecord> staticRecords = new ArrayList<GridRecord>();
+        if (staticTopoGridRecord != null) {
+            staticRecords.add(staticTopoGridRecord);
         }
         if (staticXSpacingRecord != null) {
             staticRecords.add(staticXSpacingRecord);
@@ -324,8 +384,8 @@ public class StaticDataGenerator implements Processor {
         return staticRecords;
     }
 
-    private ClusterTask getStaticTopoClusterLock(GribRecord record) {
-        String taskDetails = record.getModelInfo().getModelName()
+    private ClusterTask getStaticTopoClusterLock(GridRecord record) {
+        String taskDetails = record.getDatasetId()
                 + record.getDataTime().getRefTime();
         ClusterTask rval = null;
         do {
@@ -334,17 +394,16 @@ public class StaticDataGenerator implements Processor {
         return rval;
     }
 
-    private GribRecord createTopoRecord(GribRecord record) throws Exception {
-        GribRecord staticTopoRecord = null;
-        GribModel model = record.getModelInfo();
+    private GridRecord createTopoRecord(GridRecord record) throws Exception {
+        GridRecord staticTopoRecord = null;
 
         ParameterInfo paramInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), STATIC_TOPO);
+                .getParameterInfo(record.getDatasetId(), STATIC_TOPO);
         if (paramInfo == null) {
             return null;
         }
 
-        staticTopoRecord = new GribRecord(record);
+        staticTopoRecord = new GridRecord(record);
         staticTopoRecord.setId(0);
         staticTopoRecord.setDataURI(null);
         staticTopoRecord.setDataTime(null);
@@ -355,65 +414,59 @@ public class StaticDataGenerator implements Processor {
         DataTime dataTime = new DataTime(refTime, record.getDataTime()
                 .getFcstTime());
 
-        GribModel staticTopoModelInfo = new GribModel(model);
-        staticTopoModelInfo.setId(null);
-        staticTopoModelInfo.setParameterAbbreviation(paramInfo.getShort_name());
-        staticTopoModelInfo.setParameterName(paramInfo.getLong_name());
-        staticTopoModelInfo.setParameterUnit("m");
-        staticTopoModelInfo.setLevel(LevelFactory.getInstance().getLevel(
-                "Dflt", 0, "m"));
+        Parameter param = new Parameter(paramInfo.getShort_name(),
+                paramInfo.getLong_name(), SI.METER);
+        staticTopoRecord.setParameter(param);
+        staticTopoRecord.setLevel(LevelFactory.getInstance().getLevel("Dflt",
+                0, "m"));
 
         staticTopoRecord.setDataTime(dataTime);
-        staticTopoModelInfo = (GribModelCache.getInstance()
-                .getModel(staticTopoModelInfo));
-        staticTopoRecord.setModelInfo(staticTopoModelInfo);
+        staticTopoRecord.getInfo().setId(null);
         staticTopoRecord.setMessageData(null);
         staticTopoRecord.setOverwriteAllowed(true);
         staticTopoRecord.constructDataURI();
         return staticTopoRecord;
     }
 
-    private void getStaticData(GribRecord staticXRecord,
-            GribRecord staticYRecord, GribRecord staticCoriolisRecord,
+    private void getStaticData(GridRecord staticXRecord,
+            GridRecord staticYRecord, GridRecord staticCoriolisRecord,
             IDataStore dataStore) throws Exception {
 
         if (staticXRecord != null) {
             FloatDataRecord dxRecord = StaticGridData.getInstance(
-                    staticXRecord.getModelInfo().getLocation()).getDx();
+                    staticXRecord.getLocation()).getDx();
             if (staticYRecord == null) {
                 dxRecord.setName("staticSpacing");
             } else {
                 dxRecord.setName("staticXspacing");
             }
-            dxRecord.setGroup("/");
+            dxRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(dxRecord);
         }
 
         if (staticYRecord != null) {
             FloatDataRecord dyRecord = StaticGridData.getInstance(
-                    staticYRecord.getModelInfo().getLocation()).getDy();
+                    staticYRecord.getLocation()).getDy();
             dyRecord.setName("staticYspacing");
-            dyRecord.setGroup("/");
+            dyRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(dyRecord);
         }
 
         if (staticCoriolisRecord != null) {
             FloatDataRecord coriolisRecord = StaticGridData.getInstance(
-                    staticCoriolisRecord.getModelInfo().getLocation())
-                    .getCoriolis();
+                    staticCoriolisRecord.getLocation()).getCoriolis();
             coriolisRecord.setName("staticCoriolis");
-            coriolisRecord.setGroup("/");
+            coriolisRecord.setGroup("/" + staticXRecord.getLocation().getId());
             dataStore.addDataRecord(coriolisRecord);
         }
     }
 
-    private GribRecord createXSpacing(GribRecord record) throws Exception {
-        GribModel model = record.getModelInfo();
+    private GridRecord createXSpacing(GridRecord record) throws Exception {
         ParameterInfo paramInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), STATIC_SPACING);
+                .getParameterInfo(record.getDatasetId(), STATIC_SPACING);
         if (paramInfo == null) {
             paramInfo = GribParamInfoLookup.getInstance().getParameterInfo(
-                    model.getModelName(), "staticXspacing");
+                    record.getDatasetId(), "staticXspacing");
             if (paramInfo == null) {
                 return null;
             } else {
@@ -425,10 +478,9 @@ public class StaticDataGenerator implements Processor {
 
     }
 
-    private GribRecord createYSpacing(GribRecord record) throws Exception {
-        GribModel model = record.getModelInfo();
+    private GridRecord createYSpacing(GridRecord record) throws Exception {
         ParameterInfo paramInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), "staticYspacing");
+                .getParameterInfo(record.getDatasetId(), "staticYspacing");
         if (paramInfo == null) {
             return null;
         } else {
@@ -436,19 +488,17 @@ public class StaticDataGenerator implements Processor {
         }
     }
 
-    private GribRecord createCoriolis(GribRecord record) throws Exception {
-        GribModel model = record.getModelInfo();
+    private GridRecord createCoriolis(GridRecord record) throws Exception {
         ParameterInfo paramInfo = GribParamInfoLookup.getInstance()
-                .getParameterInfo(model.getModelName(), "staticCoriolis");
+                .getParameterInfo(record.getDatasetId(), "staticCoriolis");
         return createStaticRecord(record, "staticCoriolis", paramInfo);
     }
 
-    private GribRecord createStaticRecord(GribRecord record, String name,
+    private GridRecord createStaticRecord(GridRecord record, String name,
             ParameterInfo paramInfo) throws Exception {
-        GribRecord staticRecord = null;
-        GribModel model = record.getModelInfo();
+        GridRecord staticRecord = null;
 
-        staticRecord = new GribRecord(record);
+        staticRecord = new GridRecord(record);
         staticRecord.setId(0);
         staticRecord.setDataURI(null);
         staticRecord.setDataTime(null);
@@ -459,18 +509,14 @@ public class StaticDataGenerator implements Processor {
         DataTime dataTime = new DataTime(refTime, record.getDataTime()
                 .getFcstTime());
 
-        GribModel staticModelInfo = new GribModel(model);
-        staticModelInfo.setId(null);
-        staticModelInfo.setParameterAbbreviation(name);
-        staticModelInfo.setParameterName(paramInfo.getLong_name());
-        staticModelInfo.setParameterUnit(paramInfo.getUnits());
-        staticModelInfo.setLevel(LevelFactory.getInstance().getLevel("Dflt", 0,
+        Parameter param = new Parameter(name, paramInfo.getLong_name(),
+                paramInfo.getUnits());
+        staticRecord.setParameter(param);
+        staticRecord.setLevel(LevelFactory.getInstance().getLevel("Dflt", 0,
                 "m"));
-
+        staticRecord.getInfo().setId(null);
         staticRecord.setDataTime(dataTime);
-        staticModelInfo = (GribModelCache.getInstance()
-                .getModel(staticModelInfo));
-        staticRecord.setModelInfo(staticModelInfo);
+
         staticRecord.setMessageData(null);
         staticRecord.setOverwriteAllowed(true);
         staticRecord.constructDataURI();
@@ -483,32 +529,40 @@ public class StaticDataGenerator implements Processor {
      * 
      * @param topo
      */
-    private void persistStaticDataToDatabase(GribDao dao, GribRecord topo,
-            GribRecord staticXSpacing, GribRecord staticYSpacing,
-            GribRecord staticCoriolis) throws SerializationException,
+    private void persistStaticDataToDatabase(GridDao dao, GridRecord topo,
+            GridRecord staticXSpacing, GridRecord staticYSpacing,
+            GridRecord staticCoriolis) throws SerializationException,
             EdexException {
-        if (topo != null && !dao.isSTopoInDb(topo)) {
+        if (topo != null && !isSTopoInDb(dao, topo)) {
             statusHandler.handle(Priority.DEBUG,
                     "Persisting static topo record to the database!!!");
             dao.persistToDatabase(topo);
         }
-        if (staticXSpacing != null && !dao.isSTopoInDb(staticXSpacing)) {
+        if (staticXSpacing != null && !isSTopoInDb(dao, staticXSpacing)) {
             statusHandler.handle(Priority.DEBUG, "Persisting static "
-                    + staticXSpacing.getModelInfo().getParameterAbbreviation()
+                    + staticXSpacing.getParameter().getAbbreviation()
                     + " record to the database!!!");
             dao.persistToDatabase(staticXSpacing);
         }
-        if (staticYSpacing != null && !dao.isSTopoInDb(staticYSpacing)) {
+        if (staticYSpacing != null && !isSTopoInDb(dao, staticYSpacing)) {
             statusHandler.handle(Priority.DEBUG, "Persisting static "
-                    + staticYSpacing.getModelInfo().getParameterAbbreviation()
+                    + staticYSpacing.getParameter().getAbbreviation()
                     + " record to the database!!!");
             dao.persistToDatabase(staticYSpacing);
         }
-        if (staticCoriolis != null && !dao.isSTopoInDb(staticCoriolis)) {
+        if (staticCoriolis != null && !isSTopoInDb(dao, staticCoriolis)) {
             statusHandler.handle(Priority.DEBUG, "Persisting static "
-                    + staticCoriolis.getModelInfo().getParameterAbbreviation()
+                    + staticCoriolis.getParameter().getAbbreviation()
                     + " record to the database!!!");
             dao.persistToDatabase(staticCoriolis);
         }
+    }
+
+    private boolean isSTopoInDb(GridDao dao, GridRecord record)
+            throws DataAccessLayerException {
+        List<String> fields = Arrays.asList("dataURI");
+        List<Object> values = Arrays.asList((Object) record.getDataURI());
+        List<?> list = dao.queryByCriteria(fields, values);
+        return !list.isEmpty();
     }
 }

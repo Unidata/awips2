@@ -1,21 +1,23 @@
 package gov.noaa.nws.ncep.gempak.parameters.dlines;
 
-import static org.junit.Assert.*;
-import gov.noaa.nws.ncep.gempak.parameters.dlines.DLines;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/**<pre>
-*Junit test-case for DLINES and DLINEData
-*
-* SOFTWARE HISTORY
-* Date          Ticket#     Engineer     Description
-* ------------ ---------- ----------- --------------------------
-* 29-Dec-2009    211        Archana.S    Initial Creation
-* </pre>
-* @author Archana.S
-* @version 1
-*/
+/**
+ * <pre>
+ * Junit test-case for DLINES and DLINEData
+ * 
+ *  SOFTWARE HISTORY
+ *  Date          Ticket#     Engineer     Description
+ *  ------------ ---------- ----------- --------------------------
+ *  29-Dec-2009    211        Archana.S    Initial Creation
+ *  25-Aug-2012    743        djohnson     Upgrade to JUnit 4.10.
+ * </pre>
+ * 
+ * @author Archana.S
+ * @version 1
+ */
 public class DLINESTest {
 
 	/**
@@ -89,7 +91,8 @@ public class DLINESTest {
 			    		             .isRightOfContourLineGreater().booleanValue(),true);
 			          assertEquals("Contour values to the left of the current contour line should be greater",dlines.getDlineData()
 			    		             .isLeftOfContourLineGreater(),true);
-			          assertEquals("Epsilon should be set to 0.25",dlines.getDlineData().getEpsilon(),0.25);
+                assertEquals("Epsilon should be set to 0.25", dlines
+                        .getDlineData().getEpsilon(), 0.25, 0.01);
 				break;
 				
 			    case 1:
@@ -98,7 +101,7 @@ public class DLINESTest {
 				      assertEquals("Contour values to the left of the current contour line should be greater",dlines.getDlineData()
 				    		       .isLeftOfContourLineGreater(),true);
 				      assertEquals("Epsilon should be undefined",dlines.getDlineData()
-				    		       .getEpsilon(),Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;
 				
 			    case 2:
@@ -107,7 +110,7 @@ public class DLINESTest {
 				      assertEquals("Contour values to the left of the current contour line should be lesser",dlines.getDlineData()
 				    		       .isLeftOfContourLineGreater(),false);
 				      assertEquals("Epsilon should be undefined",dlines.getDlineData()
-				    		       .getEpsilon(),Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;				
 				
 			    case 3:
@@ -115,7 +118,8 @@ public class DLINESTest {
 			    		             .isRightOfContourLineGreater().booleanValue(),false);
 			          assertEquals("Contour values to the left of the current contour line should be lesser",dlines.getDlineData()
 			    		             .isLeftOfContourLineGreater(),false);
-			          assertEquals("Epsilon should be set to 1.3",dlines.getDlineData().getEpsilon(),1.3);
+                assertEquals("Epsilon should be set to 1.3", dlines
+                        .getDlineData().getEpsilon(), 1.3, 0.01);
 				break;
 				
 			    case 6:
@@ -124,7 +128,7 @@ public class DLINESTest {
 			          assertEquals("Contour values to the left of the current contour line should be greater",dlines.getDlineData()
 			    		             .isLeftOfContourLineGreater(),true);
 			          assertEquals("Epsilon should be undefined",dlines.getDlineData()
-			        		         .getEpsilon(), Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;				
 				
 			    case 7:
@@ -133,7 +137,7 @@ public class DLINESTest {
 			          assertEquals("Contour values to the left of the current contour line should be lesser",dlines.getDlineData()
 			    		             .isLeftOfContourLineGreater(),false);
 			          assertEquals("Epsilon should be undefined",dlines.getDlineData()
-			        		         .getEpsilon(), Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;				
 				
 			    case 8:
@@ -142,7 +146,7 @@ public class DLINESTest {
 				      assertEquals("Contour values to the left of the current contour line should be greater",dlines.getDlineData()
 				    		       .isLeftOfContourLineGreater(),true);
 				      assertEquals("Epsilon should be undefined",dlines.getDlineData()
-				    		       .getEpsilon(),Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;
 			
 			    case 10:
@@ -151,7 +155,7 @@ public class DLINESTest {
 			          assertEquals("Contour values to the left of the current contour line should be lesser",dlines.getDlineData()
 			    		             .isLeftOfContourLineGreater(),false);
 			          assertEquals("Epsilon should be undefined",dlines.getDlineData()
-			        		         .getEpsilon(), Double.NaN);
+.getEpsilon(), Double.NaN, 0.01);
 				break;				
 			    
 			    default:
@@ -164,7 +168,7 @@ public class DLINESTest {
 			        			  dlines.getDlineData().isLeftOfContourLineGreater(),
 			        			  false);
 			        	  assertEquals("Epsilon should be undefined", dlines
-			        			  .getDlineData().getEpsilon(), Double.NaN);
+                            .getDlineData().getEpsilon(), Double.NaN, 0.01);
 					 }else{
 						 assertEquals("DLINES should be null", dlines.getDlineData(), null);
 					 }

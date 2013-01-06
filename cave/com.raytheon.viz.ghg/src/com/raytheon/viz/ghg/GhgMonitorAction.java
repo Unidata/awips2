@@ -35,6 +35,7 @@ import com.raytheon.viz.ghg.monitor.GhgMonitorDlg;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Mar 26, 2008 1033		lvenable	Initial creation
+ * Nov 15, 2012 1298        rferrel     Changes for non-blocking GhgMonitorDlg.
  * 
  * </pre>
  * 
@@ -43,12 +44,15 @@ import com.raytheon.viz.ghg.monitor.GhgMonitorDlg;
  */
 
 public class GhgMonitorAction extends AbstractHandler {
+    private GhgMonitorDlg monitorDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        GhgMonitorDlg monitorDlg = new GhgMonitorDlg(shell);
+        if (monitorDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            monitorDlg = new GhgMonitorDlg(shell);
+        }
         monitorDlg.open();
 
         return null;
