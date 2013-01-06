@@ -1,0 +1,11 @@
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <statisticsEvent type="com.raytheon.uf.common.stats.ProcessEvent"
+        displayName="Processing Events" category="Data Ingest Events">
+        <statisticsGroup name="pluginName" displayName="Data Type" />
+        <statisticsAggregate field="processingTime"
+            displayName="Processing Time" displayUnit="ms" />
+        <statisticsAggregate field="processingLatency"
+            displayName="Processing Latency" displayUnit="ms" />
+    </statisticsEvent>
+</statisticsConfig>

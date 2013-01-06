@@ -97,7 +97,7 @@ public class GFERecord extends PluginDataObject {
     };
 
     /** The name of the parm parameter */
-    @Column(length = 100)
+    @Column(length = 32)
     @XmlAttribute
     @DynamicSerializeElement
     private String parmName;

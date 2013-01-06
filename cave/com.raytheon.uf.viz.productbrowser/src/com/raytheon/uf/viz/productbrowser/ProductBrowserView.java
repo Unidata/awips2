@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -483,15 +484,15 @@ public class ProductBrowserView extends ViewPart {
             // if not a product, do not give opportunity to load things
             if ((Boolean) productTree.getTree().getSelection()[0]
                     .getData("product")) {
-                if (prod.getDisplayTypes() != null
-                        && !prod.getDisplayTypes().isEmpty()) {
+                Map<ResourceType, List<DisplayType>> displayTypes = prod
+                        .getDisplayTypes();
+                if (displayTypes != null && displayTypes.isEmpty() == false) {
                     MenuManager menuMgr = new MenuManager("Load As...",
                             ProductBrowserUtils.getImageDescriptor("run.gif"),
                             "");
-                    for (ResourceType type : prod.getDisplayTypes().keySet()) {
-                        if (prod.getDisplayTypes().keySet().size() <= 1) {
-                            for (DisplayType types : prod.getDisplayTypes()
-                                    .get(type)) {
+                    for (ResourceType type : displayTypes.keySet()) {
+                        if (displayTypes.keySet().size() <= 1) {
+                            for (DisplayType types : displayTypes.get(type)) {
                                 menuMgr.add(getDisplayTypeAction(types));
                             }
                         }
@@ -499,9 +500,6 @@ public class ProductBrowserView extends ViewPart {
                     mgr.add(menuMgr);
                 } else {
                     mgr.add(loadProductAction);
-                }
-                if (prod instanceof AbstractRequestableProductBrowserDataDefinition<?>) {
-                    // mgr.add(bookmarkProductsAction);
                 }
             }
             mgr.add(productInfoAction);
@@ -576,7 +574,7 @@ public class ProductBrowserView extends ViewPart {
                             ti.setData(((AbstractRequestableProductBrowserDataDefinition<?>) prod).productName);
                             ti.setData(
                                     "product",
-                                    ((AbstractRequestableProductBrowserDataDefinition<?>) prod).order.length == 1 ? true
+                                    ((AbstractRequestableProductBrowserDataDefinition<?>) prod).order.length == 0 ? true
                                             : false);
                         } else {
                             ti.setData(prod.displayName);

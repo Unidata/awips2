@@ -78,6 +78,8 @@ public class FileLocker {
         READ, WRITE
     }
 
+    private static final int MAX_WAIT = 30 * 1000;
+
     /** Map of waiters on threads */
     private Map<File, Deque<LockWaiter>> waiters = new HashMap<File, Deque<LockWaiter>>();
 
@@ -215,7 +217,7 @@ public class FileLocker {
                 while (true) {
                     // Sleep
                     try {
-                        Thread.sleep(1);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         // Ignore
                     }
@@ -229,6 +231,20 @@ public class FileLocker {
                                     lws.poll();
                                     return lockInternal(locker, file, type,
                                             false);
+                                }
+                            }
+                        } else {
+                            synchronized (lock) {
+                                if (lock.lockFile.exists() == false
+                                        || (System.currentTimeMillis()
+                                                - lock.lockFile.lastModified() > MAX_WAIT)) {
+                                    System.err
+                                            .println("Releasing lock since: "
+                                                    + (lock.lockFile.exists() ? "Lock has been allocated for more than "
+                                                            + (MAX_WAIT / 1000)
+                                                            + "s"
+                                                            : "Lock file no longer exists!"));
+                                    locks.remove(file);
                                 }
                             }
                         }
@@ -317,7 +333,6 @@ public class FileLocker {
         File lockFile = new File(parentDir, "." + file.getName() + "_LOCK");
         boolean gotLock = lockFile.createNewFile();
         if (!gotLock) {
-            long MAX_WAIT = 30 * 1000;
             long waitInterval = 500;
             long tryCount = MAX_WAIT / waitInterval;
             for (int i = 0; !gotLock && i < tryCount; ++i) {
@@ -333,6 +348,7 @@ public class FileLocker {
         if (!gotLock) {
             System.err.println("Failed to obtain lock for: " + file
                     + ", returning anyway");
+            Thread.dumpStack();
         }
         lock.lockFile = lockFile;
         return lock;

@@ -19,20 +19,22 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import javax.measure.converter.UnitConverter;
+import java.nio.FloatBuffer;
+import java.text.ParsePosition;
+import java.util.Map;
 
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.datum.PixelInCell;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
+import com.raytheon.viz.grid.rsc.general.D2DGridResource;
+import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
 /**
- * TODO Add Description
+ * TODO This whole class should be handled from style rules
  * 
  * <pre>
  * 
@@ -47,76 +49,9 @@ import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
  * @version 1.0
  */
 
-public class RcmResource extends GridResource {
+public class RcmResource extends D2DGridResource {
 
-    /**
-     * Extends the MemoryBasedTileSet class so that we can have direct access to
-     * the loadedData
-     */
-    private class RcmMemoryBasedTileSet extends GridMemoryBasedTileSet {
-
-        /**
-         * @param group
-         * @param dataset
-         * @param sharedGeometryTileset
-         * @param converter
-         * @param pdo
-         * @throws VizException
-         */
-        public RcmMemoryBasedTileSet(String group, String dataset,
-                AbstractTileSet sharedGeometryTileset, UnitConverter converter,
-                GribRecord pdo) throws VizException {
-            super(group, dataset, sharedGeometryTileset, converter, pdo);
-        }
-
-        /**
-         * @param dataURI
-         * @param string
-         * @param numLevels
-         * @param i
-         * @param gridGeometry2D
-         * @param gridResource
-         * @param conversion
-         * @param cellCorner
-         * @param record
-         * @param viewType
-         * @throws VizException
-         */
-        public RcmMemoryBasedTileSet(String dataURI, String string,
-                int numLevels, int i, GridGeometry2D gridGeometry2D,
-                GridResource gridResource, UnitConverter conversion,
-                PixelInCell cellCorner, GribRecord record, String viewType)
-                throws VizException {
-            super(dataURI, string, numLevels, i, gridGeometry2D, gridResource,
-                    conversion, cellCorner, record, viewType);
-        }
-
-        @Override
-        public float[] getLoadedData() {
-            return (float[]) loadedData[0];
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.core.rsc.hdf5.MemoryBasedTileSet#preloadDataObject
-         * (int)
-         */
-        @Override
-        protected void preloadDataObject(int level) throws StorageException {
-            // TODO Auto-generated method stub
-            super.preloadDataObject(level);
-            float[] data = new float[((float[]) loadedData[0]).length];
-            for (int i = 0; i < data.length; i++) {
-                data[i] = ((float[]) loadedData[0])[i];
-            }
-            data = transformRCMData(data);
-            for (int i = 0; i < data.length; i++) {
-                ((float[]) loadedData[0])[i] = data[i];
-            }
-        }
-    }
+    private static Unit<?> DBZ;
 
     /**
      * @param data
@@ -124,27 +59,19 @@ public class RcmResource extends GridResource {
      */
     public RcmResource(RcmResourceData data, LoadProperties props) {
         super(data, props);
-        this.units = "dBZ";
+        if (DBZ == null) {
+            DBZ = UnitFormat.getUCUMInstance().parseObject("dBZ",
+                    new ParsePosition(0));
+        }
     }
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        String tmp = super.inspect(coord);
-        if ("No Data".equals(tmp)) {
-            return tmp;
+        Map<String, Object> map = interrogate(coord);
+        if (map == null) {
+            return "NO DATA";
         }
-        tmp = tmp.replace("dBZ", "");
-        float x = Float.parseFloat(tmp);
-        return dBZasString(x);
-    }
-
-    /**
-     * Takes the value of the cell and changes it to be a range for sampling
-     * 
-     * @param val
-     * @return
-     */
-    private String dBZasString(float val) {
+        float val = (Float) map.get(INTERROGATE_VALUE);
         String sampleVal = "";
         if (val < 1f) {
             sampleVal = "No Data";
@@ -166,54 +93,36 @@ public class RcmResource extends GridResource {
         return sampleVal;
     }
 
-    /**
-     * Takes the value of the cell and changes it to be a range for sampling
-     * 
-     * @param val
-     * @return
-     */
-    private float[] transformRCMData(float[] rcmData) {
-        for (int i = 0; i < rcmData.length; i++) {
-            if (rcmData[i] < 1f) {
-                rcmData[i] = 1f;
-            } else if (rcmData[i] < 2) {
-                rcmData[i] = 48f;
-            } else if (rcmData[i] < 3) {
-                rcmData[i] = 96f;
-            } else if (rcmData[i] < 4) {
-                rcmData[i] = 128f;
-            } else if (rcmData[i] < 5) {
-                rcmData[i] = 144f;
-            } else if (rcmData[i] < 6) {
-                rcmData[i] = 160f;
-            } else if (rcmData[i] < 7) {
-                rcmData[i] = 176f;
+    @Override
+    protected GeneralGridData getData(GridRecord gridRecord)
+            throws VizException {
+        GeneralGridData data = super.getData(gridRecord);
+        FloatBuffer floatData = data.getScalarData();
+        FloatBuffer newFloatData = FloatBuffer.allocate(floatData.capacity());
+        floatData.rewind();
+        newFloatData.rewind();
+        while (floatData.hasRemaining()) {
+            float value = floatData.get();
+            if (value < 1f) {
+                newFloatData.put(1f);
+            } else if (value < 2) {
+                newFloatData.put(48f);
+            } else if (value < 3) {
+                newFloatData.put(96f);
+            } else if (value < 4) {
+                newFloatData.put(128f);
+            } else if (value < 5) {
+                newFloatData.put(144f);
+            } else if (value < 6) {
+                newFloatData.put(160f);
+            } else if (value < 7) {
+                newFloatData.put(176f);
             } else {
-                rcmData[i] = 0f;
+                newFloatData.put(0f);
             }
         }
-        return rcmData;
+        return GeneralGridData.createScalarData(data.getGridGeometry(),
+                newFloatData, data.getDataUnit());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.grid.rsc.GridResource#createTile(com.raytheon.uf.common
-     * .dataplugin.grib.GribRecord, java.lang.String)
-     */
-    @Override
-    public GridMemoryBasedTileSet createTile(GribRecord record,
-            GridMemoryBasedTileSet commonTile) throws VizException {
-        if (commonTile != null) {
-            return new RcmMemoryBasedTileSet(record.getDataURI(), "Data",
-                    commonTile, conversion, record);
-        }
-
-        GridGeometry2D gridGeometry2D = record.getModelInfo().getLocation()
-                .getGridGeometry();
-        return new RcmMemoryBasedTileSet(record.getDataURI(), "Data",
-                numLevels, 256, gridGeometry2D, this, conversion,
-                PixelInCell.CELL_CORNER, record, viewType);
-    }
 }
