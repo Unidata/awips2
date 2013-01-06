@@ -65,12 +65,14 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/07/2009   2037      dhladky    Initial Creation.
- * 02/22/2012	DR14414	  mgamazay   Added initializing the ScanTableData table
- * 									 to an empty map if no features are present.
- * 09/06/2012	14727	  Xiaochuan	 setIsNew(false) for the storm id should based  	
- * 									 on FCSTRAN, FCSTDIR values.	 
+ * ------------ --------- ---------- --------------------------
+ * 05/07/2009   2037      dhladky     Initial Creation.
+ * 02/22/2012	DR14414	  mgamazay    Added initializing the ScanTableData table
+ * 									  to an empty map if no features are present.
+ * 09/06/2012	14727	  Xiaochuan	  setIsNew(false) for the storm id should based  	
+ * 									  on FCSTRAN, FCSTDIR values.
+ * 11/13/2012	14368	  Xiaochuan	  Required to set alarm time in a quiet time period 
+ * 									  from the last event to new event (new storm come in).
  * 
  * </pre>
  * 
@@ -216,7 +218,7 @@ public class CompositeReflectivityProduct extends RadarProduct {
             if (previousTime == null) {
                 previousTime = rec.getDataTime().getRefTime();
             }
-
+            
             if (alarms != null && newIds.size() > 0 && previousTime != null) {
                 if (((alarms.getCellAlarmTime() * 60 * 1000) <= (rec
                         .getDataTime().getRefTime().getTime() - previousTime
@@ -227,8 +229,8 @@ public class CompositeReflectivityProduct extends RadarProduct {
                     alarmString.append("NEW cell for " + filter.icao
                             + " over the last " + alarms.getCellAlarmTime()
                             + " minutes.");
-                    previousTime = rec.getDataTime().getRefTime();
                 }
+                previousTime = rec.getDataTime().getRefTime();
             }
             // add new rows last
             for (String id : newIds) {

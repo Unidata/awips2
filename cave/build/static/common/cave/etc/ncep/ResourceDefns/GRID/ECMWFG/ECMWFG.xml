@@ -6,8 +6,8 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=ecmwfg
-pluginName=grid
-info.secondaryId=%
+pluginName=ncgrib
+eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>

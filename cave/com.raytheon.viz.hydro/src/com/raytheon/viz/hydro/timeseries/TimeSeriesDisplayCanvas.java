@@ -131,6 +131,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 06 Nov   2012 15400   lbousaidi    Changed logic in buildPointString routine, added discharge2stage
  *                                    to display stage value, also added checking for rating curve for both 
  *                                    stage and discharge. 
+ * 13 Nov   2012 15416   lbousaidi    added a check when the colorname is null and a call to 
+ *                                    getGroupModeColor                                 
  * @author lvenable
  * @version 1.0
  * 
@@ -906,14 +908,15 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
 
                         /* Top left point of bar */
-                        int x = pointArray[i].getPixelX() + GRAPHBORDER;// - 20;
+                        int x = pointArray[i].getPixelX() + GRAPHBORDER_LEFT;// - 20;
 
                         if ((x < GRAPHBORDER_LEFT) || (x > GRAPHBORDER_LEFT + graphAreaWidth)) {
                             continue;
                         }
 
-                        int x2 = x2pixel(graphData, pointArray[i].getX()
-                                .getTime() + 3600000)
+                        int x2 = x;
+                        x = x2pixel(graphData, pointArray[i].getX()
+                                .getTime() - 3600000)
                                 + GRAPHBORDER_LEFT;// - 20;
                         int y = pointArray[i].getPixelY() + GRAPHBORDER;
                         ia[0] = x;
@@ -2495,8 +2498,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 gc.setBackground(new Color(parentComp.getDisplay(), HydroUtils
                         .getColor(traceIndex)));
             } else if (groupMode) {
-                gc.setBackground(new Color(parentComp.getDisplay(), HydroUtils
-                        .getColor(td.getColorName())));
+                  if (td.getColorName() != null && HydroUtils.getColor(td.getColorName()) != null) {
+                       gc.setBackground(new Color(parentComp.getDisplay(), HydroUtils
+                            .getColor(td.getColorName())));
+                  } else {
+                       gc.setBackground(new Color(parentComp.getDisplay(),
+                            HydroUtils.getGroupModeColor(traceIndex)));
+            	}
             }
         }
     }

@@ -49,8 +49,10 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/07/2009   2037      dhladky    Initial Creation.
+ * ------------ -------- ----------  --------------------------
+ * 05/07/2009   2037     dhladky      Initial Creation.
+ * 11/13/2012	14368	 Xiaochuan	  Required to set alarm time in a quiet time period 
+ * 									  from the last event to new event (new storm come in).
  * 
  * </pre>
  * 
@@ -138,9 +140,9 @@ public class TVSTabularProduct extends RadarProduct {
                         EDEXUtil.sendMessageAlertViz(Priority.CRITICAL,
                                 RadarConstants.PLUGIN_ID, SCAN, "RADAR",
                                 alarmString.toString(), null, null);
-
-                        previousTime = rec.getDataTime().getRefTime();
+                   
                     }
+                    previousTime = rec.getDataTime().getRefTime();
                 }
             }
 
