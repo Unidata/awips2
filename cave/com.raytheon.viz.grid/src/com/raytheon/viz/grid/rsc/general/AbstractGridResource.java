@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.measure.Measure;
-import javax.measure.quantity.Angle;
-import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -43,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
+import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -55,7 +53,6 @@ import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -75,6 +72,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
+import com.raytheon.uf.viz.core.style.MatchCriteria;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
@@ -120,16 +118,22 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGridResource.class);
 
+    public static final String INTERROGATE_VALUE = "value";
+
+    public static final String INTERROGATE_UNIT = "unit";
+
+    public static final String INTERROGATE_DIRECTION = "direction";
+
     private final GridDataRequestJob requestJob;
 
-    private Map<DataTime, List<PluginDataObject>> pdos = new HashMap<DataTime, List<PluginDataObject>>();
+    private Map<DataTime, List<PluginDataObject>> pdoMap = new ConcurrentHashMap<DataTime, List<PluginDataObject>>();
 
-    private Map<DataTime, IRenderable> renderables = new ConcurrentHashMap<DataTime, IRenderable>();
+    private Map<DataTime, List<IRenderable>> renderableMap = new ConcurrentHashMap<DataTime, List<IRenderable>>();
 
     /**
      * This is a local cache of data that is used when sampling or reprojected.
      */
-    private Map<DataTime, GeneralGridData> data = new ConcurrentHashMap<DataTime, GeneralGridData>();
+    private Map<DataTime, List<GeneralGridData>> dataMap = new ConcurrentHashMap<DataTime, List<GeneralGridData>>();
 
     /**
      * StylePreferences from the styleManager appropriate for the display type
@@ -141,11 +145,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * The format used by the default inspect method
      */
     protected DecimalFormat sampleFormat = new DecimalFormat("0.00");
-
-    /**
-     * The interpolation used when sampling to sample between data points.
-     */
-    protected GridSampler sampleInterpolion;
 
     protected AbstractGridResource(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -168,8 +167,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 } else if (type == ChangeType.CAPABILITY) {
                     if (object instanceof AbstractCapability) {
                         AbstractCapability capability = (AbstractCapability) object;
-                        for (IRenderable renderable : renderables.values()) {
-                            updataRenderableCapabilities(renderable, capability);
+                        synchronized (renderableMap) {
+                            for (List<IRenderable> renderableList : renderableMap
+                                    .values()) {
+                                for (IRenderable renderable : renderableList) {
+                                    updataRenderableCapabilities(renderable,
+                                            capability);
+                                }
+                            }
                         }
                     }
                 }
@@ -196,20 +201,28 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 time = resourceData.getBinOffset().getNormalizedTime(time);
             }
         }
-        List<PluginDataObject> pdos = this.pdos.get(time);
+        List<PluginDataObject> pdos = this.pdoMap.get(time);
         if (pdos == null) {
             pdos = new ArrayList<PluginDataObject>();
-            this.pdos.put(time, pdos);
+            this.pdoMap.put(time, pdos);
         }
         if (pdos.contains(pdo)) {
             pdos.remove(pdo);
         }
         pdos.add(pdo);
-        if (renderables.containsKey(time)) {
-            disposeRenderable(renderables.remove(time));
+        synchronized (renderableMap) {
+            if (renderableMap.containsKey(time)) {
+                List<IRenderable> renderableList = this.renderableMap
+                        .remove(time);
+                if (renderableList != null) {
+                    for (IRenderable renderable : renderableList) {
+                        disposeRenderable(renderable);
+                    }
+                }
+            }
         }
         requestJob.remove(time);
-        data.remove(time);
+        dataMap.remove(time);
         if (!dataTimes.contains(dataTimes)) {
             dataTimes.add(time);
         }
@@ -221,9 +234,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * 
      * @param data
      */
-    protected void setData(Map<DataTime, GeneralGridData> data) {
-        if (this.data.isEmpty()) {
-            this.data.putAll(data);
+    protected void setData(Map<DataTime, List<GeneralGridData>> data) {
+        if (this.dataMap.isEmpty()) {
+            this.dataMap.putAll(data);
         }
     }
 
@@ -235,11 +248,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      */
     protected void updataRenderableCapabilities(IRenderable renderable,
             AbstractCapability capability) {
-        if (renderable instanceof GriddedImageDisplay2) {
-            if (capability instanceof ImagingCapability) {
-                initSampling();
-            }
-        } else if (renderable instanceof AbstractGriddedDisplay<?>) {
+        if (renderable instanceof AbstractGriddedDisplay<?>) {
             AbstractGriddedDisplay<?> gridDisplay = (AbstractGriddedDisplay<?>) renderable;
             if (capability instanceof ColorableCapability) {
                 gridDisplay.setColor(getCapability(ColorableCapability.class)
@@ -338,25 +347,34 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected void initStylePreferences() throws VizStyleException {
         DisplayType displayType = getDisplayType();
         StyleRule styleRule = null;
-        switch (displayType) {
-        case IMAGE:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.IMAGERY, getMatchCriteria());
-            break;
-        case CONTOUR:
-        case STREAMLINE:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.CONTOUR, getMatchCriteria());
-            break;
-        case BARB:
-        case ARROW:
-        case DUALARROW:
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.ARROW, getMatchCriteria());
-            break;
+        MatchCriteria criteria = getMatchCriteria();
+        if (criteria != null) {
+            switch (displayType) {
+            case IMAGE:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.IMAGERY, criteria);
+                break;
+            case CONTOUR:
+            case STREAMLINE:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.CONTOUR, criteria);
+                break;
+            case BARB:
+            case ARROW:
+            case DUALARROW:
+                styleRule = StyleManager.getInstance().getStyleRule(
+                        StyleType.ARROW, criteria);
+                break;
+            }
         }
         if (styleRule != null) {
             stylePreferences = styleRule.getPreferences();
+            if (stylePreferences instanceof ImagePreferences) {
+                boolean interpolationState = ((ImagePreferences) styleRule
+                        .getPreferences()).isInterpolate();
+                this.getCapability(ImagingCapability.class)
+                        .setInterpolationState(interpolationState);
+            }
         }
     }
 
@@ -364,18 +382,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * Create an interpolation and format to be used when sampling
      */
     protected void initSampling() {
-        if (this.hasCapability(ImagingCapability.class)) {
-            ImagingCapability imagingCap = this
-                    .getCapability(ImagingCapability.class);
-            if (imagingCap.isInterpolationState()) {
-                sampleInterpolion = new GridSampler(new BilinearInterpolation());
-            } else {
-                sampleInterpolion = new GridSampler(
-                        new NearestNeighborInterpolation());
-            }
-        } else {
-            sampleInterpolion = new GridSampler(new BilinearInterpolation());
-        }
         if (stylePreferences != null
                 && stylePreferences instanceof ImagePreferences) {
             ImagePreferences prefs = (ImagePreferences) stylePreferences;
@@ -408,24 +414,30 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         }
         if (time == null) {
             return;
-        } else if (renderables.containsKey(time)) {
-            renderables.get(time).paint(target, paintProps);
-            return;
         }
+        synchronized (renderableMap) {
+            if (renderableMap.containsKey(time)) {
+                for (IRenderable renderable : renderableMap.get(time)) {
+                    renderable.paint(target, paintProps);
+                }
+                return;
+            }
 
-        GeneralGridData data = requestData(time);
-        if (data == null) {
-            updatePaintStatus(PaintStatus.INCOMPLETE);
-            return;
-        }
+            List<GeneralGridData> dataList = requestData(time);
+            if (dataList == null) {
+                return;
+            }
 
-        IRenderable renderable = createRenderable(target, data);
-
-        if (renderable != null) {
-            renderables.put(time, renderable);
-            renderable.paint(target, paintProps);
-        } else {
-            updatePaintStatus(PaintStatus.INCOMPLETE);
+            List<IRenderable> renderableList = new ArrayList<IRenderable>(
+                    dataList.size());
+            for (GeneralGridData data : dataList) {
+                IRenderable renderable = createRenderable(target, data);
+                if (renderable != null) {
+                    renderableList.add(renderable);
+                    renderable.paint(target, paintProps);
+                }
+            }
+            renderableMap.put(time, renderableList);
         }
     }
 
@@ -442,13 +454,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
         IRenderable renderable = null;
 
-        GridGeometry2D gridGeometry = getGridGeometry();
+        GridGeometry2D gridGeometry = data.getGridGeometry();
 
         DisplayType displayType = getDisplayType();
 
         switch (displayType) {
         case IMAGE:
-            if (renderables.isEmpty()) {
+            if (renderableMap.isEmpty()) {
                 ColorMapParameters params = createColorMapParameters(data);
                 if (params.getColorMap() == null) {
                     if (params.getColorMapName() == null) {
@@ -460,6 +472,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 this.getCapability(ColorMapCapability.class)
                         .setColorMapParameters(params);
             }
+            ColorMapParameters params = getCapability(ColorMapCapability.class)
+                    .getColorMapParameters();
+            data.convert(params.getImageUnit());
             GriddedImageDisplay2 imageRenderable = new GriddedImageDisplay2(
                     data.getScalarData(), gridGeometry, this, "2D");
             imageRenderable.init(target);
@@ -569,8 +584,20 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 && !criteria.getCreatingEntityNames().isEmpty()) {
             creatingEntity = criteria.getCreatingEntityNames().get(0);
         }
-        return ColorMapParameterFactory.build(data.getScalarData().array(),
-                parameter, parameterUnits, level, creatingEntity);
+        ColorMapParameters newParameters = ColorMapParameterFactory.build(data
+                .getScalarData().array(), parameter, parameterUnits, level,
+                creatingEntity);
+        ColorMapParameters oldParameters = this.getCapability(
+                ColorMapCapability.class).getColorMapParameters();
+        if (oldParameters != null
+                && oldParameters.getDataMin() <= newParameters.getDataMin()
+                && oldParameters.getDataMax() >= newParameters.getDataMax()) {
+            // if the oldParameters have a larger range than the new parameters,
+            // reuse the old parameters. This is useful when the resource is
+            // sharing capabilities, for example in an FFGVizGroupResource.
+            newParameters = oldParameters;
+        }
+        return newParameters;
     }
 
     /**
@@ -581,13 +608,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     public abstract ParamLevelMatchCriteria getMatchCriteria();
 
     /**
-     * The gridGeometry to use for this data.
-     * 
-     * @return
-     */
-    public abstract GridGeometry2D getGridGeometry();
-
-    /**
      * This method should return a data object for the given time and/or pdos.
      * 
      * @param pdos
@@ -595,29 +615,54 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * @return
      * @throws VizException
      */
-    public abstract GeneralGridData getData(DataTime time,
+    public abstract List<GeneralGridData> getData(DataTime time,
             List<PluginDataObject> pdos) throws VizException;
 
-    protected GeneralGridData requestData(DataTime time) {
+    protected List<GeneralGridData> requestData(DataTime time) {
         synchronized (requestJob) {
-            GeneralGridData data = this.data.get(time);
+            List<GeneralGridData> data = this.dataMap.get(time);
             if (data == null) {
-                data = requestJob.requestData(time, pdos.get(time));
+                data = requestJob.requestData(time, pdoMap.get(time));
                 if (data != null) {
-                    this.data.put(time, data);
+                    data = mergeData(data);
+                    this.dataMap.put(time, data);
                 }
             }
             return data;
         }
     }
 
+    /**
+     * Combine data records that are in the same grid space to avoid areas of
+     * overlapping data.
+     * 
+     * @param dataList
+     * @return
+     */
+    protected List<GeneralGridData> mergeData(List<GeneralGridData> dataList) {
+        if (dataList == null || dataList.size() < 2) {
+            return dataList;
+        }
+        for (int i = 0; i < dataList.size(); i += 1) {
+            GeneralGridData data1 = dataList.get(i);
+            for (int j = i + 1; j < dataList.size(); j += 1) {
+                GeneralGridData data2 = dataList.get(j);
+                GeneralGridData merged = GeneralGridData
+                        .mergeData(data1, data2);
+                if (merged != null) {
+                    dataList.set(i, merged);
+                    dataList.remove(j);
+                    j -= 1;
+                }
+
+            }
+        }
+        return dataList;
+    }
+
     @Override
     protected void disposeInternal() {
-        requestJob.stopAndClear();
-        for (IRenderable renderable : renderables.values()) {
-            disposeRenderable(renderable);
-        }
-        renderables.clear();
+        clearRequestedData();
     }
 
     /**
@@ -648,15 +693,28 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        Iterator<IRenderable> iter = renderables.values().iterator();
-        while (iter.hasNext()) {
-            IRenderable renderable = iter.next();
-            if (!projectRenderable(renderable, crs)) {
-                disposeRenderable(renderable);
-                iter.remove();
+        synchronized (renderableMap) {
+            Iterator<List<IRenderable>> iter = renderableMap.values()
+                    .iterator();
+            while (iter.hasNext()) {
+                List<IRenderable> renderableList = iter.next();
+                boolean remove = false;
+                for (IRenderable renderable : renderableList) {
+                    if (!projectRenderable(renderable, crs)) {
+                        remove = true;
+                        break;
+                    }
+                }
+                // If any one renderable fails to reproject then dispose them
+                // all, so that the whole frame gets regenerated.
+                if (remove) {
+                    for (IRenderable renderable : renderableList) {
+                        disposeRenderable(renderable);
+                    }
+                    iter.remove();
+                }
             }
         }
-        initSampling();
     }
 
     /**
@@ -685,7 +743,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return descriptor.getTimeForResource(this);
     }
 
-    protected GeneralGridData getCurrentData() {
+    protected List<GeneralGridData> getCurrentData() {
         DataTime time = getTimeForResource();
         if (time == null) {
             return null;
@@ -693,119 +751,133 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return requestData(time);
     }
 
-    public Measure<Float, ?> inspectValue(ReferencedCoordinate coord)
-            throws VizException {
-        GeneralGridData data = getCurrentData();
-        if (data == null) {
-            return null;
-        }
-        sampleInterpolion.setSource(new FloatBufferWrapper(
-                data.getScalarData(), getGridGeometry()));
-        float value = Float.NaN;
-        try {
-            Coordinate xy = coord.asPixel(getGridGeometry());
-            value = (float) sampleInterpolion.sample(xy.x, xy.y);
-        } catch (FactoryException e) {
-            throw new VizException(e);
-        } catch (TransformException e) {
-            throw new VizException(e);
-        }
-
-        sampleInterpolion.setSource(null);
-        Unit<?> unit = data.getDataUnit();
-
-        if (stylePreferences != null) {
-            Unit<?> styleUnit = stylePreferences.getDisplayUnits();
-            if (unit != null && !unit.equals(styleUnit)
-                    && unit.isCompatible(styleUnit)) {
-                value = (float) unit.getConverterTo(styleUnit).convert(value);
-                unit = styleUnit;
+    protected Interpolation getInspectInterpolation(GeneralGridData data) {
+        Interpolation sampleInterpolion = null;
+        if (this.hasCapability(ImagingCapability.class)) {
+            ImagingCapability imagingCap = this
+                    .getCapability(ImagingCapability.class);
+            if (imagingCap.isInterpolationState()) {
+                sampleInterpolion = new BilinearInterpolation();
+            } else {
+                sampleInterpolion = new NearestNeighborInterpolation();
             }
+        } else {
+            sampleInterpolion = new BilinearInterpolation();
         }
-
-        return Measure.valueOf(value, unit);
-    }
-
-    public Measure<Float, Angle> inspectDirection(ReferencedCoordinate coord)
-            throws VizException {
-        GeneralGridData data = getCurrentData();
-        if (data == null) {
-            return null;
-        }
-        if (!data.isVector()) {
-            return null;
-        }
-        sampleInterpolion.setSource(new FloatBufferWrapper(data.getDirection(),
-                getGridGeometry()));
-        float value = Float.NaN;
-        try {
-            Coordinate xy = coord.asPixel(getGridGeometry());
-            value = (float) sampleInterpolion.sample(xy.x, xy.y);
-        } catch (FactoryException e) {
-            throw new VizException(e);
-        } catch (TransformException e) {
-            throw new VizException(e);
-        }
-
-        sampleInterpolion.setSource(null);
-
-        return Measure.valueOf(value, NonSI.DEGREE_ANGLE);
+        return sampleInterpolion;
     }
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        Measure<Float, ?> value = inspectValue(coord);
-        if (value == null) {
-            return null;
-        }
-        if (value.getValue().isNaN()) {
+        Map<String, Object> map = interrogate(coord);
+        if (map == null) {
             return "NO DATA";
         }
-        Measure<Float, Angle> dir = inspectDirection(coord);
-        if (dir != null) {
-            return String.format("%.0f\u00B0 ",
-                    dir.floatValue(NonSI.DEGREE_ANGLE))
-                    + formatInspect(value);
-        } else {
-            return formatInspect(value);
+        double value = (Double) map.get(INTERROGATE_VALUE);
+        String result = sampleFormat.format(value) + map.get(INTERROGATE_UNIT);
+        // Data mapping images.
+        if (hasCapability(ColorMapCapability.class)) {
+            ColorMapParameters cmp = getCapability(ColorMapCapability.class)
+                    .getColorMapParameters();
+            if (cmp.getDataMapping() != null) {
+                double imageVal = cmp.getDisplayToImageConverter().convert(
+                        value);
+                String mapResult = cmp.getDataMapping()
+                        .getLabelValueForDataValue(imageVal);
+                if (mapResult != null && !mapResult.isEmpty()) {
+                    return mapResult;
+                }
+            }
         }
+        if (map.containsKey(INTERROGATE_DIRECTION)) {
+            double dir = (Double) map.get(INTERROGATE_DIRECTION);
+            result += String.format("%.0f\u00B0 ", dir);
+        }
+        return result;
     }
 
-    /**
-     * Format the value and return the sample string.
-     * 
-     * @param value
-     * @param unit
-     * @return
-     */
-    protected String formatInspect(Measure<Float, ?> value) {
-        Unit<?> dataUnit = value.getUnit();
-
-        if (dataUnit == null) {
-            return sampleFormat.format(value);
+    protected Map<String, Object> interrogate(ReferencedCoordinate coord,
+            GeneralGridData data) throws VizException {
+        Coordinate pixel = null;
+        try {
+            pixel = coord.asPixel(data.getGridGeometry());
+        } catch (TransformException e) {
+            // this should never happen, if your data geometry and screen
+            // geometry are incompatible then you probably already saw piles of
+            // errors in paint.
+            throw new VizException(
+                    "Error transforming coordinate for interrogate", e);
+        } catch (FactoryException e) {
+            // again, this should never hit.
+            throw new VizException(
+                    "Error transforming coordinate for interrogate", e);
         }
-        Unit<?> styleUnit = null;
+        Interpolation interpolation = getInspectInterpolation(data);
+        GridSampler sampler = new GridSampler(new FloatBufferWrapper(
+                data.getScalarData(), data.getGridGeometry()), interpolation);
+        double value = sampler.sample(pixel.x, pixel.y);
+        if (Double.isNaN(value)) {
+            return null;
+        }
+        String unitString = null;
+        Unit<?> unit = data.getDataUnit();
         if (stylePreferences != null) {
-            styleUnit = stylePreferences.getDisplayUnits();
+            Unit<?> styleUnit = stylePreferences.getDisplayUnits();
+            if (unit != null && unit.isCompatible(styleUnit)) {
+                value = (float) unit.getConverterTo(styleUnit).convert(value);
+                unit = styleUnit;
+                unitString = stylePreferences.getDisplayUnitLabel();
+            }
         }
-        if (dataUnit.equals(styleUnit)) {
-            return sampleFormat.format(value.getValue())
-                    + stylePreferences.getDisplayUnitLabel();
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put(INTERROGATE_VALUE, value);
+        if (unitString != null) {
+            result.put(INTERROGATE_UNIT, unitString);
+        } else if (unit != null && !unit.equals(Unit.ONE)) {
+            result.put(INTERROGATE_UNIT,
+                    UnitFormat.getUCUMInstance().format(unit));
         } else {
-            return sampleFormat.format(value.getValue())
-                    + UnitFormat.getUCUMInstance().format(value.getUnit());
+            result.put(INTERROGATE_UNIT, "");
         }
+        if (data.isVector()) {
+            sampler.setSource(new FloatBufferWrapper(data.getScalarData(), data
+                    .getGridGeometry()));
+            Double dir = sampler.sample(pixel.x, pixel.y);
+            result.put(INTERROGATE_DIRECTION, dir);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> interrogate(ReferencedCoordinate coord)
+            throws VizException {
+        List<GeneralGridData> dataList = getCurrentData();
+        if (dataList == null) {
+            return null;
+        }
+        for (GeneralGridData data : dataList) {
+            Map<String, Object> result = interrogate(coord, data);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     @Override
     public void remove(DataTime dataTime) {
-        pdos.remove(dataTime);
-        data.remove(dataTime);
+        pdoMap.remove(dataTime);
+        dataMap.remove(dataTime);
         requestJob.remove(dataTime);
         dataTimes.remove(dataTime);
-        IRenderable renderable = renderables.remove(dataTime);
-        if (renderable != null) {
-            disposeRenderable(renderable);
+        synchronized (renderableMap) {
+            List<IRenderable> renderableList = renderableMap.remove(dataTime);
+            if (renderableList != null) {
+                for (IRenderable renderable : renderableList) {
+                    disposeRenderable(renderable);
+                }
+            }
         }
     }
 
@@ -840,19 +912,30 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      */
     protected void clearRequestedData() {
         requestJob.stopAndClear();
-        for (IRenderable renderable : renderables.values()) {
-            disposeRenderable(renderable);
+        synchronized (renderableMap) {
+            for (List<IRenderable> renderableList : renderableMap.values()) {
+                for (IRenderable renderable : renderableList) {
+                    disposeRenderable(renderable);
+                }
+            }
+            renderableMap.clear();
         }
-        renderables.clear();
-        data.clear();
+        dataMap.clear();
     }
 
     protected List<PluginDataObject> getCurrentPluginDataObjects() {
-        return pdos.get(getTimeForResource());
+        return getPluginDataObjects(getTimeForResource());
     }
 
     protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
-        return pdos.get(time);
+        if (time == null) {
+            return null;
+        }
+        List<PluginDataObject> list = pdoMap.get(time);
+        if (list == null) {
+            return null;
+        }
+        return new ArrayList<PluginDataObject>(list);
     }
 
 }

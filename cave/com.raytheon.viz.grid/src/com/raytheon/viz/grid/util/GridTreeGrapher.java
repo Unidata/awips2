@@ -20,24 +20,21 @@
 package com.raytheon.viz.grid.util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.FloatRequestableData;
 import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.DerivedLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
-import com.raytheon.viz.grid.inv.GribRequestableLevelNode;
 import com.raytheon.viz.grid.inv.GridInventory;
+import com.raytheon.viz.grid.inv.GridRequestableNode;
 
 /**
  * This is a tool intended only for use by developers to help to visualize the
@@ -114,12 +111,8 @@ public class GridTreeGrapher {
             }
         } else if (node instanceof StaticDataLevelNode) {
             StaticDataLevelNode cNode = (StaticDataLevelNode) node;
-            AbstractRequestableData staticData = cNode
-                    .getData(
-                            new LayerProperty(),
-                            0,
-                            new HashMap<AbstractRequestableLevelNode, List<AbstractRequestableData>>())
-                    .get(0);
+            AbstractRequestableData staticData = cNode.getData(null, null)
+                    .iterator().next();
             if (staticData instanceof FloatRequestableData) {
                 String abbr = node.getClass().getSimpleName();
                 if (cNode.getDesc() != null) {
@@ -142,8 +135,8 @@ public class GridTreeGrapher {
                     System.out.println("node" + i + " -> node" + that);
                 }
             }
-        } else if (node instanceof AbstractDerivedLevelNode) {
-            AbstractDerivedLevelNode cNode = (AbstractDerivedLevelNode) node;
+        } else if (node instanceof AbstractDerivedDataNode) {
+            AbstractDerivedDataNode cNode = (AbstractDerivedDataNode) node;
             String abbr = node.getClass().getSimpleName();
             if (cNode.getDesc() != null) {
                 abbr = cNode.getDesc().getAbbreviation();
@@ -158,10 +151,10 @@ public class GridTreeGrapher {
         } else if (node instanceof FloatRequestableData) {
             System.out.println("node" + i + " [label=\"Constant: "
                     + ((FloatRequestableData) node).getDataValue() + "\"];");
-        } else if (node instanceof GribRequestableLevelNode) {
-            Map<String, RequestConstraint> rcMap = ((GribRequestableLevelNode) node)
+        } else if (node instanceof GridRequestableNode) {
+            Map<String, RequestConstraint> rcMap = ((GridRequestableNode) node)
                     .getRequestConstraintMap();
-            Level level = ((GribRequestableLevelNode) node).getLevel();
+            Level level = ((GridRequestableNode) node).getLevel();
             String label = rcMap.get(GridInventory.MODEL_NAME_QUERY)
                     .getConstraintValue()
                     + "\\n"

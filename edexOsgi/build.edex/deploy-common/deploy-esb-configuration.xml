@@ -7,5 +7,6 @@
 		overwrite="${esb.overwrite}">
 			<fileset file="${esb.directory}/bin/setup.env" />
 		</copy>
+	
 	</target>
 </project>

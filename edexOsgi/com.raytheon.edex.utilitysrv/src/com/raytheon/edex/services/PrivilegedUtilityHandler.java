@@ -3,6 +3,7 @@ package com.raytheon.edex.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -66,7 +67,8 @@ public class PrivilegedUtilityHandler
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            PrivilegedUtilityRequestMessage request) {
+            PrivilegedUtilityRequestMessage request)
+            throws AuthorizationException {
 
         AbstractPrivilegedUtilityCommand[] commands = request.getCommands();
         for (AbstractPrivilegedUtilityCommand abstractUtilityCommand : commands) {

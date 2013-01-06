@@ -20,23 +20,24 @@
 package com.raytheon.viz.pointdata.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
- * TODO Add Description
+ * Node for the HeightOf point data derived parameter
  * 
  * <pre>
  * 
@@ -51,13 +52,13 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
  * @version 1.0
  */
 
-public class HeightOfLevelNode extends AbstractDerivedLevelNode {
+public class HeightOfLevelNode extends AbstractDerivedDataNode {
 
-    private AbstractRequestableLevelNode latNode;
+    private AbstractRequestableNode latNode;
 
-    private AbstractRequestableLevelNode lonNode;
+    private AbstractRequestableNode lonNode;
 
-    private AbstractRequestableLevelNode timeNode;
+    private AbstractRequestableNode timeNode;
 
     /**
      * @param desc
@@ -66,40 +67,44 @@ public class HeightOfLevelNode extends AbstractDerivedLevelNode {
      * @param lonNode
      */
     public HeightOfLevelNode(Level level, DerivParamDesc desc,
-            DerivParamMethod method, AbstractRequestableLevelNode latNode,
-            AbstractRequestableLevelNode lonNode,
-            AbstractRequestableLevelNode timeNode) {
+            DerivParamMethod method, AbstractRequestableNode latNode,
+            AbstractRequestableNode lonNode, AbstractRequestableNode timeNode) {
         super(level, desc, method, null);
         this.latNode = latNode;
         this.lonNode = lonNode;
         this.timeNode = timeNode;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
     @Override
-    protected List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        result.put(latNode, availability);
+        result.put(lonNode, availability);
+        if (timeNode != null) {
+            result.put(timeNode, availability);
+        }
+        return result;
+    }
+
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        AbstractRequestableData latRequest = latNode.getData(property, timeOut,
-                cache).get(0);
-        AbstractRequestableData lonRequest = lonNode.getData(property, timeOut,
-                cache).get(0);
+        AbstractRequestableData latRequest = dependencyData.get(latNode)
+                .iterator().next();
+        AbstractRequestableData lonRequest = dependencyData.get(lonNode)
+                .iterator().next();
         AbstractRequestableData timeRequest = null;
         if (timeNode != null) {
-            timeRequest = timeNode.getData(property, timeOut, cache).get(0);
+            timeRequest = dependencyData.get(timeNode).iterator().next();
         }
         AbstractRequestableData heightOf = new HeightOfRequestableData(
                 this.getLevel(), this.desc.getAbbreviation(), latRequest,
                 lonRequest, timeRequest);
-        return Arrays.asList(heightOf);
+        return new HashSet<AbstractRequestableData>(Arrays.asList(heightOf));
     }
 
     /*
@@ -119,23 +124,10 @@ public class HeightOfLevelNode extends AbstractDerivedLevelNode {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * timeQueryInternal(boolean, java.util.Map)
-     */
     @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
-        return TIME_AGNOSTIC;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        return true;
+        return AvailabilityContainer.AGNOSTIC_SET;
     }
 }

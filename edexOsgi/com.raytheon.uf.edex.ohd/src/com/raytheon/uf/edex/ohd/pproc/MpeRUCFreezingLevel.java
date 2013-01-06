@@ -93,16 +93,24 @@ public class MpeRUCFreezingLevel {
     public static String[] models = new String[] { "RUC236" };
 
     public MpeRUCFreezingLevel() {
-        File directory = new File(stationFilePath);
+        try {
+            File directory = new File(stationFilePath);
 
-        if (directory != null) {
-            for (File file : directory.listFiles()) {
-                if (file.isFile()
-                        && file.getName().contains("freezing_station_list")) {
-                    this.stationFile = file;
-                    break;
+            if (directory != null) {
+                for (File file : directory.listFiles()) {
+                    if (file != null) {
+                        if (file.isFile()
+                                && file.getName().contains(
+                                        "freezing_station_list")) {
+                            this.stationFile = file;
+                            break;
+                        }
+                    }
                 }
             }
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.WARN, "No mpe_station_list_dir found");
         }
 
         // correct env vairiable dqcPreprocessorBasetime if needed
@@ -325,6 +333,10 @@ public class MpeRUCFreezingLevel {
      * Process the MPE freezing Levels
      */
     public void processMpeRuc() {
+        if (!AppsDefaults.getInstance().setAppContext(this)) {
+            return;
+        }
+
         Integer forecastHour = null;
         HashMap<String, HashMap<Integer, FreezingLevelXML>> freezingTimeMap = new HashMap<String, HashMap<Integer, FreezingLevelXML>>();
         LinkedHashMap<String, Coordinate> freezingStations = new LinkedHashMap<String, Coordinate>();
