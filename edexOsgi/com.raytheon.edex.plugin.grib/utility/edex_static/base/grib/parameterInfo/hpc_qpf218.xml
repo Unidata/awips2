@@ -16,7 +16,7 @@
     <fcst>259200</fcst>
   </valtimeMINUSreftime>
   <gribParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tpHPC</short_name>
+    <short_name>tp_HPC</short_name>
     <long_name>6 hr Total Precip</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>

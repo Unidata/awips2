@@ -36,6 +36,7 @@ import com.raytheon.viz.gfe.temporaleditor.dialogs.TEDiscreteSetValueDialog;
  * Date         Ticket#    Engineer      Description
  * ------------ ---------- ------------- --------------------------
  * May 28, 2009 #2159      Richard Peter Initial Creation.
+ * Nov 13, 2012 #1298      rferrel       Changes for non-blocking TEDiscreteSetValueDialog.
  * </pre>
  * 
  * @author rjpeter
@@ -54,9 +55,12 @@ public class SetDiscreteAction extends Action {
 
     @Override
     public void run() {
+        // The dialog being opened is modal to the parent dialog. This will
+        // prevent the launching of another dialog until the modal dialog is
+        // closed.
         TEDiscreteSetValueDialog discretePickupValueDialog = new TEDiscreteSetValueDialog(
                 Display.getCurrent().getActiveShell(), parm, date);
-        discretePickupValueDialog.setBlockOnOpen(true);
+        discretePickupValueDialog.setBlockOnOpen(false);
         discretePickupValueDialog.open();
     }
 }

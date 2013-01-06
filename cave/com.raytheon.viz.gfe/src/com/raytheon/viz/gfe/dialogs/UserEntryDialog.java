@@ -26,14 +26,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+
 /**
- * TODO Add Description
+ * Dialog to get user text.
  * 
  * <pre>
  * 
@@ -41,24 +41,14 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2010            lvenable     Initial creation
+ * Nov 14, 2012 1298       rferrel     Convert to CaveSWTDialog for non-blocking.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class UserEntryDialog extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    private String dialogTitle;
+public class UserEntryDialog extends CaveSWTDialog {
 
     private String message;
 
@@ -68,21 +58,18 @@ public class UserEntryDialog extends Dialog {
 
     public UserEntryDialog(Shell parentShell, String title, String message,
             String defaultText) {
-        super(parentShell, 0);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, CAVE.NONE);
 
-        this.dialogTitle = title;
+        if (title != null) {
+            setText(title);
+        }
+
         this.message = message;
         this.inputText = defaultText;
     }
 
-    public String open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-
-        if (dialogTitle != null) {
-            shell.setText(dialogTitle);
-        }
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -90,17 +77,6 @@ public class UserEntryDialog extends Dialog {
 
         // Initialize data and all of the controls and layouts
         initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return inputText;
     }
 
     private void initializeComponents() {
@@ -127,7 +103,7 @@ public class UserEntryDialog extends Dialog {
         inputTF = new Text(controlComp, SWT.BORDER);
         inputTF.setLayoutData(gd);
 
-        if (this.inputText != null) {
+        if (inputText != null) {
             inputTF.setText(inputText);
         }
     }
@@ -147,8 +123,9 @@ public class UserEntryDialog extends Dialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                inputText = inputTF.getText().trim();
-                shell.dispose();
+                String inputText = inputTF.getText().trim();
+                setReturnValue(inputText);
+                close();
             }
         });
 
@@ -160,8 +137,8 @@ public class UserEntryDialog extends Dialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                inputText = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }

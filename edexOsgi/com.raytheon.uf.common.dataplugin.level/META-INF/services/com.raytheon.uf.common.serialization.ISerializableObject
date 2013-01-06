@@ -1,8 +1,2 @@
 com.raytheon.uf.common.dataplugin.level.Level
 com.raytheon.uf.common.dataplugin.level.MasterLevel
-com.raytheon.uf.common.dataplugin.level.xml.Group
-com.raytheon.uf.common.dataplugin.level.xml.GroupList
-com.raytheon.uf.common.dataplugin.level.xml.Level
-com.raytheon.uf.common.dataplugin.level.xml.LevelAlias
-com.raytheon.uf.common.dataplugin.level.xml.LevelAliasList
-com.raytheon.uf.common.dataplugin.level.xml.LevelValue

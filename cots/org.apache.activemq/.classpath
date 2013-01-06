@@ -8,7 +8,7 @@
 	<classpathentry exported="true" kind="lib" path="activemq-jaas-5.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="activemq-pool-5.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="activemq-web-5.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="backport-util-concurrent-2.1.jar"/>
+	<classpathentry kind="lib" path="backport-util-concurrent-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="geronimo-j2ee-management_1.0_spec-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="geronimo-jta_1.0.1B_spec-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jencks-amqpool-2.0.jar"/>

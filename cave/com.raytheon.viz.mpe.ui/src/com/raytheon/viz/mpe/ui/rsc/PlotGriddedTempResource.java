@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Feb 29  2010  9909         lbousaidi	  changed the for loop for getting 
  * 										  the HRAP grid bin
  * Apr 17, 2012	 9602		mgamazaychikm	Changed the HRAP grid j index for loop
+ * Nov 02, 2012  1302       djohnson    Remove target.setUseBuiltinColorbar().
  * </pre>
  * 
  * @author snaples
@@ -107,9 +108,9 @@ public class PlotGriddedTempResource extends
 
     private GridGeometry2D gridGeometry;
 
-    private float brightness = 1.0f;
+    private final float brightness = 1.0f;
 
-    private float contrast = 1.0f;
+    private final float contrast = 1.0f;
 
     private boolean isInterpolated;
 
@@ -127,7 +128,7 @@ public class PlotGriddedTempResource extends
 
     private static final GeometryFactory gf = new GeometryFactory();
 
-    private List<Colorvalue> colorSet;
+    private final List<Colorvalue> colorSet;
 
     Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
@@ -441,6 +442,7 @@ public class PlotGriddedTempResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+
         if (buf == null || DailyQcUtils.grids_flag != 1
                 || displayMgr.isMaxmin() != true) {
             return;

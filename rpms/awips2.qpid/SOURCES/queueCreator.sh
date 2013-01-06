@@ -52,4 +52,12 @@ do
    qpid-config add queue $queue --durable --file-count 16 --file-size 24
 done
 
+#define 24 Meg persistence queues for HPE ingest
+QUEUES=('Ingest.dhr' 'dhrProcess')
+for queue in ${QUEUES[*]};
+do
+   echo "Creating queue $queue"
+   qpid-config add queue $queue --durable --file-count 16 --file-size 24
+done
+
 
