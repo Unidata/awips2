@@ -349,6 +349,14 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest" />
 		<constructor-arg ref="CheckPermissionsRequestHandler" />
 	</bean>
+	
+	<bean id="NcCheckRequestHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.NcCheckRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest" />
+		<constructor-arg ref="NcCheckRequestHandler" />
+	</bean>
 
 	<bean id="ExportConfRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportConfRequestHandler" />

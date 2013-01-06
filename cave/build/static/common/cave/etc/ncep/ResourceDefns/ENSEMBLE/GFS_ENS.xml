@@ -7,7 +7,7 @@
     <resourceParameters>
 primaryModel=gfs
 availableModels=gfs
-pluginName=grid
+pluginName=ncgrib
     </resourceParameters>
     <filterLabels>Forecast,Global,Ensemble</filterLabels>
     <rscImplementation>EnsembleFcstGridContours</rscImplementation>
