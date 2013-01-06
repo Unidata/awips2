@@ -689,13 +689,6 @@ public class SaveLevel2Data {
                         gm.get(Calendar.MONTH) + 1,
                         gm.get(Calendar.DAY_OF_MONTH));
 
-                //copy DailyQcUtils.pcp.value to datavals
-               	for (int h = 0; h < hrap_grid.maxj; h++) {
-               		for (int i = 0; i < hrap_grid.maxi; i++) {
-               			datavals[i][h] = (DailyQcUtils.pcp.value[i][h] / 100.f);
-               		}
-               	}
-
                 /* output grid to file in ascii xmrg format */
                 WriteQPFGrids wqg = new WriteQPFGrids();
                 wqg.write_qpf_grids(dbuf);

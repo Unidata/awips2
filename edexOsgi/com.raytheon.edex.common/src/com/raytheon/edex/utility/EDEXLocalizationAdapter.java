@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationFile.ModifiableLocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -77,23 +78,6 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.edex.utility.ILocalizationAdapter#getDirNameForType(com.
-     * raytheon.edex.utility.LocalizationContext.LocalizationType)
-     */
-    @Override
-    public String getDirNameForType(LocalizationType type) {
-
-        if (type == LocalizationType.UNKNOWN) {
-            throw new IllegalArgumentException("Unsupported type: " + type);
-        } else {
-            return type.toString().toLowerCase();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * com.raytheon.edex.utility.ILocalizationAdapter#getLocalSearchHierarchy
      * (com.raytheon.edex.utility.LocalizationContext.LocalizationType)
      */
@@ -119,7 +103,7 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         }
     }
 
-    private String getSiteName() {
+    protected String getSiteName() {
         String site = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("SITENAME");
 
@@ -176,12 +160,7 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
     @Override
     public File getPath(LocalizationContext context, String fileName) {
 
-        String baseDir = null;
-
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-
-        String utilityDir = new File(env.getEnvValue("UTILITYDIR"))
-                .getAbsolutePath();
+        File utilityDir = getUtilityDir();
 
         if (context.getLocalizationLevel() == LocalizationLevel.UNKNOWN) {
             throw new IllegalArgumentException(
@@ -191,11 +170,11 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
             // TODO: Check for invalid type / level combinations
             // Change the above condition and add invalid type / level checking
             // if needed
-        } else {
-            baseDir = utilityDir + File.separator + context.toPath();
         }
 
-        return new File(baseDir + File.separator + fileName);
+        File baseDir = new File(utilityDir, context.toPath());
+
+        return new File(baseDir, fileName);
     }
 
     /*
@@ -210,6 +189,17 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
                 LocalizationType.EDEX_STATIC, LocalizationType.COMMON_STATIC };
 
         return type;
+    }
+
+    /**
+     * Get the file reference to the utility directory.
+     * 
+     * @return the file reference to the utility directory
+     */
+    protected File getUtilityDir() {
+        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
+
+        return new File(env.getEnvValue("UTILITYDIR"));
     }
 
     /**
@@ -288,43 +278,37 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
 
     // --- CRUD Operations ---------------------------------------------------
 
-    /**
-     * <EM>UNSUPPORTED</EM> Create a file
-     * <p>
-     * On EDEX all file operations are local and do not need to be created,
-     * read, updated, or deleted from a remote source. Instead of using the CRUD
-     * methods provided by the {@link ILocalizationAdapter} interface use
-     * {@link #getPath(LocalizationContext, String)} and appropriate File object
-     * methods.
-     * </p>
+    /*
+     * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.common.localization.ILocalizationAdapter#save(java.io.File,
-     *      com.raytheon.uf.common.localization.LocalizationContext,
-     *      java.lang.String)
+     * @see com.raytheon.uf.common.localization.ILocalizationAdapter#save(
+     * com.raytheon.uf.common.localization.LocalizationFile.
+     * ModifiableLocalizationFile)
      */
     @Override
-    public boolean save(File localFile, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
-
-        if (context.getLocalizationLevel().equals(LocalizationLevel.BASE)) {
+    public boolean save(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
+        if (file.getContext().getLocalizationLevel()
+                .equals(LocalizationLevel.BASE)) {
             throw new UnsupportedOperationException(
                     "Saving to the BASE context is not supported.");
         }
         return true;
     }
 
-    /**
-     * Delete a file. Deletes the local file.
+    /*
+     * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.common.localization.ILocalizationAdapter#delete(java.io.File,
-     *      com.raytheon.uf.common.localization.LocalizationContext,
-     *      java.lang.String)
+     * @see com.raytheon.uf.common.localization.ILocalizationAdapter#delete(
+     * com.raytheon.uf.common.localization.LocalizationFile.
+     * ModifiableLocalizationFile)
      */
     @Override
-    public boolean delete(File file, LocalizationContext context,
-            String fileName) throws LocalizationOpFailedException {
-        if (file.exists()) {
-            return file.delete();
+    public boolean delete(ModifiableLocalizationFile file)
+            throws LocalizationOpFailedException {
+        File localFile = file.getLocalFile();
+        if (localFile.exists()) {
+            return localFile.delete();
         }
         return true;
     }

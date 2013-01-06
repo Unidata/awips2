@@ -22,11 +22,8 @@
     <Method models="SREF212" name="Alias">
         <Field abbreviation="TP6mean"/>
     </Method>
-    <Method name="Alias" models="RFCqpf HPCqpf">
-        <Field abbreviation="tpHPC"/>
-    </Method>
-    <Method name="Alias" models="HPCqpfNDFD">
-        <Field abbreviation="tpHPCndfd"/>
+    <Method name="Alias" models="RFCqpf">
+    	<Field abbreviation="tpHPC"/>
     </Method>
     <Method name="Alias">
         <Field abbreviation="QPE06"/>

@@ -21,7 +21,7 @@
 <menuContributionFile>
 
 	<include installTo="menu:upperAir?before=PROFILER" fileName="menus/upperair/baseUpperAir.xml" />
-	<include subMenu="Alaska NPN time-height" installTo="menu:upperAir?after=PROFILER" fileName="menus/upperair/baseAlaskaNPN.xml" />
+	<include subMenu="Alaska NPN time-heigh" installTo="menu:upperAir?after=PROFILER" fileName="menus/upperair/baseAlaskaNPN.xml" />
 	<include subMenu="West NPN time-height" installTo="menu:upperAir?before=ProfilerMenuEnd"
 		fileName="menus/upperair/baseWestNPN.xml" />
 	<include subMenu="East NPN time-height" installTo="menu:upperAir?before=ProfilerMenuEnd"

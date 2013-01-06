@@ -34,19 +34,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="msl-P" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -68,19 +68,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="SAcc" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -101,19 +101,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="SAcc" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -134,19 +134,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="SArun" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -168,19 +168,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="PTyp" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -201,19 +201,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Snow3" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -234,19 +234,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Fzra2" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -267,19 +267,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Mix2" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -300,19 +300,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Rain3" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -333,19 +333,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Wind" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -374,22 +374,22 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="Tmax" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="6" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -410,19 +410,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="T" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -443,22 +443,22 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TwMax" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="6" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -479,19 +479,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TW" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -512,19 +512,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TW" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -546,19 +546,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="PTyp" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -579,20 +579,20 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="P" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -613,20 +613,20 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="zAGL" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -647,20 +647,20 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="P" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -681,20 +681,20 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="zAGL" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -723,23 +723,23 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TwMax" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="6" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -761,19 +761,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="PTyp" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -794,19 +794,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TP" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -827,20 +827,20 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="RH" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<!--NOT SURE-->
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -861,19 +861,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TP" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -902,22 +902,22 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TwMax" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="6" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -938,19 +938,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="TW" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -971,19 +971,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="IPLayer" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="EA" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -1004,22 +1004,22 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="CritT1" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="3" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -1040,19 +1040,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="zAGL" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>
@@ -1073,19 +1073,19 @@ ModFamL| |N|Winter: PType Family| |OTHER | | \
 					</properties>
 					<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="PTyp" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS"/>
+								<constraint constraintValue="grid" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.masterLevel.name">
+							<mapping key="info.level.masterLevel.name">
 								<constraint constraintValue="SFC" constraintType="EQUALS"/>
 							</mapping>
-							<mapping key="modelInfo.level.levelonevalue">
+							<mapping key="info.level.levelonevalue">
 								<constraint constraintValue="0" constraintType="EQUALS"/>
 							</mapping>
 						</metadataMap>

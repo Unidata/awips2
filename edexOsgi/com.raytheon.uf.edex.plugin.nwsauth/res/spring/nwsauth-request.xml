@@ -4,7 +4,7 @@
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
-  <bean id="roleStorage" class="com.raytheon.uf.edex.plugin.nwsauth.roles.NwsRoleStorage"/>
+  <bean id="roleStorage" class="com.raytheon.uf.edex.plugin.nwsauth.NwsRoleStorage"/>
   <bean id="authenticator" class="com.raytheon.uf.edex.plugin.nwsauth.authentication.Authenticator"/>
   <bean id="authStorage" class="com.raytheon.uf.edex.plugin.nwsauth.authentication.AuthenticationStorage"/>
   

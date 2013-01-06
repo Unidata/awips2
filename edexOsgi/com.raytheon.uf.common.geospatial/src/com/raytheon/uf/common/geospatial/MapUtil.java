@@ -595,6 +595,33 @@ public class MapUtil {
         return LATLON_PROJECTION;
     }
 
+    public static ProjectedCRS contructLambertAzimuthalEqualArea(
+            double majorAxis, double minorAxis, double latOfOrigin,
+            double centralMeridian, double falseEasting, double falseNorthing) {
+
+        try {
+            ParameterValueGroup parameters = dmtFactory
+                    .getDefaultParameters("Lambert_Azimuthal_Equal_Area");
+
+            parameters.parameter("semi_major").setValue(majorAxis);
+            parameters.parameter("semi_minor").setValue(minorAxis);
+            parameters.parameter("latitude_of_center").setValue(latOfOrigin);
+            parameters.parameter("longitude_of_center").setValue(
+                    centralMeridian);
+            parameters.parameter("false_easting").setValue(falseEasting);
+            parameters.parameter("false_northing").setValue(falseNorthing);
+
+            String name = "Equidistant_Cylindrical (LO: " + latOfOrigin
+                    + ", CM: " + centralMeridian + ")";
+
+            return constructProjection(name, parameters);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            return null;
+        }
+
+    }
+
     /**
      * Construct a lambert conformal crs
      * 
@@ -1551,5 +1578,43 @@ public class MapUtil {
                 new int[] { 0, 0 }, new int[] { (int) (sizes[0]),
                         (int) (sizes[1]) }), newEnv);
         return newTarget;
+    }
+
+    public static ReferencedEnvelope getBoundingEnvelope(
+            CoordinateReferenceSystem crs, Polygon crs84Shape) {
+        try {
+            // the polygons aren't truly projected, they are just the projected
+            // points
+            Coordinate[] coords = crs84Shape.getExteriorRing().getCoordinates();
+            MathTransform mt = CRS.findMathTransform(MapUtil.LATLON_PROJECTION,
+                    crs);
+            // here we project the points back to the native crs
+
+            double maxX = Double.NEGATIVE_INFINITY;
+            double maxY = Double.NEGATIVE_INFINITY;
+            double minX = Double.POSITIVE_INFINITY;
+            double minY = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < coords.length; ++i) {
+                DirectPosition2D to = new DirectPosition2D();
+                mt.transform(new DirectPosition2D(coords[i].x, coords[i].y), to);
+                maxX = Math.max(maxX, to.x);
+                maxY = Math.max(maxY, to.y);
+                minX = Math.min(minX, to.x);
+                minY = Math.min(minY, to.y);
+            }
+
+            return new ReferencedEnvelope(minX, maxX, minY, maxY, crs);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+            // FIXME actually handle error
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
+            throws FactoryException {
+        CoordinateReferenceSystem crs = spatial.getCrs();
+        Geometry geom = spatial.getGeometry();
+        return MapUtil.getBoundingEnvelope(crs, (Polygon) geom);
     }
 }
