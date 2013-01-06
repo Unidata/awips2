@@ -7,7 +7,9 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.edex.auth;bundle-version="1.12.2",
  com.raytheon.uf.common.auth;bundle-version="1.12.2",
- com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.0.0"
+ com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,

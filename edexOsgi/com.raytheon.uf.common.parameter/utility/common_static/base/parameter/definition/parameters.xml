@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+<parameterList>
+	<!-- Defines the parameters that are considered well defined. Not all parameters 
+		in the database are guaranteed to be in this file since it is possible for 
+		an ingest plugin to specify new parameters. Defining a parameter here will 
+		cause all data to be stored using the given unit and also makes it possible 
+		to use that parameter in the parameter mapping framework. In the long term, 
+		all new parameters should be added here to avoid conflicts that could occur 
+		if two ingest plugins use the same abbreviation for different parameters. -->
+	<parameter>
+		<name>5-Wave Geopotential Height</name>
+		<abbreviation>WGH</abbreviation>
+		<unit>gpm</unit>
+	</parameter>
+	<parameter>
+		<name>Absolute Vorticity</name>
+		<abbreviation>AV</abbreviation>
+		<unit>/s</unit>
+	</parameter>
+	<parameter>
+		<name>Categorical Rain</name>
+		<abbreviation>CRAIN</abbreviation>
+		<unit>bit</unit>
+	</parameter>
+	<parameter>
+		<name>Categorical Freezing Rain</name>
+		<abbreviation>CFRZR</abbreviation>
+		<unit>bit</unit>
+	</parameter>
+	<parameter>
+		<name>Categorical Ice Pellets</name>
+		<abbreviation>CICEP</abbreviation>
+		<unit>bit</unit>
+	</parameter>
+	<parameter>
+		<name>Categorical Snow</name>
+		<abbreviation>CSNOW</abbreviation>
+		<unit>bit</unit>
+	</parameter>
+	<parameter>
+		<name>Cloud Water</name>
+		<abbreviation>CWAT</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Available Potential Energy</name>
+		<abbreviation>CAPE</abbreviation>
+		<unit>J/kg</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Inhibition</name>
+		<abbreviation>CIn</abbreviation>
+		<unit>J/kg</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Cloud Cover</name>
+		<abbreviation>CDCON</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation</name>
+		<abbreviation>CP</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation(1 hour)</name>
+		<abbreviation>CP1hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation(3 hours)</name>
+		<abbreviation>CP3hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation(6 hours)</name>
+		<abbreviation>CP6hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation(9 hours)</name>
+		<abbreviation>CP9hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation(12 hours)</name>
+		<abbreviation>CP12hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Convective Precipitation Rate</name>
+		<abbreviation>CPRAT</abbreviation>
+		<unit>mm/s</unit>
+	</parameter>
+	<parameter>
+		<name>Dew Point Depression</name>
+		<abbreviation>DpD</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Dew Point Temperature</name>
+		<abbreviation>DpT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Direction of Wind Waves</name>
+		<abbreviation>WVDIR</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
+		<name>Direction of Swell Waves</name>
+		<abbreviation>SWDIR</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
+		<name>Equivalent Potential Temperature</name>
+		<abbreviation>EPT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Evaporation</name>
+		<abbreviation>EVP</abbreviation>
+		<unit>kg/m^2</unit>
+	</parameter>
+	<parameter>
+		<name>Geometric Height</name>
+		<abbreviation>GeH</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Geopotential Height</name>
+		<abbreviation>GH</abbreviation>
+		<unit>gpm</unit>
+	</parameter>
+	<parameter>
+		<name>Heat Index</name>
+		<abbreviation>HIdx</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>High Cloud Cover</name>
+		<abbreviation>HCDC</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Humidity Mixing Ratio</name>
+		<abbreviation>MIXR</abbreviation>
+		<unit>kg/kg</unit>
+	</parameter>
+	<parameter>
+		<name>Ice Thickness</name>
+		<abbreviation>ICETK</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Lapse Rate</name>
+		<abbreviation>LAPR</abbreviation>
+		<unit>K/m</unit>
+	</parameter>
+	<parameter>
+		<name>Large Scale Precipitation</name>
+		<abbreviation>LgSP</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Large Scale Precipitation(1 hour)</name>
+		<abbreviation>LgSP1hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Large Scale Precipitation(3 hour)</name>
+		<abbreviation>LgSP3hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Latent Heat Flux</name>
+		<abbreviation>LHF</abbreviation>
+		<unit>W/m^2</unit>
+	</parameter>
+	<parameter>
+		<name>Low Cloud Cover</name>
+		<abbreviation>LCDC</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Minimum Temperature</name>
+		<abbreviation>MnT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Mean Period of Wind Waves</name>
+		<abbreviation>WVPER</abbreviation>
+		<unit>s</unit>
+	</parameter>
+	<parameter>
+		<name>Mean Period of Swell Waves</name>
+		<abbreviation>SWPER</abbreviation>
+		<unit>s</unit>
+	</parameter>
+	<parameter>
+		<name>Medium Cloud Cover</name>
+		<abbreviation>MCDC</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Maximum Temperature</name>
+		<abbreviation>MxT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Parcel Lifted Index (to 500 mb)</name>
+		<abbreviation>PLI</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Potential Temperature</name>
+		<abbreviation>PoT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Pressure Anomaly</name>
+		<abbreviation>PRESA</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Pressure</name>
+		<abbreviation>P</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Pressure Reduced to MSL</name>
+		<abbreviation>PMSL</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>MSLP (ETA Reduction)</name>
+		<abbreviation>EMSP</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>MSLP (MAPS Reduction)</name>
+		<abbreviation>MMSP</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Primary Wave Direction</name>
+		<abbreviation>DIRPW</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
+		<name>Primary Wave Mean Period</name>
+		<abbreviation>PERPW</abbreviation>
+		<unit>s</unit>
+	</parameter>
+	<parameter>
+		<name>Precipitation Rate</name>
+		<abbreviation>PR</abbreviation>
+		<unit>mm/s</unit>
+	</parameter>
+	<parameter>
+		<name>Probability of Frozen Precip</name>
+		<abbreviation>CPOFP</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Probability of Freezing Precip</name>
+		<abbreviation>CPOZP</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Potential Evaporation</name>
+		<abbreviation>PEVAP</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Potential Evaporation Rate</name>
+		<abbreviation>PEVPR</abbreviation>
+		<unit>W/m^2</unit>
+	</parameter>
+	<parameter>
+		<name>Potential Vorticity</name>
+		<abbreviation>PVORT</abbreviation>
+		<unit>m^2*kg^-1*s^-1</unit>
+	</parameter>
+	<parameter>
+		<name>Precipitable Water</name>
+		<abbreviation>PW</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Relative Humidity</name>
+		<abbreviation>RH</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Sensible Heat Flux</name>
+		<abbreviation>SHF</abbreviation>
+		<unit>W/m^2</unit>
+	</parameter>
+	<parameter>
+		<name>Saturation Deficit</name>
+		<abbreviation>SATD</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Secondary Wave Direction</name>
+		<abbreviation>DIRSW</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
+		<name>Secondary Wave Mean Period</name>
+		<abbreviation>PERSW</abbreviation>
+		<unit>s</unit>
+	</parameter>
+	<parameter>
+		<name>Significant Height of Wind Waves</name>
+		<abbreviation>WVHGT</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Significant Height of Swell Waves</name>
+		<abbreviation>SWELL</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Snow Cover</name>
+		<abbreviation>SCP</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Snow Depth</name>
+		<abbreviation>SnD</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Soil Temperature</name>
+		<abbreviation>TSOIL</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Specific Humidity</name>
+		<abbreviation>SH</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Storm Relative Helicity</name>
+		<abbreviation>Heli</abbreviation>
+		<unit>m^2/s^2</unit>
+	</parameter>
+	<parameter>
+		<name>Surface Lifted Index</name>
+		<abbreviation>SLI</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Temperature</name>
+		<abbreviation>T</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Total Cloud Cover</name>
+		<abbreviation>TCC</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Temperature Anomaly</name>
+		<abbreviation>Ta</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Thunderstorm Probability</name>
+		<abbreviation>ThP</abbreviation>
+		<unit>%</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation</name>
+		<abbreviation>TP</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(1 hour)</name>
+		<abbreviation>TP1hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(3 hours)</name>
+		<abbreviation>TP3hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(6 hours)</name>
+		<abbreviation>TP6hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(9 hours)</name>
+		<abbreviation>TP9hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(12 hours)</name>
+		<abbreviation>TP12hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(18 hours)</name>
+		<abbreviation>TP18hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(24 hours)</name>
+		<abbreviation>TP24hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Total Precipitation(48 hours)</name>
+		<abbreviation>TP48hr</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>U-Component of Storm Motion</name>
+		<abbreviation>USTM</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>V-Component of Storm Motion</name>
+		<abbreviation>VSTM</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>U-Component of Wind</name>
+		<abbreviation>uW</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>V-Component of Wind</name>
+		<abbreviation>vW</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>Vapor Pressure</name>
+		<abbreviation>VAPP</abbreviation>
+		<unit>Pa</unit>
+	</parameter>
+	<parameter>
+		<name>Vertical Speed Shear</name>
+		<abbreviation>VWSH</abbreviation>
+		<unit>/s</unit>
+	</parameter>
+	<parameter>
+		<name>Vertical Velocity Pressure</name>
+		<abbreviation>PVV</abbreviation>
+		<unit>Pa/s</unit>
+	</parameter>
+	<parameter>
+		<name>Visibility</name>
+		<abbreviation>Vis</abbreviation>
+		<unit>m</unit>
+	</parameter>
+	<parameter>
+		<name>Virtual Potential Temperature</name>
+		<abbreviation>VPT</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Virtual Temperature</name>
+		<abbreviation>VTMP</abbreviation>
+		<unit>K</unit>
+	</parameter>
+	<parameter>
+		<name>Water Equivalent of Accumulated Snow Depth</name>
+		<abbreviation>WEASD</abbreviation>
+		<unit>mm</unit>
+	</parameter>
+	<parameter>
+		<name>Wind Direction (from which blowing)</name>
+		<abbreviation>WD</abbreviation>
+		<unit>deg</unit>
+	</parameter>
+	<parameter>
+		<name>Wind Mixing Energy</name>
+		<abbreviation>WMIXE</abbreviation>
+		<unit>J</unit>
+	</parameter>
+	<parameter>
+		<name>Wind Speed</name>
+		<abbreviation>WS</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+	<parameter>
+		<name>Wind Gust Speed</name>
+		<abbreviation>WGS</abbreviation>
+		<unit>m/s</unit>
+	</parameter>
+</parameterList>

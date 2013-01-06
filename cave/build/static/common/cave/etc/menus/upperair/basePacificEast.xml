@@ -81,7 +81,7 @@
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Midway Island (Navy) (PMDY)" id="raobPortland_ME"
+	                menuText="Midway Island (Nayv) (PMDY)" id="raobPortland_ME"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="91066"/>
 	    </contribute>

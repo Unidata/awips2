@@ -36,16 +36,16 @@
 					<resourceData xsi:type="rcmResourceData"
 						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" customLegend="10 km Radar Coded Msg">
 						<metadataMap>
-							<mapping key="modelInfo.parameterAbbreviation">
+							<mapping key="info.parameter.abbreviation">
 								<constraint constraintValue="RDSP1" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="modelInfo.modelName">
+							<mapping key="info.datasetId">
 								<constraint constraintValue="RCM" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="pluginName">
-								<constraint constraintValue="grib" constraintType="EQUALS" />
+								<constraint constraintValue="grid" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="modelInfo.level.leveltwovalue">
+							<mapping key="info.level.leveltwovalue">
 								<constraint constraintValue="-999999" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>

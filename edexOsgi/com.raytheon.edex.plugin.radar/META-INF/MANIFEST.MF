@@ -14,7 +14,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.status;bundle-version="1.11.11",
- com.raytheon.uf.common.dataplugin.radar
+ com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.dao,
@@ -22,9 +23,7 @@ Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.uengine.tasks.radar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.menus,
- com.raytheon.uf.common.menus.xml,
- com.raytheon.uf.common.site.ingest,
  com.raytheon.uf.common.dataplugin.text.db,
+ com.raytheon.uf.common.site.ingest,
  org.apache.commons.logging,
  org.apache.tools.bzip2

@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="gridPathProvider" class="com.raytheon.uf.common.dataplugin.grid.GridPathProvider" />
+
+	<bean id="gridProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" value="grid" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.grid" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.grid.dao.GridDao" />
+		<property name="record"
+			value="com.raytheon.uf.common.dataplugin.grid.GridRecord" />
+		<property name="dependencyFQNs">
+			<list>
+				<value>com.raytheon.uf.common.dataplugin.level</value>
+				<value>com.raytheon.uf.common.parameter</value>
+				<value>com.raytheon.uf.common.gridcoverage</value>
+			</list>
+		</property>
+		<property name="pathProvider">
+			<ref bean="gridPathProvider" />
+		</property>
+		<property name="compression" value="LZF" />
+	</bean>
+
+	<bean id="gridRegistered" factory-bean="pluginRegistry"
+		factory-method="register"
+		depends-on="levelRegistered,parameterRegistered,gridcoverageRegistered">
+		<constructor-arg value="grid" />
+		<constructor-arg ref="gridProperties" />
+	</bean>
+
+	<bean id="gridUnitsRegisterd"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>com.raytheon.uf.common.dataplugin.grid.units.GridUnits</value>
+		</property>
+		<property name="targetMethod">
+			<value>register</value>
+		</property>
+	</bean>
+	
+	<bean id="gridInfoCache" class="com.raytheon.uf.edex.plugin.grid.dao.GridInfoCache"
+		factory-method="getInstance" />
+
+	<bean class="com.raytheon.uf.edex.plugin.grid.dao.GridDao"
+		factory-method="setPurgeModelCacheTopic">
+		<constructor-arg value="jms-generic:topic:purgeGridInfoCache" />
+	</bean>
+
+	<camelContext id="grid-common-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<route id="purgeGridInfoCache">
+			<from uri="jms-generic:topic:purgeGridInfoCache" />
+			<bean ref="gridInfoCache" method="purgeCache" />
+		</route>
+	</camelContext>
+
+</beans>

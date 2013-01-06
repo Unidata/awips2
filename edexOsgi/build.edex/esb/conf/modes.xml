@@ -32,33 +32,114 @@
        are compatible with Java's Pattern class.  If you provide no <include>
        tag for a particular mode, the include defaults to .*.
        -->
+<!-- 
+       Each mode can define 0..n <includeMode> elements.
+       The mode then becomes the sum of all <include> and <exclude> tags
+       provided in all modes, including itself.  
+       
+       The following xml attributes can be utilized to assist in 
+       structuring the correct configuration:
+       
+       <mode>:
+            template="[true/false]", defaults to false, this is a non-bootable mode
+            
+       e.g.
+       <!- Ignores both foo and bar pattern files,
+            includes baz and NOT bazaar files,
+            the mode is bootable ->
+       <mode name="sumOfIncludesAndExcludes">
+          <includeMode>excludeFooFiles</includeMode>
+          <includeMode>excludeBarFiles</includeMode>
+          <includeMode>includeBazFiles</includeMode>
+       </mode>
+       <!- Template mode, not bootable ->
+       <mode name="excludeFooFiles" template="true">
+          <exclude>.*foo.*</exclude>
+       </mode>
+       <!- Template mode, not bootable ->
+       <mode name="excludeBarFiles" template="true">
+          <exclude>.*bar.*</exclude>
+       </mode>
+       <!- Template mode, not bootable,
+            includes baz but NOT bazaar files ->
+       <mode name="includeBazFiles" template="true">
+          <include>.*baz.*</include>
+          <exclude>.*bazaar.*</exclude>
+       </mode>
+--> 
 <edexModes>
 	<!-- these modes are supported in a PRODUCTION environment -->
 	<mode name="request">
 		<include>.*request.*</include>
 		<include>.*common.*</include>
-		<!--  ncep excludes until tested -->
+        <includeMode>excludeDpaAndOgc</includeMode>
+		<!-- ncep excludes until tested -->
 		<exclude>purgeutil-request.xml</exclude>
 		<!-- end of ncep excludes -->
 	</mode>
-	<mode name="ingest">				
+	<mode name="registry">
+		<include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+	</mode>
+	<mode name="datadelivery">
+        <includeMode>registry</includeMode>
+        <includeMode>datadeliverytemplate</includeMode>
+        <!-- 
+            The pattern datadelivery-registry is used to signify spring configurations 
+            that should be loaded when running datadelivery and the registry in a single JVM 
+        -->
+        <include>.*datadelivery-registry.*</include>
+        <!-- 
+            The pattern datadelivery-standalone is used to signify spring configurations 
+            that should be loaded when running datadelivery with the registry in a separate JVM 
+        -->
+        <exclude>.*datadelivery-standalone.*</exclude>
+	</mode>
+	<mode name="dataprovideragent">
+		<include>manualIngest*</include>
+		<include>time-common.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>auth-common.xml</include>
+		<!-- grid specific services -->
+		<include>grib-common.xml</include>
+		<include>grib-distribution.xml</include>
+		<include>grib-datadelivery.xml</include>
+		<include>level-common.xml</include>
+		<!-- pointdata/obs specific services -->
+		<include>pointdata-common.xml</include>
+		<include>obs-common.xml</include>
+		<include>obs-datadelivery.xml</include>
+		<!-- dpa services -->
+		<include>.*dpa.*</include>
+		<!-- OGC services -->
+		<include>.*ogc.*</include>
+		<!-- excluded services -->
+		<exclude>fssobs-common</exclude>
+	</mode>
+	<mode name="ingest">
+		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
-	 	<exclude>grib-ingest.xml</exclude>
-	 	<exclude>ncgrib-ingest.xml</exclude>
-	 	<!-- ncep excludes until tested -->	 		 	
-	 	<exclude>aww-ingest.xml</exclude>
-	 	<exclude>ncairep-ingest.xml</exclude>
-	 	<exclude>ncccfp-ingest.xml</exclude>	 	
-	 	<exclude>ncgrib-distribution.xml</exclude>
-	 	<exclude>ncep-util-on-edex-ingest</exclude>
-	 	<exclude>ncep-util-on-edex-ingestGrib</exclude>	 	
-	 	<exclude>ncscd-ingest.xml</exclude>
-	 	<exclude>ncpafm-ingest.xml</exclude>
-	 	<exclude>ncpirep-ingest.xml</exclude>
-	 	<exclude>nctaf-ingest.xml</exclude>
-	 	<exclude>nctext-ingest.xml</exclude>
-	 	<exclude>ncuair-ingest.xml</exclude>	 	
-	 	<!--  DAT -->
+		<exclude>grib-ingest.xml</exclude>
+		<exclude>ncgrib-ingest.xml</exclude>
+		<exclude>.*datadelivery.*</exclude>
+		<exclude>.*bandwidth.*</exclude>
+		<includeMode>excludeDpaAndOgc</includeMode>
+		<!-- ncep excludes until tested -->
+		<exclude>aww-ingest.xml</exclude>
+		<exclude>ncairep-ingest.xml</exclude>
+		<exclude>ncccfp-ingest.xml</exclude>
+		<exclude>ncgrib-distribution.xml</exclude>
+		<exclude>ncep-util-on-edex-ingest</exclude>
+		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<exclude>ncscd-ingest.xml</exclude>
+		<exclude>ncpafm-ingest.xml</exclude>
+		<exclude>ncpirep-ingest.xml</exclude>
+		<exclude>nctaf-ingest.xml</exclude>
+		<exclude>nctext-ingest.xml</exclude>
+		<exclude>ncuair-ingest.xml</exclude>
+		<!-- end of ncep excludes -->
+	 	<!-- exclude DAT -->
 		<exclude>ffmp-ingest.xml</exclude>
 		<exclude>scan-ingest.xml</exclude>
 		<exclude>cwat-ingest.xml</exclude>
@@ -70,25 +151,32 @@
 		<exclude>cpgsrv-spring.xml</exclude>
 	</mode>
 	<mode name="ingestGrib">
-	    <include>time-common.xml</include>
-	 	<include>grib-common.xml</include>
-	 	<include>grib-ingest.xml</include>
-	 	<include>level-common.xml</include>	 	
-	 	<include>persist-ingest.xml</include>
-	 	<include>management-common.xml</include>
-	 	<include>auth-common.xml</include>
-	 	<!-- ncep excludes until tested -->
-	 	<exclude>ncgrib-common.xml</exclude>
-	 	<exclude>ncgrib-ingest.xml</exclude>
-	 	<exclude>ncep-util-on-edex-ingestGrib</exclude>	 
-	 	<exclude>h5uair-ingest.xml</exclude>	 
-	 	<exclude>h5uair-common.xml</exclude>
-	 	<exclude>h5scd-ingest.xml</exclude>
-	 	<!-- end of ncep excludes -->	 	
+		<include>time-common.xml</include>
+		<include>grib-common.xml</include>
+		<include>grib-ingest.xml</include>
+		<include>level-common.xml</include>
+	 	<include>grid-common.xml</include>
+	 	<include>gridcoverage-.*.xml</include>
+	 	<include>parameter-common.xml</include>	 	
+		<include>persist-ingest.xml</include>
+		<include>management-common.xml</include>
+	 	<include>database-common.xml</include>
+		<include>auth-common.xml</include>
+        <include>event-ingest.xml</include>
+		<!-- ncep excludes until tested -->
+		<exclude>ncgrib-common.xml</exclude>
+		<exclude>ncgrib-ingest.xml</exclude>
+		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<exclude>h5uair-ingest.xml</exclude>
+		<exclude>h5uair-common.xml</exclude>
+		<exclude>h5scd-ingest.xml</exclude>
+		<!-- end of ncep excludes -->
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>excludeDpaAndOgc</includeMode>
 	</mode>
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
-	    <include>time-common.xml</include>
+		<include>time-common.xml</include>
 		<include>ffmp-ingest.xml</include>
 		<include>ffmp-common.xml</include>
 		<include>scan-ingest.xml</include>
@@ -104,9 +192,12 @@
 		<include>qpf-ingest.xml</include>
 		<include>qpf-common.xml</include>
 		<include>cpgsrv-spring.xml</include>
-	 	<include>persist-ingest.xml</include>
+		<include>persist-ingest.xml</include>
 		<include>binlightning-common.xml</include>
-		<include>grib-common.xml</include>
+		<include>parameter-common.xml</include>
+		<include>gridcoverage-.*.xml</include>
+		<include>grid-common.xml</include>
+		<include>database-common.xml</include>
 		<include>radar-common.xml</include>
 		<include>text-common.xml</include>
 		<include>level-common.xml</include>
@@ -120,30 +211,33 @@
 		<include>obs-common.xml</include>
 		<include>fssobs-ingest.xml</include>
 		<include>fssobs-common.xml</include>
-		<include>ldadmesonet-common.xml</include>		
+		<include>ldadmesonet-common.xml</include>
 		<exclude>ncgrib-common.xml</exclude>
-		<exclude>nctext-common.xml</exclude>		
+		<exclude>nctext-common.xml</exclude>
+        <includeMode>excludeDpaAndOgc</includeMode>
+        <includeMode>statsTemplate</includeMode>
 	</mode>
-	<!-- modes listed below are not supported in a production setting, they are
-	      for DEVELOPMENT purposes only -->
-	 <mode name="grib">
-	 	<include>grib-common.xml</include>
-	 	<include>grib-ingest.xml</include>
+
+	<!-- modes listed below are not supported in a production setting, they 
+		are for DEVELOPMENT purposes only -->
+	<mode name="grib">
+		<include>grib-common.xml</include>
+		<include>grib-ingest.xml</include>
 		<include>grib-distribution.xml</include>
-	 	<include>level-common.xml</include>	 	
-	 	<include>persist-ingest.xml</include>
+		<include>level-common.xml</include>
+		<include>persist-ingest.xml</include>
 		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
-    </mode>
-	 <mode name="text">
-	 	<include>text-.*</include>
-	 	<include>textdb-.*</include>
-	 	<include>textdbsrv-.*</include>
+	</mode>
+	<mode name="text">
+		<include>text-.*</include>
+		<include>textdb-.*</include>
+		<include>textdbsrv-.*</include>
 		<include>uengine-request.xml</include>
-	 	<include>auth-request.xml</include>
-    	<include>distribution-spring.xml</include>
+		<include>auth-request.xml</include>
+		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
-    </mode>
+	</mode>
 	<mode name="gfe">
 		<include>.*gfe.*</include>
 		<include>serialize-request.xml</include>
@@ -153,14 +247,15 @@
 		<include>manualIngest-spring.xml</include>
 	</mode>
 	<mode name="noHydro">
+        <exclude>ebxml.*\.xml</exclude>
 		<exclude>alarmWhfs-spring.xml</exclude>
 		<exclude>arealffgGenerator-spring.xml</exclude>
-		<exclude>dpaDecoder-spring.xml</exclude>
+		<exclude>DPADecoder-spring.xml</exclude>
 		<exclude>dqcPreprocessor-spring.xml</exclude>
 		<exclude>floodArchiver-spring.xml</exclude>
 		<exclude>hpeDHRDecoder-spring.xml</exclude>
 		<exclude>ohd.*.xml</exclude>
-		<exclude>ihfsDbPurge-spring.xml</exclude>		
+		<exclude>ihfsDbPurge-spring.xml</exclude>
 		<exclude>logFilePurger-spring.xml</exclude>
 		<exclude>mpeFieldgen-spring.xml</exclude>
 		<exclude>mpeHpeFilePurge-spring.xml</exclude>
@@ -168,10 +263,45 @@
 		<exclude>ohdSetupService-spring.xml</exclude>
 		<exclude>pointDataRetrievel-spring.xml</exclude>
 		<exclude>q2FileProcessor-spring.xml</exclude>
-		<exclude>satpre-spring.xml</exclude>		
+		<exclude>satpre-spring.xml</exclude>
 	</mode>
 	<mode name="localization">
 		<include>auth-request.xml</include>
 		<include>utility-request.xml</include>
 	</mode>
+    <mode name="datadeliveryonly">
+        <include>.*datadelivery-standalone.*</include>
+        <exclude>.*datadelivery-registry.*</exclude>
+        <includeMode>datadeliverytemplate</includeMode>
+    </mode>
+    <mode name="statsTemplate" template="true">
+        <include>event-common.xml</include>
+        <include>stats-common.xml</include>
+    </mode>
+    <mode name="datadeliverytemplate" template="true">
+        <include>.*datadelivery.*</include>
+        <include>.*bandwidth.*</include>
+        <!-- Exclude the inmemory versions of Spring files -->
+        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
+        <include>time-common.xml</include>
+        <include>grib-common.xml</include>
+        <include>grid-common.xml</include>
+        <include>gridcoverage-.*.xml</include>
+        <include>parameter-common.xml</include>     
+        <include>pointdata-common.xml</include>
+        <include>obs-common.xml</include>
+        <include>level-common.xml</include>
+        <include>persist-ingest.xml</include>
+        <include>management-common.xml</include>
+        <include>database-common.xml</include>
+        <include>auth-common.xml</include>
+        <include>event-ingest.xml</include>
+        <includeMode>statsTemplate</includeMode>
+    </mode>
+    <mode name="excludeDpaAndOgc" template="true">
+        <!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+        <!-- exclude OGC services -->
+        <exclude>.*ogc.*</exclude>
+    </mode>
 </edexModes>
