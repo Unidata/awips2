@@ -24,10 +24,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.TreeSet;
+
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.DirectPosition2D;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -72,9 +84,9 @@ public class FreezingLevel {
 
     // reference time
     Calendar refTime = null;
-
+    private transient final Log logger = LogFactory.getLog(getClass());
+    
     public FreezingLevel(String modelName) {
-
         this.modelName = modelName;
         times = new HashMap<Integer, Date>();
         zeroCount = 0;
@@ -97,6 +109,79 @@ public class FreezingLevel {
     }
 
     /**
+     * find (x,y) coordinate for lat,lon(coor)
+     * @param coors
+     */
+    public DirectPosition2D findXYloc(Coordinate coor, String type){
+        ScanDataCache cache = ScanDataCache.getInstance();
+
+        ISpatialObject iso = cache.getModelData().getGridRecord(modelName, type).getSpatialObject();
+        CoordinateReferenceSystem crs=iso.getCrs();
+        GridGeometry2D mapGeometry = MapUtil.getGridGeometry(iso);
+        DirectPosition2D resultPoint;
+        try {
+        	resultPoint = PointUtil.determineExactIndex(
+		        coor, crs, mapGeometry);
+        	System.out.println("Freezing level -- lat,lon:"+coor+" = "+resultPoint);
+        	return resultPoint;
+       	} catch (Exception e) {
+        	System.out.println("Error: Freezing level -- unable to find x,y coordinate for lat,lon:"+coor);
+        	e.printStackTrace();
+        }
+       	return null;
+    }
+    
+    /**
+     * get the bi-linear interpolation value amount the nearest 4 points
+     * 
+     * @param modelName, prodType, coor
+     * @return bi-linear interpolation amount the nearest 4 points
+     * @throws VizException
+     */
+    public double getValue(String modelName, String prodType, Coordinate coor) {
+        double value = -99999.0;
+        try {
+        	//xyLoc is the location in x,y
+        	DirectPosition2D xyLoc = findXYloc(coor, prodType);
+        	
+        	//data from hdf5
+        	ScanDataCache cache = ScanDataCache.getInstance();
+            GridRecord gribRec = cache.getModelData().getGridRecord(modelName, prodType);
+            FloatDataRecord rec = (FloatDataRecord) gribRec.getMessageData();
+            
+            //dimension of the record from hdf5, recNx =151 and recNy=113 during development
+            int recNx = gribRec.getSpatialObject().getNx();
+            int recNy = gribRec.getSpatialObject().getNy();
+            
+            //get four nearest points/values form the record around xyLoc
+            int x0=(int)(xyLoc.x);
+            int x1=x0+1;
+            int y0=(int)(xyLoc.y);
+            int y1=y0+1;
+
+            double p1=xyLoc.x-x0;
+            double p2=1-p1;
+            double p3=xyLoc.y-y0;
+            double p4=1-p3;
+            
+            double value2 = rec.getFloatData()[(recNx * y0) + x0];
+            double value3 = rec.getFloatData()[(recNx * y0) + x1];
+            double value0 = rec.getFloatData()[(recNx * y1) + x0];
+            double value1 = rec.getFloatData()[(recNx * y1) + x1];
+
+            //do a bi-linear interpolation amount the nearest 4 points
+            value = (p1*p4*value1)+(p2*p4*value0)+(p1*p3*value3)+(p2*p3*value2);
+            logger.info("bi-linear interpolation value: "+value+" "+value0+" "+value1+
+            		" "+value2+" "+value3+" for coor:"+coor+" "+recNx+","+recNy);
+        } catch (Exception e) {
+            logger.error("No Grib value available....." + modelName + " "
+                    + prodType+" lat,lon:"+coor);
+            e.printStackTrace();
+        }
+        return value;
+    }
+
+    /**
      * Give me the freezing level for an array of points
      * 
      * @param coors
@@ -107,6 +192,7 @@ public class FreezingLevel {
         HashMap<Coordinate, Float> freezingMap = new HashMap<Coordinate, Float>();
         ScanDataCache cache = ScanDataCache.getInstance();
 
+        //get data from hdf5 files
         for (Coordinate coor : coors) {
 
             HashMap<Integer, Double> ghValues = new HashMap<Integer, Double>();
@@ -114,34 +200,46 @@ public class FreezingLevel {
 
             for (Entry<String, Integer> entry : getGHLevelMap().entrySet()) {
                 if (cache.getModelData().isType(modelName, entry.getKey())) {
-
-                    ghValues.put(entry.getValue(), cache.getModelData()
-                            .getValue(modelName, entry.getKey(), coor));
+                    ghValues.put(entry.getValue(), getValue(modelName, entry.getKey(), coor));
+                } else {
+                	ghValues.put(entry.getValue(),null);
                 }
             }
 
             for (Entry<String, Integer> entry : getTLevelMap().entrySet()) {
                 if (cache.getModelData().isType(modelName, entry.getKey())) {
-                    tValues.put(entry.getValue(), cache.getModelData()
-                            .getValue(modelName, entry.getKey(), coor));
+                    tValues.put(entry.getValue(), getValue(modelName, entry.getKey(), coor));
                 }
             }
-
-            Double fLevel = -99999.0;
+        
+        //here's the calculation
+            Double fLevel = 0.0;
             Integer jtopLevel = null;
             Integer ktopLevel = null;
+            int foundValFlag=-1;//-1=all ghValue and tValue are null,
+           //0=all ghValue<=-9000 and  tValue<=273.16, 1=found a fLevel
 
             System.out
                     .println("********** Starting Freezing Level Calculations *****************");
-            for (Integer level : ghValues.keySet()) {
+
+            TreeSet<Integer> ts= new TreeSet<Integer>(ghValues.keySet());//want an asc sorted list
+            Iterator<Integer> it = ts.iterator();
+
+            //for (Integer level : ghValues.keySet()) {
+            while (it.hasNext()) {
+            	Integer level = (Integer) it.next();
 
                 Double tValue = tValues.get(level);
                 Double ghValue = ghValues.get(level);
                 System.out.println("GH Value: " + ghValue + " TValue: "
                         + tValue);
 
-                if (ghValue != null && ghValue > -9000) {
-                    if (tValue != null && tValue > 273.16) {
+                if (ghValue != null && tValue != null && foundValFlag ==-1){
+                	foundValFlag=0;
+                }
+
+                if (ghValue != null && ghValue.doubleValue() > -9000) {
+                    if (tValue != null && tValue.doubleValue() > 273.16) {
 
                         fLevel = (ghValues.get(ktopLevel) - ((ghValues
                                 .get(ktopLevel) - ghValue) * ((273.16 - tValues
@@ -155,6 +253,7 @@ public class FreezingLevel {
                                 + " - " + tValues.get(jtopLevel)
                                 + ")))) * .00328");
                         System.out.println("*** FreezingLevel = " + fLevel);
+                        foundValFlag=1;
                         freezingMap.put(coor, fLevel.floatValue());
                         break;
                     } else {
@@ -163,6 +262,12 @@ public class FreezingLevel {
                     }
                 }
             }
+            
+            if (foundValFlag==0) {//this means all tValue are <= 273.16
+            	freezingMap.put(coor, 0.0f);
+            	System.out.println("*** FreezingLevel = 0.0");
+            }
+            
             System.out
                     .println("********** Finished Freezing Level Calculations *****************");
         }
@@ -252,6 +357,7 @@ public class FreezingLevel {
         paramXML.setModelName(model);
         paramXML.setParameterName(param);
         String sql = getSQL(interval, model, param, refTime);
+        System.out.println("Freezing level sql="+sql);
         GridRecord modelRec = DATUtils.getMostRecentGridRecord(interval, sql,
                 paramXML);
 
@@ -353,12 +459,16 @@ public class FreezingLevel {
         }
 
         // Gets the most recent record of it's type
-        String sql = "select grid.datauri from grid, grid_info, level where grid.info_id = grid_info.id and grid_info.level_id = level.id and grid_info.parameter_abbreviation = \'"
+        String sql = "select datauri from grib where modelinfo_id = (select id from grib_models where parameterabbreviation = \'"
                 + paramName
-                + "\' and grid_info.datasetId = \'"
+                + "\' and modelname = \'"
                 + model
-                + "\' and level.masterlevel_name = 'MB' and level.levelonevalue = '"
-                + level + "\' and reftime=\'" + refTimeStr + "\' order by grid.reftime desc, grid.forecasttime desc limit 1";
+                + "\' and level_id = (select id from level where masterlevel_name = 'MB' and levelonevalue = '"
+                + level
+                + "\'"
+                + " limit 1)) and reftime='"
+                + refTimeStr + "' and forecasttime=0"
+                + " order by reftime desc, forecasttime desc limit 1";
         return sql;
     }
 }

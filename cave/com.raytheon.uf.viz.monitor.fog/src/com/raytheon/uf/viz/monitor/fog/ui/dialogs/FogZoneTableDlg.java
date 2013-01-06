@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Jun 16, 2012 14386      zhao Modified the notify method
  * Oct 30, 2012            skorolev    Changed HashMap to Map
  * Nov 11, 2012 1297       skorolev    Added initiateProdArray
+ * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
  * 
  * </pre>
  * 
@@ -137,9 +138,11 @@ public class FogZoneTableDlg extends ZoneTableDlg {
             if (date != null) {
                 Date nominalTime = date;
                 ObMultiHrsReports obData = fog.getObData();
+				if (!isLinkedToFrame()) {
+					nominalTime = obData.getLatestNominalTime();
+				}                
                 FogDataGenerator fdg = new FogDataGenerator();
-                Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog
-                        .getAlgorithmData(nominalTime));
+                Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog.getAlgorithmData(nominalTime));
                 obData.setFogAlgCellType(fogAlgCellType);
                 this.updateTableDlg(obData.getObHourReports(nominalTime));
             }
