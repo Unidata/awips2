@@ -38,16 +38,16 @@
                     </properties>
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="TP" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="dataTime.fcstTime">
                                 <constraint constraintValue="${fcsttime}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="MANSPE" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>

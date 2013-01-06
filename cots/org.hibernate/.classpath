@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="hibernate-spatial-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="hibernate-spatial-postgis-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="hibernate3.5.0-Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="javassist-3.9.0.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="jta-1.1.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

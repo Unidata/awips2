@@ -32,22 +32,22 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
                     </properties>
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="TP" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.leveltwovalue">
+                            <mapping key="info.level.leveltwovalue">
 				<constraint constraintValue="-999999" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.masterLevel.name">
+                            <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.levelonevalue">
+                            <mapping key="info.level.levelonevalue">
                                 <constraint constraintValue="0.0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>
@@ -61,22 +61,22 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
                     </loadProperties>
 		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="msl-P, msl-P2" constraintType="IN"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.leveltwovalue">
+                            <mapping key="info.level.leveltwovalue">
                                 <constraint constraintValue="-999999" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.masterLevel.name">
+                            <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.levelonevalue">
+                            <mapping key="info.level.levelonevalue">
                                 <constraint constraintValue="0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>
@@ -93,22 +93,22 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 				</properties>
 				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 					<metadataMap>
-						<mapping key="modelInfo.parameterAbbreviation">
+						<mapping key="info.parameter.abbreviation">
 							<constraint constraintValue="msl-P" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.modelName">
+						<mapping key="info.datasetId">
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.leveltwovalue">
+						<mapping key="info.level.leveltwovalue">
 							<constraint constraintValue="-999999" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
-							<constraint constraintValue="grib" constraintType="EQUALS"/>
+							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.masterLevel.name">
+						<mapping key="info.level.masterLevel.name">
 							<constraint constraintValue="SFC" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.levelonevalue">
+						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
 						</mapping>
 					</metadataMap>
@@ -128,22 +128,22 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 				</properties>
 				<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 					<metadataMap>
-						<mapping key="modelInfo.parameterAbbreviation">
+						<mapping key="info.parameter.abbreviation">
 							<constraint constraintValue="msl-P2" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.modelName">
+						<mapping key="info.datasetId">
 							<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.leveltwovalue">
+						<mapping key="info.level.leveltwovalue">
 							<constraint constraintValue="-999999" constraintType="EQUALS"/>
 						</mapping>
 						<mapping key="pluginName">
-							<constraint constraintValue="grib" constraintType="EQUALS"/>
+							<constraint constraintValue="grid" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.masterLevel.name">
+						<mapping key="info.level.masterLevel.name">
 							<constraint constraintValue="SFC" constraintType="EQUALS"/>
 						</mapping>
-						<mapping key="modelInfo.level.levelonevalue">
+						<mapping key="info.level.levelonevalue">
 							<constraint constraintValue="0.0" constraintType="EQUALS"/>
 						</mapping>
 					</metadataMap>
@@ -166,19 +166,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
                     </properties>
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
-                            <mapping key="modelInfo.parameterAbbreviation">
+                            <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="Wind" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.modelName">
+                            <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.masterLevel.name">
+                            <mapping key="info.level.masterLevel.name">
                                 <constraint constraintValue="SFC" constraintType="EQUALS"/>
                             </mapping>
-                            <mapping key="modelInfo.level.levelonevalue">
+                            <mapping key="info.level.levelonevalue">
                                 <constraint constraintValue="0.0" constraintType="EQUALS"/>
                             </mapping>
                         </metadataMap>
@@ -199,19 +199,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="loCape" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="SFC" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -232,19 +232,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="PBE" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="SFC" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -265,19 +265,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="NBE" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="SFC" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -298,24 +298,24 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="qDiv" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.leveltwovalue">
+					<mapping key="info.level.leveltwovalue">
 						<!--Used LevelMappingFile.xml as guide-->
 						<constraint constraintValue="2000.0" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<!--Assumption that FHAG is right level name for KmAgl-->
 						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -336,19 +336,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="RV" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="SFC" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -369,20 +369,20 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="NST" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<!--Not sure about use of EA for Layer levels-->
 						<constraint constraintValue="EA" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -403,19 +403,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="NST" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="EA" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -436,19 +436,19 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="ESP" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<constraint constraintValue="EA" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -471,23 +471,23 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="BlkMag" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.leveltwovalue">
+					<mapping key="info.level.leveltwovalue">
 						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<!--Assumption that FHAG is right level name for KmAgl-->
 						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>
@@ -510,23 +510,23 @@ ModFamA| |N|Conv: NonSupercell Tor Family| |OTHER | | \
 			</properties>
 			<resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 				<metadataMap>
-					<mapping key="modelInfo.parameterAbbreviation">
+					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="BlkShr" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.modelName">
+					<mapping key="info.datasetId">
 						<constraint constraintValue="${modelName}" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.leveltwovalue">
+					<mapping key="info.level.leveltwovalue">
 						<constraint constraintValue="6000.0" constraintType="EQUALS"/>
 					</mapping>
 					<mapping key="pluginName">
-						<constraint constraintValue="grib" constraintType="EQUALS"/>
+						<constraint constraintValue="grid" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.masterLevel.name">
+					<mapping key="info.level.masterLevel.name">
 						<!--Assumption that FHAG is right level name for KmAgl-->
 						<constraint constraintValue="FHAG" constraintType="EQUALS"/>
 					</mapping>
-					<mapping key="modelInfo.level.levelonevalue">
+					<mapping key="info.level.levelonevalue">
 						<constraint constraintValue="0.0" constraintType="EQUALS"/>
 					</mapping>
 				</metadataMap>

@@ -68,21 +68,23 @@ public class MpeFieldGenSrv {
         }
 
         int exitValue = 0;
-        if (mpeArg.matches(HOURS_ARG)) {
-            logger.info("Executing MPE FieldGen with argument: " + mpeArg);
-            exitValue = MainMethod.runProgram("ksh", appsDefaults
-                    .getToken("pproc_bin")
-                    + "/run_mpe_fieldgen", mpeArg);
-        } else if (mpeArg.matches(HOURS_DATE_ARG)) {
-            logger.info("Executing MPE FieldGen with arguments: " + mpeArg);
-            Matcher matcher = HOURS_DATE_PATTERN.matcher(mpeArg);
-            if (matcher.find()) {
-                exitValue = MainMethod.runProgram("ksh", appsDefaults
-                        .getToken("pproc_bin")
-                        + "/run_mpe_fieldgen", matcher.group(1), matcher
-                        .group(2), matcher.group(3));
-            }
+        if (appsDefaults.setAppContext(this)) {
+            if (mpeArg.matches(HOURS_ARG)) {
+                logger.info("Executing MPE FieldGen with argument: " + mpeArg);
+                exitValue = MainMethod.runProgram("ksh",
+                        appsDefaults.getToken("pproc_bin")
+                                + "/run_mpe_fieldgen", mpeArg);
+            } else if (mpeArg.matches(HOURS_DATE_ARG)) {
+                logger.info("Executing MPE FieldGen with arguments: " + mpeArg);
+                Matcher matcher = HOURS_DATE_PATTERN.matcher(mpeArg);
+                if (matcher.find()) {
+                    exitValue = MainMethod.runProgram("ksh",
+                            appsDefaults.getToken("pproc_bin")
+                                    + "/run_mpe_fieldgen", matcher.group(1),
+                            matcher.group(2), matcher.group(3));
+                }
 
+            }
         }
 
         if (exitValue == 0) {

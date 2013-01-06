@@ -5,8 +5,8 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=rap
-pluginName=ncgrib
-eventName=%
+pluginName=grid
+info.secondaryId=%
     </resourceParameters>
     <filterLabels>Forecast,Regional</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
