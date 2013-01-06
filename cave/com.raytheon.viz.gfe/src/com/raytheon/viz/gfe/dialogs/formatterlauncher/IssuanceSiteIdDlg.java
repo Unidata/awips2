@@ -24,15 +24,17 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Display the Issuance Site ID dialog.
@@ -43,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
  * ------------ ---------- ----------- --------------------------
  * 18 APR 2008  ###        lvenable    Initial creation 
  * Jan 18 2010  3395       ryu         Fix "issued by" functionality
+ * Nov 08 2012  1298       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -50,21 +53,7 @@ import org.eclipse.swt.widgets.Text;
  * @version 1.0
  * 
  */
-public class IssuanceSiteIdDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Return object when the shell is disposed.
-     */
-    private String returnObj = null;
+public class IssuanceSiteIdDlg extends CaveSWTDialog {
 
     /**
      * Site ID text control.
@@ -76,28 +65,21 @@ public class IssuanceSiteIdDlg extends Dialog {
      */
     private Button okBtn;
 
+    private String issuedBy;
+
     /**
      * Constructor.
      * 
      * @param parent
      *            Parent Shell.
      */
-    public IssuanceSiteIdDlg(Shell parent) {
-        super(parent, 0);
+    public IssuanceSiteIdDlg(Shell parent, String issuedBy) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+        this.issuedBy = issuedBy;
     }
 
-    /**
-     * Setup and open the dialog.
-     * 
-     * @param issuedBy
-     *            Initial value for text field.
-     * @return Return object.
-     */
-    public Object open(String issuedBy) {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-        shell.setText("Issuance Site ID");
+    @Override
+    protected void initializeComponents(Shell shell) {
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
@@ -108,22 +90,19 @@ public class IssuanceSiteIdDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-        
+
+    }
+
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        shell.setText("Issuance Site ID");
         siteIdTF.insert(issuedBy);
         if (issuedBy.length() == 0 || issuedBy.length() == 3) {
             okBtn.setEnabled(true);
         }
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return returnObj;
+        siteIdTF.forceFocus();
+        siteIdTF.selectAll();
     }
 
     /**
@@ -151,17 +130,20 @@ public class IssuanceSiteIdDlg extends Dialog {
         siteIdTF.setLayoutData(gd);
         siteIdTF.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(KeyEvent ke) {
-            }
-
-            @Override
             public void keyReleased(KeyEvent ke) {
-                if (siteIdTF.getText().length() > 0 &&
-                        siteIdTF.getText().length() < 3) {
+                if (siteIdTF.getText().length() > 0
+                        && siteIdTF.getText().length() < 3) {
                     okBtn.setEnabled(false);
                 } else {
                     okBtn.setEnabled(true);
                 }
+            }
+        });
+        siteIdTF.addVerifyListener(new VerifyListener() {
+
+            @Override
+            public void verifyText(VerifyEvent e) {
+                e.text = e.text.trim().toUpperCase();
             }
         });
     }
@@ -188,8 +170,8 @@ public class IssuanceSiteIdDlg extends Dialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                returnObj = siteIdTF.getText();
-                shell.dispose();
+                setReturnValue(siteIdTF.getText());
+                close();
             }
         });
 
@@ -200,8 +182,8 @@ public class IssuanceSiteIdDlg extends Dialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                returnObj = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }

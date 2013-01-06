@@ -40,7 +40,7 @@
 	        <substitute key="stationId" value="74005"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Yuma PG Site 3, AZ (K1Y9)" id="raobYuma_AZ"
+	                menuText="Yuma PG Site 2, AZ (K1Y9)" id="raobYuma_AZ"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="74006"/>
 	    </contribute>

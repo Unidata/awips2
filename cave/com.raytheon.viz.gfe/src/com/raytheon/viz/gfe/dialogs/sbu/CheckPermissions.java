@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.dialogs.sbu;
 
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.site.requests.GetPrimarySiteRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -41,7 +40,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            bphillip     Initial creation
- * Nov 14, 2012 		   jdynina		Added check for national center
  * 
  * </pre>
  * 
@@ -58,7 +56,8 @@ public class CheckPermissions {
     public static boolean getAuthorization() {
         boolean authorized = false;
         IUser user = UserController.getUserObject();
-        CheckPermissionsRequest request = new CheckPermissionsRequest(user);
+        CheckPermissionsRequest request = new CheckPermissionsRequest();
+        request.setUser(user);
         try {
             ServerResponse<String> obj = (ServerResponse<String>) ThriftClient
                     .sendRequest(request);
@@ -68,29 +67,10 @@ public class CheckPermissions {
                 authorized = false;
             }
         } catch (VizException e) {
-            statusHandler.error("Error checking permissions for: " + user);
+            statusHandler.error("Error checking permissions for: " + user, e);
             authorized = false;
         }
         return authorized;
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static boolean isNationalCenter() {
-    	boolean isNationalCenter = false;
-    	NcCheckRequest request = new NcCheckRequest();
-    	try {
-    		ServerResponse<String> obj = (ServerResponse<String>) ThriftClient
-    				.sendRequest(request);
-    		if (obj.isOkay()) {
-    			isNationalCenter = true;
-    		} else {
-    			isNationalCenter = false;
-    		}
-    	} catch (VizException e) {
-    		statusHandler.error("Error checking site type!", e);
-    		isNationalCenter = false;
-    	}
-    	return isNationalCenter;
     }
 
     public static boolean runningAsPrimary() {

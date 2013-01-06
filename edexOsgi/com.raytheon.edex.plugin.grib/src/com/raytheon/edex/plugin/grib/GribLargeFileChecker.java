@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;

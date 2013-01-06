@@ -90,6 +90,7 @@ import com.raytheon.viz.ghg.monitor.filter.GhgFilterEngine;
 import com.raytheon.viz.ghg.monitor.listener.GhgMonitorFilterChangeListener;
 import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.statusline.EdgeLayout;
 import com.raytheon.viz.ui.statusline.EdgeLayout.EdgeLayoutData;
 import com.raytheon.viz.ui.statusline.EdgeLayout.EdgeLayoutData.EdgeAffinity;
@@ -108,6 +109,8 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 17Jun2008    1157       MW Fegan    Pass configuration to sub-dialogs.
+ * 15 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
+ *                                      Changes for non-blocking GhgAlertDlg.
  * 
  * </pre>
  * 
@@ -118,30 +121,32 @@ import com.raytheon.viz.ui.statusline.StatusStore;
 public class GhgMonitorDlg extends CaveSWTDialog implements
         GhgMonitorFilterChangeListener, GhgMonitorZoneSelectionListener,
         INotificationObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GhgMonitorDlg.class);
 
     private static final Map<String, GhgConfigData.DataEnum> labelToEnumMap;
 
+    private GhgAlertDlg alertDlg;
+
     /**
      * Active group one string.
      */
-    private static final String ACT_GROUP_ONE_STRING = " CON EXA EXB EXT NEW ";
+    private final String ACT_GROUP_ONE_STRING = " CON EXA EXB EXT NEW ";
 
     /**
      * Active group two string.
      */
-    private static final String ACT_GROUP_TWO_STRING = " CAN EXP UPG ";
+    private final String ACT_GROUP_TWO_STRING = " CAN EXP UPG ";
 
     /**
      * Default timeout value.
      */
-    private static final long DEFAULT_TIMEOUT = 30000;
+    private final long DEFAULT_TIMEOUT = 30000;
 
     /**
      * Status bar definition key.
      */
-    private static final String STATUS_KEY = com.raytheon.viz.ghg.constants.StatusConstants.CATEGORY_GHG;
+    private final String STATUS_KEY = com.raytheon.viz.ghg.constants.StatusConstants.CATEGORY_GHG;
 
     /**
      * The currently selected font data (is null until font is selected)
@@ -229,7 +234,8 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      *            Parent Shell.
      */
     public GhgMonitorDlg(Shell parent) {
-        super(parent, SWT.RESIZE, CAVE.INDEPENDENT_SHELL);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
 
         // Register as a listener to the display manager and VTECActiveTable
         GhgDisplayManager.getInstance().addGhgMonitorFilterChangeListener(this);
@@ -1080,15 +1086,25 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Define Alerts dialog.
      */
     private void showDefineAlertsDialog() {
-        GhgConfigData configuration = GhgConfigData.getInstance();
-        GhgAlertDlg alertDlg = new GhgAlertDlg(getShell());
-        alertDlg.setAlerts(configuration.getAlerts());
-        GhgAlertsConfigData rtnAlerts = (GhgAlertsConfigData) alertDlg.open();
+        if (alertDlg == null) {
+            GhgConfigData configuration = GhgConfigData.getInstance();
+            alertDlg = new GhgAlertDlg(getShell());
+            alertDlg.setAlerts(configuration.getAlerts());
+            alertDlg.setCloseCallback(new ICloseCallback() {
 
-        // null is returned if the dialog is canceled
-        if (rtnAlerts != null) {
-            configuration.setAlerts(rtnAlerts);
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof GhgAlertsConfigData) {
+                        GhgAlertsConfigData rtnAlerts = (GhgAlertsConfigData) returnValue;
+                        GhgConfigData configuration = GhgConfigData
+                                .getInstance();
+                        configuration.setAlerts(rtnAlerts);
+                    }
+                    alertDlg = null;
+                }
+            });
         }
+        alertDlg.open();
     }
 
     /**

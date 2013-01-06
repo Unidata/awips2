@@ -6,9 +6,8 @@ import java.util.List;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
+import com.raytheon.edex.plugin.grib.exception.GribException;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 
 /**
  * 
@@ -43,12 +42,12 @@ public class LiftedIndexPostProcessor implements IDecoderPostProcessor {
             .getConverterTo(SI.CELSIUS);
 
     @Override
-    public GribRecord[] process(GribRecord record) throws GribException {
-        GribModel modelInfo = record.getModelInfo();
+    public GridRecord[] process(GridRecord record) throws GribException {
         // Change units of Lifted Index to match the data
-        if (LIFTED_INDEX_PARAMETERS.contains(modelInfo
-                .getParameterAbbreviation())
-                && KELVIN_UNIT_STRING.equals(modelInfo.getParameterUnit())) {
+        if (LIFTED_INDEX_PARAMETERS.contains(record.getParameter()
+                .getAbbreviation())
+                && KELVIN_UNIT_STRING.equals(record.getParameter()
+                        .getUnitString())) {
             float[] data = (float[]) record.getMessageData();
             for (int i = 0; i < data.length; i++) {
                 if (data[i] > MAX_VALID) {
@@ -56,7 +55,7 @@ public class LiftedIndexPostProcessor implements IDecoderPostProcessor {
                 }
             }
         }
-        return new GribRecord[] { record };
+        return new GridRecord[] { record };
     }
 
 }
