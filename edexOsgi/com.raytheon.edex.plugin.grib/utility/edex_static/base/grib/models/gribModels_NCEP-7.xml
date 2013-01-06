@@ -2474,7 +2474,7 @@
 	</model>
 
 	<model>
-		<name>GFSGuide</name>
+		<name>GFSGuide-361091001</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>361091001</grid>
@@ -3119,7 +3119,7 @@
 	</model>
 
 	<model>
-		<name>TPCWindProb</name>
+		<name>TPCWindProb-721181001</name>
 		<center>7</center>
 		<subcenter>10</subcenter>
 		<grid>721181001</grid>

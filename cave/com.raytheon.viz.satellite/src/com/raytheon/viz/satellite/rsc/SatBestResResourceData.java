@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2010            mschenke     Initial creation
+ * Oct 31, 2012  DR 15287  D. Friedman  Fix overlap calculation
  * Nov 06, 2012  DR 15157  D. Friedman  Allow configured inclusion percentage
  * 
  * </pre>
@@ -341,7 +342,7 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
                         for (Polygon last : prevs) {
                             // Don't want to double include percentage areas
-                            totalPercentage -= last.intersection(polygon)
+                            totalPercentage -= last.intersection(polygon).intersection(extent)
                                     .getArea() / extent.getArea();
                         }
                     }
