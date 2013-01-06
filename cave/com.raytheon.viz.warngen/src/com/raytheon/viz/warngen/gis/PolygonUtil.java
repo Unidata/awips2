@@ -56,7 +56,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2010            mschenke     Initial creation
- * 
+ * 12/06/2012   DR 15559  Qinglu Lin   Added round() methods.
+ *
  * </pre>
  * 
  * @author mschenke
@@ -949,6 +950,36 @@ public class PolygonUtil {
         
         x = x >= 0 ? Math.floor(x) : Math.ceil(x);
         y = y >= 0 ? Math.floor(y) : Math.ceil(y);
+        
+        coordinate.x = x / Math.pow(10, decimalPlaces);
+        coordinate.y = y / Math.pow(10, decimalPlaces);
+    }
+
+    public static void round(List<Coordinate >coordinates, int decimalPlaces) {
+        for (Coordinate coordinate : coordinates) {
+            round(coordinate, decimalPlaces);
+        }
+    }
+    
+    public static void round(Coordinate[] coordinates, int decimalPlaces) {
+        for (Coordinate coordinate : coordinates) {
+            round(coordinate, decimalPlaces);
+        }
+    }
+    
+    /**
+     * round()
+     *     Rounding coordinates, instead of truncating them.     
+     *
+     * History
+     * 12/06/2012   DR 15559  Qinglu Lin   Created. 
+     */
+    public static void round(Coordinate coordinate, int decimalPlaces) {
+        double x = coordinate.x * Math.pow(10, decimalPlaces);
+        double y = coordinate.y * Math.pow(10, decimalPlaces);
+        
+        x = Math.round(x);
+        y = Math.round(y);
         
         coordinate.x = x / Math.pow(10, decimalPlaces);
         coordinate.y = y / Math.pow(10, decimalPlaces);
