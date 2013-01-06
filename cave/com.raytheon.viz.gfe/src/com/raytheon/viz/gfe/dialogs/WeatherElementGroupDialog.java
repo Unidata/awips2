@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe.dialogs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -29,8 +30,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -53,8 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * 02/22/2008              Eric Babin  Initial Creation
  * 04/17/2009   #2282      rjpeter     Added confirmation message on delete.
- * 11/20/2012   DR 15532   jzeng       Added popup dialog to make sure group saved with 
- * 									   valid characters
+ * 11/14/2012   #1298      rferrel     Changes for non-blocking dialog.
  * </pre>
  * 
  * @author ebabin
@@ -62,7 +64,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class WeatherElementGroupDialog extends CaveJFACEDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherElementGroupDialog.class);
 
     private Composite top;
@@ -77,6 +79,8 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
 
     private Text groupField;
 
+    private Button okButton;
+
     private String selectedItem;
 
     private DataManager dataManager;
@@ -86,9 +90,11 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     public WeatherElementGroupDialog(Shell parent, DataManager dataManager,
             boolean saveType) {
         super(parent);
+        setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         this.dataManager = dataManager;
         this.wegManager = this.dataManager.getWEGroupManager();
         this.saveType = saveType;
+        this.selectedItem = "";
 
         this.names = new ArrayList<String>();
         this.protectedNames = new ArrayList<String>();
@@ -121,6 +127,12 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
 
     private void initializeComponents() {
 
+        if (names.size() == 0 && !saveType) {
+            Label label = new Label(top, SWT.CENTER);
+            label.setText("No groups available for deletion.");
+            return;
+        }
+
         GridData data = new GridData(GridData.FILL_BOTH);
 
         groupList = new List(top, SWT.BORDER | SWT.SINGLE);
@@ -137,16 +149,21 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
                 }
             }
         });
-        groupList.setItems(names.toArray(new String[names.size()]));
+
+        String[] items = names.toArray(new String[names.size()]);
+        Arrays.sort(items);
+        groupList.setItems(items);
         groupList.setSelection(0);
         groupList.deselectAll();
         groupList.setLayoutData(data);
         groupField = new Text(top, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
         groupField.setLayoutData(data);
+        groupField.setEnabled(saveType);
         groupField.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent arg0) {
-                selectedItem = groupField.getText();
+                selectedItem = groupField.getText().trim();
+                okButton.setEnabled(selectedItem.length() > 0);
             }
         });
 
@@ -179,7 +196,8 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
         } else {
             label = "Delete";
         }
-        createButton(parent, IDialogConstants.OK_ID, label, true);
+        okButton = createButton(parent, IDialogConstants.OK_ID, label, true);
+        okButton.setEnabled(false);
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }
@@ -196,49 +214,28 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     protected void okPressed() {
         boolean ok = true;
         String groupName = getSelectedItem();
-        
-        if (!saveType) {            
-            if (!FileUtil.isValidFilename(groupName)) {
-                MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
-                        | SWT.OK);
-                mb.setText("Invalid Group Name");
-                mb.setMessage("Group name may only contain the following characters: "
-                        + FileUtil.VALID_FILENAME_CHARS);
-                ok = false;
-            } else if (!protectedNames.contains(groupName)
-                    && names.contains(groupName)) {
-                MessageBox mb = new MessageBox(super.getShell(),
-                        SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-                mb.setText("Item Delete");
-                mb.setMessage(getSelectedItem() + " will be Deleted.");
 
-                if (mb.open() == SWT.CANCEL) {
-                    ok = false;
-                }
-            } else {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Weather Element Group " + groupName
-                                + " is protected or an invalid name.");
+        if (!FileUtil.isValidFilename(groupName)) {
+            MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
+                    | SWT.OK);
+            mb.setText("Invalid Group Name");
+            mb.setMessage("Group name may only contain the following characters: "
+                    + FileUtil.VALID_FILENAME_CHARS);
+            mb.open();
+            ok = false;
+        } else if (protectedNames.contains(groupName)) {
+            statusHandler.handle(Priority.SIGNIFICANT, "Weather Element Group "
+                    + getSelectedItem() + " is protected or an invalid name.");
+            ok = false;
+        } else if (!saveType) {
+            MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_QUESTION
+                    | SWT.OK | SWT.CANCEL);
+            mb.setText("Item Delete");
+            mb.setMessage(getSelectedItem() + " will be Deleted.");
+
+            if (mb.open() == SWT.CANCEL) {
                 ok = false;
             }
-        } else {
-            if (protectedNames.contains(getSelectedItem())) {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Weather Element Group " + getSelectedItem()
-                                + " is protected or an invalid name.");
-                ok = false;
-            }
-
-            if (!FileUtil.isValidFilename(groupName)) {
-                MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
-                        | SWT.OK);
-                mb.setText("Invalid Group Name");
-                mb.setMessage("Group name may only contain the following characters: "
-                        + FileUtil.VALID_FILENAME_CHARS);
-                mb.open();
-                ok = false;
-            }
-
         }
 
         if (ok) {

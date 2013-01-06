@@ -27,7 +27,7 @@
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Honiara (AGGH)" id="raobHonlara"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-	        <substitute key="stationId" value="91517"/>
+	        <substitute key="stationId" value="91520"/>
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 

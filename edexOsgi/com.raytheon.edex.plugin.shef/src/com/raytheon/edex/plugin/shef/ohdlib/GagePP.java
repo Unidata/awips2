@@ -47,8 +47,6 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------   ---------- ----------- --------------------------
  * 9/22           #1553      mnash       Initial implementation of GagePP
  * 6/1/09         #2432      jsanchez    Updated value magnitude for hourlypp/pc.
- * 26 Nov 2012    #15554     lbousaidi	 used obstime instead of system time in isNear12Z
- * 										 routine.
  * </pre>
  * 
  * @author mnash
@@ -623,7 +621,7 @@ public class GagePP {
         timeTObs.setTime(yearsec_ansi);
 
         // Create a 12Z object
-        Calendar pStructTm = TimeTools.newCalendar(yearsec_ansi.getTime());
+        Calendar pStructTm = TimeTools.getSystemCalendar();
         pStructTm.set(Calendar.HOUR_OF_DAY, 12);
         pStructTm.set(Calendar.MINUTE, 0);
         pStructTm.set(Calendar.SECOND, 0);

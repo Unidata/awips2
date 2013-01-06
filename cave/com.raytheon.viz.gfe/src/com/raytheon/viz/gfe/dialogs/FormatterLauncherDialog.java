@@ -73,6 +73,7 @@ import com.raytheon.viz.gfe.dialogs.formatterlauncher.IssuanceSiteIdDlg;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ProductAreaComp;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The formatter launcher dialog.
@@ -90,6 +91,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Nov 22, 2011 8781       mli		   remove Processor menu
  * Jul 26, 2012 15165      ryu         Set default db source when formatter has no db defined.
  * Oct 23, 2012 1287       rferrel     Changes for non-blocking dialogs and code clean up.
+ * Nov 08, 2012 1298       rferrel     Changes for non-blocking IssuanceSiteIdDlg.
  * 
  * </pre>
  * 
@@ -101,6 +103,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         IProductTab {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FormatterLauncherDialog.class);
+
+    private IssuanceSiteIdDlg issuedByDlg;
 
     private final String BASELINE = "Baseline";
 
@@ -410,12 +414,24 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         issuanceSiteMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                IssuanceSiteIdDlg issuedByDlg = new IssuanceSiteIdDlg(
-                        FormatterLauncherDialog.this.getShell());
-                String issuedBy = textProductMgr.getIssuedBy();
-                issuedBy = (String) issuedByDlg.open(issuedBy);
-                if (issuedBy != null) {
-                    textProductMgr.setIssuedBy(issuedBy.toUpperCase());
+                if (issuedByDlg == null || issuedByDlg.getShell() == null
+                        || issuedByDlg.isDisposed()) {
+                    String issuedBy = textProductMgr.getIssuedBy();
+                    issuedByDlg = new IssuanceSiteIdDlg(
+                            FormatterLauncherDialog.this.getShell(), issuedBy);
+                    issuedByDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                textProductMgr.setIssuedBy(returnValue
+                                        .toString());
+                            }
+                        }
+                    });
+                    issuedByDlg.open();
+                } else {
+                    issuedByDlg.bringToTop();
                 }
             }
         });

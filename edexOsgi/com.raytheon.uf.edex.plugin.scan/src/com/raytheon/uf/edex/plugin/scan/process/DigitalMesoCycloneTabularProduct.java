@@ -55,11 +55,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ -------- ----------  --------------------------
- * 05/07/2009   2037      dhladky     Initial Creation.
- * 11/13/2012	14368	  Xiaochuan	  Required to set alarm time in a quiet time period 
- * 									  from the last event to new event (new storm come in).
- * 
+ * ------------ ---------- ----------- --------------------------
+ * 05/07/2009   2037      dhladky    Initial Creation.
  * 
  * </pre>
  * 
@@ -147,12 +144,13 @@ public class DigitalMesoCycloneTabularProduct extends RadarProduct {
                     } else {
                         for (String fid : getDeletions(dmdKeys, table)) {
                             table.removeRow(fid);
+                            // System.out.println("Removed DMD fid: " + fid);
                         }
 
                         for (String fid : getUpdates(dmdKeys, table)) {
                             table.updateRow(fid,
                                     write(table.getRow(fid), rec, fid));
-                            
+                            // System.out.println("Updating DMD fid: " + fid);
                         }
                     }
                 }
@@ -175,8 +173,8 @@ public class DigitalMesoCycloneTabularProduct extends RadarProduct {
                         alarmString.append("NEW DMDcirculation for "
                                 + filter.icao + " over the last "
                                 + alarms.getDmdAlarmTime() + " minutes.");
+                        previousTime = rec.getDataTime().getRefTime();
                     }
-                    previousTime = rec.getDataTime().getRefTime();
                 }
 
                 for (String fid : newIds) {
