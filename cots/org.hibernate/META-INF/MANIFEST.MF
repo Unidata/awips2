@@ -3,10 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hibernate Plug-in
 Bundle-SymbolicName: org.hibernate
 Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: hibernate-spatial-1.0.jar,
+ hibernate-spatial-postgis-1.0.jar,
+ hibernate3.5.0-Final.jar,
+ javassist-3.9.0.GA.jar,
+ jta-1.1.jar
 Bundle-Vendor: Hibernate
-Require-Bundle: org.slf4j
-Export-Package: 
- org.hibernate,
+Export-Package: org.hibernate,
  org.hibernate.action,
  org.hibernate.annotations,
  org.hibernate.annotations.common,
@@ -171,7 +174,14 @@ Export-Package:
  org.hibernate.tuple.entity,
  org.hibernate.type,
  org.hibernate.usertype,
- org.hibernate.util
-Bundle-ClassPath: hibernate3.5.0-Final.jar,
- javassist-3.9.0.GA.jar,
- jta-1.1.jar
+ org.hibernate.util,
+ org.hibernatespatial,
+ org.hibernatespatial.cfg,
+ org.hibernatespatial.criterion,
+ org.hibernatespatial.helper,
+ org.hibernatespatial.mgeom,
+ org.hibernatespatial.pojo,
+ org.hibernatespatial.postgis,
+ org.hibernatespatial.readers,
+ org.hibernatespatial.spi
+Require-Bundle: org.slf4j

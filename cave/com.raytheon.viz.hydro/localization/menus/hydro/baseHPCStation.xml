@@ -24,7 +24,7 @@
 			 menuText="MaxT/MinT" id="HPCmaxTminT" >
 	        	<substitute key="model" value="HPC"/>
         		<substitute key="plotModel" value="bufrmos/maxmin.svg"/>
-	    		<substitute key="title" value="HPC MaxT/MinT ( F )"/>
+	    		<substitute key="title" value="HPC MaxT/MinT"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/BufrMosPlot.xml" 
 			 menuText="POP 24hr" id="HPCpop24hr" >

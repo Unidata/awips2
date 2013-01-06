@@ -59,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Feb 18, 2007            njensen     Initial creation.	
  * 05Aug2008    #1407       ebabin      Dim delta button for wx/discrete types.
  * Oct 25, 2012 #1287      rferrel     Code clean up part of non-blocking dialog.
+ * Oct 13, 2012 #1298      rferrel     Changes for non-blocking SetDeltaDialog.
+ *                                      Changes for non-blocking SetValueDialog.
  * </pre>
  * 
  * @author njensen
@@ -94,8 +96,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
 
     private IActivatedParmChangedListener parmChanged;
 
-    private SetDeltaDialog deltaDialog;
-
     private DataManager dataManager;
 
     private Parm parm;
@@ -103,8 +103,6 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     private Button pickupButton;
 
     private Button deltaButton;
-
-    // private LocalizationFile baseLF;
 
     /**
      * Constructor
@@ -114,7 +112,7 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     public EditActionsDialog(Shell parentShell) {
         super(parentShell);
         title = "Edit Actions";
-        setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE | SWT.RESIZE);
+        setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE);
 
         dataManager = DataManager.getCurrentInstance();
         parm = dataManager.getSpatialDisplayManager().getActivatedParm();
@@ -327,24 +325,11 @@ public class EditActionsDialog extends CaveJFACEDialog implements
     }
 
     private void showDeltaDialog() {
-        Shell shell = getParentShell();
-
-        if (deltaDialog == null) {
-            deltaDialog = new SetDeltaDialog(shell, dataManager);
-            deltaDialog.setBlockOnOpen(true);
-            deltaDialog.open();
-            deltaDialog = null;
-        }
-
+        SetDeltaDialog.openDialog();
     }
 
     private void showPickupDialog() {
-        Shell shell = getParentShell();
-
-        SetValueDialog svd = new SetValueDialog(shell, dataManager);
-        svd.setBlockOnOpen(false);
-        svd.open();
-
+        SetValueDialog.openDialog();
     }
 
     /*

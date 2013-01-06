@@ -1756,10 +1756,15 @@ public class PointsDataManager implements ILocalizationFileObserver {
      */
     private Point unmarshalPointFromXmlFile(LocalizationFile lFile)
             throws LocalizationException, IOException {
-        InputStream stream = lFile.openInputStream();
-        Point point = JAXB.unmarshal(stream, Point.class);
-        stream.close();
-        return point;
+        InputStream stream = null;
+        try {
+            stream = lFile.openInputStream();
+            return JAXB.unmarshal(stream, Point.class);
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
     }
 
     /**

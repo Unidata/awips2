@@ -68,11 +68,10 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
             configManager.setTimeWindow(timeScale.getSelection());
             configManager.setUseAlgorithms(fogChk.getSelection());
             configManager.saveConfigData();
-            
+
             /**
-             * DR#11279:
-             * re-initialize threshold manager and the monitor 
-             * using new monitor area configuration
+             * DR#11279: re-initialize threshold manager and the monitor using
+             * new monitor area configuration
              */
             SSThresholdMgr.reInitialize();
             SafeSeasMonitor.reInitialize();
@@ -81,7 +80,8 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     "You're updating the SAFESEAS monitoring settings."
                             + "\n\nIf SAFESEAS is running anywhere within "
                             + "the office, please clear it.\n");
-            if ( configManager.getAddedZones().size() > 0 || addedZones.size() > 0 ) {
+            if (configManager.getAddedZones().size() > 0
+                    || addedZones.size() > 0) {
                 String message2 = "New zones have been added, and their monitoring thresholds "
                         + "have been set to default values; would you like to modify "
                         + "their threshold values now?";

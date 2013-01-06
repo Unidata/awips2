@@ -26,12 +26,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -43,9 +46,12 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.activemq.console.util.JmxMBeansUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.esb.camel.context.ContextManager;
 import com.raytheon.uf.edex.esb.camel.spring.DefaultEdexMode;
+import com.raytheon.uf.edex.esb.camel.spring.EdexMode;
 import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
 
 /**
@@ -56,9 +62,14 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            chammack     Initial creation
- * Jul 14, 2009  #2950   njensen         Basic spring file ordering
- * Apr 5, 2010   #3857   njensen        Removed file ordering in favor of
- *                                                 spring's depends-on attribute
+ * Jul 14, 2009  #2950     njensen      Basic spring file ordering
+ * Apr 05, 2010  #3857     njensen      Removed file ordering in favor of
+ *                                          spring's depends-on attribute
+ * Jun 12, 2012  #0609     djohnson     Use EDEXUtil for EDEX_HOME.
+ * Jul 09, 2012  #0643     djohnson     Read plugin provided resources into system properties.
+ * Jul 17, 2012  #0740     djohnson     Redo changes since the decomposed repositories lost them.
+ * Oct 19, 2012  #1274     bgonzale     Load properties from files in conf 
+ *                                         resources directory.
  * 
  * </pre>
  * 
@@ -69,6 +80,11 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
 public class Executor {
 
     public static final String XML = ".xml";
+
+    private static final Pattern XML_PATTERN = Pattern.compile("\\" + XML);
+
+    private static final Pattern RES_SPRING_PATTERN = Pattern
+            .compile("res/spring/");
 
     private static final String MODES_FILE = "modes.xml";
 
@@ -84,26 +100,41 @@ public class Executor {
 
         List<String> xmlFiles = new ArrayList<String>();
 
-        File confDir = new File(System.getProperty("edex.home")
+        List<File> propertiesFiles = new ArrayList<File>();
+        File confDir = new File(EDEXUtil.EDEX_HOME
                 + File.separator + "conf");
-        File springDir = new File(confDir, "spring");
-        File[] springFiles = springDir.listFiles(new FileFilter() {
+        File resourcesDir = new File(confDir, "resources");
+        propertiesFiles.addAll(Arrays.asList(findFiles(resourcesDir,
+                ".properties")));
+        // load site files after loading the config files so that their
+        // properties take precedence.
+        String site = System.getProperty("aw.site.identifier");
+        File siteResourcesDir = new File(confDir, "resources" + File.separator
+                + "site" + File.separator + site);
+        propertiesFiles.addAll(Arrays.asList(findFiles(siteResourcesDir,
+                ".properties")));
 
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(XML);
-            }
-        });
+        // Add each file to the system properties
+        for (File propertiesFile : propertiesFiles) {
+            Properties properties = PropertiesUtil.read(propertiesFile);
+            System.getProperties().putAll(properties);
+        }
+
+        File springDir = new File(confDir, "spring");
+        File[] springFiles = findFiles(springDir, XML);
+
         List<String> springList = new ArrayList<String>();
         for (File f : springFiles) {
-            xmlFiles.add(f.getName());
-            springList.add(f.getName().replace(XML, ""));
+            String name = f.getName();
+
+            xmlFiles.add(name);
+            springList.add(XML_PATTERN.matcher(name).replaceAll(""));
         }
 
         EdexModesContainer emc = getModeFilter(confDir);
         String modeName = System.getProperty("edex.run.mode");
         String highMem = System.getProperty("HighMem");
-        boolean highMemEnabled = (highMem != null && highMem.equals("on"));
+        boolean highMemEnabled = "on".equals(highMem);
 
         if (modeName != null && modeName.length() > 0) {
             System.out.println("EDEX run configuration: " + modeName
@@ -114,7 +145,16 @@ public class Executor {
         }
         System.out.println("EDEX site configuration: "
                 + System.getProperty("aw.site.identifier"));
-        FilenameFilter mode = emc.getMode(modeName, highMemEnabled);
+
+        EdexMode edexMode = emc.getMode(modeName, highMemEnabled);
+
+        if (edexMode != null && edexMode.isTemplate()) {
+            throw new UnsupportedOperationException(modeName
+                    + " is a template mode, and is not bootable.");
+        }
+
+        FilenameFilter mode = edexMode;
+
         if (mode == null) {
             if (modeName == null || modeName.length() == 0) {
                 mode = new DefaultEdexMode();
@@ -180,21 +220,39 @@ public class Executor {
         }
     }
 
+    /**
+     * Finds all files in the specified directory with specified extension.
+     * 
+     * @param directory
+     *            the directory
+     * @param extension
+     *            file extension
+     * @return the file array
+     */
+    private static File[] findFiles(File directory, final String extension) {
+        File[] files = directory.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(extension);
+            }
+        });
+
+        // If no files were found return an empty array
+        return (files == null) ? new File[0] : files;
+    }
+
     private static String printList(List<String> components) {
         StringBuffer sb = new StringBuffer();
-        boolean first = true;
 
         Collections.sort(components);
         Iterator<String> iterator = components.iterator();
         while (iterator.hasNext()) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(", ");
-            }
-
             sb.append(iterator.next());
+            sb.append(", ");
         }
+
+        int length = sb.length();
+        sb.delete(length - 2, length);
 
         return sb.toString();
     }
@@ -231,7 +289,9 @@ public class Executor {
                 String name = e.getName();
                 if (filter.accept(null, name)) {
                     files.add(name);
-                    retVal.add(name.replace(XML, "").replace("res/spring/", ""));
+                    retVal.add(RES_SPRING_PATTERN.matcher(
+                            XML_PATTERN.matcher(name).replaceAll(""))
+                            .replaceAll(""));
                 }
             }
 
@@ -242,8 +302,7 @@ public class Executor {
 
     private static EdexModesContainer getModeFilter(File confDir)
             throws IOException, JAXBException {
-        String path = confDir.getPath() + File.separator + MODES_FILE;
-        File file = new File(path);
+        File file = new File(confDir.getPath(), MODES_FILE);
 
         FileReader reader = null;
         Unmarshaller msh = null;
@@ -256,11 +315,7 @@ public class Executor {
             return emc;
         } finally {
             if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // ignore
-                }
+                PropertiesUtil.close(reader);
             }
         }
     }

@@ -17,6 +17,7 @@ import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.NetworkStatistics;
+import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -24,7 +25,6 @@ import com.raytheon.uf.common.serialization.comm.RemoteServiceRequest;
 import com.raytheon.uf.common.serialization.comm.RequestWrapper;
 import com.raytheon.uf.common.serialization.comm.ServiceException;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
-import com.raytheon.uf.common.serialization.comm.util.ExceptionWrapper;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
@@ -61,8 +61,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2009            mschenke     Initial creation
- * Jul 24, 2012             njensen         Enhanced logging
+ * Aug 3, 2009             mschenke    Initial creation
+ * Jul 24, 2012            njensen     Enhanced logging
+ * Nov 15, 2012 1322       djohnson    Publicize ability to specify specific httpAddress.
  * 
  * </pre>
  * 
@@ -268,7 +269,7 @@ public class ThriftClient {
         return rval;
     }
 
-    private static Object sendRequest(IServerRequest request, String httpAddress)
+    public static Object sendRequest(IServerRequest request, String httpAddress)
             throws VizException {
         return sendRequest(request, httpAddress, "/thrift");
     }

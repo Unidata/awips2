@@ -20,6 +20,11 @@
 
 package com.raytheon.uf.edex.database.dao;
 
+import org.hibernate.SessionFactory;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+
+import com.raytheon.uf.edex.core.EDEXUtil;
+
 /**
  * Configuration settings for a data access object.<br>
  * This object contains the required information to correctly instantiate a
@@ -31,14 +36,15 @@ package com.raytheon.uf.edex.database.dao;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 12/11/07     600         bphillip    Initial Check in    
- *  
+ * 12/11/07     600         bphillip    Initial Check in   
+ * Oct 10, 2012 1261        djohnson    Add ability for test overriding of bean lookups.
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class DaoConfig {
+public abstract class DaoConfig {
 
     /** The default database name */
     public static final String DEFAULT_DB_NAME = "metadata";
@@ -49,6 +55,21 @@ public class DaoConfig {
     /** The transaction manager suffix */
     private static final String TX_MANAGER = "TxManager";
 
+    // @VisibleForTesting
+    static SpringBeanLocator DEFAULT_LOCATOR = new SpringBeanLocator() {
+        @Override
+        public <T> T lookupBean(Class<T> resultClass, String beanName) {
+            return resultClass.cast(EDEXUtil.getESBComponent(beanName));
+        }
+    };
+
+    /**
+     * Used to locate Spring beans. By default, uses EDEXUtil to look them up.
+     * Package-level access for testing purposes.
+     */
+    // @VisibleForTesting
+    static SpringBeanLocator locator = DEFAULT_LOCATOR;
+
     /**
      * The default data access object configuration. This configuration
      * specifies the metadata database
@@ -56,69 +77,27 @@ public class DaoConfig {
     public static final DaoConfig DEFAULT = DaoConfig
             .forDatabase(DEFAULT_DB_NAME);
 
-    /** The database to connect to */
-    private String dbName;
-
-    /** The class for which the desired data access object is to be used for */
-    private Class<?> daoClassName;
-
-    /** The name of the Hibernate session factory to use */
-    private String sessionFactoryName;
-
-    /** The name of the Hibernate transaction manager to use */
-    private String txManagerName;
-
     /**
-     * Default constructor.
-     */
-    private DaoConfig() {
-        this.dbName = DEFAULT_DB_NAME;
-        this.sessionFactoryName = DEFAULT_DB_NAME + SESSION_FACTORY;
-        this.txManagerName = DEFAULT_DB_NAME + TX_MANAGER;
-    }
-
-    /**
-     * Constructs a DaoConfig object using the specified class name, default
-     * session factory, and the default transaction manager
+     * Retrieve the transaction manager.
      * 
-     * @param className
-     *            The class object
+     * @return the transaction manager
      */
-    private DaoConfig(Class<?> className) {
-        this.daoClassName = className;
-        this.dbName = DEFAULT_DB_NAME;
-        this.sessionFactoryName = DEFAULT_DB_NAME + SESSION_FACTORY;
-        this.txManagerName = DEFAULT_DB_NAME + TX_MANAGER;
-    }
+    public abstract HibernateTransactionManager getTxManager();
 
     /**
-     * Constructs a DaoConfig object for the specified database using the
-     * specified class name. The appropriate session factory and transaction
-     * manager will be determined from the database name.
+     * Retrieve the session factory.
      * 
-     * @param dbName
-     *            The database name
-     * @param className
-     *            The class object
+     * @return the session factory
      */
-    private DaoConfig(String dbName, Class<?> className) {
-        this.daoClassName = className;
-        this.dbName = dbName;
-        this.sessionFactoryName = dbName + SESSION_FACTORY;
-        this.txManagerName = dbName + TX_MANAGER;
-    }
+    public abstract SessionFactory getSessionFactory();
 
     /**
-     * Constructs a DaoConfig object for the specified database.
+     * Retrieve the class type this DAO manages.
      * 
-     * @param dbName
-     *            The database name
+     * @return the class type
      */
-    private DaoConfig(String dbName) {
-        this.dbName = dbName;
-        this.sessionFactoryName = dbName + SESSION_FACTORY;
-        this.txManagerName = dbName + TX_MANAGER;
-    }
+    public abstract Class<?> getDaoClass();
+
 
     /**
      * Gets a DaoConfig object for the specified class using the default session
@@ -130,7 +109,7 @@ public class DaoConfig {
      *         factory and default transaction manager.
      */
     public static DaoConfig forClass(Class<?> className) {
-        return new DaoConfig(className);
+        return new SpringLookupDaoConfig(className);
     }
 
     /**
@@ -146,8 +125,8 @@ public class DaoConfig {
      */
     public static DaoConfig forClass(String className)
             throws ClassNotFoundException {
-        return new DaoConfig(DaoConfig.class.getClassLoader().loadClass(
-                ((String) className).trim()));
+        return new SpringLookupDaoConfig(DaoConfig.class.getClassLoader().loadClass(
+                (className).trim()));
     }
 
     /**
@@ -161,7 +140,7 @@ public class DaoConfig {
      *         name
      */
     public static DaoConfig forClass(String dbName, Class<?> className) {
-        return new DaoConfig(dbName, className);
+        return new SpringLookupDaoConfig(dbName, className);
     }
 
     /**
@@ -178,8 +157,8 @@ public class DaoConfig {
      */
     public static DaoConfig forClass(String dbName, String className)
             throws ClassNotFoundException {
-        return new DaoConfig(dbName, DaoConfig.class.getClassLoader()
-                .loadClass(((String) className).trim()));
+        return new SpringLookupDaoConfig(dbName, DaoConfig.class.getClassLoader()
+                .loadClass((className).trim()));
     }
 
     /**
@@ -188,39 +167,87 @@ public class DaoConfig {
      * @return
      */
     public static DaoConfig forDatabase(String dbName) {
-        return new DaoConfig(dbName);
+        return new SpringLookupDaoConfig(dbName);
     }
 
-    /**
-     * Gets the database name
-     * @return The database name
-     */
-    public String getDbName() {
-        return dbName;
-    }
+    private static class SpringLookupDaoConfig extends DaoConfig {
 
-    /**
-     * Gets the dao class name
-     * @return The dao class name
-     */
-    public Class<?> getDaoClassName() {
-        return daoClassName;
-    }
+        /** The class for which the desired data access object is to be used for */
+        private final Class<?> daoClass;
 
-    /**
-     * Gets the session factory name
-     * @return The session factory name
-     */
-    public String getSessionFactoryName() {
-        return sessionFactoryName;
-    }
+        /** The name of the Hibernate session factory to use */
+        private final String sessionFactoryName;
 
-    /**
-     * Gets the transaction manager name
-     * @return The transaction manager name
-     */
-    public String getTxManagerName() {
-        return txManagerName;
-    }
+        /** The name of the Hibernate transaction manager to use */
+        private final String txManagerName;
 
+        /**
+         * Default constructor.
+         */
+        private SpringLookupDaoConfig() {
+            this((Class<?>) null);
+        }
+
+        /**
+         * Constructs a DaoConfig object using the specified class name, default
+         * session factory, and the default transaction manager
+         * 
+         * @param className
+         *            The class object
+         */
+        private SpringLookupDaoConfig(Class<?> className) {
+            this(DEFAULT_DB_NAME, className);
+        }
+
+        /**
+         * Constructs a DaoConfig object for the specified database.
+         * 
+         * @param dbName
+         *            The database name
+         */
+        private SpringLookupDaoConfig(String dbName) {
+            this(dbName, null);
+        }
+
+        /**
+         * Constructs a DaoConfig object for the specified database using the
+         * specified class name. The appropriate session factory and transaction
+         * manager will be determined from the database name.
+         * 
+         * @param dbName
+         *            The database name
+         * @param daoClass
+         *            The class object
+         */
+        private SpringLookupDaoConfig(String dbName, Class<?> daoClass) {
+            this.daoClass = daoClass;
+            this.sessionFactoryName = dbName + SESSION_FACTORY;
+            this.txManagerName = dbName + TX_MANAGER;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public HibernateTransactionManager getTxManager() {
+            return locator.lookupBean(HibernateTransactionManager.class,
+                    txManagerName);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public SessionFactory getSessionFactory() {
+            return locator.lookupBean(SessionFactory.class, sessionFactoryName);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Class<?> getDaoClass() {
+            return daoClass;
+        }
+    }
 }

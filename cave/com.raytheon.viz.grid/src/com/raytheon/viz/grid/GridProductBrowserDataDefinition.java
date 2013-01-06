@@ -27,15 +27,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -44,6 +47,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
+import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -77,8 +82,6 @@ public class GridProductBrowserDataDefinition extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridProductBrowserDataDefinition.class);
 
-    private static final String SHOW_UNKNOWN_MODELS = "Show Unknown Models";
-
     private static final String SHOW_DERIVED_PARAMS = "Show Derived Parameters";
 
     private static final Comparator<Level> levelComparator = new Comparator<Level>() {
@@ -104,11 +107,11 @@ public class GridProductBrowserDataDefinition extends
     };
 
     public GridProductBrowserDataDefinition() {
-        productName = "grib";
+        productName = GridInventory.PLUGIN_NAME;
         displayName = "Grid";
-        order = new String[] { GridInventory.PLUGIN_NAME_QUERY,
-                GridInventory.MODEL_NAME_QUERY, GridInventory.PARAMETER_QUERY,
-                GridInventory.MASTER_LEVEL_QUERY, "modelInfo.level.id" };
+        order = new String[] { GridInventory.MODEL_NAME_QUERY,
+                GridInventory.PARAMETER_QUERY,
+                GridInventory.MASTER_LEVEL_QUERY, GridInventory.LEVEL_ID_QUERY };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -127,79 +130,119 @@ public class GridProductBrowserDataDefinition extends
     }
 
     @Override
-    public List<ProductBrowserLabel> populateData(String[] selection) {
-        // inventory and cannot label each level of product browser
-        if (getInventory() == null) {
-            return super.populateData(selection);
-        }
-        Collection<String> sources = null;
-        Collection<String> params = null;
-        Collection<Level> levels = null;
-        BlockingQueue<String> returnQueue = new LinkedBlockingQueue<String>();
-        if (selection.length > 1) {
-            sources = Arrays.asList(selection[1]);
-        } else {
-            try {
-                getInventory().checkSources(sources, params, levels,
-                        returnQueue);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            List<ProductBrowserLabel> results = formatData(
-                    GridInventory.MODEL_NAME_QUERY,
-                    returnQueue.toArray(new String[returnQueue.size()]));
-            Collections.sort(results);
-            return results;
-        }
-        if (selection.length > 2) {
-            params = Arrays.asList(selection[2]);
-        } else {
-            try {
-                getInventory().checkParameters(sources, params, levels, false,
-                        returnQueue);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            List<ProductBrowserLabel> results = formatData(
-                    GridInventory.PARAMETER_QUERY,
-                    returnQueue.toArray(new String[returnQueue.size()]));
-            Collections.sort(results);
-            return results;
-        }
+    protected String[] queryData(String param,
+            HashMap<String, RequestConstraint> queryList) {
         try {
-            getInventory().checkLevels(sources, params, levels, returnQueue);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        LevelFactory lf = LevelFactory.getInstance();
-        try {
-            if (selection.length > 3) {
-                List<String> availLevels = new ArrayList<String>();
-                for (String levelid : returnQueue) {
-                    Level level = lf.getLevel(levelid);
-                    if (level.getMasterLevel().getName().equals(selection[3])) {
-                        availLevels.add(levelid);
+            if (getInventory() == null) {
+                return super.queryData(param, queryList);
+            } else {
+                Collection<String> sources = null;
+                Collection<String> params = null;
+                Collection<Level> levels = null;
+                BlockingQueue<String> returnQueue = new LinkedBlockingQueue<String>();
+                for (Entry<String, RequestConstraint> queryParam : queryList
+                        .entrySet()) {
+                    String key = queryParam.getKey();
+                    String value = queryParam.getValue().getConstraintValue();
+                    if (key.equals(GridInventory.MODEL_NAME_QUERY)) {
+                        sources = Arrays.asList(value);
+                    } else if (key.equals(GridInventory.PARAMETER_QUERY)) {
+                        params = Arrays.asList(value);
+                    } else if (key.equals(GridInventory.MASTER_LEVEL_QUERY)) {
+                        if (levels == null) {
+                            levels = new ArrayList<Level>(LevelMappingFactory
+                                    .getInstance().getAllLevels());
+                        }
+                        Iterator<Level> iter = levels.iterator();
+                        while (iter.hasNext()) {
+                            if (!iter.next().getMasterLevel().getName()
+                                    .equals(value)) {
+                                iter.remove();
+                            }
+                        }
+
+                    } else if (key.equals(GridInventory.LEVEL_ONE_QUERY)) {
+                        double doubleValue = Double.parseDouble(value);
+                        if (levels == null) {
+                            levels = new ArrayList<Level>(LevelMappingFactory
+                                    .getInstance().getAllLevels());
+                        }
+                        Iterator<Level> iter = levels.iterator();
+                        while (iter.hasNext()) {
+                            if (iter.next().getLevelonevalue() != doubleValue) {
+                                iter.remove();
+                            }
+                        }
+                    } else if (key.equals(GridInventory.LEVEL_TWO_QUERY)) {
+                        double doubleValue = Double.parseDouble(value);
+                        if (levels == null) {
+                            levels = new ArrayList<Level>(LevelMappingFactory
+                                    .getInstance().getAllLevels());
+                        }
+                        Iterator<Level> iter = levels.iterator();
+                        while (iter.hasNext()) {
+                            if (iter.next().getLeveltwovalue() != doubleValue) {
+                                iter.remove();
+                            }
+                        }
+                    } else if (key.equals(GridInventory.LEVEL_ID_QUERY)) {
+                        levels = Arrays.asList(LevelFactory.getInstance()
+                                .getLevel(value));
                     }
                 }
-                return formatData(GridInventory.LEVEL_ID_QUERY,
-                        availLevels.toArray(new String[availLevels.size()]));
-            } else {
-                Set<String> masterLevels = new HashSet<String>();
-                for (String levelid : returnQueue) {
-                    Level level = lf.getLevel(levelid);
-                    masterLevels.add(level.getMasterLevel().getName());
-                }
-                List<ProductBrowserLabel> results = formatData(
-                        GridInventory.MASTER_LEVEL_QUERY,
-                        masterLevels.toArray(new String[masterLevels.size()]));
-                Collections.sort(results);
-                return results;
-            }
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return super.populateData(selection);
-        }
 
+                if (param.equals(GridInventory.MODEL_NAME_QUERY)) {
+                    try {
+                        getInventory().checkSources(sources, params, levels,
+                                returnQueue);
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                    return returnQueue.toArray(new String[0]);
+                } else if (param.equals(GridInventory.PARAMETER_QUERY)) {
+                    try {
+                        getInventory().checkParameters(sources, params, levels,
+                                false, returnQueue);
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                    return returnQueue.toArray(new String[0]);
+                } else if (param.equals(GridInventory.MASTER_LEVEL_QUERY)) {
+                    try {
+                        getInventory().checkLevels(sources, params, levels,
+                                returnQueue);
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                    Set<String> masterlevels = new HashSet<String>();
+                    LevelFactory lf = LevelFactory.getInstance();
+                    for (String levelid : returnQueue) {
+                        Level level = lf.getLevel(levelid);
+                        masterlevels.add(level.getMasterLevel().getName());
+                    }
+                    return masterlevels.toArray(new String[0]);
+                } else if (param.equals(GridInventory.LEVEL_ID_QUERY)) {
+                    try {
+                        getInventory().checkLevels(sources, params, levels,
+                                returnQueue);
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                    return returnQueue.toArray(new String[0]);
+                }
+            }
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.ERROR, "Unable to query data for "
+                    + productName, e);
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.ERROR, "Unable to query data for "
+                    + productName, e);
+        }
+        return new String[0];
     }
 
     /*
@@ -213,83 +256,69 @@ public class GridProductBrowserDataDefinition extends
     public List<ProductBrowserLabel> formatData(String param,
             String[] parameters) {
         List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
-        if (!(Boolean) getPreference(FORMAT_DATA).getValue()) {
-            boolean isProduct = false;
-            if (GridInventory.LEVEL_ID_QUERY.equals(param)) {
-                isProduct = true;
-            }
-            for (String string : parameters) {
-                ProductBrowserLabel label = new ProductBrowserLabel(string,
-                        string);
-                label.setProduct(isProduct);
-                labels.add(label);
-            }
-            return labels;
-        }
-        if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
-            GribModelLookup lookup = GribModelLookup.getInstance();
-            for (int i = 0; i < parameters.length; i++) {
-                GridModel model = lookup.getModelByName(parameters[i]);
-                if (model == null) {
-                    if (!(Boolean) getPreference(SHOW_UNKNOWN_MODELS)
-                            .getValue()) {
-                        continue;
+        try {
+            if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
+                DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
+                for (int i = 0; i < parameters.length; i++) {
+                    DatasetInfo info = lookup.getInfo(parameters[i]);
+                    if (info == null) {
+                        labels.add(new ProductBrowserLabel(parameters[i],
+                                parameters[i]));
+                    } else {
+                        labels.add(new ProductBrowserLabel(info.getTitle()
+                                + " (" + " (" + parameters[i] + ")",
+                                parameters[i]));
                     }
-                    labels.add(new ProductBrowserLabel(parameters[i],
-                            parameters[i]));
-                } else {
-                    labels.add(new ProductBrowserLabel(model.getTitle() + " ("
-                            + parameters[i] + ")", parameters[i]));
                 }
-            }
-            return labels;
-        } else if (GridInventory.PARAMETER_QUERY.equals(param)) {
-            Map<String, DerivParamDesc> library = DerivedParameterGenerator
-                    .getDerParLibrary();
-            for (int i = 0; i < parameters.length; i++) {
-                DerivParamDesc desc = library.get(parameters[i]);
-                if (desc == null || desc.getName().isEmpty()) {
-                    labels.add(new ProductBrowserLabel(parameters[i],
-                            parameters[i]));
-                } else {
-                    labels.add(new ProductBrowserLabel(desc.getName(),
-                            parameters[i]));
+                Collections.sort(labels);
+                return labels;
+            } else if (GridInventory.PARAMETER_QUERY.equals(param)) {
+                Map<String, DerivParamDesc> library = DerivedParameterGenerator
+                        .getDerParLibrary();
+                for (int i = 0; i < parameters.length; i++) {
+                    DerivParamDesc desc = library.get(parameters[i]);
+                    if (desc == null || desc.getName().isEmpty()) {
+                        labels.add(new ProductBrowserLabel(parameters[i],
+                                parameters[i]));
+                    } else {
+                        labels.add(new ProductBrowserLabel(desc.getName()
+                                + " (" + parameters[i] + ")", parameters[i]));
+                    }
                 }
-            }
-            return labels;
-        } else if (GridInventory.LEVEL_ID_QUERY.equals(param)) {
-            Level[] levels = new Level[parameters.length];
-            LevelFactory lf = LevelFactory.getInstance();
-            try {
+                Collections.sort(labels);
+                return labels;
+            } else if (GridInventory.LEVEL_ID_QUERY.equals(param)) {
+                Level[] levels = new Level[parameters.length];
+                LevelFactory lf = LevelFactory.getInstance();
                 for (int i = 0; i < levels.length; i++) {
                     levels[i] = lf.getLevel(parameters[i]);
                 }
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-            Arrays.sort(levels, levelComparator);
-            for (int i = 0; i < parameters.length; i++) {
-                String levelName = levels[i].toString().replace("_", "-");
-                levelName = levelName.replace(levels[i].getMasterLevel()
-                        .getName(), " " + levels[i].getMasterLevel().getName());
-                labels.add(new ProductBrowserLabel(levelName, Long
-                        .toString(levels[i].getId())));
-                labels.get(i).setProduct(true);
-            }
-            return labels;
-        } else if (GridInventory.MASTER_LEVEL_QUERY.equals(param)) {
-            LevelFactory lf = LevelFactory.getInstance();
-            try {
+                Arrays.sort(levels, levelComparator);
+                for (int i = 0; i < parameters.length; i++) {
+                    String levelName = levels[i].toString().replace("_", "-");
+                    levelName = levelName.replace(levels[i].getMasterLevel()
+                            .getName(), " "
+                            + levels[i].getMasterLevel().getName());
+                    labels.add(new ProductBrowserLabel(levelName, Long
+                            .toString(levels[i].getId())));
+                }
+                return labels;
+            } else if (GridInventory.MASTER_LEVEL_QUERY.equals(param)) {
+                LevelFactory lf = LevelFactory.getInstance();
                 for (int i = 0; i < parameters.length; i++) {
                     MasterLevel masterLevel = lf.getMasterLevel(parameters[i]);
                     labels.add(new ProductBrowserLabel(masterLevel
-                            .getDescription(), masterLevel.getName()));
+                            .getDescription()
+                            + " ("
+                            + masterLevel.getName()
+                            + ")", masterLevel.getName()));
                 }
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                Collections.sort(labels);
+                return labels;
             }
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.ERROR, "Unable to format data for "
+                    + productName, e);
         }
         return super.formatData(param, parameters);
     }
@@ -302,24 +331,38 @@ public class GridProductBrowserDataDefinition extends
         }
         HashMap<String, RequestConstraint> queryList = super
                 .getProductParameters(selection, order);
-        try {
+        if (queryList.containsKey(GridInventory.LEVEL_ID_QUERY)) {
+            RequestConstraint levelRC = queryList
+                    .remove(GridInventory.LEVEL_ID_QUERY);
             // Convert Level id to level one and level two values.
-            Level level = LevelFactory.getInstance().getLevel(selection[4]);
-            queryList.put(GridInventory.LEVEL_ONE_QUERY, new RequestConstraint(
-                    level.getLevelOneValueAsString()));
-            queryList.put(GridInventory.LEVEL_TWO_QUERY, new RequestConstraint(
-                    level.getLevelTwoValueAsString()));
-            queryList.remove(order[4]);
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-
+            try {
+                Level level = LevelFactory.getInstance().getLevel(
+                        levelRC.getConstraintValue());
+                queryList
+                        .put(GridInventory.LEVEL_ONE_QUERY,
+                                new RequestConstraint(level
+                                        .getLevelOneValueAsString()));
+                queryList
+                        .put(GridInventory.LEVEL_TWO_QUERY,
+                                new RequestConstraint(level
+                                        .getLevelTwoValueAsString()));
+                queryList
+                        .put(GridInventory.MASTER_LEVEL_QUERY,
+                                new RequestConstraint(level.getMasterLevel()
+                                        .getName()));
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Unable to get product parameters for " + productName,
+                        e);
+            }
         }
         return queryList;
     }
 
     private GridInventory getInventory() {
         if ((Boolean) getPreference(SHOW_DERIVED_PARAMS).getValue()) {
-            return (GridInventory) DataCubeContainer.getInventory("grib");
+            return (GridInventory) DataCubeContainer
+                    .getInventory(GridConstants.GRID);
         } else {
             return null;
         }
@@ -358,13 +401,6 @@ public class GridProductBrowserDataDefinition extends
                 .setTooltip("Show derived parameters in the Product Browser");
         derivedParameterPref.setValue(true);
         widgets.add(derivedParameterPref);
-        ProductBrowserPreference unknownPreference = new ProductBrowserPreference();
-        unknownPreference.setLabel(SHOW_UNKNOWN_MODELS);
-        unknownPreference.setPreferenceType(PreferenceType.BOOLEAN);
-        unknownPreference
-                .setTooltip("Show unknown models in the Product Browser");
-        unknownPreference.setValue(true);
-        widgets.add(unknownPreference);
         return widgets;
     }
 }
