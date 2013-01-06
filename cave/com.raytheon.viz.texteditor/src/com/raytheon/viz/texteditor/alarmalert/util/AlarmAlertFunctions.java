@@ -26,14 +26,25 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
+import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct.ProductType;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.geospatial.SpatialException;
+import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -45,11 +56,15 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmAlertBell;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * This class is used for some of the calculation work used in the alarm/alert
@@ -62,6 +77,8 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009            mnash       Initial creation
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
+ * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
+ * 											the implementation of proximity alarm
  * 
  * </pre>
  * 
@@ -69,6 +86,14 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * @version 1.0
  */
 
+/**
+ * @author michaelg
+ *
+ */
+/**
+ * @author michaelg
+ *
+ */
 public class AlarmAlertFunctions {
 
     private static final AlarmAlertProduct.ProductType AA = AlarmAlertProduct.ProductType.Alarm_Alert;
@@ -88,6 +113,23 @@ public class AlarmAlertFunctions {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AlarmAlertFunctions.class);
+    
+    private static final Pattern UGC_NEW_PATTERN = Pattern
+    .compile("^(([A-Z]{3})(\\d{3}))$");
+    
+    private static final Pattern UGC_FOLLOW_PATTERN = Pattern
+    .compile("^(\\d{3})$");
+    
+    private static String DEFAULT_DISTANCE="3000";
+    
+    private static final String HYPHEN = Pattern.quote("-");
+    
+    public static final Pattern UGC = Pattern
+    .compile("(^(\\w{2}[CZ]\\d{3}\\S*-\\d{6}-)$|((\\d{3}-)*\\d{6}-)$|((\\d{3}-)+))");
+
+	private static final double ONE_DEGREE_MI = 69.09;
+
+	private static final double ONE_DEGREE_KM = 111.20;
 
     protected void getGIS() {
 
@@ -105,7 +147,22 @@ public class AlarmAlertFunctions {
             string.append("AOR");
         }
         if (!"".equals(prod.getAorDistance())) {
-            string.append("+" + prod.getAorDistance() + prod.getAorLabel());
+			/*
+			 * DR15555 - check the text content, 
+			 * if it is not a valid number set the 
+			 * text to default 3000 mi
+			 */
+			Scanner scn = new Scanner(prod.getAorDistance());
+			while (scn.hasNext()){
+				if (!scn.hasNextInt()){
+					prod.setAorDistance(DEFAULT_DISTANCE);
+					break;
+				}
+				else {
+					scn.next();
+				}
+			}
+            string.append("AOR+" + prod.getAorDistance() + prod.getAorLabel());
         } else if (!"".equals(prod.getUgcList())) {
             string.append("UGC-" + prod.getUgcList());
         }
@@ -219,10 +276,11 @@ public class AlarmAlertFunctions {
         if (productId != null) {
             productId = productId.trim().toUpperCase();
             for (AlarmAlertProduct a : currentAlarms) {
-                // **************
-                // TODO : For now disable Proximity Alerts
-                // **************
-                if (AA.equals(a.getProductType())) {
+            	ProductType pt = a.getProductType();
+            	/*
+            	 * Alarm_Alert
+            	 */
+                if (AA.equals(pt)) {
                     String s = a.getProductId();
                     if (s != null) {
                         s = s.trim().toUpperCase();
@@ -234,12 +292,334 @@ public class AlarmAlertFunctions {
                         }
                     }
                 }
+            	/*
+            	 * DR1555 - Proximity_Alarm
+            	 */
+				else if (PA.equals(pt)) {;
+					String s = a.getProductId();
+                    if (s != null) {
+                        s = s.trim().toUpperCase();
+                        if (s.equals(productId)) {
+                        	List<StdTextProduct> productList = getProduct(a
+        							.getProductId());
+        					if (productList.size() > 0) {
+        						StdTextProduct stp = productList.get(0);
+        						if (stp != null) {
+        							Geometry messagePolygon = getMessagePolygon(stp);
+        							if (a.isAor()) {
+        								/*
+        								 * Check if polygon in the message 
+        								 * is within the AOR
+        								 */
+        								if (matchAOR(messagePolygon)) {
+        									prods.add(a);
+        								}
+        							} else if (!"".equals(a.getAorDistance())) {
+        								/*
+        								 * Check if polygon in the message 
+        								 * is within the AOR+distance
+        								 */
+        								if (matchAORExtention(a.getAorDistance(),
+        										a.getAorLabel(), messagePolygon)) {
+        									prods.add(a);
+        								}
+        							} else if (!"".equals(a.getUgcList())) {
+        								/*
+        								 * Check if UGCs in the message 
+        								 * match the UGCs in the alarm
+        								 */
+        								String messageUGCs = getMessageUGCs(stp
+        										.getProduct());
+        								String alarmUGCs = a.getUgcList();
+        								if (matchUGCList(alarmUGCs, messageUGCs)) {
+        									prods.add(a);
+        								}
+        							}
+        						}
+        					}
+                        }
+                    }
+				}
             }
         }
         return prods;
     }
 
-    /**
+	/**
+	 * Return a String containing UGCs specified in the message
+	 * 
+	 * @param productText
+	 * @return
+	 */
+	private static String getMessageUGCs(String productText) {
+		String ugcLine = "";
+		for (String line : productText.replaceAll("\r", "").trim().split("\n")) {
+			Matcher m = UGC.matcher(line);
+			if (m.find()) {
+				ugcLine += line;
+				continue;
+			} else if (ugcLine.length() > 0) {
+				break;
+			}
+		}
+		return ugcLine;
+	}
+
+	/**
+	 * Returns true if the polygon intersects the CWA
+	 * 
+	 * @param polygon
+	 * @return
+	 */
+	private static boolean matchAOR(Geometry polygon) {    	
+    	Geometry cwa = null;
+    	String site =  LocalizationManager.getInstance().getCurrentSite();
+    	try {
+			cwa = readCountyWarningArea(site);
+		} catch (SpatialException e) {
+			e.printStackTrace();
+		}
+    	if (cwa!=null) {
+    		if (polygon.intersects(cwa)) {
+                return true;
+            }
+    	}
+		return false;
+	}
+
+	/**
+	 * Returns true if a UGC specified in the alarmUGCs is present in the
+	 * messageUGCs
+	 * 
+	 * @param alarmUGCs
+	 * @param messageUGCs
+	 * @return
+	 */
+	private static boolean matchUGCList(String alarmUGCs, String messageUGCs) {
+		List<String> alarmUGCList = getUGCs(alarmUGCs);
+		for ( String alarmUGC: alarmUGCList) {
+			if (messageUGCs.contains(alarmUGC) ) {
+				return true;
+			}
+		}		
+        return false;
+    }
+
+	/**
+	 * Return a List of strings of UGCs
+	 * 
+	 * @param ugcString
+	 * @return
+	 */
+	private static List<String> getUGCs(String ugcString) {
+		String[] ugcList = ugcString.split(HYPHEN);
+		// Process the list of UGC lines into a list of UGCs in full form
+		// matching edit area names
+		List<String> finalUGCList = new ArrayList<String>(ugcList.length);
+		String state = null;
+		for (String ugc : ugcList) {
+			Matcher newGroup = UGC_NEW_PATTERN.matcher(ugc);
+			if (newGroup.matches()) {
+				state = newGroup.group(2);
+				finalUGCList.add(newGroup.group(1));
+			} else {
+				Matcher followGroup = UGC_FOLLOW_PATTERN.matcher(ugc);
+				if (followGroup.matches()) {
+					finalUGCList.add(state + followGroup.group(1));
+				}
+			}
+		}
+		return finalUGCList;
+	}
+	
+	/**
+	 * Return Geometry representing the site's CWA
+	 * 
+	 * @param site
+	 * @return
+	 * @throws SpatialException
+	 */
+	private static Geometry readCountyWarningArea(String site)
+			throws SpatialException {
+		Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
+		map.put("cwa", new RequestConstraint(site));
+		SpatialQueryResult[] result = SpatialQueryFactory.create().query("cwa",
+				null, null, map, null);
+		if (result == null || result.length == 0) {
+			return null;
+		}
+		return result[0].geometry;
+	}
+
+	/**
+	 * Returns true if the polygon intersects the CWA+distance
+	 * 
+	 * @param distanceStr
+	 * @param distanceUnits
+	 * @param polygon
+	 * @return
+	 */
+	private static boolean matchAORExtention(String distanceStr,
+			String distanceUnits, Geometry polygon) {
+		Geometry cwa = null;
+		String site = LocalizationManager.getInstance().getCurrentSite();
+		try {
+			cwa = readCountyWarningArea(site);
+		} catch (SpatialException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Geometry CWAConvex = cwa.convexHull();
+
+		double d0 = 0.0d;
+		if ("mi".equalsIgnoreCase(distanceUnits)) {
+			d0 = ONE_DEGREE_MI;
+		} else {
+			d0 = ONE_DEGREE_KM;
+		}
+		Double distance = Double.parseDouble(distanceStr);
+		double centerLat = Math.toRadians(CWAConvex.getCentroid().getY());
+		Double deltaX = distance / (Math.cos(centerLat) * d0);
+		Double deltaY = distance / d0;
+		Geometry expandedCWA = expandCWABy(CWAConvex, deltaX, deltaY);
+
+		if (expandedCWA != null) {
+			if (polygon.intersects(expandedCWA)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Return expanded by deltaX-deltaY geometry
+	 * 
+	 * @param CWAConvex
+	 * @param deltaX
+	 * @param deltaY
+	 * @return
+	 */
+	private static Geometry expandCWABy(Geometry CWAConvex, Double deltaX,
+			Double deltaY) {
+		Coordinate[] coords = CWAConvex.getCoordinates();
+		Coordinate[] coordsExpanded = new Coordinate[coords.length];
+		Double centerLat = CWAConvex.getCentroid().getY();
+		Double centerLon = CWAConvex.getCentroid().getX();
+		for (int i = 0; i < coords.length; i++) {
+			double latE = coords[i].y;
+			double lonE = coords[i].x;
+			if (coords[i].x < centerLon) {
+				lonE = coords[i].x - deltaX;
+				;
+			} else if (coords[i].x > centerLon) {
+				lonE = coords[i].x + deltaX;
+			} else if (coords[i].x == centerLon) {
+				lonE = coords[i].x;
+			}
+			if (coords[i].y < centerLat) {
+				latE = coords[i].y - deltaY;
+			} else if (coords[i].y > centerLat) {
+				latE = coords[i].y + deltaY;
+			} else if (coords[i].y == centerLat) {
+				latE = coords[i].y;
+			}
+			coordsExpanded[i] = new Coordinate(lonE, latE);
+		}
+		GeometryFactory gf = new GeometryFactory();
+		return gf.createLinearRing(coordsExpanded).convexHull();
+	}
+
+	/**
+	 * Return the polygon contained in message
+	 * 
+	 * @param stp
+	 * @return
+	 */
+	private static Geometry getMessagePolygon(StdTextProduct stp) {
+		String body = stp.getProduct();
+		if (body.contains("LAT...LON")) {
+			Coordinate[] coords = getLatLonCoords(body);
+			GeometryFactory gf = new GeometryFactory();
+			return gf.createLinearRing(coords);
+		}
+		return null;
+	}
+
+	/**
+	 * Return an array of Coordinate[] contained in the message
+	 * 
+	 * @param body
+	 * @return
+	 */
+	private static Coordinate[] getLatLonCoords(String body) {
+		String latLon = "";
+		boolean insideLatLon = false;
+		ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+		Pattern latLonPtrn = Pattern
+				.compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
+		Pattern subLatLonPtrn = Pattern.compile("\\s(\\d{3,4})\\s(\\d{3,5})");
+		String[] separatedLines = body.split("\n");
+		for (String line : separatedLines) {
+			Matcher m = latLonPtrn.matcher(line);
+			if (m.find()) {
+				latLon = line;
+				insideLatLon = true;
+				continue;
+			}
+			if (insideLatLon) {
+				m = subLatLonPtrn.matcher(line);
+				if (!line.startsWith("TIME...") && m.find()) {
+					latLon += " " + line.trim();
+					continue;
+				} else {
+					insideLatLon = false;
+				}
+			}
+		}
+		coordinates = processLatlons(latLon);
+		Coordinate[] coords = new Coordinate[coordinates.size()];
+		coords = coordinates.toArray(coords);
+		return coords;
+	}
+
+	/**
+	 * Process the extracted from the message latlon coordinates 
+	 * @param latLon
+	 * @return
+	 */
+	private static ArrayList<Coordinate> processLatlons(String latLon) {
+		ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+		String currentToken = null;
+		String latlon = "LAT...LON";
+		String latitude = null;
+		String longitude = null;
+		boolean pair = false;
+		Double dlat, dlong;
+		StringTokenizer latlonTokens = new StringTokenizer(latLon);
+		while (latlonTokens.hasMoreTokens()) {
+			currentToken = latlonTokens.nextToken();
+			if (!currentToken.equals(latlon)) {
+				if (pair) {
+					longitude = currentToken;
+
+					pair = false;
+
+					dlat = (double) (Integer.parseInt(latitude) / 100.0);
+					dlong = (double) ((Integer.parseInt(longitude) / 100.0) * (-1.0));
+					coordinates.add(new Coordinate(dlong, dlat));
+				} else {
+					latitude = currentToken;
+					pair = true;
+				}
+			}
+		}
+		Double dlong0 = coordinates.get(0).x;
+		Double dlat0 = coordinates.get(0).y;
+		coordinates.add(new Coordinate(dlong0, dlat0));
+		return coordinates;
+	}
+
+	/**
      * initialize the localization for user with the save/load functions
      * 
      * @return the initialized localization

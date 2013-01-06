@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                     has been created to calculate the pivot
  *                                     indexes.
  * 10-27-2010   #6964      bkowal      Added a public class member for the LineStyle.
+ * 11/29/2012   15571      Qinglu Lin  Added compuateCurrentStormCenter();
  * 
  * </pre>
  * 
@@ -189,4 +190,32 @@ public class StormTrackState {
 
     /** Set if you the duration needs to be calculated from the end time */
     public Calendar endTime = null;
+    
+    /** Compute the coordinate of the storm center at the time defined by dataTime via interpolation. */
+    public boolean compuateCurrentStormCenter(Coordinate coord, DataTime dateTime) {
+    	if (futurePoints == null) return false;
+    	int length = futurePoints.length;
+    	if (length <=1) return false;
+    	DataTime[] dt = new DataTime[2];
+    	dt[0] = futurePoints[0].time;
+    	dt[1] = futurePoints[length-1].time;
+    	Coordinate[] cs = new Coordinate[] {futurePoints[0].coord,futurePoints[length-1].coord};
+    	boolean crossed180 = false;
+        if (cs[0].x>0 && cs[1].x<0 || cs[0].x<0 && cs[1].x>0) {
+        	crossed180 = true;
+        	if (cs[0].x>0)
+        		cs[0].x = -360. + cs[0].x;
+        	if (cs[1].x>0)
+        		cs[1].x = -360. + cs[1].x;
+        }
+    	StormTrackUtil trackUtil = new StormTrackUtil();
+    	coord.x = cs[0].x + (cs[1].x-cs[0].x)/trackUtil.timeBetweenDataTimes(dt[1],dt[0])
+    	    *trackUtil.timeBetweenDataTimes(dateTime,dt[0]);
+    	coord.y = cs[0].y + (cs[1].y-cs[0].y)/trackUtil.timeBetweenDataTimes(dt[1],dt[0])
+    	    *trackUtil.timeBetweenDataTimes(dateTime,dt[0]);
+    	if (crossed180)
+    		if (coord.x<-180.0)
+    			coord.x = 360. + coord.x;
+    	return true;
+    }
 }
