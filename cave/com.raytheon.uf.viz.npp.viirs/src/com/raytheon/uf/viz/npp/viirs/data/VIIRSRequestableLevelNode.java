@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.npp.viirs.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,14 +28,12 @@ import java.util.Set;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 
 /**
  * VIIRS Requestable level node
@@ -56,7 +52,7 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
  * @version 1.0
  */
 
-public class VIIRSRequestableLevelNode extends AbstractRequestableLevelNode {
+public class VIIRSRequestableLevelNode extends AbstractBaseDataNode {
 
     private Map<String, RequestConstraint> requestConstraints;
 
@@ -66,152 +62,6 @@ public class VIIRSRequestableLevelNode extends AbstractRequestableLevelNode {
     public VIIRSRequestableLevelNode(
             Map<String, RequestConstraint> requestConstraints) {
         this.requestConstraints = requestConstraints;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * processDataQueryResults
-     * (com.raytheon.uf.common.dataquery.responses.DbQueryResponse)
-     */
-    @Override
-    protected List<AbstractRequestableData> processDataQueryResults(
-            DbQueryResponse queryResponse) throws VizException {
-        List<Map<String, Object>> results = queryResponse.getResults();
-        List<AbstractRequestableData> data = new ArrayList<AbstractRequestableData>(
-                results.size());
-        for (Map<String, Object> result : results) {
-            data.add(new VIIRSRequestableData((VIIRSDataRecord) result
-                    .get(null), getLevel()));
-        }
-        return data;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDependencies()
-     */
-    @Override
-    public List<Dependency> getDependencies() {
-        return Collections.emptyList();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * isTimeAgnostic()
-     */
-    @Override
-    public boolean isTimeAgnostic() {
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * hasRequestConstraints()
-     */
-    @Override
-    public boolean hasRequestConstraints() {
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getRequestConstraintMap()
-     */
-    @Override
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
-        return requestConstraints;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * timeQueryInternal(boolean, java.util.Map, java.util.Map)
-     */
-    @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
-            throws VizException {
-        TimeQueryRequest timeQuery = getTimeQuery(originalRequest, latestOnly,
-                cache, latestOnlyCache);
-        @SuppressWarnings("unchecked")
-        List<DataTime> dataTimes = (List<DataTime>) ThriftClient
-                .sendRequest(timeQuery);
-        return new HashSet<DataTime>(dataTimes);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getTimeQueryInternal(boolean, java.util.Map)
-     */
-    @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
-            throws VizException {
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
-                originalRequest.getQueryTerms());
-        constraints.putAll(requestConstraints);
-        TimeQueryRequest tr = new TimeQueryRequest();
-        tr.setQueryTerms(constraints);
-        tr.setMaxQuery(latestOnly);
-        tr.setPluginName("viirs");
-        return tr;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
-    @Override
-    protected List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        DbQueryRequest dataQuery = getDataQuery(property, timeOut, cache);
-        return processDataQueryResults((DbQueryResponse) ThriftClient
-                .sendRequest(dataQuery));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode#
-     * getDataQueryInternal(com.raytheon.uf.viz.core.catalog.LayerProperty, int,
-     * java.util.Map)
-     */
-    @Override
-    protected DbQueryRequest getDataQueryInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
-                property.getEntryQueryParameters(true));
-        constraints.putAll(requestConstraints);
-        constraints.put("pluginName", new RequestConstraint("viirs"));
-        DbQueryRequest request = new DbQueryRequest();
-        request.setConstraints(constraints);
-        request.setEntityClass(VIIRSDataRecord.class);
-        return request;
     }
 
     /*
@@ -250,6 +100,96 @@ public class VIIRSRequestableLevelNode extends AbstractRequestableLevelNode {
         } else if (!requestConstraints.equals(other.requestConstraints))
             return false;
         return true;
+    }
+
+    public Map<String, RequestConstraint> getRequestConstraintMap() {
+        return requestConstraints;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#
+     * getAvailabilityRequest()
+     */
+    @Override
+    public DbQueryRequest getAvailabilityRequest(
+            Map<String, RequestConstraint> originalConstraints) {
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                originalConstraints);
+        constraints.putAll(requestConstraints);
+        constraints.put("pluginName", new RequestConstraint("viirs"));
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(VIIRSDataRecord.class.getName());
+        request.addRequestField("dataTime");
+        request.setDistinct(true);
+        request.setConstraints(constraints);
+        return request;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getDataRequest
+     * (java.util.Map, java.util.Set)
+     */
+    @Override
+    public DbQueryRequest getDataRequest(
+            Map<String, RequestConstraint> originalConstraints,
+            Set<TimeAndSpace> availability) {
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                originalConstraints);
+        constraints.putAll(requestConstraints);
+        constraints.put("pluginName", new RequestConstraint("viirs"));
+        DbQueryRequest request = new DbQueryRequest();
+        request.setConstraints(constraints);
+        request.setEntityClass(VIIRSDataRecord.class);
+        return request;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getAvailability
+     * (java.lang.Object)
+     */
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<String, RequestConstraint> originalConstraints, Object response)
+            throws VizException {
+        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        DbQueryResponse dbresponse = (DbQueryResponse) response;
+        for (Map<String, Object> map : dbresponse.getResults()) {
+            DataTime time = (DataTime) map.get("dataTime");
+
+            result.add(new TimeAndSpace(time));
+        }
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode#getData(java
+     * .util.Map, java.util.Set, java.lang.Object)
+     */
+    @Override
+    public Set<AbstractRequestableData> getData(
+            Map<String, RequestConstraint> orignalConstraints,
+            Set<TimeAndSpace> availability, Object response)
+            throws VizException {
+        DbQueryResponse queryResponse = (DbQueryResponse) response;
+        List<Map<String, Object>> results = queryResponse.getResults();
+        Set<AbstractRequestableData> data = new HashSet<AbstractRequestableData>(
+                results.size());
+        for (Map<String, Object> result : results) {
+            data.add(new VIIRSRequestableData((VIIRSDataRecord) result
+                    .get(null), getLevel()));
+        }
+        return data;
     }
 
 }

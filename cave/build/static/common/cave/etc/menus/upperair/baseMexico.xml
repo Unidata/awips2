@@ -82,7 +82,7 @@
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Guadalajara, MX (MMGL)" id="raobGuadalajara_MX"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-	        <substitute key="stationId" value="76612"/>
+	        <substitute key="stationId" value="72226"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Guaymas (MMGM)" id="raobGuaymas"

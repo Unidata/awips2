@@ -72,9 +72,10 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotificatio
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -87,8 +88,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
@@ -115,8 +114,6 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * @version 1.0
  */
 public class GFEDao extends DefaultPluginDao {
-
-    private static String D2D_PARM_QUERY_STRING = "select model.id,model.parameterabbreviation, level.masterLevel_name, level.levelonevalue, level.leveltwovalue from awips.grib_models model, awips.level level where model.modelName = ':modelName' and model.id in (select distinct modelinfo_id from awips.grib where reftime=':reftime') and model.level_id = level.id";
 
     public GFEDao() throws PluginException {
         super("gfe");
@@ -596,12 +593,12 @@ public class GFEDao extends DefaultPluginDao {
     @SuppressWarnings("unchecked")
     public List<Integer> getD2DForecastTimes(DatabaseID dbId)
             throws DataAccessLayerException {
-        DatabaseQuery query = new DatabaseQuery(GribRecord.class.getName());
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
         query.addDistinctParameter("dataTime.fcstTime");
         try {
             IFPServerConfig config = IFPServerConfigManager
                     .getServerConfig(dbId.getSiteId());
-            query.addQueryParam("modelInfo.modelName",
+            query.addQueryParam(GridConstants.DATASET_ID,
                     config.d2dModelNameMapping(dbId.getModelName()));
         } catch (GfeConfigurationException e) {
             throw new DataAccessLayerException(
@@ -614,22 +611,22 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * Retrieves a GribRecord from the grib metadata database based on a ParmID
+     * Retrieves a GridRecord from the grib metadata database based on a ParmID
      * and a TimeRange
      * 
      * @param id
-     *            The parmID of the desired GribRecord
+     *            The parmID of the desired GridRecord
      * @param timeRange
-     *            The timeRange of the desired GribRecord
-     * @return The GribRecord from the grib metadata database
+     *            The timeRange of the desired GridRecord
+     * @return The GridRecord from the grib metadata database
      * @throws DataAccessLayerException
      *             If errors occur while querying the metadata database
      */
-    public GribRecord getD2DGrid(ParmID id, TimeRange timeRange,
+    public GridRecord getD2DGrid(ParmID id, TimeRange timeRange,
             GridParmInfo info) throws DataAccessLayerException {
-        List<GribRecord> records = queryByD2DParmId(id);
+        List<GridRecord> records = queryByD2DParmId(id);
         List<TimeRange> gribTimes = new ArrayList<TimeRange>();
-        for (GribRecord record : records) {
+        for (GridRecord record : records) {
             gribTimes.add(record.getDataTime().getValidPeriod());
         }
 
@@ -641,15 +638,15 @@ public class GFEDao extends DefaultPluginDao {
                             gribTime.getEnd());
                     if (timeRange.getEnd().equals(time.getEnd())
                             || !info.getTimeConstraints().anyConstraints()) {
-                        GribRecord retVal = records.get(i);
-                        retVal.setPluginName("grib");
+                        GridRecord retVal = records.get(i);
+                        retVal.setPluginName(GridConstants.GRID);
                         return retVal;
                     }
                 } else if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)) {
                     if (timeRange.getStart().equals(gribTime.getEnd())
                             || timeRange.equals(gribTime)) {
-                        GribRecord retVal = records.get(i);
-                        retVal.setPluginName("grib");
+                        GridRecord retVal = records.get(i);
+                        retVal.setPluginName(GridConstants.GRID);
                         return retVal;
                     }
 
@@ -658,8 +655,8 @@ public class GFEDao extends DefaultPluginDao {
                             gribTime.getStart());
                     if ((timeRange.getStart().equals(time.getStart()) || !info
                             .getTimeConstraints().anyConstraints())) {
-                        GribRecord retVal = records.get(i);
-                        retVal.setPluginName("grib");
+                        GridRecord retVal = records.get(i);
+                        retVal.setPluginName(GridConstants.GRID);
                         return retVal;
                     }
                 }
@@ -674,18 +671,18 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * Gets a list of GribRecords from the grib metadata database which match
+     * Gets a list of GridRecords from the grib metadata database which match
      * the given ParmID
      * 
      * @param id
      *            The ParmID to search with
-     * @return The list of GribRecords from the grib metadata database which
+     * @return The list of GridRecords from the grib metadata database which
      *         match the given ParmID
      * @throws DataAccessLayerException
      *             If errors occur while querying the metadata database
      */
     @SuppressWarnings("unchecked")
-    public List<GribRecord> queryByD2DParmId(ParmID id)
+    public List<GridRecord> queryByD2DParmId(ParmID id)
             throws DataAccessLayerException {
         Session s = null;
         try {
@@ -716,26 +713,26 @@ public class GFEDao extends DefaultPluginDao {
             if (level == null) {
                 logger.warn("Unable to query D2D parms, ParmID " + id
                         + " does not map to a level");
-                return new ArrayList<GribRecord>();
+                return new ArrayList<GridRecord>();
             }
 
             s = getHibernateTemplate().getSessionFactory().openSession();
 
-            Criteria modelCrit = s.createCriteria(GribModel.class);
-            Criterion baseCrit = Restrictions.eq("level", level);
+            Criteria modelCrit = s.createCriteria(GridInfoRecord.class);
+            Criterion baseCrit = Restrictions
+                    .eq(GridInfoConstants.LEVEL, level);
 
             DatabaseID dbId = id.getDbId();
             try {
                 IFPServerConfig config = IFPServerConfigManager
                         .getServerConfig(dbId.getSiteId());
                 baseCrit = Restrictions.and(baseCrit, Restrictions.eq(
-                        "modelName",
+                        GridInfoConstants.DATASET_ID,
                         config.d2dModelNameMapping(dbId.getModelName())));
             } catch (GfeConfigurationException e) {
                 throw new DataAccessLayerException(
                         "Error occurred looking up model name mapping", e);
             }
-
             String abbreviation = DataFieldTableLookup.getInstance()
                     .lookupDataName(id.getParmName());
             if (abbreviation == null) {
@@ -746,24 +743,25 @@ public class GFEDao extends DefaultPluginDao {
                     .and(baseCrit,
                             Restrictions.or(
                                     Restrictions
-                                            .sqlRestriction("lower(parameterAbbreviation) = '"
+                                            .sqlRestriction("lower(parameter_abbreviation) = '"
                                                     + abbreviation + "'"),
                                     Restrictions
-                                            .sqlRestriction("lower(parameterAbbreviation) like '"
+                                            .sqlRestriction("lower(parameter_abbreviation) like '"
                                                     + abbreviation + "%hr'")));
 
             modelCrit.add(abbrevCrit);
             List<?> results = modelCrit.list();
-            GribModel model = null;
+            GridInfoRecord model = null;
             if (results.size() == 0) {
-                return new ArrayList<GribRecord>(0);
+                return new ArrayList<GridRecord>(0);
             } else if (results.size() > 1) {
                 // hours matched, take hour with least number that matches exact
                 // param
                 Pattern p = Pattern.compile("^" + abbreviation + "(\\d+)hr$");
                 int lowestHr = -1;
-                for (GribModel m : (List<GribModel>) results) {
-                    String param = m.getParameterAbbreviation().toLowerCase();
+                for (GridInfoRecord m : (List<GridInfoRecord>) results) {
+                    String param = m.getParameter().getAbbreviation()
+                            .toLowerCase();
                     if (param.equals(abbreviation) && (lowestHr < 0)) {
                         model = m;
                     } else {
@@ -779,11 +777,11 @@ public class GFEDao extends DefaultPluginDao {
                 }
 
             } else {
-                model = (GribModel) results.get(0);
+                model = (GridInfoRecord) results.get(0);
             }
 
-            Criteria recordCrit = s.createCriteria(GribRecord.class);
-            baseCrit = Restrictions.eq("modelInfo", model);
+            Criteria recordCrit = s.createCriteria(GridRecord.class);
+            baseCrit = Restrictions.eq("info", model);
             baseCrit = Restrictions.and(
                     baseCrit,
                     Restrictions.eq("dataTime.refTime",
@@ -849,7 +847,7 @@ public class GFEDao extends DefaultPluginDao {
                 if (dTimeList.contains(tr)) {
                     timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
-	    }
+            }
 
             if (!timeList.isEmpty()) {
                 return timeList;
@@ -870,12 +868,11 @@ public class GFEDao extends DefaultPluginDao {
         return timeList;
     }
 
-
     private List<DataTime> executeD2DParmQuery(ParmID id)
             throws DataAccessLayerException {
         List<DataTime> times = new ArrayList<DataTime>();
-        List<GribRecord> records = queryByD2DParmId(id);
-        for (GribRecord record : records) {
+        List<GridRecord> records = queryByD2DParmId(id);
+        for (GridRecord record : records) {
             times.add(record.getDataTime());
         }
         return times;
@@ -902,36 +899,29 @@ public class GFEDao extends DefaultPluginDao {
         });
     }
 
-    public List<DatabaseID> getD2DDatabaseIdsFromDb(GridModel d2dModel,
+    public List<DatabaseID> getD2DDatabaseIdsFromDb(String d2dModelName,
             String gfeModel, String siteID) throws DataAccessLayerException {
-        return getD2DDatabaseIdsFromDb(d2dModel, gfeModel, siteID, -1);
+        return getD2DDatabaseIdsFromDb(d2dModelName, gfeModel, siteID, -1);
     }
 
-    public List<DatabaseID> getD2DDatabaseIdsFromDb(GridModel d2dModel,
+    public List<DatabaseID> getD2DDatabaseIdsFromDb(String d2dModelName,
             String gfeModel, String siteID, int maxRecords)
             throws DataAccessLayerException {
         List<DatabaseID> dbInventory = new ArrayList<DatabaseID>();
 
-        StringBuffer modelQueryString = new StringBuffer();
-        modelQueryString.append("select id from awips.grib_models where ");
-        modelQueryString.append("modelName = '").append(d2dModel.getName())
-                .append("'");
-
-        StringBuffer gribQueryString = new StringBuffer();
-        gribQueryString
-                .append("select distinct refTime from awips.grib where modelinfo_id in (")
-                .append(modelQueryString).append(") order by refTime DESC ");
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
+        query.addDistinctParameter("dataTime.refTime");
+        query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
+        query.addOrder("dataTime.refTime", false);
         if (maxRecords > 0) {
-            gribQueryString.append("limit ").append(maxRecords);
+            query.setMaxResults(maxRecords);
         }
+        List<?> result = this.queryByCriteria(query);
 
-        QueryResult result = (QueryResult) new CoreDao(DaoConfig.DEFAULT)
-                .executeNativeSql(gribQueryString.toString());
-
-        for (int i = 0; i < result.getResultCount(); i++) {
+        for (Object obj : result) {
             DatabaseID dbId = null;
             dbId = new DatabaseID(siteID, DataType.GRID, "D2D", gfeModel,
-                    (Date) result.getRowColumnValue(i, 0));
+                    (Date) obj);
             try {
                 GridDatabase db = GridParmManager.getDb(dbId);
                 if ((db != null) && !dbInventory.contains(dbId)) {
@@ -959,10 +949,10 @@ public class GFEDao extends DefaultPluginDao {
      *         be found.
      * @throws DataAccessLayerException
      */
-    public DatabaseID getLatestD2DDatabaseIdsFromDb(GridModel d2dModel,
+    public DatabaseID getLatestD2DDatabaseIdsFromDb(String d2dModelName,
             String gfeModel, String siteID) throws DataAccessLayerException {
-        List<DatabaseID> dbIds = getD2DDatabaseIdsFromDb(d2dModel, gfeModel,
-                siteID, 1);
+        List<DatabaseID> dbIds = getD2DDatabaseIdsFromDb(d2dModelName,
+                gfeModel, siteID, 1);
         if (!dbIds.isEmpty()) {
             return dbIds.get(0);
         } else {
@@ -970,28 +960,30 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    public Set<ParmID> getD2DParmIdsFromDb(GridModel model, DatabaseID dbId)
+    public Set<ParmID> getD2DParmIdsFromDb(String d2dModelName, DatabaseID dbId)
             throws DataAccessLayerException {
 
         Set<ParmID> parmIds = new HashSet<ParmID>();
 
-        String query = D2D_PARM_QUERY_STRING.replace(":modelName",
-                model.getName());
-        query = query.replace(
-                ":reftime",
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
+        query.addDistinctParameter(GridConstants.PARAMETER_ABBREVIATION);
+        query.addDistinctParameter(GridConstants.MASTER_LEVEL_NAME);
+        query.addDistinctParameter(GridConstants.LEVEL_ONE);
+        query.addDistinctParameter(GridConstants.LEVEL_TWO);
+        query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
+        query.addQueryParam(
+                "dataTime.refTime",
                 TimeUtil.formatDate(dbId.getModelTimeAsDate()).replaceAll("_",
                         " "));
 
-        QueryResult result = (QueryResult) this.executeNativeSql(query);
+        List<?> result = this.queryByCriteria(query);
 
-        for (int i = 0; i < result.getResultCount(); i++) {
+        for (Object obj : result) {
+            Object[] objArr = (Object[]) obj;
             String levelName = GridTranslator.getShortLevelName(
-                    (String) result.getRowColumnValue(i, "masterlevel_name"),
-                    (Double) result.getRowColumnValue(i, "levelonevalue"),
-                    (Double) result.getRowColumnValue(i, "leveltwovalue"));
+                    (String) objArr[1], (Double) objArr[2], (Double) objArr[3]);
             if (!levelName.equals(LevelFactory.UNKNOWN_LEVEL)) {
-                String abbrev = (String) result.getRowColumnValue(i,
-                        "parameterabbreviation");
+                String abbrev = (String) objArr[0];
                 abbrev = DataFieldTableLookup.getInstance().lookupCdlName(
                         abbrev);
                 ParmID newParmId = new ParmID(abbrev, dbId, levelName);
