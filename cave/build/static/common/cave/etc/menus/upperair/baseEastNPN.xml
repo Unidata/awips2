@@ -41,7 +41,7 @@
         	<substitute key="productURI" value="/profiler/%/3000/74550/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
-	                menuText="De Queen AR (DQUA4)" id="profDeQueen_AR"
+	                menuText="DeQueen AR (DQUA4)" id="profDeQueen_AR"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <dataURI>/profiler/%/3000/74752/%</dataURI>
 	        <substitute key="wmoid" value="74752"/>
@@ -55,7 +55,7 @@
         	<substitute key="productURI" value="/profiler/%/3000/74440/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
-	                menuText="Haskell OK (LMN02)" id="profHaskell_OK"
+	                menuText="Haskell OK (HKL02)" id="profHaskell_OK"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <dataURI>/profiler/%/3000/74648/%</dataURI>
 	        <substitute key="wmoid" value="74648"/>
@@ -118,7 +118,7 @@
         	<substitute key="productURI" value="/profiler/%/3000/74379/%"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml" 
-	                menuText="Winchester IL (WNFL1)" id="profWinchester_IL"
+	                menuText="Winchester IL (WNCI2)" id="profWinchester_IL"
 	                editorType="com.raytheon.uf.viz.profiler.ui.ProfilerEditor">
 	        <dataURI>/profiler/%/3000/74556/%</dataURI>
 	        <substitute key="wmoid" value="74556"/>

@@ -47,6 +47,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------   ---------- ----------- --------------------------
  * 9/22           #1553      mnash       Initial implementation of GagePP
  * 6/1/09         #2432      jsanchez    Updated value magnitude for hourlypp/pc.
+ * 26 Nov 2012    #15554     lbousaidi	 used obstime instead of system time in isNear12Z
+ * 										 routine.
+ * 4 Dec  2012    #15569     lbousaidi   fixed daily pp value when token is set to USE_REVCODE
  * </pre>
  * 
  * @author mnash
@@ -406,6 +409,13 @@ public class GagePP {
                         default:
                             break;
                         }
+                                                
+                    } else {
+                    	if (rec.getDataDuration() == 24) {
+                    	  dailyPP.setValue(Double.valueOf(rec.getValue()));
+                          dailyPP.setQc(String.valueOf(rec.getQualCode()));
+                          rev_24hour_code = rec.revision;
+                    	}
                     }
                     /*
                      * Increment the count of total values. This should always
@@ -621,7 +631,7 @@ public class GagePP {
         timeTObs.setTime(yearsec_ansi);
 
         // Create a 12Z object
-        Calendar pStructTm = TimeTools.getSystemCalendar();
+        Calendar pStructTm = TimeTools.newCalendar(yearsec_ansi.getTime());
         pStructTm.set(Calendar.HOUR_OF_DAY, 12);
         pStructTm.set(Calendar.MINUTE, 0);
         pStructTm.set(Calendar.SECOND, 0);
