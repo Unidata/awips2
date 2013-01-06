@@ -19,28 +19,28 @@
  **/
 package com.raytheon.viz.grid.inv;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.tree.AbstractAliasLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.grid.data.ImportRequestableData;
+import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RadarAdapter;
 
 /**
@@ -71,7 +71,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
         this.sourceNodeModelName = that.sourceNodeModelName;
     }
 
-    public ImportLevelNode(AbstractRequestableLevelNode sourceNode,
+    public ImportLevelNode(AbstractRequestableNode sourceNode,
             String sourceNodeModelName, DerivParamDesc desc,
             DerivParamMethod method, String modelName, Level level) {
         super(sourceNode, desc, method, modelName, level);
@@ -79,94 +79,91 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
     }
 
     @Override
-    public List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        // change out the time queries
-        DataTime[] selectedTimes = property.getSelectedEntryTime();
-        int numberOfImages = property.getNumberOfImages();
-        try {
-            Set<DataTime> newSelectedTimes = new HashSet<DataTime>(
-                    (int) (selectedTimes.length * 2.5));
-            for (DataTime time : selectedTimes) {
-                DataTime[] timesToAdd = boundingSourceTimes.get(time);
+        Set<AbstractRequestableData> origs = dependencyData.get(sourceNode);
+        Set<AbstractRequestableData> results = new HashSet<AbstractRequestableData>(
+                origs.size());
+        Map<DataTime, AbstractRequestableData> timeMap = new HashMap<DataTime, AbstractRequestableData>(
+                (int) (origs.size() * 1.25) + 1);
+        for (AbstractRequestableData orig : origs) {
+            timeMap.put(orig.getDataTime(), orig);
+        }
 
-                // sanity check
-                if (timesToAdd != null) {
-                    for (DataTime t : timesToAdd) {
-                        newSelectedTimes.add(t);
-                    }
+        // need to build ImportRequestableData by bounding nodes
+        for (TimeAndSpace time : availability) {
+            DataTime[] timesToAdd = boundingSourceTimes.get(time.getTime());
+            if (timesToAdd != null) {
+                AbstractRequestableData beforeData = timeMap.get(timesToAdd[0]);
+                AbstractRequestableData afterData = null;
+
+                if (beforeData == null) {
+                    continue;
                 }
-            }
-
-            property.setSelectedEntryTimes(newSelectedTimes
-                    .toArray(new DataTime[0]));
-            property.setNumberOfImages(Math.max(newSelectedTimes.size(),
-                    numberOfImages));
-
-            List<AbstractRequestableData> origs = sourceNode.getData(property,
-                    timeOut, cache);
-            List<AbstractRequestableData> results = new ArrayList<AbstractRequestableData>(
-                    origs.size());
-            Map<DataTime, AbstractRequestableData> timeMap = new HashMap<DataTime, AbstractRequestableData>(
-                    (int) (origs.size() * 1.25) + 1);
-            for (AbstractRequestableData orig : origs) {
-                timeMap.put(orig.getDataTime(), orig);
-            }
-
-            // need to build ImportRequestableData by bounding nodes
-            for (DataTime time : selectedTimes) {
-                DataTime[] timesToAdd = boundingSourceTimes.get(time);
-                if (timesToAdd != null) {
-                    AbstractRequestableData beforeData = timeMap
-                            .get(timesToAdd[0]);
-                    AbstractRequestableData afterData = null;
-
-                    if (beforeData == null) {
+                if (timesToAdd.length == 2) {
+                    afterData = timeMap.get(timesToAdd[1]);
+                    if (afterData == null) {
                         continue;
                     }
-                    if (timesToAdd.length == 2) {
-                        afterData = timeMap.get(timesToAdd[1]);
-                        if (afterData == null) {
-                            continue;
-                        }
-                    }
-
-                    AbstractRequestableData result = new ImportRequestableData(
-                            beforeData, afterData, time);
-                    modifyRequest(result);
-                    results.add(result);
                 }
+
+                AbstractRequestableData result = new ImportRequestableData(
+                        beforeData, afterData, time.getTime());
+                result.setSpace(time.getSpace());
+                modifyRequest(result);
+                results.add(result);
             }
-            return results;
-        } finally {
-            // make sure to return the selectedEntryTimes to proper value
-            property.setSelectedEntryTimes(selectedTimes);
-            property.setNumberOfImages(numberOfImages);
         }
+        return results;
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> times, AvailabilityContainer availabilityContainer) {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        result.put(sourceNode, getSourceAvailability(times));
+        return result;
+    }
+
+    private Set<TimeAndSpace> getSourceAvailability(Set<TimeAndSpace> times) {
+        Set<TimeAndSpace> neededTimes = new HashSet<TimeAndSpace>();
+        for (TimeAndSpace time : times) {
+            if (time.isTimeAgnostic()) {
+                for (DataTime[] dtarr : boundingSourceTimes.values()) {
+                    for (DataTime dt : dtarr) {
+                        neededTimes.add(new TimeAndSpace(dt));
+                    }
+                }
+                break;
+            } else {
+                for (DataTime dt : boundingSourceTimes.get(time.getTime())) {
+                    neededTimes.add(new TimeAndSpace(dt));
+                }
+            }
+        }
+        return neededTimes;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
         boundingSourceTimes.clear();
 
         // grab this source and discover all available times ala time agnostic,
         // then see what is available in the imported source, use time
         // interpolation to verify what data can be achieved
-        NavigableSet<DataTime> sourceDataTimes = new TreeSet<DataTime>(
-                sourceNode.timeQuery(originalRequest, latestOnly, cache,
-                        latestOnlyCache));
-        GridModel sourceModel = GribModelLookup.getInstance().getModelByName(
+        NavigableSet<DataTime> sourceDataTimes = new TreeSet<DataTime>();
+        for (TimeAndSpace ast : availability.get(sourceNode)) {
+            sourceDataTimes.add(ast.getTime());
+        }
+        DatasetInfo sourceInfo = DatasetInfoLookup.getInstance().getInfo(
                 sourceNodeModelName);
         long sourceDt = 0;
-        if (sourceModel != null) {
-            sourceDt = sourceModel.getDt();
+        if (sourceInfo != null) {
+            sourceDt = sourceInfo.getDt();
         }
 
         if (sourceDt <= 24) {
@@ -197,8 +194,14 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
                 boundingSourceTimes.put(time, new DataTime[] { time });
             }
         }
-
-        return boundingSourceTimes.keySet();
+        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        for (DataTime time : boundingSourceTimes.keySet()) {
+            for (GridCoverage coverage : CoverageUtils.getInstance()
+                    .getCoverages(modelName)) {
+                result.add(new TimeAndSpace(time, coverage));
+            }
+        }
+        return result;
     }
 
     @Override

@@ -23,18 +23,19 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
-import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grib.GribThriftContainer;
 import com.raytheon.uf.common.dataplugin.grib.GribThriftRecord;
 import com.raytheon.uf.common.dataplugin.grib.request.GridDataRequestMessage;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
  * TODO Add Description
@@ -57,29 +58,29 @@ public class GridDataHandler implements IRequestHandler<GridDataRequestMessage> 
     public Object handleRequest(GridDataRequestMessage request)
             throws Exception {
 
-        GribDao dao = new GribDao();
-        DatabaseQuery query = new DatabaseQuery(GribRecord.class);
+        GridDao dao = new GridDao();
+        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
 
         if (request.getModelName() != null
                 && !"".equals(request.getModelName())) {
-            query.addQueryParam("modelInfo.modelName", request.getModelName(),
-                    QueryOperand.EQUALS);
+            query.addQueryParam(GridConstants.DATASET_ID,
+                    request.getModelName(), QueryOperand.EQUALS);
         }
 
         if (request.getLevelOne() != Level.INVALID_VALUE) {
-            query.addQueryParam("modelInfo.level.levelonevalue",
-                    request.getLevelOne(), QueryOperand.EQUALS);
+            query.addQueryParam(GridConstants.LEVEL_ONE, request.getLevelOne(),
+                    QueryOperand.EQUALS);
             if (request.getLevelType() != null) {
-                query.addQueryParam("modelInfo.level.masterLevel.name",
+                query.addQueryParam(GridConstants.MASTER_LEVEL_NAME,
                         request.getLevelType(), QueryOperand.EQUALS);
             }
-            query.addQueryParam("modelInfo.level.leveltwovalue",
-                    request.getLevelTwo(), QueryOperand.EQUALS);
+            query.addQueryParam(GridConstants.LEVEL_TWO, request.getLevelTwo(),
+                    QueryOperand.EQUALS);
         }
 
         if (request.getParameterAbbreviation() != null
                 && !"".equals(request.getParameterAbbreviation())) {
-            query.addQueryParam("modelInfo.parameterAbbreviation",
+            query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
                     request.getParameterAbbreviation(), QueryOperand.EQUALS);
         }
 
@@ -105,7 +106,7 @@ public class GridDataHandler implements IRequestHandler<GridDataRequestMessage> 
                 for (int i = 0; i < records.length; i++) {
                     thriftRecords[i] = new GribThriftRecord();
                     IDataRecord[] data = hdfRecords.get(i);
-                    GribRecord thisGribRecord = (GribRecord) records[i];
+                    GridRecord thisGribRecord = (GridRecord) records[i];
                     GridDataRequestMessage thisGribInfo = new GridDataRequestMessage();
                     thisGribInfo.setInfoFromRecord(thisGribRecord);
                     thriftRecords[i].setMessage(thisGribInfo);

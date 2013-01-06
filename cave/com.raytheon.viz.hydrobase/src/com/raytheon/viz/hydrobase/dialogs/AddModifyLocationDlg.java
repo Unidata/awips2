@@ -77,7 +77,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     case in Location box.
  * 10 May 2011  9309       djingtao    the elevation fields should be defaults as 0.0 when user
  *                                     wipe out the field (e.g. blank)
- * 26 Nov 2012 15440       lbousaidi   display lat/lon in the GUI in decimal degrees                                   
  * 
  * 
  * </pre>
@@ -818,7 +817,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         Group stationGroup = new Group(parentComp, SWT.NONE);
         stationGroup.setLayout(new GridLayout(3, false));
         stationGroup.setLayoutData(gd);
-        stationGroup.setText(" Station Characteristics (View-Only) ");
+        stationGroup.setText(" Station Characteritics (View-Only) ");
 
         // -----------------------------------------------
         // Create Station Type controls
@@ -1323,12 +1322,13 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         basinTF.setText(locData.getRiverBasin());
 
         // Only Display Lat/Lon if not missing
-      
-       latTF.setText((locData.getLatitude() != HydroConstants.MISSING_VALUE) ?
-                String.valueOf(locData.getLatitude()): "");
-       lonTF.setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ?
-              String.valueOf(locData.getLongitude()): "");
-       
+        latTF.setText((locData.getLatitude() != HydroConstants.MISSING_VALUE) ? GeoUtil
+                .getInstance().cvt_latlon_from_double(locData.getLatitude())
+                : "");
+        lonTF.setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ? GeoUtil
+                .getInstance().cvt_latlon_from_double(locData.getLongitude())
+                : "");
+
         // Only display elevation if it isn't missing, i.e. null in DB
         elevationTF
                 .setText((locData.getElevation() != HydroConstants.MISSING_VALUE) ? String

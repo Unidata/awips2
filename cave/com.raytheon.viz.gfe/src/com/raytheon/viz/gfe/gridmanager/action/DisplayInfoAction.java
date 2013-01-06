@@ -35,6 +35,7 @@ import com.raytheon.viz.gfe.dialogs.GridInfoDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/04/2008              dfitch      Initial creation.
+ * 11/12/2012   1298       rferrel     Changes for non-blocking GridInfoDialog.
  * 
  * 
  * </pre>
@@ -60,8 +61,10 @@ public class DisplayInfoAction extends AbstractGridManagerAction {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
 
+        // Allow multiple instance of this dialog.
+        // Mimics A1 and allows user to display information on multiple grids.
         GridInfoDialog dialog = new GridInfoDialog(shell, parm, clickTime);
-        dialog.setBlockOnOpen(true);
+        dialog.setBlockOnOpen(false);
         dialog.open();
     }
 

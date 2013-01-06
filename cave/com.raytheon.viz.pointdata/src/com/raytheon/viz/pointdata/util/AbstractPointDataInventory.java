@@ -49,11 +49,12 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
- * TODO Add Description
+ * Abstract implementation of a point data inventory that can be used by
+ * datatypes that have point data but don't adhere fully to the point data api.
  * 
  * <pre>
  * 
@@ -95,7 +96,7 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
         }
     }
 
-    public List<AbstractRequestableLevelNode> getNodes(String source,
+    public List<AbstractRequestableNode> getNodes(String source,
             List<String> parameters, List<Level> levels) throws VizException {
         parameters = new ArrayList<String>(parameters);
         try {
@@ -176,15 +177,15 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
     }
 
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
+    protected AbstractDerivedDataNode getImportNode(
             AbstractRequestableData nodeToImport, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         return null;
     }
 
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
-            AbstractRequestableLevelNode nodeToImport,
+    protected AbstractDerivedDataNode getImportNode(
+            AbstractRequestableNode nodeToImport,
             String nodeToImportSourceName, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         return null;
@@ -212,7 +213,7 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
     }
 
     @Override
-    protected AbstractDerivedLevelNode createDerivedNode(DerivParamDesc desc,
+    protected AbstractDerivedDataNode createDerivedNode(DerivParamDesc desc,
             DerivParamMethod method, Level level, List<Object> fields,
             SourceNode source) {
         if (method.getMethodType() == MethodType.OTHER) {
@@ -220,22 +221,23 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
                 int index = fields.size() - 1;
                 index -= 4; // The last 4 fields in order are time, paramName,
                             // totalTime, time increment
-                AbstractRequestableLevelNode tNode = (AbstractRequestableLevelNode) fields
+                AbstractRequestableNode tNode = (AbstractRequestableNode) fields
                         .get(index + 1);
-                List<AbstractRequestableLevelNode> idNodes = new ArrayList<AbstractRequestableLevelNode>(
+                List<AbstractRequestableNode> idNodes = new ArrayList<AbstractRequestableNode>(
                         index + 1);
                 for (int i = 0; i <= index; i++) {
-                    idNodes.add((AbstractRequestableLevelNode) fields.get(i));
+                    idNodes.add((AbstractRequestableNode) fields.get(i));
                 }
-                return new PointAccumLevelNode(desc, method, idNodes, tNode);
+                return new PointAccumLevelNode(desc, method, idNodes, tNode,
+                        source.getValue());
             } else if (method.getName().equalsIgnoreCase("HeightOf")) {
-                AbstractRequestableLevelNode latNode = (AbstractRequestableLevelNode) fields
+                AbstractRequestableNode latNode = (AbstractRequestableNode) fields
                         .get(0);
-                AbstractRequestableLevelNode lonNode = (AbstractRequestableLevelNode) fields
+                AbstractRequestableNode lonNode = (AbstractRequestableNode) fields
                         .get(1);
-                AbstractRequestableLevelNode timeNode = null;
+                AbstractRequestableNode timeNode = null;
                 if (fields.size() > 2) {
-                    timeNode = (AbstractRequestableLevelNode) fields.get(2);
+                    timeNode = (AbstractRequestableNode) fields.get(2);
                 }
                 return new HeightOfLevelNode(level, desc, method, latNode,
                         lonNode, timeNode);
