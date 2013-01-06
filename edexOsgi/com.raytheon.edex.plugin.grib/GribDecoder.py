@@ -43,21 +43,22 @@ from com.raytheon.uf.common.time import TimeRange
 from com.raytheon.uf.common.geospatial import MapUtil
 from com.raytheon.uf.common.serialization import SerializationUtil
 
-from com.raytheon.uf.common.dataplugin.grib import GribRecord
-from com.raytheon.uf.common.dataplugin.grib import GribModel
+from com.raytheon.uf.common.dataplugin.grid import GridRecord
 
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import LambertConformalGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import LatLonGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import MercatorGridCoverage
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import PolarStereoGridCoverage 
-from com.raytheon.uf.common.dataplugin.grib.spatial.projections import Corner 
-from com.raytheon.uf.common.dataplugin.grib.util import GribModelLookup
+from com.raytheon.uf.common.gridcoverage import LambertConformalGridCoverage
+from com.raytheon.uf.common.gridcoverage import LatLonGridCoverage
+from com.raytheon.uf.common.gridcoverage import MercatorGridCoverage
+from com.raytheon.uf.common.gridcoverage import PolarStereoGridCoverage 
+from com.raytheon.uf.common.gridcoverage.lookup import GridCoverageLookup
 
+from com.raytheon.uf.common.gridcoverage import Corner 
+from com.raytheon.edex.plugin.grib.util import GribModelLookup
+
+from com.raytheon.uf.common.dataplugin.level.mapping import LevelMapper
 from com.raytheon.uf.common.dataplugin.level import Level
 from com.raytheon.uf.common.dataplugin.level import LevelFactory
 
 from com.raytheon.edex.plugin.grib.spatial import GribSpatialCache 
-from com.raytheon.edex.plugin.grib.util import GribModelCache
 from com.raytheon.edex.util.grib import GribTableLookup
 from com.raytheon.edex.util import Util
 
@@ -65,7 +66,11 @@ from com.raytheon.edex.plugin.grib import Grib1Decoder
 
 from com.raytheon.edex.util.grib import GribParamTranslator
 
-PLUGIN_NAME = "grib"
+from com.raytheon.uf.common.parameter import Parameter;
+from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
+
+
+PLUGIN_NAME = "grid"
 
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
@@ -196,8 +201,8 @@ class GribDecoder():
                         if record != None:
                             records.append(record)
     
-                    recordIndex = recordIndex + 1
-                    fieldIndex = 0
+                recordIndex = recordIndex + 1
+                fieldIndex = 0
         except:
             LogStream.logProblem("Error processing file [", self.fileName, "]: ", LogStream.exc())
         finally:
@@ -355,23 +360,17 @@ class GribDecoder():
         else:
             if not thinnedGrid:
                 numpyDataArray = data
-            
-  
-        #
-        # Synchronizes model information with the database.
-        #
-       
-        pdsSectionValues['model'].setGridid(gdsSectionValues['coverage'].getName())
-        self._createModelName(pdsSectionValues['model'])    
-        
-
+               
+        origCoverage = gdsSectionValues['coverage']
+                        
         # check sub gridding
-        modelName = pdsSectionValues['model'].getModelName()
+        modelName = self._createModelName(pdsSectionValues, origCoverage)
         spatialCache = GribSpatialCache.getInstance()
-        subCoverage = spatialCache.getSubGridCoverage(modelName)
+        gridCoverage = gdsSectionValues['coverage']
+        subCoverage = spatialCache.getSubGridCoverage(modelName, gridCoverage)
 
         if subCoverage is not None:
-            subGrid = spatialCache.getSubGrid(modelName)
+            subGrid = spatialCache.getSubGrid(modelName, gridCoverage)
             # resize the data array
             numpyDataArray = numpy.resize(numpyDataArray, (ny, nx))
             startx = subGrid.getUpperLeftX()
@@ -399,49 +398,40 @@ class GribDecoder():
             # set the new coverage
             gdsSectionValues['coverage'] = subCoverage
 
-        numpyDataArray = numpy.resize(numpyDataArray, (1, metadata[4]))
-        pdsSectionValues['model'].setLocation(gdsSectionValues['coverage'])
+        numpyDataArray = numpy.resize(numpyDataArray, (1, metadata[4]))        
         
-        
-        newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['model'], dataTime)
+        newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['parameterAbbreviation'], pdsSectionValues['centerid'], pdsSectionValues['subcenterid'], pdsSectionValues['genprocess'], dataTime, gridCoverage)
         
         if newAbbr is None:
-            if pdsSectionValues['model'].getParameterName() != MISSING and dataTime.getValidPeriod().getDuration() > 0:
-                pdsSectionValues['model'].setParameterAbbreviation(pdsSectionValues['model'].getParameterAbbreviation() + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr")
+            if pdsSectionValues['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
+                pdsSectionValues['parameterAbbreviation'] = pdsSectionValues['parameterAbbreviation'] + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
         else:
-            pdsSectionValues['model'].setParameterAbbreviation(newAbbr)
-        pdsSectionValues['model'].setParameterAbbreviation(pdsSectionValues['model'].getParameterAbbreviation().replace('_', '-'))
-        
-        pdsSectionValues['model'].setParameterName(GribParamTranslator.getInstance().getParameterNameAlias(pdsSectionValues['model']))
-        pdsSectionValues['model'].generateId()
-        if pdsSectionValues['model'].getParameterName() == MISSING:
-            model = pdsSectionValues['model']
-        else:
-            model = GribModelCache.getInstance().getModel(pdsSectionValues['model'])
-                
-        
+            pdsSectionValues['parameterAbbreviation'] = newAbbr
+        pdsSectionValues['parameterAbbreviation'] = pdsSectionValues['parameterAbbreviation'].replace('_', '-')  
         
         # Construct the GribRecord
-        record = GribRecord()
+        record = GridRecord()
         record.setPluginName(PLUGIN_NAME)
         record.setDataTime(dataTime)
-        record.setMasterTableVersion(idSectionValues['masterTableVersion'])
-        record.setLocalTableVersion(idSectionValues['localTableVersion'])
-        record.setRefTimeSignificance(idSectionValues['sigRefTime'])
-        record.setProductionStatus(idSectionValues['productionStatus'])
-        record.setProcessedDataType(idSectionValues['typeProcessedData'])
-        record.setLocalSectionUsed(localSectionValues is not None)
-        record.setLocalSection(localSectionValues)
-        record.setHybridGrid(hybridCoordList is not None)
-        record.setHybridCoordList(hybridCoordList)
-        record.setThinnedGrid(False)
-        record.setThinnedPts(thinnedPts)       
         record.setMessageData(numpyDataArray)
-        record.setModelInfo(model)  
-        record.setResCompFlags(Integer(gdsSectionValues['resCompFlags']))
+        record.setLocation(gdsSectionValues['coverage'])
+        record.setLevel(pdsSectionValues['level'])
+        record.setDatasetId(modelName)
+        record.addExtraAttribute("centerid", Integer(pdsSectionValues['centerid']))
+        record.addExtraAttribute("subcenterid", Integer(pdsSectionValues['subcenterid']))
+        record.addExtraAttribute("genprocess", Integer(pdsSectionValues['genprocess']))
+        record.addExtraAttribute("backGenprocess", Integer(pdsSectionValues['backGenprocess']))
+        record.addExtraAttribute("pdsTemplate", Integer(pdsSectionValues['pdsTemplateNumber']))
+        record.addExtraAttribute("gridid", origCoverage.getName())
+        if "numForecasts" in pdsSectionValues:
+            record.addExtraAttribute("numForecasts", pdsSectionValues['numForecasts'])
+        record.setEnsembleId(pdsSectionValues['ensembleId'])
+        param = Parameter(pdsSectionValues['parameterAbbreviation'], pdsSectionValues['parameterName'], pdsSectionValues['parameterUnit'])
+        GribParamTranslator.getInstance().getParameterNameAlias(modelName, param)
+        record.setParameter(param)        # record.setResCompFlags(Integer(gdsSectionValues['resCompFlags']))
         
         #check if forecast used flag needs to be removed
-        self._checkForecastFlag(pdsSectionValues['model'], record.getDataTime()) 
+        self._checkForecastFlag(pdsSectionValues, origCoverage, record.getDataTime()) 
               
         return record
     
@@ -506,7 +496,6 @@ class GribDecoder():
         
         # Dictionary to hold information extracted from PDS template
         pdsFields = {}
-        model = GribModel()
         endTime = None
         forecastTime = 0
         duration = 0
@@ -516,10 +505,12 @@ class GribDecoder():
 
         pdsTemplateNumber = metadata[10]
         
-        model.setPdsTemplate(pdsTemplateNumber)
+        # Default to null
+        pdsFields['ensembleId'] = None
+        pdsFields['pdsTemplateNumber'] = pdsTemplateNumber
 
         # default to UNKNOWN
-        model.setLevel(LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0)));
+        pdsFields['level'] = LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0));
 
         # Templates 0-11 are ordered the same for the most part and can therefore be processed the same
         # Exception cases are handled accordingly
@@ -544,7 +535,6 @@ class GribDecoder():
                         parameterAbbreviation = parameter.getD2dAbbrev()
                     else:
                         parameterAbbreviation = parameter.getAbbreviation()
-                    
                     parameterUnit = parameter.getUnit()
                 else:
                     LogStream.logEvent("No parameter information for center[" + str(centerID) + "], subcenter[" +
@@ -602,9 +592,19 @@ class GribDecoder():
                 
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
-                model.setTypeEnsemble(Integer(pdsTemplate[15]))
-                model.setPerturbationNumber(Integer(pdsTemplate[16]))
-                model.setNumForecasts(Integer(pdsTemplate[17]))
+                typeEnsemble = Integer(pdsTemplate[15])
+                perturbationNumber = Integer(pdsTemplate[16])
+                pdsFields['numForecasts'] = Integer(pdsTemplate[17])
+                if(typeEnsemble == 0):
+                     pdsFields['ensembleId'] = "ctlh" + perturbationNumber;
+                elif(typeEnsemble == 1):
+                     pdsFields['ensembleId'] = "ctll" + perturbationNumber;
+                elif(typeEnsemble == 2):
+                     pdsFields['ensembleId'] = "n" + perturbationNumber;
+                elif(typeEnsemble == 3):
+                     pdsFields['ensembleId'] = "p" + perturbationNumber;
+                else:
+                    pdsFields['ensembleId'] = typeEnsemble + "." + perturbationNumber;
                 
                 if pdsTemplateNumber == 11:
                     endTime = GregorianCalendar(pdsTemplate[18], pdsTemplate[19] - 1, pdsTemplate[20], pdsTemplate[21], pdsTemplate[22], pdsTemplate[23])
@@ -620,9 +620,9 @@ class GribDecoder():
                     parameterAbbreviation= parameterAbbreviation+"mean"
                 elif (derivedForecast == 2):
                     parameterAbbreviation= parameterAbbreviation+"sprd"
-                    
-                model.setTypeEnsemble(Integer(pdsTemplate[15]))
-                model.setNumForecasts(Integer(pdsTemplate[16]))
+                
+                pdsFields['typeEnsemble'] = Integer(pdsTemplate[15])
+                pdsFields['numForecasts'] = Integer(pdsTemplate[16])
                 
                 if(pdsTemplateNumber == 12):
                     endTime = GregorianCalendar(pdsTemplate[17], pdsTemplate[18] - 1, pdsTemplate[19], pdsTemplate[20], pdsTemplate[21], pdsTemplate[22])
@@ -633,7 +633,7 @@ class GribDecoder():
                 
                 
             elif pdsTemplateNumber == 5 or pdsTemplateNumber == 9:
-                
+                parameterUnit = "%"
                 probabilityNumber = pdsTemplate[15]
                 forecastProbabilities = pdsTemplate[16]
                 probabilityType = pdsTemplate[17]
@@ -675,18 +675,21 @@ class GribDecoder():
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
+                
+            parameterAbbreviation = ParameterMapper.getInstance().lookupBaseName(parameterAbbreviation, "grib");
             # Constructing the GribModel object
-            model.setCenterid(centerID)
-            model.setSubcenterid(subcenterID)
-            model.setBackGenprocess(pdsTemplate[3])
-            model.setGenprocess(pdsTemplate[4])
-            model.setParameterName(parameterName)
-            model.setParameterAbbreviation(parameterAbbreviation)
-            model.setParameterUnit(parameterUnit)
+            pdsFields['centerid'] = centerID
+            pdsFields['subcenterid'] = subcenterID
+            pdsFields['backGenprocess'] = pdsTemplate[3]
+            pdsFields['genprocess'] = pdsTemplate[4]
+            pdsFields['parameterName'] = parameterName
+            pdsFields['parameterAbbreviation'] = parameterAbbreviation
+            pdsFields['parameterUnit'] = parameterUnit
 
             # Constructing the Level object
-            level = LevelFactory.getInstance().getLevel(levelName, levelOneValue, levelTwoValue, levelUnit)
-            model.setLevel(level);
+            level = LevelMapper.getInstance().lookupLevel(levelName, 'grib', levelOneValue, levelTwoValue, levelUnit)
+            pdsFields['level'] = level
+
             
         
         # Derived forecasts based on all ensemble members at a horizontal
@@ -747,14 +750,13 @@ class GribDecoder():
         #Temporary fix to prevent invalid values getting persisted 
         #to the database until the grib decoder is fully implemented
         if pdsTemplateNumber >= 13:
-            model.setParameterName("Unknown")
-            model.setParameterAbbreviation("Unknown")
-            model.setParameterUnit("Unknown")
+            pdsFields['parameterName'] ="Unknown"
+            pdsFields['parameterAbbreviation'] ="Unknown"
+            pdsFields['parameterUnit'] ="Unknown"
         
         # endtime needs to be used to calculate forecastTime and forecastTime should be used for startTime of interval
         pdsFields['forecastTime'] = forecastTime
         pdsFields['endTime'] = endTime
-        pdsFields['model'] = model
         
         return pdsFields
 
@@ -808,6 +810,18 @@ class GribDecoder():
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
 
+            # According to the grib2 spec 65.535 is completely valid, however it
+            # is impossible to define anything larger than a 5x2 grid with this
+            # spacing so we assume it is invalid and try to calculate a better
+            # value. 65.535 was chosen because it is the value encoded in the
+            # GFS161 model and it is completely wrong. This value is probably
+            # an artifact of converting from grib1 to grib2 since in grib1 this
+            # value would be encoded as an unsigned short with all bits as 1
+            # which is a special value in grib1, but in grib2 its just wrong
+            if dx >= 65.535:
+                dx = abs(lo1-lo2)/nx
+            if dy >= 65.535:
+                dy = abs(la1-la2)/ny
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
             coverage.setNy(Integer(ny))
@@ -815,8 +829,8 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
+            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            coverage.setFirstGridPointCorner(corner)
             
             coverage = self._getGrid(coverage)
             
@@ -859,8 +873,8 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
+            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            coverage.setFirstGridPointCorner(corner)
             
             coverage = self._getGrid(coverage)
             
@@ -891,9 +905,8 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            coverage.determineFirstGridPointCorner(scanMode)
-
-            coverage.setId(coverage.hashCode())
+            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            coverage.setFirstGridPointCorner(corner)
             
             coverage = self._getGrid(coverage)
 
@@ -926,8 +939,8 @@ class GribDecoder():
             coverage.setDy(dy)
             coverage.setLatin1(latin1)
             coverage.setLatin2(latin2)
-            coverage.determineFirstGridPointCorner(scanMode)
-            coverage.setId(coverage.hashCode())
+            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            coverage.setFirstGridPointCorner(corner)
             
             coverage = self._getGrid(coverage)
             
@@ -1020,16 +1033,14 @@ class GribDecoder():
     # @return: A GribCoverage object
     # @rtype: GribCoverage
     ##
-    def _getGrid(self, temp):
-        cache = GribSpatialCache.getInstance()
-        
+    def _getGrid(self, temp):        
         # Check the cache first
-        grid = cache.getGrid(temp)
+        grid = GribSpatialCache.getInstance().getGrid(temp)
 
         # If not found, create a new GribCoverage and store in the cache
         if grid is None:
-            cache.putGrid(temp,True, True)
-            grid = cache.getGrid(temp.getId())
+            grid = GridCoverageLookup.getInstance().getCoverage(temp, True)
+
 
         return grid
         
@@ -1249,25 +1260,23 @@ class GribDecoder():
             
         return retVal
 
-    def _getGridModel(self, model):
-        center = model.getCenterid()
-        subcenter = model.getSubcenterid()
+    def _getGridModel(self, pdsSectionValues, grid):
+        center = pdsSectionValues['centerid']
+        subcenter = pdsSectionValues['subcenterid']
 
-        gridid = model.getGridid()
-        process = model.getGenprocess()
-        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
+        process = pdsSectionValues['genprocess']
+        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process)
         return gridModel
     
-    def _createModelName(self, model):
-        gridModel = self._getGridModel(model)
-        if gridModel is None:
-            name = "UnknownModel:" + str(model.getCenterid()) + ":" + str(model.getSubcenterid()) + ":" + str(model.getGenprocess()) + ":" + model.getGridid()
-        else:
-            name = gridModel.getName()
-        model.setModelName(name)
+    def _createModelName(self, pdsSectionValues, grid):
+        center = pdsSectionValues['centerid']
+        subcenter = pdsSectionValues['subcenterid']
+
+        process = pdsSectionValues['genprocess']
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process)
         
-    def _checkForecastFlag(self, model, dataTime):
-        gridModel = self._getGridModel(model)
+    def _checkForecastFlag(self, pdsSectionValues, grid, dataTime):
+        gridModel = self._getGridModel(pdsSectionValues, grid)
         if gridModel is None:
             return
         else:

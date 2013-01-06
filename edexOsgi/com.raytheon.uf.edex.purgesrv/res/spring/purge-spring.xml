@@ -53,7 +53,7 @@
 		
 		<!-- schedule the timer to purge outgoing directory -->
 		<route id="purgeOutgoingScheduled">
-			<from uri="purgeOutgoingCron" />
+			<from ref="purgeOutgoingCron" />
 			<bean ref="purgeOutgoing" method="purge" />
 		</route>
       
@@ -67,7 +67,7 @@
 		
 	    <!-- Purge on Scheduled timer -->
 		<route id="purgeScheduled">
-			<from uri="purgeCron" />
+			<from ref="purgeCron" />
 			<doTry>
 				<bean ref="purgeManager" method="executePurge" />
 				<doCatch>
@@ -80,7 +80,7 @@
 		
 		<!-- schedule the timer to purge log directories -->
 		<route id="purgeLogScheduled">
-			<from uri="purgeLogsCron" />
+			<from ref="purgeLogsCron" />
 			<bean ref="purgeLogs" method="purge" />
 		</route>
 

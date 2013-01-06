@@ -20,7 +20,7 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Eureka, NW (CWEU)" id="raobEueka_NW"
+	                menuText="Eueka, NW (CWEU)" id="raobEueka_NW"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="71917"/>
 	    </contribute>

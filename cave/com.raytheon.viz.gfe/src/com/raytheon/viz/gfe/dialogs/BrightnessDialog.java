@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2010            wldougher     Initial creation
+ * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -64,38 +65,38 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class BrightnessDialog extends CaveJFACEDialog {
 
     // A width hint that keeps part of the title from being cut off
-    private static final int WIDTH_HINT = 235;
+    private final int WIDTH_HINT = 235;
 
     /**
      * A label for displaying the scale's value, that moves with the scale thumb
      */
-    protected Label driftingLabel;
+    private Label driftingLabel;
 
     /**
      * A scale for adjusting brightness.
      */
-    protected Scale scale;
+    private Scale scale;
 
     /**
      * A text field; an alternate way of changing the brightness.
      */
-    protected Text field;
+    private Text field;
 
     /**
      * The brightness for the weather element (0-1).
      */
-    protected float brightness;
+    private float brightness;
 
     /**
      * The brightness value when the dialog is first opened. Used by field
      * validation code.
      */
-    protected float originalBrightness;
+    private float originalBrightness;
 
     /**
      * The composite for the main dialog area.
      */
-    protected Composite comp;
+    private Composite comp;
 
     private Parm parm;
 
@@ -104,7 +105,7 @@ public class BrightnessDialog extends CaveJFACEDialog {
     /**
      * Multiplier to keep driftingLabel from very ends of the dialog.
      */
-    protected static final float FUDGE_FACTOR = 0.8f;
+    private final float FUDGE_FACTOR = 0.8f;
 
     /**
      * Constructor.

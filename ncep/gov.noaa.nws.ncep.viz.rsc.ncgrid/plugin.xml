@@ -402,7 +402,7 @@
             class="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLoggerPreferences"
             id="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLoggerPreferences"
             name="Ncgrid Logger"
-            category="gov.noaa.nws.ncep.viz.common.nceppreferences">
+            category="org.eclipse.jface.Prerences">
       </page> 
    </extension>
 </plugin>   

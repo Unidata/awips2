@@ -31,8 +31,12 @@ import org.apache.commons.collections.map.LRUMap;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -46,6 +50,7 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -68,6 +73,7 @@ import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -632,49 +638,153 @@ public class ContourSupport {
     public static GeneralEnvelope calculateSubGrid(IExtent workingExtent,
             GeneralGridGeometry mapGridGeometry,
             GeneralGridGeometry imageGridGeometry) throws VizException {
-        GeneralEnvelope env = null;
+        GeneralEnvelope env = new GeneralEnvelope(2);
         try {
-            // transform screen extent to map crs
-            double[] screen = new double[] { workingExtent.getMinX(),
-                    workingExtent.getMinY(), workingExtent.getMaxX(),
-                    workingExtent.getMaxY() };
-            double[] map = new double[4];
+            GridGeometry2D mapGeometry2D = GridGeometry2D.wrap(mapGridGeometry);
+            GridGeometry2D imageGeometry2D = GridGeometry2D
+                    .wrap(imageGridGeometry);
+            // Start with a grid envelope in screen space0
+            GridEnvelope2D screenGridEnvelope = new GridEnvelope2D(
+                    (int) Math.floor(workingExtent.getMinX()),
+                    (int) Math.floor(workingExtent.getMinY()),
+                    (int) Math.ceil(workingExtent.getWidth()),
+                    (int) Math.ceil(workingExtent.getHeight()));
+            // intersect with mapGeometry so we only have points on the actual
+            // display
+            screenGridEnvelope = new GridEnvelope2D(
+                    screenGridEnvelope.intersection(mapGeometry2D
+                            .getGridRange2D()));
+            // convert from screen grid space to screen crs space.
+            Envelope2D screenCRSEnvelope = mapGeometry2D
+                    .gridToWorld(screenGridEnvelope);
+            // Use referenced envelope to go from screen crs into image crs.
+            ReferencedEnvelope screenRefEnvelope = new ReferencedEnvelope(
+                    screenCRSEnvelope);
+            try {
+                screenRefEnvelope = screenRefEnvelope.transform(
+                        imageGridGeometry.getCoordinateReferenceSystem(), true,
+                        200);
+            } catch (TransformException e) {
+                // If the corners of the screen envelope are invalid in the
+                // source crs then the referenced envelope fails so this is the
+                // backup plan. This is known to hit when displaying North Polar
+                // Stereographic data on a Equidistant cyclindrical projection
+                // that extends to the south pole.
 
-            long t0 = System.currentTimeMillis();
-            mapGridGeometry.getGridToCRS(PixelInCell.CELL_CORNER).transform(
-                    screen, 0, map, 0, 2);
-            long t1 = System.currentTimeMillis();
-            System.out.println("subgrid transform grid to CRS time: "
-                    + (t1 - t0));
-
-            // TODO: Construct screen Grid Geometry
-            GeneralGridEnvelope gge = new GeneralGridEnvelope(new int[] {
-                    (int) Math.floor(screen[0]), (int) Math.floor(screen[1]) },
-                    new int[] { (int) Math.ceil(screen[2]),
-                            (int) Math.ceil(screen[3]) }, false);
-            GridGeometry2D screenGeometry = new GridGeometry2D(gge,
-                    mapGridGeometry.getGridToCRS(),
-                    mapGridGeometry.getCoordinateReferenceSystem());
-            GridGeometry2D imageGeometry = new GridGeometry2D(imageGridGeometry);
-
-            t0 = System.currentTimeMillis();
-            org.opengis.geometry.Envelope[] envs = MapUtil.computeEnvelopes(
-                    screenGeometry, imageGeometry);
-            t1 = System.currentTimeMillis();
-            System.out.println("subgrid compute envelopes time: " + (t1 - t0));
-
-            double[] grid = new double[4];
-            grid[0] = envs[0].getMinimum(0);
-            grid[1] = envs[0].getMinimum(1);
-            grid[2] = envs[0].getMaximum(0);
-            grid[3] = envs[0].getMaximum(1);
-            env = new GeneralEnvelope(2);
-            env.setRange(0, Math.min(grid[0], grid[2]),
-                    Math.max(grid[0], grid[2]));
-            env.setRange(1, Math.min(grid[1], grid[3]),
-                    Math.max(grid[1], grid[3]));
+                // Start with the full image envelope
+                ReferencedEnvelope imageRefEnvelope = new ReferencedEnvelope(
+                        imageGeometry2D.getEnvelope2D());
+                // transform to screen space.
+                imageRefEnvelope = imageRefEnvelope.transform(
+                        screenRefEnvelope.getCoordinateReferenceSystem(), true,
+                        200);
+                // intersect the transformed envelope with the visible portion
+                // of screen. Hopefully this intersection will eliminate the
+                // invalid points in the original screen envelope.
+                Envelope intersectingEnv = screenRefEnvelope
+                        .intersection(imageRefEnvelope);
+                screenRefEnvelope = new ReferencedEnvelope(intersectingEnv,
+                        screenRefEnvelope.getCoordinateReferenceSystem());
+                // transform the intersection back to image space, now it is
+                // hopefully a subgrid.
+                screenRefEnvelope = screenRefEnvelope.transform(
+                        imageGridGeometry.getCoordinateReferenceSystem(), true,
+                        200);
+            }
+            // Convert from image crs to image grid space.
+            GridEnvelope2D screenImageGridEnvelope = imageGeometry2D
+                    .worldToGrid(new Envelope2D(screenRefEnvelope));
+            // intersection to limit to grid cells within the image.
+            screenImageGridEnvelope = new GridEnvelope2D(
+                    screenImageGridEnvelope.intersection(imageGeometry2D
+                            .getGridRange2D()));
+            // Referenced envelope does an almost perfect transformation.
+            // Unfortunately, it has been observed that when the screen is polar
+            // stereographic and the image is equidistant cylindrical that the
+            // referenced envelope algorithm can miss several rows of data near
+            // the pole. An envelope expansion has been added here to
+            // check every edge of the subgrid to see if the next image cell is
+            // on the screen, if it is then additional rows or columns are
+            // added.
+            MathTransform transform = TransformFactory.gridCellToGridCell(
+                    imageGridGeometry, PixelInCell.CELL_CENTER,
+                    mapGridGeometry, PixelInCell.CELL_CENTER);
+            DirectPosition2D center = new DirectPosition2D(
+                    screenImageGridEnvelope.getCenterX(),
+                    screenImageGridEnvelope.getCenterY());
+            // this loop checks first in the x direction then in the y direction
+            for (int ordinate : new int[] { 0, 1 }) {
+                // loop over every row or column on the top or left and check
+                // the center point, if it can be transformed to screen space
+                // and is on the screen then add the whole row or column and try
+                // the next one. Choosing just the center point is arbitrary,
+                // but it catches all known cases.
+                for (int i = screenImageGridEnvelope.getLow(ordinate); i > imageGeometry2D
+                        .getGridRange2D().getLow(ordinate); i -= 1) {
+                    DirectPosition2D imageCell = center.clone();
+                    imageCell.setOrdinate(ordinate, i);
+                    DirectPosition2D screenCell = new DirectPosition2D();
+                    try {
+                        transform.transform(imageCell, screenCell);
+                    } catch (TransformException e) {
+                        // exception probably means we are outside valid range.
+                        break;
+                    }
+                    if (workingExtent.contains(screenCell.getCoordinate())) {
+                        screenImageGridEnvelope.add(imageCell);
+                    } else {
+                        break;
+                    }
+                }
+                // same thing only this time on the bottom and right.
+                for (int i = screenImageGridEnvelope.getHigh(ordinate); i > imageGeometry2D
+                        .getGridRange2D().getHigh(ordinate); i -= 1) {
+                    DirectPosition2D imageCell = center.clone();
+                    imageCell.setOrdinate(ordinate, i);
+                    DirectPosition2D screenCell = new DirectPosition2D();
+                    try {
+                        transform.transform(imageCell, screenCell);
+                    } catch (TransformException e) {
+                        // exception probably means we are outside valid range.
+                        break;
+                    }
+                    if (workingExtent.contains(screenCell.getCoordinate())) {
+                        screenImageGridEnvelope.add(imageCell);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            // Add a 1 pixel border since worldToGrid is only guaranteed to
+            // include a cell if the cell center is in the envelope but we want
+            // to include the data in the subgrid if even a tiny bit of the edge
+            // overlaps.
+            screenImageGridEnvelope.grow(1, 1);
+            // intersection to limit to grid cells within the image.
+            screenImageGridEnvelope = new GridEnvelope2D(
+                    screenImageGridEnvelope.intersection(imageGeometry2D
+                            .getGridRange2D()));
+            if (!screenImageGridEnvelope.isEmpty()) {
+                // Convert GridEnvelope to general envelope.
+                env.setRange(0, screenImageGridEnvelope.getLow(0),
+                        screenImageGridEnvelope.getHigh(0));
+                env.setRange(1, screenImageGridEnvelope.getLow(1),
+                        screenImageGridEnvelope.getHigh(1));
+            }
         } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
+            statusHandler.handle(Priority.WARN,
+                    "Cannot compute subgrid, contouring may be slow.", e);
+            // Don't use a subgrid, just contour the complete image.
+            // This may result in doing way to much contouring which can be
+            // slow, but it is better than no contouring at all. It's also worth
+            // noting that it gets slower as you zoom in and more contours are
+            // generated, but as you zoom in it also becomes more likely you
+            // will be successful in your transformation since the smaller area
+            // is less likely to contain invalid points.
+            env.setRange(0, imageGridGeometry.getGridRange().getLow(0),
+                    imageGridGeometry.getGridRange().getHigh(0));
+            env.setRange(1, imageGridGeometry.getGridRange().getLow(1),
+                    imageGridGeometry.getGridRange().getHigh(1));
         }
         System.out.println("*** Subgrid: " + env);
         return env;
@@ -1128,9 +1238,10 @@ public class ContourSupport {
         double gridPixelSize = offCenter[0] - center[0];
         double gridPixelMax = 2000.;
 
-        // If gridPixelSize is large, arrows on streamline will be too small, so adjust here
-        if(gridPixelSize > gridPixelMax) {
-            gridPixelSize = gridPixelSize/5;
+        // If gridPixelSize is large, arrows on streamline will be too small, so
+        // adjust here
+        if (gridPixelSize > gridPixelMax) {
+            gridPixelSize = gridPixelSize / 5;
         }
         float arrowSize = (float) (currentMagnification * 5 / zoom / gridPixelSize);
 

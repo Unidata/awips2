@@ -23,17 +23,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.uf.common.localization.FileLocker.Type;
 import com.raytheon.uf.common.localization.ILocalizationAdapter.ListResponse;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -85,12 +86,60 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class LocalizationFile implements Comparable<LocalizationFile> {
+public final class LocalizationFile implements Comparable<LocalizationFile> {
     private static transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LocalizationFile.class);
 
+    /**
+     * Class {@link LocalizationFile} exposes to the
+     * {@link ILocalizationAdapter} objects so they can modify the file if
+     * anything changes. Don't want to expose ability to modify
+     * {@link LocalizationFile} contents to everyone
+     * 
+     * @author mschenke
+     * @version 1.0
+     */
+    public class ModifiableLocalizationFile {
+
+        private ModifiableLocalizationFile() {
+            // Private constructor
+        }
+
+        public LocalizationFile getLocalizationFile() {
+            return LocalizationFile.this;
+        }
+
+        public void setTimeStamp(Date timeStamp) {
+            getLocalizationFile().fileTimestamp = timeStamp;
+        }
+
+        public void setFileChecksum(String checksum) {
+            getLocalizationFile().fileCheckSum = checksum;
+        }
+
+        public void setIsAvailableOnServer(boolean isAvailableOnServer) {
+            getLocalizationFile().isAvailableOnServer = isAvailableOnServer;
+        }
+
+        public void setIsDirectory(boolean isDirectory) {
+            getLocalizationFile().isDirectory = isDirectory;
+        }
+
+        public File getLocalFile() {
+            return getLocalizationFile().file;
+        }
+
+        public String getFileName() {
+            return getLocalizationFile().path;
+        }
+
+        public LocalizationContext getContext() {
+            return getLocalizationFile().context;
+        }
+    }
+
     /** Local file pointer to localization file, will never be null */
-    private File file;
+    protected final File file;
 
     /** The file timestamp on the server, may be null if file doesn't exist yet */
     private Date fileTimestamp;
@@ -108,7 +157,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
     private boolean isAvailableOnServer;
 
     /** The localization adapter for the file */
-    final ILocalizationAdapter adapter;
+    protected final ILocalizationAdapter adapter;
 
     /** The localization path of the file */
     private final String path;
@@ -117,16 +166,17 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
     private LocalizationLevel protectedLevel;
 
     /** File changed observers */
-    private Set<ILocalizationFileObserver> observers = new HashSet<ILocalizationFileObserver>();
+    private final Set<ILocalizationFileObserver> observers = new HashSet<ILocalizationFileObserver>();
 
     /** Flag to set if file has been requested */
-    boolean fileRequested = false;
+    protected boolean fileRequested = false;
 
     /**
      * Construct a null localization file, used to keep track of files that
      * cannot exist.
      */
     LocalizationFile() {
+        file = null;
         path = null;
         adapter = null;
         context = null;
@@ -138,7 +188,8 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return
      */
     boolean isNull() {
-        return adapter == null && path == null && context == null;
+        return (adapter == null) && (path == null) && (context == null)
+                && (file == null);
     }
 
     LocalizationFile(ILocalizationAdapter adapter, LocalizationContext context,
@@ -171,6 +222,16 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
             this.isDirectory = metadata.isDirectory;
             this.protectedLevel = metadata.protectedLevel;
         }
+    }
+
+    /**
+     * Returns a modifiable version of the localization file. Meant to be used
+     * internally within localization only which is why package level
+     * 
+     * @return
+     */
+    ModifiableLocalizationFile getModifiableFile() {
+        return new ModifiableLocalizationFile();
     }
 
     /**
@@ -219,13 +280,14 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
             adapter.retrieve(this);
         }
 
-        if (isDirectory == false && !file.exists()) {
+        if ((isDirectory == false) && !file.exists()) {
             try {
                 file.getParentFile().mkdirs();
             } catch (Throwable t) {
-                // try to create the file's directory automatically, but if it
-                // fails, don't report it as it is just something to do to help
-                // the user of the file for easier creation of the file
+                // try to create the file's directory automatically, but if
+                // it fails, don't report it as it is just something to do
+                // to help the user of the file for easier creation of the
+                // file
             }
         }
 
@@ -255,7 +317,8 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return the InputStream to be used for reading the file
      * @throws LocalizationException
      */
-    public InputStream openInputStream() throws LocalizationException {
+    public LocalizationFileInputStream openInputStream()
+            throws LocalizationException {
         try {
             return new LocalizationFileInputStream(this);
         } catch (FileNotFoundException e) {
@@ -290,8 +353,8 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
             // Read in the bytes
             int offset = 0;
             int numRead = 0;
-            while (offset < rval.length
-                    && (numRead = is.read(rval, offset, rval.length - offset)) >= 0) {
+            while ((offset < rval.length)
+                    && ((numRead = is.read(rval, offset, rval.length - offset)) >= 0)) {
                 offset += numRead;
             }
 
@@ -324,7 +387,8 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return the OutputStream to be used for writing to the file
      * @throws LocalizationException
      */
-    public OutputStream openOutputStream() throws LocalizationException {
+    public LocalizationFileOutputStream openOutputStream()
+            throws LocalizationException {
         return openOutputStream(false);
     }
 
@@ -335,7 +399,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return the OutputStream to be used for writing to the file
      * @throws LocalizationException
      */
-    public OutputStream openOutputStream(boolean isAppending)
+    public LocalizationFileOutputStream openOutputStream(boolean isAppending)
             throws LocalizationException {
         try {
             return new LocalizationFileOutputStream(this, isAppending);
@@ -352,23 +416,20 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @throws LocalizationException
      */
     public void write(byte[] bytes) throws LocalizationException {
-        OutputStream os = null;
+        LocalizationFileOutputStream os = null;
         try {
             os = openOutputStream();
             os.write(bytes);
-            save();
         } catch (IOException e) {
             throw new LocalizationException("Could not write to file "
                     + file.getName(), e);
         } finally {
             if (os != null) {
                 try {
-                    os.close();
+                    os.closeAndSave();
                 } catch (IOException e) {
-                    statusHandler
-                            .handle(Priority.INFO,
-                                    "Failed to close output stream to area geometries file",
-                                    e);
+                    statusHandler.handle(Priority.INFO,
+                            "Failed to close output stream for file", e);
                 }
             }
         }
@@ -426,23 +487,28 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @throws LocalizationOpFailedException
      */
     public boolean save() throws LocalizationOpFailedException {
-        String checksum = "";
         try {
-            checksum = Checksum.getMD5Checksum(file);
-        } catch (Exception e) {
-            // Ignore
-        }
-        // Check if file differs from server file
-        if (!checksum.equals(fileCheckSum)) {
-            boolean rval = adapter.save(file, context, path);
-            if (rval) {
-                fileCheckSum = checksum;
+            FileLocker.lock(this, file, Type.WRITE);
+            String checksum = "";
+            try {
+                checksum = Checksum.getMD5Checksum(file);
+            } catch (Exception e) {
+                // Ignore
             }
-            return rval;
-        }
+            // Check if file differs from server file
+            if (!checksum.equals(fileCheckSum)) {
+                boolean rval = adapter.save(getModifiableFile());
+                if (rval) {
+                    fileCheckSum = checksum;
+                }
+                return rval;
+            }
 
-        // Local file matches server file, success technically
-        return true;
+            // Local file matches server file, success technically
+            return true;
+        } finally {
+            FileLocker.unlock(this, file);
+        }
     }
 
     /**
@@ -461,15 +527,20 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @throws LocalizationOpFailedException
      */
     public boolean delete() throws LocalizationOpFailedException {
-        if (exists()) {
-            return adapter.delete(file, context, path);
-        } else if (file.exists()) {
-            // Local file does actually exist, delete manually
-            return file.delete();
-        }
+        try {
+            FileLocker.lock(this, file, Type.WRITE);
+            if (exists()) {
+                return adapter.delete(getModifiableFile());
+            } else if (file.exists()) {
+                // Local file does actually exist, delete manually
+                return file.delete();
+            }
 
-        // File doesn't exist, it is deleted, so technically success?
-        return true;
+            // File doesn't exist, it is deleted, so technically success?
+            return true;
+        } finally {
+            FileLocker.unlock(this, file);
+        }
     }
 
     /**
@@ -478,7 +549,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @return true if the file exists
      */
     public boolean exists() {
-        return adapter.exists(this);
+        return (isNull() == false) && adapter.exists(this);
     }
 
     /**
@@ -524,6 +595,44 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
                         "Error notifying observer of file change", t);
             }
         }
+    }
+
+    /**
+     * Returns the object version of this jaxb serialized file. Returns null if
+     * the file does not exist or is empty.
+     * 
+     * @param <T>
+     * @param resultClass
+     * @param manager
+     * @return
+     * @throws LocalizationException
+     */
+    public <T> T jaxbUnmarshal(Class<T> resultClass, JAXBManager manager)
+            throws LocalizationException {
+        File f = getFile();
+        if (f.exists() && (f.length() > 0)) {
+            InputStream is = null;
+            try {
+                is = openInputStream();
+                T object = resultClass.cast(manager
+                        .jaxbUnmarshalFromInputStream(is));
+                return object;
+            } catch (Exception e) {
+                throw new LocalizationException("Could not unmarshal file "
+                        + file.getName(), e);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        statusHandler.handle(Priority.WARN,
+                                "Failed to close input stream for file", e);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

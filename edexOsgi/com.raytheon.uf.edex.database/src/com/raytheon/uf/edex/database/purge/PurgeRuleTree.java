@@ -49,7 +49,7 @@ public class PurgeRuleTree {
     public PurgeRuleTree(PurgeRuleSet ruleSet) {
         root = new PurgeNode();
         root.setRules(ruleSet.getDefaultRules());
-        ArrayList<PurgeRule> rules = ruleSet.getRules();
+        List<PurgeRule> rules = ruleSet.getRules();
         if (rules != null) {
             for (PurgeRule rule : rules) {
                 PurgeNode curNode = root;
