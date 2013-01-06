@@ -63,7 +63,7 @@ public class LightningProductBrowserDataDefinition extends
     public LightningProductBrowserDataDefinition() {
         productName = "binlightning";
         displayName = "Lightning";
-        order = new String[] { "pluginName", "startTime", "type" };
+        order = new String[] { "startTime", "type" };
         order = getOrder();
         loadProperties = new LoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -78,17 +78,26 @@ public class LightningProductBrowserDataDefinition extends
      */
     @Override
     public List<ProductBrowserLabel> populateData(String[] selection) {
-        if (selection.length == 1) {
+        List<ProductBrowserLabel> labels = null;
+        if (order[selection.length - 1].equals("startTime")) {
             String[] strings = new String[offsets.length];
             for (int i = 0; i < offsets.length; i++) {
                 strings[i] = String.valueOf(offsets[i]);
             }
-            return formatData("pluginName", strings);
-        } else if (selection.length == 2) {
-            return formatData("startTime", types);
-        } else {
-            return formatData("type", types);
+
+            labels = formatData("startTime", strings);
+        } else if (order[selection.length - 1].equals("type")) {
+            labels = formatData("type", types);
         }
+
+        for (ProductBrowserLabel label : labels) {
+            if (selection.length == order.length) {
+                label.setProduct(true);
+            } else {
+                label.setProduct(false);
+            }
+        }
+        return labels;
     }
 
     /*
@@ -101,24 +110,21 @@ public class LightningProductBrowserDataDefinition extends
     @Override
     public List<ProductBrowserLabel> formatData(String param,
             String[] parameters) {
-        if ("pluginName".equals(param)) {
+        if ("startTime".equals(param)) {
             List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
             for (int i = 0; i < offsets.length; i++) {
                 labels.add(new ProductBrowserLabel((offsets[i] / 60) + " min",
                         "" + offsets[i]));
-                labels.get(i).setProduct(false);
             }
             return labels;
-        } else if ("startTime".equals(param)) {
+        } else if ("type".equals(param)) {
             List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
             for (int i = 0; i < types.length; i++) {
                 labels.add(new ProductBrowserLabel(types[i], types[i]));
-                labels.get(i).setProduct(true);
             }
             return labels;
-        } else {
-            return null;
         }
+        return null;
     }
 
     /*
@@ -153,8 +159,17 @@ public class LightningProductBrowserDataDefinition extends
     @Override
     public void constructResource(String[] selection, ResourceType type) {
         String[] sel = new String[] { selection[0] };
-        negativeOffset = Integer.parseInt(selection[1]);
-        lightningType = selection[selection.length - 1];
+        int timeOffset = 0;
+        int posNegOffset = 0;
+        for (int i = 0; i < order.length; i++) {
+            if ("startTime".equals(order[i])) {
+                timeOffset = i;
+            } else if ("type".equals(order[i])) {
+                posNegOffset = i;
+            }
+        }
+        negativeOffset = Integer.parseInt(selection[timeOffset + 1]);
+        lightningType = selection[posNegOffset + 1];
         super.constructResource(sel, type);
     }
 

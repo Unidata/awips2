@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry exported="true" kind="lib" path="com.springsource.org.aopalliance-1.0.0.jar" sourcepath="spring-framework-2.5.6.zip"/>
 	<classpathentry exported="true" kind="lib" path="antlr-2.7.6.jar" sourcepath="spring-framework-2.5.6.zip"/>
-	<classpathentry exported="true" kind="lib" path="backport-util-concurrent.jar" sourcepath="spring-framework-2.5.6.zip"/>
+	<classpathentry kind="lib" path="backport-util-concurrent.jar" sourcepath="spring-framework-2.5.6.zip"/>
 	<classpathentry exported="true" kind="lib" path="quartz-all-1.6.1.jar" sourcepath="spring-framework-2.5.6.zip"/>
 	<classpathentry exported="true" kind="lib" path="spring-aop.jar" sourcepath="spring-framework-2.5.6.zip"/>
 	<classpathentry exported="true" kind="lib" path="spring-beans.jar" sourcepath="spring-framework-2.5.6.zip"/>

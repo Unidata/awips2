@@ -30,9 +30,9 @@
 	        <substitute key="stationId" value="47646"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Shionomisaki (47778)" id="raobShionomisaki"
+	                menuText="Shionomisaki (47776)" id="raobShionomisaki"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
-	        <substitute key="stationId" value="47778"/>
+	        <substitute key="stationId" value="47776"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Fukuoka (47807)" id="raobFukuoka"
@@ -71,7 +71,7 @@
 	        <substitute key="stationId" value="589680"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Chichijima (RJAO)" id="raobChichijima"
+	                menuText="Chichi Jima (RJAO)" id="raobChichijima"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="47971"/>
 	    </contribute>
@@ -158,12 +158,12 @@
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Ishigakijima (ROIG)" id="raobIshigakijima "
+	                menuText="Ishigaki Jima (ROIG)" id="raobIshigakijima "
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="47918"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Minamidaitojima  (ROMD)" id="raobMinamidaltojima"
+	                menuText="Minamidaito Jima  (ROMD)" id="raobMinamidaltojima"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="47945"/>
 	    </contribute>

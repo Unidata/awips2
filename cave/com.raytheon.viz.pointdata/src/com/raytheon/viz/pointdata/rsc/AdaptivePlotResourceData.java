@@ -161,8 +161,7 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
             LoadProperties loadProperties, IDescriptor descriptor)
             throws VizException {
         if (file == null) {
-            fileUpdated(new FileUpdatedMessage(null, null,
-                    FileChangeType.DELETED));
+            fileUpdated(FileChangeType.ADDED, filePath);
         }
 
         if (file == null) {
@@ -186,10 +185,17 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
      */
     @Override
     public synchronized void fileUpdated(FileUpdatedMessage message) {
+        fileUpdated(message.getChangeType(), message.getFileName());
+    }
+
+    private void fileUpdated(FileChangeType changeType, String filePath) {
         Set<PlotObject> newObjects = new HashSet<PlotObject>();
-        switch (message.getChangeType()) {
+        switch (changeType) {
         case DELETED:
         case ADDED: {
+            if (file != null) {
+                file.removeFileUpdatedObserver(this);
+            }
             // Our old file was deleted, search for file
             file = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(filePath);

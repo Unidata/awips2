@@ -243,38 +243,45 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
 
     private void doValidate() {
         String siteID = this.siteId.getText();
-        ValidateConfigRequest request = new ValidateConfigRequest(siteID, "gfe");
-        try {
-            String result = (String) ThriftClient.sendRequest(request);
-            appendToLog(result);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error processing site activation request", e);
-
+        if (!siteID.isEmpty()) {
+            ValidateConfigRequest request = new ValidateConfigRequest(siteID,
+                    "gfe");
+            try {
+                String result = (String) ThriftClient.sendRequest(request);
+                appendToLog(result);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error processing site activation request", e);
+            }
         }
     }
 
     private void doActivate() {
         String siteID = this.siteId.getText();
-        ActivateSiteRequest request = new ActivateSiteRequest(siteID, "gfe");
-        try {
-            ThriftClient.sendRequest(request);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error processing site activation request", e);
+        if (!siteID.isEmpty()) {
+            ActivateSiteRequest request = new ActivateSiteRequest(siteID, "gfe");
+            try {
+                ThriftClient.sendRequest(request);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error processing site activation request", e);
 
+            }
         }
     }
 
     private void doDeactivate() {
         String siteID = this.siteId.getText();
-        DeactivateSiteRequest request = new DeactivateSiteRequest(siteID, "gfe");
-        try {
-            ThriftClient.sendRequest(request);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error processing site deactivation request", e);
+        if (!siteID.isEmpty()) {
+            DeactivateSiteRequest request = new DeactivateSiteRequest(siteID,
+                    "gfe");
+            try {
+                ThriftClient.sendRequest(request);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error processing site deactivation request", e);
 
+            }
         }
     }
 

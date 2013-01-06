@@ -10,16 +10,6 @@ Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.serialization;bundle-version="1.11.17",
- com.raytheon.uf.common.localization;bundle-version="1.11.17",
- com.raytheon.uf.common.status;bundle-version="1.11.17",
- com.raytheon.uf.viz.core;bundle-version="1.11.17",
- com.raytheon.uf.viz.sounding;bundle-version="1.11.17",
- com.raytheon.uf.common.time;bundle-version="1.11.17",
- com.raytheon.uf.common.geospatial;bundle-version="1.11.17",
- org.geotools;bundle-version="2.5.8",
- com.raytheon.edex.meteolib;bundle-version="1.11.17",
- com.raytheon.uf.common.dataplugin;bundle-version="1.11.17",
  com.raytheon.uf.viz.d2d.core;bundle-version="1.11.17",
  com.raytheon.viz.ui;bundle-version="1.11.17",
  com.raytheon.viz.skewt;bundle-version="1.11.17",
@@ -28,8 +18,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.sounding;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.grib;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
+ com.raytheon.uf.common.parameter;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.cloudheight,

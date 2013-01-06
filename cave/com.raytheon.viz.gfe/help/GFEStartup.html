@@ -23,7 +23,7 @@ Table of Contents<br>
 <p><br>
 <tt>cave.sh [-server hostname:port/services] [-mode TEST|PRACTICE|OPERATIONAL] [-site xxx] 
 [-u user] [-component componentName] [-perspective perspecitiveName] [-noredirect]
-[-consoleLog]<br>
+[-consoleLog] [-nc TRUE]<br>
 <br>
 <table nosave="" border="1" width="100%">
   <tbody>
@@ -75,6 +75,15 @@ Table of Contents<br>
       <td>-consoleLog</td>
       <td>YES</td>
       <td>Causes the CAVE log to be output to the console for monitoring/debugging.
+      </td>
+    </tr>
+    <tr>
+      <td>-nc</td>
+      <td>YES</td>
+      <td>This option is only used by Service backup. It is used to indicate that the site is
+      a national center, consequently a non-primary site gets special permission to export
+      site configuration to the central server via the Service Backup GUI.  This option should
+      be set to 'true', i.e., -nc true.
       </td>
     </tr>
   </tbody>
