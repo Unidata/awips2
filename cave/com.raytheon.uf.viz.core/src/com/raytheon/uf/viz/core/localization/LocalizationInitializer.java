@@ -32,6 +32,7 @@ import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -47,6 +48,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2009            mschenke     Initial creation
+ * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * 
  * </pre>
  * 
@@ -115,6 +117,6 @@ public class LocalizationInitializer {
         VizApp.setJmsServer(resp.getJmsServer());
         VizApp.setPypiesServer(resp.getPypiesServer());
         VizApp.setServerDataDir(resp.getServerDataDir());
-
+        VizServers.getInstance().setServerLocations(resp.getServerLocations());
     }
 }

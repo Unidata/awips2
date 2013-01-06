@@ -124,6 +124,7 @@
 #07/07/08    - Added sshp_show_unadjusted_states    // for sshp
 #
 #10/01/09    - Added 5 tokens for arcnav application.                          //only for arcnav for raxum application
+#10/03/12    - Added token section for script execution
 
 
 # ==============================================================================
@@ -156,6 +157,27 @@ vsys_dir           : $(apps_dir)/rfc/verify   #base verify directory
 #vsys_dir          : $(verify_dir)            #base verify directory 
 
 #AWIPS_MODIFICATION_BLOCK_END
+
+#===================== Apps/Script Execution Tokens =================================
+WhfsSrv                                        : ON
+WhfsSrv.purge_files                            : ON
+WhfsSrv.run_db_purge                           : ON
+WhfsSrv.run_floodseq                           : ON
+PprocSrv                                       : ON
+PprocSrv.purge_mpe_files                       : ON
+PprocSrv.purge_hpe_file                        : ON
+MpeFieldGenSrv.run_mpe_fieldgen                : ON
+WhfsSrv.run_pdc_pp                             : ON
+WhfsSrv.run_alarm_whfs                         : ON
+WhfsSrv.run_alarm_whfs.run_roc_checker         : ON
+WhfsSrv.run_alarm_whfs.run_report_alarm        : ON
+WhfsSrv.run_alarm_whfs.run_report_alarm.textdb : ON
+ArealQpeGenSrv                                 : ON
+DqcPreProcSrv                                  : ON
+DqcPreProcSrv.run_dqc_preprocessor             : ON
+MpeRUCFreezingLevel                            : ON
+MpeLightningSrv                                : ON
+#====================================================================================
 
 # ==============================================================================
 

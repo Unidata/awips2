@@ -44,8 +44,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -160,6 +158,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
  * Nov 23, 2011            mli         set vector lineStyle
  * May 11, 2012            njensen    Allow rsc to be recycled
+ * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
  * 
  * </pre>
  * 
@@ -171,28 +170,28 @@ import com.vividsolutions.jts.geom.Envelope;
 public class GFEResource extends
         AbstractVizResource<GFEResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor, IMessageClient {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEResource.class);
 
     /** maximum label size in pixels */
-    private static final int maxLabelLength = 100;
+    private final int maxLabelLength = 100;
 
     /** maximum label height in pixels */
     @SuppressWarnings("unused")
-    private static final int maxLabelHeight = 40;
+    private final int maxLabelHeight = 40;
 
     /** distance between labels */
-    private static final int pixelDistance = 125;
+    private final int pixelDistance = 125;
 
-    private static final Set<VisualizationType> OUTLINE_TYPES = EnumSet.of(
+    private final Set<VisualizationType> OUTLINE_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB, VisualizationType.BOUNDED_AREA);
 
-    private static final Set<VisualizationType> DENSITY_TYPES = EnumSet.of(
+    private final Set<VisualizationType> DENSITY_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB);
 
-    private static final Set<VisualizationType> MAG_TYPES = EnumSet.of(
+    private final Set<VisualizationType> MAG_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
             VisualizationType.WIND_BARB, VisualizationType.BOUNDED_AREA);
 
@@ -274,7 +273,7 @@ public class GFEResource extends
         }
 
     };
-    
+
     /**
      * Construct a resource that is capable of displaying a particular parm
      * 
@@ -1202,7 +1201,6 @@ public class GFEResource extends
     }
 
     private class FuzzValueAction extends AbstractRightClickAction {
-
         public FuzzValueAction() {
             super("Set Fuzz Value...");
 
@@ -1210,13 +1208,7 @@ public class GFEResource extends
 
         @Override
         public void run() {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-
-            FuzzValueDialog fuzz = new FuzzValueDialog(shell, dataManager);
-
-            fuzz.setBlockOnOpen(true);
-            fuzz.open();
+            FuzzValueDialog.openDialog(dataManager);
         }
     }
 

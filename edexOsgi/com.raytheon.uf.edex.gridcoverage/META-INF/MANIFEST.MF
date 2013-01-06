@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Grid Coverage
+Bundle-SymbolicName: com.raytheon.uf.edex.gridcoverage
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.gridcoverage,
+ com.raytheon.uf.common.gridcoverage.exception,
+ com.raytheon.uf.common.gridcoverage.lookup,
+ com.raytheon.uf.common.gridcoverage.request,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.database.dao,
+ org.hibernate,
+ org.hibernate.criterion,
+ org.springframework.orm.hibernate3.support
+Export-Package: com.raytheon.uf.edex.gridcoverage

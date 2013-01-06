@@ -21,8 +21,10 @@ package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
@@ -30,6 +32,7 @@ import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -38,15 +41,33 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
+import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
- * ( where is the "SOFTWARE HISTORY" section of this file? )
+ * SAFESEAS Zone Table Dialog
  * 
- * Dec 30, 2009 3424 zhao use ObMultiHrsReports for obs data archive
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 30, 2009 3424       zhao         use ObMultiHrsReports for obs data archive
+ * Oct 30, 2012 1297       skorolev     Changed HashMap to Map
+ * Nov 10, 2012 1297       skorolev     Added initiateProdArray
+ * 
+ * </pre>
+ * 
+ * @author zhao
+ * @version 1.0
  */
 public class SSZoneTableDlg extends ZoneTableDlg {
+
+    /** SAFESEAS threshold dialog. **/
     private SSDispMonThreshDlg ssThreshDlg;
+
+    /** Swell column names in the zone and station table. **/
+    private String[] ssSwellCols = { "SSZT_SwellPeriod", "SSZT_Swell2Period" };
 
     /**
      * Constructor (Dec 30, 2009, zhao)
@@ -57,10 +78,50 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         super(parent, obData, CommonConfig.AppName.SAFESEAS);
     }
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     */
     public SSZoneTableDlg(Shell parent) {
         super(parent, CommonConfig.AppName.SAFESEAS);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#initiateProdArray()
+     */
+    @Override
+    public void initiateProdArray() {
+        varName = config.getSafeseasZoneStnTableColVarNames()[colIndex];
+        // Fill product arrays
+        prodArray = new ArrayList<String>();
+        String[] varprefs = { "VAR_", "SCA_", "GALE_", "STORM_", "HURRICANE_" };
+        for (DisplayVarName var : DisplayVarName.values()) {
+            String dispVarName = var.name();
+            if (colIndex == 1 && dispVarName.startsWith(varprefs[1])) {
+                prodArray.add(dispVarName);
+            } else if (colIndex == 2 && dispVarName.startsWith(varprefs[2])) {
+                prodArray.add(dispVarName);
+            } else if (colIndex == 3 && dispVarName.startsWith(varprefs[3])) {
+                prodArray.add(dispVarName);
+            } else if (colIndex == 4 && dispVarName.startsWith(varprefs[4])) {
+                prodArray.add(dispVarName);
+            } else if (dispVarName.startsWith(varprefs[0])
+                    && dispVarName.equals(varprefs[0] + varName.name())) {
+                prodArray.add(dispVarName);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#configThreshAction()
+     */
     @Override
     protected void configThreshAction() {
         if (ssThreshDlg == null) {
@@ -71,70 +132,123 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.listeners.IMonitorListener#notify(com.raytheon
+     * .uf.viz.monitor.events.IMonitorEvent)
+     */
     @Override
     public void notify(IMonitorEvent me) {
         if (zoneTable.isDisposed()) {
             return;
         }
 
-		if (me.getSource() instanceof SafeSeasMonitor) {
-			SafeSeasMonitor monitor = (SafeSeasMonitor) me.getSource();
-			Date date = monitor.getDialogTime();
-			if (date != null) {
+        if (me.getSource() instanceof SafeSeasMonitor) {
+            SafeSeasMonitor monitor = (SafeSeasMonitor) me.getSource();
+            Date date = monitor.getDialogTime();
+            if (date != null) {
                 Date nominalTime = date;
-				ObMultiHrsReports obData = monitor.getObData();
-				if (!isLinkedToFrame()) {
-					nominalTime = obData.getLatestNominalTime();
-				}
-				HashMap<String, FOG_THREAT> fogAlgThreats = monitor
+                ObMultiHrsReports obData = monitor.getObData();
+                if (!isLinkedToFrame()) {
+                    nominalTime = obData.getLatestNominalTime();
+                }
+                Map<String, FOG_THREAT> fogAlgThreats = monitor
                         .getAlgorithmData(nominalTime);
-				obData.setFogAlgCellType(monitor.getAlgCellTypes(fogAlgThreats));
-				this.updateTableDlg(monitor.getObData().getObHourReports(nominalTime));
-			}
-		}
+                obData.setFogAlgCellType(monitor.getAlgCellTypes(fogAlgThreats));
+                this.updateTableDlg(monitor.getObData().getObHourReports(
+                        nominalTime));
+            }
+        }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * addMonitorControlListener(com.raytheon.uf.viz.monitor.IMonitor)
+     */
     @Override
     public void addMonitorControlListener(IMonitor monitor) {
         getMonitorControlListeners().add(monitor);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * fireConfigUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent)
+     */
     @Override
     public void fireConfigUpdate(IMonitorConfigurationEvent imce) {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
-
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#fireKillMonitor
+     * ()
+     */
     @Override
     public void fireKillMonitor() {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * fireThresholdUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent)
+     */
     @Override
     public void fireThresholdUpdate(IMonitorThresholdEvent imte) {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * getMonitorControlListeners()
+     */
     @Override
-    public ArrayList<IMonitor> getMonitorControlListeners() {
+    public List<IMonitor> getMonitorControlListeners() {
         return controlListeners;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorControlListener#
+     * removeMonitorContorlListener(com.raytheon.uf.viz.monitor.IMonitor)
+     */
     @Override
     public void removeMonitorContorlListener(IMonitor monitor) {
         getMonitorControlListeners().remove(monitor);
 
     }
 
-	@Override
-	protected MonitorConfigurationManager getConfigMgr() {
-		return SSMonitorConfigurationManager.getInstance();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
+     */
+    @Override
+    protected MonitorConfigurationManager getConfigMgr() {
+        return SSMonitorConfigurationManager.getInstance();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
+     */
     @Override
     protected void handleLinkToFrame() {
         linkedToFrame = linkToFrameChk.getSelection();
@@ -150,8 +264,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void shellDisposeAction() {
-        // TODO Auto-generated method stub
-
+        // Not used
     }
 
     /*
@@ -163,7 +276,42 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     public void fireDialogShutdown(IMonitorListener iml) {
-        // TODO Auto-generated method stub
+        // Not used
+    }
 
+    @Override
+    protected void setZoneSortColumnAndDirection() {
+        if (zoneTblData != null) {
+            zoneSortColumn = zoneTblData.getSortColumn();
+            zoneSortDirection = zoneTblData.getSortDirection();
+            if (zoneSortColumn == zoneTable.getColumnIndex(appName,
+                    ssSwellCols[0])
+                    || zoneSortColumn == zoneTable.getColumnIndex(appName,
+                            ssSwellCols[1])) {
+                if (MonitorConfigConstants.isRankSwellPeriodHigh()) {
+                    zoneSortDirection = SWT.DOWN;
+                } else {
+                    zoneSortDirection = SWT.UP;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void setStnSortColumnAndDirection() {
+        if (stnTblData != null) {
+            stnSortColumn = stnTblData.getSortColumn();
+            stnSortDirection = stnTblData.getSortDirection();
+            if (stnSortColumn == stationTable.getColumnIndex(appName,
+                    ssSwellCols[0])
+                    || stnSortColumn == stationTable.getColumnIndex(appName,
+                            ssSwellCols[1])) {
+                if (MonitorConfigConstants.isRankSwellPeriodHigh()) {
+                    stnSortDirection = SWT.DOWN;
+                } else {
+                    stnSortDirection = SWT.UP;
+                }
+            }
+        }
     }
 }

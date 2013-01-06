@@ -5,12 +5,12 @@ Bundle-SymbolicName: com.raytheon.uf.common.time
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: net.sf.cglib
-Import-Package: com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.serialization.adapters,
- com.raytheon.uf.common.serialization.annotations,
- com.raytheon.uf.common.serialization.comm,
- javax.persistence,
+Require-Bundle: net.sf.cglib,
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
+Import-Package: javax.persistence,
  org.apache.commons.beanutils,
  org.apache.commons.lang,
  org.apache.commons.lang.builder,

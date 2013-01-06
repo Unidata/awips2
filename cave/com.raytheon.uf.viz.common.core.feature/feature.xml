@@ -64,13 +64,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.datastorage.remote"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.derivparam"
          download-size="0"
          install-size="0"
@@ -88,8 +81,13 @@
          id="com.raytheon.uf.common.geospatial"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+         
+   <plugin
+         id="com.raytheon.uf.common.units"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.localization"
@@ -172,8 +170,7 @@
          id="com.raytheon.uf.common.time"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.topo"
@@ -219,6 +216,13 @@
 
    <plugin
          id="com.raytheon.uf.edex.database"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="com.raytheon.uf.common.spatial"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -289,6 +293,20 @@
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.text"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.stats"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.event"
          download-size="0"
          install-size="0"
          version="0.0.0"

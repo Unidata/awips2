@@ -20,19 +20,17 @@
 package com.raytheon.uf.viz.derivparam.tree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
@@ -54,20 +52,20 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
  * @author bsteffen
  * @version 1.0
  */
-public class OrLevelNode extends AbstractDerivedLevelNode {
+public class OrLevelNode extends AbstractDerivedDataNode {
 
-    private List<AbstractRequestableLevelNode> nodes;
+    private List<AbstractRequestableNode> nodes;
 
     public OrLevelNode(OrLevelNode that) {
         super(that);
         if (that.nodes != null) {
-            this.nodes = new ArrayList<AbstractRequestableLevelNode>(that.nodes);
+            this.nodes = new ArrayList<AbstractRequestableNode>(that.nodes);
         }
     }
 
     public OrLevelNode(Level level, DerivParamDesc desc,
             DerivParamMethod method, String modelName,
-            List<AbstractRequestableLevelNode> nodes) {
+            List<AbstractRequestableNode> nodes) {
         this(level, desc, method, modelName, nodes, true);
     }
 
@@ -90,146 +88,50 @@ public class OrLevelNode extends AbstractDerivedLevelNode {
      */
     public OrLevelNode(Level level, DerivParamDesc desc,
             DerivParamMethod method, String modelName,
-            List<AbstractRequestableLevelNode> nodes, boolean alias) {
+            List<AbstractRequestableNode> nodes, boolean alias) {
         super(level, desc, method, modelName);
         if (alias) {
-            this.nodes = new ArrayList<AbstractRequestableLevelNode>(
-                    nodes.size());
-            for (AbstractRequestableLevelNode node : nodes) {
+            this.nodes = new ArrayList<AbstractRequestableNode>(nodes.size());
+            for (AbstractRequestableNode node : nodes) {
                 this.nodes.add(new AliasLevelNode(node, desc, method,
                         modelName, level));
             }
         } else {
-            this.nodes = new ArrayList<AbstractRequestableLevelNode>(nodes);
+            this.nodes = new ArrayList<AbstractRequestableNode>(nodes);
         }
     }
 
-    public void addNodeToOrList(AbstractRequestableLevelNode node) {
+    public void addNodeToOrList(AbstractRequestableNode node) {
         nodes.add(node);
     }
 
     @Override
-    protected List<AbstractRequestableData> getDataInternal(
-            LayerProperty property,
-            int timeOut,
-            Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
-            throws VizException {
-        Set<DataTime> requestedTimes = null;
-        DataTime[] requestedTimesArr = property.getSelectedEntryTime();
-        if (requestedTimesArr == null) {
-            requestedTimes = this.timeQuery(null, false);
-        } else {
-            requestedTimes = new HashSet<DataTime>(
-                    Arrays.asList(requestedTimesArr));
+    public Map<AbstractRequestableNode, Set<TimeAndSpace>> getDataDependency(
+            Set<TimeAndSpace> availability,
+            AvailabilityContainer availabilityContainer) throws VizException {
+        Map<AbstractRequestableNode, Set<TimeAndSpace>> result = new HashMap<AbstractRequestableNode, Set<TimeAndSpace>>();
+        for (AbstractRequestableNode node : nodes) {
+            result.put(node, availability);
         }
-        List<AbstractRequestableData> records = new ArrayList<AbstractRequestableData>(
-                requestedTimes.size());
-        for (AbstractRequestableLevelNode node : nodes) {
-            List<AbstractRequestableData> newRecords = node.getData(property,
-                    timeOut, cache);
-            for (AbstractRequestableData record : newRecords) {
-                if (record.getDataTime() == null) {
-                    requestedTimes.clear();
-                } else {
-                    requestedTimes.remove(record.getDataTime());
-                }
-            }
-            records.addAll(newRecords);
-            if (requestedTimes.isEmpty()) {
-                break;
-            }
-            property.setSelectedEntryTimes(requestedTimes
-                    .toArray(new DataTime[requestedTimes.size()]));
-        }
-        return records;
+        return result;
     }
 
     @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
-            Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
+    public Set<AbstractRequestableData> getData(
+            Set<TimeAndSpace> availability,
+            Map<AbstractRequestableNode, Set<AbstractRequestableData>> dependencyData)
             throws VizException {
-        Set<DataTime> results = new HashSet<DataTime>();
-        for (AbstractRequestableLevelNode node : nodes) {
-            Set<DataTime> times = node.timeQuery(originalRequest, latestOnly,
-                    cache, latestOnlyCache);
-            if (times == AbstractRequestableLevelNode.TIME_AGNOSTIC) {
-                return times;
-            } else {
-                for (DataTime time : times) {
-                    boolean good = true;
-                    for (DataTime result : results) {
-                        if (result.getMatchRef() == time.getMatchRef()
-                                && result.getMatchFcst() == time.getMatchFcst()) {
-                            good = false;
-                            break;
-                        }
-                    }
-                    if (good) {
-                        results.add(time);
-                    }
+        Map<TimeAndSpace, AbstractRequestableData> dataMap = new HashMap<TimeAndSpace, AbstractRequestableData>();
+        for (AbstractRequestableNode node : nodes) {
+            Set<AbstractRequestableData> dataSet = dependencyData.get(node);
+            for (AbstractRequestableData data : dataSet) {
+                TimeAndSpace ast = data.getTimeAndSpace();
+                if (!dataMap.containsKey(ast)) {
+                    dataMap.put(ast, data);
                 }
             }
         }
-        return results;
-    }
-
-    @Override
-    public boolean isTimeAgnostic() {
-        for (AbstractRequestableLevelNode node : nodes) {
-            if (node.isTimeAgnostic()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public Map<String, RequestConstraint> getRequestConstraintMap() {
-        Map<String, RequestConstraint> rval = null;
-        List<Map<String, RequestConstraint>> list = new ArrayList<Map<String, RequestConstraint>>(
-                nodes.size());
-
-        for (AbstractRequestableLevelNode node : nodes) {
-            Map<String, RequestConstraint> rcMap = node
-                    .getRequestConstraintMap();
-
-            if (rcMap == null) {
-                // sub node has no request constraint short circuit and exit now
-                return null;
-            }
-
-            list.add(node.getRequestConstraintMap());
-        }
-
-        list = mergeConstraints(list);
-        if (list.size() == 1) {
-            rval = list.get(0);
-        } else {
-            // not directly combinable until this method is updated to
-            // return a list of rcMaps
-            rval = null;
-        }
-
-        return rval;
-    }
-
-    @Override
-    public boolean hasRequestConstraints() {
-        boolean rval = true;
-        for (AbstractRequestableLevelNode node : nodes) {
-            if (!node.hasRequestConstraints()) {
-                rval = false;
-                break;
-            }
-        }
-        if (rval) {
-            // handle the maps not being directly combinable
-            rval = getRequestConstraintMap() != null;
-        }
-        return rval;
+        return new HashSet<AbstractRequestableData>(dataMap.values());
     }
 
     /*
@@ -240,7 +142,7 @@ public class OrLevelNode extends AbstractDerivedLevelNode {
      */
     public List<Dependency> getDependencies() {
         List<Dependency> dependencies = new ArrayList<Dependency>(nodes.size());
-        for (AbstractRequestableLevelNode node : nodes) {
+        for (AbstractRequestableNode node : nodes) {
             dependencies.add(new Dependency(node, 0));
         }
         return dependencies;
@@ -284,6 +186,17 @@ public class OrLevelNode extends AbstractDerivedLevelNode {
         } else if (!nodes.equals(other.nodes))
             return false;
         return true;
+    }
+
+    @Override
+    public Set<TimeAndSpace> getAvailability(
+            Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
+            throws VizException {
+        Set<TimeAndSpace> myAvailability = new HashSet<TimeAndSpace>();
+        for (AbstractRequestableNode node : nodes) {
+            myAvailability.addAll(availability.get(node));
+        }
+        return myAvailability;
     }
 
 }

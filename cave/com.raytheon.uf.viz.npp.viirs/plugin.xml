@@ -35,4 +35,12 @@
                name="com.raytheon.uf.viz.npp.viirs.viirsProductBrowserDefinition">
          </dataDefinition>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.productbrowser.DataTypePreferencePage"
+            id="com.raytheon.uf.viz.productbrowser.productbrowserdatapreferencepage"
+            name="VIIRS"
+            category="com.raytheon.uf.viz.productbrowser.productbrowserpreferencespage"/>
+   </extension>
 </plugin>
