@@ -341,6 +341,11 @@ public class GribSpatialCache {
             Coordinate upperRightPosition = new Coordinate(xCenterPoint
                     + xDistance, yCenterPoint - yDistance);
 
+            lowerLeftPosition.x = Math.min(Math.max(0, lowerLeftPosition.x), referenceCoverage.getNx() - 1);
+            lowerLeftPosition.y = Math.min(Math.max(0, lowerLeftPosition.y), referenceCoverage.getNy() - 1);
+            upperRightPosition.x = Math.min(Math.max(0, upperRightPosition.x), referenceCoverage.getNx() - 1);
+            upperRightPosition.y = Math.min(Math.max(0, upperRightPosition.y), referenceCoverage.getNy() - 1);
+
             lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
                     lowerLeftPosition, PixelOrientation.CENTER,
                     referenceCoverage);

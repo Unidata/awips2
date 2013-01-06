@@ -88,8 +88,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2011            randerso     Initial creation
- * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * Sep 19,2011 10955      rferrel      Use RunProcess
  * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
+ * Nov 15,2012 15614	  jdynina      Added check for national center	 
  * 
  * </pre>
  * 
@@ -155,6 +156,8 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     private Job updateJob;
 
     private boolean authorized;
+    
+    private boolean nationalCenter;
 
     private SVCBU_OP currentOperation = SVCBU_OP.no_backup;
 
@@ -165,6 +168,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         super(parentShell);
         authorized = CheckPermissions.getAuthorization();
         this.site = LocalizationManager.getInstance().getCurrentSite();
+        this.nationalCenter = CheckPermissions.isNationalCenter();
         this.runningAsPrimary = CheckPermissions.runningAsPrimary();
         if (!ServiceBackupJobManager.getInstance().isRunning()) {
             ServiceBackupJobManager.getInstance().start();
@@ -1199,8 +1203,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                     + UserController.getUserObject().uniqueId());
         }
 
-        if ((!runningAsPrimary)
-                && (!LocalizationManager.getInstance().isNationalCenter())) {
+        if ((!runningAsPrimary) & (!nationalCenter)) {
             doExCon.setEnabled(false);
         }
     }
