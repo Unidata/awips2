@@ -5,12 +5,9 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.cwat
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
+Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
  com.raytheon.edex.common;bundle-version="1.11.7",
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",
- org.geotools;bundle-version="2.5.2",
  org.apache.commons.collections,
  org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.dataplugin.cwat;bundle-version="1.0.0",
@@ -18,11 +15,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1152",
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.scan;bundle-version="1.12.1174",
  com.raytheon.uf.common.sounding;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.grib;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.edex.plugin.scan;bundle-version="1.12.1174",
  com.raytheon.uf.edex.dat.utils;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

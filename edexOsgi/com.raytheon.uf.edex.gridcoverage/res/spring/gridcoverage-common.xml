@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="getGridCoverageHandler"
+		class="com.raytheon.uf.edex.gridcoverage.GetGridCoverageHandler" />
+
+	<bean id="getGridCoverageHandlerRegistered" factory-bean="handlerRegistry"
+		factory-method="register" depends-on="gridcoverageRegistered">
+		<constructor-arg
+			value="com.raytheon.uf.common.gridcoverage.request.GetGridCoverageRequest" />
+		<constructor-arg ref="getGridCoverageHandler" />
+	</bean>
+
+	<bean id="gridcoverageProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginName" value="gridcoverage" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.gridcoverage" />
+		<property name="database" value="metadata" />
+	</bean>
+
+	<bean id="gridcoveragelookup"
+		class="com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup"
+		factory-method="getInstance"
+		depends-on="serializeServer,getGridCoverageHandlerRegistered,queryDataRegistered,registerRequestServiceRouter"
+		lazy-init="true" />
+
+	<bean id="gridcoverageRegistered" factory-bean="dbPluginRegistry"
+		factory-method="register">
+		<constructor-arg value="com.raytheon.uf.common.gridcoverage" />
+		<constructor-arg ref="gridcoverageProperties" />
+	</bean>
+</beans>

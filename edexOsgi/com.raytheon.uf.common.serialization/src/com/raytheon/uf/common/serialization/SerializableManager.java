@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRegistry;
 
 import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 
@@ -298,7 +299,8 @@ public class SerializableManager {
                             Class<ISerializableObject> c = (Class<ISerializableObject>) Class
                                     .forName(clazz, true, cl);
                             boolean added = false;
-                            if (c.getAnnotation(XmlAccessorType.class) != null) {
+                            if (c.getAnnotation(XmlAccessorType.class) != null
+                                    || c.getAnnotation(XmlRegistry.class) != null) {
                                 addToClazzSet(c);
                                 added = true;
                             }

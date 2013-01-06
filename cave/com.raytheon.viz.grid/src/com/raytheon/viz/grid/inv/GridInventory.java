@@ -21,6 +21,7 @@ package com.raytheon.viz.grid.inv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -32,11 +33,13 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
-import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
+import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest;
+import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -46,13 +49,13 @@ import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.derivparam.tree.LevelNode;
 import com.raytheon.uf.common.derivparam.tree.ParameterNode;
 import com.raytheon.uf.common.derivparam.tree.SourceNode;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -63,21 +66,20 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
+import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
 import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.grid.data.ImportRequestableData;
-import com.raytheon.viz.grid.data.StaticGridRequestableData;
-import com.raytheon.viz.grid.data.TiltRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RadarAdapter;
 
 /**
- * TODO Add Description
+ * Inventory object for calculating and managing the available grid data,
+ * including any data that can be derived.
  * 
  * <pre>
  * 
@@ -98,31 +100,25 @@ public class GridInventory extends AbstractInventory implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridInventory.class);
 
-    public static String MODEL_NAME = "modelName";
+    public static final String PLUGIN_NAME_QUERY = GridConstants.PLUGIN_NAME;
 
-    public static String PERT_NUMBER = "perturbationNumber";
+    public static final String MODEL_NAME_QUERY = GridConstants.DATASET_ID;
 
-    public static String PARAMETER = "parameterAbbreviation";
+    public static final String PARAMETER_QUERY = GridConstants.PARAMETER_ABBREVIATION;
 
-    public static String LEVEL_ID = "level.id";
+    public static final String LEVEL_ID_QUERY = GridConstants.LEVEL_ID;
 
-    public static final String PLUGIN_NAME_QUERY = "pluginName";
+    public static final String MASTER_LEVEL_QUERY = GridConstants.MASTER_LEVEL_NAME;
 
-    public static final String MODEL_NAME_QUERY = "modelInfo." + MODEL_NAME;
+    public static final String LEVEL_ONE_QUERY = GridConstants.LEVEL_ONE;
 
-    public static final String PARAMETER_QUERY = "modelInfo." + PARAMETER;
+    public static final String LEVEL_TWO_QUERY = GridConstants.LEVEL_TWO;
 
-    public static final String LEVEL_ID_QUERY = "modelInfo." + LEVEL_ID;
-
-    public static final String MASTER_LEVEL_QUERY = "modelInfo.level.masterLevel.name";
-
-    public static final String LEVEL_ONE_QUERY = "modelInfo.level.levelonevalue";
-
-    public static final String LEVEL_TWO_QUERY = "modelInfo.level.leveltwovalue";
-
-    public static final String PERT_QUERY = "modelInfo." + PERT_NUMBER;
+    public static final String ENSEMBLE_QUERY = GridConstants.ENSEMBLE_ID;
 
     public static final String CUBE_MASTER_LEVEL_NAME = "MB";
+
+    public static final String PLUGIN_NAME = GridConstants.GRID;
 
     private GridUpdater updater;
 
@@ -163,17 +159,19 @@ public class GridInventory extends AbstractInventory implements
         }
     }
 
-    private DataTree getTreeFromEdex() throws VizException {
-        String request = "from com.raytheon.edex.uengine.tasks.grib import GridCatalog\n"
-                + "from com.raytheon.uf.common.message.response import ResponseMessageGeneric\n"
-                + "test = GridCatalog()\n"
-                + "return ResponseMessageGeneric(test.execute())";
-        Object[] tree = null;
-        tree = Connector.getInstance().connect(request, null, 60000);
-        if (tree != null) {
-            return (DataTree) tree[0];
+    private DataTree getTreeFromEdex() {
+        GetGridTreeRequest request = new GetGridTreeRequest();
+        Object tree = null;
+        try {
+            tree = ThriftClient.sendRequest(request);
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error communicating with server.", e);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error occurred while retrieving grid tree.", e);
         }
-        return null;
+        return (DataTree) tree;
     }
 
     private void initGatherModels(DataTree tree) {
@@ -184,36 +182,40 @@ public class GridInventory extends AbstractInventory implements
         // perturbationNumber >= 0
         DbQueryRequest request = new DbQueryRequest();
         request.setDistinct(true);
-        request.addRequestField(MODEL_NAME);
-        request.addRequestField(PARAMETER);
-        request.addRequestField(LEVEL_ID);
-        request.addRequestField(PERT_NUMBER);
-        request.addConstraint(PERT_NUMBER, new RequestConstraint("0",
-                ConstraintType.GREATER_THAN_EQUALS));
-        request.setEntityClass(GribModel.class.getName());
+        request.addRequestField(GridInfoConstants.DATASET_ID);
+        request.addRequestField(GridInfoConstants.PARAMETER_ABBREVIATION);
+        request.addRequestField(GridInfoConstants.LEVEL_ID);
+        request.addRequestField(GridInfoConstants.ENSEMBLE_ID);
+        request.addConstraint(GridInfoConstants.ENSEMBLE_ID,
+                new RequestConstraint("", ConstraintType.NOT_EQUALS));
+        request.setEntityClass(GridInfoRecord.class.getName());
 
         // Send request and process response
         try {
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
             for (Map<String, Object> objMap : response.getResults()) {
-                String model = String.valueOf(objMap.get(MODEL_NAME));
-                String parameter = String.valueOf(objMap.get(PARAMETER));
-                String levelId = String.valueOf(objMap.get(LEVEL_ID));
-                Integer pert = ((Number) objMap.get(PERT_NUMBER)).intValue();
+                String model = String.valueOf(objMap
+                        .get(GridInfoConstants.DATASET_ID));
+                String parameter = String.valueOf(objMap
+                        .get(GridInfoConstants.PARAMETER_ABBREVIATION));
+                String levelId = String.valueOf(objMap
+                        .get(GridInfoConstants.LEVEL_ID));
+                String ensemble = (String) objMap
+                        .get(GridInfoConstants.ENSEMBLE_ID);
                 LevelNode node = tree.getLevelNode(model, parameter,
                         levelId.toString());
-                if (node instanceof GribRequestableLevelNode) {
-                    GribRequestableLevelNode gribNode = (GribRequestableLevelNode) node;
-                    List<Integer> perts = gribNode.getPerts();
-                    if (perts == null) {
-                        perts = new ArrayList<Integer>(1);
-                        perts.add(pert);
-                    } else if (!perts.contains(pert)) {
-                        perts = new ArrayList<Integer>(perts);
-                        perts.add(pert);
+                if (node instanceof GridRequestableNode) {
+                    GridRequestableNode gribNode = (GridRequestableNode) node;
+                    List<String> ensembles = gribNode.getEnsembles();
+                    if (ensembles == null) {
+                        ensembles = new ArrayList<String>(1);
+                        ensembles.add(ensemble);
+                    } else if (!ensembles.contains(ensemble)) {
+                        ensembles = new ArrayList<String>(ensembles);
+                        ensembles.add(ensemble);
                     }
-                    gribNode.setPerts(perts);
+                    gribNode.setEnsembles(ensembles);
                 }
                 if (!modelsWithPerts.contains(model)) {
                     modelsWithPerts.add(model);
@@ -222,7 +224,7 @@ public class GridInventory extends AbstractInventory implements
         } catch (VizException e) {
             statusHandler
                     .handle(Priority.PROBLEM,
-                            "Error determining perterbations, Gather function may be broken",
+                            "Error determining ensemble information, Gather function may be broken",
                             e);
         }
         long endTime = System.currentTimeMillis();
@@ -240,15 +242,15 @@ public class GridInventory extends AbstractInventory implements
      */
     public LevelNode getNode(String source, String parameter, Level level) {
         try {
-            List<AbstractRequestableLevelNode> nodes = walkTree(null,
+            List<AbstractRequestableNode> nodes = walkTree(null,
                     Arrays.asList(source), Arrays.asList(parameter),
                     Arrays.asList(level), true, true, null);
             if (nodes == null || nodes.isEmpty()) {
                 return null;
             }
-            if (nodes.get(0) instanceof AbstractDerivedLevelNode) {
+            if (nodes.get(0) instanceof AbstractDerivedDataNode) {
                 try {
-                    updater.addNode((AbstractDerivedLevelNode) nodes.get(0));
+                    updater.addNode((AbstractDerivedDataNode) nodes.get(0));
                 } catch (VizException e) {
                     statusHandler
                             .handle(Priority.PROBLEM,
@@ -278,7 +280,8 @@ public class GridInventory extends AbstractInventory implements
                     LevelNode lNode = new LevelNode();
                     lNode.setLevel(lEntry.getValue().getLevel());
                     Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-                    rcMap.put(PLUGIN_NAME_QUERY, new RequestConstraint("grib"));
+                    rcMap.put(PLUGIN_NAME_QUERY, new RequestConstraint(
+                            PLUGIN_NAME));
                     rcMap.put(MODEL_NAME_QUERY,
                             new RequestConstraint(sNode.getValue()));
                     rcMap.put(PARAMETER_QUERY,
@@ -293,7 +296,7 @@ public class GridInventory extends AbstractInventory implements
                             LEVEL_TWO_QUERY,
                             new RequestConstraint(Double.toString(lNode
                                     .getLevel().getLeveltwovalue())));
-                    lNode = new GribRequestableLevelNode(lNode, rcMap);
+                    lNode = new GridRequestableNode(lNode, rcMap);
                     pNode.getChildNodes().put(lEntry.getKey(), lNode);
                 }
                 sNode.addChildNode(pNode);
@@ -350,17 +353,14 @@ public class GridInventory extends AbstractInventory implements
      * @param newGridTree
      */
     private void initAliasModels(DataTree newGridTree) {
-        Set<String> allAliasModels = new HashSet<String>();
         sourceAliases.clear();
-        GribModelLookup lookup = GribModelLookup.getInstance();
+        DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
         for (String modelName : newGridTree.getSources()) {
-            GridModel model = lookup.getModelByName(modelName);
-            if (model != null && model.getAlias() != null) {
+            DatasetInfo info = lookup.getInfo(modelName);
+            if (info != null && info.getAlias() != null) {
                 SourceNode source = newGridTree.getSourceNode(modelName);
-                SourceNode dest = newGridTree.getSourceNode(model.getAlias());
+                SourceNode dest = newGridTree.getSourceNode(info.getAlias());
                 if (source != null && dest != null) {
-                    allAliasModels.add(source.getValue());
-                    allAliasModels.add(dest.getValue());
                     List<String> aliases = sourceAliases.get(dest.getValue());
                     if (aliases == null) {
                         aliases = new ArrayList<String>();
@@ -371,36 +371,52 @@ public class GridInventory extends AbstractInventory implements
                 }
             }
         }
-        // Requesting coverages all at once is more efficient
-        try {
-            final Map<String, GridCoverage> coverages = CoverageUtils
-                    .getInstance().getCoverages(allAliasModels);
+        for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
+            Collections.sort(aliases.getValue(), new Comparator<String>() {
 
-            for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
-                Collections.sort(aliases.getValue(), new Comparator<String>() {
-
-                    @Override
-                    public int compare(String model1, String model2) {
-                        GridCoverage coverage1 = coverages.get(model1);
-                        Integer res1 = coverage1.getNx() * coverage1.getNy();
-                        GridCoverage coverage2 = coverages.get(model2);
-                        Integer res2 = coverage2.getNx() * coverage2.getNy();
-                        return res2.compareTo(res1);
+                @Override
+                public int compare(String model1, String model2) {
+                    try {
+                        // attempt to figure out which model is the highest
+                        // resolution.
+                        Collection<GridCoverage> coverages1 = CoverageUtils
+                                .getInstance().getCoverages(model1);
+                        Collection<GridCoverage> coverages2 = CoverageUtils
+                                .getInstance().getCoverages(model2);
+                        if (coverages1.isEmpty()) {
+                            return 1;
+                        } else if (coverages2.isEmpty()) {
+                            return -1;
+                        }
+                        double total1 = 0;
+                        double total2 = 0;
+                        for (GridCoverage coverage : coverages1) {
+                            total1 += coverage.getDx();
+                            total1 += coverage.getDy();
+                        }
+                        for (GridCoverage coverage : coverages2) {
+                            total2 += coverage.getDx();
+                            total2 += coverage.getDy();
+                        }
+                        Double res1 = total1 / coverages1.size();
+                        Double res2 = total2 / coverages2.size();
+                        return res1.compareTo(res2);
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to create model aliases, problems with "
+                                        + model1 + " and " + model2, e);
+                        return 0;
                     }
+                }
 
-                });
-            }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to create model aliases", e);
-            return;
+            });
         }
     }
 
     public Set<Level> getAvailableLevels(Map<String, RequestConstraint> query) {
         Set<Level> levels = new HashSet<Level>();
-        List<AbstractRequestableLevelNode> nodes = evaluateRequestConstraints(query);
-        for (AbstractRequestableLevelNode node : nodes) {
+        List<AbstractRequestableNode> nodes = evaluateRequestConstraints(query);
+        for (AbstractRequestableNode node : nodes) {
             levels.add(node.getLevel());
         }
         return levels;
@@ -413,7 +429,7 @@ public class GridInventory extends AbstractInventory implements
      * @param query
      * @return
      */
-    public List<AbstractRequestableLevelNode> evaluateRequestConstraints(
+    public List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> query) {
         List<String> sourcesToProcess = getSourcesToProcess(query);
         List<String> paramsToProcess = getParametersToProcess(query);
@@ -421,14 +437,14 @@ public class GridInventory extends AbstractInventory implements
         if (!levelsToProcess.isEmpty() && !sourcesToProcess.isEmpty()
                 && !paramsToProcess.isEmpty()) {
             try {
-                List<AbstractRequestableLevelNode> nodes = walkTree(null,
+                List<AbstractRequestableNode> nodes = walkTree(null,
                         sourcesToProcess, paramsToProcess, levelsToProcess,
                         true, true, null);
                 try {
 
-                    for (AbstractRequestableLevelNode node : nodes) {
-                        if (node instanceof AbstractDerivedLevelNode) {
-                            updater.addNode((AbstractDerivedLevelNode) node);
+                    for (AbstractRequestableNode node : nodes) {
+                        if (node instanceof AbstractDerivedDataNode) {
+                            updater.addNode((AbstractDerivedDataNode) node);
                         }
                     }
                 } catch (VizException e) {
@@ -449,10 +465,10 @@ public class GridInventory extends AbstractInventory implements
             }
         }
 
-        return new ArrayList<AbstractRequestableLevelNode>(0);
+        return new ArrayList<AbstractRequestableNode>(0);
     }
 
-    public List<Integer> getPerts(Map<String, RequestConstraint> query)
+    public List<String> getEnsembles(Map<String, RequestConstraint> query)
             throws VizException {
         RequestConstraint nameRC = query.get(MODEL_NAME_QUERY);
         if (nameRC == null) {
@@ -476,44 +492,47 @@ public class GridInventory extends AbstractInventory implements
                 return Collections.emptyList();
             }
         }
-        Set<Integer> perts = new HashSet<Integer>();
-        for (AbstractRequestableLevelNode node : evaluateRequestConstraints(query)) {
-            perts.addAll(getPerts(node));
+        Set<String> ensembles = new HashSet<String>();
+        for (AbstractRequestableNode node : evaluateRequestConstraints(query)) {
+            ensembles.addAll(getEnsembles(node));
         }
-        return new ArrayList<Integer>(perts);
+        return new ArrayList<String>(ensembles);
 
     }
 
-    protected static List<Integer> getPerts(AbstractRequestableLevelNode node)
+    protected static List<String> getEnsembles(AbstractRequestableNode node)
             throws VizException {
-        if (node instanceof GribRequestableLevelNode) {
-            GribRequestableLevelNode gNode = (GribRequestableLevelNode) node;
-            if (gNode.getPerts() != null) {
-                return gNode.getPerts();
+
+        if (node instanceof GridRequestableNode) {
+            GridRequestableNode gNode = (GridRequestableNode) node;
+            if (gNode.getEnsembles() != null) {
+                return gNode.getEnsembles();
             }
             Map<String, RequestConstraint> rcMap = gNode
                     .getRequestConstraintMap();
-            DbQuery dbQuery = new DbQuery("grib");
-            dbQuery.setDistinctField(PERT_QUERY);
+            DbQuery dbQuery = new DbQuery(PLUGIN_NAME);
+            dbQuery.setDistinctField(ENSEMBLE_QUERY);
             for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
                 dbQuery.addConstraint(entry.getKey(), entry.getValue());
             }
-            List<Integer> perts = new ArrayList<Integer>();
-            for (Object[] pert : dbQuery.performQuery()) {
-                perts.add((Integer) pert[0]);
+            List<String> ensembles = new ArrayList<String>();
+            for (Object[] ensemble : dbQuery.performQuery()) {
+                ensembles.add((String) ensemble[0]);
             }
-            gNode.setPerts(perts);
-            return perts;
+            gNode.setEnsembles(ensembles);
+            return ensembles;
         } else if (node instanceof GatherLevelNode) {
             return Collections.emptyList();
-        } else {
-            Set<Integer> perts = new HashSet<Integer>();
+        } else if (node instanceof AbstractDerivedDataNode) {
+            AbstractDerivedDataNode dataNode = (AbstractDerivedDataNode) node;
+            Set<String> ensembles = new HashSet<String>();
 
-            for (Dependency dep : node.getDependencies()) {
-                perts.addAll(getPerts(dep.node));
+            for (Dependency dep : dataNode.getDependencies()) {
+                ensembles.addAll(getEnsembles(dep.node));
             }
-            return new ArrayList<Integer>(perts);
+            return new ArrayList<String>(ensembles);
         }
+        return Collections.emptyList();
     }
 
     /**
@@ -607,7 +626,7 @@ public class GridInventory extends AbstractInventory implements
     }
 
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
+    protected AbstractDerivedDataNode getImportNode(
             AbstractRequestableData nodeToImport, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         AbstractRequestableData data = new ImportRequestableData(nodeToImport,
@@ -622,8 +641,8 @@ public class GridInventory extends AbstractInventory implements
     }
 
     @Override
-    protected AbstractDerivedLevelNode getImportNode(
-            AbstractRequestableLevelNode nodeToImport,
+    protected AbstractDerivedDataNode getImportNode(
+            AbstractRequestableNode nodeToImport,
             String nodeToImportSourceName, SourceNode destSourceNode,
             DerivParamDesc desc, DerivParamMethod method, Level level) {
         return new ImportLevelNode(nodeToImport, nodeToImportSourceName, desc,
@@ -655,26 +674,20 @@ public class GridInventory extends AbstractInventory implements
         String masterLevelName = get3DMasterLevel(sNode.getValue());
         boolean isRadar = sNode.getValue().equals(RadarAdapter.RADAR_SOURCE);
 
-        NavigableSet<Level> levels = null;
-        try {
-            levels = LevelUtilities
-                    .getOrderedSetOfStandardLevels(masterLevelName);
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return null;
-        }
-        List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>>(
+        NavigableSet<Level> levels = LevelUtilities
+                .getOrderedSetOfStandardLevels(masterLevelName);
+        List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>>(
                 levels.size());
 
         for (Level fieldLevel : levels) {
-            AbstractRequestableLevelNode pressure = resolveNode(sNode, "P",
+            AbstractRequestableNode pressure = resolveNode(sNode, "P",
                     fieldLevel, stack, nodata);
             if (pressure != null) {
-                AbstractRequestableLevelNode param = resolveNode(sNode,
+                AbstractRequestableNode param = resolveNode(sNode,
                         field.getParam(), fieldLevel, stack, nodata);
 
                 if (param != null) {
-                    CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode> cl = new CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>(
+                    CubeLevel<AbstractRequestableNode, AbstractRequestableNode> cl = new CubeLevel<AbstractRequestableNode, AbstractRequestableNode>(
                             pressure, param);
                     cubeLevels.add(cl);
                 }
@@ -703,32 +716,31 @@ public class GridInventory extends AbstractInventory implements
             DerivParamField field, Level level) {
         String fieldParamAbbrev = field.getParam();
         if (StaticGridDataType.getStringValues().contains(fieldParamAbbrev)) {
-            StaticGridDataType staticGridDataType = StaticGridDataType
-                    .valueOf(fieldParamAbbrev);
-            return new StaticGridRequestableData(staticGridDataType,
-                    sNode.getValue());
+            return new StaticGridDataLevelNode(sNode.getValue(),
+                    fieldParamAbbrev);
         }
         // Check to see if we can set the field from the
         // masterlevel name
         if (level.getMasterLevel().getName().equals(fieldParamAbbrev)) {
             if ("TILT".equals(fieldParamAbbrev)) {
-                return new TiltRequestableData(sNode.getValue(), level);
+                return new StaticGridDataLevelNode(sNode.getValue(),
+                        fieldParamAbbrev, level);
             }
         }
         return null;
     }
 
-    protected AbstractDerivedLevelNode createDerivedNode(DerivParamDesc desc,
+    protected AbstractDerivedDataNode createDerivedNode(DerivParamDesc desc,
             DerivParamMethod method, Level level, List<Object> fields,
             SourceNode source) {
         if (method.getMethodType() == MethodType.OTHER
                 && method.getName().equalsIgnoreCase("Gather")) {
-            AbstractRequestableLevelNode lNode = (AbstractRequestableLevelNode) fields
+            AbstractRequestableNode lNode = (AbstractRequestableNode) fields
                     .get(0);
 
             try {
                 if (modelsWithPerts.contains(source.getValue())
-                        && getPerts(lNode).size() > 1) {
+                        && getEnsembles(lNode).size() > 1) {
                     return new GatherLevelNode(lNode, desc, method,
                             source.getValue(), level);
                 }

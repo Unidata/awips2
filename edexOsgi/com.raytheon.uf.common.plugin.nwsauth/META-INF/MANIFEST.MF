@@ -5,8 +5,13 @@ Bundle-SymbolicName: com.raytheon.uf.common.plugin.nwsauth
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Eclipse-BuddyPolicy: registered, ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.auth.user
-Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.2"
-Export-Package: com.raytheon.uf.common.plugin.nwsauth.user
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.2",
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"
+Export-Package: com.raytheon.uf.common.plugin.nwsauth,
+ com.raytheon.uf.common.plugin.nwsauth.exception,
+ com.raytheon.uf.common.plugin.nwsauth.user,
+ com.raytheon.uf.common.plugin.nwsauth.xml
+Import-Package: com.raytheon.uf.common.plugin.nwsauth.exception

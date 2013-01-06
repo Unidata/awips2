@@ -23,7 +23,7 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -35,38 +35,38 @@ import com.raytheon.viz.hydrocommon.constants.FFGConstants.ResolutionLevel;
  * FFG Resource Data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009 2256       mpduff     Initial creation.  Moved here
  *                                    for additional functionality.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
-@XmlType(name="ffgGridResourceData")
+@XmlType(name = "ffgGridResourceData")
 public class FFGGridResourceData extends AbstractResourceData {
 
     private int duration;
-    
-    private GribRecord gribRecord;
-    
+
+    private GridRecord gridRecord;
+
     private ResolutionLevel resolution;
-    
+
     private Date dataDate;
-    
+
     public FFGGridResourceData() {
-        
+
     }
-    
-    public FFGGridResourceData(int duration, GribRecord gr, 
+
+    public FFGGridResourceData(int duration, GridRecord gr,
             ResolutionLevel resolution, Date dataDate) {
         this.setDuration(duration);
-        this.setGribRecord(gr);
+        this.setGridRecord(gr);
         this.setResolution(resolution);
         this.setDataDate(dataDate);
     }
@@ -88,7 +88,7 @@ public class FFGGridResourceData extends AbstractResourceData {
     @Override
     public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        
+
         return new FFGGridResource(this, loadProperties);
     }
 
@@ -98,7 +98,7 @@ public class FFGGridResourceData extends AbstractResourceData {
     @Override
     public void update(Object updateData) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /**
@@ -118,15 +118,15 @@ public class FFGGridResourceData extends AbstractResourceData {
     /**
      * @param gribRecord the gribRecord to set
      */
-    public void setGribRecord(GribRecord gribRecord) {
-        this.gribRecord = gribRecord;
+    public void setGridRecord(GridRecord gridRecord) {
+        this.gridRecord = gridRecord;
     }
 
     /**
      * @return the gribRecord
      */
-    public GribRecord getGribRecord() {
-        return gribRecord;
+    public GridRecord getGridRecord() {
+        return gridRecord;
     }
 
     /**
@@ -142,7 +142,7 @@ public class FFGGridResourceData extends AbstractResourceData {
     public ResolutionLevel getResolution() {
         return resolution;
     }
-    
+
     /**
      * @param dataDate the dataDate to set
      */

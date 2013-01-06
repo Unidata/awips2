@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="grib">
+	<alias base="WGH">5WAVH</alias>
+	<alias base="AV">ABSV</alias>
+	<alias base="CRAIN">CRAIN</alias>
+	<alias base="CFRZR">CFRZR</alias>
+	<alias base="CICEP">CICEP</alias>
+	<alias base="CSNOW">CSNOW</alias>
+	<alias base="CWAT">CWAT</alias>
+	<alias base="CAPE">CAPE</alias>
+	<alias base="CIn">CIN</alias>
+	<alias base="CDCON">CDCON</alias>
+	<alias base="CP">ACPCP</alias>
+	<alias base="CPRAT">CPRAT</alias>
+	<alias base="DpT">DPT</alias>
+	<alias base="DpD">DEPR</alias>
+	<alias base="WVDIR">WVDIR</alias>
+	<alias base="SWDIR">SWDIR</alias>
+	<alias base="EPT">EPOT</alias>
+	<alias base="EVP">EVP</alias>
+	<alias base="GH">HGT</alias>
+	<alias base="GeH">DIST</alias>
+	<alias base="HIdx">HTX</alias>
+	<alias base="HCDC">HCDC</alias>
+	<alias base="ICETK">ICETK</alias>
+	<alias base="MIXR">MIXR</alias>
+	<alias base="LAPR">LAPR</alias>
+	<alias base="LCDC">LCDC</alias>
+	<alias base="LgSP">NCPCP</alias>
+	<alias base="LHF">LHTFL</alias>
+	<alias base="MnT">TMIN</alias>
+	<alias base="WVPER">WVPER</alias>
+	<alias base="SWPER">SWPER</alias>
+	<alias base="MCDC">MCDC</alias>
+	<alias base="TMAX">TMXK</alias>
+	<alias base="PLI">PLI</alias>
+	<alias base="P">PRES</alias>
+	<alias base="PMSL">PRMSL</alias>
+	<alias base="EMSP">MSLET</alias>
+	<alias base="MMSP">MSLPM</alias>
+	<alias base="PoT">POT</alias>
+	<alias base="PR">PRATE</alias>
+	<alias base="PRESA">PRESA</alias>
+	<alias base="DIRPW">DIRPW</alias>
+	<alias base="PERPW">PERPW</alias>
+	<alias base="CPOFP">CPOFP</alias>
+	<alias base="CPOZP">CPOZP</alias>
+	<alias base="PVORT">PV</alias>
+	<alias base="PEVAP">PEVAP</alias>
+	<alias base="PEVPR">PEVPR</alias>
+	<alias base="PW">PWAT</alias>
+	<alias base="RH">RH</alias>
+	<alias base="SATD">SATD</alias>
+	<alias base="DIRSW">DIRSW</alias>
+	<alias base="PERSW">PERSW</alias>
+	<alias base="SWELL">SWELL</alias>
+	<alias base="WVHGT">WVHGT</alias>
+	<alias base="SCP">SNOWC</alias>
+	<alias base="SnD">SNOD</alias>
+	<alias base="SH">SPFH</alias>
+	<alias base="SHF">SHTFL</alias>
+	<alias base="TSOIL">TSOIL</alias>
+	<alias base="Heli">HLCY</alias>
+	<alias base="SLI">SLI</alias>
+	<alias base="T">TMP</alias>
+	<alias base="Ta">TMPA</alias>
+	<alias base="ThP">TSTM</alias>
+	<alias base="TCC">TCDC</alias>
+	<alias base="TP">APCP</alias>
+	<alias base="USTM">USTM</alias>
+	<alias base="VSTM">VSTM</alias>
+	<alias base="uW">UGRD</alias>
+	<alias base="vW">VGRD</alias>
+	<alias base="VAPP">VAPP</alias>
+	<alias base="VWSH">VWSH</alias>
+	<alias base="PVV">VVEL</alias>
+	<alias base="Vis">VIS</alias>
+	<alias base="VPT">VPTMP</alias>
+	<alias base="VTMP">VTMP</alias>
+	<alias base="WEASD">WEASD</alias>
+	<alias base="WMIXE">WMIXE</alias>
+	<alias base="WD">WDIR</alias>
+	<alias base="WS">WIND</alias>
+	<alias base="WGS">WGS</alias>
+</aliasList>

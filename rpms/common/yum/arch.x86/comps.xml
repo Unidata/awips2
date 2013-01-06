@@ -36,6 +36,7 @@
          <packagereq type="default">awips2-edex-configuration</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
+         <packagereq type="default">awips2-edex-datadelivery</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
 
          <packagereq type="default">awips2-httpd-pypies</packagereq>
@@ -129,6 +130,8 @@
          <packagereq type="default">awips2-cave-viz-npp</packagereq>
          <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
          <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
+         <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
+         <packagereq type="default">awips2-cave-viz-datadelivery</packagereq>
          <packagereq type="default">awips2-gfesuite-client</packagereq>
 
          <packagereq type="default">awips2-alertviz</packagereq>
@@ -193,6 +196,7 @@
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
+         <packagereq type="default">awips2-edex-datadelivery</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
 
          <packagereq type="default">awips2-hydroapps-shared</packagereq>
@@ -467,6 +471,8 @@
 		 <packagereq type="default">awips2-cave-viz-npp</packagereq>
                  <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
 		 <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
+		 <packagereq type="default">awips2-cave-viz-kml-export</packagereq>
+		 <packagereq type="default">awips2-cave-viz-datadelivery</packagereq>
 		 <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>

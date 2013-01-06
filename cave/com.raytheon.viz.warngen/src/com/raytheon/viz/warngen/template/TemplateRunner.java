@@ -921,7 +921,10 @@ public class TemplateRunner {
                 System.out.println("getWatches.createWatchGeometry time: "
                         + (t1 - t0));
 
+                t0 = System.currentTimeMillis();
                 rval = processATEntries(activeTable, warngenLayer);
+                System.out.println("getWatches.createPoritions time: "
+                        + (t1 - t0));
             }
         }
 
@@ -1004,10 +1007,6 @@ public class TemplateRunner {
             if (!ar.getGeometry().isEmpty())
                 work.valid = true;
 
-            /* TODO: Currently adding all zones to the list even if they
-             * are not in the CWA.  Validation is currently done in
-             * determineAffectedPortions to avoid redundant work.
-             */
             work.ugcZone.add(ar.getUgcZone()); 
         }
 
@@ -1018,7 +1017,7 @@ public class TemplateRunner {
              */
             if (!work.valid)
                 continue;
-            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw))
+            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw));
                 rval.addWaw(work.waw);
         }
 
@@ -1027,8 +1026,7 @@ public class TemplateRunner {
 
     /**
      * Given the list of counties in a watch, fill out the "portions" part of
-     * the given WeatherAdvisoryWatch.  Also checks if the given counties are
-     * actually in the CWA.
+     * the given WeatherAdvisoryWatch
      * 
      * @param ugcs
      * @param asc
@@ -1043,36 +1041,25 @@ public class TemplateRunner {
         HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
         for (String ugc : ugcs) {
-            Map<String, String[]> parsed = FipsUtil.parseCountyHeader(ugc);
-            Entry<String, String[]> e = null;
-
-            // Either zero or more than one sates/counties would be wrong
-            if (parsed.size() != 1
-                    || (e = parsed.entrySet().iterator().next()).getValue().length != 1) {
-                statusHandler.handle(Priority.ERROR,
-                        "Invalid ugczone in active table entry: " + ugc);
-                continue;
+            for (Entry<String, String[]> e : FipsUtil.parseCountyHeader(ugc).entrySet()) {
+                String stateAbbrev = e.getKey();
+                if (e.getValue().length != 1) // either zero or more than one
+                                              // would be wrong
+                    statusHandler.handle(Priority.ERROR,
+                            "Invalid ugczone in active table entry");
+                Set<String> feAreas = map.get(stateAbbrev);
+                if (feAreas == null) {
+                    feAreas = new HashSet<String>();
+                    map.put(stateAbbrev, feAreas);
+                }
+                try {
+                    feAreas.add(getFeArea(stateAbbrev, e.getValue()[0], asc,
+                            geoData));
+                } catch (RuntimeException exc) {
+                    statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
+                    return false;
+                }
             }
-
-            String stateAbbrev = e.getKey();
-            String feArea = null;
-            try {
-                feArea = getFeArea(stateAbbrev, e.getValue()[0], asc,
-                        geoData);
-            } catch (RuntimeException exc) {
-                statusHandler.handle(Priority.ERROR, "Error generating included watches.", exc);
-                return false;
-            }
-            if (feArea == NOT_IN_CWA)
-                continue;
-            
-            Set<String> feAreas = map.get(stateAbbrev);
-            if (feAreas == null) {
-                feAreas = new HashSet<String>();
-                map.put(stateAbbrev, feAreas);
-            }
-            if (feArea != null)
-                feAreas.add(feArea);
         }
 
         ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
@@ -1087,6 +1074,8 @@ public class TemplateRunner {
             }
             portion.partOfParentRegion = Area
                     .converFeAreaToPartList(mungeFeAreas(e.getValue()));
+            System.out.format("Munged %s to %s (%s)\n", e.getValue(),
+                    mungeFeAreas(e.getValue()), portion.partOfParentRegion);
             portions.add(portion);
         }
         waw.setPortions(portions);
@@ -1207,17 +1196,7 @@ public class TemplateRunner {
         }
         return null;
     }
-    
-    private static String NOT_IN_CWA = new String("NOT_IN_CWA");
 
-    /** Determines if the given UGC is in the CWA and if it is, returns
-     * the portion of the CWA.
-     * @param stateAbbrev
-     * @param ugc
-     * @param asc
-     * @param geoData
-     * @return
-     */
     private static String getFeArea(String stateAbbrev, String ugc,
             AreaSourceConfiguration asc, GeospatialData[] geoData) {
         for (GeospatialData g : geoData) {
@@ -1227,8 +1206,7 @@ public class TemplateRunner {
                 return (String) g.attributes.get(asc.getFeAreaField());
         }
 
-        // TODO: Is this the correct way to determine if the county is in the CWA?
-        return NOT_IN_CWA;
+        return null;
     }
 
 }

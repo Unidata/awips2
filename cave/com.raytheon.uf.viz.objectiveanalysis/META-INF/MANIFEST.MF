@@ -28,9 +28,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
 Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataplugin.grib.spatial.projections,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.gridcoverage,
  com.raytheon.uf.viz.derivparam.library,
  com.raytheon.uf.viz.derivparam.tree,
  com.raytheon.viz.ui,

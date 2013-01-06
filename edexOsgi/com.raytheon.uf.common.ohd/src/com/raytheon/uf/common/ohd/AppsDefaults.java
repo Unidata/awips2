@@ -64,7 +64,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2008            randerso     Initial creation
- * Apr  1, 2009			   jelkins      added getTokens
+ * Apr  1, 2009            jelkins      added getTokens
+ * Oct 19, 2012            bgonzale     App Context variable setup and token access.
  * </pre>
  * 
  * @author randerso
@@ -111,6 +112,8 @@ public class AppsDefaults {
     private Map<String, String> baseMap;
 
     private static final Object LOCK = new Object();
+
+    private static final String APP_CONTEXT = "APP_CONTEXT";
 
     static {
         _trueSet.add("true");
@@ -871,6 +874,120 @@ public class AppsDefaults {
         System.out.println("tokenName = " + tokenName + " tokenValue = "
                 + tokenValue);
 
+    }
+
+    /**
+     * <pre>
+     * Set context using the callingContext in the APP_CONTEXT variable.
+     *    if a token for the context is defined and is ON 
+     *       then log run and return true.
+     * 
+     * If the token is defined and is OFF
+     *    then log not run and return false.
+     * </pre>
+     * 
+     * Used by java directly initiated by a cron.
+     * 
+     * @param callingContext
+     *            calling context for the application.
+     * @return true if context is ON; false otherwise.
+     */
+    public boolean setAppContext(Object callingContext) {
+        String contextVar = setAppContextVar(callingContext, false);
+        boolean isOn = getBoolean(contextVar, true);
+
+        if (logger.isWarnEnabled()) {
+            StringBuilder sb = new StringBuilder(
+                    "App Execution Token for App Context ");
+            sb.append(contextVar);
+            sb.append(" is ");
+            sb.append(isOn);
+            logger.warn(sb.toString());
+        }
+
+        return isOn;
+    }
+
+    /**
+     * <pre>
+     * If no token is defined for the expected app context
+     *    or if the token is defined and is ON 
+     *       then log run and return true.
+     * 
+     * If the token is defined and is OFF
+     *    then log not run and return false.
+     * </pre>
+     * 
+     * Used by java that was not directly initiated by a cron.
+     * 
+     * @param callingContext
+     *            calling context for the application.
+     * @return true if context is ON; false otherwise.
+     */
+    public boolean checkAppContext(Object callingContext) {
+        String contextVar = setAppContextVar(callingContext, true);
+        boolean isOn = getBoolean(contextVar, true);
+
+        if (logger.isWarnEnabled()) {
+            StringBuilder sb = new StringBuilder(
+                    "App Execution Token for App Context ");
+            sb.append(contextVar);
+            sb.append(" is ");
+            sb.append(isOn);
+            logger.warn(sb.toString());
+        }
+
+        return isOn;
+    }
+
+    /**
+     * Set and return the APP_CONTEXT variable.
+     * 
+     * <pre>
+     * Example:
+     *    APP_CONTEXT for class C called by class B 
+     *    which was called by class A:
+     *       ClassA___ClassB___ClassC
+     * </pre>
+     * 
+     * @param callingContext
+     * @param useParentContext
+     * @return context name
+     */
+    private String setAppContextVar(Object callingContext,
+            boolean useParentContext) {
+        String context = callingContext.getClass().getSimpleName();
+        if (useParentContext) {
+            String existingContext = System.getProperty(APP_CONTEXT, context);
+            // Check if this context is a part of the existing context
+            if (!existingContext.endsWith(context)) {
+                StringBuilder sb = new StringBuilder(existingContext);
+                context = sb.append(".").append(context).toString();
+            } else {
+                context = existingContext;
+            }
+        }
+        System.setProperty(APP_CONTEXT, context);
+        return context;
+    }
+
+    /**
+     * Set the APP_CONTEXT variable in the processBuilder environment.
+     * 
+     * <pre>
+     * Example:
+     *    APP_CONTEXT for class C called by class B 
+     *    which was called by class A:
+     *       ClassA___ClassB___ClassC
+     * </pre>
+     * 
+     * @param processBuilder
+     */
+    public void setAppContext(ProcessBuilder processBuilder) {
+        String appContextVar = System.getProperty(APP_CONTEXT);
+        if (appContextVar != null) {
+            processBuilder.environment().put(APP_CONTEXT, appContextVar);
+        }
     }
 
 } // end class AppsDefaults
