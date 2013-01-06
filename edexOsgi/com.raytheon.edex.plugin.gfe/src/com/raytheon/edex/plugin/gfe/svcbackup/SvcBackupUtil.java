@@ -56,7 +56,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Oct 09, 2009            bphillip    Initial creation
  * Sep 19, 2011 10955      rferrel     make sure process destroy is called.
  * Jun 12, 2012 00609      djohnson    Use EDEXUtil for EDEX_HOME.
- * 
+ * Nov 15,2012  15614 	   jdynina     Added check for national center 
+ *
  * </pre>
  * 
  * @author bphillip
@@ -263,4 +264,13 @@ IUser user,
                 + roleId);
     }
 
+    
+    public static boolean ncCheck() {
+    	String nationalCenter = SvcBackupUtil.getSvcBackupProperties()
+    			.getProperty("NATIONAL_CENTER");
+    	if (nationalCenter.equals("1")) {
+    		return true;
+    	}
+    	return false;
+    }
 }
