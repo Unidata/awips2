@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="tmp2m" GrADs="tmp2m"/>
+    <parameterConfig AWIPS="P" GrADs="pressfc"/>
+    <parameterConfig AWIPS="tmpmin2m" GrADs="tmpmin2m"/>
+    <parameterConfig AWIPS="PMSL" GrADs="prmslmsl"/>
+    <parameterConfig AWIPS="SnD" GrADs="snodsfc"/>
+    <parameterConfig AWIPS="tcdcl200" GrADs="tcdcl200"/>
+    <parameterConfig AWIPS="ugrd10m" GrADs="ugrd10m"/>
+    <parameterConfig AWIPS="PW" GrADs="pwatsfc"/>
+    <parameterConfig AWIPS="T" GrADs="tmpprs"/>
+    <parameterConfig AWIPS="tmpmax2m" GrADs="tmpmax2m"/>
+    <parameterConfig AWIPS="uW" GrADs="ugrdprs"/>
+    <parameterConfig AWIPS="lhtflsfc" GrADs="lhtflsfc"/>
+    <parameterConfig AWIPS="GH" GrADs="hgtprs"/>
+    <parameterConfig AWIPS="vvel850mb" GrADs="vvel850mb"/>
+    <parameterConfig AWIPS="vgrd10m" GrADs="vgrd10m"/>
+    <parameterConfig AWIPS="shtflsfc" GrADs="shtflsfc"/>
+    <parameterConfig AWIPS="rh2m" GrADs="rh2m"/>
+    <parameterConfig AWIPS="vW" GrADs="vgrdprs"/>
+    <parameterConfig AWIPS="TP" GrADs="apcpsfc"/>
+    <parameterConfig AWIPS="CAPE" GrADs="capesfc"/>
+    <parameterConfig AWIPS="CIn" GrADs="cinsfc"/>
+    <parameterConfig AWIPS="RH" GrADs="rhprs"/>
+</ParameterLookup>
