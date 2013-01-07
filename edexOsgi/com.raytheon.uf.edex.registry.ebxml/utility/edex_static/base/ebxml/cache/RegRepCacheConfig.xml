@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO Replace with specific ehcache.xml not in localization, since not loaded via localization -->
+<jbosscache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="urn:jboss:jbosscache-core:config:3.2">
+
+	<!-- By not specifying the 'clustering' element, the cache runs in LOCAL 
+		mode. -->
+	<!-- Configure the TransactionManager -->
+	<transaction
+		transactionManagerLookupClass="org.jboss.cache.transaction.GenericTransactionManagerLookup" />
+
+	<!-- Eviction configuration. WakeupInterval defines how often the eviction 
+		thread runs, in milliseconds. 0 means the eviction thread will never run. -->
+	<eviction wakeUpInterval="15000">
+		<default algorithmClass="org.jboss.cache.eviction.LRUAlgorithm"
+			eventQueueSize="50000">
+			<property name="maxNodes" value="1000" />
+			<property name="timeToLive" value="-1" />
+		</default>
+	</eviction>
+</jbosscache> 

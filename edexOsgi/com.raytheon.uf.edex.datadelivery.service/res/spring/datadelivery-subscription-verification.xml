@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <bean id="verificationStrategy"
+        class="com.raytheon.uf.edex.datadelivery.service.verify.BaseSubscriptionVerifier" />
+
+    <bean id="logOnSubscriptionVerificationSuccess"
+        class="com.raytheon.uf.edex.datadelivery.service.verify.LogSuccessfulVerification">
+        <constructor-arg value="${subscription.verify.success.log.priority}" />
+    </bean>
+
+    <bean id="notifyOnSubscriptionVerificationFailure"
+        class="com.raytheon.uf.edex.datadelivery.service.verify.NotifyFailedVerification" />
+
+    <bean id="markSubscriptionInvalid"
+        class="com.raytheon.uf.edex.datadelivery.service.verify.MarkFailedVerificationSubscriptionsAsInvalid" />
+
+    <bean id="subscriptionIntegrityVerifier"
+        class="com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVerifier"
+        factory-method="newInstance">
+        <constructor-arg ref="verificationStrategy" />
+        <constructor-arg>
+            <list>
+                <ref bean="logOnSubscriptionVerificationSuccess" />
+            </list>
+        </constructor-arg>
+        <constructor-arg>
+            <list>
+                <ref bean="notifyOnSubscriptionVerificationFailure" />
+                <ref bean="markSubscriptionInvalid" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>

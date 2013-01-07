@@ -1,0 +1,113 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+        Copyright (c) OASIS Open 2002-2011. All Rights Reserved.
+
+	All capitalized terms in the following text have the meanings assigned to them
+   	in the OASIS Intellectual Property Rights Policy (the "OASIS IPR Policy"). The
+	full Policy may be found at the OASIS website.
+
+	This document and translations of it may be copied and furnished to others, and
+	derivative works that comment on or otherwise explain it or assist in its
+	implementation may be prepared, copied, published, and distributed, in whole or
+	in part, without restriction of any kind, provided that the above copyright
+	notice and this section are included on all such copies and derivative works.
+	However, this document itself may not be modified in any way, including by
+	removing the copyright notice or references to OASIS, except as needed for the
+	purpose of developing any document or deliverable produced by an OASIS
+	Technical Committee (in which case the rules applicable to copyrights, as set
+	forth in the OASIS IPR Policy, must be followed) or as required to translate it
+	into languages other than English.
+
+	The limited permissions granted above are perpetual and will not be revoked by
+	OASIS or its successors or assigns.
+
+	This document and the information contained herein is provided on an "AS IS"
+	basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+	LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+	INFRINGE ANY OWNERSHIP RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR
+	FITNESS FOR A PARTICULAR PURPOSE.
+-->
+<definitions name="regrep-server-interface" 
+  targetNamespace="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" 
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+  xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" 
+  xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:tns="urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl"
+  >
+  <documentation>
+    $Header:$
+    Author: Matt MacKenzie, Farrukh Najmi
+    
+    This is the the normative abstract interface definition in WSDL for the OASIS ebXML Registry services.
+    This WSDL file defines the messages and portTypes needed to communicate with a compliant
+    ebXML Registry.
+  </documentation>
+  <types>
+    <xsd:schema>
+      <!-- Import the rs.xsd, lcm.xsd and query.xsd. -->
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" schemaLocation="../../xsd/rs.xsd"/>
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" schemaLocation="../../xsd/lcm.xsd"/>
+      <xsd:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" schemaLocation="../../xsd/query.xsd"/>                
+    </xsd:schema>
+  </types>
+    <!-- The Response message definition. -->
+  <message name="msgRegistryResponse">
+    <documentation>Defines a RegistryResponse message.</documentation>
+    <part element="rs:RegistryResponse" name="partRegistryResponse"/>
+  </message>
+  <message name="msgSubmitObjectsRequest">
+    <part element="lcm:SubmitObjectsRequest" name="partSubmitObjectsRequest"/>
+  </message>
+  <message name="msgUpdateObjectsRequest">
+    <part element="lcm:UpdateObjectsRequest" name="partUpdateObjectsRequest"/>
+  </message>
+  <message name="msgRemoveObjectsRequest">
+    <part element="lcm:RemoveObjectsRequest" name="partRemoveObjectsRequest"/>
+  </message>
+  <message name="msgQueryRequest">
+    <part element="query:QueryRequest" name="partQueryRequest"/>
+  </message>
+  <message name="msgQueryResponse">
+    <part element="query:QueryResponse" name="partQueryResponse"/>
+  </message>
+  <message name="msgRegistryException">
+    <part element="rs:RegistryException" name="fault"/>
+  </message>
+  
+  <portType name="QueryManager">
+    <documentation>
+      The portType for QueryManager abstract interface.
+    </documentation>
+    <operation name="executeQuery">
+      <input message="tns:msgQueryRequest"/>
+      <output message="tns:msgQueryResponse"/>
+      <fault name="registryException" message="tns:msgRegistryException"/>
+    </operation>
+  </portType>
+  <portType name="LifecycleManager">
+    <documentation>
+      The portType for LifecycleManager abstract interface.
+    </documentation>
+    <operation name="removeObjects">
+      <input message="tns:msgRemoveObjectsRequest"/>
+      <output message="tns:msgRegistryResponse"/>
+      <fault name="registryException" message="tns:msgRegistryException"/>
+    </operation>
+    <operation name="submitObjects">
+      <input message="tns:msgSubmitObjectsRequest"/>
+      <output message="tns:msgRegistryResponse"/>
+      <fault name="registryException" message="tns:msgRegistryException"/>
+    </operation>
+    <operation name="updateObjects">
+      <input message="tns:msgUpdateObjectsRequest"/>
+      <output message="tns:msgRegistryResponse"/>
+      <fault name="registryException" message="tns:msgRegistryException"/>
+    </operation>
+  </portType>
+</definitions>
