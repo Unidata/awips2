@@ -1,0 +1,56 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="queryTypeManager"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryTypeManager">
+		<property name="queryList">
+			<list>
+				<ref bean="basicQuery"/>
+				<ref bean="adhocQuery"/>
+				<ref bean="classificationSchemeSelector"/>
+				<ref bean="exportObject"/>
+				<ref bean="extrinsicObjectQuery"/>
+				<ref bean="findAllMyObjects"/>
+				<ref bean="findAssociatedObjects"/>
+				<ref bean="findAssociations"/>
+				<ref bean="garbageCollector"/>
+				<ref bean="getAuditTrailById"/>
+				<ref bean="getAuditTrailByLid"/>
+				<ref bean="getAuditTrailByTimeInterval"/>
+				<ref bean="getChildrenByParentId"/>
+				<ref bean="getClassificationSchemesById"/>
+				<ref bean="getNotification"/>
+				<ref bean="getObjectById"/>
+				<ref bean="getObjectsByLid"/>
+				<ref bean="getRegistryPackagesByMemberId"/>
+				<ref bean="keywordSearch"/>
+				<ref bean="registryPackageSelector"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="basicQuery" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.BasicQuery"/>
+	<bean id="adhocQuery" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.AdhocQuery"/>
+	<bean id="classificationSchemeSelector" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.ClassificationSchemeSelector"/>
+	<bean id="exportObject" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.ExportObject"/>
+	<bean id="extrinsicObjectQuery" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.ExtrinsicObjectQuery"/>
+	<bean id="findAllMyObjects" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.FindAllMyObjects"/>
+	<bean id="findAssociatedObjects" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.FindAssociatedObjects"/>
+	<bean id="findAssociations" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.FindAssociations"/>
+	<bean id="garbageCollector" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GarbageCollector"/>
+	<bean id="getAuditTrailById" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetAuditTrailById"/>
+	<bean id="getAuditTrailByLid" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetAuditTrailByLid"/>
+	<bean id="getAuditTrailByTimeInterval" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetAuditTrailByTimeInterval"/>
+	<bean id="getChildrenByParentId" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetChildrenByParentId"/>
+	<bean id="getClassificationSchemesById" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetClassificationSchemesById"/>
+	<bean id="getNotification" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetNotification"/>
+	<bean id="getObjectById" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetObjectById"/>
+	<bean id="getObjectsByLid" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetObjectsByLid"/>
+	<bean id="getRegistryPackagesByMemberId" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.GetRegistryPackagesByMemberId"/>
+	<bean id="keywordSearch" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.KeywordSearch"/>
+	<bean id="registryPackageSelector" class="com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical.RegistryPackageSelector"/>
+
+
+</beans>
