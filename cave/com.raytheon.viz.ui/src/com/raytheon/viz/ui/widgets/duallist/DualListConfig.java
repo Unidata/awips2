@@ -23,23 +23,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-
 /**
- * Config file for DualList class.  Reused from Data Delivery.
+ * Config file for DualList class. Reused from Data Delivery.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 31, 2012            mpduff      Initial creation.
  * Aug 10, 2012  1002      mpduff      Added numeric flag for sorting.
- *
+ * Jan 07, 2013  1431      mpduff      Add case sensitive and exclude flags.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class DualListConfig {
@@ -78,19 +78,29 @@ public class DualListConfig {
      * Full list of available items.
      */
     private List<String> fullList = new ArrayList<String>();
-    
+
     /**
      * The list to include.
      */
     private HashSet<String> includeList = new HashSet<String>();
-    
+
     /**
      * The search field.
      */
     private String searchField = null;
-    
+
+    /**
+     * Case Sensitive search flag.
+     */
+    private boolean caseFlag = false;
+
+    /**
+     * Exclude search flag.
+     */
+    private boolean excludeFlag = false;
+
     private IMenuData menuData;
-    
+
     /** Flag for numeric data */
     private boolean numericData = false;
 
@@ -100,7 +110,7 @@ public class DualListConfig {
     public DualListConfig() {
 
     }
-    
+
     /**
      * Get the include list.
      * 
@@ -252,12 +262,11 @@ public class DualListConfig {
     public void setFullList(List<String> fullList) {
         this.fullList = fullList;
     }
-    
+
     /**
      * Get the search field text.
      * 
-     * @return the String
-     *            the search field text.
+     * @return the String the search field text.
      */
     public String getSearchField() {
         return searchField;
@@ -267,22 +276,23 @@ public class DualListConfig {
      * Set the search field text.
      * 
      * @param searchField
-     *              the search field text.
+     *            the search field text.
      */
     public void setSearchField(String searchField) {
         this.searchField = searchField;
     }
-    
+
     public IMenuData getMenuData() {
         return menuData;
     }
-    
+
     public void setMenuData(IMenuData menuData) {
         this.menuData = menuData;
     }
 
     /**
-     * @param numericData the numericData to set
+     * @param numericData
+     *            the numericData to set
      */
     public void setNumericData(boolean numericData) {
         this.numericData = numericData;
@@ -293,5 +303,35 @@ public class DualListConfig {
      */
     public boolean isNumericData() {
         return numericData;
+    }
+
+    /**
+     * @return the caseFlag
+     */
+    public boolean isCaseFlag() {
+        return caseFlag;
+    }
+
+    /**
+     * @return the excludeFlag
+     */
+    public boolean isExcludeFlag() {
+        return excludeFlag;
+    }
+
+    /**
+     * @param caseFlag
+     *            the caseFlag to set
+     */
+    public void setCaseFlag(boolean caseFlag) {
+        this.caseFlag = caseFlag;
+    }
+
+    /**
+     * @param excludeFlag
+     *            the excludeFlag to set
+     */
+    public void setExcludeFlag(boolean excludeFlag) {
+        this.excludeFlag = excludeFlag;
     }
 }
