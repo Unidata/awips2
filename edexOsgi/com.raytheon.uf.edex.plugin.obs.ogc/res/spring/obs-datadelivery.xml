@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	
+	<bean id="metarLayerPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="metarLayer" />
+	</bean>
+
+	<bean id="metarLayerProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="metarLayerPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.edex.plugin.obs.ogc" />
+		<property name="record" value="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayer" />
+	</bean>
+
+    <bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="metarLayerPluginName"/>
+		<constructor-arg ref="metarLayerProperties"/>
+	</bean>
+	
+	<bean id="metarWfsSource" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarWfsSource">
+		<constructor-arg ref="obsProperties" />
+	</bean>
+
+	<bean factory-bean="wfsRegistry" factory-method="register">
+		<constructor-arg ref="metarWfsSource" />
+	</bean> 
+		
+	<bean id="metarWmsSource" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarWmsSource" >
+		<constructor-arg ref="obsProperties" />
+		<constructor-arg ref="metarLayerTransformer"/>
+	</bean>
+	
+	<bean id="metarLayerTransformer" class="com.raytheon.uf.edex.ogc.common.db.LayerTransformer" >
+  		<constructor-arg value="metar" />
+  		<constructor-arg value="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayer" />
+  	</bean>
+
+</beans>
