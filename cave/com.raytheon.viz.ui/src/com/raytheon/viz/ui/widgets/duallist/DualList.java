@@ -42,11 +42,11 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
 
 /**
  * SWT Dual List Widget.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2012            mpduff      Initial creation
@@ -54,9 +54,10 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
  * Aug 08, 2012    863     jpiatt      Added checks for selection changes.
  * Aug 10, 2012   1002     mpduff      Fixed sorting of numeric data on move left.
  * Sep 07, 2012    684     mpduff      Deselect selection prior to selecting new items.
- *
+ * Dec 17, 2012   1431     mpduff      Fix filter problem when deselecting items.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -145,7 +146,7 @@ public class DualList extends Composite {
 
     /**
      * Constructor
-     *
+     * 
      * @param parent
      *            Parent container
      * @param style
@@ -159,7 +160,7 @@ public class DualList extends Composite {
 
     /**
      * Constructor
-     *
+     * 
      * @param parent
      *            Parent container
      * @param style
@@ -168,7 +169,7 @@ public class DualList extends Composite {
      *            Data/Configuration object
      * @param cb
      *            Update Callback
-     *
+     * 
      */
     public DualList(Composite parent, int style, DualListConfig config,
             IUpdate cb) {
@@ -438,7 +439,7 @@ public class DualList extends Composite {
 
     /**
      * Set FullList.
-     *
+     * 
      * @param fullList
      *            all users listed in notification table
      */
@@ -685,7 +686,7 @@ public class DualList extends Composite {
     /**
      * Reload the availableList data preserving the original order of the list.
      */
-    private void reloadAvailableList() {
+    public void reloadAvailableList() {
 
         String[] selectedStrings = availableList.getSelection();
         ArrayList<String> availableListNew = new ArrayList<String>();
@@ -729,20 +730,34 @@ public class DualList extends Composite {
 
             }
         } else {
-
             if (moveAllLeft) {
-
                 availableList.removeAll();
 
                 // Add all matching search field text to available list
                 for (String s : config.getFullList()) {
-                    if (s.contains(search)) {
-                        availableList.add(s);
+                    if (!config.isCaseFlag()) {
+                        if (s.toLowerCase().contains(search.toLowerCase())) {
+                            if (!config.isExcludeFlag()) {
+                                availableList.add(s);
+                            }
+                        } else {
+                            if (config.isExcludeFlag()) {
+                                availableList.add(s);
+                            }
+                        }
+                    } else {
+                        if (s.contains(search)) {
+                            if (!config.isExcludeFlag()) {
+                                availableList.add(s);
+                            }
+                        } else {
+                            if (config.isExcludeFlag()) {
+                                availableList.add(s);
+                            }
+                        }
                     }
                 }
-
             } else if (moveLeft) {
-
                 // Add selected item matching search field text to available
                 // list
                 for (String s : selectedList.getSelection()) {
@@ -839,7 +854,7 @@ public class DualList extends Composite {
 
     /**
      * Clear Available Users list.
-     *
+     * 
      * @param clearSelectionList
      */
     public void clearAvailableList(boolean clearSelectionList) {
@@ -852,7 +867,7 @@ public class DualList extends Composite {
 
     /**
      * Set the Available List items.
-     *
+     * 
      * @param items
      *            the list items.
      */
@@ -862,7 +877,7 @@ public class DualList extends Composite {
 
     /**
      * Get the number of items in the list.
-     *
+     * 
      * @return the number of items.
      */
     public int getItemCount() {
@@ -871,7 +886,7 @@ public class DualList extends Composite {
 
     /**
      * Get the Selected List items.
-     *
+     * 
      * @return the items in the selected list.
      */
     public String[] getSelectedListItems() {
@@ -880,7 +895,7 @@ public class DualList extends Composite {
 
     /**
      * Get the selection.
-     *
+     * 
      * @return the selections.
      */
     public String[] getSelectedSelection() {
@@ -889,7 +904,7 @@ public class DualList extends Composite {
 
     /**
      * Get the configuration.
-     *
+     * 
      * @return items in available list.
      */
     public String[] getAvailableListItems() {
@@ -898,7 +913,7 @@ public class DualList extends Composite {
 
     /**
      * Set the Selected List items.
-     *
+     * 
      * @param items
      *            the list items.
      */
@@ -909,7 +924,7 @@ public class DualList extends Composite {
 
     /**
      * Selected User items.
-     *
+     * 
      * @param selection
      *            selected user items
      */
@@ -926,7 +941,7 @@ public class DualList extends Composite {
 
     /**
      * Get the configuration.
-     *
+     * 
      * @return the configuration.
      */
     public DualListConfig getConfig() {
@@ -935,7 +950,7 @@ public class DualList extends Composite {
 
     /**
      * Set the configuration.
-     *
+     * 
      * @param config
      *            the configuration.
      */
