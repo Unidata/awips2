@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  Correct any inconsistencies in the units -->
+<unitLookup>
+	<unitConfig name="K" providerName="k"/>
+	<unitConfig name="Pa" providerName="pa"/>
+	<unitConfig name="J/kg" providerName="j/kg"/>
+	<unitConfig name="W/m^2" providerName="w/m^2"/>
+</unitLookup>
+
+
