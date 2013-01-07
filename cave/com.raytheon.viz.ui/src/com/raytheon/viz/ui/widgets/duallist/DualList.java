@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
  * Aug 10, 2012   1002     mpduff      Fixed sorting of numeric data on move left.
  * Sep 07, 2012    684     mpduff      Deselect selection prior to selecting new items.
  * Dec 17, 2012   1431     mpduff      Fix filter problem when deselecting items.
+ * Jan 07, 2013   1456     bgonzale    Added setSelectedList(ArrayList<String>).
  * 
  * </pre>
  * 
@@ -435,6 +436,17 @@ public class DualList extends Composite {
                 handleMoveDown();
             }
         });
+    }
+
+    /**
+     * Set SelectedList.
+     * 
+     * @param selectedList
+     *            all users listed in notification table
+     */
+    public void setSelectedList(ArrayList<String> selectedList) {
+        config.setSelectedList(selectedList);
+        populateLists();
     }
 
     /**
