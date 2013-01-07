@@ -444,7 +444,7 @@ public class DualList extends Composite {
      * @param selectedList
      *            all users listed in notification table
      */
-    public void setSelectedList(ArrayList<String> selectedList) {
+    public void setSelectedList(java.util.List<String> selectedList) {
         config.setSelectedList(selectedList);
         populateLists();
     }
