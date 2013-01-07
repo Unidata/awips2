@@ -1,0 +1,48 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="datadeliveryAuthorization"
+		class="com.raytheon.uf.edex.datadelivery.service.services.DataDeliveryPrivilegedRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest" />
+		<constructor-arg ref="datadeliveryAuthorization" />
+	</bean>
+
+
+	<bean id="roleStorage"
+		class="com.raytheon.uf.edex.plugin.nwsauth.NwsRoleStorage" />
+	<bean id="authenticator"
+		class="com.raytheon.uf.edex.plugin.nwsauth.authentication.Authenticator" />
+	<bean id="authStorage"
+		class="com.raytheon.uf.edex.plugin.nwsauth.authentication.AuthenticationStorage" />
+<!-- 
+	<bean id="roleStorage"
+		class="com.raytheon.uf.edex.datadelivery.service.roles.DataDeliveryRoleStorage" />
+	<bean id="authenticator"
+		class="com.raytheon.uf.edex.datadelivery.service.authentication.Authenticator" />
+	<bean id="authStorage"
+		class="com.raytheon.uf.edex.datadelivery.service.authentication.AuthenticationStorage" />
+ -->
+	<bean id="authManager" class="com.raytheon.uf.edex.auth.AuthManager">
+		<property name="authenticationStorage" ref="authStorage" />
+		<property name="authenticator" ref="authenticator" />
+		<property name="roleStorage" ref="roleStorage" />
+	</bean>
+
+	<bean id="authFactory" class="com.raytheon.uf.edex.auth.AuthManagerFactory"
+		factory-method="getInstance">
+		<property name="manager" ref="authManager" />
+	</bean>
+    
+    <bean id="subscriptionDeleteService" class="com.raytheon.uf.edex.datadelivery.service.services.SubscriptionDeleteHandler"/>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest"/>
+        <constructor-arg ref="subscriptionDeleteService"/>
+    </bean>
+
+</beans>

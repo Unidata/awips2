@@ -154,15 +154,11 @@ cd ../
 buildRPM "Installer.edex-base"
 buildRPM "Installer.edex-configuration"
 buildRPM "Installer.edex-shapefiles"
-# only build edex-datadelivery if it is present
-# (this logic will be removed once edex-datadelivery has been integrated)
-if [ -f ${WORKSPACE}/build.edex/edex/dist/edex-datadelivery.zip ]; then
-   # build the edex-datadelivery rpm
-   export COMPONENT_NAME="edex-datadelivery"
-   patchDDSpecification
-   buildRPM "Installer.edex-datadelivery"
-   unset COMPONENT_NAME
-fi
+# build the edex-datadelivery rpm
+export COMPONENT_NAME="edex-datadelivery"
+patchDDSpecification
+buildRPM "Installer.edex-datadelivery"
+unset COMPONENT_NAME
 # For, now edex-native is always a 32-bit rpm.
 export TARGET_BUILD_ARCH="i386"
 buildRPM "Installer.edex-native"

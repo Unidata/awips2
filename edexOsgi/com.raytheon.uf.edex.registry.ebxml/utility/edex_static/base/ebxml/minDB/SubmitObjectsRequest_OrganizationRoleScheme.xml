@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:SubmitObjectsRequest mode="CreateOrReplace" checkReferences="false" comment="Submission of registered user profile" id="User Profiles and Roles" xmlns:ns2="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:ns6="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:ns7="urn:oasis:names:tc:ebxml-regrep:xsd:spi:4.0">
+    <RegistryObjectList>
+        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryAdministrator" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryAdministrator" id="RegistryAdministrator" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="RegAdminRole" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="Role used for Registry Administrators" xml:lang="en-US"/>
+            </Description>
+        </RegistryObject>
+        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryLocalAdministrator" id="RegistryLocalAdministrator" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="RegistryLocalAdministrator" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="Role used for localAdministrators" xml:lang="en-US"/>
+            </Description>
+        </RegistryObject>
+        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryUser" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryUser" id="RegistryUser" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="RegistryUser" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="Role used for Registry Users" xml:lang="en-US"/>
+            </Description>
+        </RegistryObject>
+        <RegistryObject xsi:type="RoleType" type="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryGuest" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Role" lid="RegistryGuest" id="RegistryGuest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="RegistryGuest" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="Role used for guests to the registry" xml:lang="en-US"/>
+            </Description>
+        </RegistryObject>
+        <RegistryObject xsi:type="PersonType" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person" lid="EDEX_Internal_User" id="EDEX_Internal_User" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="EDEX_Internal_User" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="EDEX_Internal_User" xml:lang="en-US"/>
+            </Description>
+            <PersonName lastName="User" middleName="Internal" firstName="EDEX"/>
+        </RegistryObject>
+        <RegistryObject xsi:type="AssociationType" targetObject="RegistryAdministrator" sourceObject="EDEX_Internal_User" type="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasRole" owner="EDEX_Internal_User" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" lid="EDEX Internal Admin Association" id="EDEX Internal Admin Association" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Name>
+                <LocalizedString value="EDEX Internal Admin" xml:lang="en-US"/>
+            </Name>
+            <Description>
+                <LocalizedString value="Association linking EDEX Internal user to admin role" xml:lang="en-US"/>
+            </Description>
+        </RegistryObject>
+    </RegistryObjectList>
+</ns2:SubmitObjectsRequest>
+
