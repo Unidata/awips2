@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ebxml
+Bundle-SymbolicName: com.raytheon.uf.edex.ebxml
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ org.apache.commons.beanutils;bundle-version="1.8.3",
+ org.apache.commons.cxf;bundle-version="1.0.0"
