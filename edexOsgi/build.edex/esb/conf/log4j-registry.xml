@@ -30,10 +30,10 @@
       </layout> 
    </appender> 
 
-   <!-- registry log --> 
-   <appender name="RegistryLog" class="org.apache.log4j.rolling.RollingFileAppender">
+   <!-- data delivery log --> 
+   <appender name="DataDeliveryLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-registry-%d{yyyyMMdd}.log"/>
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-datadelivery-%d{yyyyMMdd}.log"/>
       </rollingPolicy> 
 
       <layout class="org.apache.log4j.PatternLayout"> 
@@ -113,21 +113,17 @@
       <level value="WARN" />
    </logger>
 
+   <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+
+   <!-- Registry events to go to main registry log -->
    <logger name="com.raytheon.uf.common.datadelivery.registry" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="RegistryLog"/>
+        <appender-ref ref="console"/>
    </logger>
 
-   <logger name="com.raytheon.uf.common.registry" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="RegistryLog"/>
-   </logger>
-
-   <logger name="com.raytheon.uf.edex.registry" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="RegistryLog"/>
-   </logger>
-   
    <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="BandwidthManagerLog"/>
@@ -136,11 +132,6 @@
    <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="BandwidthManagerLog"/>
-   </logger>
-
-   <logger name="com.raytheon.uf.edex.ebxml" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="RegistryLog"/>
    </logger>
 
    <logger name="com.raytheon.uf.edex.datadelivery.harvester.purge" additivity="false">
