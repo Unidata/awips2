@@ -77,7 +77,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Dec 12, 2012   1391     bgonzale     Added a job for the dataset query.
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 18, 2012   1436     bgonzale     When creating the filter dialogs, use the loaded
- *                                      configuration when populating the filters.
+ *                                      configuration when populating the filters. Fixed selection
+ *                                      icon update when loading from a file.
  * 
  * </pre>
  * 
@@ -326,7 +327,6 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         FilterComp filterComp = new FilterComp(expandBar, SWT.NONE, this, filterConfig, idx);
 
         expItem.setHeight(filterComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-        expItem.setImage(filterImgs.getExpandItemImage(ExpandItemState.NoEntries));
         expItem.setControl(filterComp);
     }
 
