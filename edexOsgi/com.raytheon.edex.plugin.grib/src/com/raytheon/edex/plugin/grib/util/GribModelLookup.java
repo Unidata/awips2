@@ -303,7 +303,7 @@ public class GribModelLookup {
                                 "/grid/dataset/alias/gfeParamInfo.xml");
                 AliasList al = null;
                 if (baseFile.exists()) {
-                    al = JAXB.unmarshal(file.getFile(), AliasList.class);
+                    al = JAXB.unmarshal(baseFile.getFile(), AliasList.class);
                     al.getAliasList().addAll(aliasList);
                 } else {
                     al = new AliasList();
