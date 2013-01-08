@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
@@ -108,8 +107,23 @@ public interface ISubscriptionService {
      *            the subscriptions to update
      * @param displayTextStrategy
      * @return the result object
+     * @throws RegistryHandlerException
      */
     ISubscriptionServiceResult update(List<Subscription> subscriptions,
+            IForceApplyPromptDisplayText displayTextStrategy)
+            throws RegistryHandlerException;
+
+    /**
+     * Update the subscriptions, checking for an existing pending change
+     * already.
+     * 
+     * @param subscriptions
+     * @param displayTextStrategy
+     * @return the result
+     * @throws RegistryHandlerException
+     */
+    ISubscriptionServiceResult updateWithPendingCheck(
+            List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -127,117 +141,4 @@ public interface ISubscriptionService {
     public ISubscriptionServiceResult store(AdhocSubscription sub,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
-
-    /**
-     * Send a notification that pending subscription was created.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendCreatedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username);
-
-    /**
-     * Send a notification that a subscription was created.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendCreatedSubscriptionNotification(Subscription subscription,
-            String username);
-
-    /**
-     * Send a notification that a subscription was updated.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendUpdatedSubscriptionNotification(Subscription subscription,
-            String username);
-
-    /**
-     * Send a notification that a pending subscription was updated.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendUpdatedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username);
-
-    /**
-     * Send a notification that a subscription update is pending.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendCreatedPendingSubscriptionForSubscriptionNotification(
-            InitialPendingSubscription pendingSub, String username);
-
-    /**
-     * Send a notification that a pending subscription was approved.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendApprovedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username);
-
-    /**
-     * Send a notification that a pending subscription was denied.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     * @param denyMessage
-     *            the reason for denying
-     */
-    void sendDeniedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username,
-            String denyMessage);
-
-    /**
-     * Send a notification that the subscription was deleted.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendDeletedSubscriptionNotification(Subscription subscription,
-            String username);
-
-    /**
-     * Send a notification that the subscription was activated.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendSubscriptionActivatedMessage(Subscription subscription,
-            String username);
-
-    /**
-     * Send a notification that the subscription was deactivated.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    void sendSubscriptionDeactivatedMessage(Subscription subscription,
-            String username);
 }
