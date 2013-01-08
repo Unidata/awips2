@@ -22,8 +22,10 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,35 +36,32 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.auth.user.IUser;
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
-import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
-import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.IDisplay;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
@@ -99,7 +98,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * @author jpiatt
  * @version 1.0
  */
-public class UserSelectComp extends Composite implements IUpdate, IDisplay {
+public class UserSelectComp extends Composite implements IUpdate, IDisplay,
+        IForceApplyPromptDisplayText {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -133,11 +133,10 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
     /** DualListConfig object */
     private DualListConfig dualConfig;
 
-    /** Map to hold subscriptions */
-    private final Map<String, Map<String, Subscription>> addedMap = new HashMap<String, Map<String, Subscription>>();
-
     /** map to hold user subscriptions */
     private final Map<String, Map<String, Subscription>> userMap = new HashMap<String, Map<String, Subscription>>();
+
+    private final Set<String> initiallySelectedSubscriptions = new HashSet<String>();
 
     /**
      * Registry handler for pending subscriptions.
@@ -281,60 +280,82 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
      * @param groupName
      *            The name of the group
      */
-    public void getSuscriptionNames(String groupName) {
+    public void getSubscriptionNames(String groupName) {
 
         String owner = userNameCombo.getText();
         Map<String, Subscription> ownerSubs = userMap.get(owner);
-        Map<String, Subscription> selectedSubs = null;
 
-        if (addedMap.containsKey(owner)) {
-            selectedSubs = addedMap.get(owner);
-        } else {
-            selectedSubs = new HashMap<String, Subscription>();
-            addedMap.put(owner, selectedSubs);
-        }
+        Set<String> selectedSubscriptionNames = Sets.newHashSet(dualList
+                .getSelectedListItems());
 
-        String[] selectedList = dualList.getSelectedListItems();
+        Set<String> differences = Sets.symmetricDifference(
+                selectedSubscriptionNames,
+                initiallySelectedSubscriptions);
 
-        // Clear list
-        selectedSubs.clear();
+        Set<Subscription> addedToGroup = new HashSet<Subscription>();
+        Set<Subscription> removedFromGroup = new HashSet<Subscription>();
 
-        // Re-add to list
-        for (String subName : selectedList) {
-            selectedSubs.put(subName, ownerSubs.get(subName));
-        }
-
-        if (selectedSubs != null) {
-            addedMap.put(owner, selectedSubs);
-        }
-
-        // Get subscriptions that use the modified group
-        List<Subscription> results = Collections.emptyList();
-        try {
-            results = subHandler.getByGroupName(groupName);
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve subscriptions for group " + groupName,
-                    e);
-        }
-
-        for (Subscription subscription : results) {
-            if (addedMap.containsKey(subscription.getOwner())) {
-                addedMap.get(subscription.getOwner()).put(
-                        subscription.getName(), subscription);
+        for (String subscriptionName : differences) {
+            final Subscription subscription = ownerSubs.get(subscriptionName);
+            if (selectedSubscriptionNames.contains(subscriptionName)) {
+                addedToGroup.add(subscription);
             } else {
-
-                HashMap<String, Subscription> ownerMap = new HashMap<String, Subscription>();
-                ownerMap.put(subscription.getName(), subscription);
-
-                addedMap.put(subscription.getOwner(), ownerMap);
+                removedFromGroup.add(subscription);
             }
         }
 
-        if (addedMap.size() > 0) {
-            populateSelectedSubscriptions(groupName);
+        updateGroupDefinition(groupName, addedToGroup, removedFromGroup);
+
+    }
+
+    /**
+     * Updates the group definition, the subscriptions added to the group, and
+     * the subscriptions removed from the group.
+     * 
+     * @param groupName
+     * @param addedToGroup
+     * @param removedFromGroup
+     */
+    private void updateGroupDefinition(String groupName,
+            Set<Subscription> addedToGroup, Set<Subscription> removedFromGroup) {
+
+        ITimer timer = TimeUtil.getPriorityEnabledTimer(statusHandler,
+                Priority.DEBUG);
+        timer.start();
+
+        for (Subscription subscription : removedFromGroup) {
+            subscription.setGroupName(GroupDefinition.NO_GROUP);
         }
 
+        for (Subscription subscription : addedToGroup) {
+            subscription.setGroupName(groupName);
+        }
+
+        Set<Subscription> groupSubscriptionsForUpdate = Collections.emptySet();
+        try {
+            groupSubscriptionsForUpdate = new HashSet<Subscription>(
+                    DataDeliveryHandlers.getSubscriptionHandler()
+                            .getByGroupName(groupName));
+
+            // Remove any that are set to be removed from the group
+            groupSubscriptionsForUpdate.removeAll(removedFromGroup);
+
+            // Add those that are being added to the group
+            groupSubscriptionsForUpdate.addAll(addedToGroup);
+        } catch (RegistryHandlerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve group subscriptions.", e);
+        }
+
+        updateGroupDefinitionForSubscriptions(groupName,
+                groupSubscriptionsForUpdate,
+                removedFromGroup);
+
+        timer.stop();
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("Took [" + timer.getElapsedTime()
+                    + "] to update group definition");
+        }
     }
 
     /**
@@ -345,174 +366,83 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
      * @param groupName
      *            The name of the group
      */
-    private void populateSelectedSubscriptions(String groupName) {
+    private void updateGroupDefinitionForSubscriptions(String groupName,
+            Set<Subscription> groupSubscriptions,
+            Set<Subscription> removeFromGroupSubscriptions) {
 
         // Get Group Definition
         GroupDefinition groupDefinition = GroupDefinitionManager
                 .getGroup(groupName);
 
-        // loop over hash map -- once over each hash map
-        for (String owner : addedMap.keySet()) {
+        for (Subscription subscription : groupSubscriptions) {
 
-            Map<String, Subscription> ownerMap = addedMap.get(owner);
+            // Apply group properties to subscription definition
+            subscription.setNotify(groupDefinition.getOption() == 1);
 
-            for (String subName : ownerMap.keySet()) {
+            subscription.setGroupName(groupName);
 
-                Subscription subscription = ownerMap.get(subName);
-
-                // Apply group properties to subscription definition
-                subscription.setNotify(groupDefinition.getOption() == 1);
-
-                subscription.setGroupName(groupName);
-
-                // Set duration
-                if (groupDefinition.getSubscriptionStart() != null) {
-                    subscription.setSubscriptionStart(groupDefinition
-                            .getSubscriptionStart());
-                    subscription.setSubscriptionEnd(groupDefinition
-                            .getSubscriptionEnd());
-                } else {
-                    subscription.setSubscriptionStart(null);
-                    subscription.setSubscriptionEnd(null);
-                }
-
-                // Set active period
-                if (groupDefinition.getActivePeriodStart() != null) {
-                    subscription.setActivePeriodStart(groupDefinition
-                            .getActivePeriodStart());
-                    subscription.setActivePeriodEnd(groupDefinition
-                            .getActivePeriodEnd());
-                } else {
-                    subscription.setActivePeriodStart(null);
-                    subscription.setActivePeriodEnd(null);
-                }
-
-                if (subscription.getCoverage() != null
-                        && groupDefinition.isArealDataSet()) {
-
-                    DataSet dataset = MetaDataManager.getInstance().getDataSet(
-                            subscription.getDataSetName(),
-                            subscription.getProvider());
-                    DataSizeUtils u = new DataSizeUtils(dataset);
-                    u.setEnvelope(groupDefinition.getEnvelope());
-                    u.setNumFcstHours(subscription.getTime()
-                            .getSelectedTimeIndices().size());
-                    u.determineNumberRequestedGrids(subscription.getParameter());
-
-                    Coverage cov = new GriddedCoverage();
-                    cov.setEnvelope(groupDefinition.getEnvelope());
-
-                    subscription.setDataSetSize(u.getDataSetSize());
-                    subscription.setCoverage(cov);
-                }
-
-                subscription.setOfficeID(LocalizationManager.getInstance()
-                        .getCurrentSite());
-
-                final String username = UserController.getUserObject()
-                        .uniqueId().toString();
-
-                final Shell shell = getShell();
-                try {
-                    InitialPendingSubscription pending = pendingSubHandler
-                            .getBySubscription(subscription);
-
-                    if (pending != null) {
-                        DataDeliveryUtils.showMessage(shell,
-                                SWT.ICON_INFORMATION, "Pending",
-                                ALREADY_PENDING_SUBSCRIPTION);
-                        return;
-                    }
-                } catch (RegistryHandlerException e1) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    DataDeliveryUtils.UNABLE_TO_RETRIEVE_PENDING_SUBSCRIPTIONS,
-                                    e1);
-                    return;
-                }
-
-                // check to see if user if authorized to approve. If so then
-                // auto-approve
-                IUser user = UserController.getUserObject();
-                try {
-                    boolean autoApprove = false;
-                    DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-                    request.setUser(user);
-                    request.addRequestedPermissions(
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE);
-                    request.setNotAuthorizedMessage("The subscription is awaiting approval.\n\n"
-                            + "A notification message will be generated upon approval.");
-
-                    PendingSubscription pendingSub = new PendingSubscription(
-                            subscription, LocalizationManager.getInstance()
-                                    .getCurrentUser());
-                    pendingSub.setChangeReason("Group Definition Changed");
-
-                    DataDeliveryAuthRequest r = DataDeliveryUtils
-                            .sendAuthorizationRequest(request);
-                    if (r != null && r.isAuthorized()) {
-                        if (r.isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
-                            autoApprove = true;
-                        } else if (r
-                                .isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER)) {
-                            if (subscription.getOwner().equals(
-                                    user.uniqueId().toString())) {
-                                autoApprove = true;
-                            }
-                        }
-
-                        if (autoApprove) {
-                            try {
-                                ISubscriptionServiceResult response = subscriptionService
-                                        .update(subscription,
-                                                new CancelForceApplyAndIncreaseLatencyDisplayText(
-                                                        "update", shell));
-                                if (response.hasMessageToDisplay()) {
-                                    DataDeliveryUtils.showMessage(shell,
-                                            SWT.OK, "Subscription Updated",
-                                            response.getMessageToDisplay());
-                                }
-
-                                subscriptionService
-                                        .sendUpdatedSubscriptionNotification(
-                                                subscription, username);
-                            } catch (RegistryHandlerException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "Unable to update subscription.", e);
-                            }
-                        } else {
-                            savePendingSub(pendingSub, username);
-                        }
-                    } else {
-                        savePendingSub(pendingSub, username);
-                    }
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
+            // Set duration
+            if (groupDefinition.getSubscriptionStart() != null) {
+                subscription.setSubscriptionStart(groupDefinition
+                        .getSubscriptionStart());
+                subscription.setSubscriptionEnd(groupDefinition
+                        .getSubscriptionEnd());
+            } else {
+                subscription.setSubscriptionStart(null);
+                subscription.setSubscriptionEnd(null);
             }
+
+            // Set active period
+            if (groupDefinition.getActivePeriodStart() != null) {
+                subscription.setActivePeriodStart(groupDefinition
+                        .getActivePeriodStart());
+                subscription.setActivePeriodEnd(groupDefinition
+                        .getActivePeriodEnd());
+            } else {
+                subscription.setActivePeriodStart(null);
+                subscription.setActivePeriodEnd(null);
+            }
+
+            if (subscription.getCoverage() != null
+                    && groupDefinition.isArealDataSet()) {
+
+                DataSet dataset = MetaDataManager.getInstance().getDataSet(
+                        subscription.getDataSetName(),
+                        subscription.getProvider());
+                DataSizeUtils u = new DataSizeUtils(dataset);
+                u.setEnvelope(groupDefinition.getEnvelope());
+                u.setNumFcstHours(subscription.getTime()
+                        .getSelectedTimeIndices().size());
+                u.determineNumberRequestedGrids(subscription.getParameter());
+
+                Coverage cov = new GriddedCoverage();
+                cov.setEnvelope(groupDefinition.getEnvelope());
+
+                subscription.setDataSetSize(u.getDataSetSize());
+                subscription.setCoverage(cov);
+            }
+
+            subscription.setOfficeID(LocalizationManager.getInstance()
+                    .getCurrentSite());
+
         }
-    }
+        
 
-    /**
-     * Save a pending subscription.
-     */
-    private void savePendingSub(PendingSubscription pendingSub, String username) {
         try {
-            pendingSubHandler.store(pendingSub);
-
-            final String msg = "The subscription is awaiting approval.\n\n"
-                    + "A notification message will be generated upon approval.";
-            DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                    "Subscription Pending", msg);
-
-            subscriptionService
-                    .sendCreatedPendingSubscriptionForSubscriptionNotification(
-                            pendingSub, username);
+            final ISubscriptionServiceResult result = DataDeliveryServices
+                    .getSubscriptionService().updateWithPendingCheck(
+                            new ArrayList<Subscription>(Sets.union(
+                                    groupSubscriptions,
+                            removeFromGroupSubscriptions)),
+                            this);
+            if (result.hasMessageToDisplay()) {
+                DataDeliveryUtils.showMessage(getShell(), SWT.ICON_INFORMATION,
+                        "Edit Group", result.getMessageToDisplay());
+            }
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to store pending subscription.", e);
+                    "Unable to update the group definition for subscriptions.",
+                    e);
         }
     }
 
@@ -536,31 +466,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
      */
     @Override
     public void hasEntries(boolean entries) {
-
-        String owner = userNameCombo.getText();
-        Map<String, Subscription> ownerSubs = userMap.get(owner);
-        Map<String, Subscription> selectedSubs = addedMap.get(owner);
-
-        if (selectedSubs != null) {
-
-            if (entries) {
-                String[] selectedList = dualList.getSelectedListItems();
-
-                // Clear list
-                selectedSubs.clear();
-
-                // Re-add to list
-                for (String subName : selectedList) {
-                    selectedSubs.put(subName, ownerSubs.get(subName));
-                }
-
-                addedMap.put(owner, selectedSubs);
-
-            } else {
-                selectedSubs.clear();
-                addedMap.put(owner, selectedSubs);
-            }
-        }
+        // unused
     }
 
     @Override
@@ -579,7 +485,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
         // clear the selected list
         dualList.clearAvailableList(true);
 
-        ArrayList<String> selectedGroupSubscriptions = new ArrayList<String>();
+        initiallySelectedSubscriptions.clear();
         Map<String, Subscription> sMap = userMap.get(userNameCombo.getText());
 
         for (String subscriptionName : sMap.keySet()) {
@@ -587,14 +493,13 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
             Subscription sub = sMap.get(subscriptionName);
 
             if (groupName.equals(sub.getGroupName())) {
-                selectedGroupSubscriptions.add(subscriptionName);
+                initiallySelectedSubscriptions.add(subscriptionName);
             }
         }
 
         // set the selected list
-        dualList.selectItems(selectedGroupSubscriptions
-                .toArray(new String[selectedGroupSubscriptions.size()]));
-
+        dualList.selectItems(initiallySelectedSubscriptions
+                .toArray(new String[0]));
     }
 
     /**
@@ -603,5 +508,30 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay {
     @Override
     public boolean displayYesNoPopup(String title, String message) {
         return DataDeliveryUtils.showYesNoMessage(getShell(), title, message) == SWT.YES;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOptionDisplayText(ForceApplyPromptResponse option,
+            int requiredLatency, Subscription subscription,
+            Set<String> wouldBeUnscheduledSubscriptions) {
+        switch (option) {
+        case CANCEL:
+            return "Do not update the group definition.";
+        case FORCE_APPLY:
+            if (wouldBeUnscheduledSubscriptions.size() == 1) {
+                return "Update the group definition and unschedule "
+                        + wouldBeUnscheduledSubscriptions.iterator().next();
+            }
+            return "Update the group definition and unschedule the subscriptions";
+        case INCREASE_LATENCY:
+            // Signifies it should not be an option
+            return null;
+        default:
+            throw new IllegalArgumentException(
+                    "Don't know how to handle option [" + option + "]");
+        }
     }
 }
