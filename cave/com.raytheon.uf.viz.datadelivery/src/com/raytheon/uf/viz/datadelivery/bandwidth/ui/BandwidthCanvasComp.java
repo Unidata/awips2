@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,6 +90,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * ------------ ---------- ----------- --------------------------
  * Nov 6, 2012    1269     lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * 
  * </pre>
  * 
@@ -159,7 +159,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
     private int previousMinute;
 
     /** Graph data utility */
-    private GraphDataUtil graphDataUtil;
+    private final GraphDataUtil graphDataUtil;
 
     /** Counts the minutes until the next full update. */
     private int fullUpdateMinuteCount = 0;
@@ -193,7 +193,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         this.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 
         generateCanvasSettings();
-        currentTime = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        currentTime = TimeUtil.newGmtCalendar();
 
         imageMgr = new BandwidthImageMgr(parentComp, canvasSettingsMap, bgd,
                 currentTime.getTimeInMillis());
