@@ -116,7 +116,9 @@
 		<route id="gridToGrib">
 			<from uri="directvm:gridToGrib"/>
 			<bean ref="gridToGribConverter" method="convert"/>
-			<to uri="directvm:indexAlert" />
+			<bean ref="index" method="index"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <to uri="vm:stageNotification"/> 
 		</route>
 
 	</camelContext>
