@@ -80,7 +80,7 @@ public class ConvertUtil {
      */
     @SuppressWarnings("unchecked")
     public static Object convertObject(String value, Class<?> desiredClass) {
-        if (value == null) {
+        if (value == null || value.equals("null")) {
             return null;
         }
         if (desiredClass.equals(String.class)) {
@@ -88,9 +88,6 @@ public class ConvertUtil {
         }
         if (desiredClass.isEnum()) {
             return Enum.valueOf((Class<? extends Enum>) desiredClass, value);
-        }
-        if (value.equals("null")) {
-            return null;
         }
         if (desiredClass.equals(Calendar.class)) {
             try {
