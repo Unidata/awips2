@@ -33,6 +33,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * 12 Sept, 2012   1038      dhladky     Initial creation
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 07, 2013 1451       djohnson    Use TimeUtil.newGmtCalendar().
  * 
  * </pre>
  * 
@@ -427,13 +428,11 @@ public class Collection implements ISerializableObject {
 
                 // take care of latest date
                 Date lastDate = sdf.parse(getLastDate());
-                Calendar cal = TimeUtil
-                        .newCalendar(TimeZone.getTimeZone("UTC"));
+                Calendar cal = TimeUtil.newGmtCalendar();
                 cal.setTimeInMillis(lastDate.getTime());
                 int lastRoll = cal.get(periodInt);
 
-                Calendar curCal = TimeUtil.newCalendar(TimeZone
-                        .getTimeZone("UTC"));
+                Calendar curCal = TimeUtil.newGmtCalendar();
                 curCal.setTimeInMillis(currentDate.getTime());
                 int currRoll = curCal.get(periodInt);
                 int diff = Math.abs(currRoll - lastRoll);
@@ -444,8 +443,7 @@ public class Collection implements ISerializableObject {
                     setLastDate(sdf.format(currentDate));
 
                     Date firstDate = sdf.parse(getFirstDate());
-                    Calendar calf = TimeUtil.newCalendar(TimeZone
-                            .getTimeZone("UTC"));
+                    Calendar calf = TimeUtil.newGmtCalendar();
                     calf.setTimeInMillis(firstDate.getTime());
                     calf.add(periodInt, diff);
 
