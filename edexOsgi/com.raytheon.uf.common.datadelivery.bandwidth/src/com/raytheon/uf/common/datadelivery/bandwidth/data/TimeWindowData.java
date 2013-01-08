@@ -41,6 +41,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 25, 2012   1269     lvenable    Initial creation.
  * Dec 06, 2012   1397     djohnson    Add dynamic serialize class annotation.
+ * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * 
  * </pre>
  * 
@@ -209,7 +210,7 @@ public class TimeWindowData implements Comparable<TimeWindowData> {
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Calendar cal = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        Calendar cal = TimeUtil.newGmtCalendar();
         cal.setTimeInMillis(this.timeWindowStartTime);
 
         StringBuilder sb = new StringBuilder();
