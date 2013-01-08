@@ -340,10 +340,12 @@ public class FileLocker {
                 gotLock = lockFile.createNewFile()
                         || ((fileTime = lockFile.lastModified()) > 0 && (System
                                 .currentTimeMillis() - fileTime) > MAX_WAIT);
-                try {
-                    Thread.sleep(waitInterval);
-                } catch (InterruptedException e) {
-                    // Ignore
+                if (!gotLock) {
+                    try {
+                        Thread.sleep(waitInterval);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
                 }
             }
         } catch (IOException e) {
