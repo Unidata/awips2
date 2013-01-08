@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.datadelivery.bandwidth.request;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -29,17 +28,18 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Request object to retrieve data for the Bandwidth manager graphs
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 25, 2012   1269     mpduff      Initial creation.
- *
+ * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -58,7 +58,7 @@ public class GraphDataRequest implements IServerRequest {
      */
     public GraphDataRequest() {
         // For IOC0 start time is current time in minutes
-        Calendar cal = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        Calendar cal = TimeUtil.newGmtCalendar();
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         startTime = cal.getTimeInMillis();
