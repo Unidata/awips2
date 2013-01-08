@@ -39,7 +39,6 @@ import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
@@ -56,6 +55,9 @@ import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
+import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
+import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService.IAuthorizedPermissionResponse;
+import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
@@ -130,9 +132,16 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
     private final ISubscriptionService subscriptionService = DataDeliveryServices
             .getSubscriptionService();
 
+    private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
+            .getSubscriptionNotificationService();
+
+    private final IPermissionsService permissionsService = DataDeliveryServices
+            .getPermissionsService();
+
     private SubApprovalTableComp tableComp;
 
     private String denyMessage;
+
 
     /**
      * Constructor.
@@ -317,14 +326,17 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             return;
         }
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        DataDeliveryAuthRequest response = allowed();
-        if (response != null && response.isAuthorized()) {
+
+        IUser user = UserController.getUserObject();
+
+        IAuthorizedPermissionResponse response = allowed(user);
+
+        if (response.isAuthorized()) {
             // Check if user or site permissions, compare to owner of sub if user permission
-            IUser user = UserController.getUserObject();
             boolean site = false;
 
             if (response
-                    .isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
+                    .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
                 site = true;
             }
 
@@ -362,6 +374,34 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         getShell().setCursor(null);
     }
 
+    /**
+     * @return
+     */
+    private IAuthorizedPermissionResponse allowed(IUser user) {
+        try {
+            String msg = user.uniqueId()
+                    + " is not authorized to Approve/Deny subscriptions.";
+
+            return permissionsService.checkPermissions(user, msg,
+                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
+                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to check user permissions.", e);
+            return new IAuthorizedPermissionResponse() {
+                @Override
+                public boolean isAuthorized() {
+                    return false;
+                }
+
+                @Override
+                public boolean hasPermission(DataDeliveryPermission permission) {
+                    return false;
+                }
+            };
+        }
+    }
+
     @Override
     public void handleDeny() {
         if (tableComp.getTable().getSelectionCount() == 0) {
@@ -370,15 +410,16 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             return;
         }
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        DataDeliveryAuthRequest response = allowed();
-        if (response != null && response.isAuthorized()) {
+
+        IUser user = UserController.getUserObject();
+        IAuthorizedPermissionResponse response = allowed(user);
+        if (response.isAuthorized()) {
             if (confirm()) {
                 // Check if user or site permissions, compare to owner of sub if user permission
-                IUser user = UserController.getUserObject();
                 boolean site = false;
 
                 if (response
-                        .isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
+                        .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
                     site = true;
                 }
 
@@ -409,7 +450,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                         try {
                             handler.delete(username, sub);
 
-                            subscriptionService
+                            subscriptionNotificationService
                                     .sendDeniedPendingSubscriptionNotification(
                                             sub, username, denyMessage);
                         } catch (RegistryHandlerException e) {
@@ -443,22 +484,6 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         return false;
     }
 
-    private DataDeliveryAuthRequest allowed() {
-        IUser user = UserController.getUserObject();
-        String msg = user.uniqueId() + " is not authorized to Approve/Deny subscriptions.";
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER);
-        request.setNotAuthorizedMessage(msg);
-
-        try {
-            return DataDeliveryUtils.sendAuthorizationRequest(request);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return null;
-        }
-    }
 
     private void approveSubs(ArrayList<SubscriptionApprovalRowData> subList) {
         tableComp.getPendingSubData().removeAll(subList);
@@ -485,7 +510,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                     exceptionMessage = "Unable to delete pending subscription.";
                     pendingSubHandler.delete(username, ps);
 
-                    subscriptionService
+                    subscriptionNotificationService
                             .sendApprovedPendingSubscriptionNotification(ps,
                                     username);
                 }
