@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bandwidthContextFactory"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory" />
+
+    <bean
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
+        <constructor-arg ref="bandwidthManager" />
+    </bean>
+
+
+    <bean id="registryManagerInstanceInitializer" class="java.lang.String">
+        <!-- required for depends-on -->
+    </bean>
+    
+    <bean id="registerDataDeliveryHandlers" class="java.lang.String">
+        <!-- required for depends-on -->
+    </bean>
+
+    <bean id="retrievalAgents" class="java.util.Collections"
+        factory-method="emptyMap">
+        <!-- No retrievals for integration test -->
+    </bean>
+</beans>
