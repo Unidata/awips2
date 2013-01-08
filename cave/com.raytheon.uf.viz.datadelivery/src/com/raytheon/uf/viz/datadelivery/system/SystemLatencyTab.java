@@ -31,13 +31,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
@@ -221,16 +221,10 @@ public class SystemLatencyTab {
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId() + notAuthorizedMsg + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            DataDeliveryAuthRequest auth = DataDeliveryUtils
-                    .sendAuthorizationRequest(request);
-
-            if (auth != null && auth.isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
 
                 if (ruleDlg == null || ruleDlg.isDisposed()) {
 
@@ -278,16 +272,11 @@ public class SystemLatencyTab {
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId() + notAuthorizedMsg + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            DataDeliveryAuthRequest auth = DataDeliveryUtils
-                    .sendAuthorizationRequest(request);
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
 
-            if (auth != null && auth.isAuthorized()) {
                 String ruleName = null;
                 int selectedIdx = latencyList.getSelectionIndex();
                 if (selectedIdx > -1) {

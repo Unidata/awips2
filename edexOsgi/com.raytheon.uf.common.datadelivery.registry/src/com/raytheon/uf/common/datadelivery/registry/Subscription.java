@@ -47,8 +47,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 26, 2012   1286      djohnson    Add toString, equals, hashcode.
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
  * Nov 20, 2012 1166        djohnson    Use attributes for Subscription fields.
- * Nov 20, 2012 1286       djohnson     Add unscheduled.
- * Dec 12, 2012 1433       bgonzale     Refactored Subscription copy ctor into two ctors.
+ * Nov 20, 2012 1286        djohnson    Add unscheduled.
+ * Dec 12, 2012 1433        bgonzale    Refactored Subscription copy ctor into two ctors.
+ * Jan 03, 2013 1441        djohnson    Default to no group.
  * 
  * </pre>
  * 
@@ -146,7 +147,7 @@ public class Subscription implements ISerializableObject, Serializable {
     @XmlAttribute
     @DynamicSerializeElement
     @SlotAttribute
-    private String groupName;
+    private String groupName = GroupDefinition.NO_GROUP;
 
     @XmlAttribute
     @DynamicSerializeElement

@@ -21,25 +21,27 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
 
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
-import com.raytheon.uf.common.datadelivery.event.notification.ApprovedPendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.DeniedPendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.PendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationRequest;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -47,9 +49,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * Basic implementation of the {@link ISubscriptionService}.
@@ -67,6 +69,7 @@ import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
  * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
  * Dec 18, 2012 1443       bgonzale     Open force apply prompt pop-up on the UI thread.
  * Dec 20, 2012 1413       bgonzale     Added new pending approve and denied request and responses.
+ * Jan 04, 2013 1441       djohnson     Separated out notification methods into their own service.
  * 
  * </pre>
  * 
@@ -75,11 +78,15 @@ import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
  */
 
 public class SubscriptionService implements ISubscriptionService {
+    private static final String PENDING_SUBSCRIPTION_AWAITING_APPROVAL = "The subscription is awaiting approval.\n\n"
+            + "A notification message will be generated upon approval.";
+
     /**
      * Implementation of {@link IDisplayForceApplyPrompt} that uses an SWT
      * dialog.
      */
-    public class DisplayForceApplyPrompt implements IDisplayForceApplyPrompt {
+    private static class DisplayForceApplyPrompt implements
+            IDisplayForceApplyPrompt {
 
         private ForceApplyPromptResponse forceApplyPromptResponse = ForceApplyPromptResponse.CANCEL;
 
@@ -117,6 +124,14 @@ public class SubscriptionService implements ISubscriptionService {
 
     @VisibleForTesting
     final String TITLE = "Subscription";
+
+    private final ISubscriptionNotificationService notificationService;
+
+    private final IBandwidthService bandwidthService;
+
+    private final IPermissionsService permissionsService;
+
+    private final IDisplayForceApplyPrompt forceApplyPrompt;
 
     /**
      * Implementation of {@link ISubscriptionServiceResult}.
@@ -193,10 +208,12 @@ public class SubscriptionService implements ISubscriptionService {
     }
 
     /**
-     * Used to represent a runnable that can throw a registry exception.
+     * A service interaction.
      */
-    private interface RegistryRunnable {
-        void run() throws RegistryHandlerException;
+    private interface ServiceInteraction extends Callable<String> {
+        // Throws only one exception
+        @Override
+        String call() throws RegistryHandlerException;
     }
 
     /**
@@ -264,6 +281,44 @@ public class SubscriptionService implements ISubscriptionService {
     }
 
     /**
+     * Private constructor. Use
+     * {@link #newInstance(ISubscriptionNotificationService)} instead.
+     * 
+     * @param notificationService
+     *            the subscription notification service
+     * @param bandwidthService
+     *            the bandwidth service
+     */
+    @VisibleForTesting
+    SubscriptionService(ISubscriptionNotificationService notificationService,
+            IBandwidthService bandwidthService,
+            IPermissionsService permissionsService,
+            IDisplayForceApplyPrompt displayForceApplyPrompt) {
+        this.notificationService = notificationService;
+        this.bandwidthService = bandwidthService;
+        this.permissionsService = permissionsService;
+        this.forceApplyPrompt = displayForceApplyPrompt;
+    }
+
+    /**
+     * Factory method to create an {@link ISubscriptionService}. Allows for
+     * changing to use sub-classes or different implementations later, without
+     * tying specifically to the implementation class.
+     * 
+     * @param notificationService
+     * @param permissionsService
+     * @param bandwidthService
+     * @return the subscription service
+     */
+    public static ISubscriptionService newInstance(
+            ISubscriptionNotificationService notificationService,
+            IBandwidthService bandwidthService,
+            IPermissionsService permissionsService) {
+        return new SubscriptionService(notificationService, bandwidthService,
+                permissionsService, new DisplayForceApplyPrompt());
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -272,19 +327,19 @@ public class SubscriptionService implements ISubscriptionService {
             throws RegistryHandlerException {
 
         final List<Subscription> subscriptions = Arrays.asList(subscription);
-        final RegistryRunnable action = new RegistryRunnable() {
+        final String successMessage = "Subscription " + subscription.getName()
+                + " has been created.";
+        final ServiceInteraction action = new ServiceInteraction() {
+
             @Override
-            public void run() throws RegistryHandlerException {
+            public String call() throws RegistryHandlerException {
                 DataDeliveryHandlers.getSubscriptionHandler().store(
                         subscription);
+                return successMessage;
             }
         };
 
-        final String successMessage = "Subscription " + subscription.getName()
-                + " has been created.";
-
-        return performAction(subscriptions, action, successMessage,
-                displayTextStrategy);
+        return performAction(subscriptions, action, displayTextStrategy);
     }
 
     /**
@@ -297,18 +352,18 @@ public class SubscriptionService implements ISubscriptionService {
             throws RegistryHandlerException {
 
         final List<Subscription> subscriptions = Arrays.asList(subscription);
-        final RegistryRunnable action = new RegistryRunnable() {
-            @Override
-            public void run() throws RegistryHandlerException {
-                DataDeliveryHandlers.getSubscriptionHandler().update(
-                        subscription);
-            }
-        };
         final String successMessage = "Subscription " + subscription.getName()
                 + " has been updated.";
+        final ServiceInteraction action = new ServiceInteraction() {
+            @Override
+            public String call() throws RegistryHandlerException {
+                DataDeliveryHandlers.getSubscriptionHandler().update(
+                        subscription);
+                return successMessage;
+            }
+        };
 
-        return performAction(subscriptions, action, successMessage,
-                displayTextStrategy);
+        return performAction(subscriptions, action, displayTextStrategy);
     }
 
     /**
@@ -319,18 +374,114 @@ public class SubscriptionService implements ISubscriptionService {
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
-        final RegistryRunnable action = new RegistryRunnable() {
+        final String successMessage = "The subscriptions have been updated.";
+        final ServiceInteraction action = new ServiceInteraction() {
             @Override
-            public void run() throws RegistryHandlerException {
+            public String call() throws RegistryHandlerException {
                 for (Subscription sub : subs) {
                     DataDeliveryHandlers.getSubscriptionHandler().update(sub);
                 }
+                return successMessage;
             }
         };
 
-        final String successMessage = "The subscriptions have been updated.";
+        return performAction(subs, action, displayTextStrategy);
+    }
 
-        return performAction(subs, action, successMessage, displayTextStrategy);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ISubscriptionServiceResult updateWithPendingCheck(
+            final List<Subscription> subscriptions,
+            IForceApplyPromptDisplayText displayTextStrategy)
+            throws RegistryHandlerException {
+        final ServiceInteraction action = new ServiceInteraction() {
+
+            @Override
+            public String call() throws RegistryHandlerException {
+                final SortedSet<String> alreadyPending = new TreeSet<String>();
+                final SortedSet<String> pendingCreated = new TreeSet<String>();
+                final SortedSet<String> unableToUpdate = new TreeSet<String>();
+                final StringBuilder successMessage = new StringBuilder(
+                        "The subscriptions have been updated.");
+
+                final IPendingSubscriptionHandler pendingSubscriptionHandler = DataDeliveryHandlers
+                        .getPendingSubscriptionHandler();
+
+                for (Subscription subscription : subscriptions) {
+
+                    try {
+                        InitialPendingSubscription pending = pendingSubscriptionHandler
+                                .getBySubscription(subscription);
+
+                        if (pending != null) {
+                            alreadyPending.add(subscription.getName());
+                            continue;
+                        }
+                    } catch (RegistryHandlerException e1) {
+                        statusHandler
+                                .handle(Priority.INFO,
+                                        DataDeliveryUtils.UNABLE_TO_RETRIEVE_PENDING_SUBSCRIPTIONS,
+                                        e1);
+                        unableToUpdate.add(subscription.getName());
+                        continue;
+                    }
+
+                    IUser user = UserController.getUserObject();
+                    final String username = user.uniqueId().toString();
+
+                    try {
+                        boolean authorized = permissionsService
+                                .checkPermissionToChangeSubscription(user,
+                                        PENDING_SUBSCRIPTION_AWAITING_APPROVAL,
+                                        subscription).isAuthorized();
+                        try {
+                            if (authorized) {
+                                DataDeliveryHandlers.getSubscriptionHandler()
+                                        .update(subscription);
+                            } else {
+                                PendingSubscription pendingSub = new PendingSubscription(
+                                        subscription, username);
+                                pendingSub
+                                        .setChangeReason("Group Definition Changed");
+                                savePendingSub(pendingSub, username);
+                                pendingCreated.add(subscription.getName());
+                            }
+                        } catch (RegistryHandlerException e1) {
+                            statusHandler
+                                    .handle(Priority.INFO,
+                                            DataDeliveryUtils.UNABLE_TO_RETRIEVE_PENDING_SUBSCRIPTIONS,
+                                            e1);
+                            unableToUpdate.add(subscription.getName());
+                            continue;
+                        }
+
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.INFO,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+                appendCollectionPortion(
+                        successMessage,
+                        "\n\nThe following subscriptions have pending changes awaiting approval:",
+                        pendingCreated);
+
+                appendCollectionPortion(
+                        successMessage,
+                        "\n\nThe following subscriptions already had pending changes and were not modified:",
+                        alreadyPending);
+
+                appendCollectionPortion(
+                        successMessage,
+                        "\n\nThe following subscriptions were unable to be modified:",
+                        unableToUpdate);
+
+                return successMessage.toString();
+            }
+        };
+
+        return performAction(subscriptions, action, displayTextStrategy);
     }
 
     /**
@@ -343,19 +494,20 @@ public class SubscriptionService implements ISubscriptionService {
 
         final List<Subscription> subscriptions = Arrays
                 .<Subscription> asList(sub);
-        final RegistryRunnable action = new RegistryRunnable() {
+        final String successMessage = "The query was successfully stored.";
+        final ServiceInteraction action = new ServiceInteraction() {
             @Override
-            public void run() throws RegistryHandlerException {
+            public String call() {
                 // Adhoc subscriptions don't interact with the registry any
                 // longer, so it gets a blank implementation
+                return successMessage;
             }
         };
-        final String successMessage = "The query was successfully stored.";
 
         SubscriptionServiceResult result = performAction(subscriptions, action,
-                successMessage, displayTextStrategy);
+                displayTextStrategy);
         if (!result.allowFurtherEditing) {
-            Date date = getBandwidthService().getEstimatedCompletionTime(sub);
+            Date date = bandwidthService.getEstimatedCompletionTime(sub);
             if (date != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat(
                         "MM/dd/yyyy HH:mm zzz");
@@ -379,25 +531,22 @@ public class SubscriptionService implements ISubscriptionService {
      * 
      * @param subscriptions
      * @param action
-     * @param successMessage
      * @param displayTextStrategy
      * @return the result object
      * @throws RegistryHandlerException
      */
     private SubscriptionServiceResult performAction(
-            List<Subscription> subscriptions, RegistryRunnable action,
-            String successMessage,
+            List<Subscription> subscriptions, ServiceInteraction action,
             final IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
         try {
             final ProposeResult result = proposeScheduleAndAction(
-                    subscriptions, action, successMessage);
+                    subscriptions, action);
 
             if (result.promptUser) {
                 final Subscription subscription = (subscriptions.size() == 1) ? subscriptions
                         .get(0) : null;
-                final IDisplayForceApplyPrompt forceApplyPrompt = getForceApplyPromptDisplay();
 
                 VizApp.runSync(new Runnable() {
                     @Override
@@ -418,9 +567,9 @@ public class SubscriptionService implements ISubscriptionService {
                     for (Subscription temp : subscriptions) {
                         temp.setUnscheduled(false);
                     }
-                    action.run();
+                    String successMessage = action.call();
 
-                    final Set<String> unscheduled = getBandwidthService()
+                    final Set<String> unscheduled = bandwidthService
                             .schedule(subscriptions);
                     updateSubscriptionsByNameToUnscheduled(unscheduled);
 
@@ -440,19 +589,10 @@ public class SubscriptionService implements ISubscriptionService {
         } catch (RegistryHandlerException e) {
             // The in-memory objects must be corrupted since we schedule first,
             // then store to the registry, so a reinitialize is called for
-            getBandwidthService().reinitialize();
+            bandwidthService.reinitialize();
 
             throw e;
         }
-    }
-
-    /**
-     * Get the force apply prompt for display
-     * 
-     * @return the force apply prompt display
-     */
-    IDisplayForceApplyPrompt getForceApplyPromptDisplay() {
-        return new DisplayForceApplyPrompt();
     }
 
     /**
@@ -461,27 +601,27 @@ public class SubscriptionService implements ISubscriptionService {
      * unscheduled as a result, then a message is returned designating such.
      * 
      * @param subscriptions
-     * @param registryAction
-     * @param successMessage
+     * @param serviceInteraction
      * @return the result
      * @throws RegistryHandlerException
      */
     private ProposeResult proposeScheduleAndAction(
-            List<Subscription> subscriptions, RegistryRunnable registryAction,
-            String successMessage) throws RegistryHandlerException {
+            List<Subscription> subscriptions,
+            ServiceInteraction serviceInteraction)
+            throws RegistryHandlerException {
 
-        IProposeScheduleResponse proposeScheduleresponse = getBandwidthService()
+        IProposeScheduleResponse proposeScheduleresponse = bandwidthService
                 .proposeSchedule(subscriptions);
         Set<String> unscheduledSubscriptions = proposeScheduleresponse
                 .getUnscheduledSubscriptions();
         boolean wouldUnscheduleSubs = !unscheduledSubscriptions.isEmpty();
 
-        String response = successMessage;
+        String response = null;
         if (wouldUnscheduleSubs) {
             response = getWouldCauseUnscheduledSubscriptionsPortion(
                     unscheduledSubscriptions, subscriptions);
         } else {
-            registryAction.run();
+            response = serviceInteraction.call();
         }
 
         return new ProposeResult(wouldUnscheduleSubs, response,
@@ -532,212 +672,42 @@ public class SubscriptionService implements ISubscriptionService {
      */
     private void getUnscheduledSubscriptionsPortion(StringBuilder msg,
             Set<String> unscheduledSubscriptions) {
-        if (unscheduledSubscriptions.isEmpty()) {
+        appendCollectionPortion(
+                msg,
+                "\n\nThe following subscriptions did not fully schedule with the bandwidth management system:",
+                unscheduledSubscriptions);
+    }
+
+    /**
+     * Append a collection of items underneath a preamble text.
+     * 
+     * @param msg
+     *            the current text
+     * @param preamble
+     *            the preamble
+     * @param collection
+     *            the collection of items
+     */
+    private void appendCollectionPortion(StringBuilder msg, String preamble,
+            Collection<String> collection) {
+        if (collection.isEmpty()) {
             return;
         }
-        msg.append(StringUtil
-                .createMessage(
-                        "\n\nThe following subscriptions did not fully schedule with the bandwidth management system:",
-                        unscheduledSubscriptions));
+        msg.append(StringUtil.createMessage(preamble, collection));
     }
 
     /**
-     * Get the bandwidth service to use.
+     * Save a pending subscription.
      * 
-     * @return the bandwidth service
+     * @throws RegistryHandlerException
      */
-    @VisibleForTesting
-    IBandwidthService getBandwidthService() {
-        return DataDeliveryServices.getBandwidthService();
-    }
+    private void savePendingSub(PendingSubscription pendingSub, String username)
+            throws RegistryHandlerException {
+        DataDeliveryHandlers.getPendingSubscriptionHandler().store(pendingSub);
 
-    /**
-     * Send a notification that a subscription has been created.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param username
-     *            the username
-     */
-    @Override
-    public void sendCreatedSubscriptionNotification(Subscription subscription,
-            String username) {
-        BaseSubscriptionNotificationRequest<Subscription> req = new SubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-
-        String msg = "Subscription " + subscription.getName()
-                + " has been created.";
-        req.setMessage(msg);
-        req.setSubscription(subscription);
-        req.setPriority(3);
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendCreatedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username) {
-
-        BaseSubscriptionNotificationRequest<InitialPendingSubscription> req = new PendingSubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-
-        req.setSubscription(subscription);
-        req.setPriority(2);
-        req.setMessage("Pending Subscription " + subscription.getName()
-                + " has been created.");
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendUpdatedSubscriptionNotification(Subscription subscription,
-            String username) {
-        BaseSubscriptionNotificationRequest<Subscription> req = new SubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-
-        String msg = "Subscription " + subscription.getName()
-                + " has been updated.";
-        req.setMessage(msg);
-        req.setSubscription(subscription);
-        req.setPriority(3);
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendUpdatedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username) {
-
-        BaseSubscriptionNotificationRequest<InitialPendingSubscription> req = new PendingSubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-
-        req.setMessage("Edited subscription " + subscription.getName());
-        req.setSubscription(subscription);
-        req.setPriority(2);
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendCreatedPendingSubscriptionForSubscriptionNotification(
-            InitialPendingSubscription subscription, String username) {
-        BaseSubscriptionNotificationRequest<InitialPendingSubscription> req = new PendingSubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-
-        req.setMessage("Edited subscription " + subscription.getName());
-        req.setSubscription(subscription);
-        req.setPriority(2);
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendApprovedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username) {
-        ApprovedPendingSubscriptionNotificationRequest req = new ApprovedPendingSubscriptionNotificationRequest();
-        req.setMessage("Approved subscription " + subscription.getName());
-        req.setUserId(username);
-        req.setCategory("Subscription Approved");
-        req.setPriority(2);
-        req.setSubscription(subscription);
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendDeniedPendingSubscriptionNotification(
-            InitialPendingSubscription subscription, String username,
-            String denyMessage) {
-        DeniedPendingSubscriptionNotificationRequest req = new DeniedPendingSubscriptionNotificationRequest();
-        req.setMessage(denyMessage);
-        req.setUserId(username);
-        req.setCategory("Subscription Approval Denied");
-        req.setPriority(2);
-        req.setId(subscription.getId());
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendDeletedSubscriptionNotification(Subscription subscription,
-            String username) {
-        SubscriptionNotificationRequest req = new SubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-        req.setPriority(3);
-        req.setMessage(subscription.getName() + " Deleted");
-        subscription.setDeleted(true);
-        req.setSubscription(subscription);
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendSubscriptionActivatedMessage(Subscription subscription,
-            String username) {
-        SubscriptionNotificationRequest req = new SubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-        req.setPriority(3);
-        req.setMessage(subscription.getName() + " Activated");
-
-        sendRequest(req);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendSubscriptionDeactivatedMessage(Subscription subscription,
-            String username) {
-        SubscriptionNotificationRequest req = new SubscriptionNotificationRequest();
-        req.setUserId(username);
-        req.setCategory("Subscription");
-        req.setPriority(3);
-        req.setMessage(subscription.getName() + " Deactivated");
-
-        sendRequest(req);
-    }
-
-    /**
-     * Send the notification request.
-     * 
-     * @param req
-     */
-    private void sendRequest(BaseSubscriptionNotificationRequest<?> req) {
-        try {
-            ThriftClient.sendRequest(req);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+        notificationService
+                .sendCreatedPendingSubscriptionForSubscriptionNotification(
+                        pendingSub, username);
     }
 
     private void updateSubscriptionsByNameToUnscheduled(
