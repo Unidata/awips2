@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * ------------ ---------- ----------- --------------------------
  * Nov 28, 2012    1269    lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
  * 
  * </pre>
  * 
@@ -269,7 +270,7 @@ public class GraphImage extends AbstractCanvasImage {
      *            Graphics Context
      */
     private void drawTimeLines(GC gc) {
-        Calendar cal = TimeUtil.newCalendar(timeZone);
+        Calendar cal = TimeUtil.newGmtCalendar();
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         long currentTimeMillis = cal.getTimeInMillis();
