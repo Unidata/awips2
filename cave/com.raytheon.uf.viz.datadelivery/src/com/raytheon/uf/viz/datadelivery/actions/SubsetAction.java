@@ -29,7 +29,6 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -40,10 +39,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetFileManager;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * Handler for launching the Subset Manager Dialog.
@@ -72,14 +71,15 @@ public class SubsetAction extends AbstractHandler {
             .getHandler(SubsetAction.class);
 
     /** Saved subset path */
-    private final String SUBSET_PATH = "dataDelivery" + File.separator + "subset" + File.separator;
+    private final String SUBSET_PATH = "dataDelivery" + File.separator
+            + "subset" + File.separator;
 
     /** Dialog instance */
     private SubsetManagerDlg<?, ?, ?> dlg = null;
 
     /** Dialog instance */
     private LoadSaveConfigDlg loadDlg = null;
-    
+
     private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_EDIT;
 
     @Override
@@ -87,29 +87,29 @@ public class SubsetAction extends AbstractHandler {
         try {
             // Check subscription.edit permissions
             IUser user = UserController.getUserObject();
-            String msg = user.uniqueId() + " is not authorized to edit subscriptions\nPermission: " + permission;
-            DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-            request.setUser(user);
-            request.addRequestedPermissions(permission);
-            request.setNotAuthorizedMessage(msg);
-            DataDeliveryAuthRequest response = DataDeliveryUtils.sendAuthorizationRequest(request);
-            if (response != null && response.isAuthorized()) {
-                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+            String msg = user.uniqueId()
+                    + " is not authorized to edit subscriptions\nPermission: "
+                    + permission;
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermissions(user, msg, permission).isAuthorized()) {
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
                 if (loadDlg == null || loadDlg.isDisposed()) {
-                    loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN, SUBSET_PATH, "", true);
+                    loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
+                            SUBSET_PATH, "", true);
                     loadDlg.open();
                 } else {
                     loadDlg.bringToTop();
                 }
-                LocalizationFile locFile = (LocalizationFile) loadDlg.getReturnValue();
+                LocalizationFile locFile = (LocalizationFile) loadDlg
+                        .getReturnValue();
                 if (locFile == null) {
                     return null;
                 }
                 SubsetXML<?> subset = SubsetFileManager.getInstance()
                         .loadSubset(locFile.getFile().getName());
 
-                DataSet data = MetaDataManager
-                        .getInstance().getDataSet(
+                DataSet data = MetaDataManager.getInstance().getDataSet(
                         subset.getDatasetName(), subset.getProviderName());
 
                 if (dlg == null || dlg.isDisposed()) {

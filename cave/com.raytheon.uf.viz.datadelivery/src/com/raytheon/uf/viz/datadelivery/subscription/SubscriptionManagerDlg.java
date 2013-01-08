@@ -57,7 +57,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -235,16 +234,21 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private SubscriptionApprovalDlg dlg = null;
 
     /** Create Group Dialog */
-    private CreateGroupDlg createGroupDlg;
+    private CreateGroupDefinitionDlg createGroupDlg;
 
     /** Edit Group Dialog */
-    private CreateGroupDlg editGroupDlg;
+    private EditGroupDefinitionDlg editGroupDlg;
 
     /** Delete Group Dialog */
     private DeleteGroupDlg deleteGroupDlg;
 
+    /** The subscription service */
     private final ISubscriptionService subscriptionService = DataDeliveryServices
             .getSubscriptionService();
+
+    /** The subscription notification service */
+    private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
+            .getSubscriptionNotificationService();
 
     /**
      * Constructor
@@ -658,13 +662,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to create subscriptions";
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
-
         try {
-            if (DataDeliveryUtils.sendAuthorizationRequest(request)
+            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
                     .isAuthorized()) {
                 DataBrowserAction action = new DataBrowserAction();
                 Map<String, String> params = new HashMap<String, String>();
@@ -786,24 +785,21 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         String msg = user.uniqueId()
                 + " is not authorized to access the Dataset Discovery Browser\nPermission: "
                 + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            if (DataDeliveryUtils.sendAuthorizationRequest(request)
+            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
                     .isAuthorized()) {
                 if (create) {
                     if (createGroupDlg == null) {
-                        createGroupDlg = new CreateGroupDlg(this.shell, this);
+                        createGroupDlg = new CreateGroupDefinitionDlg(
+                                this.shell, this);
                     }
                     createGroupDlg.open();
                 } else {
                     if (thereAreGroupsAvailable()) {
                         if (editGroupDlg == null) {
-                            editGroupDlg = new CreateGroupDlg(this.shell,
-                                    false, this);
+                            editGroupDlg = new EditGroupDefinitionDlg(
+                                    this.shell, this);
                         }
                         editGroupDlg.open();
                     } else {
@@ -911,15 +907,10 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         String msg = user.uniqueId()
                 + " is not authorized to Delete subscriptions.\nPermission: "
                 + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            DataDeliveryAuthRequest authReq = DataDeliveryUtils
-                    .sendAuthorizationRequest(request);
-            if (authReq != null && authReq.isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
+                    .isAuthorized()) {
                 String message = null;
 
                 if (selectionCount > 1) {
@@ -1004,15 +995,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 + ((activate) ? "Activate" : "Deactivate")
                 + " Subscriptions\nPermission: " + permission;
 
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
-
         try {
-            DataDeliveryAuthRequest authReq = DataDeliveryUtils
-                    .sendAuthorizationRequest(request);
-            if (authReq != null && authReq.isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
+                    .isAuthorized()) {
                 final List<Subscription> updatedList = new ArrayList<Subscription>();
 
                 int count = tableComp.getTable().getSelectionCount();
@@ -1049,13 +1034,14 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                             updatedList.add(sub);
 
                             if (activate) {
-                                subscriptionService
-                                        .sendSubscriptionActivatedMessage(sub,
+                                subscriptionNotificationService
+                                        .sendSubscriptionActivatedNotification(
+                                                sub,
                                                 username);
 
                             } else {
-                                subscriptionService
-                                        .sendSubscriptionDeactivatedMessage(
+                                subscriptionNotificationService
+                                        .sendSubscriptionDeactivatedNotification(
                                                 sub, username);
 
                             }
@@ -1257,23 +1243,17 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     }
 
     private boolean isApproved() {
-        // check to see if user if authorized to see pending changes
+        // check to see if user is authorized to see pending changes
         IUser user = UserController.getUserObject();
         try {
-            DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-            request.setUser(user);
-            request.addRequestedPermissions(
+            String msg = user.uniqueId()
+                    + " is not authorized to access Subscription Approval";
+
+            return DataDeliveryServices.getPermissionsService().checkPermissions(user, msg,
                     DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
                     DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW);
-            request.setNotAuthorizedMessage(user.uniqueId()
-                    + " is not authorized to access Subscription Approval");
-
-            DataDeliveryAuthRequest response = DataDeliveryUtils
-                    .sendAuthorizationRequest(request);
-            if (response != null && response.isAuthorized()) {
-                return true;
-            }
+                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW)
+                    .isAuthorized();
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
@@ -1301,7 +1281,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             handler.delete(username, subscriptions);
 
             for (Subscription subscription : subscriptions) {
-                subscriptionService.sendDeletedSubscriptionNotification(
+                subscriptionNotificationService
+                        .sendDeletedSubscriptionNotification(
                         subscription, username);
             }
         } catch (RegistryHandlerException e) {
