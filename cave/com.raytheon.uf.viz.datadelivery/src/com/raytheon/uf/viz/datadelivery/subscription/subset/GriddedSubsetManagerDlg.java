@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +30,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -43,6 +47,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,6 +74,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 05, 2012 1241       djohnson     Replace RegistryManager calls with registry handler calls.
  * Oct 11, 2012 1263       jpiatt       Modified for cancel flag.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Jan 04, 2013 1299       djohnson     Add logging of invalid forecast hour information if it occurs again.
  * 
  * </pre>
  * 
@@ -197,15 +203,52 @@ public class GriddedSubsetManagerDlg
 
         // All Forecast hours
         List<String> fcstHours = time.getFcstHours();
+        final int numberOfFcstHours = fcstHours.size();
 
         // Selected Forecast hour indices
         List<Integer> selectedTimeIndices = time.getSelectedTimeIndices();
         if (!CollectionUtil.isNullOrEmpty(selectedTimeIndices)) {
             for (int idx : selectedTimeIndices) {
-                timeXml.addHour(fcstHours.get(idx));
+                if (idx < 0 || idx >= numberOfFcstHours) {
+                    warnOfInvalidForecastHourIndex(this.subscription,
+                            numberOfFcstHours, idx);
+                } else {
+                    timeXml.addHour(fcstHours.get(idx));
+                }
             }
         }
         return timeXml;
+    }
+
+    /**
+     * Warns of an invalid forecast hour index, with debugging information.
+     * 
+     * @param subscription
+     *            the time object
+     * @param numberOfFcstHours
+     *            the number of forecast hours in the time object
+     * @param idx
+     *            the requested index, which was invalid
+     */
+    private void warnOfInvalidForecastHourIndex(Subscription subscription,
+            final int numberOfFcstHours, int idx) {
+        String subscriptionAsXml;
+        try {
+            subscriptionAsXml = new JAXBManager(Subscription.class)
+                    .marshalToXml(subscription);
+        } catch (JAXBException e) {
+            StringWriter writer = new StringWriter();
+            writer.append("Unable to convert the subscription object to xml:");
+            e.printStackTrace(new PrintWriter(writer));
+            subscriptionAsXml = writer.toString();
+        }
+
+        statusHandler
+                .handle(Priority.WARN,
+                        String.format(
+                                "Invalid value for selected forecast hour.  Expected less than [%s] but was [%s].\nSubscription represented as XML:\n%s",
+                                numberOfFcstHours, idx, subscriptionAsXml),
+                        new IllegalStateException("Debugging stacktrace"));
     }
 
     @Override
@@ -266,11 +309,11 @@ public class GriddedSubsetManagerDlg
         GriddedTimingSelectionPresenter presenter = new GriddedTimingSelectionPresenter(
                 new GriddedTimingSelectionDlg(getShell()), dataSet, asString);
         Integer cycle = presenter.open();
-        
+
         if (presenter.isCancel()) {
             return null;
         }
-        
+
         if (cycle != null) {
             Time time;
             this.useLatestDate = (cycle == -999 ? true : false);
@@ -289,7 +332,7 @@ public class GriddedSubsetManagerDlg
                 // If ulse latest data is selected then add all cycle times, the
                 // retrieval generator will determine which one to use.
                 time = dataSet.getTime();
-                for (Integer c: new TreeSet<Integer>(dataSet.getCycles())) {
+                for (Integer c : new TreeSet<Integer>(dataSet.getCycles())) {
                     time.addCycleTime(c);
                 }
             }
