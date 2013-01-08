@@ -41,6 +41,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Sep 11, 2012 1154       djohnson    Add MILLIS constants and isNewerDay().
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
+ * Jan 07, 2013 1451       djohnson    Add newGmtCalendar() and time constants.
  * 
  * </pre>
  * 
@@ -84,23 +85,37 @@ public class TimeUtil {
 
     public static final String DATE_STRING = "(\\d{4})-(\\d{2})-(\\d{2})[ _](\\d{2}):(\\d{2}):(\\d{2})\\.(\\d{1,3})";
 
+    public static final int SECONDS_PER_MINUTE = 60;
+
+    public static final int MINUTES_PER_HOUR = 60;
+
+    public static final int HOURS_PER_DAY = 24;
+
+    private static final int DAYS_PER_WEEK = 7;
+
     // Util.java has a few of these constants, but that is located in an EDEX
     // plugin and this is a more appropriate place for them anyways
     public static final long MILLIS_PER_SECOND = 1000;
 
-    public static final long MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
+    public static final long MILLIS_PER_MINUTE = MILLIS_PER_SECOND
+            * SECONDS_PER_MINUTE;
 
-    public static final long MILLIS_PER_HOUR = MILLIS_PER_MINUTE * 60;
+    public static final long MILLIS_PER_HOUR = MILLIS_PER_MINUTE
+            * MINUTES_PER_HOUR;
 
-    public static final long MILLIS_PER_DAY = MILLIS_PER_HOUR * 24;
+    public static final long MILLIS_PER_DAY = MILLIS_PER_HOUR * HOURS_PER_DAY;
 
-    public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * 7;
+    public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * DAYS_PER_WEEK;
 
+    /**
+     * Note: This constant assumes a month of 30 days.
+     */
     public static final long MILLIS_PER_MONTH = MILLIS_PER_DAY * 30;
 
-    public static final long MILLIS_PER_YEAR = 3600 * 24 * 1000 * 365;
-
-    public static final int SECONDS_PER_MINUTE = 60;
+    /**
+     * Note: This constant does not take into account leap years.
+     */
+    public static final long MILLIS_PER_YEAR = MILLIS_PER_DAY * 365;
 
     private static ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
 
@@ -298,6 +313,18 @@ public class TimeUtil {
     }
 
     /**
+     * Return a new {@link Calendar} instance for the GMT {@link TimeZone} .
+     * This method delegates to the {@link SimulatedTime} class to determine the
+     * currently configured system time.
+     * 
+     * @see {@link SimulatedTime}
+     * @return the calendar
+     */
+    public static Calendar newGmtCalendar() {
+        return TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+    }
+
+    /**
      * Return a new {@link Date} instance. This method delegates to the
      * {@link SimulatedTime} class to determine the currently configured system
      * time.
@@ -319,5 +346,35 @@ public class TimeUtil {
      */
     public static ImmutableDate newImmutableDate() {
         return new ImmutableDate(SimulatedTime.getSystemTime().getMillis());
+    }
+
+    /**
+     * Sets each of the fields in the list to their min value in the calendar.
+     * 
+     * @param calendar
+     *            the calendar
+     * @param fields
+     * @return the calendar with those fields zeroed
+     */
+    public static Calendar minCalendarFields(Calendar calendar, int... fields) {
+        for (int field : fields) {
+            calendar.set(field, calendar.getActualMinimum(field));
+        }
+        return calendar;
+    }
+
+    /**
+     * Sets each of the fields in the list to their max value in the calendar.
+     * 
+     * @param calendar
+     *            the calendar
+     * @param fields
+     * @return the calendar with those fields maxed
+     */
+    public static Calendar maxCalendarFields(Calendar calendar, int... fields) {
+        for (int field : fields) {
+            calendar.set(field, calendar.getActualMaximum(field));
+        }
+        return calendar;
     }
 }
