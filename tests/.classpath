@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="unit"/>
+	<classpathentry kind="src" path="deploy"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="src" path="integration"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.junit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.codec"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.slf4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.comm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.http"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.registry"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.viz.datadelivery"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.serialization"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.schemas.ebxml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.harvester"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.localization"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.log4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.lang"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.geotools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.grib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.geospatial"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.hibernate"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.springframework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.serialization.comm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/edu.uci.ics.crawler4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.retrieval"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.dods"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.google.guava"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.time"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.status"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.viz.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.auth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.plugin.nwsauth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.auth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.ebxml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.registry.ebxml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.esb.camel"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javax.persistence"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/net.sf.ehcache"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataquery"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.database"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.mchange"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.ebxml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.management"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.facebook.thrift"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datastorage"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.event"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.event"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.event"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javax.measure"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javax.vecmath"/>
+	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.gridcoverage"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.service"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.viz.ui"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.bandwidth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.event"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.request"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.stats"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.stats"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
