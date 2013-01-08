@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Aug 21, 2012            jsanchez    Stored the aggregate buckets in the db.
  * Nov 07, 2012   1317     mpduff      Updated Configuration Files.
  * Nov 28, 2012   1350     rjpeter     Simplied aggregation and added aggregation with current db aggregate records.
+ * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
  * </pre>
  * 
  * @author jsanchez
@@ -93,10 +94,10 @@ public class AggregateManager {
      */
     private void aggregate(AggregateRecordDao dao, StatisticsEvent statsEvent,
             TimeRange timeRange, Multimap<String, Event> groupedEvents) {
-        Calendar start = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        Calendar start = TimeUtil.newGmtCalendar();
         start.setTime(timeRange.getStart());
 
-        Calendar end = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        Calendar end = TimeUtil.newGmtCalendar();
         end.setTime(timeRange.getEnd());
 
         // perform aggregate functions on the grouped data

@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
@@ -55,6 +55,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IGuiThreadTaskExecutor;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -310,12 +311,32 @@ public class CreateSubscriptionDlgPresenter {
             view.setEndDateBtnEnabled(false);
         }
 
-        Date saDate = subscription.getActivePeriodStart();
-        Date eaDate = subscription.getActivePeriodEnd();
+        Date activePeriodStartDate = subscription.getActivePeriodStart();
+        Date activePeriodEndDate = subscription.getActivePeriodEnd();
 
-        if (saDate != null || eaDate != null) {
-            view.setActiveStartDate(saDate);
-            view.setActiveEndDate(eaDate);
+        if (activePeriodStartDate != null && activePeriodEndDate != null) {
+            final Calendar now = TimeUtil.newGmtCalendar();
+            int calendarYearToUse = now.get(Calendar.YEAR);
+
+            // If currently in the window, assume starting from last year for
+            // the start date
+            if (subscription.getStatus().equals(
+                    SubscriptionStatus.ACTIVE.toString())) {
+                calendarYearToUse--;
+            }
+
+            activePeriodStartDate = calculateNextOccurenceOfMonthAndDay(
+                    activePeriodStartDate, calendarYearToUse, now);
+
+            Calendar activePeriodStartCal = TimeUtil.newGmtCalendar();
+            activePeriodStartCal.setTime(activePeriodStartDate);
+
+            activePeriodEndDate = calculateNextOccurenceOfMonthAndDay(
+                    activePeriodEndDate,
+                    activePeriodStartCal.get(Calendar.YEAR), now);
+
+            view.setActiveStartDate(activePeriodStartDate);
+            view.setActiveEndDate(activePeriodEndDate);
             view.setAlwaysActive(false);
         } else {
             view.setAlwaysActive(true);
@@ -344,6 +365,31 @@ public class CreateSubscriptionDlgPresenter {
         if (!Strings.isNullOrEmpty(subscription.getGroupName())) {
             view.setGroupName(subscription.getGroupName());
         }
+    }
+
+    /**
+     * Calculate the next occurrence of the month and day on the specified date
+     * object.
+     * 
+     * @param dateWithMonthAndDay
+     *            the date to retrieve the month and day from
+     * @param yearToStartAt
+     *            the year to start moving forward from, checking for the date
+     *            to not before the current time
+     * @param now
+     *            the current calendar
+     * 
+     * @return the date object of the next occurrence
+     */
+    private static Date calculateNextOccurenceOfMonthAndDay(
+            Date dateWithMonthAndDay, int yearToStartAt, Calendar now) {
+        final Calendar cal = TimeUtil.newCalendar();
+        cal.setTime(dateWithMonthAndDay);
+        cal.set(Calendar.YEAR, yearToStartAt);
+        if (cal.before(now)) {
+            cal.add(Calendar.YEAR, 1);
+        }
+        return cal.getTime();
     }
 
     /**
@@ -380,7 +426,7 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         if (view.isNoExpirationDate()) {
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar cal = TimeUtil.newGmtCalendar();
             subscription.setSubscriptionStart(cal.getTime());
             subscription.setSubscriptionEnd(null);
         } else {
@@ -421,15 +467,8 @@ public class CreateSubscriptionDlgPresenter {
                             .parse(endText);
                     subscription.setActivePeriodEnd(endPeriodDate);
                 }
-                Calendar cal = Calendar
-                        .getInstance(TimeZone.getTimeZone("GMT"));
-                if (subscription.getActivePeriodStart().before(cal.getTime())
-                        && subscription.getActivePeriodEnd().after(
-                                cal.getTime())) {
-                    subscription.setActive(true);
-                } else {
-                    subscription.setActive(false);
-                }
+
+                subscription.setActive(true);
             } catch (ParseException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -717,7 +756,6 @@ public class CreateSubscriptionDlgPresenter {
         boolean valid = false;
         boolean datesValid = false;
         boolean activeDatesValid = false;
-        boolean nameValid = false;
         boolean groupDeliverValid = false;
         boolean groupDurValid = false;
         boolean groupActiveValid = false;
@@ -892,12 +930,24 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         // Set the Active Period info
-        Date saDate = groupDefinition.getActivePeriodStart();
-        Date eaDate = groupDefinition.getActivePeriodEnd();
+        Date activePeriodStartDate = groupDefinition.getActivePeriodStart();
+        Date activePeriodEndDate = groupDefinition.getActivePeriodEnd();
 
-        if (saDate != null || eaDate != null) {
-            view.setStartDate(saDate);
-            view.setActiveEndDate(eaDate);
+        if (activePeriodStartDate != null || activePeriodEndDate != null) {
+            final Calendar now = TimeUtil.newGmtCalendar();
+
+            activePeriodStartDate = calculateNextOccurenceOfMonthAndDay(
+                    activePeriodStartDate, now.get(Calendar.YEAR), now);
+
+            Calendar activePeriodStartCal = TimeUtil.newGmtCalendar();
+            activePeriodStartCal.setTime(activePeriodStartDate);
+
+            activePeriodEndDate = calculateNextOccurenceOfMonthAndDay(
+                    activePeriodEndDate,
+                    activePeriodStartCal.get(Calendar.YEAR), now);
+
+            view.setStartDate(activePeriodStartDate);
+            view.setActiveEndDate(activePeriodEndDate);
             view.setAlwaysActive(false);
         } else {
             view.setAlwaysActive(true);
