@@ -38,6 +38,7 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -48,7 +49,7 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
     /**
      * Array of data.
      */
-    private ArrayList<T> tableData;
+    private final ArrayList<T> tableData;
 
     /**
      * Column name.
@@ -116,10 +117,8 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
      * @param removeList
      *            The list of data to remove.
      */
-    public void removeAll(ArrayList<T> removeList) {
-        System.out.println(tableData.size() + " items");
+    public void removeAll(List<T> removeList) {
         tableData.removeAll(removeList);
-        System.out.println(tableData.size() + " items2");
     }
 
     /**
