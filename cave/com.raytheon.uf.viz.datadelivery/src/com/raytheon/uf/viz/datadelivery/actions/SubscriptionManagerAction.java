@@ -26,15 +26,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * Subscription Manager Dialog Action class.
@@ -61,7 +60,7 @@ public class SubscriptionManagerAction extends AbstractHandler {
 
     /** Dialog instance */
     private SubscriptionManagerDlg dlg = null;
-    
+
     /** Permission String */
     private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_VIEW;
 
@@ -70,15 +69,15 @@ public class SubscriptionManagerAction extends AbstractHandler {
         try {
             // check if user is authorized
             IUser user = UserController.getUserObject();
-            String msg = user.uniqueId() + " is not authorized to access Data Delivery\nPermission: " + permission;
-            DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-            request.setUser(user);
-            request.addRequestedPermissions(permission);
-            request.setNotAuthorizedMessage(msg);
-            DataDeliveryAuthRequest response = DataDeliveryUtils.sendAuthorizationRequest(request);
-            if (response != null && response.isAuthorized()) {
+            String msg = user.uniqueId()
+                    + " is not authorized to access Data Delivery\nPermission: "
+                    + permission;
+
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 if ((dlg == null) || (dlg.isDisposed() == true)) {
-                    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    Shell shell = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getShell();
                     dlg = new SubscriptionManagerDlg(shell);
                     dlg.open();
                 } else {
