@@ -113,6 +113,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 11, 2012 1405       mpduff       Move close confirmation dialog after event.doit = false.
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 12, 2012 1391       bgonzale     Added job for dataset retrieval.
+ * Jan 08, 2012 1436       bgonzale     Fixed area text box display update check.
  * 
  * </pre>
  * 
@@ -735,27 +736,27 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         if (envelope == null || envelope.isEmpty()) {
             areaSelectedLbl.setText("");
             clearBtn.setEnabled(false);
-        }
+        } else {
+            NumberFormat formatter = new DecimalFormat(".0000");
 
-        NumberFormat formatter = new DecimalFormat(".0000");
+            Coordinate ul = EnvelopeUtils.getUpperLeftLatLon(envelope);
+            Coordinate lr = EnvelopeUtils.getLowerRightLatLon(envelope);
 
-        Coordinate ul = EnvelopeUtils.getUpperLeftLatLon(envelope);
-        Coordinate lr = EnvelopeUtils.getLowerRightLatLon(envelope);
+            // Check for empty values
+            if (ul.x == 0 && ul.y == 0 && lr.x == 0 && lr.y == 0) {
+                return;
+            }
 
-        // Check for empty values
-        if (ul.x == 0 && ul.y == 0 && lr.x == 0 && lr.y == 0) {
-            return;
-        }
+            StringBuilder sb = new StringBuilder("UL: ");
+            sb.append(formatter.format(ul.x) + "," + formatter.format(ul.y));
+            sb.append(", LR: " + formatter.format(lr.x) + ","
+                    + formatter.format(lr.y));
 
-        StringBuilder sb = new StringBuilder("UL: ");
-        sb.append(formatter.format(ul.x) + "," + formatter.format(ul.y));
-        sb.append(", LR: " + formatter.format(lr.x) + ","
-                + formatter.format(lr.y));
+            areaSelectedLbl.setText(sb.toString());
 
-        areaSelectedLbl.setText(sb.toString());
-
-        if (areaSelectedLbl.getText().length() > 0) {
-            clearBtn.setEnabled(true);
+            if (areaSelectedLbl.getText().length() > 0) {
+                clearBtn.setEnabled(true);
+            }
         }
 
         this.areaDirty = true;
