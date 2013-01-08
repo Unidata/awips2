@@ -25,6 +25,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Subscription XML
@@ -840,7 +841,7 @@ public class Subscription implements ISerializableObject, Serializable {
             } else if (!isActive()) {
                 status = SubscriptionStatus.INACTIVE;
             } else {
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                Calendar cal = TimeUtil.newGmtCalendar();
                 Date today = cal.getTime();
 
                 status = (inWindow(today)) ? SubscriptionStatus.ACTIVE : SubscriptionStatus.INACTIVE;
@@ -859,10 +860,24 @@ public class Subscription implements ISerializableObject, Serializable {
         if (activePeriodStart == null && activePeriodEnd == null) {
             return true;
         } else if (activePeriodStart != null && activePeriodEnd != null) {
+            Calendar startCal = TimeUtil.newGmtCalendar();
+            startCal.setTime(activePeriodStart);
+            startCal = TimeUtil.minCalendarFields(startCal,
+                    Calendar.HOUR_OF_DAY,
+                    Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+            activePeriodStart = startCal.getTime();
+
+            Calendar endCal = TimeUtil.newGmtCalendar();
+            endCal.setTime(activePeriodEnd);
+            endCal = TimeUtil.maxCalendarFields(endCal, Calendar.HOUR_OF_DAY,
+                    Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+            activePeriodEnd = endCal.getTime();
+
+            
             // Only concerned with month and day, need to set the years equal
-            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar c = TimeUtil.newGmtCalendar();
             c.setTime(checkDate);
-            c.set(Calendar.YEAR, 1970);
+            c.set(Calendar.YEAR, startCal.get(Calendar.YEAR));
             Date date = c.getTime();
 
             return (activePeriodStart.before(date) && activePeriodEnd
