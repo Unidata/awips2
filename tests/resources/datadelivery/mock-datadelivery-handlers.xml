@@ -1,0 +1,70 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  
+    <!-- These handlers are mock handlers create by Mockito, 
+        which allow verifications of method invocations -->  
+
+    <bean name="SubscriptionHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler" />
+    </bean>
+    
+    <bean name="PendingSubscriptionHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler" />
+    </bean>
+    
+    <bean name="GroupDefinitionHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IGroupDefinitionHandler" />
+    </bean>
+    
+    <bean name="ProviderHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IProviderHandler" />
+    </bean>
+    
+    <bean name="DataSetNameHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetNameHandler" />
+    </bean>
+    
+    <bean name="ParameterHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IParameterHandler" />
+    </bean>
+    
+    <bean name="ParameterLevelHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IParameterLevelHandler" />
+    </bean>
+    
+    <bean name="DataSetMetaDataHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler" />
+    </bean>
+    
+    <bean name="GriddedDataSetMetaDataHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IGriddedDataSetMetaDataHandler" />
+    </bean>
+    
+    <bean name="DataSetHandler" class="org.mockito.Mockito"
+        factory-method="mock">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler" />
+    </bean>
+
+</beans>

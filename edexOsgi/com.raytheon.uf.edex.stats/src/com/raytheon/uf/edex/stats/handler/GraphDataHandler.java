@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2012   728      mpduff      Initial creation
+ * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
  * 
  * </pre>
  * 
@@ -175,7 +175,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
      * @return Calendar object
      */
     private Calendar convertToCalendar(Date date) {
-        Calendar cal = TimeUtil.newCalendar(TimeZone.getTimeZone("GMT"));
+        Calendar cal = TimeUtil.newGmtCalendar();
         cal.setTimeInMillis(date.getTime());
 
         return cal;
