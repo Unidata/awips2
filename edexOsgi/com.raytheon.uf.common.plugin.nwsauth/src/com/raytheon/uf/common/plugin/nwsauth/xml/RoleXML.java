@@ -82,7 +82,7 @@ public class RoleXML implements ISerializableObject {
      * @return the description
      */
     public String getRoleDescription() {
-        return roleDescription.trim();
+        return roleDescription == null ? null : roleDescription.trim();
     }
 
     /**
