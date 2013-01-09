@@ -208,3 +208,7 @@ input=nah20120711_00z,wave_nah
 output=wave_nah,00z,0
 input=rap32_06z,rap
 output=rap32,06z,6
+input=com_amseas_20130109,ncom
+output=ncom_amseas,NONE,null
+input=ncom_useast_20130109,ncom
+output=ncom_useast,NONE,null

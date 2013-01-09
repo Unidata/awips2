@@ -170,7 +170,7 @@ class OpenDAPMetaDataExtracter extends MetaDataExtracter {
                     .getAttribute(serviceConfig.getConstantValue("HISTORY"))
                     .getValueAt(0);
             String[] histories = history.split(":");
-            String time = OpenDAPConstants.trim(histories[0].trim()
+            String time = OpenDAPParseUtility.getInstance().trim(histories[0].trim()
                     + histories[1].trim() + histories[2].trim());
 
             Date dataDate = null;

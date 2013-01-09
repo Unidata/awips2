@@ -20,6 +20,7 @@
 		<pattern name="PATTERN3" dataSetLocation="1,3" cycleLocation="2" regex="(.*)_(\d+z)(_.*)$" />
 		<!--  SPECIAL DataSet Naming Overrides by CollectionName -->
 		<dataSetNaming name="naefs" separator="_" expression="collectionName+dataSetName" />
+		<dataSetNaming name="ncom" separator="_" expression="collectionName+dataSetName" />
 		<dataSetNaming name="naefs_bc" separator="_" expression="collectionName+dataSetName" />
 		<dataSetNaming name="naefs_ndgd" separator="_" expression="collectionName+dataSetName" />
 		<dataSetNaming name="gens" separator="_" expression="collectionName+dataSetName" />
@@ -37,13 +38,17 @@
 		<!-- SPECIAL pattern overrides for certain collections -->
 		<!-- OFS special case dataSetName = linkkey, no cycle -->
 		<pattern name="ofs" dataSetLocation="-1" regex="_" />
-		<!-- RTOFS special case dataSetName = linkkey, no cycle -->
-		<pattern name="rtofs" dataSetLocation="-1" regex="_" />
+		<!-- NCOM special case dataSetName = linkkey, no cycle -->
+		<pattern name="ncom" dataSetLocation="1" regex="_" />
 		<!-- RTOFS special case dataSetName = where it actually has cycles -->
 		<pattern name="ofs_hires" dataSetLocation="0" cycleLocation="1" regex="\." />
+		<!-- RTOFS special case dataSetName = linkkey, no cycle -->
+		<pattern name="rtofs" dataSetLocation="-1" regex="_" />
 	</dataSetConfig>
 	<!-- OPEnDAP service constants -->
 	<constant name="BLANK" value=""/>
+	<constant name="UNKNOWN" value="unknown"/>
+	<constant name="NONE" value="NONE"/>
     <constant name="TIME" value="time"/>
     <constant name="LON" value="lon"/>
     <constant name="LAT" value="lat"/>

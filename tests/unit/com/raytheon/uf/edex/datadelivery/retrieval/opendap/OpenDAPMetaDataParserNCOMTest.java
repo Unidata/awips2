@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,30 +67,23 @@ import dods.dap.parser.ParseException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 1, 2012             djohnson     Initial creation
- * Aug 10, 2012 1022       djohnson     Use {@link OpenDapGriddedDataSet}.
- * Aug 15, 2012 0743       djohnson     Test the date is set on {@link DataSetMetaData}.
- * Aug 22, 2012 0743       djohnson     Store data type as an enum.
- * Sep 14, 2012 1169       djohnson     Change store to storeOrReplace.
- * Oct 04, 2012 1241       djohnson     Remove test for store only once.
- * Oct 23, 2012 1286       djohnson     Install test localization before each test.
- * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 09, 2013  1466      dhladky     Unit test for NCOM
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class OpenDAPMetaDataParserTest {
-    private static final String DAS_FILE = "rap32_00z.das";
+public class OpenDAPMetaDataParserNCOMTest {
+    private static final String DAS_FILE = "ncom_amseas_20130109.das";
 
-    private static final String COLLECTION_NAME = "rap";
+    private static final String COLLECTION_NAME = "ncom";
 
-    private static final String DATASET_NAME = "rap32";
+    private static final String DATASET_NAME = "ncom_amseas";
 
-    private static final String LINK_URL = "http://nomads.ncep.noaa.gov:9090/dods/rap/rap20120729/rap32_00z";
+    private static final String LINK_URL = "http://nomads.ncep.noaa.gov:9090/dods/ncom/ncom20130109/ncom_amseas_20130109";
 
-    private static final String LINK2_URL = "http://nomads.ncep.noaa.gov:9090/dods/rap/rap20120729/rap32_01z";
+    private static final String LINK2_URL = "http://nomads.ncep.noaa.gov:9090/dods/ncom/ncom20130109/useast_20130109";
 
     private static final Provider provider = new Provider();
     static {
@@ -107,7 +99,7 @@ public class OpenDAPMetaDataParserTest {
 
     private static final Date DATASET_DATE;
     static {
-        DATASET_DATE = new ImmutableDate(1343520000000L);
+        DATASET_DATE = new ImmutableDate(1357689600000L);
     }
 
     private static DAS DAS = new DAS();
@@ -118,7 +110,7 @@ public class OpenDAPMetaDataParserTest {
         PathManagerFactoryTest.initLocalization();
 
         ByteArrayInputStream bis = new ByteArrayInputStream(
-                TestUtil.readResource(OpenDAPMetaDataParserTest.class, DAS_FILE));
+                TestUtil.readResource(OpenDAPMetaDataParserNCOMTest.class, DAS_FILE));
         DAS.parse(bis);
 
         RegistryObjectHandlersUtil.init();
@@ -128,7 +120,7 @@ public class OpenDAPMetaDataParserTest {
         // Override the method to store the result for interrogation
         @Override
         protected void storeDataSet(final DataSet dataSet) {
-            OpenDAPMetaDataParserTest.this.dataSet = (OpenDapGriddedDataSet) dataSet;
+            OpenDAPMetaDataParserNCOMTest.this.dataSet = (OpenDapGriddedDataSet) dataSet;
         }
 
         /**
@@ -149,7 +141,7 @@ public class OpenDAPMetaDataParserTest {
         Link link = new Link(COLLECTION_NAME, LINK_URL);
         link.getLinks().put(DAP_TYPE.DAS.getDapType(), DAS);
         String DateFormat = "HHddMMMyyyy";
-        Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
+        Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
         LinkStore linkStore = new LinkStore();
@@ -168,8 +160,16 @@ public class OpenDAPMetaDataParserTest {
 
         Map<String, Parameter> parameters = dataSet.getParameters();
         assertEquals("Incorrect parameter description!",
-                "** cloud base geopotential height [gpm] ",
-                parameters.get("hgtclb").getDefinition());
+                "salinity [psu] ",
+                parameters.get("salinity").getDefinition());
+        
+        assertEquals("Incorrect parameter description!",
+                "grid y surface wind stress [newton/meter2] ",
+                parameters.get("swsgy").getDefinition());
+        
+        assertEquals("Incorrect parameter description!",
+                "surface atmospherics pressure [pascals] ",
+                parameters.get("surf_atm_press").getDefinition());
     }
 
     @Test
@@ -200,20 +200,21 @@ public class OpenDAPMetaDataParserTest {
 
         DAS das2 = new DAS();
         das2.parse(new ByteArrayInputStream(TestUtil.readResource(
-                OpenDAPMetaDataParserTest.class, "rap32_01z.das")));
+                OpenDAPMetaDataParserNCOMTest.class, "ncom_amseas_20130109.das")));
         Link link2 = new Link(COLLECTION_NAME, LINK2_URL);
         link2.getLinks().put(DAP_TYPE.DAS.getDapType(), das2);
         linkStore.addLink(LINK2_URL, link2);
 
         String DateFormat = "HHddMMMyyyy";
-        Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
+        Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
         parser.parseMetaData(provider, linkStore, coll, DateFormat);
 
+        // NCOM has no cylces
         Set<Integer> cycles = dataSet.getCycles();
-        assertTrue(cycles.contains(Integer.valueOf(0)));
-        assertTrue(cycles.contains(Integer.valueOf(1)));
+        assertFalse(cycles.contains(Integer.valueOf(0)));
+        assertFalse(cycles.contains(Integer.valueOf(1)));
     }
 
     @Test
@@ -228,25 +229,17 @@ public class OpenDAPMetaDataParserTest {
 
         DAS das2 = new DAS();
         das2.parse(new ByteArrayInputStream(TestUtil.readResource(
-                OpenDAPMetaDataParserTest.class, "rap32_01z.das")));
+                OpenDAPMetaDataParserNCOMTest.class, "ncom_useast_20130109.das")));
         Link link2 = new Link(COLLECTION_NAME, LINK2_URL);
         link2.getLinks().put(DAP_TYPE.DAS.getDapType(), das2);
         linkStore.addLink(LINK2_URL, link2);
 
         String DateFormat = "HHddMMMyyyy";
-        Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
+        Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
         parser.parseMetaData(provider, linkStore, coll, DateFormat);
 
-        Set<Integer> forecastHours = dataSet.getForecastHours();
-        assertFalse(forecastHours.isEmpty());
-
-        // Verify all expected forecast hours are present
-        for (int i = 0; i < 19; i++) {
-            assertTrue("Did not find an expected forecast hour!",
-                    forecastHours.contains(Integer.valueOf(i)));
-        }
     }
 
     @Test
@@ -261,25 +254,25 @@ public class OpenDAPMetaDataParserTest {
 
         DAS das2 = new DAS();
         das2.parse(new ByteArrayInputStream(TestUtil.readResource(
-                OpenDAPMetaDataParserTest.class, "rap32_01z.das")));
+                OpenDAPMetaDataParserNCOMTest.class, "ncom_amseas_20130109.das")));
         Link link2 = new Link(COLLECTION_NAME, LINK2_URL);
         link2.getLinks().put(DAP_TYPE.DAS.getDapType(), das2);
         linkStore.addLink(LINK2_URL, link2);
 
         String DateFormat = "HHddMMMyyyy";
-        Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
+        Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
         parser.parseMetaData(provider, linkStore, coll, DateFormat);
 
         OpenDapGriddedDataSet griddedDataSet = dataSet;
         Set<Integer> keySet = griddedDataSet.getCyclesToUrls().keySet();
-        assertTrue(keySet.contains(0));
-        assertTrue(keySet.contains(1));
-
-        Iterator<Integer> iter = griddedDataSet.newestToOldestIterator();
-        assertEquals(1, iter.next().intValue());
-        assertEquals(0, iter.next().intValue());
+        assertFalse(keySet.contains(0));
+        assertFalse(keySet.contains(1));
+        // NCOM has no cyles
+        //Iterator<Integer> iter = griddedDataSet.newestToOldestIterator();
+        //assertEquals(1, iter.next().intValue());
+        //assertEquals(0, iter.next().intValue());
     }
 
     @Test
@@ -288,10 +281,7 @@ public class OpenDAPMetaDataParserTest {
         performParse();
 
         assertTrue(dataSet instanceof OpenDapGriddedDataSet);
-
-        OpenDapGriddedDataSet griddedDataSet = dataSet;
-        assertEquals(0, griddedDataSet.newestToOldestIterator().next()
-                .intValue());
+                
     }
 
     @Test
@@ -306,13 +296,13 @@ public class OpenDAPMetaDataParserTest {
 
         DAS das2 = new DAS();
         das2.parse(new ByteArrayInputStream(TestUtil.readResource(
-                OpenDAPMetaDataParserTest.class, "rap32_01z.das")));
+                OpenDAPMetaDataParserNCOMTest.class, "ncom_useast_20130109.das")));
         Link link2 = new Link(COLLECTION_NAME, LINK2_URL);
         link2.getLinks().put(DAP_TYPE.DAS.getDapType(), das2);
         linkStore.addLink(LINK2_URL, link2);
 
         String DateFormat = "HHddMMMyyyy";
-        Collection coll = new Collection(COLLECTION_NAME, "rap", "yyyyMMdd");
+        Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
         List<DataSetMetaData> results = parser.parseMetaData(provider,
@@ -359,8 +349,5 @@ public class OpenDAPMetaDataParserTest {
 
         assertTrue(dataSet instanceof OpenDapGriddedDataSet);
 
-        OpenDapGriddedDataSet griddedDataSet = dataSet;
-        assertEquals(metadatas.get(0).getUrl(), griddedDataSet
-                .getCyclesToUrls().get(0));
     }
 }
