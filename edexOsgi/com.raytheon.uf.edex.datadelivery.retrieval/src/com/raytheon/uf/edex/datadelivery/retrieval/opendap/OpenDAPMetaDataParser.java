@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.MetaDataParser;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDAPMetaDataExtracter.DAP_TYPE;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import dods.dap.AttributeTable;
 import dods.dap.DAS;
 
 /**
@@ -86,6 +87,7 @@ import dods.dap.DAS;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 12, 2012 supplement dhladky      Restored operation of ensembles.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
  * 
  * </pre>
  * 
@@ -186,6 +188,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         double dz = 0.00;
         float levMin = 0.0f;
         float levMax = 0.0f;
+        boolean hasLevels = false;
         final Coordinate upperLeft = new Coordinate();
         final Coordinate lowerRight = new Coordinate();
         final GriddedCoverage griddedCoverage = new GriddedCoverage();
@@ -222,135 +225,136 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         final String fill_value = serviceConfig.getConstantValue("FILL_VALUE");
         final String fill = new Float(Util.GRID_FILL_VALUE).toString();
 
+        // process globals first
+        // process time
+        if (das.getAttributeTable(timecon) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(timecon);
+                Time time = new Time();
+                // number of times
+                time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(size).getValueAt(0))).intValue());
+                // minimum time val
+                time.setStart(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(
+                        minimum).getValueAt(0)));
+                // maximum time val
+                time.setEnd(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(maximum)
+                        .getValueAt(0)));
+                // format of time
+                time.setFormat(dataDateFormat);
+                // step
+                List<String> step = OpenDAPParseUtility.getInstance().parseTimeStep(at
+                        .getAttribute(time_step).getValueAt(0));
+                time.setStep(new Double(step.get(0)).doubleValue());
+                time.setStepUnit(Time.findStepUnit(step.get(1))
+                        .getDurationUnit());
+                gdsmd.setTime(time);
+            } catch (Exception le) {
+                logParsingException(timecon, "Time", collectionName, url);
+            }
+        }
+        // process latitude
+        if (das.getAttributeTable(lat) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(lat);
+                // ny
+                gridCoverage.setNy(new Integer(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(size).getValueAt(0))).intValue());
+                // dy
+                gridCoverage.setDy(new Float(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                // first latitude point
+                gridCoverage.setLa1(new Double(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(minimum).getValueAt(0))).doubleValue());
+
+                upperLeft.y = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
+                        maximum).getValueAt(0))).doubleValue();
+
+                lowerRight.y = new Double(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+
+            } catch (Exception le) {
+                logParsingException(lat, "Latitude", collectionName, url);
+            }
+        }
+        // process longitude
+        if (das.getAttributeTable(lon) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(lon);
+                // nx
+                gridCoverage.setNx(new Integer(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(size).getValueAt(0))).intValue());
+                // dx
+                gridCoverage.setDx(new Float(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                // min Lon
+                double minLon = new Double(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+                // max Lon
+                double maxLon = new Double(OpenDAPParseUtility.getInstance().trim(at
+                        .getAttribute(maximum).getValueAt(0))).doubleValue();
+
+                gridCoverage.setLo1(minLon);
+                upperLeft.x = minLon;
+                lowerRight.x = maxLon;
+
+            } catch (Exception le) {
+                logParsingException(lon, "Longitude", collectionName, url);
+            }
+        }
+        // process level settings
+        if (das.getAttributeTable(lev) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(lev);
+                dz = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
+                        resolution).getValueAt(0))).doubleValue();
+                levMin = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
+                        minimum).getValueAt(0))).floatValue();
+                levMax = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
+                        maximum).getValueAt(0))).floatValue();
+                hasLevels = true;
+
+            } catch (Exception le) {
+                logParsingException(lev, "Levels", collectionName, url);
+            }
+        }
+        // process any other globals
+        if (das.getAttributeTable(nc_global) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(nc_global);
+                dataSet.setDataSetType(DataType
+                        .valueOfIgnoreCase(OpenDAPParseUtility.getInstance().trim(at
+                                .getAttribute(data_type).getValueAt(0))));
+                String description = at.getAttribute(title).getValueAt(0);
+                gdsmd.setDataSetDescription(OpenDAPParseUtility.getInstance().trim(description));
+            } catch (Exception ne) {
+                logParsingException(nc_global, "Global Dataset Info",
+                        collectionName, url);
+            }
+        }
+        // process ensembles
+        if (das.getAttributeTable(ens) != null) {
+            try {
+                AttributeTable at = das.getAttributeTable(ens);
+                gdsmd.setEnsemble(OpenDAPParseUtility.getInstance().parseEnsemble(at));
+            } catch (Exception en) {
+                logParsingException(ens, "Ensemble", collectionName, url);
+            }
+        }
+
+        // process the parameters
         for (Enumeration<?> e = das.getNames(); e.hasMoreElements();) {
+
             String name = (String) e.nextElement();
+            // filter out globals
+            if (!name.equals(ens) && !name.equals(nc_global)
+                    && !name.equals(lev) && !name.equals(lon)
+                    && !name.equals(lat) && !name.equals(timecon)) {
 
-            // process specific one's
-            if (name.equals(timecon)) {
-                try {
-                    Time time = new Time();
-                    // number of times
-                    time.setNumTimes(new Integer(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(size)
-                            .getValueAt(0))).intValue());
-                    // minimum time val
-                    time.setStart(OpenDAPConstants.parseDate(das
-                            .getAttributeTable(name).getAttribute(minimum)
-                            .getValueAt(0)));
-                    // maximum time val
-                    time.setEnd(OpenDAPConstants.parseDate(das
-                            .getAttributeTable(name).getAttribute(maximum)
-                            .getValueAt(0)));
-                    // format of time
-                    time.setFormat(dataDateFormat);
-                    // step
-                    List<String> step = OpenDAPConstants.parseTimeStep(das
-                            .getAttributeTable(name).getAttribute(time_step)
-                            .getValueAt(0));
-                    time.setStep(new Double(step.get(0)).doubleValue());
-                    time.setStepUnit(Time.findStepUnit(step.get(1))
-                            .getDurationUnit());
-                    gdsmd.setTime(time);
-                } catch (Exception le) {
-                    logParsingException(name, "Time", collectionName, url);
-                }
-
-            } else if (name.equals(lat)) {
-                try {
-                    // ny
-                    gridCoverage.setNy(new Integer(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(size)
-                            .getValueAt(0))).intValue());
-                    // dy
-                    gridCoverage.setDy(new Float(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(resolution)
-                            .getValueAt(0))).floatValue());
-                    // first latitude point
-                    gridCoverage.setLa1(new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(minimum)
-                            .getValueAt(0))).doubleValue());
-
-                    upperLeft.y = new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(maximum)
-                            .getValueAt(0))).doubleValue();
-
-                    lowerRight.y = new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(minimum)
-                            .getValueAt(0))).doubleValue();
-
-                } catch (Exception le) {
-                    logParsingException(name, "Latitude", collectionName, url);
-                }
-
-            } else if (name.equals(lon)) {
-                try {
-                    // nx
-                    gridCoverage.setNx(new Integer(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(size)
-                            .getValueAt(0))).intValue());
-                    // dx
-                    gridCoverage.setDx(new Float(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(resolution)
-                            .getValueAt(0))).floatValue());
-                    // min Lon
-                    double minLon = new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(minimum)
-                            .getValueAt(0))).doubleValue();
-
-                    double maxLon = new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(maximum)
-                            .getValueAt(0))).doubleValue();
-
-                    gridCoverage.setLo1(minLon);
-                    upperLeft.x = minLon;
-                    lowerRight.x = maxLon;
-
-                } catch (Exception le) {
-                    logParsingException(name, "Longitude", collectionName, url);
-                }
-
-            } else if (name.equals(lev)) {
-
-                try {
-
-                    dz = new Double(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(resolution)
-                            .getValueAt(0))).doubleValue();
-                    levMin = new Float(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(minimum)
-                            .getValueAt(0))).floatValue();
-                    levMax = new Float(OpenDAPConstants.trim(das
-                            .getAttributeTable(name).getAttribute(maximum)
-                            .getValueAt(0))).floatValue();
-
-                } catch (Exception le) {
-                    logParsingException(name, "Levels", collectionName, url);
-                }
-
-            } else if (name.equals(nc_global)) {
-
-                try {
-                    dataSet.setDataSetType(DataType
-                            .valueOfIgnoreCase(OpenDAPConstants.trim(das
-                                    .getAttributeTable(nc_global)
-                                    .getAttribute(data_type).getValueAt(0))));
-                    String description = das.getAttributeTable(nc_global)
-                            .getAttribute(title).getValueAt(0);
-                    gdsmd.setDataSetDescription(OpenDAPConstants
-                            .trim(description));
-                } catch (Exception ne) {
-                    logParsingException(name, "Global Dataset info",
-                            collectionName, url);
-                }
-
-            } else if (name.equals(ens)) {
-                gdsmd.setEnsemble(OpenDAPConstants.parseEnsemble(das
-                        .getAttributeTable(name)));
-
-            } else {
                 // regular parameter parsing
                 try {
 
+                	AttributeTable at = das.getAttributeTable(name);
                     Parameter parm = new Parameter();
                     parm.setDataType(dataSet.getDataSetType());
 
@@ -376,8 +380,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     // descriptions, default fill, or missing vals.
                     String description = "unknown description";
                     try {
-                        description = OpenDAPConstants.trim(das
-                                .getAttributeTable(name)
+                        description = OpenDAPParseUtility.getInstance().trim(at
                                 .getAttribute(long_name).getValueAt(0));
 
                     } catch (Exception iae) {
@@ -386,11 +389,10 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     parm.setDefinition(description);
-                    parm.setUnits(OpenDAPConstants.parseUnits(description));
+                    parm.setUnits(OpenDAPParseUtility.getInstance().parseUnits(description));
 
                     try {
-                        parm.setMissingValue(OpenDAPConstants.trim(das
-                                .getAttributeTable(name)
+                        parm.setMissingValue(OpenDAPParseUtility.getInstance().trim(at
                                 .getAttribute(missing_value).getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -399,8 +401,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     try {
-                        parm.setFillValue(OpenDAPConstants.trim(das
-                                .getAttributeTable(name)
+                        parm.setFillValue(OpenDAPParseUtility.getInstance().trim(at
                                 .getAttribute(fill_value).getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -408,7 +409,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                         parm.setMissingValue(fill);
                     }
 
-                    DataLevelType type = parseLevelType(parm);
+                    DataLevelType type = parseLevelType(parm, hasLevels);
                     parm.setLevels(getLevels(type, collectionName, gdsmd, dz,
                             levMin, levMax));
                     parm.addLevelType(type);
@@ -425,6 +426,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 }
             }
         }
+
         // If necessary, update the parameter lookups
         if (!newParams.isEmpty()) {
             LookupManager.getInstance().modifyParamLookups(collectionName,
@@ -467,12 +469,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
      * @param param
      * @return
      */
-    private DataLevelType parseLevelType(Parameter param) {
+    private DataLevelType parseLevelType(Parameter param, boolean hasLevels) {
 
         // find first word
         DataLevelType type = null;
         String[] s1 = param.getDefinition().substring(3).split(" ");
 
+        // SEA ICE special case
         if (param.getDefinition().contains(LevelType.SEAB.getLevelType())) {
             type = new DataLevelType(LevelType.SEAB);
         }
@@ -491,6 +494,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             type.setUnit(serviceConfig.getConstantValue("METER"));
         }
 
+        // Really special cases presented by NOMADS data sets
         if (type == null) {
 
             String w1 = s1[0];
@@ -587,7 +591,21 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         }
 
         if (type == null) {
-            type = new DataLevelType(LevelType.UNKNOWN);
+
+            // If description contains surface, make the assumption it is
+            // surface
+            if (param.getDefinition().contains(LevelType.SFC.getLevelType())) {
+                type = new DataLevelType(LevelType.SFC);
+            }
+
+            // We'll make the assumption it is a MB based level for a last gasp
+            if (hasLevels && type == null) {
+                type = new DataLevelType(LevelType.MB);
+            }
+
+            if (type == null) {
+            	type = new DataLevelType(LevelType.UNKNOWN);
+            }
         }
 
         return type;
@@ -616,7 +634,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
 
             List<String> vals = null;
             try {
-                vals = OpenDAPConstants.getDataSetNameAndCycle(linkKey,
+                vals = OpenDAPParseUtility.getInstance().getDataSetNameAndCycle(linkKey,
                         collection.getName());
             } catch (Exception e1) {
                 statusHandler.handle(Priority.PROBLEM,
