@@ -159,15 +159,19 @@ public class ModelData implements ISerializableObject {
     public double getValue(String modelName, String prodType, Coordinate coor) {
         double value = -99999.0;
         try {
+        	System.out.println("Freezing level---debug0 getValue "+modelName+" "+prodType+" "+coor+" "+gribMap.size());
             Point point = getPoint(modelName, prodType, coor);
             GridRecord gribRec = getRecord(modelName, prodType);
             FloatDataRecord rec = (FloatDataRecord) getRecord(modelName,
                     prodType).getMessageData();
-            value = rec.getFloatData()[(gribRec.getSpatialObject().getNx() * point.x)
-                    + point.y];
+            System.out.println("Freezing level---debug1 getValue "+rec.getFloatData().length+" "+
+            		gribRec.getSpatialObject().getNx()+","+gribRec.getSpatialObject().getNy()+" "+point);
+            value = rec.getFloatData()[(gribRec.getSpatialObject().getNx() * 
+            		(gribRec.getSpatialObject().getNy()-point.y)) + point.x];
         } catch (Exception e) {
             logger.error("No Grib value available....." + modelName + " "
                     + prodType);
+            e.printStackTrace();
         }
         return value;
     }

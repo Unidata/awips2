@@ -935,7 +935,7 @@ public class D2DGridDatabase extends VGridDatabase {
                     break;
                 }
             }
-            return !isAccum && isDuration;
+            return isDuration;
         }
 
         return !isAccum;

@@ -9,8 +9,7 @@
        <dataType>RADAR</dataType>
        <sourceType>QPE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>10</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>10</expirationMinutes>       
    </source>
    <source>
        <SourceName>DPR</SourceName>
@@ -21,8 +20,7 @@
        <dataType>RADAR</dataType>
        <sourceType>QPE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
    </source>
    <source>
        <SourceName>DHRMOSAIC</SourceName>
@@ -32,8 +30,7 @@
        <dataType>XMRG</dataType>
        <sourceType>QPE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <dateFormat>yyyyMMddHHmm</dateFormat>
        <hrapGridFactor>4</hrapGridFactor>
@@ -46,8 +43,7 @@
        <dataType>XMRG</dataType>
        <sourceType>QPE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <dateFormat>yyyyMMddHHmm</dateFormat>
        <hrapGridFactor>4</hrapGridFactor>
@@ -63,8 +59,7 @@
        <dataType>PDO</dataType>
        <sourceType>QPF</sourceType>
        <rateOrAccum>accum</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
        <mosaic>true</mosaic>
    </source>
    <source>
@@ -75,8 +70,7 @@
        <dataType>XMRG</dataType>
        <sourceType>QPF</sourceType>
        <rateOrAccum>accum</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <mosaic>true</mosaic>
        <dateFormat>yyyyMMddHHmm</dateFormat>
@@ -90,8 +84,7 @@
        <dataType>XMRG</dataType>
        <sourceType>QPF</sourceType>
        <rateOrAccum>accum</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <mosaic>true</mosaic>
        <dateFormat>yyyyMMddHHmm</dateFormat>
@@ -108,8 +101,7 @@
        <rateOrAccum>accum</rateOrAccum>
        <expirationMinutes>2080</expirationMinutes>
        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
-       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
-       <unit>inches</unit>
+       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>       
        <conversion>0.03937</conversion>
        <mosaic>true</mosaic>
        <guidanceType>RFC</guidanceType>
@@ -125,8 +117,7 @@
        <rateOrAccum>accum</rateOrAccum>
        <expirationMinutes>2080</expirationMinutes>
        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
-       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
-       <unit>inches</unit>
+       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>       
        <conversion>0.03937</conversion>
        <mosaic>true</mosaic>
        <guidanceType>RFC</guidanceType>
@@ -142,8 +133,7 @@
        <rateOrAccum>accum</rateOrAccum>
        <expirationMinutes>2080</expirationMinutes>
        <interpolatedGuidanceDelay>true</interpolatedGuidanceDelay>
-       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>
-       <unit>inches</unit>
+       <interpolatedGuidanceTransition>true</interpolatedGuidanceTransition>       
        <conversion>0.03937</conversion>
        <mosaic>true</mosaic>
        <guidanceType>RFC</guidanceType>
@@ -156,8 +146,7 @@
        <dataType>XMRG</dataType>
        <sourceType>GAGE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>30</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>30</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <hrapGridFactor>4</hrapGridFactor>
    </source>
@@ -169,8 +158,7 @@
        <dataType>XMRG</dataType>
        <sourceType>GAGE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>30</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>30</expirationMinutes>       
        <conversion>0.0003937</conversion>
        <hrapGridFactor>4</hrapGridFactor>
    </source>
@@ -182,8 +170,7 @@
        <dataType>RADAR</dataType>
        <sourceType>GAGE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
    </source>
    <source>
        <SourceName>VGBDPR</SourceName>
@@ -193,8 +180,7 @@
        <dataType>RADAR</dataType>
        <sourceType>GAGE</sourceType>
        <rateOrAccum>rate</rateOrAccum>
-       <expirationMinutes>15</expirationMinutes>
-       <unit>inches</unit>
+       <expirationMinutes>15</expirationMinutes>       
    </source>
    <product primarySource="DHRMOSAIC">
        <rate>DHRMOSAIC</rate>
