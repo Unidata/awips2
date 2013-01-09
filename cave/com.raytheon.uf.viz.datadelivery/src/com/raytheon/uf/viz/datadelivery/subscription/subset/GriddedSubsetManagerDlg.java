@@ -75,6 +75,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 11, 2012 1263       jpiatt       Modified for cancel flag.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 04, 2013 1299       djohnson     Add logging of invalid forecast hour information if it occurs again.
+ * Jan 04, 2013 1420       mpduff       Pass cycles in for rules.
  * 
  * </pre>
  * 
@@ -251,6 +252,9 @@ public class GriddedSubsetManagerDlg
                         new IllegalStateException("Debugging stacktrace"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateDataSize() {
         if (!initialized) {
@@ -276,8 +280,11 @@ public class GriddedSubsetManagerDlg
                 + dataSize.getFullSize() + " KB");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Time setupDataSpecificTime(Time newTime) {
+    protected Time setupDataSpecificTime(Time newTime, Subscription sub) {
         if (asString.isEmpty()) {
             SortedSet<ImmutableDate> newestToOldest = new TreeSet<ImmutableDate>(
                     Ordering.natural().reverse());
@@ -307,7 +314,8 @@ public class GriddedSubsetManagerDlg
         }
 
         GriddedTimingSelectionPresenter presenter = new GriddedTimingSelectionPresenter(
-                new GriddedTimingSelectionDlg(getShell()), dataSet, asString);
+                new GriddedTimingSelectionDlg(getShell(), dataSet.getCycles(),
+                        sub), dataSet, asString);
         Integer cycle = presenter.open();
 
         if (presenter.isCancel()) {

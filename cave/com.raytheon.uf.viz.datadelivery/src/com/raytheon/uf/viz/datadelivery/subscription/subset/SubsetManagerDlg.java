@@ -121,6 +121,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Dec 17, 2012 1434       mpduff       Don't allow underscores in name.
  * Dec 18, 2012 1439       mpduff       Redo subscription name validation.
  * Jan 02, 2012 1345       djohnson     Use gui thread task executor.
+ * Jan 04, 2012 1420       mpduff       Pass the subscription in to the GriddedTimingSelectionDlg.
  * </pre>
  * 
  * @author mpduff
@@ -609,9 +610,14 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         newTime.setStepUnit(time.getStepUnit());
 
         if (sub instanceof AdhocSubscription) {
-            newTime = setupDataSpecificTime(newTime);
+            newTime = setupDataSpecificTime(newTime, sub);
         } else if (!create) {
             newTime.setCycleTimes(this.subscription.getTime().getCycleTimes());
+        }
+
+        // Catch the case where the user closes this dialog.
+        if (this.isDisposed()) {
+            return null;
         }
 
         if (newTime == null) {
@@ -655,7 +661,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /**
      * Setup the timing information specific to the data type.
      */
-    protected abstract Time setupDataSpecificTime(Time newTime);
+    protected abstract Time setupDataSpecificTime(Time newTime, Subscription sub);
 
     /**
      * Display cancel changes message.
