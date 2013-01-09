@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
@@ -37,6 +38,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DeliveryOptionsComp;
@@ -44,6 +46,7 @@ import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
+import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
@@ -75,13 +78,13 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Nov 20, 2012 1286       djohnson     Implement IDisplay to display yes/no prompt.
  * Dec 13, 2012 1391       bgonzale     Added cancel/ok selection status.
  * Jan 02, 2013 1441       djohnson     Add isGroupSelected().
+ * Jan 04, 2013 1420       mpduff       Add latency.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
 public class CreateSubscriptionDlg extends CaveSWTDialog implements
         ICreateSubscriptionDlgView {
 
@@ -139,9 +142,15 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     /** Did the user Status.OK or SWT.CANCEL subscription creation */
     private int status = SWT.NONE;
 
+    /** The subscription object */
+    private Subscription subscription;
+
+    /** Available cycle times */
+    private Set<Integer> cycleTimes;
+
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent shell
      * @param create
@@ -161,7 +170,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -182,7 +191,12 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
         durComp = new DurationComp(mainComp);
         activePeriodComp = new ActivePeriodComp(mainComp);
-        priorityComp = new PriorityComp(mainComp);
+
+        // Get latency value
+        SystemRuleManager ruleManager = SystemRuleManager.getInstance();
+        int latency = ruleManager.getLatency(this.subscription, cycleTimes);
+        int priority = ruleManager.getPriority(this.subscription, cycleTimes);
+        priorityComp = new PriorityComp(mainComp, latency, priority);
 
         this.createCycleGroup();
         if (create == false) {
@@ -194,7 +208,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -236,7 +250,6 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
         descNameTxt = new Text(subInfoGroup, SWT.BORDER);
         descNameTxt.setLayoutData(new GridData(250, SWT.DEFAULT));
-
     }
 
     private void createChangeText() {
@@ -284,6 +297,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void createCycleGroup() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -316,6 +332,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         cycleComp.setLayoutData(gd);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void preOpened() {
         preOpenCallback.run();
@@ -324,16 +343,25 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         shell.pack();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void openDlg() {
         this.open();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDeliverySelection() {
         return this.deliverComp.getDeliverSetting();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSubscriptionName() {
         if (create) {
@@ -343,6 +371,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSubscriptionName(String subscriptionName) {
         if (subscriptionName != null) {
@@ -354,141 +385,225 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSubscriptionDescription() {
         return this.descNameTxt.getText().trim();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSubscriptionDescription(String subscriptionDescription) {
         descNameTxt.setText(subscriptionDescription);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getGroupName() {
         return this.groupSelectComp.getGroupName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeliverySelection(int idx) {
         deliverComp.setDeliverSetting(idx);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isNoExpirationDate() {
         return this.durComp.isIndefiniteChk();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setNoExpiration(boolean noExpiration) {
         durComp.setNoExpiration(noExpiration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getStartText() {
         return this.durComp.getStartText();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setStartDate(Date startDate) {
         durComp.setStartDate(startDate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getExpirationText() {
         return this.durComp.getEndText();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setExpirationDate(Date expDate) {
         durComp.setEndDate(expDate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAlwaysActive() {
         return this.activePeriodComp.isAlwaysChk();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setAlwaysActive(boolean active) {
         activePeriodComp.setAlwaysActive(active);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getActiveStartText() {
         return this.activePeriodComp.getActiveStartText();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveStartDate(Date activeStartDate) {
         activePeriodComp.setStartDate(activeStartDate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getActiveEndText() {
         return this.activePeriodComp.getActiveEndText();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveEndDate(Date activeEndDate) {
         activePeriodComp.setEndDate(activeEndDate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getPriority() {
         return priorityComp.getPriorityIndex();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setPriority(int i) {
         priorityComp.setPriorityIndex(i);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setGroupName(String groupName) {
         groupSelectComp.setGroupName(groupName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSubscriptionDatesEnabled(boolean enabled) {
         this.durComp.resetTextBoxes(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setStartDateBtnEnabled(boolean enabled) {
         durComp.setStartBtnEnabled(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setEndDateBtnEnabled(boolean enabled) {
         durComp.setEndBtnEnabled(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveDatesEnabled(boolean enabled) {
         this.activePeriodComp.resetTextBoxes(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveEndDateBtnEnabled(boolean enabled) {
         this.activePeriodComp.setEndBtnEnabled(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveStartDateBtnEnabled(boolean enabled) {
         this.activePeriodComp.setStartBtnEnabled(enabled);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeliveryOptionsComboConf(ComboBoxConf deliveryCombo) {
         this.deliverComp.setDeliveryConfig(deliveryCombo);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeliveryOptions(String[] deliveryOptions) {
         this.deliverComp.setDeliveryOptions(deliveryOptions);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setOkConf(final ButtonConf okConf) {
         okBtn.setText(okConf.getDisplayText());
@@ -498,7 +613,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 status = Status.OK;
-                getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+                getShell().setCursor(
+                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 okConf.getOnClickAction().run();
                 if (!getShell().isDisposed()) {
                     getShell().setCursor(null);
@@ -508,48 +624,73 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isCreate() {
         return this.create;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void selectAllSubscriptionName() {
         this.subNameTxt.selectAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getChangeReason() {
         return this.changeReasonTxt.getText().trim();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeDlg() {
         this.close();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void displayPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                title, message);
+        DataDeliveryUtils.showMessage(getShell(), SWT.OK, title, message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean displayOkCancelPopup(String title, String message) {
         return DataDeliveryUtils.showMessage(shell, SWT.CANCEL | SWT.OK, title,
                 message) == SWT.OK;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void displayErrorPopup(String title, String message) {
-        DataDeliveryUtils.showMessage(shell, SWT.ERROR,
-                title, message);
+        DataDeliveryUtils.showMessage(shell, SWT.ERROR, title, message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Integer> getCycleTimes() {
         ArrayList<Integer> cycleList = new ArrayList<Integer>();
@@ -562,6 +703,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         return cycleList;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setCycleConf(List<CheckBoxConf> checkboxConfList) {
         hourBtnArr = new Button[checkboxConfList.size()];
@@ -580,6 +724,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setSelectAllButton(ButtonConf selectAllConf) {
         selectAllBtn.addSelectionListener(new SelectionAdapter() {
@@ -595,6 +742,9 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         selectAllBtn.setEnabled(selectAllConf.isEnabled());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDeselectAllButton(ButtonConf deselectAllConf) {
         deselectAllBtn.setSelection(true);
@@ -611,11 +761,17 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         deselectAllBtn.setEnabled(deselectAllConf.isEnabled());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDateTxtFieldsEnabled(boolean flag) {
         this.durComp.resetTextBoxes(flag);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setActiveTextFieldsEnabled(boolean flag) {
         this.activePeriodComp.resetTextBoxes(flag);
@@ -623,7 +779,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
     @Override
     public void selectCycles(List<String> cycleStrings) {
-        for (Button b: this.hourBtnArr) {
+        for (Button b : this.hourBtnArr) {
             if (cycleStrings.contains(b.getText())) {
                 b.setSelection(true);
             }
@@ -655,8 +811,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     }
 
     /**
-     * @param status
-     *            the status to set
+     * {@inheritDoc}
      */
     @Override
     public void setStatus(int status) {
@@ -669,5 +824,37 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     @Override
     public boolean isGroupSelected() {
         return groupSelectComp.isGroupSelected();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getLatencyValue() {
+        return priorityComp.getLatencyValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPriorityValue() {
+        return priorityComp.getPriorityIndex();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCycleTimes(Set<Integer> cycleTimes) {
+        this.cycleTimes = cycleTimes;
     }
 }
