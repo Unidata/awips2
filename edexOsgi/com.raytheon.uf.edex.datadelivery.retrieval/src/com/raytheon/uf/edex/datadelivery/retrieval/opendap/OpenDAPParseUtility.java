@@ -41,21 +41,44 @@ import dods.dap.AttributeTable;
  * Sep 06, 2012    1125     djohnson    Also prepend naefs collection names.
  * Oct 28, 2012    1163     dhladky     Largely did away with this Class in lieu of configfile.
  * Nov 09, 2012    1163     dhladky     Made pre-load for service config
- * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Nov 19, 2012    1166     djohnson    Clean up JAXB representation of registry objects.
+ * Jan 08, 2013    1466     dhladky     NCOM dataset name parsing fix.
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-final class OpenDAPConstants {
+final class OpenDAPParseUtility {
 
     private static final Pattern QUOTES_PATTERN = Pattern.compile("\"");
 
     /** Singleton instance of this class */
-    private static final OpenDAPConstants instance = new OpenDAPConstants();
+    private static OpenDAPParseUtility instance = null;
 
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(OpenDAPConstants.class);
+            .getHandler(OpenDAPParseUtility.class);
+    
+    /*
+     * Service configuration for OPENDAP
+     */
+    private final ServiceConfig serviceConfig;
+
+    /* Private Constructor */
+    private OpenDAPParseUtility() {
+        serviceConfig = HarvesterServiceManager.getInstance().getServiceConfig(
+                ServiceType.OPENDAP);
+    }
+    
+    /**
+     * call this to get your instance
+     * @return
+     */
+    public static OpenDAPParseUtility getInstance() {
+    	if (instance == null) {
+    		instance = new OpenDAPParseUtility();
+    	}
+    	return instance;
+    }
 
     /**
      * Get the dataset name and cycle.
@@ -66,15 +89,16 @@ final class OpenDAPConstants {
      *            the collection name
      * @return the dataset name and cycle
      */
-    public static List<String> getDataSetNameAndCycle(String linkKey,
+    public List<String> getDataSetNameAndCycle(String linkKey,
             String collectionName) throws Exception {
         String datasetName = null;
-        String cycle = "NONE";
+        String cycle = null;
         String numCycle = null;
 
-        if (instance.serviceConfig.getDataSetConfig() != null) {
-
-            DataSetConfig dsc = instance.serviceConfig.getDataSetConfig();
+        if (serviceConfig.getDataSetConfig() != null) {
+            // cycle defaults to none
+            cycle = serviceConfig.getConstantValue("NONE");
+            DataSetConfig dsc = serviceConfig.getDataSetConfig();
             Map<com.raytheon.uf.common.datadelivery.retrieval.xml.Pattern, Pattern> patterns = dsc
                     .getPatternMap();
 
@@ -94,6 +118,11 @@ final class OpenDAPConstants {
                             && chunks.length == 2) {
                         datasetName = chunks[0];
                         cycle = chunks[1];
+                        break;
+                        // Special for NCOM, no cycle
+                    } else if (pat.getDataSetLocationAt(0) == 1
+                            && chunks.length == 3) {
+                        datasetName = chunks[1];
                         break;
                     } else {
                         // most often used
@@ -149,18 +178,18 @@ final class OpenDAPConstants {
 
                 if (dsn != null) {
 
-                    Constant constant = instance.serviceConfig
+                    Constant constant = serviceConfig
                             .getNamingSchema(dsn.getExpression());
 
                     if (constant != null) {
                         if (dsn.getExpression()
-                                .equals(instance.serviceConfig
+                                .equals(serviceConfig
                                         .getConstantValue("ALTERNATE_NAMING_SCHEMA1"))) {
                             datasetName = collectionName + dsn.getSeparator()
                                     + datasetName;
                         } else if (dsn
                                 .getExpression()
-                                .equals(instance.serviceConfig
+                                .equals(serviceConfig
                                         .getConstantValue("ALTERNATE_NAMING_SCHEMA2"))) {
                             datasetName = collectionName;
                         } else {
@@ -185,22 +214,22 @@ final class OpenDAPConstants {
         return Arrays.asList(datasetName, cycle, numCycle);
     }
 
-    public static Pattern getTimeStepPattern() {
+    public Pattern getTimeStepPattern() {
 
-        String timeStep = instance.serviceConfig
+        String timeStep = serviceConfig
                 .getConstantValue("TIME_STEP_PATTERN");
         return Pattern.compile(timeStep);
     }
 
-    public static Pattern getUnitPattern() {
-        String unitPattern = instance.serviceConfig
+    public Pattern getUnitPattern() {
+        String unitPattern = serviceConfig
                 .getConstantValue("UNIT_PATTERN");
         return Pattern.compile(unitPattern);
     }
 
-    public static Pattern getZPattern() {
+    public Pattern getZPattern() {
 
-        String z = instance.serviceConfig.getConstantValue("Z_PATTERN");
+        String z = serviceConfig.getConstantValue("Z_PATTERN");
         return Pattern.compile(z);
     }
 
@@ -210,9 +239,9 @@ final class OpenDAPConstants {
      * @param date
      * @return
      */
-    public static String parseDate(String date) {
+    public String parseDate(String date) {
         return trim(getZPattern().matcher(date).replaceAll(
-                instance.serviceConfig.getConstantValue("BLANK")));
+                serviceConfig.getConstantValue("BLANK")));
     }
 
     /**
@@ -221,13 +250,13 @@ final class OpenDAPConstants {
      * @param table
      * @return
      */
-    public static Ensemble parseEnsemble(AttributeTable table) {
+    public Ensemble parseEnsemble(AttributeTable table) {
 
-        String stime = instance.serviceConfig.getConstantValue("TIMEINIT");
-        String slength = instance.serviceConfig.getConstantValue("LENGTH");
-        String sname = instance.serviceConfig.getConstantValue("NAME");
-        int size = new Integer(OpenDAPConstants.trim(table.getAttribute(
-                instance.serviceConfig.getConstantValue("SIZE")).getValueAt(0)))
+        String stime = serviceConfig.getConstantValue("TIMEINIT");
+        String slength = serviceConfig.getConstantValue("LENGTH");
+        String sname = serviceConfig.getConstantValue("NAME");
+        int size = new Integer(trim(table.getAttribute(
+                serviceConfig.getConstantValue("SIZE")).getValueAt(0)))
                 .intValue();
         String name = null;
         String length = null;
@@ -260,7 +289,7 @@ final class OpenDAPConstants {
      * @param timeStep
      * @return
      */
-    public static List<String> parseTimeStep(String inStep) {
+    public List<String> parseTimeStep(String inStep) {
         List<String> step = new ArrayList<String>();
 
         Matcher matcher = getTimeStepPattern().matcher(trim(inStep));
@@ -283,24 +312,32 @@ final class OpenDAPConstants {
      * @param description
      * @return
      */
-    public static String parseUnits(String description) {
-        String runit = "unknown";
+    public String parseUnits(String description) {
+    	
+        String runit = serviceConfig.getConstantValue("UNKNOWN");
         UnitLookup ul = LookupManager.getInstance().getUnits();
 
-        if (ul != null) {
+		if (ul != null) {
+			// some require no parsing
+			UnitConfig uc = ul.getUnitByProviderName(description);
 
-            Matcher m = getUnitPattern().matcher(description);
+			if (uc != null) {
+				// adjusts to correct units
+				runit = uc.getName();
+			} else {
 
-            if (m.find()) {
-                runit = m.group(2);
-                UnitConfig uc = ul.getUnitByProviderName(runit);
-                if (uc != null) {
-                    // adjusts to correct units
-                    runit = uc.getName();
-                }
+				Matcher m = getUnitPattern().matcher(description);
 
-            }
-        }
+				if (m.find()) {
+					runit = m.group(2);
+					uc = ul.getUnitByProviderName(runit);
+					if (uc != null) {
+						// adjusts to correct units
+						runit = uc.getName();
+					}
+				}
+			}
+		}
 
         return runit;
     }
@@ -311,21 +348,12 @@ final class OpenDAPConstants {
      * @param val
      * @return
      */
-    public static String trim(String val) {
+    public String trim(String val) {
 
         return QUOTES_PATTERN.matcher(val).replaceAll(
-                instance.serviceConfig.getConstantValue("BLANK"));
+                serviceConfig.getConstantValue("BLANK"));
     }
 
-    /*
-     * Service configuration for OPENDAP
-     */
-    private final ServiceConfig serviceConfig;
-
-    /* Private Constructor */
-    private OpenDAPConstants() {
-        serviceConfig = HarvesterServiceManager.getInstance().getServiceConfig(
-                ServiceType.OPENDAP);
-    }
+    
 
 }
