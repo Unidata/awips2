@@ -25,8 +25,8 @@
 	<substitute key="NAM40model" value="mesoEta212" />
 	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
 	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
-	<substitute key="MMMmodel1" value="HiResW-MMM-East" />
-	<substitute key="MMMmodel2" value="HiResW-MMM-West" />
+	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
+	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
     <include installTo="menu:volume?after=VolumeBundles" 
              fileName="menus/volume/baseFamilies.xml">
     </include>
