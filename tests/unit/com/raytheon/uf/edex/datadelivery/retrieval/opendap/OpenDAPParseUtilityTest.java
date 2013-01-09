@@ -32,7 +32,7 @@ import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.util.TestUtil;
 
 /**
- * Test {@link OpenDAPConstants}.
+ * Test {@link OpenDAPParseUtility}.
  * 
  * <pre>
  * 
@@ -43,6 +43,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Jul 24, 2012 955        djohnson     Initial creation
  * Aug 31, 2012 1125       djohnson     Rename test method to match tested class method rename.
  * Nov 13, 2012 1286       djohnson     Ignore two test methods until it can be determined whether they fail because of test or code error.
+ * Jan 08, 2013 1466       dhladky      NCOM dataset name parsing fix.
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * @version 1.0
  */
 
-public class OpenDAPConstantsTest {
+public class OpenDAPParseUtilityTest {
 
     @Before
     public void setUp() {
@@ -64,7 +65,7 @@ public class OpenDAPConstantsTest {
         // the changeset being easily diffed I am leaving it the same (otherwise
         // it shows as a brand new file)
         List<List<String>> inputsAndOutputs = TestUtil.getInputsAndOutputs(
-                OpenDAPConstantsTest.class, "getCollectionAndCycle.txt");
+                OpenDAPParseUtilityTest.class, "getCollectionAndCycle.txt");
         List<String> inputs = inputsAndOutputs.get(0);
         List<String> outputs = inputsAndOutputs.get(1);
 
@@ -75,8 +76,12 @@ public class OpenDAPConstantsTest {
                 output[2] = null;
             }
             String[] actual = null;
+            
+            if (input[0].equals("ncom_amseas")) {
+            	System.out.println("Stop");
+            }
 
-            actual = OpenDAPConstants
+            actual = OpenDAPParseUtility.getInstance()
                     .getDataSetNameAndCycle(input[0], input[1]).toArray(
                             new String[0]);
 
@@ -87,19 +92,19 @@ public class OpenDAPConstantsTest {
     @Test
     public void testParseDateRemovesZ() {
         final String expected = "07242012";
-        assertEquals(expected, OpenDAPConstants.parseDate(expected + "z"));
+        assertEquals(expected, OpenDAPParseUtility.getInstance().parseDate(expected + "z"));
     }
 
     @Test
     public void testParseTimeStep() throws IOException {
         List<List<String>> inputsAndOutputs = TestUtil.getInputsAndOutputs(
-                OpenDAPConstantsTest.class, "parseTimeStep.txt");
+                OpenDAPParseUtilityTest.class, "parseTimeStep.txt");
         List<String> inputs = inputsAndOutputs.get(0);
         List<String> outputs = inputsAndOutputs.get(1);
 
         for (int i = 0; i < inputs.size(); i++) {
             String[] expected = TestUtil.COMMA_PATTERN.split(outputs.get(i));
-            List<String> actual = OpenDAPConstants.parseTimeStep(inputs.get(i));
+            List<String> actual = OpenDAPParseUtility.getInstance().parseTimeStep(inputs.get(i));
 
             TestUtil.assertArrayEquals(expected,
                     actual.toArray(new String[actual.size()]));
@@ -109,7 +114,7 @@ public class OpenDAPConstantsTest {
     @Test
     public void testParseUnits() throws IOException {
         List<List<String>> inputsAndOutputs = TestUtil.getInputsAndOutputs(
-                OpenDAPConstantsTest.class, "parseUnits.txt");
+                OpenDAPParseUtilityTest.class, "parseUnits.txt");
         List<String> inputs = inputsAndOutputs.get(0);
         List<String> outputs = inputsAndOutputs.get(1);
 
@@ -117,7 +122,7 @@ public class OpenDAPConstantsTest {
             String input = inputs.get(i);
             String expected = outputs.get(i);
 
-            String actual = OpenDAPConstants.parseUnits(input);
+            String actual = OpenDAPParseUtility.getInstance().parseUnits(input);
 
             assertEquals(expected, actual);
         }
@@ -127,6 +132,6 @@ public class OpenDAPConstantsTest {
     public void testTrimDateRemovesQuotes() {
         final String withQuotes = "07\"24\"2012";
         final String expected = "07242012";
-        assertEquals(expected, OpenDAPConstants.trim(withQuotes));
+        assertEquals(expected, OpenDAPParseUtility.getInstance().trim(withQuotes));
     }
 }
