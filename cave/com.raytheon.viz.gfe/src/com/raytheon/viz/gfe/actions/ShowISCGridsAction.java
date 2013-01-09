@@ -20,12 +20,18 @@
 
 package com.raytheon.viz.gfe.actions;
 
+import com.raytheon.viz.gfe.Activator;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.resource.ImageDescriptor;
 
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
+
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.ToolItem;
 
 /**
  * Action to show the ISC grids
@@ -37,20 +43,70 @@ import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/20/09      1995       bphillip    Initial release
- * 
+ * 12/06/12      DR 15574   jzeng       Change the image of 
+ * 										the icon when it is activated 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public class ShowISCGridsAction extends AbstractHandler {
-
+	/*
+	 * non-active Image
+	 */
+	private static Image orgImg = null;
+	/*
+	 * active Image
+	 */
+	private static Image actImg = null;
+	/*
+	 * ImageDescriptor 
+	 */
+	private static ImageDescriptor id = null;
+	/*
+	 * Tool item
+	 */
+	private static ToolItem ti = null;
+	
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        boolean current = Message.inquireLastMessage(ShowISCGridsMsg.class)
-                .show();
+        boolean current = Message.inquireLastMessage(ShowISCGridsMsg.class).show();
+        /*
+         * Get toolItem
+         */
+        if(ti == null) {
+        	if (arg0.getTrigger() instanceof Event) {
+            	Event e = (Event) arg0.getTrigger();
+                if ( e.widget instanceof ToolItem) {
+                	ti = (ToolItem) e.widget;                	
+                }
+            }
+        }
+        
+        /*
+         * Get Image when it is not activated
+         */
+        if (orgImg == null) orgImg = ti.getImage();
+        
+        /*
+         * Get Image when it is activated
+         */
+        if ( actImg == null ){
+        	if (id == null) {
+    			id = Activator.imageDescriptorFromPlugin(
+    					Activator.PLUGIN_ID, "icons/isc1.gif" );    	
+    		}
+        	actImg = id.createImage();
+        }
+    
+        /*
+         * Change the image when it is active and 
+         * change it back when it is not activated
+         */
+        if (!current) ti.setImage(actImg);
+        else ti.setImage(orgImg);
+        
         new ShowISCGridsMsg(!current).send();
         return null;
     }
-
 }
