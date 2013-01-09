@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,12 +35,17 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionRuleXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.datadelivery.subscription.xml.LatencyRuleXML;
+import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRuleXML;
+import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.TypeOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.uf.viz.datadelivery.utils.DataSizeUtil;
+import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
+import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -56,6 +63,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 18, 2012  1419       bgonzale   Fixed overwrite of values in updatSelectionFields().
  * Dec 18, 2012  1439       mpduff     Redo rule name validation.
  * Dec 18, 2012  1417       bgonzale   Changed value initialization in handleSave().
+ * Jan 04, 2013  1420       mpduff     Remove code to apply rules changes to existing subscription,
+ *                                     rules are only for future subscriptions.
  * 
  * </pre>
  * 
@@ -63,6 +72,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class CreateEditRuleDlg extends CaveSWTDialog {
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CreateEditRuleDlg.class);
 
     /** Enumeration to use for Dataset Frequency */
     public static enum FreqUnitOptions {
@@ -93,36 +105,14 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         }
     }
 
-    /** Enumeration to use for Dataset Size units */
-    public static enum SizeUnitOptions {
-        /** Kilobytes */
-        KB("KB"),
-        /** Megabytes */
-        MB("MB"),
-        /** Gigabytes */
-        GB("GB");
+    private static final Pattern INVALID_PATTERN = Pattern
+            .compile("[^a-zA-Z0-9-_]+");
 
-        /** Dataset Size units */
-        private final String sizeUnitOptions;
+    /** Invalid Character Message Title */
+    private static final String INVALID_CHARS_TITLE = "Invalid Characters";
 
-        private SizeUnitOptions(String sizeUnitOptions) {
-            this.sizeUnitOptions = sizeUnitOptions;
-        }
-
-        /**
-         * Get size unit options.
-         * 
-         * @return sizeUnitOptions
-         */
-        public String getOperation() {
-            return sizeUnitOptions;
-        }
-
-        @Override
-        public String toString() {
-            return sizeUnitOptions;
-        }
-    }
+    /** Invalid Character Message */
+    private static final String INVALID_CHARS_MESSAGE = "Invalid characters.\nThe Rule Name may only contain letters/numbers/dashes/underscores.";
 
     /** Instance of SystemRuleManager */
     private final SystemRuleManager srm = SystemRuleManager.getInstance();
@@ -134,7 +124,7 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
     private Group ruleDefinitionGroup;
 
     /** SubscriptionRuleXML object */
-    private SubscriptionRuleXML ruleXml;
+    private RuleXML ruleXml;
 
     /** Save button */
     private Button saveBtn;
@@ -199,10 +189,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
     /** Frequency constant */
     private final String DATASET_FREQ = OpsNetFieldNames.FREQUENCY.toString();
 
-    private final IRulesNeedApplying rulesNeedApplying;
-
     /**
-     * Constructor.
+     * Constructor for edit rule.
      * 
      * @param parent
      *            The parent shell
@@ -212,22 +200,19 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
      *            Name of the rule
      * @param ruleType
      *            type of rule
-     * @param rulesNeedApplying
      */
     public CreateEditRuleDlg(Shell parent, boolean create, String ruleName,
-            String ruleType, IRulesNeedApplying rulesNeedApplying) {
+            String ruleType) {
         super(parent, SWT.RESIZE | SWT.DIALOG_TRIM, CAVE.NONE);
         this.create = create;
         this.ruleName = ruleName;
         this.ruleType = ruleType;
-        this.rulesNeedApplying = rulesNeedApplying;
 
         createRuleHeader();
-
     }
 
     /**
-     * Constructor.
+     * Constructor for new rule.
      * 
      * @param parent
      *            The parent shell
@@ -236,15 +221,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
      * @param ruleType
      *            type of rule
      */
-    public CreateEditRuleDlg(Shell parent, boolean create, String ruleType,
-            IRulesNeedApplying rulesNeedApplying) {
-        super(parent, SWT.RESIZE | SWT.DIALOG_TRIM, CAVE.NONE);
-        this.create = create;
-        this.ruleType = ruleType;
-        this.rulesNeedApplying = rulesNeedApplying;
-
-        createRuleHeader();
-
+    public CreateEditRuleDlg(Shell parent, boolean create, String ruleType) {
+        this(parent, create, null, ruleType);
     }
 
     private void createRuleHeader() {
@@ -254,7 +232,6 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             } else {
                 setText("Create Latency Rule");
             }
-
         } else {
             if (PRIORITY_TYPE.equals(ruleType)) {
                 setText("Edit Priority Rule");
@@ -262,7 +239,6 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
                 setText("Edit Latency Rule");
             }
         }
-
     }
 
     /*
@@ -289,6 +265,19 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        if (!create) {
+            if (PRIORITY_TYPE.equals(ruleType)) {
+                ruleXml = srm.loadPriorityRule(ruleName);
+            } else {
+                ruleXml = srm.loadLatencyRule(ruleName);
+            }
+
+            if (DATASET_SIZE.equals(ruleXml.getRuleField())) {
+                sizeFlag = true;
+            } else if (DATASET_FREQ.equals(ruleXml.getRuleField())) {
+                frequencyFlag = true;
+            }
+        }
 
         initial = true;
         createRuleNameArea();
@@ -308,11 +297,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, true);
 
-        // Create Rule
         if (create) {
-
             gl = new GridLayout(2, false);
-
             Composite textComp = new Composite(shell, SWT.NONE);
             textComp.setLayoutData(gd);
             textComp.setLayout(gl);
@@ -326,24 +312,12 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             ruleNameText = new Text(textComp, SWT.BORDER);
             ruleNameText.setLayoutData(gd);
             ruleNameText.setTextLimit(32);
-            ruleNameText.setToolTipText("Enter rule text");
-
-            // Edit Rule
+            ruleNameText.setToolTipText("Enter rule name");
         } else {
-
             Label ruleLbl = new Label(shell, SWT.NONE);
             ruleLbl.setText("Rule Name: " + ruleName);
 
-            ruleXml = srm.loadRule(ruleName);
-
-            if (DATASET_SIZE.equals(ruleXml.getRuleField())) {
-                sizeFlag = true;
-            } else if (DATASET_FREQ.equals(ruleXml.getRuleField())) {
-                frequencyFlag = true;
-            }
-
         }
-
     }
 
     /**
@@ -555,11 +529,7 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             updateSelectionFields(field);
 
             String operator = ruleXml.getRuleOperator();
-            if (!operator.isEmpty()) {
-                operationCombo.select(operationCombo.indexOf(operator));
-            } else {
-                operationCombo.select(0);
-            }
+            operationCombo.select(operationCombo.indexOf(operator));
 
             String value = ruleXml.getRuleValue();
             if (!value.isEmpty()) {
@@ -571,8 +541,9 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
                 unitsCombo.select(unitsCombo.indexOf(unit));
             }
 
-            Integer priority = ruleXml.getRulePriority();
             if (PRIORITY_TYPE.equals(ruleType)) {
+                Integer priority = ((PriorityRuleXML) ruleXml).getPriority();
+
                 int o = 0;
                 SubscriptionPriority[] priorityOptions = SubscriptionPriority
                         .values();
@@ -584,7 +555,7 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
                     o++;
                 }
             } else {
-                Integer latency = ruleXml.getRuleLatency();
+                Integer latency = ((LatencyRuleXML) ruleXml).getLatency();
                 if (latency != null) {
                     latencyMax.setText(latency.toString());
                 }
@@ -674,6 +645,9 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
     private boolean handleSave() {
 
         boolean valid = false;
+        String fieldName = fieldCombo.getItem(fieldCombo.getSelectionIndex());
+        String operator = operationCombo.getItem(operationCombo
+                .getSelectionIndex());
 
         if (create) {
             valid = DataDeliveryGUIUtils.hasText(ruleNameText);
@@ -689,65 +663,14 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             ruleName = ruleNameText.getText();
         }
 
-        if (DataDeliveryGUIUtils.INVALID_CHAR_PATTERN.matcher(ruleName.trim())
-                .find()) {
+        if (INVALID_PATTERN.matcher(ruleName.trim()).find()) {
             DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
-                    DataDeliveryGUIUtils.INVALID_CHARS_TITLE,
-                    DataDeliveryGUIUtils.INVALID_CHARS_MESSAGE);
+                    INVALID_CHARS_TITLE, INVALID_CHARS_MESSAGE);
             return false;
         }
-
-        SubscriptionPriority priorityVal = null;
-        Integer priority = null;
-        Integer latency = null;
-        String unit = null;
-        String fieldName = fieldCombo.getItem(fieldCombo.getSelectionIndex());
-        String operator = operationCombo.getItem(operationCombo
-                .getSelectionIndex());
-
-        if (frequencyFlag || sizeFlag) {
-            unit = unitsCombo.getItem(unitsCombo.getSelectionIndex());
-        }
-
-        if (priorityCombo != null) {
-            priorityVal = SubscriptionPriority.valueOf(priorityCombo.getText()
-                    .toUpperCase());
-            for (SubscriptionPriority pri : SubscriptionPriority.values()) {
-                if (pri.equals(priorityVal)) {
-                    priority = pri.getPriorityValue();
-                    break;
-                }
-            }
-
-        }
-
-        if (latencyMax != null) {
-            if (!DataDeliveryGUIUtils.hasText(latencyMax)) {
-                DataDeliveryUtils
-                        .showMessage(shell, SWT.ERROR,
-                                "Invalid Maximum Latency",
-                                "Maximum Latency invalid. Please enter a value for Maximum Latency.");
-                return false;
-            }
-
-            String latencyString = latencyMax.getText().trim();
-
-            // Don't allow if text contains non-digit characters
-            if (!DataDeliveryGUIUtils.DIGIT_PATTERN.matcher(latencyString)
-                    .matches()) {
-                DataDeliveryUtils
-                        .showMessage(shell, SWT.ERROR,
-                                "Invalid Maximum Latency",
-                                "Maximum Latency invalid. Maximum Latency must be entered as digits only.");
-                return false;
-            }
-            latency = Integer.parseInt(latencyString);
-        }
-
-        SubscriptionRuleXML rule = new SubscriptionRuleXML();
+        String value = null;
         if (DataDeliveryGUIUtils.hasText(ruleValue)) {
-
-            String value = ruleValue.getText();
+            value = ruleValue.getText();
             if (DATASET_SIZE.equals(fieldName)
                     || DATASET_FREQ.equals(fieldName)) {
 
@@ -765,8 +688,6 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
                     return false;
                 }
             }
-            rule.setRuleValue(value);
-
         } else {
             DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
                     "Invalid Value",
@@ -775,32 +696,98 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
             return false;
         }
 
-        rule.setRuleName(ruleName);
-        rule.setRuleField(fieldName);
-        rule.setRuleOperator(operator);
-        rule.setRuleUnit(unit);
-        rule.setRulePriority(priority);
-        rule.setRuleLatency(latency);
+        SubscriptionPriority priorityVal = null;
+        Integer priority = null;
+        Integer latency = null;
+        String unit = null;
 
-        // Save the rule file
-        boolean saved = srm.saveRule(rule, shell);
+        if (frequencyFlag || sizeFlag) {
+            unit = unitsCombo.getItem(unitsCombo.getSelectionIndex());
+        }
+        boolean saved = false;
 
-        if (saved) {
-            setReturnValue(true);
-            rulesNeedApplying.flagRulesAsNeedApplying();
+        if (PRIORITY_TYPE.equals(ruleType)) {
+            PriorityRuleXML rule = new PriorityRuleXML();
+            priorityVal = SubscriptionPriority.valueOf(priorityCombo.getText()
+                    .toUpperCase());
+            for (SubscriptionPriority pri : SubscriptionPriority.values()) {
+                if (pri.equals(priorityVal)) {
+                    priority = pri.getPriorityValue();
+                    (rule).setPriority(priority);
+                    break;
+                }
+            }
+            rule.setRuleName(ruleName);
+            rule.setRuleField(fieldName);
+            rule.setRuleOperator(operator);
+            rule.setRuleUnit(unit);
+            rule.setRuleValue(value);
+            if (create) {
+                saved = srm.saveRule(rule);
+            } else {
+                saved = srm.updateRule(rule);
+            }
+
+        } else {
+            if (!DataDeliveryGUIUtils.hasText(latencyMax)) {
+                DataDeliveryUtils
+                        .showMessage(shell, SWT.ERROR,
+                                "Invalid Maximum Latency",
+                                "Maximum Latency invalid. Please enter a value for Maximum Latency.");
+                return false;
+            }
+
+            String latencyString = latencyMax.getText().trim();
+
+            // Don't allow if text contains non-digit characters
+            if (!DataDeliveryGUIUtils.DIGIT_PATTERN.matcher(latencyString)
+                    .matches()) {
+                DataDeliveryUtils
+                        .showMessage(
+                                shell,
+                                SWT.ERROR,
+                                "Invalid Maximum Latency",
+                                "Maximum Latency invalid. Maximum Latency must be a positive number of minutes.");
+                return false;
+            }
+            LatencyRuleXML rule = new LatencyRuleXML();
+            latency = Integer.parseInt(latencyString);
+            rule.setLatency(latency);
+            rule.setRuleName(ruleName);
+            rule.setRuleField(fieldName);
+            rule.setRuleOperator(operator);
+            rule.setRuleUnit(unit);
+            rule.setRuleValue(value);
+
+            if (create) {
+                saved = srm.saveRule(rule);
+            } else {
+                saved = srm.updateRule(rule);
+            }
         }
 
-        return true;
+        setReturnValue(saved);
 
+        if (!saved) {
+            DataDeliveryUtils
+                    .showMessage(
+                            getShell(),
+                            SWT.OK,
+                            "Duplicate Name",
+                            "A rule named "
+                                    + ruleName
+                                    + " already exists\n\nPlease select a different name.");
+            ruleNameText.selectAll();
+        }
+        return saved;
     }
 
     private void createSizeUnitItems() {
         unitsCombo.removeAll();
-        SizeUnitOptions[] sizeUnits = SizeUnitOptions.values();
-        for (SizeUnitOptions suo : sizeUnits) {
-            unitsCombo.add(suo.getOperation());
+        DataSizeUtil[] sizeUnits = DataSizeUtil.values();
+        for (DataSizeUtil suo : sizeUnits) {
+            unitsCombo.add(suo.getUnit());
         }
-
     }
 
     private void createSizeOpItems() {
@@ -809,7 +796,6 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         for (OperatorTypes suo : sizeOps) {
             operationCombo.add(suo.getOperation());
         }
-
     }
 
     private void createFreqUnitItems() {
@@ -817,7 +803,6 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         for (FreqUnitOptions fuo : freqUnits) {
             unitsCombo.add(fuo.getOperation());
         }
-
     }
 
     private void createNameOpItems() {
@@ -826,7 +811,5 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         for (NameOperationItems nop : nameOperation) {
             operationCombo.add(nop.getOperation());
         }
-
     }
-
 }
