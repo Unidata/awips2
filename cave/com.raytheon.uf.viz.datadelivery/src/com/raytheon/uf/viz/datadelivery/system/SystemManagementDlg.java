@@ -45,7 +45,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -64,6 +63,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Sep 17, 2012   730      jpiatt      Initial creation.
  * Oct 23, 2012 1286       djohnson    Hook into bandwidth management.
  * Nov 20, 2012 1286       djohnson    Implement IDisplay.
+ * Jan 04, 2013 1420       mpduff      Remove applying of rules.
  * 
  * </pre>
  * 
@@ -71,7 +71,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * @version 1.0
  */
 public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
-        IRulesNeedApplying, IForceApplyPromptDisplayText {
+        IForceApplyPromptDisplayText {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -131,8 +131,6 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     private boolean availableBandwidthModified;
 
     private Spinner availBandwidthSpinner;
-
-    private boolean needToApplyRules;
 
     /**
      * Constructor.
@@ -285,7 +283,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         priorityComp.setLayout(gl);
         priorityComp.setLayoutData(gd);
         priorityTab.setControl(priorityComp);
-        SystemPriorityTab pTab = new SystemPriorityTab(priorityComp, this);
+        SystemPriorityTab pTab = new SystemPriorityTab(priorityComp);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -298,7 +296,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         latencyComp.setLayout(gl);
         latencyComp.setLayoutData(gd);
         latencyTab.setControl(latencyComp);
-        SystemLatencyTab lTab = new SystemLatencyTab(latencyComp, this);
+        SystemLatencyTab lTab = new SystemLatencyTab(latencyComp);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -310,7 +308,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         routingComp.setLayout(gl);
         routingComp.setLayoutData(gd);
         routingTab.setControl(routingComp);
-        SystemRoutingTab rTab = new SystemRoutingTab(routingComp, this);
+        SystemRoutingTab rTab = new SystemRoutingTab(routingComp);
     }
 
     /**
@@ -433,23 +431,6 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
             }
         }
 
-        if (needToApplyRules) {
-            ISubscriptionServiceResult ruleApplyResult = SystemRuleApplication
-                    .applyRules(this, this);
-            if (ruleApplyResult != null) {
-                if (ruleApplyResult.hasMessageToDisplay()) {
-                    DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Rules Applied",
-                            ruleApplyResult.getMessageToDisplay());
-                }
-
-                if (ruleApplyResult.isAllowFurtherEditing()) {
-                    return false;
-                }
-            }
-
-            needToApplyRules = false;
-        }
         return true;
     }
 
@@ -459,14 +440,6 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     @Override
     public boolean displayYesNoPopup(String title, String message) {
         return DataDeliveryUtils.showYesNoMessage(shell, title, message) == SWT.YES;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void flagRulesAsNeedApplying() {
-        needToApplyRules = true;
     }
 
     /**
