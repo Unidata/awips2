@@ -42,6 +42,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
 /**
  * Lookup table manager
@@ -61,6 +62,47 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class LookupManager {
+
+    /**
+     * Implementation of the xml writers that writes to localization files.
+     */
+    private class LocalizationXmlWriter implements LevelXmlWriter,
+            ParameterXmlWriter {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void writeLevelXml(LevelLookup ll, String modelName)
+                throws Exception {
+
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext lc = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+            String fileName = getLevelFileName(modelName);
+            LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
+            File file = lf.getFile();
+
+            SerializationUtil.jaxbMarshalToXmlFile(ll, file.getAbsolutePath());
+        }
+
+        /**
+         * 
+         * {@inheritDoc}
+         */
+        @Override
+        public void writeParameterXml(ParameterLookup pl, String modelName)
+                throws Exception {
+
+            IPathManager pm = PathManagerFactory.getPathManager();
+            LocalizationContext lc = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+            String fileName = getParamFileName(modelName);
+            LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
+            File file = lf.getFile();
+
+            SerializationUtil.jaxbMarshalToXmlFile(pl, file.getAbsolutePath());
+        }
+    }
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(LookupManager.class);
@@ -93,6 +135,12 @@ public class LookupManager {
     private final Map<String, LevelLookup> levels = new HashMap<String, LevelLookup>();
 
     private UnitLookup unitLookup = null;
+
+    private final LevelXmlWriter levelXmlWriter = ServiceLoaderUtil.load(
+            LevelXmlWriter.class, new LocalizationXmlWriter());
+
+    private final ParameterXmlWriter parameterXmlWriter = ServiceLoaderUtil
+            .load(ParameterXmlWriter.class, new LocalizationXmlWriter());
 
     /* Private Constructor */
     private LookupManager() {
@@ -371,7 +419,7 @@ public class LookupManager {
             }
         }
 
-        writeLevelXml(ll, modelName);
+        levelXmlWriter.writeLevelXml(ll, modelName);
 
         levels.put(modelName, ll);
         statusHandler.info("Updated/Created level lookup! " + modelName);
@@ -412,7 +460,7 @@ public class LookupManager {
                 params.add(pc);
             }
             // write out file
-            writeParameterXml(pl, modelName);
+            parameterXmlWriter.writeParameterXml(pl, modelName);
 
             parameters.put(modelName, pl);
             statusHandler
@@ -502,45 +550,5 @@ public class LookupManager {
         }
 
         return unitXml;
-    }
-
-    /**
-     * Writes the level lookup to XML
-     * 
-     * @param ll
-     * @param modelName
-     * @throws Exception
-     */
-    private void writeLevelXml(LevelLookup ll, String modelName)
-            throws Exception {
-
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
-        String fileName = getLevelFileName(modelName);
-        LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
-        File file = lf.getFile();
-
-        SerializationUtil.jaxbMarshalToXmlFile(ll, file.getAbsolutePath());
-    }
-
-    /**
-     * Writes the parameter lookup to XML
-     * 
-     * @param pl
-     * @param modelName
-     * @throws Exception
-     */
-    private void writeParameterXml(ParameterLookup pl, String modelName)
-            throws Exception {
-
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
-        String fileName = getParamFileName(modelName);
-        LocalizationFile lf = pm.getLocalizationFile(lc, fileName);
-        File file = lf.getFile();
-
-        SerializationUtil.jaxbMarshalToXmlFile(pl, file.getAbsolutePath());
     }
 }
