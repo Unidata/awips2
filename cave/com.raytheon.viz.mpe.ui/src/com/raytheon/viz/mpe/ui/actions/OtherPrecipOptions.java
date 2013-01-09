@@ -350,6 +350,14 @@ public class OtherPrecipOptions {
                     up_arrow.setEnabled(true);
                 }
             }
+            Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar tmpDate = (Calendar) currentTime.clone();
+            tmpDate.setTime(DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time);
+            tmpDate.add(Calendar.HOUR_OF_DAY, (DailyQcUtils.pcpn_time-3)*6);
+
+            if (currentTime.before(tmpDate)){
+            	up_arrow.setEnabled(false);
+            }
         } else {
             /* 24 hour mode. */
             if (pcp_flag + 4 >= num_qc_days * 4) {

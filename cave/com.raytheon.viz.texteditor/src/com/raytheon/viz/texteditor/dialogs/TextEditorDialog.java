@@ -60,7 +60,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
-import org.eclipse.swt.custom.PopupList;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -99,9 +98,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -303,6 +304,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      Do not use changed BBB from OUPResponse.
  * 17OCT2012   1229         rferrel     Changes for non-blocking SWTMessageBox.
  * 05Nov2012   15560        S. Naples   Added check to see if we are in edit mode before capturing keys.
+ * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
  * 13Dec2012   1353         rferrel     Change to make edit cancel message not
  *                                       dispaly the red had kill job message.
  * </pre>
@@ -1104,6 +1106,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private static final String[] popupItems = { "Select All", "Cut", "Copy",
             "Paste" };
+    
+    private static final boolean[] isPopItemDefault = { true, false, true,
+        false };
 
     private boolean warnGenFlag = false;
 
@@ -3633,7 +3638,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
 
                 if (e.button == 3) {
-                    processPopup(e.x, e.y);
+                	processPopup();
                 }
             }
 
@@ -3646,33 +3651,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     /**
      * Process the user choice from the popup list.
+     * DR14842 - re-written
      */
-    private void processPopup(int x, int y) {
-        PopupList popupList = new PopupList(shell);
-        popupList.setMinimumWidth(50);
-        if (isEditMode()) {
-            popupList.setItems(popupItems);
-        } else {
-            popupList.setItems(new String[] { "Select All", "Copy" });
-        }
-        popupList.select(popupItems[0]);
-
-        Point p = Display.getCurrent().map(textEditor, null, x, y);
-        String choice = popupList.open(new Rectangle(p.x + 10, p.y + 10, 100,
-                200));
-        if (choice != null) {
-            if (popupItems[0].equals(choice)) {
-                textEditor.selectAll();
-            } else if (popupItems[1].equals(choice)) {
-                cutText();
-            } else if (popupItems[2].equals(choice)) {
-                copyText();
-            } else if (popupItems[3].equals(choice)) {
-                pasteText();
-            }
-            textEditor.update();
-        }
-    }
+	private void processPopup() {
+		Menu menu = new Menu(shell, SWT.POP_UP);
+		List<String> items = Arrays.asList(popupItems);
+		for (String pi : popupItems) {
+			MenuItem mi = new MenuItem(menu, SWT.PUSH);
+			mi.setText(pi);
+			if (isEditMode()) {
+				mi.setEnabled(true);
+			} else {
+				mi.setEnabled(isPopItemDefault[items.indexOf(pi)]);
+			}
+			mi.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					handleSelection(event);
+				}
+			});
+		}
+		menu.setVisible(true);
+	}
+    
+    /**
+     * Handle the selection from the popup menu 
+     * @param event
+     */
+	protected void handleSelection(Event event) {
+		MenuItem item = (MenuItem) event.widget;
+		String choice = item.getText();
+		if (choice != null) {
+			if (popupItems[0].equals(choice)) {
+				textEditor.selectAll();
+			} else if (popupItems[1].equals(choice)) {
+				cutText();
+			} else if (popupItems[2].equals(choice)) {
+				copyText();
+			} else if (popupItems[3].equals(choice)) {
+				pasteText();
+			}
+			textEditor.update();
+		}
+	}
 
     /**
      * creates the bar containing the script runner controls.
