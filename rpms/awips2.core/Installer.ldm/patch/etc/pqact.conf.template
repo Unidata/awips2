@@ -411,7 +411,7 @@ IDS|DDPLUS	^(FOUS[67].) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 #
 # separate out svrwx lsr and GSM misc adm messages
-IDS|DDPLUS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
+IDS|DDPLUS|HDS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 IDS|DDPLUS	^(NWUS[01346-9].) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H

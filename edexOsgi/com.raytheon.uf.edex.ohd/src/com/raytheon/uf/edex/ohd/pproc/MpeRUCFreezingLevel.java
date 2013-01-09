@@ -83,7 +83,10 @@ public class MpeRUCFreezingLevel {
             .getToken("mpe_point_freezing_dir");
 
     public static String dqcPreprocessorBasetime = AppsDefaults.getInstance()
-            .getToken("DQC_PREPROCESSOR_BASETIME");
+            .getToken("dqc_preprocessor_basetime");
+    
+    public static String mpeSiteId = AppsDefaults.getInstance()
+    .getToken("mpe_site_id");
 
     public File stationFile = null;
 
@@ -93,29 +96,11 @@ public class MpeRUCFreezingLevel {
     public static String[] models = new String[] { "RUC236" };
 
     public MpeRUCFreezingLevel() {
-        try {
-            File directory = new File(stationFilePath);
+        this.stationFile = new File(stationFilePath+"/"+mpeSiteId+"_freezing_station_list");
 
-            if (directory != null) {
-                for (File file : directory.listFiles()) {
-                    if (file != null) {
-                        if (file.isFile()
-                                && file.getName().contains(
-                                        "freezing_station_list")) {
-                            this.stationFile = file;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.WARN, "No mpe_station_list_dir found");
-        }
-
-        // correct env vairiable dqcPreprocessorBasetime if needed
+        // correct env vairiable dqcPreprocessorBasetime if needed. Default to 12z
         if (dqcPreprocessorBasetime == null) {
-            dqcPreprocessorBasetime = "00z";
+            dqcPreprocessorBasetime = "12z";
         }
 
         dqcPreprocessorBasetime = dqcPreprocessorBasetime.toLowerCase();
@@ -123,7 +108,7 @@ public class MpeRUCFreezingLevel {
                 && !dqcPreprocessorBasetime.equals("06z")
                 && !dqcPreprocessorBasetime.equals("12z")
                 && !dqcPreprocessorBasetime.equals("18z")) {
-            dqcPreprocessorBasetime = "00z";
+            dqcPreprocessorBasetime = "12z";
         }
     }
 
@@ -227,10 +212,8 @@ public class MpeRUCFreezingLevel {
                                                                    // order
 
         try {
-            String site = PropertiesFactory.getInstance().getEnvProperties()
-                    .getEnvValue("SITENAME");
             ofstream = new FileOutputStream(getAbsoluteOutFileName(
-                    dates[3].getTime(), site));
+                    dates[3].getTime(), mpeSiteId));
             out = new DataOutputStream(ofstream);
             bw = new BufferedWriter(new OutputStreamWriter(out));
 
@@ -277,8 +260,7 @@ public class MpeRUCFreezingLevel {
                     String fzlev = "M";
 
                     if (fle != null) {
-                        fzlev = String.valueOf(fle.getFreezingLevel())
-                                .substring(0, 4) + "S";
+                        fzlev = String.format("%3.2f",fle. getFreezingLevel()) + "S";
                     }
 
                     buf.append(" " + fzlev);

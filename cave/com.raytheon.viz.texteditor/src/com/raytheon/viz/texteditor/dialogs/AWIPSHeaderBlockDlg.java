@@ -34,6 +34,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -94,6 +96,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 07/26/2012   15171       rferrel     Disable editor's send and clear AFOS PIL fields when
  *                                      invalid product Id and user want to edit it anyway.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
+ * 11/26/2012	14526		mgamazaychikov	Added traverse listener for RETURN key
  * </pre>
  * 
  * @author lvenable
@@ -221,6 +224,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // this was after shell.pack() before, any reason why?
         checkEnableEnter();
+        /*
+         * 14526 - Add the traverse listener for RETURN key 
+         */
+        setTraverseListenerReturn();
     }
 
     @Override
@@ -608,49 +615,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         enterBtn.setEnabled(true);
         enterBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                boolean sendEnabled = true;
-                if (!isProductValid()) {
-                    // Notify the user that the product may not be valid.
-                    //
-                    // TODO cannot use a model MessageBox here. If displayed
-                    // when an Alarm Alert Bell appears Cave freezes and
-                    // nothing can be done. Need to change this to extend
-                    // CaveSWTDialog in a similar manner to
-                    // WarnGenConfirmationDlg. Better solution if possible
-                    // change AlermAlertBell so modal MessagBox can be used..
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.YES | SWT.NO);
-                    mb.setMessage("Product Designator "
-                            + wsfoIdTF.getText()
-                            + prodCatTF.getText()
-                            + prodDesignatorTF.getText()
-                            + " is not in the list of valid products. Use it anyway?");
-                    if (mb.open() == SWT.NO) {
-                        return;
-                    }
-                    parentEditor.enableSend(false);
-                    sendEnabled = false;
-                } else {
-                    parentEditor.enableSend(true);
-                }
-
-                // call the set methods
-                parentEditor.setCurrentWmoId(wmoTtaaiiTF.getText());
-                parentEditor.setCurrentSiteId(ccccTF.getText());
-                if (sendEnabled) {
-                    parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
-                    parentEditor.setCurrentProdCategory(prodCatTF.getText());
-                    parentEditor.setCurrentProdDesignator(prodDesignatorTF
-                            .getText());
-                } else {
-                    parentEditor.setCurrentWsfoId("");
-                    parentEditor.setCurrentProdCategory("");
-                    parentEditor.setCurrentProdDesignator("");
-                }
-                parentEditor.setAddressee(addresseeTF.getText());
-                setBbbId();
-                setReturnValue(true);
-                shell.dispose();
+            	enterBtnPressed();
             }
 
         });
@@ -668,7 +633,58 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
     }
 
-    /**
+	protected void enterBtnPressed() {
+		/*
+		 * 14526 - Added the check for when RETURN key is pressed
+		 * but the "Enter" button is not enabled.
+		 */
+		if ( !enterBtn.getEnabled()) {
+			return;
+		}
+		boolean sendEnabled = true;
+		if (!isProductValid()) {
+			// Notify the user that the product may not be valid.
+			//
+			// TODO cannot use a model MessageBox here. If displayed
+			// when an Alarm Alert Bell appears Cave freezes and
+			// nothing can be done. Need to change this to extend
+			// CaveSWTDialog in a similar manner to
+			// WarnGenConfirmationDlg. Better solution if possible
+			// change AlermAlertBell so modal MessagBox can be used..
+			MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
+					| SWT.NO);
+			mb.setMessage("Product Designator " + wsfoIdTF.getText()
+					+ prodCatTF.getText() + prodDesignatorTF.getText()
+					+ " is not in the list of valid products. Use it anyway?");
+			if (mb.open() == SWT.NO) {
+				return;
+			}
+			parentEditor.enableSend(false);
+			sendEnabled = false;
+		} else {
+			parentEditor.enableSend(true);
+		}
+
+		// call the set methods
+		parentEditor.setCurrentWmoId(wmoTtaaiiTF.getText());
+		parentEditor.setCurrentSiteId(ccccTF.getText());
+		if (sendEnabled) {
+			parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
+			parentEditor.setCurrentProdCategory(prodCatTF.getText());
+			parentEditor.setCurrentProdDesignator(prodDesignatorTF.getText());
+		} else {
+			parentEditor.setCurrentWsfoId("");
+			parentEditor.setCurrentProdCategory("");
+			parentEditor.setCurrentProdDesignator("");
+		}
+		parentEditor.setAddressee(addresseeTF.getText());
+		setBbbId();
+		setReturnValue(true);
+		shell.dispose();
+	}
+		
+
+	/**
      * This is a convenience method that will center a label in a RowLayout.
      * When controls are placed in a RowLayout they are "aligned" at the top of
      * the cell.
@@ -942,6 +958,17 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 }
             }
         });
+        
+        /*
+         * 14526 - Add the traverse listener for RETURN key 
+         */
+        tf.addTraverseListener(new TraverseListener() {
+            @Override
+            public void keyTraversed(TraverseEvent te) {
+                te.doit = true;
+            }
+        });
+        
     }
 
     private void textFieldVerifyListener(final StyledText tf) {
@@ -1005,4 +1032,19 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         if (allBtn != null)
             allBtn.setSelection("ALL".equals(addressee));
     }
+    
+    /*
+     * Adds the traverse listener for RETURN key 
+     */
+	private void setTraverseListenerReturn() {
+		shell.addTraverseListener(new TraverseListener() {
+            @Override
+            public void keyTraversed(TraverseEvent event) {
+                if (event.detail == SWT.TRAVERSE_RETURN) {
+                	enterBtnPressed();
+                }
+            }
+
+        });
+	}
 }
