@@ -127,6 +127,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * Sep 10, 2012   15295    snaples     Added property setting for runtime log to createScript.
  * Sep 18, 2012   15332    jsanchez    Used a new warning text handler.
  * Nov  9, 1202   DR 15430 D. Friedman Improve watch inclusion.
+ * Nov 26, 2012   15550    Qinglu Lin  For CAN to EXP, added TMLtime to context.
+ * Nov 30, 2012   15571    Qinglu Lin  For NEW, assigned simulatedTime to TMLtime; For COR, used stormLocs 
+ *                                     in oldWarn.
+ * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
+ *                                     while loc is null.  
  * </pre>
  * 
  * @author njensen
@@ -368,8 +373,6 @@ public class TemplateRunner {
 
             // CAN and EXP products follow different rules as followups
             if (!(selectedAction == WarningAction.CAN || selectedAction == WarningAction.EXP)) {
-                Coordinate[] stormLocs = warngenLayer
-                        .getStormLocations(stormTrackState);
                 wx = new Wx(config, stormTrackState,
                         warngenLayer.getStormLocations(stormTrackState),
                         startTime.getTime(), DateUtil.roundDateTo15(endTime)
@@ -391,7 +394,10 @@ public class TemplateRunner {
                 context.put("duration", duration);
 
                 context.put("event", eventTime);
-                context.put("TMLtime", eventTime);
+                if (selectedAction == WarningAction.COR)
+                	context.put("TMLtime", eventTime);
+                else
+                	context.put("TMLtime", simulatedTime);
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
                 context.put("areaPoly", GisUtil.convertCoords(warngenLayer
@@ -433,13 +439,25 @@ public class TemplateRunner {
                     motionDirection -= 360;
                 }
                 context.put("movementDirection", motionDirection);
+                Coordinate[] stormLocs = warngenLayer
+                        .getStormLocations(stormTrackState);
                 // Convert to Point2D representation as Velocity requires
                 // getX() and getY() methods which Coordinate does not have
-                Coordinate[] newStormLocs = GisUtil.d2dCoordinates(stormLocs);
-                Point2D.Double[] coords = new Point2D.Double[newStormLocs.length];
-                for (int i = 0; i < newStormLocs.length; i++) {
-                    coords[i] = new Point2D.Double(newStormLocs[i].x,
-                            newStormLocs[i].y);
+                if (selectedAction == WarningAction.COR) {
+                    AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
+                            threeLetterSiteId).getNewestByTracking(etn, phenSig);
+                    String loc = oldWarn.getLoc();
+                    if (loc != null) {
+                    	Geometry locGeom = wkt.read(loc);
+                    	stormLocs = locGeom.getCoordinates();
+                    }
+                } else {
+                	stormLocs = GisUtil.d2dCoordinates(stormLocs);
+                }
+                Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
+                for (int i = 0; i < stormLocs.length; i++) {
+                    coords[i] = new Point2D.Double(stormLocs[i].x,
+                            stormLocs[i].y);
                 }
                 context.put("eventLocation", coords);
                 t0 = System.currentTimeMillis();
@@ -453,6 +471,7 @@ public class TemplateRunner {
                         threeLetterSiteId).getNewestByTracking(etn, phenSig);
                 context.put("now", simulatedTime);
                 context.put("event", eventTime);
+                context.put("TMLtime", eventTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
                 Calendar canOrExpCal = Calendar.getInstance();
@@ -468,13 +487,21 @@ public class TemplateRunner {
                         .getCoordinates()));
                 // If there is no storm track
                 if (oldWarn.getLoc() != null) {
-                    Geometry locGeom = wkt.read(oldWarn.getLoc());
-                    Coordinate[] locs = locGeom.getCoordinates();
                     // Convert to Point2D representation as Velocity requires
                     // getX() and getY() methods which Coordinate does not have
-                    Point2D.Double[] coords = new Point2D.Double[locs.length];
+                    Point2D.Double[] coords;
+                    Coordinate[] locs;
+                    if (selectedAction == WarningAction.CAN) {
+                    	locs = warngenLayer.getStormLocations(stormTrackState);
+                    	locs = GisUtil.d2dCoordinates(locs);
+                    	coords = new Point2D.Double[locs.length];
+                    } else {
+                        Geometry locGeom = wkt.read(oldWarn.getLoc());
+                        locs = locGeom.getCoordinates();
+                    	coords = new Point2D.Double[locs.length];
+                    }
                     for (int i = 0; i < locs.length; i++) {
-                        coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                    	coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
                     }
                     context.put("eventLocation", coords);
                     double motionDirection = oldWarn.getMotdir();
