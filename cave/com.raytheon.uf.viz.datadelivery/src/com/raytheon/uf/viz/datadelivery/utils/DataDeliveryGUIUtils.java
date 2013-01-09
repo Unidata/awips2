@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.XmlEnumValue;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
@@ -52,6 +54,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Dec 12, 2012  1391      bgonzale   Added methods to manage when shells become busy for user interaction.
  * Dec 17, 2012  1435      mpduff     Fix ThreadLocal implementation.
  * Dec 18, 2012  1439      mpduff     Change Regex to match invalid chars.
+ * Jan 04, 2013  1420      mpduff     Change default priority to normal priority.
  * 
  * </pre>
  * 
@@ -105,69 +108,16 @@ public class DataDeliveryGUIUtils {
     /** Name Required Message */
     public static final String NAME_REQUIRED_MESSAGE = "Name required.\nA Subscription Name must be entered.";
 
-    /** Enumeration to use for Dataset Name operations */
-    public static enum NameOperationItems {
-        /** Operation Like */
-        LIKE("Like");
-
-        /** Dataset Name operation */
-        private final String operation;
-
-        private NameOperationItems(String operation) {
-            this.operation = operation;
-        }
-
-        /**
-         * Get dataset name operation.
-         * 
-         * @return operation
-         */
-        public String getOperation() {
-            return operation;
-        }
-
-        @Override
-        public String toString() {
-            return operation;
-        }
-    }
-
-    /** Enumeration to use for Datatype operations */
-    public static enum TypeOperationItems {
-        /** Operation IN */
-        IN("IN"),
-        /** Operation NOT IN */
-        NOT_IN("NOT IN");
-
-        /** Datatype operation */
-        private final String typeOperation;
-
-        private TypeOperationItems(String typeOperation) {
-            this.typeOperation = typeOperation;
-        }
-
-        /**
-         * Get datatype operation.
-         * 
-         * @return typeOperation
-         */
-        public String getOperation() {
-            return typeOperation;
-        }
-
-        @Override
-        public String toString() {
-            return typeOperation;
-        }
-    }
-
     /** Enumeration to use for subscription priorities */
     public static enum SubscriptionPriority {
         /** High Priority */
+        @XmlEnumValue("High")
         HIGH("High", 1, new RGB(255, 0, 0)),
         /** Default Priority */
-        DEFAULT("Default", 2, new RGB(0, 255, 0)),
+        @XmlEnumValue("Normal")
+        NORMAL("Normal", 2, new RGB(0, 255, 0)),
         /** Low Priority */
+        @XmlEnumValue("Low")
         LOW("Low", 3, new RGB(6, 122, 255));
 
         /** Priority Setting */
@@ -420,5 +370,18 @@ public class DataDeliveryGUIUtils {
                 }
             }
         });
+    }
+
+    /**
+     * Check the user's latency value.
+     * 
+     * @return true if valid
+     */
+    public static boolean latencyValidChk(int latency, int maxLatency) {
+        if (latency > -1 && latency <= maxLatency) {
+            return true;
+        }
+
+        return false;
     }
 }
