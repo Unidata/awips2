@@ -98,6 +98,8 @@ public class SerializationUtilTest {
             com.raytheon.uf.common.datadelivery.registry.Subscription.class,
             com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle.class,
             com.raytheon.uf.common.datadelivery.registry.Time.class,
+            com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup.class,
+            com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig.class,
             com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao.class,
             com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao.class,
             com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class,
