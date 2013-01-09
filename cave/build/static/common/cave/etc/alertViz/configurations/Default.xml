@@ -5,7 +5,8 @@
     	12/26/2011	Xiaochuan		DR14236 (trac 11710) request to fix SCAN Alert Visualization BASE 
     								configuring file. Changed true or false setting on popup, text,  
     								blink and color items followed the A1 configuring master.gcf file.
-	01/31/2012	dyninaj			DR14427 added category NDFD
+	    01/31/2012	dyninaj			DR14427 added category NDFD
+	    11/30/2012  jzeng           DR14016 update GFE configuration
 	-->
 <alertConfiguration name="DEFAULT">
     <globalConfiguration height="37" width="-1" yPosition="-1" xPosition="-1" logLength="10" audioDuration="30" blinkDuration="5" expandedPopup="false" categoryShown="false" sourceKeyShown="false" priorityShown="false" mode="H2"/>
@@ -125,12 +126,12 @@
         </configurationMonitor>
     </source>
     <source locked="true" name="GFE" longName="GFE">
-        <configurationItem>
-            <metadata foreground="#000000" background="#ffff00" pythonEnabled="false" log="true" priority="SIGNIFICANT" popup="true" blink="false" text="true" audioEnabled="false"/>
-            <metadata foreground="#666666" background="#00ff00" pythonEnabled="false" log="true" priority="EVENTA" popup="false" blink="false" text="true" audioEnabled="false"/>
-            <metadata foreground="#ffffff" background="#ee0000" pythonEnabled="false" log="true" priority="CRITICAL" popup="true" blink="false" text="true" audioEnabled="false"/>
-            <metadata foreground="#ffffff" background="#000000" pythonEnabled="false" log="true" priority="EVENTB" popup="false" blink="false" text="false" audioEnabled="false"/>
-            <metadata foreground="#000000" background="#ffa500" pythonEnabled="false" log="true" priority="PROBLEM" popup="true" blink="false" text="true" audioEnabled="false"/>
+          <configurationItem>
+            <metadata foreground="#ffffff" background="#ee20e0" pythonEnabled="false" log="true" priority="CRITICAL" popup="true" blink="false" text="true" audioEnabled="false"/>
+            <metadata foreground="#ffffff" background="#ee0000" pythonEnabled="false" log="true" priority="SIGNIFICANT" popup="true" blink="false" text="true" audioEnabled="false"/>
+            <metadata foreground="#000000" background="#ffff00" pythonEnabled="false" log="true" priority="PROBLEM" popup="true" blink="false" text="true" audioEnabled="false"/>
+            <metadata foreground="#000000" background="#ffa500" pythonEnabled="false" log="true" priority="EVENTA" popup="false" blink="false" text="true" audioEnabled="false"/>
+            <metadata foreground="#666666" background="#00ff00" pythonEnabled="false" log="true" priority="EVENTB" popup="false" blink="false" text="false" audioEnabled="false"/>
             <metadata foreground="#ffffff" background="#000000" pythonEnabled="false" log="true" priority="VERBOSE" popup="false" blink="false" text="false" audioEnabled="false"/>
         </configurationItem>
         <configurationMonitor>
