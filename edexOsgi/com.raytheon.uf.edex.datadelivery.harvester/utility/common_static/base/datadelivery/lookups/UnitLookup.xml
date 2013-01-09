@@ -3,8 +3,19 @@
 <unitLookup>
 	<unitConfig name="K" providerName="k"/>
 	<unitConfig name="Pa" providerName="pa"/>
+	<unitConfig name="Pa" providerName="pascals"/>
+	<unitConfig name="Pa/s" providerName="pa/s"/>
 	<unitConfig name="J/kg" providerName="j/kg"/>
 	<unitConfig name="W/m^2" providerName="w/m^2"/>
+	<unitConfig name="m/s" providerName="meter/sec"/>
+	<unitConfig name="N/m^2" providerName="newton/m2"/>
+	<unitConfig name="N/m^2" providerName="n/m^2"/>
+	<unitConfig name="C" providerName="degc"/>
+	<unitConfig name="C-m/s" providerName="degc-m/s"/>
+	<unitConfig name="kts/200ft" providerName="knots/200feet"/>
+	<unitConfig name="km^2kg-s^-1" providerName="km2kg-1s-1"/>
+	<unitConfig name="K/s" providerName="k/s"/>
+	<unitConfig name="m^2/s" providerName="m2/s"/>
 </unitLookup>
 
 
