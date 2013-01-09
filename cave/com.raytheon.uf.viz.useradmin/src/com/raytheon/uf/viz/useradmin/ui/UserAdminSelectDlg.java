@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.useradmin.ui;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -43,28 +45,35 @@ import org.eclipse.swt.widgets.TabItem;
 
 import com.raytheon.uf.common.plugin.nwsauth.xml.PermissionXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
-import com.raytheon.uf.viz.plugin.nwsauth.FileManager;
+import com.raytheon.uf.common.useradmin.request.UserAdminConstants;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.notification.INotificationObserver;
+import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
+import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Main User Administration Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mpduff     Initial creation.
  * Nov 26, 2012   1347     mpduff     Make resizable.
- *
+ * Jan 09, 2013 1412        djohnson    Listen for user authentication data changes.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 
-public class UserAdminSelectDlg extends CaveSWTDialog {
+public class UserAdminSelectDlg extends CaveSWTDialog implements
+        INotificationObserver {
     private Combo appCombo;
 
     private TabFolder tabFolder;
@@ -95,18 +104,19 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent shell
      */
     public UserAdminSelectDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT);
         setText("User Admin");
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
-        FileManager man = FileManager.getInstance();
+        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
         shell.setLayout(gl);
@@ -130,7 +140,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
         appCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                selectedApplication = appCombo.getItem(appCombo.getSelectionIndex());
+                selectedApplication = appCombo.getItem(appCombo
+                        .getSelectionIndex());
                 populateLists();
             }
         });
@@ -181,13 +192,14 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (dirty) {
-                    MessageBox messageDialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+                    MessageBox messageDialog = new MessageBox(getShell(),
+                            SWT.ICON_WARNING | SWT.YES | SWT.NO);
                     messageDialog.setText("Unsaved Changes");
-                    messageDialog.setMessage("Unsaved changes are present.\n" +
-                    		"Are you sure you want to close without saving?");
+                    messageDialog.setMessage("Unsaved changes are present.\n"
+                            + "Are you sure you want to close without saving?");
                     int answer = messageDialog.open();
                     if (answer == SWT.YES) {
-                        FileManager.getInstance().reloadXML();
+                        NwsRoleDataManager.getInstance().reloadRoleData();
                         close();
                         return;
                     }
@@ -198,10 +210,24 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
             }
         });
 
+        NotificationManagerJob.addObserver(
+                UserAdminConstants.USER_AUTHENTICATION_CHANGED_TOPIC, this);
+
+        getShell().addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                NotificationManagerJob.removeObserver(
+                        UserAdminConstants.USER_AUTHENTICATION_CHANGED_TOPIC,
+                        UserAdminSelectDlg.this);
+            }
+        });
+
         populateLists();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
@@ -238,7 +264,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
         GridData listData = new GridData(SWT.FILL, SWT.FILL, true, true);
         listData.widthHint = 150;
         listData.heightHint = 175;
-        userList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        userList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
+                | SWT.H_SCROLL);
         userList.setLayoutData(listData);
         userList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -310,7 +337,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
         Label l = new Label(userRoleComp, SWT.NONE);
         l.setText("Defined Roles/Permissions:");
 
-        userPermList = new List(userRoleComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        userPermList = new List(userRoleComp, SWT.BORDER | SWT.MULTI
+                | SWT.V_SCROLL | SWT.H_SCROLL);
         userPermList.setLayoutData(listData);
         userPermList.addMouseListener(new MouseAdapter() {
             @Override
@@ -322,17 +350,21 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
                     item1.addSelectionListener(new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent arg0) {
-                            String selection = userPermList.getItem(userPermList.getSelectionIndex());
+                            String selection = userPermList
+                                    .getItem(userPermList.getSelectionIndex());
                             StringBuilder messageText = new StringBuilder();
                             boolean roleFlag = false;
-                            FileManager man = FileManager.getInstance();
-                            for (RoleXML role : man.getRoleData(selectedApplication).getRoleList()) {
+                            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+                            for (RoleXML role : man.getRoleData(
+                                    selectedApplication).getRoleList()) {
                                 if (selection.equals(role.getRoleId())) {
                                     messageText.append("Role: " + selection);
-                                    messageText.append("\n\nDescription: " + role.getRoleDescription().trim());
+                                    messageText.append("\n\nDescription: "
+                                            + role.getRoleDescription().trim());
                                     if (role.getPermissionList().size() > 0) {
                                         messageText.append("\n\nPermissions: ");
-                                        for (String perm : role.getPermissionList()) {
+                                        for (String perm : role
+                                                .getPermissionList()) {
                                             messageText.append("\n  " + perm);
                                         }
                                     }
@@ -342,10 +374,14 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
                             }
 
                             if (roleFlag == false) {
-                                for (PermissionXML perm : man.getRoleData(selectedApplication).getPermissionList()) {
+                                for (PermissionXML perm : man.getRoleData(
+                                        selectedApplication)
+                                        .getPermissionList()) {
                                     if (perm.getId().equals(selection)) {
-                                        messageText.append("Permission: " + selection);
-                                        messageText.append("\nDescription: " + perm.getDescription());
+                                        messageText.append("Permission: "
+                                                + selection);
+                                        messageText.append("\nDescription: "
+                                                + perm.getDescription());
                                         break;
                                     }
                                 }
@@ -353,7 +389,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
                             if (messageText.length() == 0) {
                                 messageText.append("No Description");
                             }
-                            MessageBox messageDialog = new MessageBox(shell, SWT.ICON_INFORMATION);
+                            MessageBox messageDialog = new MessageBox(shell,
+                                    SWT.ICON_INFORMATION);
                             if (roleFlag) {
                                 messageDialog.setText("Role Description");
                             } else {
@@ -412,7 +449,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
         listData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         listData.widthHint = 150;
         listData.heightHint = 175;
-        roleList = new List(listComp2, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        roleList = new List(listComp2, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
+                | SWT.H_SCROLL);
         roleList.setLayoutData(listData);
         roleList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -444,17 +482,21 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
                     item1.addSelectionListener(new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent arg0) {
-                            String selection = roleList.getItem(roleList.getSelectionIndex());
+                            String selection = roleList.getItem(roleList
+                                    .getSelectionIndex());
                             String messageText = null;
-                            FileManager man = FileManager.getInstance();
-                            String app = appCombo.getItem(appCombo.getSelectionIndex());
-                            for (RoleXML role : man.getRoleData(app).getRoleList()) {
+                            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
+                            String app = appCombo.getItem(appCombo
+                                    .getSelectionIndex());
+                            for (RoleXML role : man.getRoleData(app)
+                                    .getRoleList()) {
                                 if (selection.equals(role.getRoleId())) {
                                     messageText = role.getRoleDescription();
                                     break;
                                 }
                             }
-                            MessageBox messageDialog = new MessageBox(shell, SWT.ICON_INFORMATION);
+                            MessageBox messageDialog = new MessageBox(shell,
+                                    SWT.ICON_INFORMATION);
                             messageDialog.setText("Role Description");
                             messageDialog.setMessage(messageText.toString());
                             messageDialog.open();
@@ -527,12 +569,13 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
         Label l2 = new Label(permComp, SWT.NONE);
         l2.setText("Roles/Permissions:");
 
-        rolePermList = new List(permComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        rolePermList = new List(permComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
+                | SWT.H_SCROLL);
         rolePermList.setLayoutData(listData);
     }
 
     private void populateLists() {
-        FileManager man = FileManager.getInstance();
+        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         String app = appCombo.getItem(appCombo.getSelectionIndex());
 
         userTab.setText(app + " Users");
@@ -563,7 +606,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
     }
 
     private void populateUserRoleList() {
-        FileManager man = FileManager.getInstance();
+        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         String app = appCombo.getItem(appCombo.getSelectionIndex());
 
         if (userList.getSelectionIndex() != -1) {
@@ -585,7 +628,7 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
     }
 
     private void populatePermissionList() {
-        FileManager man = FileManager.getInstance();
+        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         rolePermList.removeAll();
         String app = appCombo.getItem(appCombo.getSelectionIndex());
         if (roleList.getSelectionIndex() != -1) {
@@ -608,11 +651,12 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
 
         MessageBox messageDialog = new MessageBox(this.shell, SWT.YES | SWT.NO);
         messageDialog.setText("Title");
-        messageDialog.setMessage("Are you sure you wish to delete user " + user);
+        messageDialog
+                .setMessage("Are you sure you wish to delete user " + user);
         int response = messageDialog.open();
 
         if (response == SWT.YES) {
-            FileManager man = FileManager.getInstance();
+            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
             String app = appCombo.getItem(appCombo.getSelectionIndex());
             man.deleteUser(user, app);
             dirty = true;
@@ -623,7 +667,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
 
     private void handleEditRole() {
         String role = roleList.getItem(roleList.getSelectionIndex());
-        ManageUserDlg mud = new ManageUserDlg(this.shell, "Role", role, selectedApplication);
+        ManageUserDlg mud = new ManageUserDlg(this.shell, "Role", role,
+                selectedApplication);
         boolean changes = (Boolean) mud.open();
         if (changes) {
             dirty = true;
@@ -635,11 +680,12 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
 
         MessageBox messageDialog = new MessageBox(this.shell, SWT.YES | SWT.NO);
         messageDialog.setText("Title");
-        messageDialog.setMessage("Are you sure you wish to delete role " + role);
+        messageDialog
+                .setMessage("Are you sure you wish to delete role " + role);
         int response = messageDialog.open();
 
         if (response == SWT.YES) {
-            FileManager man = FileManager.getInstance();
+            NwsRoleDataManager man = NwsRoleDataManager.getInstance();
             String app = appCombo.getItem(appCombo.getSelectionIndex());
             man.deleteRole(role, app);
             dirty = true;
@@ -663,7 +709,8 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
 
     private void handleEditUser() {
         String user = userList.getItem(userList.getSelectionIndex());
-        ManageUserDlg mud = new ManageUserDlg(this.shell, "User", user, selectedApplication);
+        ManageUserDlg mud = new ManageUserDlg(this.shell, "User", user,
+                selectedApplication);
         boolean changes = (Boolean) mud.open();
         if (changes) {
             dirty = true;
@@ -671,8 +718,25 @@ public class UserAdminSelectDlg extends CaveSWTDialog {
     }
 
     private void handleOK() {
-        FileManager manager = FileManager.getInstance();
+        NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
         manager.save(selectedApplication);
         dirty = false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void notificationArrived(NotificationMessage[] messages) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                NwsRoleDataManager.getInstance().reloadRoleData();
+
+                if (!UserAdminSelectDlg.this.isDisposed()) {
+                    populateLists();
+                }
+            }
+        });
     }
 }
