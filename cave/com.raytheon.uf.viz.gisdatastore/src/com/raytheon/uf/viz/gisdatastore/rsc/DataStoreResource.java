@@ -1398,6 +1398,11 @@ public class DataStoreResource extends
                     // force rebuild of shaded shape to pick up color change
                     lastExtent = null;
                 }
+            } else if (object instanceof MagnificationCapability) {
+                if (font != null) {
+                    font.dispose();
+                    font = null;
+                }
             }
         }
         issueRefresh();
