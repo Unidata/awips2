@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.UserXML;
-import com.raytheon.uf.viz.plugin.nwsauth.FileManager;
+import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
@@ -66,10 +66,10 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
     private final StackLayout stackLayout = new StackLayout();
 
     /** Type of permissions */
-    private String type;
+    private final String type;
 
     /** Selection */
-    private String selection;
+    private final String selection;
 
     /** Edit combo box */
     private Combo editCbo;
@@ -87,7 +87,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
     private Composite stackComp;
 
     /** The application currently selected.*/
-    private String application;
+    private final String application;
 
     /**
      * Constructor.
@@ -165,7 +165,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         stackComp = new Composite(shell, SWT.NONE);
         stackComp.setLayout(stackLayout);
 
-        FileManager manager = FileManager.getInstance();
+        NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
         ArrayList<String> selectedList = new ArrayList<String>();
         ArrayList<String> fullList = new ArrayList<String>();
         String availableLabel = "Available Roles:";
@@ -291,7 +291,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         String[] permissions = permDualList.getSelectedListItems();
         String[] roles = roleDualList.getSelectedListItems();
         
-        FileManager man = FileManager.getInstance();
+        NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         NwsRoleData roleData = man.getRoleData(application);
         
         if (type.equalsIgnoreCase("User")) {
