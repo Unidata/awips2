@@ -7,8 +7,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  javax.servlet;bundle-version="2.5.0",
  org.apache.http;bundle-version="4.1.2",
- org.junit,
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ org.junit
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: gnu-getopt-1.0.6.jar,
