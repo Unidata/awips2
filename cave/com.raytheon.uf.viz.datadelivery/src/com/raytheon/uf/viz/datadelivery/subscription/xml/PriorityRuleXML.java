@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * TODO Add Description
+ * Priority rule xml object.
  * 
  * <pre>
  * 

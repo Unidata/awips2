@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.datadelivery.subscription.presenter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -68,6 +67,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
@@ -305,6 +305,9 @@ public class CreateSubscriptionDlgPresenter {
         populate();
     }
 
+    /**
+     * Populate the dialog.
+     */
     private void populate() {
         if (this.subscription == null) {
             return;
@@ -751,7 +754,7 @@ public class CreateSubscriptionDlgPresenter {
         // Validate the date entries
         datesValid = this.durationValidChk();
         activeDatesValid = this.activePeriodValidChk();
-        int maxLatency = getMaxLatency();
+        int maxLatency = DataDeliveryUtils.getMaxLatency(subscription);
         latencyValid = DataDeliveryGUIUtils.latencyValidChk(
                 view.getLatencyValue(), maxLatency);
         if (!latencyValid) {
@@ -1001,27 +1004,6 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         return datesValid && dateOrderValid;
-    }
-
-    /**
-     * Get the max latency allowed.
-     * 
-     * @return The max latency value allowed
-     */
-    private int getMaxLatency() {
-        List<Integer> cycles = dataSet.getTime().getCycleTimes();
-        Collections.sort(cycles);
-        int max = 0;
-
-        for (int i = 0; i < cycles.size(); i++) {
-            if (i + 1 <= cycles.size()) {
-                int tempMax = cycles.get(i + 1) - cycles.get(i);
-                if (tempMax > max) {
-                    max = tempMax;
-                }
-            }
-        }
-        return max;
     }
 
     /**
