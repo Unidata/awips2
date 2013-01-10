@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset.presenter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
@@ -40,6 +43,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Sep 12, 2012            mpduff     Initial creation
  * Sep 27, 2012  1202      bgonzale   Set selectionDate to date and cycle.
  * Oct 11, 2012  1263      jpiatt     Modified for cancel flag.
+ * Jan 04, 2013  1420      mpduff     Add the dataset object.
  * 
  * </pre>
  * 
@@ -82,7 +86,7 @@ public class GriddedTimingSelectionPresenter {
             }
         }
     };
-    
+
     /** Cancel button action handler */
     @VisibleForTesting
     final Runnable cancelBtnAction = new Runnable() {
@@ -91,7 +95,7 @@ public class GriddedTimingSelectionPresenter {
             cancel = true;
         }
     };
-    
+
     /** Cancel flag */
     private boolean cancel = false;
 
@@ -102,7 +106,7 @@ public class GriddedTimingSelectionPresenter {
     /** Ok button conf object */
     @VisibleForTesting
     final ButtonConf okBtnConf;
-    
+
     /** Cancel button conf object */
     @VisibleForTesting
     ButtonConf cancelBtnConf;
@@ -113,9 +117,12 @@ public class GriddedTimingSelectionPresenter {
     /** The selected date */
     private String selectedDate;
 
+    /** The Gridded dataset obj */
+    private final GriddedDataSet dataSet;
+
     /**
      * Constructor.
-     *
+     * 
      * @param view
      *            The view
      * @param dataSet
@@ -126,6 +133,7 @@ public class GriddedTimingSelectionPresenter {
     public GriddedTimingSelectionPresenter(IGriddedTimingSelectionDlgView view,
             GriddedDataSet dataSet, List<String> dateCycleList) {
         this.view = view;
+        this.dataSet = dataSet;
 
         latestDataChkConf = new CheckBoxConf("Get Latest Data", true,
                 "Use the latest time", latestDataChkAction);
@@ -152,7 +160,7 @@ public class GriddedTimingSelectionPresenter {
 
     /**
      * OK Button action method.
-     *
+     * 
      * @return true if everything ok
      */
     protected boolean handleOk() {
@@ -163,6 +171,9 @@ public class GriddedTimingSelectionPresenter {
                 view.displayPopup(POPUP_TITLE, VALID_DATE_MUST_BE_SELECTED);
                 return false;
             }
+
+            DataDeliveryGUIUtils.latencyValidChk(view.getLatency(),
+                    getMaxLatency());
 
             // parse off the date/cycle time selected
             String[] parts = selection.split(" - ");
@@ -178,6 +189,29 @@ public class GriddedTimingSelectionPresenter {
     }
 
     /**
+     * Max latency value in minutes.
+     * 
+     * @return
+     */
+    private int getMaxLatency() {
+        List<Integer> cycleList = new ArrayList<Integer>(dataSet.getCycles());
+        Collections.sort(cycleList);
+
+        int max = 0;
+
+        for (int i = 0; i < cycleList.size(); i++) {
+            if (i + 1 <= cycleList.size()) {
+                int tempMax = cycleList.get(i + 1) - cycleList.get(i);
+                if (tempMax > max) {
+                    max = tempMax;
+                }
+            }
+        }
+
+        return max * 60;
+    }
+
+    /**
      * This method is called via the "Use Latest Data" checkbox being
      * selected/unselected.
      */
@@ -187,7 +221,7 @@ public class GriddedTimingSelectionPresenter {
 
     /**
      * Open the dialog.
-     *
+     * 
      * @return The selected cycle
      */
     public Integer open() {
@@ -205,7 +239,7 @@ public class GriddedTimingSelectionPresenter {
 
     /**
      * Get the selected date.
-     *
+     * 
      * @return the selected date string
      */
     public String getDate() {
@@ -214,7 +248,7 @@ public class GriddedTimingSelectionPresenter {
 
     /**
      * Get cancel flag.
-     *
+     * 
      * @return true if cancel selected
      */
     public boolean isCancel() {
