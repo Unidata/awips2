@@ -79,8 +79,10 @@ public class SystemRuleManager {
     private final String RULE_PATH = "datadelivery" + File.separator
             + "systemManagement" + File.separator + "rules" + File.separator;
 
+    /** Latency rule file */
     private final String LATENCY_RULE_FILE = RULE_PATH + "latencyRules.xml";
 
+    /** Priority rule file */
     private final String PRIORITY_RULE_FILE = RULE_PATH + "priorityRules.xml";
 
     /** Status Handler */
@@ -96,6 +98,7 @@ public class SystemRuleManager {
     /** Unmarshaller object */
     private Unmarshaller unmarshaller;
 
+    /** Bandwidth service */
     private IBandwidthService bandwidthService;
 
     /**
@@ -144,6 +147,13 @@ public class SystemRuleManager {
         return getPriorityRules().getRuleNames();
     }
 
+    /**
+     * Load the priority rule.
+     * 
+     * @param name
+     *            the name of the rule
+     * @return the PriorityRuleXML object
+     */
     public PriorityRuleXML loadPriorityRule(String name) {
         PriorityRulesXML priorityRules = getPriorityRules();
         for (PriorityRuleXML rule : priorityRules.getRules()) {
@@ -155,6 +165,13 @@ public class SystemRuleManager {
         return new PriorityRuleXML();
     }
 
+    /**
+     * Load the latency rule.
+     * 
+     * @param name
+     *            the name of the rule
+     * @return the LatencyRuleXML object
+     */
     public LatencyRuleXML loadLatencyRule(String name) {
         LatencyRulesXML latencyRules = getLatencyRules();
         for (LatencyRuleXML rule : latencyRules.getRules()) {
@@ -176,6 +193,13 @@ public class SystemRuleManager {
         return getLatencyRules().getRuleNames();
     }
 
+    /**
+     * Save priority rules.
+     * 
+     * @param xmlObj
+     *            the rules to save
+     * @return true if saved successful
+     */
     public boolean savePriorityRules(PriorityRulesXML xmlObj) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -197,6 +221,13 @@ public class SystemRuleManager {
         return false;
     }
 
+    /**
+     * Save latency rules.
+     * 
+     * @param xmlObj
+     *            the rules to save
+     * @return true if saved successful
+     */
     public boolean saveLatencyRules(LatencyRulesXML xmlObj) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -218,6 +249,12 @@ public class SystemRuleManager {
         return false;
     }
 
+    /**
+     * Delete the latency rule.
+     * 
+     * @param ruleName
+     *            the rule name to delete
+     */
     public void deleteLatencyRule(String ruleName) {
         LatencyRulesXML latencyRules = getLatencyRules();
 
@@ -230,6 +267,12 @@ public class SystemRuleManager {
         }
     }
 
+    /**
+     * Delete the priority rule.
+     * 
+     * @param ruleName
+     *            the rule name to delete
+     */
     public void deletePriorityRule(String ruleName) {
         PriorityRulesXML priorityRules = getPriorityRules();
 
@@ -242,6 +285,13 @@ public class SystemRuleManager {
         }
     }
 
+    /**
+     * Update the rule.
+     * 
+     * @param rule
+     *            The rule to update
+     * @return true if updated
+     */
     public boolean updateRule(LatencyRuleXML rule) {
         LatencyRulesXML rulesXml = getLatencyRules();
         boolean saved = rulesXml.updateRule(rule);
@@ -252,6 +302,13 @@ public class SystemRuleManager {
         return false;
     }
 
+    /**
+     * Update the rule.
+     * 
+     * @param rule
+     *            The rule to update
+     * @return true if updated
+     */
     public boolean updateRule(PriorityRuleXML rule) {
         PriorityRulesXML rulesXml = getPriorityRules();
         boolean saved = rulesXml.updateRule(rule);
@@ -266,6 +323,13 @@ public class SystemRuleManager {
         return saved;
     }
 
+    /**
+     * Save the rule.
+     * 
+     * @param rule
+     *            The rule to update
+     * @return true if updated
+     */
     public boolean saveRule(PriorityRuleXML rule) {
         PriorityRulesXML rulesXml = getPriorityRules();
         boolean saved = rulesXml.addRule(rule);
@@ -280,6 +344,13 @@ public class SystemRuleManager {
         return saved;
     }
 
+    /**
+     * Save the rule.
+     * 
+     * @param rule
+     *            The rule to update
+     * @return true if updated
+     */
     public boolean saveRule(LatencyRuleXML rule) {
         LatencyRulesXML rulesXml = getLatencyRules();
         boolean saved = rulesXml.addRule(rule);
@@ -294,6 +365,11 @@ public class SystemRuleManager {
         return saved;
     }
 
+    /**
+     * Get the latency rules.
+     * 
+     * @return The latency rules xml object
+     */
     private LatencyRulesXML getLatencyRules() {
         LocalizationFile lfile = getRules(this.LATENCY_RULE_FILE);
 
@@ -311,6 +387,11 @@ public class SystemRuleManager {
         return latencyRules;
     }
 
+    /**
+     * Get the priority rules
+     * 
+     * @return The priority rules xml object
+     */
     private PriorityRulesXML getPriorityRules() {
         LocalizationFile lfile = getRules(this.PRIORITY_RULE_FILE);
 
@@ -327,31 +408,16 @@ public class SystemRuleManager {
         return priorityRules;
     }
 
+    /**
+     * Get the rules files
+     * 
+     * @param name
+     *            Rules file name to get
+     * @return The localization file
+     */
     private LocalizationFile getRules(String name) {
         IPathManager pm = PathManagerFactory.getPathManager();
         return pm.getStaticLocalizationFile(name);
-    }
-
-    /**
-     * Get the default latency.
-     * 
-     * @param DataSetFrequency
-     *            Frequency of the data
-     * 
-     * @return The default latency
-     */
-    public int getDefaultLatency(DataSetFrequency freq) {
-        int frequency = 40;
-        switch (freq) {
-        case HOURLY:
-            frequency = 40;
-            break;
-        case SIX_HOURLY:
-            frequency = 115;
-            break;
-        }
-
-        return frequency;
     }
 
     /**
@@ -363,7 +429,7 @@ public class SystemRuleManager {
     public int getDefaultLatency(List<Integer> cycleTimes) {
         DataSetFrequency freq = DataSetFrequency.fromCycleTimes(cycleTimes);
 
-        return getDefaultLatency(freq);
+        return freq.getDefaultLatency();
     }
 
     /**

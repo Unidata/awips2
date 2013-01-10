@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.system;
 
 /**
- * TODO Add Description
+ * Operator interface.
  * 
  * <pre>
  * 
