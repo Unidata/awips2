@@ -19,10 +19,15 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
 
 /**
  * 
@@ -42,14 +47,19 @@ import com.raytheon.uf.common.dataplugin.level.Level;
  * @version 1.0
  */
 
+@XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractDataRequest {
 
+    @XmlElement
     protected String datatype;
 
+    @XmlJavaTypeAdapter(value = XmlGenericMapAdapter.class)
     protected Map<String, Object> identifiers;
 
+    @XmlElement
     protected String[] parameters;
 
+    @XmlElement
     protected Level[] levels;
 
     public void setDatatype(String datatype) {
