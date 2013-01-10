@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2012            mpduff      Initial creation
  * Aug 08, 2012    863     jpiatt      Added new interface method.
+ * Jan 07, 2013   1432     mpduff      Fix case sensitive and exclude checkboxes.
  * 
  * </pre>
  * 
@@ -106,7 +107,8 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
      * @param idx
      *            Control index
      */
-    public FilterComp(Composite parent, int style, IFilterUpdate callback, FilterConfig config, int idx) {
+    public FilterComp(Composite parent, int style, IFilterUpdate callback,
+            FilterConfig config, int idx) {
         super(parent, callback, idx);
         this.config = config;
         this.dualConfig = config.getDualConfig();
@@ -180,11 +182,25 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
 
         caseBtn = new Button(controlComp, SWT.CHECK);
         caseBtn.setText("Case Sensitive");
-		caseBtn.setToolTipText("Match upper and lower case");
+        caseBtn.setToolTipText("Match upper and lower case");
+        caseBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                dualConfig.setCaseFlag(caseBtn.getSelection());
+                handleSearch();
+            }
+        });
 
         exclusionBtn = new Button(controlComp, SWT.CHECK);
         exclusionBtn.setText("Exclude");
-		exclusionBtn.setToolTipText("Does not contain search text");
+        exclusionBtn.setToolTipText("Does not contain search text");
+        exclusionBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                dualConfig.setExcludeFlag(exclusionBtn.getSelection());
+                handleSearch();
+            }
+        });
 
     }
 
@@ -239,7 +255,7 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
      *            Composite that gets the separator
      */
     private void addSeparator(Composite parentComp) {
-        GridLayout gl = (GridLayout)parentComp.getLayout();
+        GridLayout gl = (GridLayout) parentComp.getLayout();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = gl.numColumns;
@@ -275,7 +291,8 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
             String[] parts;
 
             /* Iterate over the filtered list of items */
-            String[] filteredList = dualConfig.getFullList().toArray(new String[dualConfig.getFullList().size()]);
+            String[] filteredList = dualConfig.getFullList().toArray(
+                    new String[dualConfig.getFullList().size()]);
 
             // Search contains 1 or more *
             if (search.contains("*")) {
@@ -288,9 +305,9 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
                                     if (item.contains(part) == excludeSearch) {
                                         continue ITEM;
                                     }
-                                }
-                                else {
-                                    if (!item.toLowerCase().contains(part.toLowerCase()) == excludeSearch) {
+                                } else {
+                                    if (!item.toLowerCase().contains(
+                                            part.toLowerCase()) == excludeSearch) {
                                         continue ITEM;
                                     }
                                 }
@@ -304,15 +321,14 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
                             int curIdx = 0;
                             if (caseBtn.getSelection()) {
                                 curIdx = item.indexOf(parts[i]);
-                            }
-                            else {
-                                curIdx = item.toLowerCase().indexOf(parts[i].toLowerCase());
+                            } else {
+                                curIdx = item.toLowerCase().indexOf(
+                                        parts[i].toLowerCase());
                             }
 
                             if (curIdx > idx) {
                                 idx = curIdx;
-                            }
-                            else {
+                            } else {
                                 break ITEM;
                             }
                         }
@@ -324,16 +340,14 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
                     dualList.setAvailableItems(tmpFilterList);
                 }
                 return;
-            }
-            else {
+            } else {
                 // No * in search
                 for (String item : filteredList) {
                     if (caseBtn.getSelection()) {
                         if (item.contains(search) == excludeSearch) {
                             tmpFilterList.add(item);
                         }
-                    }
-                    else {
+                    } else {
                         if (item.toLowerCase().contains(search.toLowerCase()) == excludeSearch) {
                             tmpFilterList.add(item);
                         }
@@ -374,8 +388,7 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
     /**
      * Get the rows in the Selected List.
      * 
-     * @return
-     *      array list of selected items 
+     * @return array list of selected items
      */
     public String[] getSelectedListItems() {
         return dualList.getSelectedListItems();
@@ -384,8 +397,7 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
     /**
      * Get the Filter Configuration.
      * 
-     * @return
-     *       FilterConfig object 
+     * @return FilterConfig object
      */
     public FilterConfig getConfig() {
         return config;
@@ -410,8 +422,7 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
     public void hasEntries(boolean entries) {
         if (entries) {
             setCurrentState(ExpandItemState.Entries);
-        }
-        else {
+        } else {
             setCurrentState(ExpandItemState.NoEntries);
         }
         this.dirty = true;
@@ -439,6 +450,6 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
     @Override
     public void selectionChanged() {
         // unused
-        
+
     }
 }
