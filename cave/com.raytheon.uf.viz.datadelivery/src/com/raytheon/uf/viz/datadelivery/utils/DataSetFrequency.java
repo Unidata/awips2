@@ -39,21 +39,30 @@ import java.util.List;
  */
 
 public enum DataSetFrequency {
-    HOURLY, SIX_HOURLY;
+    HOURLY(40), SIX_HOURLY(115), TWELVE_HOURLY(115), DAILY(115);
 
-    private DataSetFrequency() {
+    private int defaultLatency;
 
+    private DataSetFrequency(int defaultLatency) {
+        this.defaultLatency = defaultLatency;
     }
 
     public static DataSetFrequency fromCycleTimes(List<Integer> cycleTimes) {
         if (cycleTimes.size() > 1) {
             if ((cycleTimes.get(1) - cycleTimes.get(0)) == 1) {
                 return DataSetFrequency.HOURLY;
-            } else {
+            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 6) {
                 return DataSetFrequency.SIX_HOURLY;
+            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 12) {
+                return DataSetFrequency.TWELVE_HOURLY;
+            } else if ((cycleTimes.get(1) - cycleTimes.get(0)) == 24) {
+                return DataSetFrequency.DAILY;
             }
         }
+        return DataSetFrequency.DAILY;
+    }
 
-        return DataSetFrequency.SIX_HOURLY;
+    public int getDefaultLatency() {
+        return this.defaultLatency;
     }
 }

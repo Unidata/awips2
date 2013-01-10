@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.common.ui;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -60,7 +61,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * @version 1.0
  */
 
-public abstract class TableComp extends Composite implements INotificationObserver {
+public abstract class TableComp extends Composite implements
+        INotificationObserver {
 
     /** Data table. */
     protected Table table;
@@ -100,7 +102,8 @@ public abstract class TableComp extends Composite implements INotificationObserv
      *            Flag indicating if an observer should be added to the
      *            Notification manager.
      */
-    public TableComp(Composite parent, TableCompConfig tableConfig, boolean notifObserverFlag) {
+    public TableComp(Composite parent, TableCompConfig tableConfig,
+            boolean notifObserverFlag) {
         super(parent, SWT.NONE);
         this.parentComp = parent;
         this.tableConfig = tableConfig;
@@ -203,14 +206,16 @@ public abstract class TableComp extends Composite implements INotificationObserv
         }
 
         if (table.getItemCount() > 0) {
-            //Only change image if table is re-opened
+            // Only change image if table is re-opened
             if (!configChange) {
                 sortedColumn.setImage(sortImages.getImage(sortDir));
             } else if (sortDir == SortDirection.ASCENDING) {
-                sortedColumn.setImage(sortImages.getImage(SortDirection.ASCENDING));
+                sortedColumn.setImage(sortImages
+                        .getImage(SortDirection.ASCENDING));
             } else {
-                sortedColumn.setImage(sortImages.getImage(SortDirection.DESCENDING));
-            } 
+                sortedColumn.setImage(sortImages
+                        .getImage(SortDirection.DESCENDING));
+            }
 
         }
 
@@ -225,13 +230,13 @@ public abstract class TableComp extends Composite implements INotificationObserv
      */
     public final void showColumnToolTips(boolean show) {
         if (show) {
-            HashMap<String, String> toolTipsMap = DataDeliveryUtils.getColumnToolTipsMap(tableConfig.getTableType());
+            Map<String, String> toolTipsMap = DataDeliveryUtils
+                    .getColumnToolTipsMap(tableConfig.getTableType());
 
             for (TableColumn tc : table.getColumns()) {
                 tc.setToolTipText(toolTipsMap.get(tc.getText()));
             }
-        }
-        else {
+        } else {
             for (TableColumn tc : table.getColumns()) {
                 tc.setToolTipText(null);
             }
@@ -248,21 +253,23 @@ public abstract class TableComp extends Composite implements INotificationObserv
      * @param clickSort
      *            Only change column sort direction on click
      */
-    public void updateSortDirection(TableColumn tc, ISortTable tableData, boolean clickSort) {
+    public void updateSortDirection(TableColumn tc, ISortTable tableData,
+            boolean clickSort) {
 
         if (!configChange) {
             SortDirection sortDirection = SortDirection.ASCENDING;
 
-            if (sortedColumn != null && tc.getText().equals(sortedColumn.getText())) {
+            if (sortedColumn != null
+                    && tc.getText().equals(sortedColumn.getText())) {
 
                 if (sortDirectionMap.containsKey(sortedColumn.getText())) {
-                    sortDirection = sortDirectionMap.get(sortedColumn.getText());
+                    sortDirection = sortDirectionMap
+                            .get(sortedColumn.getText());
 
                     if (clickSort) {
                         if (sortDirection == SortDirection.DESCENDING) {
                             sortDirection = SortDirection.ASCENDING;
-                        }
-                        else {
+                        } else {
                             sortDirection = SortDirection.DESCENDING;
                         }
                     }
@@ -271,12 +278,11 @@ public abstract class TableComp extends Composite implements INotificationObserv
 
                 sortDirectionMap.put(sortedColumn.getText(), sortDirection);
                 tableData.setSortDirection(sortDirection);
-            }
-            else {
+            } else {
                 if (sortDirectionMap.containsKey(tc.getText())) {
-                    tableData.setSortDirection(sortDirectionMap.get(tc.getText()));
-                }
-                else {
+                    tableData.setSortDirection(sortDirectionMap.get(tc
+                            .getText()));
+                } else {
                     sortDirectionMap.put(sortedColumn.getText(), sortDirection);
                     tableData.setSortDirection(sortDirection);
                 }
