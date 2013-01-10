@@ -104,6 +104,7 @@ public class DefaultGridData implements IGridData {
         return unit;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DataDestination populateData(DataDestination destination) {
         if (destination == null) {
@@ -111,8 +112,8 @@ public class DefaultGridData implements IGridData {
                     "Data destination must not be null");
         }
 
-        for (int x = 0; x < gridGeometry.axisDimensionX; x++) {
-            for (int y = 0; y < gridGeometry.axisDimensionY; y++) {
+        for (int x = 0; x < gridGeometry.getGridRange2D().width; x++) {
+            for (int y = 0; y < gridGeometry.getGridRange2D().height; y++) {
                 destination.setDataValue(data.getDataValue(x, y), x, y);
             }
         }
