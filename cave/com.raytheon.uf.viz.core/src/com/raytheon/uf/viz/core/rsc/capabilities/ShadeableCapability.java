@@ -82,7 +82,6 @@ public class ShadeableCapability extends AbstractCapability {
     }
 
     public void setOpacity(float opacity) {
-        this.opacity = opacity;
         if (this.opacity != opacity) {
             this.opacity = opacity;
             this.capabilityChanged();
