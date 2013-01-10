@@ -26,18 +26,19 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
 
 /**
  * IGriddedTimingSelectionDlgView interface
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 12, 2012            mpduff     Initial creation.
  * Oct 11, 2012   1263     jpiatt     Modified for cancel flag.
- *
+ * Jan 04, 2013   1420     mpduff     Add getters for Latency and Priority.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -46,41 +47,42 @@ public interface IGriddedTimingSelectionDlgView extends IPresenterView {
 
     /**
      * Open the view dialog.
-     *
+     * 
      * @return the selection
      */
     Integer openDlg();
 
     /**
      * Set the config object for the latest data check box.
-     *
+     * 
      * @param checkBoxConf
      */
     void setLatestDataCheckBox(CheckBoxConf checkBoxConf);
 
     /**
      * Set the date/cycle list config object.
-     *
+     * 
      * @param dateCycleListConf
      */
     void setDateCycleList(ListConf dateCycleListConf);
 
     /**
      * Set the config object for the ok button.
+     * 
      * @param okBtnConf
      */
     void setOkButton(ButtonConf okBtnConf);
 
     /**
      * Set the callback to be called at preopen.
-     *
+     * 
      * @param preOpenCallback
      */
     void setPreOpenCallback(Runnable preOpenCallback);
 
     /**
      * Check if the latest data checkbox is enabled.
-     *
+     * 
      * @return true if enabled.
      */
     boolean isLatestDataEnabled();
@@ -92,7 +94,7 @@ public interface IGriddedTimingSelectionDlgView extends IPresenterView {
 
     /**
      * Get the list selection.
-     *
+     * 
      * @return the selected item in the list
      */
     String getSelection();
@@ -108,5 +110,18 @@ public interface IGriddedTimingSelectionDlgView extends IPresenterView {
      * @param cancelBtnConf
      */
     void setCancelButton(ButtonConf cancelBtnConf);
-    
+
+    /**
+     * Get the latency value.
+     * 
+     * @return Latency value
+     */
+    int getLatency();
+
+    /**
+     * Get the priority value.
+     * 
+     * @return priority value
+     */
+    int getPriority();
 }
