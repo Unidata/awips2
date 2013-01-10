@@ -21,9 +21,11 @@ package com.raytheon.uf.viz.datadelivery.subscription.view;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.viz.ui.presenter.IPresenterView;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
@@ -41,6 +43,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Aug 24, 2012  0223      mpduff      Initial creation
  * Dec 13, 2012  1391      bgonzale    Added status methods.
  * Jan 02, 2013  1441      djohnson    Add isGroupSelected.
+ * Jan 04, 2013  1420      mpduff      Added getters for latency and priority.
  * 
  * </pre>
  * 
@@ -395,4 +398,33 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * @return
      */
     boolean isGroupSelected();
+
+    /**
+     * Get the latency value.
+     * 
+     * @return the latency value
+     */
+    int getLatencyValue();
+
+    /**
+     * Get the priority value.
+     * 
+     * @return
+     */
+    int getPriorityValue();
+
+    /**
+     * Set Subscription.
+     * 
+     * @param subscription
+     *            the subscription
+     */
+    void setSubscription(Subscription subscription);
+
+    /**
+     * Set the cycle times of the model.
+     * 
+     * @param cycleTimes
+     */
+    void setCycleTimes(Set<Integer> cycleTimes);
 }
