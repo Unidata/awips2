@@ -43,7 +43,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUtil;
+import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -704,6 +704,7 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
         if (frequencyFlag || sizeFlag) {
             unit = unitsCombo.getItem(unitsCombo.getSelectionIndex());
         }
+
         boolean saved = false;
 
         if (PRIORITY_TYPE.equals(ruleType)) {
@@ -784,8 +785,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
 
     private void createSizeUnitItems() {
         unitsCombo.removeAll();
-        DataSizeUtil[] sizeUnits = DataSizeUtil.values();
-        for (DataSizeUtil suo : sizeUnits) {
+        DataSizeUnit[] sizeUnits = DataSizeUnit.values();
+        for (DataSizeUnit suo : sizeUnits) {
             unitsCombo.add(suo.getUnit());
         }
     }
