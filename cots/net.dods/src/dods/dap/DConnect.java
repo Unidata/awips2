@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.zip.InflaterInputStream;
 
 import com.raytheon.dods.HttpConnectStrategy;
-import com.raytheon.uf.common.util.ReflectionUtil;
 
 import dods.dap.parser.ParseException;
 
@@ -147,8 +146,8 @@ public class DConnect {
      */
     public DConnect(String urlString, String proxyHost, String proxyPort,
             boolean acceptDeflate) throws FileNotFoundException {
-        this(urlString, proxyHost, proxyPort, acceptDeflate, ReflectionUtil
-                .newInstanceOfAssignableType(HttpConnectStrategy.class,
+        this(urlString, proxyHost, proxyPort, acceptDeflate,
+                newInstanceOfAssignableType(HttpConnectStrategy.class,
                         HTTP_CONNECT_STRATEGY));
     }
 
@@ -768,5 +767,19 @@ public class DConnect {
         }
 
         return dds;
+    }
+
+    private static <T> T newInstanceOfAssignableType(Class<T> assignableClass,
+            String name) {
+        try {
+            @SuppressWarnings("unchecked")
+            final Class<? extends T> forName = (Class<? extends T>) Class
+                    .forName(name);
+            return assignableClass.cast(forName.newInstance());
+        } catch (Exception e) {
+            throw new IllegalArgumentException(String.format(
+                    "%s is not assignable to a field of type %s", name,
+                    assignableClass.getName()), e);
+        }
     }
 }
