@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="satellitePluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="satellite" />
+	</bean>
+
+	<bean id="satelliteDataFactory" class="com.raytheon.uf.common.dataplugin.satellite.dataaccess.SatelliteGridFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register" 
+	depends-on="satellitePluginName, satelliteDataFactory">
+		<constructor-arg ref="satellitePluginName"/>
+		<constructor-arg value="com.raytheon.uf.common.dataaccess.grid.IGridRequest"/>
+		<constructor-arg ref="satelliteDataFactory"/>
+	</bean>	
+	
+</beans>
