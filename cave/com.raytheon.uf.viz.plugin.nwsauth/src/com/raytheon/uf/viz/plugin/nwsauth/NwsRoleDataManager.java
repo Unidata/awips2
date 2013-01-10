@@ -19,33 +19,24 @@
  **/
 package com.raytheon.uf.viz.plugin.nwsauth;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
+import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.auth.user.IPermission;
 import com.raytheon.uf.common.auth.user.IRole;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.plugin.nwsauth.NwsPermission;
 import com.raytheon.uf.common.plugin.nwsauth.NwsRole;
+import com.raytheon.uf.common.plugin.nwsauth.NwsRoleDataRequest;
+import com.raytheon.uf.common.plugin.nwsauth.NwsRoleDataRequest.NwsRoleDataRequestType;
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
 import com.raytheon.uf.common.plugin.nwsauth.xml.PermissionXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.UserXML;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * May 30, 2012            mpduff     Initial creation
  * Nov 06, 2012 1302       djohnson   Move to nwsauth plugin.
+ * Jan 09, 2013 1412       djohnson   Move localization file writing to the server.
  * 
  * </pre>
  * 
@@ -68,34 +60,17 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class FileManager {
+public class NwsRoleDataManager {
     /** Status handler */
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FileManager.class);
+            .getHandler(NwsRoleDataManager.class);
 
-    private static final FileManager instance = new FileManager();
+    private static final NwsRoleDataManager instance = new NwsRoleDataManager();
 
-    private final String ROLE_DIR = "roles";
+    private Map<String, NwsRoleData> roleDataMap = new HashMap<String, NwsRoleData>();
 
-    /** JAXB context */
-    private JAXBContext jax;
-
-    /** Marshaller object */
-    private Marshaller marshaller;
-
-    /** Unmarshaller object */
-    private Unmarshaller unmarshaller;
-
-    private final Map<String, NwsRoleData> roleDataMap = new HashMap<String, NwsRoleData>();
-
-    /**
-     * Application name -> LocalizationFile map.
-     */
-    private final Map<String, LocalizationFile> roleFileMap = new HashMap<String, LocalizationFile>();
-
-    private FileManager() {
-        createContext();
-        readXML();
+    private NwsRoleDataManager() {
+        retrieveRoleDataFromServer();
     }
 
     /**
@@ -103,26 +78,8 @@ public class FileManager {
      * 
      * @return an instance
      */
-    public static FileManager getInstance() {
+    public static NwsRoleDataManager getInstance() {
         return instance;
-    }
-
-    private void createContext() {
-        @SuppressWarnings("rawtypes")
-        Class[] classes = new Class[] { NwsRoleData.class, PermissionXML.class,
-                RoleXML.class, UserXML.class };
-
-        try {
-            jax = JAXBContext.newInstance(classes);
-            this.unmarshaller = jax.createUnmarshaller();
-            this.marshaller = jax.createMarshaller();
-
-            // format the output xml file
-            this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -318,65 +275,54 @@ public class FileManager {
     }
 
     /**
-     * Save the NwsRoleData object.
-     * 
-     * @param application
+     * {@inheritDoc}
      */
     public void save(String application) {
-        NwsRoleData roleData = roleDataMap.get(application);
-        LocalizationFile lf = roleFileMap.get(application);
-
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile locFile = pm
-                .getLocalizationFile(context, lf.getName());
-        ;
-
-        try {
-            marshaller.marshal(roleData, locFile.getFile());
-            locFile.save();
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-
+        updateRoleDataOnTheServer(application);
     }
 
-    private void readXML() {
-        try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext[] contexts = new LocalizationContext[2];
-            contexts[0] = pm.getContext(LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.BASE);
-            contexts[1] = pm.getContext(LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.SITE);
-            LocalizationFile[] roleFiles = pm.listFiles(contexts, ROLE_DIR,
-                    null, false, true);
+    /**
+     * Updates the role data on the server.
+     * 
+     * @param application
+     *            the application to send updated role data for
+     */
+    private void updateRoleDataOnTheServer(String application) {
+        Map<String, NwsRoleData> roleDataMapUpdates = new HashMap<String, NwsRoleData>();
+        roleDataMapUpdates.put(application, roleDataMap.get(application));
 
-            for (LocalizationFile lf : roleFiles) {
-                File f = lf.getFile(true);
-                if (f != null && f.exists()) {
-                    System.out.println(f.getAbsolutePath());
-                    NwsRoleData roleData = (NwsRoleData) unmarshaller
-                            .unmarshal(f);
-                    this.roleDataMap.put(roleData.getApplication(), roleData);
-                    this.roleFileMap.put(roleData.getApplication(), lf);
-                }
-            }
-        } catch (JAXBException e1) {
+        NwsRoleDataRequest request = new NwsRoleDataRequest();
+        request.setRoleDataMap(roleDataMapUpdates);
+        request.setType(NwsRoleDataRequestType.SUBMIT);
+        try {
+            RequestRouter.route(request);
+        } catch (Exception e) {
             statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+                    .handle(Priority.PROBLEM,
+                    "Unable to send updated role data to the server.",
+                            e);
+        }
+    }
+
+    private void retrieveRoleDataFromServer() {
+        try {
+            NwsRoleDataRequest request = new NwsRoleDataRequest();
+            request.setType(NwsRoleDataRequestType.REQUEST);
+
+            NwsRoleDataRequest response = (NwsRoleDataRequest) ((SuccessfulExecution) RequestRouter
+                    .route(request)).getResponse();
+
+            this.roleDataMap = response.getRoleDataMap();
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
+
     /**
      * Reload theXML files from disk.
      */
-    public void reloadXML() {
-        readXML();
+    public void reloadRoleData() {
+        retrieveRoleDataFromServer();
     }
 }
