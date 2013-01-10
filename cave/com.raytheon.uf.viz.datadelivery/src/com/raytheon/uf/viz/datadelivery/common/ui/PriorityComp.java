@@ -143,7 +143,8 @@ public class PriorityComp extends Composite {
         latencyText = new Text(latencyComp, SWT.BORDER);
         latencyText.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
-        latencyText.setToolTipText("Subscription Latency in Minutes");
+        latencyText
+                .setToolTipText("Time in minutes allotted for a subscription to download");
         latencyText.setText(String.valueOf(this.latency));
     }
 
