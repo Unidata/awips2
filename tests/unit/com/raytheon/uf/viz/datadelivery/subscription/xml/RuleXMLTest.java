@@ -33,7 +33,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.OperatorTypes;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUtil;
+import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
 
@@ -112,7 +112,7 @@ public class RuleXMLTest {
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
         rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
-        rule.setRuleUnit(DataSizeUtil.KB.getUnit());
+        rule.setRuleUnit(DataSizeUnit.KB.getUnit());
 
         assertTrue("Matches Dataset Size Equals Failed",
                 rule.matches(sub, null));
@@ -120,12 +120,11 @@ public class RuleXMLTest {
 
     @Test
     public void testMatchesSizeEqualsInMB() {
-        System.out.println("Here 1");
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
         rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
-        rule.setRuleUnit(DataSizeUtil.MB.getUnit());
+        rule.setRuleUnit(DataSizeUnit.MB.getUnit());
 
         sub.setDataSetSize(1024 * 100);
         assertTrue("Matches Dataset Size Equals Failed",
@@ -134,12 +133,11 @@ public class RuleXMLTest {
 
     @Test
     public void testMatchesSizeEqualsInGB() {
-        System.out.println("Here 2");
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
         rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
-        rule.setRuleUnit(DataSizeUtil.GB.getUnit());
+        rule.setRuleUnit(DataSizeUnit.GB.getUnit());
 
         sub.setDataSetSize(100 * 1024 * 1024);
         assertTrue("Matches Dataset Size Equals Failed",

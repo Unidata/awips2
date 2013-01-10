@@ -1,7 +1,11 @@
 package com.raytheon.uf.viz.datadelivery.utils;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
 /**
- * Enumeration for Data Size units and conversions.
+ * Enumeration for Data Size units and conversions. Based off of TimeUnit class.
  * 
  * <pre>
  * 
@@ -16,7 +20,10 @@ package com.raytheon.uf.viz.datadelivery.utils;
  * @author mpduff
  * @version 1.0
  */
-public enum DataSizeUtil {
+@XmlType(name = "ruleUnit")
+@XmlEnum
+public enum DataSizeUnit {
+    @XmlEnumValue("Byte")
     BYTE("Byte") {
         @Override
         public long toByte(long l) {
@@ -39,10 +46,11 @@ public enum DataSizeUtil {
         }
 
         @Override
-        public long convert(long l, DataSizeUtil ds) {
+        public long convert(long l, DataSizeUnit ds) {
             return ds.toByte(l);
         }
     },
+    @XmlEnumValue("KB")
     KB("KB") {
         @Override
         public long toByte(long l) {
@@ -65,10 +73,11 @@ public enum DataSizeUtil {
         }
 
         @Override
-        public long convert(long l, DataSizeUtil ds) {
+        public long convert(long l, DataSizeUnit ds) {
             return ds.toKB(l);
         }
     },
+    @XmlEnumValue("MB")
     MB("MB") {
         @Override
         public long toByte(long l) {
@@ -91,10 +100,11 @@ public enum DataSizeUtil {
         }
 
         @Override
-        public long convert(long l, DataSizeUtil ds) {
+        public long convert(long l, DataSizeUnit ds) {
             return ds.toMB(l);
         }
     },
+    @XmlEnumValue("GB")
     GB("GB") {
         @Override
         public long toByte(long l) {
@@ -117,7 +127,7 @@ public enum DataSizeUtil {
         }
 
         @Override
-        public long convert(long l, DataSizeUtil ds) {
+        public long convert(long l, DataSizeUnit ds) {
             return ds.toGB(l);
         }
     };
@@ -127,7 +137,7 @@ public enum DataSizeUtil {
     /** String unit */
     private String unit;
 
-    private DataSizeUtil(String unit) {
+    private DataSizeUnit(String unit) {
         this.unit = unit;
     }
 
@@ -190,5 +200,5 @@ public enum DataSizeUtil {
      * 
      * @return converted value
      */
-    public abstract long convert(long l, DataSizeUtil ds);
+    public abstract long convert(long l, DataSizeUnit ds);
 }

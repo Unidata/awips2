@@ -32,7 +32,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUtil;
+import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 
 /**
  * Parent Rules xml class
@@ -220,13 +220,9 @@ public abstract class RuleXML {
         if (OpsNetFieldNames.SIZE.toString().equals(ruleField)) {
             long dsSizeKb = sub.getDataSetSize(); // Size in KB
             long ruleValueInt = Integer.parseInt(ruleValue);
+            DataSizeUnit dsUnit = DataSizeUnit.valueOf(unit);
+            ruleValueInt = dsUnit.toKB(ruleValueInt);
 
-            if (unit.equals(DataSizeUtil.MB.getUnit())) {
-                ruleValueInt = DataSizeUtil.MB.toKB(ruleValueInt);
-            } else if (unit.equals(DataSizeUtil.GB.getUnit())) {
-                ruleValueInt = DataSizeUtil.GB.toKB(ruleValueInt);
-            }
-            System.out.println(dsSizeKb + " == " + ruleValueInt);
             return oper.evaluate(Long.valueOf(dsSizeKb),
                     Long.valueOf(ruleValueInt));
         }

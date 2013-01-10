@@ -21,8 +21,10 @@ package com.raytheon.uf.viz.datadelivery.utils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -33,7 +35,11 @@ import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -53,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 31, 2012  1278      mpduff       Moved spatial methods to SpatialUtils.
  * Nov 20, 2012 1286       djohnson    Add showYesNoMessage.
  * Dec 20, 2012 1413       bgonzale    Added PendingSubColumnNames.valueOfColumnName(String).
+ * Jan 10, 2013 1420       mdpuff      Added getMaxLatency().
  * </pre>
  * 
  * @author mpduff
@@ -112,7 +119,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get column name.
-         *
+         * 
          * @return Column Name
          */
         public String getColumnName() {
@@ -121,7 +128,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get the tool tip
-         *
+         * 
          * @return The tool tip.
          */
         public String getToolTip() {
@@ -179,7 +186,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get column name.
-         *
+         * 
          * @return Column Name
          */
         public String getColumnName() {
@@ -188,7 +195,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get the tool tip
-         *
+         * 
          * @return The tool tip.
          */
         public String getToolTip() {
@@ -225,7 +232,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get column name.
-         *
+         * 
          * @return Column Name
          */
         public String getColumnName() {
@@ -234,7 +241,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get the tool tip
-         *
+         * 
          * @return The tool tip.
          */
         public String getToolTip() {
@@ -269,7 +276,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get column name.
-         *
+         * 
          * @return Column Name
          */
         public String getColumnName() {
@@ -278,7 +285,7 @@ public class DataDeliveryUtils {
 
         /**
          * Get the tool tip
-         *
+         * 
          * @return The tool tip.
          */
         public String getToolTip() {
@@ -341,13 +348,12 @@ public class DataDeliveryUtils {
 
     /**
      * Get the column tool tips.
-     *
+     * 
      * @param tableType
      *            Table type.
      * @return String array of tool tips.
      */
-    public static HashMap<String, String> getColumnToolTipsMap(
-            TABLE_TYPE tableType) {
+    public static Map<String, String> getColumnToolTipsMap(TABLE_TYPE tableType) {
         HashMap<String, String> toolTipMap = new HashMap<String, String>();
 
         if (tableType == TABLE_TYPE.SUBSCRIPTION) {
@@ -374,7 +380,7 @@ public class DataDeliveryUtils {
 
     /**
      * Show a MessageBox.
-     *
+     * 
      * @param shell
      *            The parent shell
      * @param style
@@ -409,10 +415,10 @@ public class DataDeliveryUtils {
 
     /**
      * Provides the text for the subscription details dialog
-     *
+     * 
      * @param sub
      *            The subscription object
-     *
+     * 
      * @return The formated details string
      */
     public static String formatDetails(Subscription sub) {
@@ -521,4 +527,41 @@ public class DataDeliveryUtils {
         return fmtStr.toString();
     }
 
+    /**
+     * Send an authorization request
+     * 
+     * @param request
+     *            The request object
+     * @return DataDeliveryAuthReqeust object
+     * @throws VizException
+     */
+    public static DataDeliveryAuthRequest sendAuthorizationRequest(
+            DataDeliveryAuthRequest request) throws VizException {
+        return (DataDeliveryAuthRequest) ThriftClient
+                .sendPrivilegedRequest(request);
+    }
+
+    /**
+     * Get the maximum latency for the provided subscription. Calculated as the
+     * maximum cyclic difference.
+     * 
+     * @param subscription
+     *            The subscription
+     * @return the maximum latency in minutes
+     */
+    public static int getMaxLatency(Subscription subscription) {
+        List<Integer> cycles = subscription.getTime().getCycleTimes();
+        Collections.sort(cycles);
+        int max = TimeUtil.HOURS_PER_DAY * TimeUtil.MINUTES_PER_HOUR;
+
+        for (int i = 0; i < cycles.size(); i++) {
+            if (i + 1 <= cycles.size()) {
+                int tempMax = cycles.get(i + 1) - cycles.get(i);
+                if (tempMax > max) {
+                    max = tempMax;
+                }
+            }
+        }
+        return max;
+    }
 }
