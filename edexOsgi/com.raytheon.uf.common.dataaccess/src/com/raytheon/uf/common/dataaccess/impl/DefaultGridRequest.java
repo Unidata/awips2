@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.common.dataaccess.impl;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
 import com.raytheon.uf.common.datastorage.Request;
 
@@ -39,9 +43,11 @@ import com.raytheon.uf.common.datastorage.Request;
  * @version 1.0
  */
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class DefaultGridRequest extends AbstractDataRequest implements
         IGridRequest {
 
+    @XmlElement
     protected Request storageRequest;
 
     @Override

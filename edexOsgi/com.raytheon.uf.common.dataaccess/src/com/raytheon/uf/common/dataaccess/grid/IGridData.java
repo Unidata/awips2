@@ -51,8 +51,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDe
  * @version 1.0
  */
 
-public interface IGridData extends IData {
-
+public interface IGridData extends IData {    
     /**
      * Gets the parameter of the data
      * 
