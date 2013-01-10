@@ -212,11 +212,20 @@ public class SystemLatencyTab {
         });
     }
 
+    /**
+     * Enable the buttons?
+     * 
+     * @param enable
+     *            setting for the buttons
+     */
     private void enableButtons(boolean enable) {
         deleteBtn.setEnabled(enable);
         editBtn.setEnabled(enable);
     }
 
+    /**
+     * New/Edit latency rule action handler.
+     */
     private void handleLatencyRule() {
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();
@@ -268,6 +277,9 @@ public class SystemLatencyTab {
         }
     }
 
+    /**
+     * Delete rule action handler.
+     */
     private void handleDeleteRule() {
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();

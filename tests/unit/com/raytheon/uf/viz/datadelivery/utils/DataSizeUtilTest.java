@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 /**
- * Test {@link DataSizeUtil}
+ * Test {@link DataSizeUnit}
  * 
  * <pre>
  * 
@@ -47,7 +47,7 @@ public class DataSizeUtilTest {
 
     @Test
     public void testConvertOneKbInBytesToBytes() {
-        long result = DataSizeUtil.BYTE.toByte(1024l);
+        long result = DataSizeUnit.BYTE.toByte(1024l);
 
         assertThat(result, is(equalTo(1024l)));
     }
@@ -56,7 +56,7 @@ public class DataSizeUtilTest {
     public void testConvertOneKbInBytesToKB() {
         long bytes = 1024;
         long expected = 1;
-        long result = DataSizeUtil.BYTE.toKB(bytes);
+        long result = DataSizeUnit.BYTE.toKB(bytes);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -65,7 +65,7 @@ public class DataSizeUtilTest {
     public void testConvertOneMbInBytesToMB() {
         long bytes = CONV * CONV * 2;
         long expected = 2;
-        long result = DataSizeUtil.BYTE.toMB(bytes);
+        long result = DataSizeUnit.BYTE.toMB(bytes);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -74,7 +74,7 @@ public class DataSizeUtilTest {
     public void testConvertTenBytesToMB() {
         long bytes = 10;
         long expected = 0;
-        long result = DataSizeUtil.BYTE.toMB(bytes);
+        long result = DataSizeUnit.BYTE.toMB(bytes);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -83,7 +83,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoGbInBytesToGB() {
         long bytes = CONV * CONV * CONV * 2;
         long expected = 2;
-        long result = DataSizeUtil.BYTE.toGB(bytes);
+        long result = DataSizeUnit.BYTE.toGB(bytes);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -92,7 +92,7 @@ public class DataSizeUtilTest {
     public void testConvertTenBytesToGB() {
         long bytes = 10;
         long expected = 0;
-        long result = DataSizeUtil.BYTE.toGB(bytes);
+        long result = DataSizeUnit.BYTE.toGB(bytes);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -101,7 +101,7 @@ public class DataSizeUtilTest {
     public void testConvertMethodOneKbToByte() {
         long kb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.BYTE.convert(kb, DataSizeUtil.KB);
+        long result = DataSizeUnit.BYTE.convert(kb, DataSizeUnit.KB);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -112,7 +112,7 @@ public class DataSizeUtilTest {
     public void testConvertOneKBToBytes() {
         long kb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.KB.toByte(kb);
+        long result = DataSizeUnit.KB.toByte(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -121,7 +121,7 @@ public class DataSizeUtilTest {
     public void testConvertOneKbToKB() {
         long kb = 1;
         long expected = 1;
-        long result = DataSizeUtil.KB.toKB(kb);
+        long result = DataSizeUnit.KB.toKB(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -130,7 +130,7 @@ public class DataSizeUtilTest {
     public void testConvertOneKbToMB() {
         long kb = 1;
         long expected = 0;
-        long result = DataSizeUtil.KB.toMB(kb);
+        long result = DataSizeUnit.KB.toMB(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -139,7 +139,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoMbInKbToMB() {
         long kb = CONV * 2;
         long expected = 2;
-        long result = DataSizeUtil.KB.toMB(kb);
+        long result = DataSizeUnit.KB.toMB(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -148,7 +148,7 @@ public class DataSizeUtilTest {
     public void testConvertOneKbToGB() {
         long kb = 1;
         long expected = 0;
-        long result = DataSizeUtil.KB.toGB(kb);
+        long result = DataSizeUnit.KB.toGB(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -157,7 +157,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoGbInKbToGB() {
         long kb = CONV * CONV * 2;
         long expected = 2;
-        long result = DataSizeUtil.KB.toGB(kb);
+        long result = DataSizeUnit.KB.toGB(kb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -166,7 +166,7 @@ public class DataSizeUtilTest {
     public void testConvertMethodOneMbToKB() {
         long mb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.KB.convert(mb, DataSizeUtil.MB);
+        long result = DataSizeUnit.KB.convert(mb, DataSizeUnit.MB);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -177,7 +177,7 @@ public class DataSizeUtilTest {
     public void testConvertOneMbToBytes() {
         long mb = 1;
         long expected = 1024 * 1024;
-        long result = DataSizeUtil.MB.toByte(mb);
+        long result = DataSizeUnit.MB.toByte(mb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -186,7 +186,7 @@ public class DataSizeUtilTest {
     public void testConvertOneMbToKB() {
         long mb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.MB.toKB(mb);
+        long result = DataSizeUnit.MB.toKB(mb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -195,7 +195,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoMbToMB() {
         long mb = 2;
         long expected = 2;
-        long result = DataSizeUtil.MB.toMB(mb);
+        long result = DataSizeUnit.MB.toMB(mb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -204,7 +204,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoMbToGB() {
         long mb = 2;
         long expected = 0;
-        long result = DataSizeUtil.MB.toGB(mb);
+        long result = DataSizeUnit.MB.toGB(mb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -213,7 +213,7 @@ public class DataSizeUtilTest {
     public void testConvertTwoGbInMbToGB() {
         long mb = 1024 * 2;
         long expected = 2;
-        long result = DataSizeUtil.MB.toGB(mb);
+        long result = DataSizeUnit.MB.toGB(mb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -222,7 +222,7 @@ public class DataSizeUtilTest {
     public void testConvertMethodOneGbToMB() {
         long gb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.MB.convert(gb, DataSizeUtil.GB);
+        long result = DataSizeUnit.MB.convert(gb, DataSizeUnit.GB);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -233,7 +233,7 @@ public class DataSizeUtilTest {
     public void testConvertOneGbToBytes() {
         long gb = 1;
         long expected = 1024 * 1024 * 1024;
-        long result = DataSizeUtil.GB.toByte(gb);
+        long result = DataSizeUnit.GB.toByte(gb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -242,7 +242,7 @@ public class DataSizeUtilTest {
     public void testConvertOneGbToKB() {
         long gb = 1;
         long expected = 1024 * 1024;
-        long result = DataSizeUtil.GB.toKB(gb);
+        long result = DataSizeUnit.GB.toKB(gb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -251,7 +251,7 @@ public class DataSizeUtilTest {
     public void testConvertOneGbToMB() {
         long gb = 1;
         long expected = 1024;
-        long result = DataSizeUtil.GB.toMB(gb);
+        long result = DataSizeUnit.GB.toMB(gb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -260,7 +260,7 @@ public class DataSizeUtilTest {
     public void testConvertOneGbToGB() {
         long gb = 1;
         long expected = 1;
-        long result = DataSizeUtil.GB.toGB(gb);
+        long result = DataSizeUnit.GB.toGB(gb);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -269,7 +269,7 @@ public class DataSizeUtilTest {
     public void testConvertMethodTwoGbToGB() {
         long gb = 2;
         long expected = 2;
-        long result = DataSizeUtil.GB.convert(gb, DataSizeUtil.GB);
+        long result = DataSizeUnit.GB.convert(gb, DataSizeUnit.GB);
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -277,7 +277,7 @@ public class DataSizeUtilTest {
     @Test
     public void testGetUnitByte() {
         String expected = "Byte";
-        String result = DataSizeUtil.BYTE.getUnit();
+        String result = DataSizeUnit.BYTE.getUnit();
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -285,7 +285,7 @@ public class DataSizeUtilTest {
     @Test
     public void testGetUnitKB() {
         String expected = "KB";
-        String result = DataSizeUtil.KB.getUnit();
+        String result = DataSizeUnit.KB.getUnit();
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -293,7 +293,7 @@ public class DataSizeUtilTest {
     @Test
     public void testGetUnitMB() {
         String expected = "MB";
-        String result = DataSizeUtil.MB.getUnit();
+        String result = DataSizeUnit.MB.getUnit();
 
         assertThat(result, is(equalTo(expected)));
     }
@@ -301,7 +301,7 @@ public class DataSizeUtilTest {
     @Test
     public void testGetUnitGB() {
         String expected = "GB";
-        String result = DataSizeUtil.GB.getUnit();
+        String result = DataSizeUnit.GB.getUnit();
 
         assertThat(result, is(equalTo(expected)));
     }
