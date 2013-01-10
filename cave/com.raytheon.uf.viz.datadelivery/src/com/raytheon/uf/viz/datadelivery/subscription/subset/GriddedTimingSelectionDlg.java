@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
+import java.util.Set;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +32,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IGriddedTimingSelectionDlgView;
+import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
@@ -48,7 +53,8 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * ------------ ---------- ----------- --------------------------
  * Sep 12, 2012   223      mpduff      Initial creation.
  * Oct 11, 2012  1263      jpiatt      Modified for cancel button
- * Nov 20, 2012 1286       djohnson     Implement displayYesNoPopup..
+ * Nov 20, 2012  1286      djohnson    Implement displayYesNoPopup.
+ * Jan 04, 2013  1420      mpduff      Add Priority Composite.
  * 
  * </pre>
  * 
@@ -70,21 +76,34 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
 
     /** OK button */
     private Button okBtn;
-    
+
     /** Cancel button */
     private Button cancelBtn;
+
+    /** Priority Composite */
+    private PriorityComp priorityComp;
 
     /** Callback to the presenter at preopen */
     private Runnable preOpenCallback;
 
+    /** The subscription object */
+    private final Subscription subscription;
+
+    /** Cycle times */
+    private final Set<Integer> cycleTimes;
+
     /**
      * Constructor
-     *
+     * 
      * @param parentShell
+     * @param cycleTimes
      */
-    protected GriddedTimingSelectionDlg(Shell parentShell) {
+    protected GriddedTimingSelectionDlg(Shell parentShell,
+            Set<Integer> cycleTimes, Subscription subscription) {
         super(parentShell);
         setText("Select Date/Cycle");
+        this.cycleTimes = cycleTimes;
+        this.subscription = subscription;
     }
 
     /**
@@ -100,7 +119,7 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
 
         dateComp = new Composite(shell, SWT.NONE);
@@ -114,6 +133,12 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         this.dateCycleList = new List(dateComp, SWT.SINGLE | SWT.BORDER
                 | SWT.V_SCROLL);
         dateCycleList.setLayoutData(gd);
+
+        // Get latency value
+        SystemRuleManager ruleManager = SystemRuleManager.getInstance();
+        int latency = ruleManager.getLatency(this.subscription, cycleTimes);
+        int priority = ruleManager.getPriority(this.subscription, cycleTimes);
+        priorityComp = new PriorityComp(shell, latency, priority);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(2, false);
@@ -129,7 +154,6 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         gd = new GridData(btnWidth, SWT.DEFAULT);
         cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setLayoutData(gd);
-
     }
 
     /**
@@ -198,7 +222,7 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
             }
         });
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -301,4 +325,19 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         close();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getLatency() {
+        return priorityComp.getLatencyValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPriority() {
+        return priorityComp.getPriorityIndex();
+    }
 }
