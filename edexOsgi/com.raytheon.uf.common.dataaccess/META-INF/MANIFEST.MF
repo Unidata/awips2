@@ -9,9 +9,13 @@ Require-Bundle: com.raytheon.uf.common.time;visibility:=reexport,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.geospatial;visibility:=reexport,
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.level;visibility:=reexport
+ com.raytheon.uf.common.dataplugin.level;visibility:=reexport,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.dataaccess.exception,
  com.raytheon.uf.common.dataaccess.geom,
  com.raytheon.uf.common.dataaccess.grid,
- com.raytheon.uf.common.dataaccess.impl
+ com.raytheon.uf.common.dataaccess.impl,
+ com.raytheon.uf.common.dataaccess.util
