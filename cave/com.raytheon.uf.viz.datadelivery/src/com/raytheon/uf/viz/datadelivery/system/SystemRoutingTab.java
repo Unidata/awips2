@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Label;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2012   730       jpiatt     Initial creation.
+ * Jan 04, 2013  1420       mpduff     Remove autoApply of rules.
  * 
  * </pre>
  * 
@@ -46,21 +47,14 @@ public class SystemRoutingTab {
     /** Parent Composite */
     private final Composite parentComp;
 
-    private final IRulesNeedApplying rulesNeedApplying;
-
     /**
      * Constructor.
      * 
      * @param parentComp
      *            The Composite holding these controls
-     * 
-     * @param dataSet
-     *            The DataSet object
      */
-    public SystemRoutingTab(Composite parentComp,
-            IRulesNeedApplying rulesNeedApplying) {
+    public SystemRoutingTab(Composite parentComp) {
         this.parentComp = parentComp;
-        this.rulesNeedApplying = rulesNeedApplying;
         init();
     }
 

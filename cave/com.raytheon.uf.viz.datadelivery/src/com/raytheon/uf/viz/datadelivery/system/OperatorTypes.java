@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Operator type enumeration.
  * 
@@ -37,52 +41,60 @@ package com.raytheon.uf.viz.datadelivery.system;
  */
 
 /** Enumeration to use for Dataset Size operations */
-public enum OperatorTypes {
+@XmlType(name = "operatorType")
+@XmlEnum
+public enum OperatorTypes implements Operator<Long> {
     /** Greater than operation */
+    @XmlEnumValue(">")
     GREATER_THAN(">") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
+        public boolean evaluate(Long operandOne, Long operandTwo) {
             return operandOne > operandTwo;
         }
     },
     /** Less than operation */
+    @XmlEnumValue("<")
     LESS_THAN("<") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
+        public boolean evaluate(Long operandOne, Long operandTwo) {
             return operandOne < operandTwo;
         }
     },
     /** Greater than or equal operation */
+    @XmlEnumValue(">=")
     GREATER_THAN_EQUAL(">=") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
+        public boolean evaluate(Long operandOne, Long operandTwo) {
             return operandOne >= operandTwo;
         }
     },
     /** Less than or equal operation */
+    @XmlEnumValue("<=")
     LESS_THAN_EQUAL("<=") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
+        public boolean evaluate(Long operandOne, Long operandTwo) {
             return operandOne <= operandTwo;
         }
     },
     /** Greater than operation */
+    @XmlEnumValue("Equal")
     EQUAL("Equal") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
-            return operandOne == operandTwo;
+        public boolean evaluate(Long operandOne, Long operandTwo) {
+            return operandOne.longValue() == operandTwo.longValue();
         }
     },
     /** Greater than operation */
+    @XmlEnumValue("Not Equal")
     NOT_EQUAL("Not Equal") {
         @Override
-        public boolean evaluate(long operandOne, long operandTwo) {
-            return operandOne != operandTwo;
+        public boolean evaluate(Long operandOne, Long operandTwo) {
+            return operandOne.longValue() != operandTwo.longValue();
         }
     };
 
     /** Datatype operation */
-    private final String operator;
+    private String operator;
 
     private OperatorTypes(String sizeOperation) {
         this.operator = sizeOperation;
@@ -101,33 +113,15 @@ public enum OperatorTypes {
     public String toString() {
         return operator;
     }
-    
-    /**
-     * Evaluate whether the operator would return true when comparing operandOne to operandTwo.
-     * 
-     * <pre>
-     * <code>
-     *   OperatorTypes operator = OperatorTypes.GREATER_THAN;
-     *   long operandOne = 1;
-     *   long operandTwo = 2;
-     *   
-     *   boolean result = operator.evaluate(operandOne, operandTwo); // Returns false
-     * </code>
-     * </pre>
-     * 
-     * @param operandOne
-     * @param operandTwo
-     * @return true or false
-     */
-    public abstract boolean evaluate(long operandOne, long operandTwo);
+
+    // public abstract boolean evaluate(Long operandOne, Long operandTwo);
 
     /**
      * Return the type from its toString() value.
      * 
      * @param string
-     *  the string
-     * @return
-     *  the type
+     *            the string
+     * @return the type
      */
     public static OperatorTypes fromString(String string) {
         for (OperatorTypes operator : OperatorTypes.values()) {
@@ -136,6 +130,6 @@ public enum OperatorTypes {
             }
         }
         return null;
-    }       
+    }
 
 }
