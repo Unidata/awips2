@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTime
  * Aug 22, 2012 0743       djohnson     Initial creation
  * Aug 29, 2012 0223       mpduff       Removed cycles.
  * Sep 24, 2012 1209       djohnson     Move isValid() in from view.
+ * Jan 10, 2013 1444       mpduff       Add updateSettings method.
  * 
  * </pre>
  * 
@@ -50,12 +51,13 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTime
  * @version 1.0
  */
 
-public class GriddedTimingSubsetPresenter extends
+public class GriddedTimingSubsetPresenter
+        extends
         DataTimingSubsetPresenter<GriddedDataSet, GriddedDataSetMetaData, IGriddedDataTimingSubsetView, SpecificDateTimeXML, GriddedDataSetMetaDataQuery> {
 
     /**
      * Constructor.
-     *
+     * 
      * @param dataSet
      * @param view
      */
@@ -80,7 +82,7 @@ public class GriddedTimingSubsetPresenter extends
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -98,7 +100,7 @@ public class GriddedTimingSubsetPresenter extends
 
     /**
      * Get the selected forecast hours
-     *
+     * 
      * @return the selected forecast hours
      */
     public String[] getSelectedFcstHours() {
@@ -118,7 +120,15 @@ public class GriddedTimingSubsetPresenter extends
     @Override
     public boolean isValid() {
         String[] forecastHours = view.getSelectedFcstHours();
-        
+
         return !CollectionUtil.isNullOrEmpty(forecastHours);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateSettings(SpecificDateTimeXML time) {
+        view.updateSelectedForecastHours(time.getFcstHours());
     }
 }
