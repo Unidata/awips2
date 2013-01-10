@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.VerticalXML;
  * Oct  4, 2012  1245      jpiatt     Correct isValid method & code clean up.
  * Nov 19, 2012 1166       djohnson   Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
+ * Jan 10, 2013 1444       mpduff     Add updateSettings method.
  * 
  * </pre>
  * 
@@ -572,6 +573,29 @@ public class VerticalSubsetTab extends SubsetTab implements
             if (control instanceof LevelParameterSelection) {
                 LevelParameterSelection lps = (LevelParameterSelection) control;
                 lps.setClean();
+            }
+        }
+    }
+
+    /**
+     * Update the selected parameters and levels.
+     * 
+     * @param vertList
+     */
+    public void updateSettings(ArrayList<VerticalXML> vertList) {
+        for (VerticalXML vert : vertList) {
+            for (ExpandItem item : expandBar.getItems()) {
+                LevelParameterSelection lps = (LevelParameterSelection) item
+                        .getControl();
+                if (vert.getLayerType().equalsIgnoreCase(item.getText())) {
+                    if (vert.getLevels() != null && !vert.getLevels().isEmpty()) {
+                        lps.selectLevels(vert.getLevels());
+                    }
+                    if (vert.getParameterList() != null
+                            && !vert.getParameterList().isEmpty()) {
+                        lps.selectParameters(vert.getParameterList());
+                    }
+                }
             }
         }
     }
