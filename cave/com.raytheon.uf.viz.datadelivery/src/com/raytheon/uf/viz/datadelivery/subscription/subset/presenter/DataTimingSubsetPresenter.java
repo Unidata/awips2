@@ -41,7 +41,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
  * Aug 29, 2012 0223       mpduff       Changed as result of renamed objects.
- * Sep 24, 2012  1209      djohnson     Sub-classes provide isValid() implementations.
+ * Sep 24, 2012 1209       djohnson     Sub-classes provide isValid() implementations.
+ * Jan 10, 2013 1444       mpduff       Add updateSettings method.
  * 
  * </pre>
  * 
@@ -91,14 +92,14 @@ public abstract class DataTimingSubsetPresenter<DATASET extends DataSet, DATASET
 
     /**
      * Check whether the view is valid.
-     *
+     * 
      * @return true if the view is valid
      */
     public abstract boolean isValid();
 
     /**
      * Set boolean to whether or not date or cycle selections have changed.
-     *
+     * 
      * @param dateCycleDirty
      *            time/cycle have changed
      */
@@ -108,16 +109,24 @@ public abstract class DataTimingSubsetPresenter<DATASET extends DataSet, DATASET
 
     /**
      * Get the save information for this data timing presenter.
-     *
+     * 
      * @return the save information
      */
     public abstract TIMEXML getSaveInfo();
 
     /**
      * Restore this data timing presenter from the save information.
-     *
+     * 
      * @param time
      *            the saved time information
      */
     public abstract void populate(TIMEXML time, DataSet dataSet);
+
+    /**
+     * Update the data timing presenter from the save information.
+     * 
+     * @param time
+     *            the saved time information
+     */
+    public abstract void updateSettings(TIMEXML time);
 }
