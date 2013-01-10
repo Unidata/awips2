@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.subscription.presenter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -98,6 +99,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Dec 18, 2012 1439       mpduff       Redo subscription name validation.
  * Jan 02, 2012 1345       djohnson     Use gui thread task executor.
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
+ * Jan 04, 2012 1420       mpduff       Add Latency to PriorityComp.
  * </pre>
  * 
  * @author mpduff
@@ -156,9 +158,13 @@ public class CreateSubscriptionDlgPresenter {
     /** Group Definition object */
     private GroupDefinition groupDefinition;
 
+    /** Create subscription flag */
     private final boolean create;
 
     private final IGuiThreadTaskExecutor guiThreadTaskExecutor;
+
+    @VisibleForTesting
+    Set<Integer> cycleTimes;
 
     /**
      * Constructor.
@@ -216,6 +222,11 @@ public class CreateSubscriptionDlgPresenter {
                 init();
             }
         };
+        // Get cycles
+        cycleTimes = Sets.newTreeSet(((OpenDapGriddedDataSet) dataSet)
+                .getCycles());
+        this.view.setCycleTimes(cycleTimes);
+        this.view.setSubscription(this.subscription);
         this.view.setPreOpenCallback(callback);
         this.view.openDlg();
     }
@@ -240,6 +251,15 @@ public class CreateSubscriptionDlgPresenter {
     }
 
     /**
+     * Get the subscription.
+     * 
+     * @return the subscription
+     */
+    public Subscription getSubscription() {
+        return this.subscription;
+    }
+
+    /**
      * Bring the view dialog to the top
      */
     public void bringToTop() {
@@ -256,9 +276,6 @@ public class CreateSubscriptionDlgPresenter {
         view.setDeliverySelection(0);
         view.setOkConf(OK_CONF);
 
-        // Get cycles
-        Set<Integer> cycleTimes = Sets
-                .newTreeSet(((OpenDapGriddedDataSet) dataSet).getCycles());
         final boolean hasCycleTimes = !cycleTimes.isEmpty();
 
         this.cycleChkList = new ArrayList<CheckBoxConf>(cycleTimes.size());
@@ -344,8 +361,6 @@ public class CreateSubscriptionDlgPresenter {
             view.setActiveEndDateBtnEnabled(false);
             view.setActiveEndDateBtnEnabled(false);
         }
-
-        view.setPriority(subscription.getPriority());
 
         List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
         if (cycleTimes != null) {
@@ -492,6 +507,8 @@ public class CreateSubscriptionDlgPresenter {
 
         subscription.getTime().setCycleTimes(view.getCycleTimes());
 
+        subscription.setLatencyInMinutes(view.getLatencyValue());
+
         IUser user = UserController.getUserObject();
         ISubscriptionHandler handler = RegistryObjectHandlers
                 .get(ISubscriptionHandler.class);
@@ -594,9 +611,7 @@ public class CreateSubscriptionDlgPresenter {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
-
         } else {
-
             // Check for pending subscription, can only have one pending change
             PendingSubscription pendingSub = new PendingSubscription(
                     subscription, LocalizationManager.getInstance()
@@ -759,10 +774,20 @@ public class CreateSubscriptionDlgPresenter {
         boolean groupDeliverValid = false;
         boolean groupDurValid = false;
         boolean groupActiveValid = false;
+        boolean latencyValid = false;
 
         // Validate the date entries
         datesValid = this.durationValidChk();
         activeDatesValid = this.activePeriodValidChk();
+        int maxLatency = getMaxLatency();
+        latencyValid = DataDeliveryGUIUtils.latencyValidChk(
+                view.getLatencyValue(), maxLatency);
+        if (!latencyValid) {
+            view.displayErrorPopup("Invalid Latency",
+                    "Invalid latency value entered.\n\n"
+                            + "Please enter a value in minutes between 0 and "
+                            + maxLatency);
+        }
 
         // Validate the subscription name if entered into text box
         String subscriptionName = view.getSubscriptionName();
@@ -802,7 +827,8 @@ public class CreateSubscriptionDlgPresenter {
                                 e);
             }
         }
-        if (activeDatesValid && datesValid) {
+
+        if (activeDatesValid && datesValid && latencyValid) {
             valid = true;
         }
 
@@ -1003,6 +1029,27 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         return datesValid && dateOrderValid;
+    }
+
+    /**
+     * Get the max latency allowed.
+     * 
+     * @return The max latency value allowed
+     */
+    private int getMaxLatency() {
+        List<Integer> cycles = dataSet.getTime().getCycleTimes();
+        Collections.sort(cycles);
+        int max = 0;
+
+        for (int i = 0; i < cycles.size(); i++) {
+            if (i + 1 <= cycles.size()) {
+                int tempMax = cycles.get(i + 1) - cycles.get(i);
+                if (tempMax > max) {
+                    max = tempMax;
+                }
+            }
+        }
+        return max;
     }
 
     /**

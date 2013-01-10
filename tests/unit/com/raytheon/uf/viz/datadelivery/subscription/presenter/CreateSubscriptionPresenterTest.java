@@ -348,4 +348,15 @@ public class CreateSubscriptionPresenterTest {
         verify(view).setActiveEndDate(
                 argThat(yyyyMmDdMatches(expectedEndCalendar.getTime())));
     }
+
+    @Test
+    public void verifySubscriptionSetToView() {
+        verify(view).setSubscription(presenter.getSubscription());
+    }
+
+    @Test
+    public void verifyCycleTimesSetToView() {
+        verify(view).setCycleTimes(presenter.cycleTimes);
+    }
+
 }
