@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
-import java.util.Arrays;
-
-import javax.xml.bind.JAXBException;
+import java.util.Collections;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -52,7 +50,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2012   730       jpiatt     Initial creation.
- * Oct 03, 2012 1241        djohnson   Use {@link DataDeliveryPermission} and registry handlers.
+ * Oct 03, 2012  1241       djohnson   Use {@link DataDeliveryPermission} and registry handlers.
+ * Jan 04, 2013  1420       mpduff     Add delete function.
  * 
  * </pre>
  * 
@@ -80,22 +79,25 @@ public class SystemPriorityTab {
     /** Available List widget */
     private List priorityList;
 
-    /** Edit a selected item in the selected list. */
+    /** Edit rule button. */
     private Button editBtn;
 
-    /** New button. */
+    /** New rule button. */
     private Button newBtn;
+
+    /** Delete rule button */
+    private Button deleteBtn;
 
     /** Button Height. */
     private final int buttonHeight = SWT.DEFAULT;
 
     /** Button Width. */
-    private final int buttonWidth = 55;
+    private final int buttonWidth = 70;
 
     /** Flag for create and edit. */
     private boolean create;
 
-    private final IRulesNeedApplying rulesNeedApplying;
+    private final String notAuthorizedMsg = " is not authorized to create, edit, or delete rules using the Data Delivery System Management\nPermission: ";
 
     /**
      * Constructor.
@@ -107,10 +109,8 @@ public class SystemPriorityTab {
      * @param dataSet
      *            The DataSet object
      */
-    public SystemPriorityTab(Composite parentComp,
-            IRulesNeedApplying rulesNeedApplying) {
+    public SystemPriorityTab(Composite parentComp) {
         this.parentComp = parentComp;
-        this.rulesNeedApplying = rulesNeedApplying;
         init();
     }
 
@@ -140,9 +140,18 @@ public class SystemPriorityTab {
         priorityList = new List(priorityComp, SWT.BORDER | SWT.MULTI
                 | SWT.V_SCROLL | SWT.H_SCROLL);
         priorityList.setLayoutData(gd);
+        priorityList.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (priorityList.getSelectionCount() > 0) {
+                    enableButtons(true);
+                } else {
+                    enableButtons(false);
+                }
+            }
+        });
 
         loadList();
-
     }
 
     /**
@@ -168,6 +177,11 @@ public class SystemPriorityTab {
             public void widgetSelected(SelectionEvent event) {
                 create = true;
                 handlePriorityRule();
+                if (priorityList.getItemCount() > 0) {
+                    priorityList.select(0);
+                } else {
+                    enableButtons(false);
+                }
             }
         });
 
@@ -175,28 +189,47 @@ public class SystemPriorityTab {
         editBtn = new Button(actionComp, SWT.PUSH);
         editBtn.setText("Edit...");
         editBtn.setLayoutData(btnData);
-        editBtn.setEnabled(true);
+        editBtn.setEnabled(false);
         editBtn.setToolTipText("Edit item selected in the list");
         editBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 create = false;
+                int idx = priorityList.getSelectionIndex();
                 handlePriorityRule();
+                priorityList.select(idx);
             }
         });
 
+        btnData = new GridData(buttonWidth, buttonHeight);
+        deleteBtn = new Button(actionComp, SWT.PUSH);
+        deleteBtn.setText("Delete...");
+        deleteBtn.setLayoutData(btnData);
+        deleteBtn.setEnabled(false);
+        deleteBtn.setToolTipText("Edit item selected in the list");
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleDeleteRule();
+                if (priorityList.getItemCount() > 0) {
+                    priorityList.select(0);
+                }
+            }
+        });
+    }
+
+    private void enableButtons(boolean enable) {
+        deleteBtn.setEnabled(enable);
+        editBtn.setEnabled(enable);
     }
 
     /**
      * Handle create and edit rules.
      */
     private void handlePriorityRule() {
-
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();
-        String msg = user.uniqueId()
-                + " is not authorized to create or edit rules using the"
-                + " Data Delivery System Management\nPermission: " + permission;
+        String msg = user.uniqueId() + notAuthorizedMsg + permission;
         DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
         request.setUser(user);
         request.addRequestedPermissions(permission);
@@ -207,13 +240,11 @@ public class SystemPriorityTab {
                     .sendAuthorizationRequest(request);
 
             if (auth != null && auth.isAuthorized()) {
-
                 if (ruleDlg == null || ruleDlg.isDisposed()) {
-
                     // New
                     if (create) {
                         ruleDlg = new CreateEditRuleDlg(parentComp.getShell(),
-                                create, PRIORITY_TYPE, rulesNeedApplying);
+                                create, PRIORITY_TYPE);
                     } else {
                         // Edit
                         String ruleName = null;
@@ -233,25 +264,64 @@ public class SystemPriorityTab {
                             return;
                         }
                         ruleDlg = new CreateEditRuleDlg(parentComp.getShell(),
-                                create, ruleName, PRIORITY_TYPE,
-                                rulesNeedApplying);
+                                create, ruleName, PRIORITY_TYPE);
                     }
 
                     boolean reloadFlag = (Boolean) ruleDlg.open();
                     if (reloadFlag) {
                         loadList();
                     }
-
                 } else {
                     ruleDlg.bringToTop();
                 }
-
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred in authorization request", e);
         }
 
+    }
+
+    private void handleDeleteRule() {
+        final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
+        IUser user = UserController.getUserObject();
+        String msg = user.uniqueId() + notAuthorizedMsg + permission;
+        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
+        request.setUser(user);
+        request.addRequestedPermissions(permission);
+        request.setNotAuthorizedMessage(msg);
+
+        try {
+            DataDeliveryAuthRequest auth = DataDeliveryUtils
+                    .sendAuthorizationRequest(request);
+
+            if (auth != null && auth.isAuthorized()) {
+                String ruleName = null;
+                int selectedIdx = priorityList.getSelectionIndex();
+                if (selectedIdx > -1) {
+                    int answer = DataDeliveryUtils.showYesNoMessage(
+                            parentComp.getShell(), "Delete?",
+                            "Are you sure you want to delete this rule?");
+                    if (answer == SWT.YES) {
+                        ruleName = priorityList.getItem(selectedIdx);
+                        SystemRuleManager.getInstance().deletePriorityRule(
+                                ruleName);
+                        loadList();
+                        if (priorityList.getItemCount() == 0) {
+                            enableButtons(false);
+                        }
+                    }
+                } else {
+                    DataDeliveryUtils.showMessage(parentComp.getShell(),
+                            SWT.ERROR, "Select Rule",
+                            "Please select a rule for delete.");
+                    return;
+                }
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error occurred in authorization request", e);
+        }
     }
 
     /**
@@ -261,27 +331,11 @@ public class SystemPriorityTab {
         priorityList.removeAll();
 
         // Get the list of priority rule names
-        String[] rules = null;
-        try {
-            rules = SystemRuleManager.getInstance().getPriorityRules();
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occurred in loading rule list", e);
-        }
+        java.util.List<String> rules = SystemRuleManager.getInstance()
+                .getPriorityRuleNames();
 
-        String[] ruleDisplayArray = null;
-        if (rules != null && rules.length > 0) {
-            ruleDisplayArray = new String[rules.length];
-            for (int i = 0; i < rules.length; i++) {
-                int extensionIndex = rules[i].lastIndexOf(".");
-                ruleDisplayArray[i] = rules[i].substring(0, extensionIndex);
-            }
-        } else {
-            ruleDisplayArray = new String[0];
-        }
-        Arrays.sort(ruleDisplayArray, String.CASE_INSENSITIVE_ORDER);
-        priorityList.setItems(ruleDisplayArray);
+        Collections.sort(rules);
 
+        priorityList.setItems(rules.toArray(new String[rules.size()]));
     }
-
 }
