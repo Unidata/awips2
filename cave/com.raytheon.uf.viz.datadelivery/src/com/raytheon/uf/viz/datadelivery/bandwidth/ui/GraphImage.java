@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionP
  * Nov 28, 2012    1269    lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Jan 07, 2013   1451     djohnson    Use TimeUtil.newGmtCalendar().
+ * Jan 04, 2013   1420     mpduff      Change default priority to normal priority.
  * 
  * </pre>
  * 
@@ -170,11 +171,11 @@ public class GraphImage extends AbstractCanvasImage {
 
         for (String subName : subscriptionList) {
             if (imageMgr.isColorByPriority()) {
-                if (graphData.getPriority(subName) == SubscriptionPriority.DEFAULT
+                if (graphData.getPriority(subName) == SubscriptionPriority.NORMAL
                         .ordinal()) {
                     c = new Color(
                             display,
-                            imageMgr.getPriorityColor(SubscriptionPriority.DEFAULT));
+                            imageMgr.getPriorityColor(SubscriptionPriority.NORMAL));
                     gc.setBackground(c);
                 } else if (graphData.getPriority(subName) == SubscriptionPriority.HIGH
                         .ordinal()) {
