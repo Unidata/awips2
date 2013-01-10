@@ -218,6 +218,12 @@ public class SystemPriorityTab {
         });
     }
 
+    /**
+     * enable/disable the delete and edit buttons
+     * 
+     * @param enable
+     *            setting for buttons
+     */
     private void enableButtons(boolean enable) {
         deleteBtn.setEnabled(enable);
         editBtn.setEnabled(enable);
@@ -277,6 +283,9 @@ public class SystemPriorityTab {
 
     }
 
+    /**
+     * Delete action handler.
+     */
     private void handleDeleteRule() {
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
         IUser user = UserController.getUserObject();
