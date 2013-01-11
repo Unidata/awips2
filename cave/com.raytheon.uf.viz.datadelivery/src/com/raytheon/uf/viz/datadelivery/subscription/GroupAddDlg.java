@@ -84,8 +84,8 @@ public class GroupAddDlg extends CaveSWTDialog {
     /** IGroupAction callback */
     private final IGroupAction callback;
 
-    private final ISubscriptionService subscriptionService = DataDeliveryServices
-            .getSubscriptionService();
+    private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
+            .getSubscriptionNotificationService();
 
     /**
      * Constructor.
@@ -259,7 +259,8 @@ public class GroupAddDlg extends CaveSWTDialog {
             return false;
         }
 
-        subscriptionService.sendCreatedSubscriptionNotification(subscription,
+        subscriptionNotificationService.sendCreatedSubscriptionNotification(
+                subscription,
                 username);
 
         // refresh table
