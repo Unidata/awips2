@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -115,14 +116,22 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 public class GFEDao extends DefaultPluginDao {
     // hibernate query to find grid info record for the given datasetId and
     // parameter
-    private static final String HQL_D2D_GRID_PARM_QUERY = "select parameter.abbreviation, id from GridInfoRecord "
-            + "where datasetId = :datasetId AND (lower(parameter.abbreviation) = :abbrev OR lower(parameter_abbreviation) like :hourAbbrev)";
+    private String SQL_D2D_GRID_PARM_QUERY = "select parameter_abbreviation, id "
+            + "FROM grid_info WHERE "
+            + GridInfoConstants.DATASET_ID
+            + " = :"
+            + GridInfoConstants.DATASET_ID
+            + " AND "
+            + "level_id = :level_id  AND "
+            + "(lower(parameter_abbreviation) = :abbrev OR lower(parameter_abbreviation) like :hourAbbrev)";
 
     // hibernate query to find the times for the GridRecord for the given
     // info.id, id returned to allow easy lookup of the record associated with
     // the time
     private static final String HQL_D2D_GRID_TIME_QUERY = "select dataTime, id from GridRecord "
-            + "where info.id = :info_id AND dataTime.refTime = :refTime order by dataTime.fcstTime";
+            + "where "
+            + GridConstants.INFO_ID
+            + " = :info_id AND dataTime.refTime = :refTime order by dataTime.fcstTime";
 
     private static final Pattern WIND_PATTERN = Pattern.compile("wind");
 
@@ -763,9 +772,10 @@ public class GFEDao extends DefaultPluginDao {
             return new TreeMap<DataTime, Integer>();
         }
 
-        Query modelQuery = s.createQuery(HQL_D2D_GRID_PARM_QUERY);
-
+        SQLQuery modelQuery = s.createSQLQuery(SQL_D2D_GRID_PARM_QUERY);
+        modelQuery.setLong("level_id", level.getId());
         DatabaseID dbId = id.getDbId();
+
         try {
             IFPServerConfig config = IFPServerConfigManager
                     .getServerConfig(dbId.getSiteId());
@@ -775,6 +785,7 @@ public class GFEDao extends DefaultPluginDao {
             throw new DataAccessLayerException(
                     "Error occurred looking up model name mapping", e);
         }
+
         String abbreviation = null;
         try {
             abbreviation = ParameterMapper.getInstance().lookupBaseName(
@@ -783,6 +794,7 @@ public class GFEDao extends DefaultPluginDao {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
             abbreviation = e.getArbitraryMapping();
         }
+
         abbreviation = abbreviation.toLowerCase();
         modelQuery.setString("abbrev", abbreviation);
         modelQuery.setString("hourAbbrev", abbreviation + "%hr");
