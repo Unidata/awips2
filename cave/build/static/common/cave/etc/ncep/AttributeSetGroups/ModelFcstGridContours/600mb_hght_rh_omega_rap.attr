@@ -7,7 +7,8 @@
 GLEVEL =  600
 GVCORD =  pres
 SKIP   =    0
-SCALE  =   0              !0              !-1        !1             !1
+FILTER=y
+SCALE  =   0              !0              !-1        !3             !3
 GDPFUN =  sm5s(relh)     !sm5s(relh)     !sm5s(hght)!sm5s(omeg)    !sm5s(omeg)
 TYPE   =    c              !c/f            !c
 CINT   =    10;30 !50;70;90 !3 !-25;-23;-21;-19;-17;-15;-13;-11;-9;-7;-5;-3;-1 !1;3;5;7;9;11;13;15;17;19
@@ -22,4 +23,3 @@ TITLE  =   5/0/~ @ HEIGHTS, REL HUMIDITY AND OMEGA!
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
