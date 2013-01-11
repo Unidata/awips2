@@ -7,8 +7,9 @@
 GLEVEL =  400:850!0
 GVCORD =  pres!none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
-GDPFUN =  squo(2,vadd(vlav(wnd@850:700%pres,vlav(wnd@500:400%pres)!sm9s(mul(1e-2,pmsl))
+GDPFUN =  squo(2,vadd(vlav(wnd@850:700%pres,vlav(wnd@500:400%pres)!sm9s(pmsl)
 TYPE   =    b!c
 CINT   =    0!4
 LINE   =    0!20//3
@@ -22,4 +23,3 @@ TITLE  =   1/-2/~ 850-400 MB MLW and MSLP|~850-400mb MLW AND MSLP!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

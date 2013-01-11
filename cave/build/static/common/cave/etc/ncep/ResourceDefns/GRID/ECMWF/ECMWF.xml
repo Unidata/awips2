@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>ECMWF</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=ecmwf25
-pluginName=ncgrib
+GDFILE=ecmwf
+pluginName=grid
 eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>

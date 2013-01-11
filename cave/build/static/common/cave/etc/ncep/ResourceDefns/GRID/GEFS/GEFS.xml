@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>GEFS</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=gefs
-pluginName=ncgrib
-eventName=%
+pluginName=grid
+ensembleMember=%
     </resourceParameters>
     <filterLabels>Forecast,EnsembleMember</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
-    <rscTypeGenerator>eventName</rscTypeGenerator>
+    <rscTypeGenerator>ensembleMember</rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
