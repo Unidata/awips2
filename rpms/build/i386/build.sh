@@ -339,6 +339,8 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    buildRPM "awips2"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
    buildRPM "Installer.ncep-database"
    buildEDEX
    if [ $? -ne 0 ]; then
