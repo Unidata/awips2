@@ -53,7 +53,6 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -122,6 +121,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Dec 18, 2012 1439       mpduff       Redo subscription name validation.
  * Jan 02, 2012 1345       djohnson     Use gui thread task executor.
  * Jan 04, 2012 1420       mpduff       Pass the subscription in to the GriddedTimingSelectionDlg.
+ * Jan 10, 2013 1444       mpduff       Fix the loading of saved subsets from the saved subset tab.
  * </pre>
  * 
  * @author mpduff
@@ -830,7 +830,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * Load saved subset button action handler.
+     * Load saved subset button action handler. This action takes the settings
+     * from the saved subset and applies them to the current data set.
      * 
      * @param subsetName
      *            Name of the subset to load
@@ -840,27 +841,10 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     public void handleLoadSubset(String subsetName) {
 
         // TODO: How else to do this other than casting?
-        this.subsetXml = (SubsetXML<TIMEXML>) SubsetFileManager.getInstance()
-                .loadSubset(subsetName);
+        SubsetXML<TIMEXML> loadedSubsetXml = (SubsetXML<TIMEXML>) SubsetFileManager
+                .getInstance().loadSubset(subsetName);
 
-        if (!spatialTabControls.getRegionSaveText().isEmpty()) {
-            spatialTabControls.resetRegionSaveText();
-        }
-
-        try {
-            // TODO: How else other can casting?
-            this.dataSet = (DATASET) DataDeliveryHandlers.getDataSetHandler()
-                    .getByNameAndProvider(subsetXml.getDatasetName(),
-                            subsetXml.getProviderName());
-
-            setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
-            populate();
-
-            getShell().layout();
-            getShell().pack();
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+        updateSelections(loadedSubsetXml);
     }
 
     /**
@@ -884,7 +868,17 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         TIMEXML time = subsetXml.getTime();
         this.timingTabControls.populate(time, dataSet);
         this.nameText.setText(subsetXml.getBaseSubsetName());
+    }
 
+    /**
+     * Update selections with from the loadedSubsetXML object.
+     */
+    private void updateSelections(SubsetXML<TIMEXML> loadedSubsetXml) {
+        ArrayList<VerticalXML> vertList = loadedSubsetXml.getVerticalList();
+        vTab.updateSettings(vertList);
+
+        TIMEXML time = loadedSubsetXml.getTime();
+        timingTabControls.updateSettings(time);
     }
 
     /**

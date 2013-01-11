@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.datadelivery.subscription.subset.presenter;
 
 import java.util.List;
-import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 
@@ -34,7 +33,8 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 22, 2012 0743       djohnson     Initial creation
- * Aug 29, 2012 0223       mpduff       Removed cycles. 
+ * Aug 29, 2012 0223       mpduff       Removed cycles.
+ * Jan 10, 2012 1444       mpduff       Add updateSelectedForecastHours method.
  * </pre>
  * 
  * @author djohnson
@@ -59,4 +59,11 @@ public interface IGriddedDataTimingSubsetView extends IDataTimingSubsetView {
      * @param fcstHours
      */
     void setAvailableForecastHours(List<String> fcstHours);
+
+    /**
+     * Update the selected forecast hours.
+     * 
+     * @param fcstHours
+     */
+    void updateSelectedForecastHours(List<String> fcstHours);
 }
