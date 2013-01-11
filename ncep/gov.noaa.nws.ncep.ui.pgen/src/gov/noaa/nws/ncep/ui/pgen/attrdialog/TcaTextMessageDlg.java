@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+
 import java.io.File;
 import java.io.FileWriter;
 
@@ -152,16 +154,7 @@ public class TcaTextMessageDlg extends CaveJFACEDialog {
 		 */
 		if ( buttonId == SAVE_ID ) {
 			
-			File out = new File(filename);
-			
-			try {
-				FileWriter fw = new FileWriter(out);
-				fw.write(message);
-				fw.close();
-			}
-			catch (Exception e) {
-				System.out.println("Problem writing TCV to file "+out.getAbsolutePath());
-			}
+			FileTools.writeFile(filename, message);
 			
 			super.buttonPressed(IDialogConstants.OK_ID);
 			
