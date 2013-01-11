@@ -48,7 +48,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -64,11 +63,11 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
+import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
@@ -107,6 +106,9 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  */
 
 public class CreateSubscriptionDlgPresenter {
+    private static final String PENDING_APPROVAL_MESSAGE = "The subscription is awaiting approval.\n\n"
+            + "A notification message will be generated upon approval.";
+
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CreateSubscriptionDlgPresenter.class);
@@ -165,6 +167,9 @@ public class CreateSubscriptionDlgPresenter {
 
     @VisibleForTesting
     Set<Integer> cycleTimes;
+
+    private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
+            .getSubscriptionNotificationService();
 
     /**
      * Constructor.
@@ -436,8 +441,6 @@ public class CreateSubscriptionDlgPresenter {
 
         if (groupValid && view.isGroupSelected()) {
             subscription.setGroupName(view.getGroupName());
-        } else {
-            subscription.setGroupName(GroupDefinition.NO_GROUP);
         }
 
         if (view.isNoExpirationDate()) {
@@ -518,21 +521,13 @@ public class CreateSubscriptionDlgPresenter {
 
         if (this.create) {
             try {
-                boolean autoApprove = false;
+                boolean autoApprove = DataDeliveryServices
+                        .getPermissionsService()
+                        .checkPermissionToChangeSubscription(user,
+                                PENDING_APPROVAL_MESSAGE, subscription)
+                        .isAuthorized();
 
-                DataDeliveryAuthRequest r = getApproval();
-                if (r != null && r.isAuthorized()) {
-                    if (r.isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
-                        autoApprove = true;
-                    } else if (r
-                            .isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER)) {
-                        if (subscription.getOwner().equals(username)) {
-                            autoApprove = true;
-                        }
-                    }
-
-                    setSubscriptionId(subscription);
-                }
+                setSubscriptionId(subscription);
 
                 if (autoApprove) {
                     final Shell jobShell = view.getShell();
@@ -558,7 +553,7 @@ public class CreateSubscriptionDlgPresenter {
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(final IJobChangeEvent event) {
-                            subscriptionService
+                            subscriptionNotificationService
                                     .sendCreatedSubscriptionNotification(
                                             subscription, username);
 
@@ -599,7 +594,7 @@ public class CreateSubscriptionDlgPresenter {
 
                         this.subscription = pendingSub;
 
-                        subscriptionService
+                        subscriptionNotificationService
                                 .sendCreatedPendingSubscriptionNotification(
                                         pendingSub, username);
                     } catch (RegistryHandlerException e) {
@@ -642,79 +637,55 @@ public class CreateSubscriptionDlgPresenter {
             // check to see if user is authorized to approve. If so then
             // auto-approve
             try {
-                boolean autoApprove = false;
-                DataDeliveryAuthRequest r = getApproval();
+                boolean autoApprove = DataDeliveryServices
+                        .getPermissionsService()
+                        .checkPermissionToChangeSubscription(user,
+                                PENDING_APPROVAL_MESSAGE, subscription)
+                        .isAuthorized();
 
-                if (r != null && r.isAuthorized()) {
-                    if (r.isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
-                        autoApprove = true;
-                    } else if (r
-                            .isAuthorized(DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER)) {
-                        if (subscription.getOwner().equals(username)) {
-                            autoApprove = true;
+                if (autoApprove) {
+                    try {
+                        final ISubscriptionServiceResult response = subscriptionService
+                                .update(subscription,
+                                        new CancelForceApplyAndIncreaseLatencyDisplayText(
+                                                "update", view.getShell()));
+                        if (response.hasMessageToDisplay()) {
+                            view.displayPopup(UPDATED_TITLE,
+                                    response.getMessageToDisplay());
                         }
-                    }
 
-                    if (autoApprove) {
-                        try {
-                            final ISubscriptionServiceResult response = subscriptionService
-                                    .update(subscription,
-                                            new CancelForceApplyAndIncreaseLatencyDisplayText(
-                                                    "update", view.getShell()));
-                            if (response.hasMessageToDisplay()) {
-                                view.displayPopup(UPDATED_TITLE,
-                                        response.getMessageToDisplay());
-                            }
-
-                            // If there was a force apply prompt, and the user
-                            // selects no, then we want to allow them to
-                            // continue editing the subscription
-                            if (response.isAllowFurtherEditing()) {
-                                return false;
-                            }
-
-                            subscriptionService
-                                    .sendUpdatedSubscriptionNotification(
-                                            subscription, username);
-
-                        } catch (RegistryHandlerException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Unable to update subscription.", e);
+                        // If there was a force apply prompt, and the user
+                        // selects no, then we want to allow them to
+                        // continue editing the subscription
+                        if (response.isAllowFurtherEditing()) {
+                            return false;
                         }
-                    } else {
-                        setSubscriptionId(subscription);
-                        try {
-                            handler.update(pendingSub);
 
-                            subscriptionService
-                                    .sendCreatedPendingSubscriptionForSubscriptionNotification(
-                                            pendingSub, username);
+                        subscriptionNotificationService
+                                .sendUpdatedSubscriptionNotification(
+                                        subscription, username);
 
-                            final String msg = "The subscription is awaiting approval.\n\n"
-                                    + "A notification message will be generated upon approval.";
-                            view.displayPopup("Subscription Pending", msg);
-                        } catch (RegistryHandlerException e) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "Unable to create pending subscription.",
-                                            e);
-                        }
+                    } catch (RegistryHandlerException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to update subscription.", e);
                     }
                 } else {
-                    setSubscriptionId(pendingSub);
+                    setSubscriptionId(subscription);
                     try {
                         handler.update(pendingSub);
 
-                        subscriptionService
-                                .sendUpdatedPendingSubscriptionNotification(
+                        subscriptionNotificationService
+                                .sendCreatedPendingSubscriptionForSubscriptionNotification(
                                         pendingSub, username);
 
-                        this.subscription = pendingSub;
+                        final String msg = PENDING_APPROVAL_MESSAGE;
+                        view.displayPopup("Subscription Pending", msg);
                     } catch (RegistryHandlerException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to create pending subscription.", e);
                     }
                 }
+
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -758,8 +729,8 @@ public class CreateSubscriptionDlgPresenter {
      */
     @VisibleForTesting
     void sendSubscriptionNotification(Subscription subscription, String username) {
-        subscriptionService.sendCreatedSubscriptionNotification(subscription,
-                username);
+        subscriptionNotificationService.sendCreatedSubscriptionNotification(
+                subscription, username);
     }
 
     /**
@@ -1091,19 +1062,6 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         return activeDatesValid;
-    }
-
-    private DataDeliveryAuthRequest getApproval() throws VizException {
-        IUser user = UserController.getUserObject();
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER);
-        request.setNotAuthorizedMessage("The subscription is awaiting approval.\n\n"
-                + "A notification message will be generated upon approval.");
-
-        return DataDeliveryUtils.sendAuthorizationRequest(request);
     }
 
     public int getStatus() {
