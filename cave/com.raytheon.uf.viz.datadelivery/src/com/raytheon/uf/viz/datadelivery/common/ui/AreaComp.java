@@ -237,8 +237,21 @@ public class AreaComp extends Composite implements ISubset {
 
         createControls();
         if (regionRdo.getSelection()) {
-            regionCombo.select(regionCombo.getItemCount() - 1);
-            handleRegionSelection();
+            // Try to find the smallest region that intersects, assum regions
+            // are listed largest to smallest.
+            for (int i = regionCombo.getItemCount() - 1; i >= 0; i -= 1) {
+                regionCombo.select(i);
+                handleRegionSelection(false);
+                if (envelopeValid) {
+                    break;
+                }
+            }
+            // if non of the predefined regions are valid default to the full
+            // envelope.
+            if (!envelopeValid) {
+                updateBounds(fullEnvelope);
+                setCustom();
+            }
         } else if (manualRdo.getSelection()) {
             updateBounds(subEnvelope);
         }
@@ -433,7 +446,7 @@ public class AreaComp extends Composite implements ISubset {
         regionCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                handleRegionSelection();
+                handleRegionSelection(true);
             }
         });
 
@@ -555,7 +568,7 @@ public class AreaComp extends Composite implements ISubset {
         regionCombo.setEnabled(flag);
         selectCombo.setEnabled(flag);
         if (flag) {
-            handleRegionSelection();
+            handleRegionSelection(true);
         }
     }
 
@@ -602,12 +615,12 @@ public class AreaComp extends Composite implements ISubset {
                         REGION_GROUPS.PRE_DEFINED.getRegionGroup())) {
             regionCombo.setItems(predefinedRegions);
             regionCombo.select(0);
-            handleRegionSelection();
+            handleRegionSelection(true);
         } else {
             regionCombo.setItems(getUserRegions());
             if (regionCombo.getItemCount() > 0) {
                 regionCombo.select(0);
-                handleRegionSelection();
+                handleRegionSelection(true);
             }
         }
     }
@@ -631,8 +644,11 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Region selection action handler
+     * 
+     * @param verbose
+     *            when true user is alerted to validation errors.
      */
-    private void handleRegionSelection() {
+    private void handleRegionSelection(boolean verbose) {
         if (!regionRdo.getSelection()) {
             return;
         }
@@ -676,11 +692,14 @@ public class AreaComp extends Composite implements ISubset {
                 ReferencedEnvelope intersection = MapUtil
                         .reprojectAndIntersect(regionEnvelope, fullEnvelope);
                 if (intersection == null || intersection.isEmpty()) {
-                    StringBuilder errorText = new StringBuilder();
-                    errorText.append(name);
-                    errorText.append(" does not intersect the dataset area.");
-                    DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Validation Error", errorText.toString());
+                    if (verbose) {
+                        StringBuilder errorText = new StringBuilder();
+                        errorText.append(name);
+                        errorText
+                                .append(" does not intersect the dataset area.");
+                        DataDeliveryUtils.showMessage(getShell(), SWT.OK,
+                                "Validation Error", errorText.toString());
+                    }
                     envelopeValid = false;
                     return;
                 }
@@ -963,7 +982,7 @@ public class AreaComp extends Composite implements ISubset {
                 }
             }
             regionCombo.select(0);
-            handleRegionSelection();
+            handleRegionSelection(true);
         }
     }
 
