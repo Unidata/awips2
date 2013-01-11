@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  sm5s(perpw)!sm5s(perpw)!sm5s(perpw)!vecn(mul(sin(mul(dirpw,DTR)),-5),mul(cos(mul(dirpw,DTR)),-5))
 TYPE   =    c!c!c!a
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ PEAK SWELL PERIOD (sec) and DIRECTION!0
 COLORS =  1
 MARKER =  0
 GRDLBL =  
-FILTER =  1
