@@ -26,15 +26,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.system.SystemManagementDlg;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * Handler for launching the System Management Dialog.
@@ -56,8 +55,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 public class SystemManagementAction extends AbstractHandler {
 
     /** Status Handler */
-    private final IUFStatusHandler statusHandler =
-        UFStatus.getHandler(SystemManagementAction.class);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SystemManagementAction.class);
 
     /** Dialog instance */
     private SystemManagementDlg dlg;
@@ -67,19 +66,15 @@ public class SystemManagementAction extends AbstractHandler {
 
         final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_VIEW;
         IUser user = UserController.getUserObject();
-        String msg =
-            user.uniqueId() + " is not authorized to view Data Delivery System Management\nPermission: "
-            + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
-        
+        String msg = user.uniqueId()
+                + " is not authorized to view Data Delivery System Management\nPermission: "
+                + permission;
+
         try {
-            DataDeliveryAuthRequest auth = DataDeliveryUtils.sendAuthorizationRequest(request);
-           
-            if (auth != null && auth.isAuthorized()) {
-                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
 
                 if (dlg == null || dlg.isDisposed()) {
                     dlg = new SystemManagementDlg(shell);
@@ -87,7 +82,7 @@ public class SystemManagementAction extends AbstractHandler {
                 } else {
                     dlg.bringToTop();
                 }
-                
+
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -95,5 +90,5 @@ public class SystemManagementAction extends AbstractHandler {
 
         return null;
     }
-    
+
 }
