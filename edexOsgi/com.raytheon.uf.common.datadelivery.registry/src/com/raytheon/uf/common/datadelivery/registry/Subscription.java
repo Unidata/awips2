@@ -872,6 +872,12 @@ public class Subscription implements ISerializableObject, Serializable {
             endCal.setTime(activePeriodEnd);
             endCal = TimeUtil.maxCalendarFields(endCal, Calendar.HOUR_OF_DAY,
                     Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+
+            // If the period crosses a year boundary, add a year to the end
+            if (endCal.before(startCal)) {
+                endCal.add(Calendar.YEAR, 1);
+            }
+
             activePeriodEnd = endCal.getTime();
 
             
