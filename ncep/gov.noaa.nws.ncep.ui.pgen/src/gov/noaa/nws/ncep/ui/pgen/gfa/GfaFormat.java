@@ -7,6 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -26,6 +27,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 //import org.apache.log4j.Logger;
 
@@ -61,6 +65,9 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 06/12		#594		J. Wu		TTR393 - fixed invalid polygons from clipping.
  * 08/12		#610		B. Yin		Remove M_FZLVL outlooks
  * 08/12		#859		J. Wu		Fixed smearing when snapshots is too small.
+ * 11/12		#911		J. Wu   	TTR 652 - Validate GFA before smearing, warn the user and
+ *                                                exclude invalid GFAs from FROM. Also, prevent
+ *                                                LLWS from generating Outlook.
  * 
  * </pre>
  * 
@@ -87,6 +94,7 @@ public class GfaFormat {
 		GfaClip.getInstance().updateGfaBoundsInGrid();		
 				
 		if (drawingLayer != null) {
+			validateAllGfas();
 			for (Product p : drawingLayer.getProducts()) {
 				for (Layer layer : p.getLayers()) {
 					// formatting each layer separately
@@ -103,6 +111,7 @@ public class GfaFormat {
 
 		GfaClip.getInstance().updateGfaBoundsInGrid();
 		if (drawingLayer != null) {
+			validateActiveGfas();
 			Layer layer = drawingLayer.getActiveLayer();
 			formatLayer(layer, false );
 		}
@@ -114,6 +123,7 @@ public class GfaFormat {
 	public void formatTagPressed() {				
 		GfaClip.getInstance().updateGfaBoundsInGrid();
 		if (drawingLayer != null) {
+			validateActiveGfas();
 			Layer layer = drawingLayer.getActiveLayer();
 			formatLayer(layer, true );
 		}
@@ -136,7 +146,7 @@ public class GfaFormat {
 		
 		for (AbstractDrawableComponent adc : layer.getDrawables()) {
 			
-			if (!(adc instanceof Gfa)) continue;
+			if (!(adc instanceof Gfa) || !((Gfa)adc).isValid() ) continue;
 			    
 			if ( checkTag ) { 
 				if ( de != null && !isSameHazardAndTag( ((Gfa)adc), ((Gfa)de) ) ) {
@@ -145,7 +155,8 @@ public class GfaFormat {
 			}
             
 			//make sure M_FZLVL does not generate outlooks
-			if ( !( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") &&
+			if ( !(  ( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") ||
+					   ((Gfa)adc).getGfaHazard().equalsIgnoreCase("LLWS") ) &&
 					((Gfa)adc ).isSnapshot() &&
 							(Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[0] +
 							Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[1]/60.0) > 6 )) {
@@ -153,7 +164,8 @@ public class GfaFormat {
 			}
 			
 			if ( ( (Gfa)adc ).isSnapshot() 
-					&& !( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") &&
+					&& !( ( ((Gfa)adc).getGfaHazard().equalsIgnoreCase("M_FZLVL") ||
+							   ((Gfa)adc).getGfaHazard().equalsIgnoreCase("LLWS") ) &&
 							(Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[0] +
 							Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[1]/60.0) > 6 )) {
 //				oldList.add(adc);
@@ -953,7 +965,7 @@ public class GfaFormat {
 		for ( Gfa gfa : list ) {
 			if ( gfa.getGfaType() != null && !gfa.getGfaType().isEmpty() ) {
 		          
-				String[] s = gfa.getGfaType().split(":");
+				String[] s = gfa.getGfaType().replace("/VIS", ":VIS").split(":");
 				int ii = 0;
 				if ( s[0].startsWith("CIG") ) {
 					cig = s[0]; // CIG BLW 010
@@ -990,7 +1002,7 @@ public class GfaFormat {
 		
 		if ( ret.endsWith("/") ) ret = ret.substring( 0, ret.length() - 1 );
 		
-		return ret;
+		return ret.replace( ":VIS", "/VIS" );
 	}
 
 	
@@ -1098,4 +1110,72 @@ public class GfaFormat {
     		    	
     }
 	
+    /*
+     * Validate Gfas in all activities and warn for invalid Gfas in the resource.
+     */   
+    private void validateAllGfas() {
+    	
+		PgenResource psrc = PgenSession.getInstance().getPgenResource();
+		StringBuilder msg = new StringBuilder();
+		msg.append( "Warning: The following Gfas are invalid.  Please correct them or they will be " );
+		msg.append( "excluded in the FROM action.\n\n" );
+        
+		int nn = 0;
+		for ( Product prd : psrc.getProducts() ) {
+			for ( Layer layer : prd.getLayers() ) {
+				for ( AbstractDrawableComponent adc : layer.getDrawables() ) {
+					if ( adc instanceof Gfa && !((Gfa)adc).isValid() ) {
+		                nn++;
+						Gfa gg = (Gfa)adc;
+						msg.append( prd.getName() + "\t" + prd.getType() + "\t" + layer.getName() + "\t" + 
+		                		    gg.getGfaHazard() + "," + gg.getGfaFcstHr() + "," + 
+		                		    gg.getGfaTag()+ gg.getGfaDesk()  + "\n" );
+					}
+				}
+			}
+			
+		}
+
+    	if ( nn > 0 ) {    		
+		    MessageDialog confirmDlg = new MessageDialog( 
+        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+        		"Invalid GFA Polygons", null, msg.toString(),
+        		MessageDialog.WARNING, new String[]{"OK"}, 0 );
+        
+    	    confirmDlg.open();
+    	}
+    }
+    
+
+
+    /*
+     * Validate Gfas in current layer and warn for invalid Gfas.
+     */   
+    private void validateActiveGfas() {
+
+    	Layer curLayer = PgenSession.getInstance().getPgenResource().getActiveLayer();
+    	StringBuilder msg = new StringBuilder();
+    	msg.append( "Warning: The following Gfas are invalid.  Please correct them or they will be \n" );
+    	msg.append( "excluded in the FROM action.\n\n" );
+
+    	int nn = 0;
+    	for ( AbstractDrawableComponent adc : curLayer.getDrawables() ) {
+    		if ( adc instanceof Gfa && !((Gfa)adc).isValid() ) {
+    			nn++;
+    			Gfa gg = (Gfa)adc;
+    			msg.append( gg.getGfaHazard() + "," + gg.getGfaFcstHr() + "," + 
+    					    gg.getGfaTag()+ gg.getGfaDesk()  + "\n" );
+    		}
+    	}
+
+    	if ( nn > 0 ) {    		
+    		MessageDialog confirmDlg = new MessageDialog( 
+    				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+    				"Invalid GFA Polygons", null, msg.toString(),
+    				MessageDialog.WARNING, new String[]{"OK"}, 0 );
+
+    		confirmDlg.open();
 }
+    }
+}
+

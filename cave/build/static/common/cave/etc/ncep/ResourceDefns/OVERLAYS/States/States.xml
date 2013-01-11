@@ -8,7 +8,7 @@ dbName=maps
 tableName=mapdata.states
 labelField=name
 mapName=States</resourceParameters>    
-    <filterLabels></filterLabels>
+    <filterLabels>AdministrativeBoundaries</filterLabels>
     <rscImplementation>DbOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

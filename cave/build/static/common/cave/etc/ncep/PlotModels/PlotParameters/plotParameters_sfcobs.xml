@@ -157,7 +157,9 @@
     <PlotParameterDefn  plotParamName="POWW" metParamName="WindWavePeriod" plotMode="text" dbParamName="windWavePeriod" plotUnit="s"/>
 	    
 	<!-- WEATHER -->   
-	<PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" plotMode="table" dbParamName="presWeather" symbolFont="WxSymbolFont" transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/>  
+	<PlotParameterDefn  plotParamName="WSYM" metParamName="WxPresent" plotMode="table" dbParamName="wx_present" symbolFont="LargeSpecialSymbolFont" transform="rotate(0,0,0)" plotLookupTable="pres_wx_symbols.txt"/>
+	
+	<!-- PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" plotMode="table" dbParamName="presWeather" symbolFont="WxSymbolFont" transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/> -->	
     <!-- <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" dbParamName="presWeather" plotMode="table" symbolFont="WxSymbolFont" arrayIndex="0" plotLookupTable="wx_symbol_trans.txt"/> -->
     
     <PlotParameterDefn  plotParamName="P01M" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="mm" />
