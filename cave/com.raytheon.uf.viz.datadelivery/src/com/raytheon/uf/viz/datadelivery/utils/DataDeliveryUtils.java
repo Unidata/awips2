@@ -33,10 +33,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -308,7 +305,7 @@ public class DataDeliveryUtils {
 
     /**
      * Get the column titles (column names).
-     *
+     * 
      * @param tableType
      *            Table type.
      * @return String array of column titles.
@@ -524,17 +521,4 @@ public class DataDeliveryUtils {
         return fmtStr.toString();
     }
 
-    /**
-     * Send an authorization request
-     *
-     * @param request
-     *            The request object
-     * @return DataDeliveryAuthReqeust object
-     * @throws VizException
-     */
-    public static DataDeliveryAuthRequest sendAuthorizationRequest(
-            DataDeliveryAuthRequest request) throws VizException {
-        return (DataDeliveryAuthRequest) ThriftClient
-                .sendPrivilegedRequest(request);
-    }
 }

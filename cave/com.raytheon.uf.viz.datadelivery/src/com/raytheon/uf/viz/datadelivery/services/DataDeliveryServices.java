@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.datadelivery.services;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
+import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
+import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionNotificationService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 /**
@@ -48,6 +50,10 @@ public final class DataDeliveryServices {
     private IBandwidthService bandwidthService;
 
     private ISubscriptionService subscriptionService;
+
+    private ISubscriptionNotificationService subscriptionNotificationService;
+
+    private IPermissionsService permissionsService;
 
     /**
      * Disabled constructor.
@@ -101,5 +107,44 @@ public final class DataDeliveryServices {
      */
     public void setBandwidthService(IBandwidthService bandwidthService) {
         this.bandwidthService = bandwidthService;
+    }
+
+    /**
+     * Get the subscription service.
+     * 
+     * @return the subscription notification service
+     */
+    public static ISubscriptionNotificationService getSubscriptionNotificationService() {
+        return INSTANCE.subscriptionNotificationService;
+    }
+
+    /**
+     * Set the subscription notification service.
+     * 
+     * @param subscriptionNotificationService
+     *            the subscription notification service to set
+     */
+    public void setSubscriptionNotificationService(
+            ISubscriptionNotificationService subscriptionNotificationService) {
+        this.subscriptionNotificationService = subscriptionNotificationService;
+    }
+
+    /**
+     * Get the permissions service.
+     * 
+     * @return the permissions service
+     */
+    public static IPermissionsService getPermissionsService() {
+        return INSTANCE.permissionsService;
+    }
+
+    /**
+     * Set the permissions service.
+     * 
+     * @param permissionsService
+     *            the permissionsService to set
+     */
+    public void setPermissionsService(IPermissionsService permissionsService) {
+        this.permissionsService = permissionsService;
     }
 }
