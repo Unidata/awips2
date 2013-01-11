@@ -225,7 +225,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
                     + FileUtil.VALID_FILENAME_CHARS);
             mb.open();
             ok = false;
-        } else if (!protectedNames.contains(groupName)){
+        } else if (protectedNames.contains(groupName)){
         	statusHandler.handle(Priority.SIGNIFICANT, "Weather Element Group "
                     + getSelectedItem() + " is protected or an invalid name.");
             ok = false;
