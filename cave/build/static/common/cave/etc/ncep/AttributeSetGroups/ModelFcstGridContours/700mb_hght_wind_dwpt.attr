@@ -8,6 +8,7 @@
 GLEVEL =  700
 GVCORD =  PRES
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0!0!-1
 GDPFUN =  dwpc!dwpc!sm5s(hght) ! kntv(wnd)
 TYPE   =    c/f!c!c ! b
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ @ DEW POINT (>-8), WIND    (KTS), AND HEIGHT!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
