@@ -46,6 +46,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.time.CalendarBuilder;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.viz.core.SameThreadGuiTaskExecutor;
@@ -69,6 +70,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlg
  * Nov 20, 2012 1286       djohnson     {@link ISubscriptionService} now takes the view.
  * Jan 02, 2012 1345       djohnson     Remove obsolete test.
  * Jan 04, 2013 1453       djohnson     Add tests for setting the active period.
+ * Jan 11, 2013 1453       djohnson     Add test from failed test scenario.
  * 
  * </pre>
  * 
@@ -305,7 +307,6 @@ public class CreateSubscriptionPresenterTest {
 
     @Test
     public void testActivePeriodEndCrossingYearBoundary() throws ParseException {
-
         Calendar cal = TimeUtil.newGmtCalendar();
         cal.set(Calendar.MONTH, Calendar.DECEMBER);
         cal.set(Calendar.DAY_OF_MONTH, 30);
@@ -349,14 +350,68 @@ public class CreateSubscriptionPresenterTest {
                 argThat(yyyyMmDdMatches(expectedEndCalendar.getTime())));
     }
 
+    /**
+     * Taken from the following tester comments:<br>
+     * When creating a subscription, if the Active Period End date is set to a
+     * month/day that is earlier than the month/day of the Active Period Start
+     * date (e.g., Active Period Start date = 01/10/2013 and Active Period End
+     * date = 01/01/2014), the subscription will go through successfully. Then,
+     * when editing the subscription and clicking on the Select Date for both
+     * the Active Period Start and End dates, the Active Period Start date
+     * (01/10/2014) is after the Active Period End date (01/01/2014). A check
+     * needs to be added such that if the Start date is after the End date, the
+     * year for the End date needs to increase by 1 (year + 1). While the year
+     * has no affect on the Active Period Start and End dates (and associated
+     * functionality), there may be confusion with the end user.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void testActivePeriodWhereStartIsDayOfYearAfterEnd()
+            throws ParseException {
+        Calendar cal = new CalendarBuilder().withMonth(Calendar.JANUARY)
+                .withDayOfMonth(10).withYear(2013).build();
+
+        final Date januaryTenth = cal.getTime();
+
+        cal.set(Calendar.YEAR, 1970);
+        final Date startDate = cal.getTime();
+
+        Calendar cal2 = new CalendarBuilder().withMonth(Calendar.JANUARY)
+                .withDayOfMonth(1).withYear(2014).build();
+        final Date januaryFirstYearLater = cal2.getTime();
+
+        cal2.set(Calendar.YEAR, 1970);
+        final Date endDate = cal2.getTime();
+
+        Subscription subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(startDate).withActivePeriodEnd(endDate)
+                .build();
+
+        // freeze time at start date plus a minute
+        TimeUtilTest.freezeTime(januaryTenth.getTime()
+                + TimeUtil.MILLIS_PER_MINUTE);
+
+        CreateSubscriptionDlgPresenter presenter = new CreateSubscriptionDlgPresenter(
+                view, dataSet, true, new SameThreadGuiTaskExecutor());
+        presenter.setSubscriptionData(subscription);
+        presenter.init();
+
+        verify(view).setActiveStartDate(argThat(yyyyMmDdMatches(januaryTenth)));
+        verify(view).setActiveEndDate(
+                argThat(yyyyMmDdMatches(januaryFirstYearLater)));
+    }
+
     @Test
     public void verifySubscriptionSetToView() {
+        presenter.open();
         verify(view).setSubscription(presenter.getSubscription());
     }
 
     @Test
     public void verifyCycleTimesSetToView() {
-        verify(view).setCycleTimes(presenter.cycleTimes);
+        presenter.open();
+        verify(view).setCycleTimes(dataSet.getCycles());
     }
 
 }
