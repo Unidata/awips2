@@ -81,6 +81,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 										to fix known errors in ID/VT/FL/WA/OH
  * 07/11        #450        G. Hull     NcPathManager
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 10/12					J. Wu		Fix a special case in getRegionIntersectionPt().
  * 
  * </pre>
  * 
@@ -1381,7 +1382,16 @@ public class GfaClip {
 			     kk2 = kk;
 
 			     ePts.clear();
+//			     ePts.addAll( cwGfaPts );
+                 //If the point to be added is at the end, need to insert in - JW - 10/2012.
+			     if ( addOne == (cwGfaPts.size() - 1) ) {
+					 ePts.addAll( GfaSnap.getInstance().insertArray( cwGfaPts, interIndex.get( ii ) + 1, interP ) );
+					 kk = interIndex.get( ii ) + 1;
+					 kk2 = kk;
+			     }
+			     else {
 			     ePts.addAll( cwGfaPts );
+			 }
 			 }
 			 else {				 
 			     ePts.clear();

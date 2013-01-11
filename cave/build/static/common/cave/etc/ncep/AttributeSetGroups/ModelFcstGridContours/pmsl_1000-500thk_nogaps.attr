@@ -8,6 +8,7 @@
 GLEVEL =  500:1000                  !0
 GVCORD =  pres                      !none
 SKIP   =    0
+FILTER=y
 SCALE  =   -1                        ! 0
 GDPFUN =  (sub(hght@500,hght@1000)) !sm9s(mul(1e-2,pmsl))
 TYPE   =    c                         !
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ PMSL, 1000-500mb THKN !0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

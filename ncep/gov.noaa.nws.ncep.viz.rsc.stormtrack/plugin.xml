@@ -28,742 +28,903 @@
    </extension> 
       <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+                
+      <!--
+      TODO : add a colorbar for the wind speed to replace the following
+      -->
       <nc-resourceParameter
             paramClass="Boolean"
-            paramName="gfsoEnable"
+            paramName="tropDepressionEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="gfsoColor"
+            paramName="tropDepressionColor"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {255,0,0}"
-               
+            defaultValue="RGB {0, 255,255}"               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="gfsoLineWidth"
+            paramClass="Float"
+            paramName="tropDepressionUpperLimit"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="3"
-              
+            defaultValue="34.0"              
              ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="gfsoSymbolWidth"
+            paramClass="Boolean"
+            paramName="galeEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-               
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="galeColor"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {0, 255,255}"               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="gfsoSymbolSize"
+            paramName="galeUpperLimit"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
-              
+            defaultValue="34.0"              
              ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="namEnable"
+            paramName="tropStormEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-              
+            defaultValue="false"
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="namColor"
+            paramName="tropStormColor"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {0,255,0}"
-              
+            defaultValue="RGB {0, 255,255}"               
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="namLineWidth"
+            paramClass="Float"
+            paramName="tropStormUpperLimit"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="3"
-              
+            defaultValue="34.0"              
              ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="namSymbolWidth"
+            paramClass="Boolean"
+            paramName="hurricaneEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-               
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hurricaneColor"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {0, 255,255}"               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="namSymbolSize"
+            paramName="hurricaneUpperLimit"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
-               
+            defaultValue="34.0"              
             ncResourceName="StormTrack">
       </nc-resourceParameter>
+   
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ukxEnable"
+            paramName="forecastHourEnable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-               
-            ncResourceName="StormTrack">
-      </nc-resourceParameter>         
-      <nc-resourceParameter
-            paramClass="RGB"
-            paramName="ukxColor"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {0,0,255}"
-               
+            defaultValue="false"
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ukxLineWidth"
+            paramName="forecastHour"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="3"
+            defaultValue="0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
                
+      <!-- Model 01 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model01Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="model01Enable"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="model01Color"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {255,0,0}"               
             ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
             paramClass="Integer"
-            paramName="ukxSymbolWidth"
+            paramName="model01LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-               
+            defaultValue="3"              
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ukxSymbolSize"
+            paramName="model01SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
                
+      <!-- Model 02 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model02Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
             ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ngxEnable"
+            paramName="model02Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-               
+            defaultValue="false"
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ngxColor"
+            paramName="model02Color"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {255,255,0}"
-               
+            defaultValue="RGB {0,255,0}"               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ngxLineWidth"
+            paramName="model02LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
+             ncResourceName="StormTrack">
+       </nc-resourceParameter>            
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="model02SymbolSize"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"               
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
                
+      <!-- Model 03 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model03Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="model03Enable"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="model03Color"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {0,0,255}"               
             ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
             paramClass="Integer"
-            paramName="ngxSymbolWidth"
+            paramName="model03LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-               
+            defaultValue="3"              
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ngxSymbolSize"
+            paramName="model03SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
               
+      <!-- Model 04 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model04Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
              ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ec00Enable"
+            paramName="model04Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-              
+            defaultValue="false"
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ec00Color"
+            paramName="model04Color"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {0,255,255}"
-             
+            defaultValue="RGB {255,255,0}"               
               ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ec00LineWidth"
+            paramName="model04LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
-             
               ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ec00SymbolWidth"
+            paramClass="Float"
+            paramName="model04SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-              
+            defaultValue="1.0"               
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 05 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ec00SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model05Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep01Enable"
+            paramName="model05Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-              
+            defaultValue="false"
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep01Color"
+            paramName="model05Color"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="RGB {255,0,255}"
-              
+            defaultValue="RGB {0,255,255}"               
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep01LineWidth"
+            paramName="model05LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
+             ncResourceName="StormTrack">
+       </nc-resourceParameter>            
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="model05SymbolSize"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"               
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
               
+      <!-- Model 06 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model06Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="model06Enable"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="model06Color"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {255,0,255}"               
              ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep01SymbolWidth"
+            paramName="model06LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-              
+            defaultValue="3"              
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ep01SymbolSize"
+            paramName="model06SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
               
+      <!-- Model 07 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model07Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
              ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep02Enable"
+            paramName="model07Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-              
+            defaultValue="false"
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep02Color"
+            paramName="model07Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {139,71,38}"
-              
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep02LineWidth"
+            paramName="model07LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
-               
-            ncResourceName="StormTrack">
-       </nc-resourceParameter>
-       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep02SymbolWidth"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"             
  			ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ep02SymbolSize"
+            paramName="model07SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
               
+      <!-- Model 08 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model08Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
              ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep03Enable"
+            paramName="model08Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-               
+            defaultValue="false"
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep03Color"
+            paramName="model08Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,130,71}"
-               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep03LineWidth"
+            paramName="model08LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
-               
-            ncResourceName="StormTrack">
-       </nc-resourceParameter>
-       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep03SymbolWidth"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-              
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ep03SymbolSize"
+            paramName="model08SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
                
+      <!-- Model 09 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model09Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
             ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep04Enable"
+            paramName="model09Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
-               
+            defaultValue="false"
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep04Color"
+            paramName="model09Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,165,79}"             
  		    ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep04LineWidth"
+            paramName="model09LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
-              
-             ncResourceName="StormTrack">
-       </nc-resourceParameter>
-       <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep04SymbolWidth"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ep04SymbolSize"
+            paramName="model09SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
               
+      <!-- Model 10 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model10Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
              ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep05Enable"
+            paramName="model10Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep05Color"
+            paramName="model10Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,174,185}"
-               
             ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep05LineWidth"
+            paramName="model10LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
-              
              ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep05SymbolWidth"
+            paramClass="Float"
+            paramName="model10SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
-              
+            defaultValue="1.0"               
              ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 11 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep05SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"              
+            paramClass="String"
+            paramName="model11Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
 		   ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep06Enable"
+            paramName="model11Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep06Color"
+            paramName="model11Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,106,106}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep06LineWidth"
+            paramName="model11LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep06SymbolWidth"
+            paramClass="Float"
+            paramName="model11SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 12 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep06SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model12Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep07Enable"
+            paramName="model12Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep07Color"
+            paramName="model12Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {238,44,44}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep07LineWidth"
+            paramName="model12LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep07SymbolWidth"
+            paramClass="Float"
+            paramName="model12SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 13 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep07SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model13Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep08Enable"
+            paramName="model13Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep08Color"
+            paramName="model13Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {139,0,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep08LineWidth"
+            paramName="model13LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep08SymbolWidth"
+            paramClass="Float"
+            paramName="model13SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 14 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep08SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model14Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep09Enable"
+            paramName="model14Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep09Color"
+            paramName="model14Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {205,0,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep09LineWidth"
+            paramName="model14LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep09SymbolWidth"
+            paramClass="Float"
+            paramName="model14SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 15 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep09SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model15Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep10Enable"
+            paramName="model15Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep10Color"
+            paramName="model15Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {238,64,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep10LineWidth"
+            paramName="model15LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep10SymbolWidth"
+            paramClass="Float"
+            paramName="model15SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 16 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep10SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model16Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep11Enable"
+            paramName="model16Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep11Color"
+            paramName="model16Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,127,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep11LineWidth"
+            paramName="model16LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep11SymbolWidth"
+            paramClass="Float"
+            paramName="model16SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 17 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep11SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model17Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep12Enable"
+            paramName="model17Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep12Color"
+            paramName="model17Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {205,133,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep12LineWidth"
+            paramName="model17LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep12SymbolWidth"
+            paramClass="Float"
+            paramName="model17SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 18 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep12SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model18Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep13Enable"
+            paramName="model18Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep13Color"
+            paramName="model18Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {255,215,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep13LineWidth"
+            paramName="model18LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep13SymbolWidth"
+            paramClass="Float"
+            paramName="model18SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
+
+      <!-- Model 19 -->
        <nc-resourceParameter
-            paramClass="Float"
-            paramName="ep13SymbolSize"
-            paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1.0"
+            paramClass="String"
+            paramName="model19Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
                ncResourceName="StormTrack">
       </nc-resourceParameter>
             <nc-resourceParameter
             paramClass="Boolean"
-            paramName="ep14Enable"
+            paramName="model19Enable"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="true"
+            defaultValue="false"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="RGB"
-            paramName="ep14Color"
+            paramName="model19Color"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {238,238,0}"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       <nc-resourceParameter
             paramClass="Integer"
-            paramName="ep14LineWidth"
+            paramName="model19LineWidth"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="3"
                ncResourceName="StormTrack">
        </nc-resourceParameter>
        <nc-resourceParameter
-            paramClass="Integer"
-            paramName="ep14SymbolWidth"
+            paramClass="Float"
+            paramName="model19SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
-            defaultValue="1"
+            defaultValue="1.0"               
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
+
+      <!-- Model 20 -->
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="model20Name"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue=""
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="model20Enable"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="model20Color"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="RGB {255,0,0}"               
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
+	  <nc-resourceParameter
+            paramClass="Integer"
+            paramName="model20LineWidth"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="3"              
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
        <nc-resourceParameter
             paramClass="Float"
-            paramName="ep14SymbolSize"
+            paramName="model20SymbolSize"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="1.0"
                ncResourceName="StormTrack">
       </nc-resourceParameter>         
       
+      
       <nc-resourceParameter
             paramClass="Boolean"
-            paramName="dateTimeEnable"
+            paramName="drawBeginDateTime"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="true"
-              
              ncResourceName="StormTrack">
       </nc-resourceParameter> 
       <nc-resourceParameter
             paramClass="Boolean"
-            paramName="pressureEnable"
+            paramName="drawForecastHour"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="true"
-             
               ncResourceName="StormTrack">
       </nc-resourceParameter>  
       <nc-resourceParameter      
             paramClass="Boolean"
-            paramName="markerEnable"
+            paramName="drawPressure"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="true"
             ncResourceName="StormTrack">
       </nc-resourceParameter>        
       <nc-resourceParameter
             paramClass="Boolean"
-            paramName="colorCodeEnable"
+            paramName="drawWindSpeed"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"             
+              ncResourceName="StormTrack">
+      </nc-resourceParameter>  
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="drawModelName"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"             
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="drawCycloneID"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="false"             
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>
+      <nc-resourceParameter      
+            paramClass="Boolean"
+            paramName="drawMarker"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="true"
+            ncResourceName="StormTrack">
+      </nc-resourceParameter>        
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="colorCodeByWindSpeed"
             paramType="EDITABLE_ATTRIBUTE"
             defaultValue="false"               
             ncResourceName="StormTrack">
@@ -778,11 +939,11 @@
       </nc-resourceParameter>
 
       <nc-resourceParameter
-            ncResourceName="StormTrack"
-            paramClass="RGB"
-            paramName="legendColor"
-            defaultValue="RGB {155, 155, 155}"
-            paramType="IMPLEMENTATION_PARAM">
+            paramClass="String"
+            paramName="legend"
+            paramType="IMPLEMENTATION_PARAM"
+            defaultValue="StormTrack"
+            ncResourceName="StormTrack">
       </nc-resourceParameter>
                      
       </extension>   

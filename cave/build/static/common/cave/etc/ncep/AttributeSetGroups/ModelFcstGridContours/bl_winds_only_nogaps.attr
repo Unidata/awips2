@@ -8,6 +8,7 @@
 GLEVEL =  10
 GVCORD =  hght
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  kntv(wnd)
 TYPE   =    b
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ BL WIND   = (10m; KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
