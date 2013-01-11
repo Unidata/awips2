@@ -752,13 +752,18 @@ public class ProductBrowserView extends ViewPart {
             AbstractProductBrowserDataDefinition<?> prod = (AbstractProductBrowserDataDefinition<?>) ti
                     .getData("class");
             String[] info = getProductURI(ti, false);
-            for (int i = 0; i < info.length; i++) {
-                if (i != 0) {
-                    stringBuilder.append("\n");
-                }
+            if (prod instanceof AbstractRequestableProductBrowserDataDefinition<?>) {
+                AbstractRequestableProductBrowserDataDefinition<?> aProd = (AbstractRequestableProductBrowserDataDefinition<?>) prod;
+                stringBuilder.append(aProd.PLUGIN_NAME + " = "
+                        + aProd.productName);
+            } else {
+                stringBuilder.append(prod.displayName);
+            }
+            for (int i = 1; i < info.length; i++) {
+                stringBuilder.append("\n");
                 if (prod instanceof AbstractRequestableProductBrowserDataDefinition<?>) {
                     stringBuilder
-                            .append(((AbstractRequestableProductBrowserDataDefinition<?>) prod).order[i]
+                            .append(((AbstractRequestableProductBrowserDataDefinition<?>) prod).order[i - 1]
                                     + " = " + info[i]);
                 } else {
                     stringBuilder.append(info[i]);
