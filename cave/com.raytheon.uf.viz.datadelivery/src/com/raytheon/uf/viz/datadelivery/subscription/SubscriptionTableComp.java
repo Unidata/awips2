@@ -52,7 +52,6 @@ import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
@@ -71,6 +70,7 @@ import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableDataManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.ViewDetailsDlg;
 import com.raytheon.uf.viz.datadelivery.common.xml.ColumnXML;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
@@ -148,7 +148,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      * @param tableConfig
@@ -217,19 +217,16 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         String msg = user.uniqueId()
                 + " is not authorized to access the Dataset Discovery Browser\nPermission: "
                 + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            if (DataDeliveryUtils.sendAuthorizationRequest(request)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermissions(user, msg, permission).isAuthorized()) {
                 // Get the subscription data
                 int idx = table.getSelectionIndex();
                 SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
-                SubsetManagerDlg dlg = SubsetManagerDlg.fromSubscription(
-                        this.getShell(), true, row.getSubscription());
+                SubsetManagerDlg<?, ?, ?> dlg = SubsetManagerDlg
+                        .fromSubscription(this.getShell(), true,
+                                row.getSubscription());
 
                 dlg.open();
             }
@@ -271,14 +268,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         String msg = user.uniqueId()
                 + " is not authorized to access Group Add\nPermission: "
                 + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            if (DataDeliveryUtils.sendAuthorizationRequest(request)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermissions(user, msg, permission).isAuthorized()) {
                 // Get the subscription data
                 int idx = table.getSelectionIndex();
                 SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
@@ -329,7 +322,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Get the table.
-     *
+     * 
      * @return The table.
      */
     public Table getTable() {
@@ -338,7 +331,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Action performed when the column is selected.
-     *
+     * 
      * @param tc
      *            Table column.
      */
@@ -359,10 +352,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Populate the table data according to the filter selections, .
-     *
+     * 
      * @param groupName
      *            name of subscription group
-     *
+     * 
      * @param officeId
      *            Office identifier, such as OAX
      */
@@ -391,10 +384,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Populate the table data according to the filter selections, .
-     *
+     * 
      * @param datasetName
      *            name of dataset. e.g. gfs
-     *
+     * 
      * @param provider
      *            name of provider. e.g. NOMADS
      */
@@ -468,7 +461,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Add a subscription to the list of subscriptions.
-     *
+     * 
      * @param subscription
      *            Subscription to add to the subscription list.
      */
@@ -480,7 +473,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Get the column data XML class.
-     *
+     * 
      * @param colName
      *            Column name.
      * @return The column data XML class.
@@ -500,7 +493,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Get the table cell text
-     *
+     * 
      * @param name
      *            The column name
      * @param rd
@@ -568,7 +561,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Update the table with the list of subscriptions.
-     *
+     * 
      * @param updatedSubscriptions
      *            List of updated subscriptions.
      */
@@ -616,7 +609,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Get the data manager for the subscription data.
-     *
+     * 
      * @return The data manager.
      */
     public TableDataManager<SubscriptionManagerRowData> getSubscriptionData() {
@@ -625,7 +618,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Get the sorted table column.
-     *
+     * 
      * @return The table column that is sorted.
      */
     public TableColumn getSortedTableColumn() {
@@ -634,7 +627,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.datadelivery.common.ui.TableComp#getCurrentSortDirection
      * ()
@@ -646,7 +639,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.common.ui.TableComp#createColumns()
      */
     @Override
@@ -683,7 +676,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.common.ui.TableComp#populateTable()
      */
     @Override
@@ -726,7 +719,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.datadelivery.common.ui.TableComp#handleTableMouseClick
      * (org.eclipse.swt.events.MouseEvent)
@@ -782,7 +775,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.common.ui.TableComp#
      * handleTableSelectionChange(org.eclipse.swt.events.SelectionEvent)
      */
@@ -867,7 +860,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /**
      * Set the subscription list.
-     *
+     * 
      * @param subscriptionNameList
      */
     public void setSubscriptionNameList(List<String> subscriptionNameList) {

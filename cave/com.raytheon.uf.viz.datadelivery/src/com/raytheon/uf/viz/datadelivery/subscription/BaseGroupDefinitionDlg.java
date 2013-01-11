@@ -29,15 +29,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -48,11 +44,9 @@ import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.AreaControlComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DeliveryOptionsComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
-import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.UserSelectComp;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
 import com.raytheon.viz.ui.presenter.components.WidgetConf;
@@ -76,17 +70,19 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Dec 18, 2012 1440       mpduff       Made non-blocking
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
+ * Jan 08, 2013 1453       djohnson     Split creation and edit dialogs.
  * 
  * </pre>
  * 
  * @author jpiatt
  * @version 1.0
  */
-public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
+public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
+        IGroupAction {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CreateGroupDlg.class);
+            .getHandler(BaseGroupDefinitionDlg.class);
 
     /** Delivery options strings */
     protected final String[] DELIVERY_OPTIONS = new String[] {
@@ -97,10 +93,7 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
             "Select delivery method", WidgetConf.DO_NOTHING);
 
     /** The Main Composite */
-    private Composite mainComp;
-
-    /** The Subscription Group Information Composite */
-    private GroupSelectComp groupSelectComp;
+    protected Composite mainComp;
 
     /** The Subscription Delivery Options Composite */
     private DeliveryOptionsComp deliverComp;
@@ -117,15 +110,9 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
     /** The User Selection Composite */
     private UserSelectComp userSelectComp;
 
-    /** Description text field */
-    private Text groupNameTxt;
-
     /** IGroupAction callback */
     private final IGroupAction callback;
 
-    /** Flag to determine create or edit */
-    private final boolean create;
-
     /**
      * Constructor.
      * 
@@ -135,29 +122,11 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
      * @param callback
      *            callback to subscription manager
      */
-    public CreateGroupDlg(Shell parent, boolean create, IGroupAction callback) {
+    public BaseGroupDefinitionDlg(Shell parent, IGroupAction callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
-        if (create) {
-            setText("Create Group");
-        } else {
-            setText("Edit Group");
-        }
+        setText(getDialogTitle());
         this.callback = callback;
-        this.create = create;
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            The parent shell
-     * @param create
-     * @param callback
-     *            callback to subscription manager
-     */
-    public CreateGroupDlg(Shell parent, IGroupAction callback) {
-        this(parent, true, callback);
     }
 
     /*
@@ -175,11 +144,9 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
         mainComp.setLayout(gl);
         mainComp.setLayoutData(gd);
 
-        if (create) {
+
             createGroupInfo();
-        } else {
-            groupSelectComp = new GroupSelectComp(mainComp, true);
-        }
+
 
         deliverComp = new DeliveryOptionsComp(mainComp);
         durComp = new DurationComp(mainComp);
@@ -197,18 +164,6 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
      */
     @Override
     protected void preOpened() {
-        Runnable populate = new Runnable() {
-            @Override
-            public void run() {
-                populate(groupSelectComp.getGroupName());
-            }
-        };
-        if (!create) {
-            ComboBoxConf groupComboConf = new ComboBoxConf(create,
-                    "Select a Group", populate);
-            groupSelectComp.setGroupNameComboConf(groupComboConf);
-        }
-
         deliverComp.setDeliveryOptions(DELIVERY_OPTIONS);
         deliverComp.setDeliveryConfig(DELIVERY_COMBO_CONF);
     }
@@ -226,32 +181,6 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
         mainLayout.marginWidth = 3;
 
         return mainLayout;
-    }
-
-    /**
-     * Create the Group information.
-     */
-    private void createGroupInfo() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(2, false);
-
-        Group groupNameInfo = new Group(mainComp, SWT.NONE);
-        groupNameInfo.setLayout(gl);
-        groupNameInfo.setLayoutData(gd);
-        groupNameInfo.setText("  Group Information  ");
-
-        Label groupName = new Label(groupNameInfo, SWT.NONE);
-        groupName.setText("Group Name: ");
-
-        Composite groupComp = new Composite(groupNameInfo, SWT.NONE);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        groupComp.setLayoutData(gd);
-        groupComp.setLayout(gl);
-
-        groupNameTxt = new Text(groupComp, SWT.BORDER);
-        groupNameTxt.setLayoutData(new GridData(285, SWT.DEFAULT));
-        groupName.setToolTipText("Enter Group name");
-
     }
 
     /**
@@ -301,32 +230,20 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
     private boolean handleOK() {
 
         boolean valid = false;
-        boolean nameValid = false;
         boolean datesValid = false;
         boolean activeDatesValid = false;
 
-        String groupName = null;
-
-        if (create) {
-            groupName = groupNameTxt.getText().trim();
-        } else {
-            groupName = groupSelectComp.getGroupName();
-        }
-
-        // Check for a group name
-        if (groupName == null || groupName.isEmpty()) {
-            DataDeliveryUtils.showMessage(shell, SWT.ERROR,
-                    "Invalid Group Name", "No Group Name detected. \n\n"
-                            + "Please enter a Group Name.\n");
-        } else {
-            nameValid = true;
+        String groupName = getGroupName();
+        
+        if (!validateGroupName(groupName)) {
+            return false;
         }
 
         // Validate the date entries
         datesValid = durComp.isValidChk();
         activeDatesValid = activePeriodComp.isValidChk();
 
-        if (nameValid && datesValid && activeDatesValid) {
+        if (datesValid && activeDatesValid) {
             valid = true;
         }
 
@@ -389,13 +306,7 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
             }
 
             try {
-                if (this.create) {
-                    DataDeliveryHandlers.getGroupDefinitionHandler().store(
-                            groupDefinition);
-                } else {
-                    DataDeliveryHandlers.getGroupDefinitionHandler().update(
-                            groupDefinition);
-                }
+                saveGroupDefinition(groupDefinition);
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to save Group object", e);
@@ -407,7 +318,7 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
         }
 
         // Save group properties to selected subscriptions
-        userSelectComp.getSuscriptionNames(groupName);
+        userSelectComp.getSubscriptionNames(groupName);
 
         if (callback != null) {
             // Re-load the group combo box
@@ -515,4 +426,41 @@ public class CreateGroupDlg extends CaveSWTDialog implements IGroupAction {
         return null;
     }
 
+    /**
+     * Get the dialog title.
+     * 
+     * @return
+     */
+    protected abstract String getDialogTitle();
+
+    /**
+     * Create the group name section.
+     */
+    protected abstract void createGroupInfo();
+
+    /**
+     * Return the group name.
+     * 
+     * @return
+     */
+    protected abstract String getGroupName();
+
+    /**
+     * Save the group definition.
+     * 
+     * @param groupDefinition
+     *            the group definition
+     * @throws RegistryHandlerException
+     */
+    protected abstract void saveGroupDefinition(GroupDefinition groupDefinition)
+            throws RegistryHandlerException;
+
+    /**
+     * Validate the group name.
+     * 
+     * @param groupName
+     *            the group name
+     * @return
+     */
+    protected abstract boolean validateGroupName(String groupName);
 }
