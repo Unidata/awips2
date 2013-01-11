@@ -266,8 +266,7 @@ public class GridProductBrowserDataDefinition extends
                                 parameters[i]));
                     } else {
                         labels.add(new ProductBrowserLabel(info.getTitle()
-                                + " (" + " (" + parameters[i] + ")",
-                                parameters[i]));
+                                + " (" + parameters[i] + ")", parameters[i]));
                     }
                 }
                 Collections.sort(labels);
