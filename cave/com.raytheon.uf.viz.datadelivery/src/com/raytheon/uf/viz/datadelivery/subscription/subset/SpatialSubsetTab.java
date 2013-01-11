@@ -251,20 +251,15 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
             return;
         }
 
-        if (this.areaComp.isEnvelopeValid()) {
-            ReferencedEnvelope envelope = this.areaComp.getEnvelope();
 
-            AreaXML area = new AreaXML();
-            area.setRegionName(saveName);
+        AreaXML area = getSaveInfo();
 
-            area.setEnvelope(envelope);
+        SubsetFileManager.getInstance()
+                .saveArea(area, this.areaComp.getShell());
 
-            SubsetFileManager.getInstance().saveArea(area,
-                    this.areaComp.getShell());
+        // update the regionCombo
+        areaComp.showMyRegions(saveName);
 
-            // update the regionCombo
-            areaComp.showMyRegions(saveName);
-        }
     }
 
     /**
@@ -305,7 +300,11 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
      * @return The selected envelope
      */
     public ReferencedEnvelope getEnvelope() {
-        return areaComp.getEnvelope();
+        if (useDataSetSize) {
+            return fullEnvelope;
+        } else {
+            return areaComp.getEnvelope();
+        }
     }
 
     /**
@@ -346,8 +345,15 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
      * @return AreaXML object populated with the save details
      */
     public AreaXML getSaveInfo() {
+        ReferencedEnvelope envelope = null;
+        if(useDataSetSize){
+            envelope = fullEnvelope;
+        }else if(areaComp.isEnvelopeValid()){
+            areaComp.getEnvelope();
+        }
+        
         AreaXML area = new AreaXML();
-        ReferencedEnvelope envelope = areaComp.getEnvelope();
+
         if (envelope != null) {
             area.setEnvelope(envelope);
         }
@@ -366,6 +372,9 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
      * @return true if tab is valid
      */
     public boolean isValid() {
+        if (useDataSetSize) {
+            return true;
+        }
         ReferencedEnvelope envelope = areaComp.getEnvelope();
         if (envelope == null) {
             return false;
