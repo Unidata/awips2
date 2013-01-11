@@ -4,17 +4,30 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <bean id="subscriptionService"
-        class="com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService" />
-
     <bean id="bandwidthService"
         class="com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService" />
+
+    <bean id="subscriptionNotificationService"
+        class="com.raytheon.uf.viz.datadelivery.subscription.SendToServerSubscriptionNotificationService" />
+
+    <bean id="permissionsService"
+        class="com.raytheon.uf.viz.datadelivery.subscription.RequestFromServerPermissionsService" />
+
+    <bean id="subscriptionService"
+        class="com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService"
+        factory-method="newInstance">
+        <constructor-arg ref="subscriptionNotificationService" />
+        <constructor-arg ref="bandwidthService" />
+        <constructor-arg ref="permissionsService" />
+    </bean>
 
     <bean name="dataDeliveryServices"
         class="com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices"
         factory-method="getInstance">
         <property name="subscriptionService" ref="subscriptionService" />
+        <property name="subscriptionNotificationService" ref="subscriptionNotificationService" />
         <property name="bandwidthService" ref="bandwidthService" />
+        <property name="permissionsService" ref="permissionsService" />
     </bean>
 
     <bean id="systemRuleManager"

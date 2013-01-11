@@ -57,7 +57,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
@@ -78,9 +77,9 @@ import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.filter.config.FilterManager;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterSettingsXML;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
@@ -636,14 +635,10 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         String msg = user.uniqueId()
                 + " is not authorized to Create Subscriptions/Queries\nPermission: "
                 + permission;
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-        request.setUser(user);
-        request.addRequestedPermissions(permission);
-        request.setNotAuthorizedMessage(msg);
 
         try {
-            if (DataDeliveryUtils.sendAuthorizationRequest(request)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
 
                 DataSet data = dataTableComp.getSelectedDataset();
 
