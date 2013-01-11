@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 02, 2012 1345       djohnson     Use gui thread task executor.
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 04, 2012 1420       mpduff       Add Latency to PriorityComp.
+ * Jan 11, 2013 1453       djohnson     Sets cycle times on construction.
  * </pre>
  * 
  * @author mpduff
@@ -165,8 +166,7 @@ public class CreateSubscriptionDlgPresenter {
 
     private final IGuiThreadTaskExecutor guiThreadTaskExecutor;
 
-    @VisibleForTesting
-    Set<Integer> cycleTimes;
+    private final Set<Integer> cycleTimes;
 
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
@@ -187,6 +187,10 @@ public class CreateSubscriptionDlgPresenter {
         this.dataSet = dataSet;
         this.create = create;
         this.guiThreadTaskExecutor = guiThreadTaskExecutor;
+
+        // Get cycles
+        cycleTimes = Sets.newTreeSet(((OpenDapGriddedDataSet) dataSet)
+                .getCycles());
 
         groupComboAction = new Runnable() {
             @Override
@@ -227,9 +231,6 @@ public class CreateSubscriptionDlgPresenter {
                 init();
             }
         };
-        // Get cycles
-        cycleTimes = Sets.newTreeSet(((OpenDapGriddedDataSet) dataSet)
-                .getCycles());
         this.view.setCycleTimes(cycleTimes);
         this.view.setSubscription(this.subscription);
         this.view.setPreOpenCallback(callback);
