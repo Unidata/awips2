@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
@@ -40,6 +41,8 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -77,6 +80,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Aug 20, 2012   0743     djohnson     Finish making registry type-safe.
  * Aug 30, 2012   1120     jpiatt       Added clickSort flag.
  * Oct 05, 2012   1241     djohnson     Replace RegistryManager calls with registry handler calls.
+ * Jan 10, 2013   1346     mpduff       Add additional information to the dataset details output.
  * 
  * </pre>
  * 
@@ -121,7 +125,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
     /** TableItem object. */
     private final Composite parentComp;
 
-    /** Array of dataset metadata */
+    /** Array of DataSet objects */
     private List<DataSet> dataList = null;
 
     /**
@@ -134,7 +138,8 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
      * @param updateCallback
      *            Callback for the table updates.
      */
-    public BrowserTableComp(Composite parent, TableCompConfig tableConfig, IDataTableUpdate updateCallback) {
+    public BrowserTableComp(Composite parent, TableCompConfig tableConfig,
+            IDataTableUpdate updateCallback) {
         super(parent, tableConfig, false);
 
         this.updateCallback = updateCallback;
@@ -235,8 +240,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
 
         if (subscriptionDlgMap.containsKey(id) == true) {
             subscriptionDlgMap.get(id).bringToTop();
-        }
-        else {
+        } else {
             SubscriptionViewer viewer = new SubscriptionViewer(this.getShell(),
                     providerName, this, dataSetName);
             viewer.open();
@@ -266,13 +270,13 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
 
         if (detailsDlgMap.containsKey(id) == true) {
             detailsDlgMap.get(id).bringToTop();
-        }
-        else {
+        } else {
 
             String formattedData = formatDatasetData(dsmd);
 
             String title = "More Information - (" + dsmd.getDataSetName() + ")";
-            ViewDetailsDlg mid = new ViewDetailsDlg(parentComp.getShell(), formattedData, title, this, id);
+            ViewDetailsDlg mid = new ViewDetailsDlg(parentComp.getShell(),
+                    formattedData, title, this, id);
             mid.open();
             detailsDlgMap.put(id, mid);
         }
@@ -287,7 +291,6 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
      */
     private String formatDatasetData(DataSet dataSet) {
         StringBuilder sb = new StringBuilder(150);
-
         sb.append("Dataset Name: ")
                 .append(validateString(dataSet.getDataSetName()))
                 .append(Util.EOL);
@@ -311,7 +314,80 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         sb.append("--- LowerRight (Lat): ")
                 .append(dataSet.getCoverage().getLowerRight().y)
                 .append(Util.EOL);
+        sb.append("\n");
 
+        if (dataSet instanceof GriddedDataSet) {
+            GriddedDataSet gds = (GriddedDataSet) dataSet;
+            List<Integer> cycleList = new ArrayList<Integer>(gds.getCycles());
+            if (!cycleList.isEmpty()) {
+                sb.append("Dataset Cycles: ");
+                Collections.sort(cycleList);
+                for (int i : cycleList) {
+                    sb.append(i).append(" ");
+                }
+                sb.append(Util.EOL);
+            }
+
+            List<Integer> fcstHrs = new ArrayList<Integer>(
+                    gds.getForecastHours());
+            if (!fcstHrs.isEmpty()) {
+                sb.append("Forecast Hours: ");
+
+                Collections.sort(fcstHrs);
+
+                StringBuilder hrBuffer = new StringBuilder();
+                for (int i : fcstHrs) {
+                    hrBuffer.append(i).append(" ");
+                    // wrap at 50 characters
+                    if (hrBuffer.length() > 50) {
+                        sb.append(hrBuffer).append(Util.EOL);
+                        sb.append("                ");
+                        hrBuffer.setLength(0);
+                    }
+                }
+
+                sb.append(Util.EOL);
+            }
+        }
+
+        Map<String, Parameter> paramMap = dataSet.getParameters();
+        if (!paramMap.isEmpty()) {
+            sb.append("Parameters:").append(Util.EOL);
+            List<String> paramList = new ArrayList<String>(paramMap.keySet());
+            Collections.sort(paramList, String.CASE_INSENSITIVE_ORDER);
+
+            // Get the largest parameter name for alignment
+            int max = 0;
+            for (String param : paramList) {
+                if (max < param.length()) {
+                    max = param.length();
+                }
+            }
+
+            for (String param : paramList) {
+                sb.append("--- ").append(param);
+                sb.append(getSpacing(max + 1, param));
+                sb.append(paramMap.get(param).getDefinition()).append(Util.EOL);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Generate the spacing of the parameter definitions.
+     * 
+     * @param start
+     *            the point at which the string should start
+     * @param the
+     *            parameter name
+     */
+    private String getSpacing(int start, String param) {
+        int numSpaces = start - param.length();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < numSpaces; i++) {
+            sb.append(" ");
+        }
         return sb.toString();
     }
 
@@ -419,7 +495,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
             return;
         }
 
-        TableColumn tc = (TableColumn)event.getSource();
+        TableColumn tc = (TableColumn) event.getSource();
 
         updateSortDirection(tc, tableData, true);
 
@@ -441,8 +517,10 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         for (BrowserTableRowData btrd : btrdArray) {
             TableItem ti = new TableItem(this.table, SWT.NONE);
             ti.setText(BrowserColumnNames.NAME.ordinal(), btrd.getDataSetName());
-            ti.setText(BrowserColumnNames.SUBSCRIPTION.ordinal(), btrd.getSubscriptionName());
-            ti.setText(BrowserColumnNames.PROVIDER.ordinal(), btrd.getProviderName());
+            ti.setText(BrowserColumnNames.SUBSCRIPTION.ordinal(),
+                    btrd.getSubscriptionName());
+            ti.setText(BrowserColumnNames.PROVIDER.ordinal(),
+                    btrd.getProviderName());
         }
     }
 
@@ -536,13 +614,14 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
             tableData = null;
         }
 
-        tableData = new TableDataManager<BrowserTableRowData>(TABLE_TYPE.BROWSER);
+        tableData = new TableDataManager<BrowserTableRowData>(
+                TABLE_TYPE.BROWSER);
         closeAllViewerDialogs();
 
         Set<String> datasetNames = Collections.emptySet();
         try {
-            datasetNames = DataDeliveryHandlers
-                    .getSubscriptionHandler().getSubscribedToDataSetNames();
+            datasetNames = DataDeliveryHandlers.getSubscriptionHandler()
+                    .getSubscribedToDataSetNames();
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve subscription dataset names!", e);
@@ -560,8 +639,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
 
             if (datasetNames.contains(data.getDataSetName())) {
                 btrd.setSubscriptionName("Y");
-            }
-            else {
+            } else {
                 btrd.setSubscriptionName("N");
             }
 
@@ -571,8 +649,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         if (this.sortedColumn == null) {
             sortedColumn = table.getColumn(BrowserColumnNames.NAME.ordinal());
             tableData.setSortColumn(BrowserColumnNames.NAME.getColumnName());
-        }
-        else {
+        } else {
             tableData.setSortColumn(sortedColumn.getText());
         }
 
@@ -615,8 +692,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
     protected void handleTableSelection(SelectionEvent e) {
         if (table.getSelectionCount() > 0) {
             updateCallback.tableSelectionChanged(true);
-        }
-        else {
+        } else {
             updateCallback.tableSelectionChanged(false);
         }
     }
