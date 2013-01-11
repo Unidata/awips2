@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -34,7 +33,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.notification.NotificationDlg;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 
 /**
  * Notification Action to launch notification dialog.
@@ -61,7 +60,7 @@ public class NotificationAction extends AbstractHandler {
 
     /** Dialog instance */
     private NotificationDlg dlg = null;
-    
+
     /** Permission string */
     private final DataDeliveryPermission permission = DataDeliveryPermission.NOTIFICATION_VIEW;
 
@@ -70,17 +69,15 @@ public class NotificationAction extends AbstractHandler {
         try {
             // Check if user is authorized
             IUser user = UserController.getUserObject();
-            String msg = user.uniqueId() + " is not authorized to access the Notification Center\nPermission: " + permission;
-            DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-            request.setUser(user);
-            request.addRequestedPermissions(permission);
-            request.setNotAuthorizedMessage(msg);
+            String msg = user.uniqueId()
+                    + " is not authorized to access the Notification Center\nPermission: "
+                    + permission;
 
-            DataDeliveryAuthRequest response = DataDeliveryUtils.sendAuthorizationRequest(request);
-            if (response != null && response.isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 if ((dlg == null) || (dlg.isDisposed() == true)) {
-                    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                            .getShell();
+                    Shell shell = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getShell();
                     dlg = new NotificationDlg(shell);
                     dlg.open();
                 } else {
@@ -90,7 +87,7 @@ public class NotificationAction extends AbstractHandler {
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        
+
         return null;
     }
 }

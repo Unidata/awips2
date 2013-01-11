@@ -19,16 +19,34 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 
 /**
@@ -51,6 +69,130 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubsc
 public class SubscriptionServiceMassUpdateTest extends
         AbstractSubscriptionServiceTest {
 
+    private final IAuthorizedPermissionResponse authorizedPermissionsResponse = mock(IAuthorizedPermissionResponse.class);
+
+    @Before
+    public void setUpPermissionsResponse() throws VizException {
+        userHasAllPermissions();
+    }
+
+    @Test
+    public void testUpdateWithPendingCheckCancelingForceApplyDoesNotUpdateSubscriptions()
+            throws RegistryHandlerException {
+        RegistryObjectHandlersUtil.initMocks();
+
+        returnTwoSubscriptionNamesWhenProposeScheduleCalled();
+        whenForceApplyPromptedUserSelectsCancel();
+
+        service.updateWithPendingCheck(subs, mockPromptDisplayText);
+
+        verifyZeroInteractions(DataDeliveryHandlers.getSubscriptionHandler());
+    }
+
+    @Test
+    public void testUpdateWithPendingCheckForceApplyUpdatesSubscriptions()
+            throws RegistryHandlerException {
+        RegistryObjectHandlersUtil.initMocks();
+
+        returnTwoSubscriptionNamesWhenProposeScheduleCalled();
+        whenForceApplyPromptedUserSelectsForceApply();
+
+        service.updateWithPendingCheck(subs, mockPromptDisplayText);
+
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        for (Subscription sub : subs) {
+            verify(subscriptionHandler).update(sub);
+        }
+    }
+
+    @Test
+    public void testUpdateWithPendingCheckNotifiesOfSubscriptionsAlreadyPending()
+            throws RegistryHandlerException {
+        RegistryObjectHandlersUtil.initMocks();
+
+        returnZeroSubscriptionNamesWhenProposeScheduleCalled();
+
+        subscriptionAlreadyHasPendingChanges(sub1);
+
+        final ISubscriptionServiceResult response = service
+                .updateWithPendingCheck(subs, mockPromptDisplayText);
+
+        final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions already had pending changes and were not modified:\n"
+                + sub1.getName();
+
+        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+    }
+
+    @Test
+    public void testUpdateWithPendingCheckNotifiesOfSubscriptionsUnableToBeUpdated()
+            throws RegistryHandlerException, VizException {
+        RegistryObjectHandlersUtil.initMocks();
+
+        returnZeroSubscriptionNamesWhenProposeScheduleCalled();
+
+        subscriptionThrowsErrorOnUpdate(sub2);
+
+        final ISubscriptionServiceResult response = service
+                .updateWithPendingCheck(subs, mockPromptDisplayText);
+
+        final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions were unable to be modified:\n"
+                + sub2.getName();
+
+        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+    }
+
+    @Test
+    public void testUpdateWithPendingCheckNotifiesOfPendingSubscriptionsCreated()
+            throws RegistryHandlerException, VizException {
+        RegistryObjectHandlersUtil.initMocks();
+
+        returnZeroSubscriptionNamesWhenProposeScheduleCalled();
+
+        subscriptionCantBeChangedByUser(sub2);
+
+        final ISubscriptionServiceResult response = service
+                .updateWithPendingCheck(subs, mockPromptDisplayText);
+
+        final String expectedMessage = "The subscriptions have been updated.\n\nThe following subscriptions have pending changes awaiting approval:\n"
+                + sub2.getName();
+
+        assertThat(response.getMessageToDisplay(), is(equalTo(expectedMessage)));
+    }
+
+    /**
+     * When the user requests to change the specified subscription, the registry
+     * throws an exception.
+     * 
+     * @param subscription
+     *            the subscription
+     * @throws RegistryHandlerException
+     */
+    private void subscriptionThrowsErrorOnUpdate(Subscription sub2)
+            throws RegistryHandlerException {
+        doThrow(new RegistryHandlerException("thrown on purpose")).when(
+                DataDeliveryHandlers.getSubscriptionHandler()).update(sub2);
+    }
+
+    /**
+     * When the user requests to change the specified subscription, they will
+     * not have permission.
+     * 
+     * @param subscription
+     *            the subscription
+     * @throws VizException
+     */
+    private void subscriptionCantBeChangedByUser(Subscription subscription)
+            throws VizException {
+        IAuthorizedPermissionResponse noPermission = mock(IAuthorizedPermissionResponse.class);
+        when(
+                permissionsService
+                        .checkPermissionToChangeSubscription(any(IUser.class),
+                                any(String.class), same(subscription)))
+                .thenReturn(noPermission);
+        when(noPermission.isAuthorized()).thenReturn(false);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -65,7 +207,8 @@ public class SubscriptionServiceMassUpdateTest extends
      */
     @Override
     void returnTwoSubscriptionNamesWhenProposeScheduleCalled() {
-        when(mockBandwidthService.proposeSchedule(subs)).thenReturn(mockProposeScheduleResponse);
+        when(mockBandwidthService.proposeSchedule(subs)).thenReturn(
+                mockProposeScheduleResponse);
         when(mockProposeScheduleResponse.getUnscheduledSubscriptions())
                 .thenReturn(subNameResults);
     }
@@ -168,5 +311,35 @@ public class SubscriptionServiceMassUpdateTest extends
     Subscription getExpectedDisplayForceApplyPromptSubscription() {
         // This test does expect a null argument to be passed, not an error
         return null;
+    }
+
+    private void userHasAllPermissions() throws VizException {
+        when(
+                permissionsService.checkPermission(any(IUser.class),
+                        anyString(), any(DataDeliveryPermission.class)))
+                .thenReturn(authorizedPermissionsResponse);
+        when(
+                permissionsService.checkPermissions(any(IUser.class),
+                        anyString(), any(DataDeliveryPermission.class)))
+                .thenReturn(authorizedPermissionsResponse);
+        when(
+                permissionsService.checkPermissionToChangeSubscription(
+                        any(IUser.class), anyString(), any(Subscription.class)))
+                .thenReturn(authorizedPermissionsResponse);
+        when(authorizedPermissionsResponse.isAuthorized()).thenReturn(true);
+    }
+
+    /**
+     * Sets a subscription to already have pending changes.
+     * 
+     * @param subscription
+     * @throws RegistryHandlerException
+     */
+    private void subscriptionAlreadyHasPendingChanges(Subscription subscription)
+            throws RegistryHandlerException {
+        when(
+                DataDeliveryHandlers.getPendingSubscriptionHandler()
+                        .getBySubscription(subscription)).thenReturn(
+                new InitialPendingSubscription());
     }
 }
