@@ -29,7 +29,6 @@ import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor.IFrameChangedListener;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 
 import org.eclipse.core.commands.Command;
@@ -40,14 +39,15 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.SubStatusLineManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.services.ISourceProviderService;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -99,6 +99,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * 12/02/11       #571         ghull       check for activePage in refreshGUIElements and in dispose()
  * 07/12/12       ###          ghull       call refreshGUIElements on paneChange. Select all panes at once instead of selecting/deselecting.
  * 07/31/12       #631         ghull       check promptOnClose preference to set isDirty.
+ * 12/12/12       #630         ghull       refreshGUIElementsForSelectedPanes()
  * 
  * </pre>
  * 
@@ -246,7 +247,33 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
         		it.update();
         	}
         }
+        
+        refreshGUIElementsForSelectedPanes();
     }
+
+    // this is called directly when a pane is selected (ie. not through a PaneChangedListener, 
+    // although it could be). 
+    //    It is meant to refresh any GUI elements that are based on values from the selected
+    // pane(s). To begin with it is only used for the Zoom Lock(Suspend) which will disable
+    // the Zoom/UnZoom buttons by setting the state in the ZoomStateSourceProvider.
+    //
+    public void refreshGUIElementsForSelectedPanes() {
+    	boolean lockZoom = false;
+    	
+    	for( IDisplayPane pane : getSelectedPanes() ) {
+    		if( ((NCMapDescriptor)pane.getDescriptor()).getSuspendZoom() ) {
+    			lockZoom = true;
+    }
+    	}
+    	
+        IWorkbenchWindow ww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        ISourceProviderService spService = 
+        	(ISourceProviderService) ww.getService(ISourceProviderService.class);
+        ZoomStateSourceProvider zoomStateSourceProvider = 
+        	(ZoomStateSourceProvider) spService.getSourceProvider(ZoomStateSourceProvider.ZOOM_STATE);
+        zoomStateSourceProvider.setZoomSuspended( lockZoom );
+    }
+    
 
     public void setDisplayName(String dispName) {
         editorInput.setName(dispName);
@@ -444,7 +471,7 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor 
         							.selectPanes( seldPanes );        	
         }
         
-        refreshGUIElements();        
+        refreshGUIElementsForSelectedPanes();        
     }
 
     // Currently this just sets the listener for 1 (the active) pane.

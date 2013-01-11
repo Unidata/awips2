@@ -49,9 +49,9 @@
          <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu?before=help">
            <menu
-               id="NCCAVE"
-               label="CAVE"
-               mnemonic="C">
+                id="NCFile"
+                label="File"
+                mnemonic="F">
              <visibleWhen>
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
@@ -96,46 +96,11 @@
                     label="Area...">
               </command>                
              </menu>
-            <menu id="perspectives" label="Perspective">
-            	<dynamic
-                   class="com.raytheon.viz.ui.personalities.awips.OpenPerspectiveMenu"
-                   id="com.raytheon.viz.ui.personalities.awips.openPerspective">
-            	</dynamic>
-            </menu>           
-             <separator
-                   name="beforePreferences"
-                   visible="true">
-             </separator>
-             <command
-                  commandId="org.eclipse.ui.window.preferences" 
-                  label="Preferences..."
-                  style="push"
-                  mnemonic="f">
-            </command> 
-            <separator
-                   name="beforeExit"
-                   visible="true">
-             </separator>
-             <command
-                   commandId="org.eclipse.ui.file.exit"
-                   label="Exit..."
-                   style="push"
-                   mnemonic="E">
-             </command> 
-         </menu> 
-           <menu
-                id="NCFile"
-                label="File"
-                mnemonic="F">
-             <visibleWhen>
-                <reference
-                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                </reference></visibleWhen>
          
-             <!-- <separator
+             <separator
                    name="beforeSaveGroup"
                    visible="true">
-             </separator> -->
+             </separator>
              <command
                    commandId="com.raytheon.viz.ui.actions.notImplemented"
                    label="Save"
@@ -224,23 +189,27 @@
              <menu
                    id="NCZoomMode"
                    label="Zoom Mode">
+                   <!--
+               <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.options.ZoomLock"
+                	      id="gov.noaa.nws.ncep.viz.ui.options.ZoomLock"
+                   label="Zoom Lock"
+                   style="radio"
+                   mnemonic="Z"
+                   tooltip="Disable Zooming">
+                </command>
+                -->                   
                 <command
                      commandId="com.raytheon.viz.ui.actions.notImplemented"
                      label="Corner"
-                     style="push">
+                     style="radio">
                 </command>
                 <command
                      commandId="com.raytheon.viz.ui.actions.notImplemented"
                      label="Center"
-                     style="push">
+                     style="radio">
                 </command>
              </menu>
-             <command
-                   commandId="com.raytheon.viz.ui.actions.notImplemented"
-                   label="Pan Share"
-                   style="toggle"
-                   mnemonic="P">
-             </command>
              <separator
                    name="beforeLoopGroup"
                    visible="true">
@@ -275,8 +244,7 @@
                    mnemonic="LL">
              </command>
            </menu>
-           <menu
-                 id="NCPredefinedArea"
+           <menu id="NCPredefinedArea"
                  label="Area"
                  mnemonic="A">
               <visibleWhen>
@@ -288,50 +256,48 @@
                    class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
                    id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
              </dynamic>
-              
-              <!--command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
-                    label="LOCAL">
-                 <parameter
-                       name="areaName"
-                       value="LOCAL">
-                 </parameter>
-              </command // redundant, but saving as comment in case want to consider placing here again for legacy position consistency-->
-              <menu
-                   id="Satellite"
-                   label="Satellite" >
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
-                    label="Fit to Screen">
-                    <parameter
-                       name="displayMode"
-                       value="fitToScreen">
-                     </parameter>
-              </command>
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
-                    label="Size of Image">
-                    <parameter
-                       name="displayMode"
-                       value="sizeOfImage">
-                     </parameter>
-              </command>
+			<menu label="From Resource">
+                 <dynamic
+                       class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromResourcesMenu"
+                       id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromResourcesMenu">
+                 </dynamic>
               </menu>
-              <!--command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea.DISABLED"
-                    label="Custom">
-                 <parameter
-                       name="areaName"
-                       value="Custom">
-                 </parameter>
-              </command-->
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
+<!-- THIS COULD BE UNCOMMENTED TO IMPLEMENT NMAPs 'GET SETTINGS' FUNCTIONALITY
+            <menu  label="From Display">
+                 <dynamic
+                       class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromDisplaysMenu"
+                       id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromDisplaysMenu">
+                 </dynamic>
+            </menu>
+ -->
+            <command  commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
                     label="Custom...">
               </command>
            </menu>
+           <!--
+           <menu id=""
+                 label="Zoom Level"
+                 mnemonic="Z">
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+              <dynamic 
+                   class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
+                   id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
+             </dynamic>
            <menu
-                 id="NCOverlays"
+                    label="Resource...">
+                 <dynamic
+                       class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
+                       id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
+                 </dynamic>
+              </menu>
+
+           </menu>
+			-->
+           <menu id="NCOverlays"
                  label="Overlays"
                  mnemonic="v">
               <visibleWhen>
@@ -867,47 +833,25 @@
             id="gov.noaa.nws.ncep.viz.ui.modalTool"
             name="Modal Tool">
       </category>
+      <!--
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
-            name="Load Predefined Area">
+            name="Load Area">
          <commandParameter
                id="areaName"
                name="areaName"
                optional="false">
          </commandParameter>
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
-            name="Switch to Satellite Area">
          <commandParameter
-               id="displayMode"
-               name="displayMode"
+               id="areaType"
+               name="areaType"
                optional="true">
          </commandParameter>
       </command>
-      <command
-            description="A command with no associated handler, to let us (temporarily) gray out inoperative selections..."
-            id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea.DISABLED"
-            name="Load Predefined Area - DISABLED">
-         <commandParameter
-               id="areaName"
-               name="areaName"
-               optional="false">
-         </commandParameter>
-      </command>
+      -->
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay"
             name="Load Overlay">
-         <commandParameter
-               id="overlayName"
-               name="overlayName"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
-            description="A command with no associated handler, to let us (temporarily) gray out inoperative selections..."
-            id="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay.DISABLED"
-            name="Load Overlay - DISABLED">
          <commandParameter
                id="overlayName"
                name="overlayName"

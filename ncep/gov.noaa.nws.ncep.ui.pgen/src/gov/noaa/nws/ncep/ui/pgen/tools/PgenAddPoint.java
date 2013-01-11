@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
@@ -177,10 +178,12 @@ public class PgenAddPoint extends AbstractPgenTool {
         			drawingLayer.removeGhostLine();
         			drawingLayer.removeSelected();
         			status = ADD_STATUS.START;
+            		mapEditor.refresh();
+
         			break;
+        		default:
+        			PgenUtil.setSelectingMode();
         		}
-      	        
-        		mapEditor.refresh();
       	        
             	return true;
             	

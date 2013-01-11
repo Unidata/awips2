@@ -7,8 +7,9 @@
 GLEVEL =  9950!0:9950
 GVCORD =  sgma!none
 SKIP   =    0/1
+FILTER=y
 SCALE  =   0
-GDPFUN =  thte(mul(1e-2,pres@0%none);tmpc;dwpc)//the!the!the
+GDPFUN =  thte(pres@0%none;tmpc;dwpc)//the!the!the
 TYPE   =    c
 CINT   =    4//296                !4/300/320!4/324
 LINE   =    30/2/2/0              !29/2/2/0 !7/2/2/1
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ BL THTE!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

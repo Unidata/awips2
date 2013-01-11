@@ -39,6 +39,10 @@
 			<xsl:call-template name="GetUntilTimeS"/>
 		</xsl:variable>
 
+		<xsl:variable name="outlookEndTime">
+			<xsl:call-template name="GetOutlookEndTimeS"/>
+		</xsl:variable>
+
 		<xsl:variable name="issueTime">
 			<xsl:call-template name="GetIssueTimeS"/>
 		</xsl:variable>
@@ -92,7 +96,7 @@
 		<xsl:if test="$numOutlooks > 0">
 			<xsl:call-template name="SierraOutlook">
 				<xsl:with-param name="outlookStart" select="$untilTime" />
-				<xsl:with-param name="outlookEnd" select="$untilTime" />
+				<xsl:with-param name="outlookEnd" select="$outlookEndTime" />
 				<xsl:with-param name="numIFR" select="$numOutlookIFR" />
 				<xsl:with-param name="numMT_OBSC" select="$numOutlookMT_OBSC" />
 			</xsl:call-template>
@@ -155,6 +159,15 @@
 		<xsl:variable name="temp">
 			<xsl:for-each select="//Gfa[(@hazard='IFR' or @hazard='MT_OBSC') and contains(@fcstHr,'-')][last()]">
 				<xsl:value-of select="@untilTime"/>
+			</xsl:for-each>
+		</xsl:variable>
+		<xsl:value-of select="$temp"/>
+	</xsl:template>
+	
+	<xsl:template name="GetOutlookEndTimeS">
+		<xsl:variable name="temp">
+			<xsl:for-each select="//Gfa[(@hazard='IFR' or @hazard='MT_OBSC') and contains(@fcstHr,'-')][last()]">
+				<xsl:value-of select="@outlookEndTime"/>
 			</xsl:for-each>
 		</xsl:variable>
 		<xsl:value-of select="$temp"/>
@@ -232,7 +245,7 @@
                 <xsl:element name="line">
                     <xsl:value-of select="$newline"/>FROM <xsl:value-of select="normalize-space(@textVor)"/></xsl:element>
                 
-                <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable>
+                <xsl:variable name="airTag"><xsl:value-of select="@airmetTag"/></xsl:variable>
                 
                 <!-- Frequency & Severity line -->
                 <xsl:if test="not( contains(@issueType, 'CAN' )) and string-length($freqSevStatement) > 1">
