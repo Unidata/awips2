@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
+import com.raytheon.uf.common.time.CalendarBuilder;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 
@@ -46,7 +47,8 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2012 0743       djohnson     Initial creation
- * Jan 02, 2012 1345       djohnson     Fix broken assertion that id matches copied object.
+ * Jan 02, 2013 1345       djohnson     Fix broken assertion that id matches copied object.
+ * Jan 11, 2013 1453       djohnson     Add test for active period crossing year boundary.
  * 
  * </pre>
  * 
@@ -175,5 +177,24 @@ public class SubscriptionTest {
 
         assertThat(subscription.getStatus(),
                 is(equalTo(SubscriptionStatus.INACTIVE.toString())));
+    }
+
+    @Test
+    public void testGetStatusReturnsActiveForSubscriptionWithinActiveWindowCrossingYearBoundary() {
+        CalendarBuilder calBuilder = new CalendarBuilder()
+                .withMonth(Calendar.JANUARY).withDayOfMonth(10).withYear(1970);
+
+        Calendar cal = calBuilder.build();
+        final Date januaryTenth = cal.getTime();
+
+        final Date januaryFirst = calBuilder.withDayOfMonth(1).build()
+                .getTime();
+
+        Subscription subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(januaryTenth)
+                .withActivePeriodEnd(januaryFirst).build();
+
+        assertThat(subscription.getStatus(),
+                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
     }
 }
