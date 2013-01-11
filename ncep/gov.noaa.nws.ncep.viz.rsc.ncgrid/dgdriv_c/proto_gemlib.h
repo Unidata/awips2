@@ -305,6 +305,8 @@ void gb_open (	char	*filnam,
 void gb_read ( int *mxgrib, int *ipack, int *iret );
 
 /* GD library */
+void gdc_gcyc (char *gdfile, char *cycles, int *iret );
+void gdc_gtmf ( char *gdfile, char  *cycle, char *availableTimes, int *iret );
 void gdc_open ( char *gdfile, int *wrtflg, int *mxanl, int *mxnav,
                 int  *iacss,  float *anl, float *rnav,
                 int  *msxgrd, int *iret );
@@ -313,6 +315,8 @@ void gd_cref ( const char*, const int*, const float*, const int*, const float*,
                const int*, const int*, int*, int*, size_t );
 void gd_geni ( char *gdfile, int *nlun, int *luns, int *iret, size_t );
 void gd_gcyc ( char*, char*, int*, char*, int *iret, ... );
+void gd_gtmf ( char *gdfile, char *gdatim, char *cycle, int *maxt, int *ngdftm,
+                char gdtlst[][20], int *iret, ... );
 void gd_init ( int *iret );
 void gd_open ( char *, int *, int *, int *, int *, float *, float *, int *,
 						int *iret, size_t);

@@ -80,6 +80,33 @@
             name="NC_Unzoom">
       </command>
       <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
+            name="Load Area">
+         <commandParameter
+               id="areaName"
+               name="areaName"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="areaType"
+               name="areaType"
+               optional="true">
+         </commandParameter>
+      </command>      
+      <command  id="gov.noaa.nws.ncep.viz.ui.actions.zoomTo"
+                name="zoomTo">
+         <commandParameter
+           	   id="zoomLevel"
+               name="zoomLevel"
+               optional="false">
+         </commandParameter> 
+	     <commandParameter
+           	   id="zoomType"
+               name="zoomType"
+               optional="false">
+         </commandParameter>                  	                 
+      </command>
+      <command
             id="gov.noaa.nws.ncep.viz.ui.newMapEditor"
             name="New Display">
            <commandParameter
@@ -92,6 +119,12 @@
             id="gov.noaa.nws.ncep.viz.ui.options.SyncPanes"
             name="geoSynchronizePanes">
       </command>
+      <!--
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.options.ZoomLock"
+            name="ZoomLock">
+      </command>
+      -->
       <command
           id="gov.noaa.nws.ncep.viz.plotModelMngr"
           name="Plot Model Manager">
@@ -222,8 +255,8 @@
             commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea">
       </handler>      
       <handler
-            class="gov.noaa.nws.ncep.viz.tools.predefinedArea.SatelliteAreaAction"
-            commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea">
+            class="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.zoomTo">
       </handler>      
       <handler
             class="gov.noaa.nws.ncep.viz.customprojection.CreateCustomProjectionHandler"
@@ -237,6 +270,12 @@
             class="gov.noaa.nws.ncep.viz.tools.syncPanes.SyncPanesOptionAction"
             commandId="gov.noaa.nws.ncep.viz.ui.options.SyncPanes">
       </handler>
+      <!--
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomLockAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.options.ZoomLockA">
+      </handler>
+      -->
       <handler
             class="gov.noaa.nws.ncep.viz.tools.plotModelMngr.PlotModelMngrAction"
             commandId="gov.noaa.nws.ncep.viz.plotModelMngr">
@@ -504,16 +543,6 @@
                 sequence="ALT+I">
          </key> 
          
-   </extension>
-   <extension
-         point="org.eclipse.ui.services">
-      <sourceProvider
-            provider="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomStateSourceProvider">
-         <variable
-               name="gov.noaa.nws.ncep.viz.tools.zoomState"
-               priorityLevel="workbench">
-         </variable>
-      </sourceProvider>
    </extension>
    
       <extension
