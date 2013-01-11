@@ -98,27 +98,17 @@ public abstract class AbstractSubscriptionServiceTest {
         subNameResults.add(sub2Name);
     }
 
+    final ISubscriptionNotificationService notificationService = mock(ISubscriptionNotificationService.class);
+
     final IBandwidthService mockBandwidthService = mock(IBandwidthService.class);
+
+    final IPermissionsService permissionsService = mock(IPermissionsService.class);
 
     final IDisplayForceApplyPrompt mockDisplay = mock(IDisplayForceApplyPrompt.class);
 
-    final SubscriptionService service = new SubscriptionService() {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        IBandwidthService getBandwidthService() {
-            return mockBandwidthService;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        IDisplayForceApplyPrompt getForceApplyPromptDisplay() {
-            return mockDisplay;
-        }
-    };
+    final SubscriptionService service = new SubscriptionService(
+            notificationService, mockBandwidthService, permissionsService,
+            mockDisplay);
 
     final IProposeScheduleResponse mockProposeScheduleResponse = mock(IProposeScheduleResponse.class);
 
@@ -350,7 +340,7 @@ public abstract class AbstractSubscriptionServiceTest {
     /**
      * When the force apply prompt is displayed, the user selects no.
      */
-    private void whenForceApplyPromptedUserSelectsCancel() {
+    protected void whenForceApplyPromptedUserSelectsCancel() {
         when(mockDisplay.getForceApplyPromptResponse()).thenReturn(
                 ForceApplyPromptResponse.CANCEL);
     }
@@ -358,7 +348,7 @@ public abstract class AbstractSubscriptionServiceTest {
     /**
      * When the force apply prompt is displayed, the user selects yes.
      */
-    private void whenForceApplyPromptedUserSelectsForceApply() {
+    protected void whenForceApplyPromptedUserSelectsForceApply() {
         when(mockDisplay.getForceApplyPromptResponse()).thenReturn(
                 ForceApplyPromptResponse.FORCE_APPLY);
     }
