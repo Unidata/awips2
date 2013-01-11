@@ -21,6 +21,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  *  05/24/12      #606       Greg Hull   Created
+ *  11/15/12      #950       Greg Hull   don't look in subdirectories of NcInventoryDefinitions.
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ public class NcInventoryInitializer {
         
         LocalizationFile[] invDefnsFiles =
         	pathMngr.listFiles( lCntxts, NCINVENTORY_DEFN_PATH, 
-        			new String[]{".xml"}, true, true );
+        			new String[]{".xml"}, false, true );
         
         for( LocalizationFile lFile : invDefnsFiles ) {
         	System.out.println("invDefn  file is :"+ lFile.getName() );
