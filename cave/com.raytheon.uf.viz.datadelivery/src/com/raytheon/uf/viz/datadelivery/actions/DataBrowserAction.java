@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -34,7 +33,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.browser.DataBrowserDlg;
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 
 /**
  * Action class. This is called when the Data Browser is selected from the CAVE
@@ -72,19 +71,16 @@ public class DataBrowserAction extends AbstractHandler {
             String msg = user.uniqueId()
                     + " is not authorized to access the Dataset Discovery Browser\nPermission: "
                     + permission;
-            DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
-            request.setUser(user);
-            request.addRequestedPermissions(permission);
-            request.setNotAuthorizedMessage(msg);
 
-            DataDeliveryAuthRequest response = DataDeliveryUtils.sendAuthorizationRequest(request);
-            if (response != null && response.isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission)
+                    .isAuthorized()) {
                 if ((dlg == null) || (dlg.isDisposed() == true)) {
-                    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    Shell shell = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getShell();
                     dlg = new DataBrowserDlg(shell);
                     dlg.open();
-                }
-                else {
+                } else {
                     dlg.bringToTop();
                 }
             }
