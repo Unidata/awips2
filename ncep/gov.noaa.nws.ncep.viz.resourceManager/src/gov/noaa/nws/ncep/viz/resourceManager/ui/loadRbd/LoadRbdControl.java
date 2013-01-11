@@ -562,7 +562,9 @@ public class LoadRbdControl extends Composite {
 			    	
 			    	for( AbstractRenderableDisplay pane : panes ) {
 			    		if( pane instanceof AbstractRenderableDisplay ) {
-			    			String area = ((NCMapRenderableDisplay)pane).getPredefinedAreaName();
+			    			
+			    			String area = ((NCMapRenderableDisplay)pane).getInitialArea().getAreaName();
+			    			
 			    			if( geoSyncArea == null ) {
 			    				geoSyncArea = area;
 			    			}

@@ -15,6 +15,7 @@
 GLEVEL =  0                                                                       
 GVCORD =  none                                                                    
 SKIP   =    0                                                                       
+FILTER=y
 SCALE  =   0                                                                       
 GDPFUN =  p06i                                                                    
 TYPE   =    f                                                                     
@@ -30,4 +31,3 @@ TITLE  =   5/-1/~ 6hr TOTAL PRECIPITATION (IN)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

@@ -43,8 +43,12 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
         @font-face { font-family: "WxSymbolFont";                
                 	 src: url(../ncep/PlotModels/NcWxSymbols.svg#NcWxSymbols); }
       
+        @font-face { font-family: "LargeSpecialSymbolFont";
+                     src: url(LargeSpecialSymbols.svg#LrgSpecialSymbols); }
+      
          @font-face { font-family: "SpecialSymbolFont";
                 src: url(SpecialSymbols.svg#SpecialSymbols); }
+            
             
 ]]>
 </style>

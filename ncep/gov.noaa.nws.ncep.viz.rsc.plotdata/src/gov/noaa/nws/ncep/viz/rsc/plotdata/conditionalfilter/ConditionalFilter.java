@@ -83,21 +83,6 @@ public class ConditionalFilter extends AbstractConditionalFilter implements ISer
         lFile = cf.lFile;
     }   
        
-    /**
-     * Creates a ConditionalFilter using name and the list of conditions in map.
-     * 
-     * @param name
-     *            Name for the new ConditionalFilter
-     * @param map
-     *            ConditionalFilter to base the conditions off of
-     */
-    public ConditionalFilter(String name, ConditionalFilter map) {
-        this.name = name;
-        conditionalFilterElements = new ArrayList<ConditionalFilterElement>();
-        conditionalFilterElements.addAll(map.getConditionalFilterElements());
-        //setConditionalFilterMap();
-    }
-      
     public ArrayList<String> getPlotParamNames() {
     	ArrayList<String> retList = new ArrayList<String>();
     	for( ConditionalFilterElement cfe : getConditionalFilterElements() ) {
@@ -109,7 +94,8 @@ public class ConditionalFilter extends AbstractConditionalFilter implements ISer
     }
     
     public String createLocalizationFilename() {
-    		return NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator + name + ".xml";
+    		return NcPathConstants.CONDITIONAL_FILTERS_DIR + File.separator + 
+    							     plugin + File.separator+name + ".xml";
     }
     
     /*
@@ -191,7 +177,24 @@ public class ConditionalFilter extends AbstractConditionalFilter implements ISer
      */
     @Override
     public String toString() {
-        return "CONDITIONALFILTER { " + getName() + " }";
+    	StringBuffer cfstr = new StringBuffer( getName() );
+    	if( !getDescription().isEmpty() ) {
+    		cfstr.append( ","+getDescription() );
+    	}
+
+    	cfstr.append( " {"+ getFilterAsString() + "}" );
+        
+    	return cfstr.toString().trim();
+    }
+
+    public String getFilterAsString() {
+    	StringBuffer cfstr = new StringBuffer();
+
+    	for( ConditionalFilterElement cfe : getConditionalFilterElements() ) {
+    		cfstr.append( 
+    				(cfstr.length() != 0 ? " AND ":"") + cfe.toString() );
+    	}
+        return cfstr.toString().trim();
     }
 
     public void setName(String aName) {
@@ -240,8 +243,8 @@ public class ConditionalFilter extends AbstractConditionalFilter implements ISer
     }
 	
     @Override
-    public IConditionalFilter clone() {
-        return new ConditionalFilter(name, this);
+    public ConditionalFilter clone() {
+        return new ConditionalFilter(this);
     }
 
 	public ConditionalFilterElement getConditionalFilterElement(int index) {
