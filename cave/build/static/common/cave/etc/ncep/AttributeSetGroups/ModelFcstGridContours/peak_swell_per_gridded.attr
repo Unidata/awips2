@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  perpw
 TYPE   =    p
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ GRIDPOINT PEAK SWELL PERIOD (sec)!0
 COLORS =  1
 MARKER =  0
 GRDLBL =                                                                         
-FILTER =  1

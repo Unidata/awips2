@@ -772,6 +772,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 				Button btn = (Button)e.widget;
 				if(btn.getSelection()){
 					fillPatternCbo.setEnabled(true);
+					fillPatternCbo.select(0);
 				}
 				else {
 					fillPatternCbo.setEnabled(false);
@@ -786,7 +787,9 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	@Override
 	public int open(){
 
+		if ( this.getShell() == null || this.getShell().isDisposed()) {
 		this.create();
+		}
 
 		if ( PgenSession.getInstance().getPgenPalette().getCurrentAction()
 				.equalsIgnoreCase("MultiSelect")
