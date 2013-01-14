@@ -78,11 +78,7 @@ public class GribModelLookup {
     private GribModelLookup() {
         models = new HashMap<String, GridModel>();
         modelsByName = new HashMap<String, GridModel>();
-        try {
-            initModelList();
-        } catch (GribException e) {
-            logger.error("Unable to initialize model list!", e);
-        }
+        initModelList();
     }
 
     public GridModel getModel(int center, int subcenter, String grid,
@@ -170,7 +166,7 @@ public class GribModelLookup {
         }
     }
 
-    private void initModelList() throws GribException {
+    private void initModelList() {
         logger.info("Initializing grib models");
         long startTime = System.currentTimeMillis();
         LocalizationContext edexStaticBase = PathManagerFactory
@@ -198,8 +194,8 @@ public class GribModelLookup {
                         GridModelSet.class);
                 modelSet.addModels(fileSet.getModels());
             } catch (Exception e) {
-                throw new GribException("Unable to unmarshal grib models file:"
-                        + modelFile);
+                logger.error("Unable to unmarshal grib models file:"
+                        + modelFile, e);
             }
         }
 
@@ -238,7 +234,7 @@ public class GribModelLookup {
      * @return
      * @throws GribException
      */
-    private List<GridModel> initCommonStaticModels() throws GribException {
+    private List<GridModel> initCommonStaticModels() {
         List<GridModel> modelSet = new ArrayList<GridModel>();
         LocalizationContext commonStaticSite = PathManagerFactory
                 .getPathManager().getContext(
@@ -283,8 +279,8 @@ public class GribModelLookup {
                     file.save();
                 }
             } catch (Exception e) {
-                throw new GribException("Unable to unmarshal grib models file:"
-                        + modelFile);
+                logger.error("Unable to unmarshal grib models file:"
+                        + modelFile, e);
             }
         }
         if (!aliasList.isEmpty()) {
