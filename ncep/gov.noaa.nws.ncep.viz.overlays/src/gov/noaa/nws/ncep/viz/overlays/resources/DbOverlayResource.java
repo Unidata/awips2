@@ -61,6 +61,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * July 20, 2009           mgao        Initial creation
  * July 30, 2009           ghull       implement INatlCntrsResource
  * Nov 18,  2009           ghull       Incorporate to11d6 changes 
+ * Oct 19, 2012  898       sgurung     Fix for fuzzy fonts
+ * 
  * </pre>
  * 
  * This class is copied over from com.raytheon.viz.core.rsc.DbMapResource
@@ -567,6 +569,8 @@ public class DbOverlayResource extends
         if (labels != null && isLabeled) {
             IFont font = aTarget.initializeFont(aTarget.getDefaultFont()
                     .getFontName(), 10, null);
+			font.setSmoothing(false);
+			font.setScaleFont(false);
 
             for (LabelNode node : labels) {
                 try {

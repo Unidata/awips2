@@ -7,6 +7,7 @@
 GLEVEL =  150
 GVCORD =  pres
 SKIP   =    0
+FILTER=y
 SCALE  =   0                             !-1
 GDPFUN =  knts((mag(wnd)))              !sm9s(hght)!kntv(wnd)
 TYPE   =    c/f                           !c         !b
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ @ HEIGHTS, ISOTACHS AND WIND    (KTS)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
