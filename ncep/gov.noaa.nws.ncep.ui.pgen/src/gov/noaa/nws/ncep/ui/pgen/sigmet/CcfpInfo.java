@@ -143,7 +143,7 @@ public class CcfpInfo {
 	public static String saveCcfpXmlFile(String it, String vt){
 		
 		Products filePrds = getCcfpFilePrds(it,vt); 
-        String fileName = PgenUtil.getWorkingDirectory()+File.separator+getCcfpFileName();
+        String fileName = PgenUtil.getPgenActivityTextProdPath()+File.separator+getCcfpFileName();
         
         FileTools.write( fileName, filePrds );
         
