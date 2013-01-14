@@ -143,6 +143,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/26/2012   1298        rferrel     Non-blocking dialog cleanup.
  * 11/28/2012   1363        rferrel     Dispose of PythonGuidanceJob when closing.
+ * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
+ * 
  * </pre>
  * 
  * @author grichard
@@ -753,7 +755,7 @@ public class TafMonitorDlg extends CaveSWTDialog {
         gl.verticalSpacing = 1;
         scrolledComp.setLayout(gl);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.heightHint = SCROLLED_COMP_HEIGHT_perStn * stationList.size();
+//        gd.heightHint = SCROLLED_COMP_HEIGHT_perStn * stationList.size(); // DR 15606
         scrolledComp.setLayoutData(gd);
         configMgr.setDefaultColors(scrolledComp);
 

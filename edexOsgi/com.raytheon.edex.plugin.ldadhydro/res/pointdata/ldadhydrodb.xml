@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version='1.0' encoding='UTF-8'?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,29 +18,11 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="Model Run Precip" abbreviation="TPmodel" internal="true">
-    <Method name="Alias" models="Metar">
-        <Field abbreviation="TP"/>
-    </Method>
-    <Method name="Alias" models="ECMWF-HiRes">
-        <Field abbreviation="TP_ECMWF"/>
-    </Method>
-    <Method name="ModelRun">
-        <Field abbreviation="TP"/>
-    </Method>    
-    <Method name="ModelRun">
-        <Field abbreviation="TP1hr"/>
-    </Method>
-    <Method name="ModelRun">
-        <Field abbreviation="TP3hr"/>
-    </Method>
-    <Method name="ModelRun">
-        <Field abbreviation="TP6hr"/>
-    </Method>
-    <Method name="ModelRun">
-        <Field abbreviation="TP12hr"/>
-    </Method>
-    <Method name="ModelRun">
-        <Field abbreviation="TP24hr"/>
-    </Method>
-</DerivedParameter>
+<pointDataDbDescription>
+  <parameter name="latitude" queryName="location.latitude" type="FLOAT" unit="°" />
+  <parameter name="longitude" queryName="location.longitude" type="FLOAT" unit="°" />
+  <parameter name="elevation" queryName="location.elevation" type="FLOAT" fillValue="-9999" unit="m" />
+  <parameter name="stationId" queryName="location.stationId" type="STRING" />
+  <parameter name="dataProvider" queryName="dataProvider" type="STRING" />
+  <parameter name="dataURI" queryName="dataURI" type="STRING" />
+</pointDataDbDescription>
