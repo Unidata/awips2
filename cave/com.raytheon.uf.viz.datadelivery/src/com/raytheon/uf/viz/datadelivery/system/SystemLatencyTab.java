@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Sep 17, 2012   730       jpiatt     Initial creation.
  * Oct 03, 2012  1241       djohnson   Use {@link DataDeliveryPermission} and registry handlers.
  * Jan 04, 2012  1420       mpduff     Add delete rule function.
+ * Jan 14, 2013  1286       djohnson   Rule list is single item selectable.
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class SystemLatencyTab {
         gd.heightHint = 200;
 
         latencyList = new List(latencyComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         latencyList.setLayoutData(gd);
         latencyList.addSelectionListener(new SelectionAdapter() {
             @Override

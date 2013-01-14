@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 20, 2012 1286       djohnson    Add showYesNoMessage.
  * Dec 20, 2012 1413       bgonzale    Added PendingSubColumnNames.valueOfColumnName(String).
  * Jan 10, 2013 1420       mdpuff      Added getMaxLatency().
+ * Jan 14, 2013 1286       djohnson     Fix IndexOutOfBounds exception from getMaxLatency.
  * </pre>
  * 
  * @author mpduff
@@ -554,9 +555,11 @@ public class DataDeliveryUtils {
         Collections.sort(cycles);
         int max = TimeUtil.HOURS_PER_DAY * TimeUtil.MINUTES_PER_HOUR;
 
-        for (int i = 0; i < cycles.size(); i++) {
-            if (i + 1 <= cycles.size()) {
-                int tempMax = cycles.get(i + 1) - cycles.get(i);
+        final int size = cycles.size();
+        for (int i = 0; i < size; i++) {
+            final int nextIndex = i + 1;
+            if (nextIndex < size) {
+                int tempMax = cycles.get(nextIndex) - cycles.get(i);
                 if (tempMax > max) {
                     max = tempMax;
                 }
