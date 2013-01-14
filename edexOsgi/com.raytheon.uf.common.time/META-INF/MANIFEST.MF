@@ -18,5 +18,7 @@ Import-Package: javax.persistence,
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization 
 Export-Package: com.raytheon.uf.common.time,
  com.raytheon.uf.common.time.adapter,
+ com.raytheon.uf.common.time.domain,
+ com.raytheon.uf.common.time.domain.api,
  com.raytheon.uf.common.time.msgs,
  com.raytheon.uf.common.time.util
