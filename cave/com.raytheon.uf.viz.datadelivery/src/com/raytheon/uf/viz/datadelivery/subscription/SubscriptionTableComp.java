@@ -99,6 +99,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Oct 03, 2012  1241      djohnson     Use {@link DataDeliveryPermission} and registry handlers.
  * Dec 03, 2012  1279      mpduff       Add ability to populate from a list of subscription names.
  * Dec 12, 2012  1391      bgonzale     Added a job for subscription retrieves.
+ * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
  * 
  * </pre>
  * 
@@ -163,6 +164,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         super(parent, tableConfig, true);
 
         this.subType = subType;
+        this.subActionCallback = callback;
 
         init();
     }
@@ -336,8 +338,13 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      *            Table column.
      */
     private void handleColumnSelection(TableColumn tc) {
+        SortDirection sortDirection = updateSortDirection(tc, subManagerData,
+                true);
 
-        updateSortDirection(tc, subManagerData, true);
+        // update the xml
+        SubscriptionConfigurationManager man = SubscriptionConfigurationManager
+                .getInstance();
+        man.setSortedColumn(tc.getText(), sortDirection);
 
         // Populate the data
         populateData();
@@ -658,6 +665,13 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                 TableColumn tc = new TableColumn(table, SWT.NONE);
                 tc.setText(column.getName());
                 tc.setAlignment(alignmentMap.get(column.getName()));
+                if (column.isSortColumn()) {
+                    SortDirection direction = column.isSortAsc() ? SortDirection.ASCENDING
+                            : SortDirection.DESCENDING;
+                    sortedColumn = tc;
+                    subManagerData.setSortDirection(direction);
+                    subManagerData.setSortColumn(column.getName());
+                }
                 tc.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
@@ -701,6 +715,13 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                         } else {
                             item.setText(idx++, text);
                         }
+                        if (columnXml.isSortColumn()) {
+                            SortDirection direction = columnXml.isSortAsc() ? SortDirection.ASCENDING
+                                    : SortDirection.DESCENDING;
+                            sortedColumn = column;
+                            subManagerData.setSortDirection(direction);
+                            subManagerData.setSortColumn(columnXml.getName());
+                        }
                     }
                 }
             }
@@ -708,10 +729,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
         if (table.getItemCount() > 0) {
             if (sortedColumn == null || sortedColumn.isDisposed()) {
-                sortedColumn = table.getColumn(0);
-                subManagerData.setSortColumn(sortedColumn.getText());
-            } else {
-                subManagerData.setSortColumn(sortedColumn.getText());
+                // use default sort column settings
+                TableColumn column = table.getColumn(0);
+                subManagerData.setSortDirection(SortDirection.ASCENDING);
+                subManagerData.setSortColumn(column.getText());
             }
         }
         updateColumnSortImage();
