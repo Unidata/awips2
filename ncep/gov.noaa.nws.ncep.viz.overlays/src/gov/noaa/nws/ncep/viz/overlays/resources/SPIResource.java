@@ -53,6 +53,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
  *    12/1/2009                 ghull       to11d6 : Reference ncep data directory
  *    07/28/2011    450         ghull       NcPathManager
  *    08/17/12      655         B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ *    10/19/2012    898         sgurung     Fix for fuzzy fonts
  *    
  * </pre>
  * 
@@ -192,6 +193,8 @@ public class SPIResource extends AbstractVizResource<SPIResourceData, MapDescrip
 //					(float) (12 * markerTextSize.getSoftwareSize() * mapDescriptor.getMagnification()), null);
 			IFont font = target.initializeFont("Monospace",
 					(float) (12 * spiResourceData.getMarkerTextSize().getSoftwareSize()), null);
+			font.setSmoothing(false);
+			font.setScaleFont(false);
 
 			Rectangle2D charSize = target.getStringBounds(font, "N");
 			double charWidth = charSize.getWidth();
