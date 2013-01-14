@@ -6,7 +6,6 @@ import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcGridInventory;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
@@ -15,8 +14,6 @@ import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
 import gov.noaa.nws.ncep.viz.tools.imageProperties.FadeDisplay;
-import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
@@ -32,7 +29,6 @@ import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -86,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 05/17/2012               X. Guo      Changed "true" to "false" to initialize NcGridInventory
  * 06/01/2012   #815        G. Hull     Create DESK Level for Localization.
  * 06/13/2012   #817        G. Hull     for -spf arg, create one rbdLoader and call initTimeline on the rbds.
+ * 12/12/1212   #630        G. Hull     rm check for suspendZoom in displayChangeLister. code moved to refreshGUIElements 
  *                                        
  * </pre>
  * 
@@ -143,18 +140,6 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 				if( container instanceof AbstractNcEditor ) {
 					((AbstractNcEditor)container).refreshGUIElements();
 				}
-
-                IDescriptor desc = container.getActiveDisplayPane()
-                        .getDescriptor();
-                if (desc instanceof NCMapDescriptor) {
-                    if (((NCMapDescriptor) desc).getSuspendZoom())
-                        ZoomUtil.disableZoomTools();
-                    else
-                        ZoomUtil.enableZoomTools();
-                } else {
-                    ZoomUtil.enableZoomTools();
-                }
-
 			}
 		};
 				
@@ -261,11 +246,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         
         if( rbdsToLoad.isEmpty() ) {
         	try {
-        		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-        				NcPathConstants.DFLT_RBD );
-        		RbdBundle dfltRbd = RbdBundle.unmarshalRBD( rbdFile, null );
-                dfltRbd.resolveLatestCycleTimes();// shouldn't need this but
-                                                  // just in case
+                RbdBundle dfltRbd = RbdBundle.getDefaultRBD();
         		rbdsToLoad.add( dfltRbd );
         		
             } catch (Exception ve) {
