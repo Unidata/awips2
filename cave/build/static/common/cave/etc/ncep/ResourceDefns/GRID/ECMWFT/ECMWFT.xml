@@ -6,7 +6,7 @@
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=ecmwft
-pluginName=ncgrib
+pluginName=grid
 eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>
