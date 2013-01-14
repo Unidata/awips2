@@ -604,6 +604,15 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             int idx = frameIndex;
             if (frames != null) {
                 frames = Arrays.copyOf(frames, frames.length);
+                if (idx < 0 || idx >= frames.length) {
+                    // This only happens for 4-panels with shared time managers.
+                    idx = frames.length - 1;
+                }
+            } else {
+                // It should already be -1 already but this is here for
+                // certain 4 panels where the time manager is shared and the
+                // index and frames are out of sync.
+                idx = -1;
             }
             Map<AbstractVizResource<?, ?>, DataTime[]> timeMap = new HashMap<AbstractVizResource<?, ?>, DataTime[]>(
                     timeMatchingMap);
