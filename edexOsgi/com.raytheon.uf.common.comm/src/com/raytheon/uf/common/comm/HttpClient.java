@@ -22,6 +22,7 @@ package com.raytheon.uf.common.comm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,6 +72,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    03/02/11      #8045       rferrel     Add connect reestablished message.
  *    07/17/12    #911         njensen    Refactored significantly
  *    08/09/12     15307        snaples   Added putEntitiy in postStreamingEntity.
+ *    01/07/13     DR 15294     D. Friedman  Added streaming requests.
  * 
  * </pre>
  * 
@@ -435,6 +437,95 @@ public class HttpClient {
     }
 
     /**
+     * Post a message to an http address, and return the result as a byte array.
+     * <p>
+     * Implementation note: The given stream handler will be used at least
+     * twice:  Once to determine the length, another to actually send the
+     * content.  This is done because pypies does not accept chunked requests
+     * bodies.
+     *
+     * @param address
+     * @param handler the handler responsible for generating the message to be posted
+     * @return
+     * @throws CommunicationException
+     */
+    public byte[] postBinary(String address, OStreamHandler handler) throws CommunicationException {
+        class OStreamEntity extends AbstractHttpEntity {
+            OStreamHandler handler;
+            long contentLength = -1;
+
+            public OStreamEntity(OStreamHandler handler) {
+                this.handler = handler;
+            }
+
+            @Override
+            public InputStream getContent() throws IOException,
+                    IllegalStateException {
+                throw new IllegalStateException("OStreamEntity does not support getContent().");
+            }
+
+            @Override
+            public long getContentLength() {
+                if (contentLength < 0) {
+                    class CountingStream extends OutputStream {
+                        long count;
+
+                        @Override
+                        public void write(int b) throws IOException {
+                            ++count;
+                        }
+
+                        @Override
+                        public void write(byte[] b) throws IOException {
+                            count += b.length;
+                        }
+
+                        @Override
+                        public void write(byte[] b, int off, int len)
+                                throws IOException {
+                            count += len;
+                        }
+                    }
+
+                    CountingStream cs = new CountingStream();
+                    try {
+                        handler.writeToStream(cs);
+                        contentLength = cs.count;
+                    } catch (CommunicationException e) {
+                        // ignore
+                    }
+                }
+                return contentLength;
+            }
+
+            @Override
+            public boolean isRepeatable() {
+                return true;
+            }
+
+            @Override
+            public boolean isStreaming() {
+                return false;
+            }
+
+            @Override
+            public void writeTo(OutputStream stream) throws IOException {
+                try {
+                    handler.writeToStream(stream);
+                } catch (CommunicationException e) {
+                    throw new IOException(e.getMessage(), e.getCause());
+                }
+            }
+        }
+
+        OStreamEntity entity = new OStreamEntity(handler);
+        HttpPost put = new HttpPost(address);
+        put.setEntity(entity);
+
+        return executePostMethod(put);
+    }
+
+    /**
      * Post a string to an endpoint and stream the result back.
      * 
      * The result should be handled inside of the handlerCallback
@@ -590,6 +681,15 @@ public class HttpClient {
          */
         public abstract void handleStream(InputStream is)
                 throws CommunicationException;
+    }
+
+    /**
+     * Responsible for writing HTTP content to a stream.  May be called
+     * more than once for a given entity.  See postBinary(String, OStreamHandler)
+     * for details.
+     */
+    public static interface OStreamHandler {
+        public void writeToStream(OutputStream os) throws CommunicationException;
     }
 
     /**

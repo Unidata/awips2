@@ -2,11 +2,13 @@ package com.raytheon.uf.common.pypies;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.datastorage.DuplicateRecordStorageException;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -31,6 +33,8 @@ import com.raytheon.uf.common.pypies.response.ErrorResponse;
 import com.raytheon.uf.common.pypies.response.FileActionResponse;
 import com.raytheon.uf.common.pypies.response.RetrieveResponse;
 import com.raytheon.uf.common.pypies.response.StoreResponse;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
@@ -66,6 +70,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * May 27, 2010            njensen     Initial creation
  * Oct 01, 2010            rjpeter     Added logging of requests over 300ms
+ * Mon 07, 2013  DR 15294  D. Friedman Stream large requests
  * </pre>
  * 
  * @author njensen
@@ -75,6 +80,8 @@ import com.raytheon.uf.common.util.FileUtil;
 public class PyPiesDataStore implements IDataStore {
 
     private static final long SIMPLE_LOG_TIME = 300;
+
+    private static final long HUGE_REQUEST = 1024 * 1024 * 25;
 
     protected static String address = null;
 
@@ -276,9 +283,19 @@ public class PyPiesDataStore implements IDataStore {
         req.setOp(storeOp);
         req.setRecords(records);
 
+        boolean huge = false;
+        long totalSize = 0;
+        for (IDataRecord rec : records) {
+            totalSize += rec.getSizeInBytes();
+            if (totalSize >= HUGE_REQUEST) {
+                huge = true;
+                break;
+            }
+        }
+
         StorageStatus ss = null;
         try {
-            StoreResponse sr = (StoreResponse) sendRequest(req);
+            StoreResponse sr = (StoreResponse) sendRequest(req, huge);
             ss = sr.getStatus();
             String[] exc = sr.getExceptions();
             IDataRecord[] failed = sr.getFailedRecords();
@@ -327,17 +344,20 @@ public class PyPiesDataStore implements IDataStore {
         return ss;
     }
 
-    protected Object sendRequest(final AbstractRequest obj)
+    protected Object sendRequest(final AbstractRequest obj) throws StorageException {
+        return sendRequest(obj, false);
+    }
+
+    protected Object sendRequest(final AbstractRequest obj, boolean huge)
             throws StorageException {
         obj.setFilename(filename);
-        byte[] bytes = serializeRequest(obj);
 
         initializeProperties();
 
         byte[] result = null;
         long t0 = System.currentTimeMillis();
         try {
-            result = HttpClient.getInstance().postBinary(address, bytes);
+            result = doSendRequest(obj, huge);
         } catch (Exception e) {
             throw new StorageException(
                     "Error communicating with pypies server", null, e);
@@ -357,6 +377,24 @@ public class PyPiesDataStore implements IDataStore {
         }
 
         return ret;
+    }
+
+    protected byte[] doSendRequest(final AbstractRequest obj, boolean huge) throws Exception {
+        if (huge) {
+            return HttpClient.getInstance().postBinary(address, new HttpClient.OStreamHandler() {
+                @Override
+                public void writeToStream(OutputStream os) throws CommunicationException {
+                    try {
+                        DynamicSerializationManager.getManager(SerializationType.Thrift).serialize(obj, os);
+                    } catch (SerializationException e) {
+                        throw new CommunicationException(e);
+                    }
+                }
+            });
+        } else {
+            byte[] bytes = serializeRequest(obj);
+            return HttpClient.getInstance().postBinary(address, bytes);
+        }
     }
 
     /**
