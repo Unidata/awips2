@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Apr 11, 2012  #14691    Qinglu Lin  For marine warnings, getFeAreaField() returns null.
  *                                     So, do not add the returned value of getFeAreaField() 
  *                                     to areaFields.
+ * Jan  9, 2013   15600    Qinglu Lin  Execute "timezones = myTimeZones;" even if timezones != null.                                 
  * 
  * </pre>
  * 
@@ -118,9 +119,7 @@ public class GeospatialFactory {
         GeospatialData[] parentAreas = dataSet.getParentAreas();
         GeospatialData[] myTimeZones = dataSet.getTimezones();
         if (myTimeZones != null && myTimeZones.length > 0) {
-            if (timezones == null) {
-                timezones = myTimeZones;
-            }
+        	timezones = myTimeZones;
 
             for (GeospatialData tz : myTimeZones) {
                 tz.prepGeom = PreparedGeometryFactory.prepare(tz.geometry);
