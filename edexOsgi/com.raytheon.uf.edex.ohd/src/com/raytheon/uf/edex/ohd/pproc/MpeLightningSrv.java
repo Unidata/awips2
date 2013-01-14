@@ -38,8 +38,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -54,6 +52,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date              Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 06, 2011       5951      jnjanga     Initial creation
+ * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -112,17 +111,12 @@ public class MpeLightningSrv {
             // set up a lightning record
             BinLightningRecord ltngRec = new BinLightningRecord(dataURI);
 
-            EnvProperties properties = PropertiesFactory.getInstance()
-                    .getEnvProperties();
-            ;
-            String hdf5Dir = properties.getEnvValue("HDF5DIR");
-
             // create custom path provider for binlightning repository
             BinLightningPathProvider pathProvider = BinLightningPathProvider
                     .getInstance();
 
             // obtain the hdf5 filename
-            String persistDir = hdf5Dir + pathProvider.getHDFPath(ltngRec)
+            String persistDir = pathProvider.getHDFPath(ltngRec)
                     + File.separator;
             String archive = pathProvider.getHDFFileName(
                     ltngRec.getPluginName(), ltngRec);
