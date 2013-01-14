@@ -19,17 +19,12 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -58,35 +53,23 @@ import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
-import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
-import com.raytheon.uf.viz.datadelivery.notification.xml.PrioritySettingXML;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionTableComp.SubscriptionType;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalDlg;
-import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
@@ -127,7 +110,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Dec 12, 2012 1433       bgonzale   Refresh after subscription copy.
  * Dec 18, 2012 1440       mpduff     Only open edit group dialog if there are group(s) to edit.
  * Jan 02, 2013 1441       djohnson   Add ability to delete groups.
- * 
+ * Jan 03, 2013 1437       bgonzale   Moved configuration file management code to SubscriptionManagerConfigDlg
+ *                                    and SubscriptionConfigurationManager.
  * </pre>
  * 
  * @author mpduff
@@ -191,27 +175,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** Help Dialog */
     private final SubscriptionHelpDlg help = null;
 
-    /** JAXB context */
-    private JAXBContext jax;
-
-    /** Unmarshaller object */
-    private Unmarshaller unmarshaller;
-
-    /** Path of the Subscription Configuration xml file */
-    private final String CONFIG_PATH = FileUtil.join("dataDelivery",
-            "subscriptionManagerConfig");
-
-    /** Path of the Default Subscription Configuration xml file */
-    private final String DEFAULT_CONFIG = FileUtil.join("dataDelivery",
-            "DefaultSubscriptionConfig.xml");
-
-    /** Path of the Default Subscription Configuration xml file */
-    private final String DEFAULT_CONFIG_XML = FileUtil.join(
-            "subscriptionManagerConfig", "DefaultSubscriptionConfig.xml");
-
-    /** Current localization file */
-    private LocalizationFile currentFile = null;
-
     /** Subscription table composite. */
     private SubscriptionTableComp tableComp;
 
@@ -261,7 +224,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
 
         setText("Data Delivery Subscription Manager");
-        createContext();
+    }
+
+    @Override
+    protected void disposed() {
+        super.disposed();
+        // save any table sort direction changes
+        SubscriptionConfigurationManager.getInstance().saveXml();
     }
 
     /*
@@ -360,49 +329,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleGroupCreate(true);
-            }
-        });
-
-        MenuItem setDefaultMI = new MenuItem(fileMenu, SWT.NONE);
-        setDefaultMI.setText("&Set as Default");
-        setDefaultMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                handleSetDefault();
-            }
-        });
-
-        MenuItem loadConfigMI = new MenuItem(fileMenu, SWT.NONE);
-        loadConfigMI.setText("&Load Configuration...");
-        loadConfigMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                try {
-                    handleLoadConfig();
-                } catch (JAXBException e) {
-                    statusHandler
-                            .handle(com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
-                                    e.getLocalizedMessage(), e);
-                }
-            }
-        });
-
-        MenuItem saveConfigMI = new MenuItem(fileMenu, SWT.NONE);
-        saveConfigMI.setText("&Save Configuration");
-        saveConfigMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                handleSaveConfig();
-            }
-
-        });
-
-        MenuItem saveConfigAsMI = new MenuItem(fileMenu, SWT.NONE);
-        saveConfigAsMI.setText("&Save Configuration As...");
-        saveConfigAsMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                handleSaveAsConfig();
             }
         });
 
@@ -677,99 +603,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-    }
-
-    /**
-     * Set the default configuration.
-     */
-    private void handleSetDefault() {
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-
-        String fileName = "dataDelivery" + File.separator + DEFAULT_CONFIG_XML;
-
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-
-        LocalizationFile locFile = pm.getLocalizationFile(context, fileName);
-
-        try {
-
-            configMan.setConfigFile(locFile);
-            configMan.saveXml();
-
-        } catch (Exception e) {
-            statusHandler.handle(
-                    com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
-                    e.getLocalizedMessage(), e);
-        }
-
-    }
-
-    /**
-     * Load a configuration.
-     * 
-     * @throws JAXBException
-     */
-    private void handleLoadConfig() throws JAXBException {
-
-        SubscriptionManagerConfigXML xml = new SubscriptionManagerConfigXML();
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.OPEN, CONFIG_PATH, DEFAULT_CONFIG, true);
-
-        // open the Load Configuration
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
-
-        if (fileName == null) {
-            return;
-        }
-
-        currentFile = fileName;
-
-        // Get the name of the selected file
-        File file = fileName.getFile();
-
-        xml = (SubscriptionManagerConfigXML) unmarshaller.unmarshal(file);
-
-        // set the configuration to the selected file
-        configMan.setXml(xml);
-        tableChanged();
-    }
-
-    /**
-     * Save the configuration.
-     */
-    private void handleSaveConfig() {
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-
-        if (currentFile == null) {
-            handleSaveAsConfig();
-        } else {
-
-            configMan.setConfigFile(currentFile);
-            configMan.saveXml();
-        }
-    }
-
-    /**
-     * Save the configuration as a new name.
-     */
-    private void handleSaveAsConfig() {
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, CONFIG_PATH, DEFAULT_CONFIG);
-
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
-
-        configMan.setConfigFile(fileName);
-        configMan.saveXml();
     }
 
     /**
@@ -1165,25 +998,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
     }
 
-    /**
-     * Create the JAXB context
-     */
-    @SuppressWarnings("rawtypes")
-    private void createContext() {
-        Class[] classes = new Class[] { SubscriptionManagerConfigXML.class,
-                MessageLoadXML.class, PrioritySettingXML.class };
-
-        try {
-            jax = JAXBContext.newInstance(classes);
-            this.unmarshaller = jax.createUnmarshaller();
-            // this.marshaller = jax.createMarshaller();
-        } catch (JAXBException e) {
-            statusHandler.handle(
-                    com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
-                    e.getLocalizedMessage(), e);
-        }
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -1221,7 +1035,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 }
             }
         }
-
+        tableComp.updateSortDirection(sortedTableColumn,
+                tableComp.getSubscriptionData(), false);
         tableComp.populateTable();
     }
 
