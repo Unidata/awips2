@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
@@ -278,9 +277,8 @@ public class MainSequenceCrawler extends Crawler {
                 if (!coll.isIgnore()) {
                     List<Date> datesToCrawl = new ArrayList<Date>();
                     Date date = TimeUtil.newImmutableDate();
-                    long postedFileDelayMilliseconds = TimeUnit.MILLISECONDS
-                            .convert(provider.getPostedFileDelayValue(),
-                                    provider.getPostedFileDelayUnits());
+                    long postedFileDelayMilliseconds = provider
+                            .getPostedFileDelay().getMillis();
 
                     if (postedFileDelayMilliseconds > 0) {
                         // Check whether the posted file delay would place us in
