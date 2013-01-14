@@ -53,6 +53,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
@@ -88,6 +89,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * ------------ ----------  ----------- --------------------------
  * 04/03/10     4494        D. Hladky   Initial release
  * 12/07/12     1353        rferrel     Changes for non-blocking FFMPSplash.
+ * 01/10/13     1475        D. Hladky   Cleaned up some logging.
  * 
  * </pre>
  * 
@@ -694,7 +696,7 @@ public class FFMPMonitor extends ResourceMonitor {
             if (source.getSourceType().equals(
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
 
-                long timeOffset = source.getExpirationMinutes(siteKey) * 1000 * 60;
+                long timeOffset = source.getExpirationMinutes(siteKey) * TimeUtil.MILLIS_PER_MINUTE;
                 earliestTime = new Date(time.getTime() - timeOffset);
             }
 
@@ -977,7 +979,7 @@ public class FFMPMonitor extends ResourceMonitor {
             hucsToLoad.clear();
             hucsToLoad.add("ALL");
             timeBack = new Date(resource.getMostRecentTime().getTime()
-                    - (3600 * 1000 * 24));
+                    - (TimeUtil.MILLIS_PER_HOUR * 24));
         }
 
         frd.floader = new FFMPDataLoader(frd, timeBack, startTime, loadType,
@@ -1149,10 +1151,13 @@ public class FFMPMonitor extends ResourceMonitor {
             res.getResourceData().floader = null;
             int val = siteCount.get(res.getSiteKey());
 
-            // clear out the cache
-            for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(
-                    res.getSiteKey()).entrySet()) {
-                entry.getValue().closeCache();
+            // never opened a cache
+            if (ffmpData.get(res.getSiteKey()) != null) {
+                // clear out the cache
+                for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(
+						res.getSiteKey()).entrySet()) {
+                    entry.getValue().closeCache();
+                }
             }
 
             if ((val == 1) && (siteCount.size() > 1)) {
@@ -2426,9 +2431,11 @@ public class FFMPMonitor extends ResourceMonitor {
                         }
                     } else {
                         try {
-                            statusHandler.handle(Priority.INFO,
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.handle(Priority.DEBUG,
                                     "Retrieving and Populating URI: , "
                                             + dataUri);
+                            }
                             curRecord.retrieveMapFromDataStore(dataStore,
                                     dataUri,
                                     getTemplates(fffmpRec.getSiteKey()), fhuc,
