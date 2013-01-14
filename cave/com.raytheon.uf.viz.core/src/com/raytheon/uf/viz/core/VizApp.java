@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    ------------	----------	-----------	--------------------------
  *    7/1/06                    chammack    Initial Creation.
  *    Sep 12, 2012  1167        djohnson    Add datadelivery servers.
+ *    Jan 14, 2013  1469        bkowal      Removed the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -78,8 +79,6 @@ public final class VizApp {
     private static String dataDeliveryLcmServer;
 
     private static String dataDeliveryQueryServer;
-
-    private static String serverDataDir;
 
     static {
         ManagementFactory.getRuntimeMXBean().getName();
@@ -255,14 +254,6 @@ public final class VizApp {
 
     public static void setPypiesServer(String pypiesServer) {
         VizApp.pypiesServer = pypiesServer;
-    }
-
-    public static String getServerDataDir() {
-        return VizApp.serverDataDir;
-    }
-
-    public static void setServerDataDir(String serverDataDir) {
-        VizApp.serverDataDir = serverDataDir;
     }
 
     private static String host = null;
