@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
+ * Jan 14, 2013 1469      bkowal       Removed the hdf5 data directory
  * 
  * </pre>
  * 
@@ -53,9 +54,6 @@ public class GetServersResponse implements ISerializableObject {
 
     @DynamicSerializeElement
     private String pypiesServer;
-
-    @DynamicSerializeElement
-    private String serverDataDir;
 
     @DynamicSerializeElement
     private Map<String, String> serverLocations;
@@ -82,14 +80,6 @@ public class GetServersResponse implements ISerializableObject {
 
     public void setPypiesServer(String pypiesServer) {
         this.pypiesServer = pypiesServer;
-    }
-
-    public String getServerDataDir() {
-        return serverDataDir;
-    }
-
-    public void setServerDataDir(String serverDataDir) {
-        this.serverDataDir = serverDataDir;
     }
 
     /**
