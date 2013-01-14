@@ -54,6 +54,8 @@ import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Feb 15, 2007             chammack    Initial Creation.
+ * Jan 14, 2013 1469        bkowal      The hdf5 data directory is no longer included in the
+ *                                      DATA_FILE
  * 
  * </pre>
  * 
@@ -65,7 +67,7 @@ public class TopoTileSet extends FileBasedTileSet {
     private static String DATA_FILE = "/topo/srtm30.hdf";
 
     static {
-        DATA_FILE = new File(VizApp.getServerDataDir(), DATA_FILE)
+        DATA_FILE = new File(DATA_FILE)
                 .getAbsolutePath();
     }
 
