@@ -103,6 +103,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
  *                                     to search only COMMON_STATIC.
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
+ * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
+ *                                     from the environment.
  * </pre>
  * 
  * @author bphillip
@@ -118,10 +120,6 @@ public abstract class PluginDao extends CoreDao {
 
     /** The hdf5 file system suffix */
     public static final String HDF5_SUFFIX = ".h5";
-
-    /** The base path of the hdf5 data store */
-    public static final String HDF5_DIR = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("HDF5DIR");
 
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
@@ -156,8 +154,7 @@ public abstract class PluginDao extends CoreDao {
         }
 
         this.pluginName = pluginName;
-        PLUGIN_HDF5_DIR = HDF5_DIR + File.separator + pluginName
-                + File.separator;
+        PLUGIN_HDF5_DIR = pluginName + File.separator;
         dupCheckSql = dupCheckSql.replace(":tableName", PluginFactory
                 .getInstance().getPrimaryTable(pluginName));
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
@@ -227,9 +224,7 @@ public abstract class PluginDao extends CoreDao {
                 IPersistable persistable = (IPersistable) pdo;
 
                 // get the directory
-                String directory = HDF5_DIR
-                        + File.separator
-                        + pdo.getPluginName()
+                String directory = pdo.getPluginName()
                         + File.separator
                         + pathProvider.getHDFPath(pdo.getPluginName(),
                                 persistable);
