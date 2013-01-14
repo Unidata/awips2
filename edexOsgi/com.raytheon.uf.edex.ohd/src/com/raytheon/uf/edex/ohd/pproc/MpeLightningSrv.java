@@ -37,6 +37,7 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -54,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date              Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 06, 2011       5951      jnjanga     Initial creation
+ * Jan 10, 2013 1448       bgonzale    Added app context check in runOnSchedule().
  * 
  * </pre>
  * 
@@ -218,6 +220,9 @@ public class MpeLightningSrv {
      * @throws EdexException
      */
     public void runOnSchedule() throws EdexException {
+        if (!AppsDefaults.getInstance().setAppContext(this)) {
+            return;
+        }
         QueryResultRow[] rows = getMostRecentStrikes();
         ifhsInsertMostRecentStrikes(rows);
     }
