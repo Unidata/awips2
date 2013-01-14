@@ -3,11 +3,8 @@ package com.raytheon.uf.common.datadelivery.registry;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -22,6 +19,8 @@ import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.domain.Durations;
+import com.raytheon.uf.common.time.domain.api.IDuration;
 
 /**
  * 
@@ -62,8 +61,9 @@ public class Provider implements ISerializableObject {
      * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
-     * Feb 16, 2012            dhladky     Initial creation
+     * Feb 16, 2012            dhladky      Initial creation
      * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+     * Jan 14, 2013 1286       djohnson     Extracted {@link IDuration}.
      * 
      * </pre>
      * 
@@ -167,16 +167,9 @@ public class Provider implements ISerializableObject {
     @SlotAttribute
     private ServiceType serviceType;
 
-    // NOTE: The @XmlElement is on the getter because JAXB must call the setter
-    // for this value
+    @XmlElement
     @DynamicSerializeElement
-    private String postedFileDelay;
-
-    @Transient
-    private int postedFileDelayValue = 0;
-
-    @Transient
-    private TimeUnit postedFileDelayUnits = TimeUnit.HOURS;
+    private IDuration postedFileDelay = Durations.ZERO;
 
     /**
      * The amount of time that should elapse between HTTP requests while
@@ -225,27 +218,8 @@ public class Provider implements ISerializableObject {
     /**
      * @return the postedFileDelay
      */
-    @XmlElement(name = "postedFileDelay")
-    public String getPostedFileDelay() {
+    public IDuration getPostedFileDelay() {
         return postedFileDelay;
-    }
-
-    /**
-     * Return the {@link TimeUnit} for the posted file delay.
-     * 
-     * @return the {@link TimeUnit}
-     */
-    public TimeUnit getPostedFileDelayUnits() {
-        return postedFileDelayUnits;
-    }
-
-    /**
-     * Return the value of the posted file delay.
-     * 
-     * @return the value
-     */
-    public int getPostedFileDelayValue() {
-        return postedFileDelayValue;
     }
 
     public List<Projection> getProjection() {
@@ -321,25 +295,10 @@ public class Provider implements ISerializableObject {
      *             if the string value cannot be parsed into a value and/or
      *             units
      */
-    public void setPostedFileDelay(String postedFileDelay) {
+    public void setPostedFileDelay(IDuration postedFileDelay) {
         checkNotNull(postedFileDelay, "postedFileDelay cannot be null!");
 
         this.postedFileDelay = postedFileDelay;
-
-        Matcher matcher = POSTED_FILE_DELAY_PATTERN.matcher(postedFileDelay);
-        if (matcher.matches()) {
-            postedFileDelayValue = Integer.parseInt(matcher.group(1));
-            String units = matcher.group(2);
-            postedFileDelayUnits = TimeUnit.valueOf(units);
-
-            if (postedFileDelayUnits == null) {
-                throw new IllegalArgumentException(units
-                        + " cannot be parsed into a valid units instance!");
-            }
-        } else {
-            throw new IllegalArgumentException(postedFileDelay
-                    + " cannot be parsed into a valid value and units!");
-        }
     }
 
     public void setProjection(List<Projection> projection) {
