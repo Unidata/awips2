@@ -7,6 +7,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  kntv(wnd)
 TYPE   =    b
@@ -22,4 +23,3 @@ TITLE  =   1/-1/~ SFC WIND    (KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

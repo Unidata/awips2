@@ -8,8 +8,9 @@
 GLEVEL =  850!400:250!400:250!850!850!1000
 GVCORD =  pres!pres!pres!pres!pres!pres
 SKIP   =    0/2
+FILTER=y
 SCALE  =   0!6!6!0!0!0
-GDPFUN =  (thte(pres;tmpc;dwpc))//te!pvor(thta,wnd)//pv!pv!te!te!sm5s(mul(1e-2,psml)))!kntv(wnd@300%pres)
+GDPFUN =  (thte(pres;tmpc;dwpc))//te!pvor(thta,wnd)//pv!pv!te!te!sm5s(psml)!kntv(wnd@300%pres)
 TYPE   =    c/f!c/f!c ! ! ! ! b
 CINT   =    4/332!1/1/4!2/6!4/308/328!4/292/304!4//1012
 LINE   =    21/1/2!6/1/2/2!32/1/2/1!21/10/3!23/10/3!20//3
@@ -23,4 +24,3 @@ TITLE  =   1/-1/~ 400-250mb PV,300mb WIND    (KTS) and 850mb THTAE!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
