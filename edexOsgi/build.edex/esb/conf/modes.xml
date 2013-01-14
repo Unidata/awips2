@@ -139,6 +139,7 @@
 	</mode>
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
+	    <include>nwsauth-request.xml</include>
 		<include>time-common.xml</include>
 		<include>ffmp-ingest.xml</include>
 		<include>ffmp-common.xml</include>
