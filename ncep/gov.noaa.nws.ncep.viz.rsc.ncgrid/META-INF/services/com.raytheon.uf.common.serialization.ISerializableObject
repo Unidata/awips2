@@ -1,3 +1,7 @@
 gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData
 gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcEnsembleResourceData
 gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord
+gov.noaa.nws.ncep.viz.rsc.ncgrid.util.GempakGridParmInfo
+gov.noaa.nws.ncep.viz.rsc.ncgrid.util.GempakGridParmInfoSet
+gov.noaa.nws.ncep.viz.rsc.ncgrid.util.GempakGridVcrdInfo
+gov.noaa.nws.ncep.viz.rsc.ncgrid.util.GempakGridVcrdInfoSet
