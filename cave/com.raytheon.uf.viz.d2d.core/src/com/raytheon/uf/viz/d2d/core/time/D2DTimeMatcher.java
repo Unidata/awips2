@@ -304,7 +304,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         // Next try to get the closest time to
         DataTime[] origSteps = currInfo.getFrameTimes();
         int curIndex = currInfo.getFrameIndex();
-        if (origSteps != null && curIndex > 0 && curIndex < origSteps.length) {
+        if (origSteps != null && curIndex >= 0 && curIndex < origSteps.length) {
             DataTime startTime = origSteps[curIndex];
             int dateIndex = Arrays.binarySearch(timeSteps, startTime);
             if (dateIndex < 0) {
