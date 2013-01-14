@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 12/22/2011               G Hull     Updated getGdFile()
  * 12/06/2012   #538        Q. Zhou    Added skip and filter areas and implements. 
  * 03/28/2012               X. Guo     Don't need to convert gdfile toUppercase          
+ * 08/29/2012   #743        Archana    Added CLRBAR          
  * </pre>
  * 
  * @author mli
@@ -101,6 +102,9 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	
 	@XmlElement
 	protected String hlsym;
+	
+	@XmlElement
+	protected String clrbar;
 	
     public NcgridResourceData() {
         super();
@@ -290,6 +294,15 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
             return false;
         }
         
+        if (this.clrbar != null && other.clrbar == null) {
+            return false;
+        } else if (this.clrbar == null && other.clrbar != null) {
+            return false;
+        } else if (this.clrbar != null
+                && this.clrbar.equals(other.clrbar) == false) {
+            return false;
+        }        
+        
         return true;
     }
 
@@ -463,11 +476,36 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 		this.hlsym = hlsym;
 	}
 		
+	/**
+	 * @return the clrbar
+	 */
+	public String getClrbar() {
+		return clrbar;
+	}
+
+	/**
+	 * @param clrbar the clrbar to set
+	 */
+	public void setClrbar(String clrbar) {
+		this.clrbar = clrbar;
+	}
+
 	public String getEventName() {
-		if( getMetadataMap().containsKey("eventName") ) {
-			String eventName = getMetadataMap().get("eventName").getConstraintValue();
+		if( getMetadataMap().containsKey("info.secondaryId") ) {
+			String eventName = getMetadataMap().get("info.secondaryId").getConstraintValue();
 			
 			return (eventName.equals("%") ? null : eventName );
+		}
+		else {
+			return null;
+		}		
+	}
+	
+	public String getEnsembelMember() {
+		if( getMetadataMap().containsKey("info.ensembleId") ) {
+			String ensembleMember = getMetadataMap().get("info.ensembleId").getConstraintValue();
+			
+			return (ensembleMember.equals("%") ? null : ensembleMember );
 		}
 		else {
 			return null;
@@ -500,7 +538,7 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
                                 throw new VizException (e);
                         }
                         String []  gridAvailableTimes = GempakGrid
-                        		.getAvailableGridTimes(dataLoc, currentCycle);
+                        		.getAvailableGridTimes(dataLoc, currentCycle,getGdfile().toLowerCase());
                         DataTime[] availableTimes = new DataTime[gridAvailableTimes.length];
 
                         for ( int ii=0; ii<gridAvailableTimes.length; ii++) {

@@ -141,6 +141,12 @@ public class GridDiag {
 		public void grc_rnav_(float[] rnav, byte[] cproj, IntByReference kx, 
 				IntByReference ky, IntByReference iret);
 		
+		public void gdc_gcyc_ (String anAlias, byte[] cycles,
+				IntByReference iret);
+		
+		public void gdc_gtmf_ (String anAlias, String cycle, byte[] availableTimes,
+				IntByReference iret);
+		
 		public void ctb_dtpath_(String anAlias, byte[] thePath,
 				IntByReference iret);
 		

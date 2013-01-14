@@ -54,19 +54,19 @@ public class ShowISCGridsAction extends AbstractHandler {
 	/*
 	 * non-active Image
 	 */
-	private static Image orgImg = null;
+	private Image orgImg = null;
 	/*
 	 * active Image
 	 */
-	private static Image actImg = null;
+	private Image actImg = null;
 	/*
 	 * ImageDescriptor 
 	 */
-	private static ImageDescriptor id = null;
+	private ImageDescriptor id = null;
 	/*
 	 * Tool item
 	 */
-	private static ToolItem ti = null;
+	private ToolItem ti = null;
 	
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
@@ -74,37 +74,38 @@ public class ShowISCGridsAction extends AbstractHandler {
         /*
          * Get toolItem
          */
-        if(ti == null) {
-        	if (arg0.getTrigger() instanceof Event) {
-            	Event e = (Event) arg0.getTrigger();
-                if ( e.widget instanceof ToolItem) {
-                	ti = (ToolItem) e.widget;                	
-                }
-            }
+        if (arg0.getTrigger() instanceof Event) {
+        	Event e = (Event) arg0.getTrigger();
+        	if ( e.widget instanceof ToolItem) {
+        			ti = (ToolItem) e.widget;                	
+        	}
         }
         
         /*
          * Get Image when it is not activated
          */
-        if (orgImg == null) orgImg = ti.getImage();
-        
+        if (orgImg == null) {
+        	id = Activator.imageDescriptorFromPlugin(
+        		Activator.PLUGIN_ID, "icons/isc0.gif" );    	
+        	orgImg = id.createImage();
+        }
         /*
          * Get Image when it is activated
          */
-        if ( actImg == null ){
-        	if (id == null) {
-    			id = Activator.imageDescriptorFromPlugin(
-    					Activator.PLUGIN_ID, "icons/isc1.gif" );    	
-    		}
+        if (actImg == null) {
+        	id = Activator.imageDescriptorFromPlugin(
+        		Activator.PLUGIN_ID, "icons/isc1.gif" );    	
         	actImg = id.createImage();
         }
-    
         /*
          * Change the image when it is active and 
          * change it back when it is not activated
          */
-        if (!current) ti.setImage(actImg);
-        else ti.setImage(orgImg);
+        if (ti != null) {
+        	if (!current) 
+        		ti.setImage(actImg);
+        	else ti.setImage(orgImg);
+        }
         
         new ShowISCGridsMsg(!current).send();
         return null;

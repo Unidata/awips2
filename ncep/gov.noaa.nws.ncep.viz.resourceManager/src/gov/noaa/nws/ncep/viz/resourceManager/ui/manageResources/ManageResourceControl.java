@@ -441,8 +441,10 @@ public class ManageResourceControl extends Composite {
    		} 
    	}
 
-   	// this is called by the 'edit' components when a new Type,Group, or attrSet
+   	// this is called by the 'edit/create' components when a new Type,Group, or attrSet
    	// is created. 
+   	// It is also called with null rscName when an existing Type/Group/AttrSet is edited
+   	// this is treated as a 'refresh'.
    	public void updateResourceSelections( ResourceName seldRscName ) {
    		selectResourceComp.updateResourceSelections( seldRscName );
    		editActionCanceled();
