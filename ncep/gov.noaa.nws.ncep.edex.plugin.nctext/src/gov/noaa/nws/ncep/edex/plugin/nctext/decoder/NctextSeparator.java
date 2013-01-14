@@ -743,6 +743,9 @@ public class NctextSeparator extends AbstractRecordSeparator {
 
         // Now check for some binary data types, Stop decoding, if it is binary
         String sRawMessage = new String(rawMessage);
+        //some reports contains null char which will cause DB persistence error. Replace all null with
+        // Space.
+        sRawMessage = sRawMessage.replace((char)0x0, (char)0x20);
         int pos = sRawMessage.indexOf("BUFR");
         boolean notStored = false;
         notStored = notStored || ((pos >= 0) && (pos < 20));
