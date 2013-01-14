@@ -119,14 +119,17 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 
     			if ( !prevTool.getLabeledLine().getName().contains("CCFP_SIGMET") 
     					&& inPoly(loc, lineSelected) ){
-    				addLabel( loc, prevTool.getLabeledLine() ); 
+    				addLabel( loc, (LabeledLine) lineSelected.getParent()); 
     				pts.clear();
     			}
     		}
     		else {
     			LabeledLine ll = prevTool.getLabeledLine();
+    			AbstractDrawableComponent nearestComp = drawingLayer.getNearestComponent(loc);
+
+    			if ( ( nearestComp != null ) && nearestComp.getPgenType().equalsIgnoreCase(ll.getPgenType())){
     			//find nearest line
-    			Iterator<AbstractDrawableComponent> it = ll.getComponentIterator();
+    				Iterator<AbstractDrawableComponent> it = ((LabeledLine)nearestComp).getComponentIterator();
 				double minDist = Double.MAX_VALUE;
 
     			while( it.hasNext() ){
@@ -160,6 +163,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     					}
     				}
     			}
+    			}
     			
     		}
     		
@@ -178,7 +182,9 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     			else{	 
     		
     				if ( !pts.isEmpty()){
-    					addLabel( pts.get(pts.size()-1), prevTool.getLabeledLine() );
+    		//			addLabel( pts.get(pts.size()-1), prevTool.getLabeledLine() );
+    					addLabel( pts.get(pts.size()-1), (LabeledLine)lineSelected.getParent() );
+
     				}
     				else {
     	    			lineSelected = null;
@@ -217,14 +223,28 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     	newll.addLabel( lbl );
 
     	//merge two labels if they are close to each other.
-    	PgenUtil.mergeLabels(newll, lbl.getSpe().getLocation(), mapEditor);
+    	LabeledLine mergedLine = null;
+    	mergedLine = PgenUtil.mergeLabels(newll, lbl, lbl.getSpe().getLocation(), mapEditor, drawingLayer);
 
     	//save mid-level cloud text settings
     	if ( ll.getName().equalsIgnoreCase("Cloud")){
     		AttrSettings.getInstance().setSettings((DrawableElement)lbl.getSpe());
     	}
 
+    	if ( mergedLine != null ){
+			
+			ArrayList<AbstractDrawableComponent> old = new ArrayList<AbstractDrawableComponent>();
+			old.add( mergedLine);
+			old.add( ll );
+			
+			ArrayList<AbstractDrawableComponent> newLines = new ArrayList<AbstractDrawableComponent>();
+			newLines.add(newll);
+
+			drawingLayer.replaceElements(old, newLines);
+		}
+		else {
     	drawingLayer.replaceElement(ll, newll);
+		}
 
     	prevTool.setLabeledLine( newll );
 
@@ -259,7 +279,8 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     		Coordinate loc = mapEditor.translateClick(x, y);
     		if ( loc == null ) return false;
 
-    		LabeledLine ll = prevTool.getLabeledLine();
+    		//LabeledLine ll = prevTool.getLabeledLine();
+    		LabeledLine ll = (LabeledLine) lineSelected.getParent();
     		if ( ll == null ) return false;
 
     		//create ghost for label
