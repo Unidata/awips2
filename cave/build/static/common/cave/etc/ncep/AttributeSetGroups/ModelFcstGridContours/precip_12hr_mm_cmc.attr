@@ -10,6 +10,7 @@
 GLEVEL =  0                                                                       
 GVCORD =  none                                                                    
 SKIP   =    0                                                                       
+FILTER=y
 SCALE  =   0                                                                       
 GDPFUN =  p12m
 TYPE   =    f
@@ -25,5 +26,4 @@ TITLE  =   5/-1/~ 12-HR TOTAL PRECIPITATION (MM)! 0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
 GDATTIM=  f12-last-06

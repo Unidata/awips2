@@ -2,4 +2,4 @@
 !
 plotModel=@PlotModels/nctaf/tempo_prob.xml
 plotDensity=10
-conditionalFilter=@PlotModels/ConditionalFilters/taf_tempo_prob.xml
+conditionalFilter=@PlotModels/ConditionalFilters/nctaf/taf_tempo_prob.xml
