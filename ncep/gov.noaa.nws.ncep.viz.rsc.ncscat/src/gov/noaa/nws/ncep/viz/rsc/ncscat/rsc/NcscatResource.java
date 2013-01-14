@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -69,6 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 05/23/12       785      Q. Zhou     Added getName for legend.
  * 16 Aug 2012  843        B. Hebbard  Added OSCAT
  * 17 Aug 2012  655        B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
+ * 
  * </pre>
  * 
  * @author bhebbard
@@ -629,6 +632,17 @@ public class NcscatResource extends
         }
     }
     
+    @Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbar1RscPair != null ) {
+    		cbar1RscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    	if( cbar2RscPair != null ) {
+    		cbar2RscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
+
     @Override
 	public String getName() {
 		String legendString = super.getName();

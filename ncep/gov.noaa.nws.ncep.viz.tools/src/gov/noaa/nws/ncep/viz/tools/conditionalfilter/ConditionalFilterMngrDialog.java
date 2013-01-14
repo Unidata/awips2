@@ -34,7 +34,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterElement;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMngr;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilterDialog;
 
 /**
  * Conditional Filter Manager dialog.
@@ -137,7 +136,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 
 		pluginNameList = new List(topComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
 		fd = new FormData( );
-		fd.height = 100;
+		fd.height = 230;
 		fd.width  = 250;
 		fd.top = new FormAttachment( 0, 35  );
 		fd.left  = new FormAttachment( 0, 15 );
@@ -169,12 +168,21 @@ public class ConditionalFilterMngrDialog extends Dialog {
 
 		condFilterList.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (condFilterList.getSelectionCount() > 0) {
+				
+				if (condFilterList.getSelectionCount() == 1) {
 					copyCondFilterBtn.setEnabled(true);
 					editCondFilterBtn.setEnabled(true);
-					deleteCondFilterBtn.setEnabled(false);
 
 					String condFilterName = condFilterList.getSelection()[0];
+					
+					if( condFilterName.equals( ConditionalFilterMngr.NullFilterName ) ) {
+						editCondFilterBtn.setEnabled(false);						
+						copyCondFilterBtn.setEnabled(false);
+					}
+					else {
+						copyCondFilterBtn.setEnabled(true);
+						editCondFilterBtn.setEnabled(true);
+					}
 					
 					// if this condFilter is in the USER context
 					// then allow the user to delete it.
@@ -186,6 +194,14 @@ public class ConditionalFilterMngrDialog extends Dialog {
 						             == LocalizationLevel.USER ) {
 						deleteCondFilterBtn.setEnabled(true);
 					}
+					else {
+						deleteCondFilterBtn.setEnabled(false);						
+					}
+				}
+				else {
+					copyCondFilterBtn.setEnabled(false);
+					editCondFilterBtn.setEnabled(false);
+					deleteCondFilterBtn.setEnabled(false);						
 				}
 			}
 		});
@@ -234,7 +250,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 				// pop up a dialog to prompt for the new name
                 UserEntryDialog entryDlg = new UserEntryDialog( shell,
                 		"Copy", 
-                		"Conditional Filter Name:", "Copy of " + fromCondFilterName);
+                		"Conditional Filter Name:", "CopyOf" + fromCondFilterName);
                 String newCondFilterName = entryDlg.open();
                 
                 if( newCondFilterName == null || // cancel pressed
@@ -253,15 +269,15 @@ public class ConditionalFilterMngrDialog extends Dialog {
 
                 	return;
                 }
-                else if (ConditionalFilterMngr.conditionalFilterFileExists(newCondFilterName)) {
-                	MessageDialog infoDlg = new MessageDialog(shell, "Message", null, 
-                			"A '"+newCondFilterName+"' Conditional Filter already exists for another plugin. Please enter a different name.",
-                			MessageDialog.INFORMATION, 
-                			new String[]{" OK "}, 0);
-                	infoDlg.open();
-
-                	return;
-                }
+//                else if (ConditionalFilterMngr.conditionalFilterFileExists(newCondFilterName)) {
+//                	MessageDialog infoDlg = new MessageDialog(shell, "Message", null, 
+//                			"A '"+newCondFilterName+"' Conditional Filter already exists for another plugin. Please enter a different name.",
+//                			MessageDialog.INFORMATION, 
+//                			new String[]{" OK "}, 0);
+//                	infoDlg.open();
+//
+//                	return;
+//                }
                 
                 copyConditionalFilter(fromCondFilterName, newCondFilterName);
 			}
@@ -349,8 +365,19 @@ public class ConditionalFilterMngrDialog extends Dialog {
 	
 	private void editConditionalFilter(boolean isNew) {
 		String condFilterName = "";
-		if (!isNew )
-			condFilterName = condFilterList.getSelection()[0];;
+		if (!isNew ) {
+			condFilterName = condFilterList.getSelection()[0];
+			
+			if( condFilterName.equals( ConditionalFilterMngr.NullFilterName ) ) {
+				MessageDialog errDlg = new MessageDialog( 
+	    				NmapUiUtils.getCaveShell(), 
+	    				"Error", null, 
+	    				"Can't edit the Null Conditional Filter "+ ".\n\n",
+	    				MessageDialog.ERROR, new String[]{"OK"}, 0);
+	    		errDlg.open();
+	    		return;
+			}
+		}
 		
 		if( condFilterName == null ) {
 			return; // nothing selected; sanity check
@@ -372,12 +399,9 @@ public class ConditionalFilterMngrDialog extends Dialog {
 		editConditionalFilterDlg = new EditConditionalFilterDialog( shell, cf );
 		
 		ConditionalFilter newConditionalFilter = (ConditionalFilter)editConditionalFilterDlg.open( 
-						shell.getLocation().x + shell.getSize().x + 10, 
-					      shell.getLocation().y );
-
+						shell.getLocation().x + shell.getSize().x/2,  shell.getLocation().y );
 		
 		if( newConditionalFilter != null ) {
-			
 			// create a LocalizationFile 
 			try {
 				ConditionalFilterMngr.getInstance().saveConditionalFilter( newConditionalFilter );
