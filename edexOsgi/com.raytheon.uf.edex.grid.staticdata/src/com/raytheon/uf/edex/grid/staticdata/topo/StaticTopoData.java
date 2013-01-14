@@ -66,7 +66,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.RunProcess;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -84,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/19/2011   10955       rferrel     Use RunProcess
  * 04/18/2012   DR 14694    D. Friedman Fixes for static topography generation
  * 05/09/2012   DR 14939    D. Friedman Fix errors in DR 14694
+ * 01/14/2013   1469        bkowal      Removed the hdf5 data directory
  * 
  * </pre>
  * 
@@ -116,9 +116,7 @@ public class StaticTopoData {
     private static final String DAT_GZ_SUFFIX = ".dat.gz";
 
     /** The base directory in which the topo files reside */
-    private static final String FILE_PREFIX = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("HDF5DIR")
-            + "/topo/";
+    private static final String FILE_PREFIX = "topo/";
 
     /** The file containing the complete static topo data sets */
     private static final File topoFile = new File(FILE_PREFIX + "staticTopo.h5");
@@ -538,8 +536,7 @@ public class StaticTopoData {
 
         for (TiledTopoSource source : topoSources) {
             statusHandler.handle(Priority.INFO, "Extracting topo data from "
-                    +
-                     source.getDataset());
+                    + source.getDataset());
             GridReprojection reprojection = new GridReprojection(
                     source.getGridGeometry(), inGeom);
             GridSampler sampler = new GridSampler(source, interp);
