@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Shell;
  * 03/2009		65			M. Li		Add multiple locators
  * 11/2009      138         Greg Hull   location Options
  * 12/10/2011   #561        Greg Hull   rework to actually edit the resource attributes
+ * 12/14/2012   #903        G. Hull     add the font size
  * 
  * </pre>
  * 
@@ -41,6 +42,8 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class LocatorEditDialog extends AbstractEditResourceAttrsDialog { 
 
+	private Combo fontSizeCombo;
+	
 	private Combo positionCombo;
 	private Combo dataSourceCombo;	
     private Combo roundingCombo;
@@ -51,9 +54,7 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
 	private LocatorDataSource seldDataSource = null;
 	private HashMap<String,LocatorDataSource> availDataSources = null;
 	
-//	public static final java.util.Map<Integer, Boolean> POS_ONOFF_MAP= new java.util.HashMap<Integer, Boolean>(); 
-//	private static final String[] POS_ITEMS = new String[LocatorResourceData.MAX_NUM_SOURCES];
-		
+	private static final Integer fontSizes[] = { 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32 };
     
     public static final String ROUNDING_OPTIONS[] = {"1", "5", "10"};
     
@@ -65,6 +66,8 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
 //    public static final String STATIONDISPLAY_OPTIONS[] = {"name", "ID"};
     
     public static final String NO_SOURCE = "None";
+    
+    private RscAttrValue   fontSizeAttr    = null;
     
     private RscAttrValue[] sourceNameAttrs = new RscAttrValue[LocatorResourceData.MAX_NUM_SOURCES];
     private RscAttrValue[] roundToAttrs     = new RscAttrValue[LocatorResourceData.MAX_NUM_SOURCES];
@@ -81,6 +84,8 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
 	@Override
 	public Composite createDialog( Composite topComp ) {
 		
+		fontSizeAttr    = editedRscAttrSet.getRscAttr("fontSize");
+
 		sourceNameAttrs[0] = editedRscAttrSet.getRscAttr( "pos1LocatorSource" );
 		sourceNameAttrs[1] = editedRscAttrSet.getRscAttr( "pos2LocatorSource" );
 		sourceNameAttrs[2] = editedRscAttrSet.getRscAttr( "pos3LocatorSource" );
@@ -105,6 +110,11 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
 		directionUnitAttrs[3] = editedRscAttrSet.getRscAttr( "pos4DirectionUnit" );
 		directionUnitAttrs[4] = editedRscAttrSet.getRscAttr( "pos5DirectionUnit" );
 
+		if( fontSizeAttr == null || 
+				fontSizeAttr.getAttrClass() != Integer.class ) {
+        	System.out.println("fontSizeAttr  is null or not of expected class Integer?");				
+		}
+		
 		for( int p=0 ; p< LocatorResourceData.MAX_NUM_SOURCES ; p++ ) {
 			if( sourceNameAttrs[p] == null || 
 					sourceNameAttrs[p].getAttrClass() != String.class ) {
@@ -127,11 +137,33 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
         FormLayout layout0 = new FormLayout();
         topComp.setLayout( layout0 );
 
-        Label posLbl = new Label( topComp, SWT.NONE  );
-        posLbl.setText("Position");
+        Label fontSizeLbl = new Label( topComp, SWT.NONE  );
+        fontSizeLbl.setText("Font Size");
         FormData fd = new FormData();
         fd.left = new FormAttachment( 10, 0 );
-        fd.top = new FormAttachment( 0, 30 );
+        fd.top = new FormAttachment( 0, 20 );
+        fontSizeLbl.setLayoutData(fd);
+
+        fontSizeCombo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        fd = new FormData();
+        fd.left = new FormAttachment( 40, 0 );
+        fd.top = new FormAttachment( fontSizeLbl, -2, SWT.TOP );
+        fontSizeCombo.setLayoutData(fd);       
+
+        Integer curFontSize = (Integer)fontSizeAttr.getAttrValue();
+        for( int f=0 ; f<fontSizes.length ; f++ ) {
+        	fontSizeCombo.add( fontSizes[f].toString() );
+
+        	if( curFontSize == fontSizes[f] ) {
+        		fontSizeCombo.select( f );
+        	}
+        }
+        
+        Label posLbl = new Label( topComp, SWT.NONE  );
+        posLbl.setText("Position");
+        fd = new FormData();
+        fd.left = new FormAttachment( fontSizeLbl, 0, SWT.LEFT );
+        fd.top = new FormAttachment( fontSizeLbl, 35, SWT.BOTTOM );        
         posLbl.setLayoutData(fd);
 
         positionCombo = new Combo(topComp, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -204,6 +236,14 @@ public class LocatorEditDialog extends AbstractEditResourceAttrsDialog {
         directionCombo.setLayoutData(fd);
         directionCombo.setItems( DIRECTIONUNIT_OPTIONS );
        
+        
+        fontSizeCombo.addSelectionListener(new SelectionAdapter() {			
+			@Override	public void widgetSelected(SelectionEvent e) {							
+				
+            	fontSizeAttr.setAttrValue(  
+            		fontSizes[ fontSizeCombo.getSelectionIndex() ] );
+			}        	
+        });
         
         positionCombo.addSelectionListener(new SelectionAdapter() {			
 			@Override	public void widgetSelected(SelectionEvent e) {							

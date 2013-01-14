@@ -22,6 +22,7 @@ package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelGenerator2;
@@ -48,6 +49,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Advanced;
 import com.raytheon.uf.common.time.DataTime;
@@ -113,6 +115,7 @@ import static java.lang.System.out;
  *  05/23/2012     785     Q. Zhou     Added getName for legend.
  *  08/22/2012     #809    sgurung     For bgGenerator thread, add stations to queue only when zoomLevel > 0.10
  *  								   (this fixes the issue of slow performance when zooming all the way in, when Data Area is set)	
+ *  11/04/2012     #944    ghull       add query for Fcst Plot resources
  * </pre>
  * 
  * @author brockwoo
@@ -461,15 +464,51 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        dynStations = 0;
 	        uniqueueStations = 0;
 	        
-	      //  out.println("populateFrame: "  + frameTime.toString());
-	        RequestConstraint time = new RequestConstraint();
-	        String[] constraintList = { startTime.toString(), endTime.toString() };
-	        time.setBetweenValueList(constraintList);
-	        time.setConstraintType(RequestConstraint.ConstraintType.BETWEEN);
-
-	        HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>(
+	        HashMap<String, RequestConstraint> metadataMap = 
+	        	new HashMap<String, RequestConstraint>(
 	                plotRscData.getMetadataMap() );
-	        metadataMap.put("dataTime", time);
+
+	        RequestConstraint timeConstraint = new RequestConstraint();
+	        
+        	ResourceName rscName = getResourceData().getResourceName();
+	        boolean isFcst = plotRscData.isForecastResource() &&
+	        				   !plotRscData.getPluginName().equals("nctaf");
+	        
+	        // set the constraints for the query. 
+	        // for forecast resources we need to match the cycle time and
+	        // create a range constraint on the forecast hour.
+	        if( isFcst ) {
+	        	String[] dts = rscName.getCycleTime().toString().split(" ");
+	        	String cycleTimeStr = dts[0] + " " + dts[1].substring(0, dts[1].length()-2);
+	        	System.out.println("reftime constraint is:"+cycleTimeStr );
+
+	        	timeConstraint = new RequestConstraint( cycleTimeStr );
+	        	metadataMap.put("dataTime.refTime", timeConstraint );
+
+	        	// determine the fcst hr range for the frame span
+	        	long refTimeMs = rscName.getCycleTime().getRefTime().getTime();
+	        	long frmStartMs = getFrameStartTime().getRefTime().getTime();
+	        	long frmEndMs   = getFrameEndTime().getRefTime().getTime();
+
+	        	long beginFcstHr = (frmStartMs - refTimeMs) / 1000;
+	        	long endFcstHr   = (frmEndMs - refTimeMs) / 1000;
+
+	        	timeConstraint = new RequestConstraint( );
+	        	timeConstraint.setBetweenValueList( 
+	        			new String[] { Long.toString( beginFcstHr ), 
+	        					Long.toString( endFcstHr ) } );
+	        	
+		        timeConstraint.setConstraintType( ConstraintType.BETWEEN );
+				metadataMap.put( "dataTime.fcstTime", timeConstraint );
+	        }
+			else {
+	        String[] constraintList = { startTime.toString(), endTime.toString() };
+				timeConstraint.setBetweenValueList( constraintList );
+				timeConstraint.setConstraintType( RequestConstraint.ConstraintType.BETWEEN );
+
+				metadataMap.put("dataTime", timeConstraint );
+			}
+
 	        long t0 = System.currentTimeMillis();
 	        
 	        List<PlotInfo> plotInfoObjs = plotRscData.getPlotInfoRetriever().getStations(
@@ -504,7 +543,10 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        			// really is a serious sanity check.....
 	        			// This happens when the dataTime is the same as the startTime. This satisfies the query constraint
 	        			// the not the time matching.
-//	        			out.println("plotInfo obj doesn't time match to the frame which queried it???");
+	        			if( plotRscData.isForecastResource() ) {
+	        				out.println("plotInfo obj doesn't time match to the frame which queried it???");
+	        			}
+	        			// else this is possible when the time is equal to one of the start/end times
 	        		}
 	        	}
 	        }
@@ -516,7 +558,6 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        	out.println("Sanity check: station lists out of sync???");
 	        }
 	        
-
 	        calculateProgDisc();
 
 	        setPopulated( true );
