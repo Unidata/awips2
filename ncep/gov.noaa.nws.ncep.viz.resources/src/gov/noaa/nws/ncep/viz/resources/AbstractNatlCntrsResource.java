@@ -682,7 +682,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 	// if so then need to lookup the frame and remove it
 	@Override
 	public final void remove( DataTime dataTime ) {
-		super.remove( dataTime );
+//		super.remove( dataTime );
 		// remove the given frame and call dispose
 		// will the system call this for each resource removed? Need all resources to be in sync.
 	}

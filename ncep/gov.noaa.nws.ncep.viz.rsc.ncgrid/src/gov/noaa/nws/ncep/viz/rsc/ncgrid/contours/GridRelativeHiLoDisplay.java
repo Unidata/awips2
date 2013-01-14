@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 24, 2010 363        X. Guo     	Initial creation
+ * Aut 17, 2012 655        B. Hebbard   Added paintProps as parameter to IDisplayable draw (2)
  * 
  * </pre>
  * 
