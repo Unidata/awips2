@@ -35,7 +35,7 @@
                     </loadProperties>
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
                     </properties>
-                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="gridResourceData" customLegend="${customLegend}" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="${param}" constraintType="EQUALS"/>
