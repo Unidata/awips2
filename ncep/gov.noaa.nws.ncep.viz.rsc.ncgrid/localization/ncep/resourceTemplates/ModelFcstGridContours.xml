@@ -37,18 +37,22 @@
 						<hilo>${HILO}</hilo>
 						<hlsym>${HLSYM}</hlsym>
 						<wind>${WIND}</wind>
+					    <clrbar>${CLRBAR}</clrbar>
           
           <metadataMap>
              <mapping key="pluginName">
                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
              </mapping>
-             <mapping key="modelInfo.modelName">
+             <mapping key="info.datasetId">
                 <constraint constraintValue="${GDFILE}" constraintType="EQUALS" />
              </mapping>
 <!-- for non-event type GRIDS this is a no-op (ie '%')
   -->
-             <mapping key="eventName">
+             <mapping key="info.secondaryId">
                 <constraint constraintValue="${eventName}" constraintType="LIKE" />
+             </mapping>
+             <mapping key="info.ensembleId">
+                <constraint constraintValue="${ensembleMember}" constraintType="LIKE" />
              </mapping>
           </metadataMap>
        </resourceData>

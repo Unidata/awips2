@@ -42,6 +42,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 06/07/2012     #717      Archana      Added the constants STYLE_RULES_DIR,
  *                                       MCIDAS_IMG_STYLE_RULES and GINI_IMG_STYLE_RULES                                 
  * 06/21/2012     #825      Greg Hull    rm mosaicInfo.txt
+ * 12/17/2012     #861      Greg Hull    rm PGEN_XML_OVERLAYS
+ * 
  * </pre>
  * 
  * @author ghull 
@@ -76,7 +78,8 @@ public class NcPathManager {
 		public static final String PLOT_MODELS_DIR     = NCEP_ROOT + "PlotModels";
 		public static final String PLOT_PARAMETERS_DIR = PLOT_MODELS_DIR + File.separator+"PlotParameters";
 		public static final String LOCATOR_SOURCE_DIR  = NCEP_ROOT+"LocatorDataSources";
-		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "PgenXmlOverlayProducts";
+// No longer used. location is now a parameter for the StaticPgenOverlayResource.
+//		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "StaticPgenOverlays";
 		public static final String STYLE_RULES_DIR = NCEP_ROOT + "styleRules" + File.separator;
 		// lpi,spi files for overlays
 		public static final String BASEMAPS_DIR        = NCEP_ROOT + "basemaps";
