@@ -1,27 +1,30 @@
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
+import java.util.Iterator;
+
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
-import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomUtil;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
+import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.PaneID;
 import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
-
+import org.eclipse.jface.dialogs.MessageDialog;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.core.CorePlugin;
 
 /**
@@ -47,6 +50,8 @@ import com.raytheon.viz.core.CorePlugin;
  * Oct 27, 2009             G. Hull      Moved out of perspectives project
  * Feb 26. 2010             G. Hull      retrieve PredefinedArea instead of a Bundle file
  * Sep 10. 2012				B. Yin		 Remove the call to setRenderableDisplay which creates a new GLTarget
+ * Nov 18, 2012             G. Hull      add areaType parameter and code to get the area based on other types (ie RESOURCES and DISPLAYS)
+ * Dec 12  2012    #630     G. Hull      replace ZoomUtil.allowZoom with refreshGUIelements
  * 
  * </pre>
  * 
@@ -62,77 +67,158 @@ public class PredefinedAreaAction extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         
     	String areaName = null; 	
+        String areaType = null;
+        
+        try {
     	try{
     	    areaName = event.getParameter("areaName");
+        		areaType = event.getParameter("areaType");
     	} catch (Exception e) {
-            MessageBox mb = new MessageBox(PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getShell(), SWT.OK);
-            	mb.setText("PredefinedArea Not Available");
-            	mb.setMessage("No description code is available for the requested area.");
-            	mb.open();
+        		throw new VizException("areaName parameter not set???");
     	}
-    	setGeographicArea(areaName);
+
+    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+
+        	PredefinedArea pArea;
+
+        	if( areaType.equals( AreaSource.PREDEFINED_AREA.toString() ) ) {
+        		pArea = PredefinedAreasMngr.getPredefinedArea( areaName );
+    }
+        	else if( areaType.equals( AreaSource.RESOURCE_DEFINED.toString() ) ) {
+                ResourceName rscName = new ResourceName( areaName );
+        		pArea = getAreaFromResource(editor, rscName );
+        	}
+        	else if( areaType.equals( AreaSource.DISPLAY_AREA.toString() ) ) {
+
+        		pArea = getAreaFromDisplayPane( areaName );
+        	}
+        	else { 
+        		throw new VizException("Unknown areaType: "+areaType );
+        	}
+    	
+        // get the panes to set the area in. 
+        	NCDisplayPane[] displayPanes = (NCDisplayPane[])
+        			(editor.arePanesGeoSynced() ? editor.getDisplayPanes() : 
+        					editor.getSelectedPanes());
+        
+        	for( IDisplayPane pane : displayPanes ) {
+
+        		setPredefinedArea( pane, pArea );
+        	}
+            
+        	editor.refreshGUIElements();
+					
+        	VizGlobalsManager.getCurrentInstance().updateUI(editor);
+
+        	editor.refresh();
+
+        } catch (VizException e) {        	
+        	MessageDialog errDlg = new MessageDialog( 
+        			NmapUiUtils.getCaveShell(), "Error", null, 
+        			"Error Changing Area:\n\n"+e.getMessage(),
+        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+        	errDlg.open();
+        }
 
         return null;
     }
 
     /**
      * @param areaName
+     * @throws VizException 
      */
-    public static void setGeographicArea(String areaName) {
-        NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
-    	
-        // get the panes to set the area in. 
-        NCDisplayPane[] displayPanes = (NCDisplayPane[]) (editor
-                .arePanesGeoSynced() ? editor.getDisplayPanes() : editor
-                .getSelectedPanes());
-        
-        try {
-            PredefinedArea pArea = PredefinedAreasMngr
-                    .getPredefinedArea(areaName);
-            
-        	NCMapRenderableDisplay dispPane = pArea.getPredefinedArea();
-					
-        	for( IDisplayPane pane : displayPanes ) {
-                NCMapRenderableDisplay existingDisplay = (NCMapRenderableDisplay) pane
-                        .getRenderableDisplay();
-                NCMapDescriptor existingMD = (NCMapDescriptor) existingDisplay
-                        .getDescriptor();
+    public static void setPredefinedArea( IDisplayPane pane,
+    									  PredefinedArea pArea ) throws VizException {
+
+    	NCMapRenderableDisplay existingDisplay = 
+    		(NCMapRenderableDisplay) pane.getRenderableDisplay();
 
                 // Note: setGridGeometry does an implicit reproject of all
                 // resources
         		// on the descriptor, so don't need to do this explicitly
-                existingMD.setGridGeometry(dispPane.getDescriptor()
-                        .getGridGeometry());
+    	existingDisplay.setInitialArea( pArea );
                 
-                existingDisplay.setZoomLevel(dispPane.getZoomLevel());
-                existingDisplay.setMapCenter(dispPane.getMapCenter());
-                existingDisplay.setPredefinedAreaName(dispPane
-                        .getPredefinedAreaName());
+//    	existingDisplay.setPredefinedArea( pArea );
+ 
+    	pane.setZoomLevel( existingDisplay.getZoomLevel() );
                 
-                pane.setZoomLevel( dispPane.getZoomLevel());
                 pane.scaleToClientArea();
-                existingDisplay.recenter(dispPane.getMapCenter());
-                existingDisplay.getView().zoom( dispPane.getZoomLevel());
+    	existingDisplay.recenter( existingDisplay.getMapCenter() );
                 
-                existingMD.setSuspendZoom(false);
-                ZoomUtil.allowZoom(editor);
-                VizGlobalsManager.getCurrentInstance().updateUI(editor);
+    	existingDisplay.getView().zoom( 
+    			existingDisplay.getZoomLevel() );
 
+    	((NCMapDescriptor)existingDisplay.getDescriptor()).setSuspendZoom(false);
         	}
-        	editor.refresh();        
 
-        } catch (Exception e) {
 
-            Status status = new Status(Status.ERROR, "com.raytheon.viz.ui", 0,
-                    "Error occurred during bundle load.", e);
-            ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-                    "ERROR", "Error occurred during bundle load.", status);
-            CorePlugin
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(IStatus.ERROR, CorePlugin.PLUGIN_NAME,
-                            "Error occurred during bundle load", e));
+    private PredefinedArea getAreaFromResource( 
+    		NCMapEditor editor, ResourceName rscName ) throws VizException {
+
+    	NCDisplayPane[] displayPanes = (NCDisplayPane[])editor.getDisplayPanes();
+    	 
+    	for( NCDisplayPane p : displayPanes ) {
+
+    		ResourceList rlist = p.getDescriptor().getResourceList();
+    		Iterator<ResourcePair> iter = rlist.iterator();
+
+    		while( iter.hasNext()) {
+    			ResourcePair rp = iter.next();
+
+    			if( rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData &&
+    					rp.getResourceData() instanceof IGridGeometryProvider ) {
+    				ResourceName rName = ((AbstractNatlCntrsRequestableResourceData)rp.getResourceData()).getResourceName();
+
+    				if( rscName.equals( rName ) ) {
+    					IGridGeometryProvider gridCovRsc = (IGridGeometryProvider)rp.getResourceData();
+//    					if( gridCovRsc.getGridGeometry() != null ) {
+    					PredefinedArea pArea = new PredefinedArea( 
+    			        		AreaSource.RESOURCE_DEFINED,
+    			        		gridCovRsc.getProviderName(), 
+    			        		gridCovRsc.getGridGeometry(),
+    			        		gridCovRsc.getMapCenter(),
+    			        		gridCovRsc.getZoomLevel() );
+
+    						return pArea; //.getGridGeometry();
+//    					}
+    				}
+    			}
+    		}
+    	}
+    	throw new VizException( "Unable to change the Display Area. \n"
+    				+ "The Resource "+rscName.toString()+" is not loaded in this editor.\n");
+    }
+    
+    
+    private PredefinedArea getAreaFromDisplayPane( String paneName ) throws VizException {
+    	
+    	String displayName = paneName;
+    	PaneID paneId = new PaneID(0,0);
+    	
+    	if( displayName.endsWith(")") ) {
+    		paneId = PaneID.parsePaneId(
+    				displayName.substring( displayName.lastIndexOf('(')+1,
+    									   displayName.lastIndexOf(')') ) );
+
+    		displayName = displayName.substring(0, displayName.indexOf('(') );
         }
+
+    	NCMapEditor ed = NmapUiUtils.findDisplayByID( displayName );
+    	PredefinedArea pArea=null;
+    	
+    	if( ed != null ) {
+    		IDisplayPane[] panes = ed.getDisplayPanes();
+    		for( IDisplayPane p : panes ) {
+    			NCDisplayPane ncp = (NCDisplayPane)p;
+    			NCMapRenderableDisplay rdisp = (NCMapRenderableDisplay)ncp.getRenderableDisplay();
+
+    			if( rdisp.getPaneId().equals( paneId) ) {
+    				pArea = rdisp.getCurrentArea();
+    				return pArea;
+    			}
+    		}
+    	}
+    	
+    	throw new VizException("Unable to find Display for: "+paneName );
     }
 }

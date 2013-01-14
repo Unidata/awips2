@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>NcGridInventory</inventoryName>
-    <inventoryParameters>pluginName,modelName,eventName,parm,vcord,modelInfo.level.levelonevalue,modelInfo.level.leveltwovalue</inventoryParameters>
+    <inventoryParameters>pluginName,info.datasetId,info.secondaryId,info.ensembleId,info.parameter.abbreviation,info.level.masterLevel.name,info.level.levelonevalue,info.level.leveltwovalue</inventoryParameters>
     <baseConstraints>
         <mapping key="pluginName">
-            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
+            <constraint constraintValue="grid" constraintType="EQUALS"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>

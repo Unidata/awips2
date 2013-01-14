@@ -11,11 +11,14 @@ package gov.noaa.nws.ncep.ui.pgen.elements.labeledlines;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a base class for PGEN labeled lines(cloud, turbulence, etc.).
@@ -155,6 +158,23 @@ public class LabeledLine extends DECollection {
 			if ( adc instanceof Line ) return (Line)adc;
 		}
 		
+		return null;
+	}
+	
+	public Label getLabelAt( Coordinate loc ){
+		Iterator<AbstractDrawableComponent> it = getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc =it.next();
+			if ( adc instanceof Label ){
+				Label lbl = (Label)adc;
+				if ( Math.abs(lbl.getSpe().getLocation().x - loc.x) < 0.0001 &&
+						Math.abs(lbl.getSpe().getLocation().y - loc.y) < 0.0001 ) {
+
+					//get the label at loc
+					return lbl;
+				}
+			}
+		}
 		return null;
 	}
 	

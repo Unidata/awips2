@@ -98,16 +98,16 @@ public class NsharpGribModelTypeConfigDialog extends Dialog {
 	}
 	private List<String> createAvailableModelTypeList(boolean returnNeeded){
 		HashMap<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-		rcMap.put( "pluginName", new RequestConstraint("ncgrib") );
+		rcMap.put( "pluginName", new RequestConstraint("grid") );
 
     	ArrayList<String> queryRsltsList = 
     		NsharpGridInventory.getInstance().searchInventory( 
-    			rcMap, "modelInfo.modelName" );
+    			rcMap, "info.datasetId" );
     	List<String> modelTypeList = new ArrayList<String>(); 
     	if( queryRsltsList != null && !queryRsltsList.isEmpty() ) {
 			for(String queryRslt : queryRsltsList ) {
 				System.out.println("model name:"+queryRslt );
-				String modelName = queryRslt.substring( "ncgrib/".length() );
+				String modelName = queryRslt.substring( "grid/".length() );
 				if(returnNeeded)
 					modelTypeList.add(modelName);
 				else
