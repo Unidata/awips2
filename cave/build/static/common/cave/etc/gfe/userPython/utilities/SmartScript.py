@@ -23,6 +23,14 @@
 # any purpose.
 #
 #    SmartScript -- library of methods for Smart Tools and Procedures
+# History
+# Time        Ticket#      Developer    Comments
+# ----------------------------------------------------------------------
+# 01/09/2012  DR15626      J. Zeng      Add methods 
+#                                       enableISCsend
+#                                       clientISCSendStatus
+#                                       manualSendISC_autoMode
+#                                       manualSendISC_manualMode
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
@@ -52,6 +60,7 @@ from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteDefinition
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherKey
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import TimeConstraints
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
+from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
 
 class SmartScript(BaseTool.BaseTool):
     
@@ -262,6 +271,54 @@ class SmartScript(BaseTool.BaseTool):
         #Standard, PRACTICE, TEST
         return self.__dataMgr.getOpMode().name()
    
+#------------------------------------------------------------------------
+# ISC control functions
+#------------------------------------------------------------------------
+
+    def enableISCsend(self, state):
+        #sets the overall isc send state.  If the send state is false, then
+        #no ISC grids can be transmitted.  To change the behavior
+        #when these programs (e.g., procedures) are run from the command line,
+        #you can enable/disable the send capability upon saving.  This
+        #command does not send grids, but sets the system state.  When
+        #saving grids and SendISCOnSave is set, or the manual Send ISC Dialog
+        #is used, then the grids will be sent.
+        self.__dataMgr.enableISCsend(state)
+
+    def clientISCSendStatus(self):
+        #returns the current state for sending isc from this program.  This
+        #depicts the state of whether this client has been enabled to send
+        #ISC via the SendISCOnSave or manual Send ISC Dialog.  The ifpServer
+        #still needs to be properly configured for sending to occur.
+        return self.__dataMgr.clientISCSendStatus()
+
+    def manualSendISC_autoMode(self):
+        #Simulates the use of the SendISCDialog.  Note if the ifpServer's
+        #SendISCOnSave is enabled, then this routine will fail as grids are
+        #sent when saved and the manual operation is not allowed.  The
+        #overall isc send state must also be True for this command to work.
+        req = []
+        parms = self.__parmMgr.getAllAvailableParms();
+        for parm in parms:
+            pid = parm.getParmID()
+            tr = parm.getParmTimeRange()
+            req.append(SendISCRequest(pid,tr)) 
+        self.__parmOp.sendISC(req)
+
+    def manualSendISC_manualMode(self, requests):
+        #simulates the use of the SendISCDialog.  Note if the ifpServers's
+        #SendISCOnSave is enabled, then this routine will fail as grids are
+        #sent when saved and the manual operation is not allowed.
+        #The requests are tuples of (parmName, parmLevel, timeRange). The
+        #TimeRange is an AFPS.TimeRange() instance.  The overall isc
+        #send state must also be True for this command to work.
+        req = []
+        for parmName, parmLevel, tr in requests:
+            pid = ParmID.ParmID(parmName, self.mutableID(),
+              parmLevel).toJavaObj()
+            req.append(SendISCRequest(pid, tr))
+        self.__parmOp.sendISC(req)
+
 
 #########################################################################
 ## Smart Tool methods                                                  ##
