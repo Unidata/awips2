@@ -20,6 +20,10 @@
 package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,11 +31,20 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
+import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
+import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.common.xml.ColumnXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -50,6 +63,9 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * ------------ ---------- ----------- --------------------------
  * Jan 11, 2012            mpduff     Initial creation
  * Jun 07, 2012   687      lvenable   Table data refactor.
+ * Jan 03, 2013  1437      bgonzale   Removed xml attribute, use SubscriptionConfigurationManager
+ *                                    instead.  Added configuration file management controls to
+ *                                    this dialog.
  * 
  * </pre>
  * 
@@ -59,8 +75,9 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 
 public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
 
-    /** Subscription Manager Config object */
-    private SubscriptionManagerConfigXML xml;
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SubscriptionManagerDlg.class);
 
     /** Callback to SubscriptionManagerDialog */
     private ITableChange callback;
@@ -72,7 +89,22 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
     private DualList dualList;
 
     /**
-     * Constructor.
+     * Configuration file selection combo.
+     */
+    private Combo fileCombo;
+
+    /**
+     * Map of context level:file name to LocalizationFile.
+     */
+    private Map<String, LocalizationFile> configFileMap;
+
+    /**
+     * Configuration manager.
+     */
+    private SubscriptionConfigurationManager configManager;
+
+    /**
+     * Initialization Constructor.
      * 
      * @param parentShell
      * @param callback
@@ -81,6 +113,7 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
         setText("Subscription Manager Configuration");
         this.callback = callback;
+        configManager = SubscriptionConfigurationManager.getInstance();
     }
 
     /*
@@ -98,17 +131,68 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         shell.setLayout(gl);
         shell.setLayoutData(gd);
 
-        readConfigFile();
+        createTopControls();
         createMain();
         createBottomButtons();
     }
 
+    private void createTopControls() {
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridLayout gl = new GridLayout(2, false);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gl = new GridLayout(2, false);
+        Composite topComp = new Composite(shell, SWT.NONE);
+        topComp.setLayout(gl);
+        topComp.setLayoutData(gd);
+
+        Composite comp = new Composite(topComp, SWT.NONE);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        gl = new GridLayout(4, false);
+        comp.setLayout(gl);
+        comp.setLayoutData(gd);
+
+        Label configurationFileLabel = new Label(comp, SWT.NONE);
+        configurationFileLabel.setText("Configuration:");
+
+        GridData comboData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        fileCombo = new Combo(comp, SWT.READ_ONLY);
+        fileCombo.setLayoutData(comboData);
+        fileCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    handleConfigSelected();
+                } catch (JAXBException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        });
+        updateFileCombo();
+    }
+
     /**
-     * Read the configuration file
+     * Update the file combo based on the available configurations and currently
+     * selected config.
      */
-    private void readConfigFile() {
-        SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager.getInstance();
-        xml = configMan.getXml();
+    private void updateFileCombo() {
+        configFileMap = configManager.getConfigFileNameMap();
+        fileCombo.removeAll();
+
+        int index = 0;
+        for (Entry<String, LocalizationFile> entry : configFileMap.entrySet()) {
+            fileCombo.add(entry.getKey());
+            if (configManager.isCurrentConfig(entry.getValue())) {
+                fileCombo.select(index);
+            }
+            ++index;
+        }
+
+        if (fileCombo.getSelectionIndex() < 0 && index > 0) {
+            fileCombo.select(0);
+        }
     }
 
     private void createMain() {
@@ -120,6 +204,23 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         configGroup.setLayoutData(groupData);
         configGroup.setText(" Table Column Configuration Settings ");
 
+        dualConfig = new DualListConfig();
+        dualConfig.setAvailableListLabel("Hidden Columns:");
+        dualConfig.setSelectedListLabel("Visible Columns:");
+        dualConfig.setListHeight(250);
+        dualConfig.setListWidth(170);
+        dualConfig.setShowUpDownBtns(true);
+        dualList = new DualList(configGroup, SWT.NONE, dualConfig);
+        updateDualListSelections();
+    }
+
+    /**
+     * Update the DualList selection-available based on the current
+     * configuration manager xml.
+     */
+    private void updateDualListSelections() {
+        SubscriptionManagerConfigXML xml = configManager.getXml();
+
         ArrayList<ColumnXML> columns = xml.getColumnList();
         ArrayList<String> fullList = new ArrayList<String>();
         ArrayList<String> selectedList = new ArrayList<String>();
@@ -130,21 +231,13 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
             }
             fullList.add(column.getName());
         }
-
-        dualConfig = new DualListConfig();
-        dualConfig.setAvailableListLabel("Hidden Columns:");
-        dualConfig.setSelectedListLabel("Visible Columns:");
-        dualConfig.setListHeight(250);
-        dualConfig.setListWidth(170);
-        dualConfig.setShowUpDownBtns(true);
-        dualConfig.setFullList(fullList);
-        dualConfig.setSelectedList(selectedList);
-        dualList = new DualList(configGroup, SWT.NONE, dualConfig);
-
+        dualList.clearAvailableList(true);
+        dualList.setFullList(fullList);
+        dualList.setSelectedList(selectedList);
     }
 
     /**
-     * Create the buttons
+     * Create the bottom control buttons
      */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -156,6 +249,17 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
 
         int buttonWidth = 75;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
+
+        Button applyBtn = new Button(bottomComp, SWT.PUSH);
+        applyBtn.setText("Apply");
+        applyBtn.setLayoutData(btnData);
+        applyBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleApply();
+            }
+        });
+
         Button okBtn = new Button(bottomComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(btnData);
@@ -167,7 +271,7 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         });
 
         Button closeBtn = new Button(bottomComp, SWT.PUSH);
-        closeBtn.setText("Cancel");
+        closeBtn.setText("Close");
         closeBtn.setLayoutData(btnData);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -175,43 +279,100 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
                 close();
             }
         });
+
+        Button newBtn = new Button(bottomComp, SWT.PUSH);
+        newBtn.setText("New");
+        newBtn.setLayoutData(btnData);
+        newBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleNew();
+            }
+        });
+        Button deleteBtn = new Button(bottomComp, SWT.PUSH);
+        deleteBtn.setText("Delete");
+        deleteBtn.setLayoutData(btnData);
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleDelete();
+            }
+        });
     }
 
-    private void handleOK() {
+    /**
+     * Open dialog to remove a configuration.
+     */
+    protected void handleDelete() {
+        LoadSaveConfigDlg dialog = new LoadSaveConfigDlg(shell,
+                DialogType.DELETE, configManager.getLocalizationPath(),
+                configManager.getDefaultXMLConfig());
+        LocalizationFile file = (LocalizationFile) dialog.open();
+
+        if (file == null) {
+            return;
+        }
+        try {
+            file.delete();
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        updateFileCombo();
+        handleApply();
+    }
+
+    /**
+     * Open dialog for a new configuration.
+     */
+    protected void handleNew() {
+        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
+                DialogType.SAVE_AS, configManager.getLocalizationPath(),
+                configManager.getDefaultXMLConfig(), true);
+        LocalizationFile file = (LocalizationFile) loadDlg.open();
+
+        if (file == null) {
+            return;
+        }
+        configManager.saveXml(file);
+        handleApply();
+        updateFileCombo();
+    }
+
+    /**
+     * Apply changes with dialog still open.
+     */
+    protected void handleApply() {
         if (dualList.getSelectedListItems().length == 0) {
-            DataDeliveryUtils.showMessage(shell, SWT.ERROR, "No Columns Visible",
-                    "No columns are visible.  At least one column must be visible.");
+            DataDeliveryUtils
+                    .showMessage(shell, SWT.ERROR, "No Columns Visible",
+                            "No columns are visible.  At least one column must be visible.");
             return;
         }
 
-        SubscriptionConfigurationManager configManager = SubscriptionConfigurationManager.getInstance();
+        String[] visibleColumns = dualList.getSelectedListItems();
+        String[] hiddenColumns = dualList.getAvailableListItems();
 
-        SubscriptionManagerConfigXML xml = configManager.getXml();
-        xml.clearColumns();
-
-        String[] selectedColumns = dualList.getSelectedListItems();
-        String[] availableColumns = dualList.getAvailableListItems();
-
-        for (String columnName : selectedColumns) {
-            ColumnXML col = new ColumnXML();
-            col.setName(columnName);
-            col.setVisible(true);
-            xml.addColumn(col);
-        }
-
-        for (String columnName : availableColumns) {
-            ColumnXML col = new ColumnXML();
-            col.setName(columnName);
-            col.setVisible(false);
-            xml.addColumn(col);
-        }
-
-        configManager.setXml(xml);
-        configManager.saveXml();
-
+        configManager.setVisibleAndHidden(visibleColumns, hiddenColumns);
         callback.tableChanged();
+    }
 
+    private void handleOK() {
+        handleApply();
         close();
+    }
+
+    /**
+     * Load a selected configuration.
+     * 
+     * @throws JAXBException
+     */
+    private void handleConfigSelected() throws JAXBException {
+        String selectedKey = fileCombo.getItem(fileCombo.getSelectionIndex());
+        LocalizationFile selectedFile = configFileMap.get(selectedKey);
+
+        configManager.setConfigFile(selectedFile);
+        updateDualListSelections();
+        callback.tableChanged();
     }
 
 }
