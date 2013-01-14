@@ -129,7 +129,8 @@
             </xsl:element>    
         </xsl:if>
         
-        <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable>
+ <!--  -      <xsl:variable name="airTag"><xsl:value-of select="concat(@tag,@desk)"/></xsl:variable>--> 
+        <xsl:variable name="airTag"><xsl:value-of select="@airmetTag"/></xsl:variable>
 
         <xsl:if test="not( contains( @issueType, 'CAN' )) and string-length( $freqSevStatement ) > 1">
             <xsl:element name="line">

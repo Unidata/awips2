@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
@@ -106,6 +107,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/02/2012   #651       S. Gurung   Added fix for applying resource attributes changes.
  * 06-07-2012   #717       Archana	   Updated setColorMapParameters() to store label information
  *                                      for the colorbar 
+ * 12/19/2012   #960       Greg Hull   override propertiesChanged() to update colorBar.
+ *                                      
  * </pre>
  * 
  * @author sgurung
@@ -846,6 +849,15 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
         });
     }*/
 	
+	@Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
+    	
+    	if( cbarRscPair != null ) {
+    		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
+    	}
+    }
+
+
 	@Override
 	public void resourceChanged(ChangeType type, Object object) {
 	
