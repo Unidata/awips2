@@ -8,6 +8,7 @@
 GLEVEL =  500
 GVCORD =  pres
 SKIP   =    0          
+FILTER=y
 SCALE  =   9                                 !5                 !-1
 GDPFUN =  sm5s(sm5s(adv(avor(wnd),wnd)))    !(abs(avor(wnd)))  !sm5s(hght)
 TYPE   =    c/f                               !c                 !c
@@ -23,4 +24,3 @@ TITLE  =   5/0/~ @ HEIGHT, VORTICITY & VORTICITY ADV|~ @ HGHT & VORT ADV!0
 COLORS =  2         
 MARKER =  2        
 GRDLBL =  5                                                                       
-FILTER =  1

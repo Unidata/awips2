@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.pgen;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
@@ -18,6 +19,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.graphtogrid.CoordinateTransform;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TimeZone;
 
 import javax.xml.transform.Transformer;
@@ -161,6 +165,9 @@ public class PgenUtil {
 	 */
 	public static final String RECOVERY_PREFIX = "pgen_session.";
 	public static final String RECOVERY_POSTFIX = ".tmp";
+	public static final String PGEN_PROD_DIR = "prod";
+	public static final String PGEN_XML_DIR = "xml";
+	public static final String PGEN_TEXT_PROD_DIR = "text";
 	
 	/*
 	 * Format string patterns for Lat/Lon Pre/Postpend
@@ -974,10 +981,11 @@ public class PgenUtil {
      * @param me	- map editor
      */
 //	static public void mergeLabels(LabeledLine ll, Coordinate loc, NCMapEditor mapEditor ){
-    static public void mergeLabels(LabeledLine ll, Coordinate loc, AbstractEditor mapEditor ){
+    static public LabeledLine mergeLabels(LabeledLine ll, Label testLbl, Coordinate loc, AbstractEditor mapEditor, PgenResource rsc
+    									){
 		
 		//label at location loc.
-		Label testLbl = null;
+	//	Label testLbl = null;
 		
 		//label close to testLbl
 		Label mergeLbl = null;
@@ -986,12 +994,19 @@ public class PgenUtil {
 		double scnLoc[] = mapEditor.translateInverseClick( loc );
 
 		//search for the closest two labels at loc
-		for ( Label lbl : ll.getLabels() ){
+		Layer activeLayer = rsc.getActiveLayer();
+		Iterator<AbstractDrawableComponent> it = activeLayer.getComponentIterator();
+		LabeledLine nearestLine = null;
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc =it.next();
+			if ( adc instanceof LabeledLine && ((LabeledLine)adc).getPgenType().equalsIgnoreCase(ll.getPgenType())){
+				LabeledLine lline = (LabeledLine)adc;
+				for ( Label lbl : lline.getLabels() ){
 			if ( Math.abs(lbl.getSpe().getLocation().x - loc.x) < 0.0001 &&
 					Math.abs(lbl.getSpe().getLocation().y - loc.y) < 0.0001 ) {
 				
 				//get the label at loc
-				testLbl = lbl;
+				//		testLbl = lbl;
 			}
 			else {
 				
@@ -1001,21 +1016,36 @@ public class PgenUtil {
 										+(scnLoc[1]-scnPt[1]) * (scnLoc[1]-scnPt[1]) );
 				
 				if ( dist < 20 ){  	// 20 is the screen distance.
-									// a label in this range(<10) is considered as being at the same location 
+							// a label in this range(<20) is considered as being at the same location 
 					mergeLbl = lbl;
+							nearestLine = (LabeledLine)adc;
+							break;
+						}
 				}
 			}
 		}		 
+			if ( mergeLbl != null ) break;
+		}
 	
 		//add all arrow lines of one label to the other label and remove the second label
 		if ( testLbl != null && mergeLbl != null ){
-			for ( Line ln :mergeLbl.getArrows()) {
-				testLbl.addArrow(ln);
+			for ( Line ln : testLbl.getArrows()) {
+				mergeLbl.addArrow(ln);
 				ln.removePoint(0);
-				ln.addPoint(0, testLbl.getSpe().getLocation());
+				ln.addPoint(0, mergeLbl.getSpe().getLocation());
 			}
-			ll.remove(mergeLbl);
+		//	ll.add(mergeLbl);
+			ll.remove(testLbl);
 		}
+		
+		if ( nearestLine != null ){
+			Iterator<AbstractDrawableComponent> iterator = nearestLine.getComponentIterator();
+			while ( iterator.hasNext() ){
+				ll.add(iterator.next() );
+			}
+		}
+		
+		return nearestLine;
 	}
 	
     /**
@@ -1352,6 +1382,46 @@ public class PgenUtil {
 		return Activator.getDefault().getPreferenceStore().getString( PgenPreferences.P_OPR_DIR );
     }
 
+    /**
+     * Returns the file path of the current PGEN activity
+     * @return
+     */
+    public static String getPgenActivityPath(){
+		String pdName = PgenSession.getInstance().getPgenResource().getActiveProduct().getType();
+		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
+		if ( pt != null ) pdName = pt.getType();
+	
+		//String pd1 = pdName.replaceAll(" ", "_");
+			
+		return PgenUtil.getPgenOprDirectory() +	File.separator + pdName;  
+    }
+    
+    /**
+     * Returns the file path of the current PGEN activity products
+     * @return
+     */
+    public static String getPgenActivityProdPath(){
+					
+		return PgenUtil.getPgenActivityPath() + File.separator + PGEN_PROD_DIR;  
+    }
+    
+    /**
+     * Returns the file path of the current PGEN activity products
+     * @return
+     */
+    public static String getPgenActivityTextProdPath(){
+	
+			
+		return PgenUtil.getPgenActivityProdPath() +	File.separator + PGEN_TEXT_PROD_DIR;  
+    }   
+    /**
+     * Returns the file path of the current PGEN activity xml files
+     * @return
+     */
+    public static String getPgenActivityXmlPath(){
+			
+		return PgenUtil.getPgenActivityPath() + File.separator + PGEN_XML_DIR;  
+    }
 
 	/**
 	 * Format a Calendar date into a string of "DDMMYYYY"
