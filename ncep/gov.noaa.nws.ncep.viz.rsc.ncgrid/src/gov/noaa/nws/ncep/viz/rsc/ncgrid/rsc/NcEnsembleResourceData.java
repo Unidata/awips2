@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.GridDBConstants;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,7 +25,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * ------------ ---------- ----------- --------------------------
  * 12/13/2011               G Hull     Created.
  * 04/02/2012   #606        G Hull     added primaryModel for Ensem
- *           
+ *  09/11/2012   #743    Archana   Added CLRBAR            
  * </pre>
  * 
  * @author ghull
@@ -59,8 +61,8 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	//
 	public String getPrimaryModel() {
 		HashMap<String, RequestConstraint> reqConstraints  = getMetadataMap();
-		if( reqConstraints.containsKey("modelInfo.modelName") ) {
-			return reqConstraints.get("modelInfo.modelName").getConstraintValue(); 
+		if( reqConstraints.containsKey(GridDBConstants.MODEL_NAME_QUERY) ) {
+			return reqConstraints.get(GridDBConstants.MODEL_NAME_QUERY).getConstraintValue(); 
     	}
 		else {
 			return null;
@@ -68,7 +70,7 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	}
 
 	public void setPrimaryModel(String primaryModel) {
-		getMetadataMap().put("modelInfo.modelName", 
+		getMetadataMap().put(GridDBConstants.MODEL_NAME_QUERY, 
 				new RequestConstraint( primaryModel, ConstraintType.EQUALS ) );
 	}
 
@@ -386,6 +388,15 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	public void setHlsym(String hlsym) {
 		super.setHlsym(hlsym);
 	}    
+	
+	
+	public String getClrbar() {
+		return super.getClrbar();
+	}
+
+	public void setClrbar(String clrbar) {
+		super.setClrbar(clrbar);
+	} 
 	
     @Override
     public boolean equals(Object obj) {
