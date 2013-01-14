@@ -275,6 +275,20 @@ public abstract class AbstractRequestableResourceData extends
         Validate.isTrue(updateData instanceof Object[],
                 "Update expected Object[]");
 
+        if (updateData instanceof PluginDataObject[]) {
+            for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
+                DataTime time = pdo.getDataTime();
+                if (binOffset != null) {
+                    time = binOffset.getNormalizedTime(time);
+                }
+                synchronized (cachedAvailableTimes) {
+                    if (!cachedAvailableTimes.contains(time)) {
+                        cachedAvailableTimes.add(time);
+                    }
+                }
+            }
+        }
+        
         this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
