@@ -95,16 +95,6 @@ public class NcgribPathProvider extends DefaultPathProvider {
                             + persistable.toString());
         }
 
-//        if (partition == null) {
-//            throw new IllegalArgumentException(
-//                    "Expected argument hdfFileId not set on object "
-//                            + persistable.toString());
-//        } else if (pluginName == null) {
-//            throw new IllegalArgumentException(
-//                    "Expected argument pluginName not set on object "
-//                            + persistable.toString());
-//        }
-
         NcgribRecord pdo = (NcgribRecord) persistable;
         StringBuffer sb = new StringBuffer();
 

@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<requestPatterns xmlns:ns2="group">
-    <regex>^W[CSV]US0[1-6].*</regex>
-</requestPatterns>
