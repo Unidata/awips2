@@ -31,6 +31,8 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.time.domain.Durations;
+import com.raytheon.uf.common.time.domain.api.IDuration;
 import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfigFixture;
 
@@ -54,29 +56,12 @@ import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfigFixture
 public class ProviderTest {
 
     @Test
-    public void testSetPostedFileDelayAllowsSpacesSurrounding() {
-        Provider provider = new Provider();
-        provider.setPostedFileDelay(" 2 MICROSECONDS ");
-
-        assertEquals(2, provider.getPostedFileDelayValue());
-        assertEquals(TimeUnit.MICROSECONDS, provider.getPostedFileDelayUnits());
-    }
-
-    @Test
-    public void testSetPostedFileDelayCanParseText() {
-        Provider provider = new Provider();
-        provider.setPostedFileDelay("5 HOURS");
-
-        assertEquals(5, provider.getPostedFileDelayValue());
-        assertEquals(TimeUnit.HOURS, provider.getPostedFileDelayUnits());
-    }
-
-    @Test
     public void testSetPostedFileDelayIsCalledOnJaxbUnmarshall()
             throws JAXBException {
         HarvesterConfig config = HarvesterConfigFixture.INSTANCE.get();
         Provider provider = config.getProvider();
-        provider.setPostedFileDelay("3 DAYS");
+        final IDuration originalDuration = Durations.of(3, TimeUnit.DAYS);
+        provider.setPostedFileDelay(originalDuration);
 
         Writer writer = new StringWriter();
         JAXBContext ctx = JAXBContext.newInstance(HarvesterConfig.class);
@@ -85,19 +70,6 @@ public class ProviderTest {
         HarvesterConfig restored = (HarvesterConfig) ctx.createUnmarshaller()
                 .unmarshal(new StringReader(writer.toString()));
         Provider restoredProvider = restored.getProvider();
-        assertEquals(3, restoredProvider.getPostedFileDelayValue());
-        assertEquals(TimeUnit.DAYS, restoredProvider.getPostedFileDelayUnits());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetPostedFileDelayThrowsExceptionOnInvalidUnits() {
-        Provider provider = new Provider();
-        provider.setPostedFileDelay("5 HOUR");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetPostedFileDelayThrowsExceptionOnValueLessThanZero() {
-        Provider provider = new Provider();
-        provider.setPostedFileDelay("-1 DAYS");
+        assertEquals(originalDuration, restoredProvider.getPostedFileDelay());
     }
 }
