@@ -1,6 +1,8 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.level.Level;
+
 import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
@@ -16,6 +18,7 @@ import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.HILORelativeMinAndMaxLocator;
 import gov.noaa.nws.ncep.viz.common.ui.ModelListInfo;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcGridInventory;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
@@ -30,9 +33,11 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.GridPointValueDisplay;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.GridRelativeHiLoDisplay;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.GriddedVectorDisplay;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.Dgdriv;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.GridDBConstants;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.DgdrivException;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.NcgridDataCache;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -41,6 +46,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -52,21 +59,29 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -117,6 +132,7 @@ import com.raytheon.uf.viz.core.style.level.SingleLevel;
  * 05/15/2012               X. Guo          Used getAvailableDataTimes() to get available times
  * 05/23/2012               X. Guo          Loaded ncgrib logger   
  * 06/07/2012               X. Guo          Catch datauri&grid data for each frame                                    
+ * 09/26/2012               X. Guo          Fixed navigation query problems                                    
  * </pre>
  * 
  * @author mli
@@ -128,6 +144,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 	private static NcepLogger logger = NcepLoggerManager.getNcepLogger(NcgridResource.class);
 
 	private static SimpleDateFormat QUERY_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DecimalFormat forecastHourFormat = new DecimalFormat("000");
 
 	// For Ensembles this will be the NcEnsembleResourceData
 	protected NcgridResourceData gridRscData;
@@ -212,92 +229,6 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 		}
     }
     
-    /*
-    private class VectorContourRenderable extends ContourRenderable {
-
-       // private PluginDataObject pdo;
-        private NcGridDataProxy gridDataPrxy;
-        
-        private IDataRecord cache;
-
-        private boolean dataRequested = false;
-
-//        private Exception exception = null;
-        
-        ContourAttributes attr;
-
-        public VectorContourRenderable(IMapDescriptor descriptor,
-        		NcGridDataProxy gridData, ContourAttributes attr) {
-            super(descriptor);
-            this.gridDataPrxy = gridData;
-            this.attr = attr;
-        }
-
-        @Override
-        public IDataRecord getData() {
-//            try {
-//                if (exception != null) {
-//                    throw exception;
-//                }
-                if (cache == null && !dataRequested) {
-                    dataRequested = true;
-//                    new Thread() {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                cache = getDataRecord(pdo, attr);
-//                                lastTarget.setNeedsRefresh(true);
-//                            } catch (Exception e) {
-//                                exception = e;
-//                            }
-//                        }
-//                    }.start();
-                    try {
-                    	cache = getDataRecord( gridDataPrxy, attr);
-                    } catch (DgdrivException e) {
-                    	e.printStackTrace();
-                    }
-                    lastTarget.setNeedsRefresh(true);
-                }
-
-                return cache;
-//   print error message in the console instead of in the alertviz popup, request by DP
-//            } catch (VizException e) {
-//            	String msg = "Error retrieving " + gridRscData.gdfile.toUpperCase() + 
-//            				 " " + attr.getGdpfun().toUpperCase()+ " data\nError is: "+e.getMessage() ;
-//                throw new VizException(msg, e);
-//            }
-        }
-
-
-        @Override
-        public MathTransform getTransform() {
-//        		NcgribRecord gribRecord = (NcgribRecord) pdo;
-
-        		GridGeometry2D gridGeometry2D = MapUtil.getGridGeometry( gridDataPrxy
-        				.getSpatialObject());
-        		return gridGeometry2D.getGridToCRS(PixelInCell.CELL_CENTER);
-        }
-
-       
-
-		@Override
-		public GeneralGridGeometry getGridGeometry() {
-			//NcgribRecord gribRecord = (NcgribRecord) pdo;
-			
-	        GridGeometry2D gridGeometry2D = MapUtil.getGridGeometry(gridDataPrxy
-	                .getSpatialObject());
-	        return gridGeometry2D;
-		}
-
-		@Override
-		public ContourAttributes getContourAttributes() {
-			return attr;
-		}
-    }
-    
-    */
-
     protected class NcgridLoaderJob extends Job {
 
     	private boolean cancel = false;
@@ -333,19 +264,19 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
                        
                     	if ( isFirst ) {
                             isFirst = false;
+                            int cnt = 0;
                             while ( !frameData.isPaintAble()) {
                             	try {
                             		Thread.sleep(5);
+                            		if ( cnt > 20 ) break;
+                            		cnt ++;
                             	} catch (InterruptedException e) {
                         	
                             	}
                             }
                             
                         }
-//                        else {
-//                        	System.out.println ("----start here---"+ frameNum+"("+frameData.gdPrxy.getDataTime().toString() +")");
-//                        	frameData.generateContours(str + frameNum );
-//                        }
+
                         issueRefresh();
                 }
 
@@ -521,58 +452,79 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     							modelName = modelName.split("%")[1];
     						}
     					}
-    					queryList.put("modelInfo.modelName", 
+    					queryList.put(GridDBConstants.MODEL_NAME_QUERY, 
                         		new RequestConstraint( modelName, ConstraintType.EQUALS ) );
 //        				if ( eventName != null ){
 //    						queryList.put("eventName", 
 //    	                		new RequestConstraint( eventName, ConstraintType.EQUALS ) );
 //    					}
     					if ( perturbationNum != null ){
-    						queryList.put("modelInfo.perturbationNumber", 
+    						queryList.put(GridDBConstants.ENSEMBLE_ID_QUERY, 
     	                		new RequestConstraint( perturbationNum, ConstraintType.EQUALS ) );
     					}        			
     				}
+    				else {
+    					queryList.remove(GridDBConstants.EVENT_NAME_QUERY);
+    					queryList.remove(GridDBConstants.ENSEMBLE_ID_QUERY);
+    					if (gridRscData.getEnsembelMember() != null) {
+    						queryList.put(GridDBConstants.ENSEMBLE_ID_QUERY, 
+        	                		new RequestConstraint( gridRscData.getEnsembelMember(), ConstraintType.EQUALS ) );
+    					}
+    					else {
+    						if (gridRscData.getEventName() != null) {
+    							queryList.put(GridDBConstants.EVENT_NAME_QUERY, 
+            	                		new RequestConstraint( gridRscData.getEventName(), ConstraintType.LIKE ) );
+    						}
+    					}
+    				}
     				long t1 = System.currentTimeMillis();
-    				LayerProperty property = new LayerProperty();
-    				property.setDesiredProduct( ResourceType.PLAN_VIEW );
-    				queryList.put("dataTime", new RequestConstraint( gdPrxy.getDataTime().toString() ) );
-    				
+    				String []dts = gdPrxy.getDataTime().toString().split(" ");
+    				String reftime = dts[0] + " " + dts[1].substring(0, dts[1].length()-2);
+    				queryList.put(GridDBConstants.REF_TIME_QUERY, new RequestConstraint(reftime));
+    				queryList.put(GridDBConstants.FORECAST_TIME_QUERY, new RequestConstraint(Integer.toString(gdPrxy.getDataTime().getFcstTime())));
+
+    				DbQueryRequest request = new DbQueryRequest();
+    		        request.addRequestField(GridDBConstants.NAVIGATION_QUERY);
+    		        request.setLimit(1);
+    		        request.setConstraints(queryList);
     				try {
-    					property.setEntryQueryParameters( queryList,false );			
-    					// just need one since all the spatial objs should be the same for this time.
-    					property.setNumberOfImages(1); 
-    					String script = null;
-    					script = ScriptCreator.createScript( property );
-
-    					if (script == null) {
-    						gdPrxy = null;
-    						logger.debug( "error creating script.");
-    						return false;
+    		        DbQueryResponse response = (DbQueryResponse) ThriftClient
+    		        .sendRequest(request);
+    		     // extract list of results
+    		        List<Map<String, Object>> responseList = null;
+    		        if (response != null) {
+    		            responseList = response.getResults();
+    		        } else {
+    		            // empty list to simplify code
+    		            responseList = new ArrayList<Map<String, Object>>(0);
+    		        }
+    		        ISpatialObject cov = null;
+    		        if (responseList.size() > 0) {
+    		            Object spatialObj = responseList.get(0).get(GridDBConstants.NAVIGATION_QUERY);
+    		            if (spatialObj != null && spatialObj instanceof ISpatialObject) {
+    		            	cov = (ISpatialObject) spatialObj;
     					}
-    					Object[] pdoList = Connector.getInstance().connect(script, null, 20000);
-
-    					if( pdoList == null || pdoList.length == 0 ) {
-    						gdPrxy = null;
-    						logger.debug( "No records found.");
-    						return false;
     					}
-//        				System.out.println("retrieving dataTime : "+((NcgribRecord) pdoList[0]).getDataTime().toString() );
-
     					// update the spatial object in the gdProxy
     					long t4 = System.currentTimeMillis();
+    				//	ISpatialObject cov = ((NcgribRecord) pdoList[0]).getSpatialObject();
+    					if ( cov != null ) {
     					if ( ncgribLogger.enableRscLogs() ) 
-    						logger.info("retrieving grid navigation : "+((NcgribRecord) pdoList[0]).getDataTime().toString() + " took:" + (t4-t1));
-    					ISpatialObject cov = ((NcgribRecord) pdoList[0]).getSpatialObject();
+        						logger.info("retrieving grid navigation("+cov.toString()+") : "+gdPrxy.getDataTime().toString() + " took:" + (t4-t1));
     					gdPrxy.setSpatialObject( cov );
     					gdPrxy.setNewSpatialObject(cov);
+    				}
+    					else {
+    						if ( ncgribLogger.enableRscLogs()) 
+        						logger.info("Error retrieving ncgrid navigation for "+gdPrxy.getDataTime().toString() + " took:" + (t4-t1));
+    						return false;
+    					}
     				}
     				catch( VizException e) {
     					System.out.println("Error retrieving ncgrid record for the spatial object: "+e.getMessage() );
     					return false;
     				}                
     			}
-    		
-    		
     		
     			/*
     			 * query data
@@ -618,6 +570,9 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     							vectorDisplay[i] = new GriddedVectorDisplay(rec, displayType, isDirectionalArrow, descriptor, 
 										gdPrxy.getNewSpatialObject(),contourAttributes[i]);
     						}
+    						else {
+    							return false;
+    						}
     					}	
     					else {
     						gridData = vectorDisplay[i].getData();
@@ -629,6 +584,9 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     								vectorDisplay[i] = new GriddedVectorDisplay(gridData, displayType, isDirectionalArrow, descriptor, 
 											gdPrxy.getNewSpatialObject(),contourAttributes[i]);
     							}
+    						}
+    						else {
+    							return false;
     						}
     					}
     					t12 = System.currentTimeMillis();
@@ -657,6 +615,9 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     							hasData = true;
     							contourRenderable[i] = new ContourRenderable((IDataRecord)gridData, descriptor, 
 										MapUtil.getGridGeometry(gdPrxy.getNewSpatialObject()), contourAttributes[i], contourName);
+    						}
+    						else {
+    							return false;
     						}
     					} 
     					// Attributes or navigation change
@@ -708,18 +669,20 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     			Collections.sort(NcgridResource.this.dataTimes);
     		
     			frameLoaded = true;
-                while (getGraphicsTarget() == null || getPaintProperties() == null ) {
-                	try {
-                		Thread.sleep(5);
-                	} catch (InterruptedException e) {
-            	
-                	}
-                }
+//                while (getGraphicsTarget() == null || getPaintProperties() == null ) {
+//                	try {
+//                		Thread.sleep(5);
+//                	} catch (InterruptedException e) {
+//            	
+//                	}
+//                }
     			long t1 = System.currentTimeMillis();
     			if ( ncgribLogger.enableRscLogs() )
     				logger.info("*updateFrameData(" + ((gdPrxy != null)?gdPrxy.getDataTime().toString():" ")+"): completed diagnostic took: " + (t1-st));
     			logger.debug("updateFrameData: from init resource to complete diagnostic took: " + (t1-initTime));
+    			if (getGraphicsTarget() != null && getPaintProperties() != null ) {
                generateContours(gdPrxy.getDataTime().toString() );
+    			}
 //            }
     		cacheData.clear();
 			return true;
@@ -1026,7 +989,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 				long t2 = System.currentTimeMillis();
 				if ( gridData != null ) {
 					logger.debug ("getDataRecord return: kx=" + (int)gridData.getSizes()[0] + "  ky=" + (int)gridData.getSizes()[1]);
-					if ( ncgribPreferences != null && subgObj != null ) {
+					if ( subgObj != null ) {
 						gdPrxy.setNewSpatialObject( subgObj);
 					}
 				}
@@ -1078,7 +1041,7 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 					return;
 				}
 				String []  gridAvailableTimes = GempakGrid
-					.getAvailableGridTimes(dataLocation, cycleTime.toString());
+					.getAvailableGridTimes(dataLocation, cycleTime.toString(),gridRscData.getGdfile().toLowerCase());
 //				availableTimes = new DataTime[gridAvailableTimes.length];
 				for ( int ii=0; ii<gridAvailableTimes.length; ii++) {
 					availableTimes.add(new DataTime (gridAvailableTimes[ii]));
@@ -1208,8 +1171,8 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 //			gribRec.getDataTime(), gribRec.getSpatialObject() );	
 			return new NcGridDataProxy[]{ rscDataObj };
 		}
-		else if( obj instanceof NcgribRecord ) {
-			NcGridDataProxy rscDataObj = new NcGridDataProxy( ((NcgribRecord)obj).getDataTime() ); 
+		else if( obj instanceof GridRecord ) {
+			NcGridDataProxy rscDataObj = new NcGridDataProxy( ((GridRecord)obj).getDataTime() ); 
 			return new NcGridDataProxy[]{ rscDataObj };
 		}
 		else {	
@@ -1443,8 +1406,13 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 		 */
 		String inputGdfile = gridRscData.getGdfile();
 		
+		if ( gridRscData.getEnsembelMember() != null ) {
+			inputGdfile = inputGdfile + ":" + gridRscData.getEnsembelMember();
+		}
+		else {
 		if (gridRscData.getEventName() != null) {
 			inputGdfile = inputGdfile + ":" + gridRscData.getEventName();
+		}
 		}
 //		inputGdfile = checkEnsembleGdfiles(inputGdfile);//for perturbation number
 		ArrayList<DataTime> dataTimes = new ArrayList<DataTime>();
@@ -2031,8 +1999,13 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
     	}
     	
     	String modelname = gridRscData.getGdfile();
+    	if ( gridRscData.getEnsembelMember() !=null ) {
+    		modelname = modelname + ":" + gridRscData.getEnsembelMember();
+    	}
+    	else {
     	if (gridRscData.getEventName() != null) {
     		modelname = modelname + ":" + gridRscData.getEventName();
+    	}
     	}
     	titleInfoStr = modelname + " " + replaceTitleSpecialCharacters (titleStr, cTime);
     	if ( shrttlStr != null) {
@@ -2215,4 +2188,258 @@ public class NcgridResource extends AbstractNatlCntrsResource<NcgridResourceData
 		} 
 		return false;
 	}
+	
+	//for testing
+	private void dbQueryTest (NcGridDataProxy gdPrxy ) {
+		String [] VPS = {"||UREL|PRES|","||VREL|PRES|","||HGHT|PRES|"};
+		String modelname = gridRscData.getGdfile();
+		String []glvls = gridRscData.getGlevel().trim().split("!");
+		String glevel = "200";
+		
+		if ( glvls.length > 0 ) {
+			glevel = glvls[0];
+		}
+		String dt = dbtimeToDattim (gdPrxy.getDataTime().toString());
+		
+		for ( int i = 0; i < VPS.length; i ++ ) {
+			String reqParam = modelname + VPS[i] + glevel + "|" + dt;
+			logger.info("===getDataURI for(" + reqParam +") from database");
+			String datauri = getDataURI (reqParam);
+			if ( datauri != null ) {
+				retrieveData (datauri);
+			}
+		}
+	}
+	private String getDataURI(String parameters) {
+		long t0 = System.currentTimeMillis();
+		String datauri = null;
+		String[] parmList = parameters.split("\\|");
+		logger.debug ("enter getDataUri - parameters:"+ parameters);
+		HashMap<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+		rcMap.put( GridDBConstants.PLUGIN_NAME, new RequestConstraint(GridDBConstants.GRID_TBL_NAME) );
+        rcMap.put( GridDBConstants.MODEL_NAME_QUERY, new RequestConstraint( parmList[0] ) );
+
+        if( !parmList[1].isEmpty()) {
+        	rcMap.put( GridDBConstants.EVENT_NAME_QUERY, new RequestConstraint( parmList[1] ) );
+        }
+        rcMap.put( GridDBConstants.PARAMETER_QUERY, new RequestConstraint( parmList[2] ) );
+        rcMap.put( GridDBConstants.LEVEL_ID_QUERY, new RequestConstraint( parmList[3] ) );
+
+        // This is now querying modelInfo.level.levelonevalue (a Double) instead of glevel1 (an int)
+        // so to get the constraint to work we will need ".0"
+        // TODO : hack until we do this the right way.
+        //
+        if( parmList[4].equals("-9999" ) ) {
+        	rcMap.put( GridDBConstants.LEVEL_ONE_QUERY, new RequestConstraint( Level.getInvalidLevelValueAsString() ) ); // "-99999.0"
+        }
+        else {
+        	rcMap.put( GridDBConstants.LEVEL_ONE_QUERY, new RequestConstraint( parmList[4]+".0" ) );
+        }
+        
+        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, "info.level.leveltwovalue" );
+        
+        long t11 = System.currentTimeMillis();
+        if ( rslts == null || rslts.isEmpty() ) {
+			logger.info("====query NcGridInventory DB return NULL for ("+parmList[0] +"," + parmList[1] +
+					"," + parmList[2]+","+parmList[3]+","+parmList[4]+")===");
+			return null;
+		}
+      
+        logger.info ("NcGridInventory.searchNcGridInventory:rslts=" + rslts.toString() + " took: " +(t11-t0));
+        
+        
+        String [] tmpStr = rslts.get(0).split("/");
+        
+        // HACK: the inventory uses modelInfo.level to store the levels because they are in the URI and not glevels
+        // but the uengin script won't work querying the modelInfo.level.leveltwovalue (???) so we have to query
+        // glevel2 (an int) instead of the double modelInfo.level 
+
+        String lvl2 = tmpStr[6];        
+        if( lvl2.equals( Level.getInvalidLevelValueAsString() ) ) {
+        	lvl2 = "-9999.0";
+        }
+        
+		String refTimeg = parmList[5].toUpperCase().split("F")[0];
+		String refTime = GempakGrid.dattimToDbtime(refTimeg);
+		refTime = refTime.substring(0, refTime.length()-2);
+	    String fcstTimeg = parmList[5].toUpperCase().split("F")[1];
+	    String fcstTime = Integer.toString(((Integer.parseInt(fcstTimeg))*3600));
+	    
+	    rcMap.remove( GridDBConstants.LEVEL_TWO_QUERY );
+        rcMap.remove( GridDBConstants.LEVEL_TWO_QUERY );        
+	    rcMap.put( GridDBConstants.LEVEL_TWO_QUERY, new RequestConstraint( lvl2 ) );
+        rcMap.put( GridDBConstants.LEVEL_ONE_QUERY, new RequestConstraint( parmList[4]+".0" ) );
+
+	    
+	    rcMap.put(GridDBConstants.REF_TIME_QUERY, new RequestConstraint(refTime));
+	    rcMap.put(GridDBConstants.FORECAST_TIME_QUERY, new RequestConstraint(fcstTime));
+	    
+	    DbQueryRequest request = new DbQueryRequest();
+        request.addRequestField(GridDBConstants.DATA_URI_QUERY);
+        request.setConstraints(rcMap);
+        try {
+        	DbQueryResponse response = (DbQueryResponse) ThriftClient
+        	.sendRequest(request);
+     // extract list of results
+        	List<Map<String, Object>> responseList = null;
+        	if (response != null) {
+        		responseList = response.getResults();
+        	} else {
+        		// empty list to simplify code
+        		responseList = new ArrayList<Map<String, Object>>(0);
+        	}
+        	if (responseList.size() > 0) {
+        		Object dURI = responseList.get(0).get(GridDBConstants.DATA_URI_QUERY);
+        		if (dURI != null && dURI instanceof String) {
+        			datauri = (String) dURI;
+        		}
+        	}
+        	long t1 = System.currentTimeMillis();
+			if ( datauri != null )
+				logger.info("*** getDataURI("+datauri+") for("+parameters+") reftime:"+refTime+"("+Integer.parseInt(fcstTimeg)+") took: " + (t1-t0));
+			else
+				logger.info("??? getDataURI(null) for("+parameters+") reftime:"+refTime+"("+Integer.parseInt(fcstTimeg)+") took: " + (t1-t0));
+		} catch (VizException e) {
+			e.printStackTrace();
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+		
+		return datauri;
+	}
+	private void retrieveData(String dataURI)  {
+
+		long t001 = System.currentTimeMillis();
+		IDataRecord dr = null;
+		try {
+			String fileName = getFilename(dataURI);
+			String dataset = "Data";
+			Request request = Request.ALL;
+			logger.debug(" fileName:" + fileName );
+			IDataStore ds = DataStoreFactory.getDataStore(new File(fileName));
+			dr = ds.retrieve("", dataURI + "/" + dataset, request);
+//			dr = ds.retrieve(dataURI ,dataset, request);
+			float[] data = (float[]) dr.getDataObject();
+			long t002 = System.currentTimeMillis();
+			logger.info("***Reading " + dataURI + " from hdf5 took: " + (t002-t001));
+			//System.out.println("Reading from hdf5 took: " + (t002-t001));
+			
+		} catch (Exception e) {
+			logger.info("???Reading " + dataURI + " from hdf5 failed !!!!!");
+			e.printStackTrace();
+		}
+	}
+
+	public static String getFilename(String dataURI) {
+		String filename = null;
+		File file = null;
+		String [] uriStr = dataURI.split("/");
+		String path = uriStr[3];
+		StringBuilder sb = new StringBuilder();
+		String []tmStr = uriStr[2].split("_");
+		String dataDateStr = tmStr[0];
+		String fhrs = tmStr[2].substring(tmStr[2].indexOf("(") + 1,tmStr[2].indexOf(")"));
+		String fhStr ;
+		int number = 0 ;
+		
+		if ( fhrs == null) fhStr = "000";
+		else {
+			try {
+				number = Integer.parseInt(fhrs);
+			} catch (NumberFormatException e) {
+				
+			}
+			fhStr = forecastHourFormat.format(number);
+		}
+		sb.append(path);
+		sb.append("-");
+		sb.append(dataDateStr);
+		String dataTimeStr = tmStr[1].split(":")[0]+ "-FH-" + fhStr;
+		sb.append("-");
+		sb.append(dataTimeStr);
+		sb.append(".h5");
+
+		//if (DataMode.getSystemMode() == DataMode.THRIFT) {
+		//	file = new File(File.separator + dataURI.split("/")[1]
+		//			+ File.separator + path + File.separator + sb.toString());
+		//} else if (DataMode.getSystemMode() == DataMode.PYPIES) {
+			file = new File(VizApp.getServerDataDir() + File.separator
+					+ dataURI.split("/")[1] + File.separator + path
+					+ File.separator + sb.toString());
+		//} else {
+		//	file = new File(VizApp.getDataDir() + File.separator
+		//			+ dataURI.split("/")[1] + File.separator + path
+		//			+ File.separator + sb.toString());
+		//}
+
+		if (file != null)
+			filename = file.getAbsolutePath();
+		return filename;
+	}
+	private String dbtimeToDattim(String aTime) {
+		String aDattim = null;
+		String[] inputStringArray = new String[2];
+		
+		CharSequence char0 = "(";
+		/*
+		 * Process time contains forecast hour info
+		 */
+		if ( aTime.contains(char0) ) {
+			String zeroes = null;
+			int ind1 = aTime.indexOf("(");
+			int ind2 = aTime.indexOf(")");
+			if ( ind2-ind1 == 2 ) {
+				zeroes = "00";
+			}
+			else if ( ind2-ind1 == 3 ) {
+				zeroes = "0";
+			}
+			String str1 = aTime.substring(0, ind1-1);
+			String str2 = "";
+			if ( zeroes != null) {
+				str2 = "f"+zeroes+aTime.substring(ind1+1, ind2);
+			}
+			else {
+				str2 = "f"+aTime.substring(ind1+1, ind2);
+			}
+			
+			if ( aTime.contains("_") ) {
+				inputStringArray = str1.split("_");
+			}
+			else if ( ! aTime.contains("_") ) {
+				inputStringArray = str1.split(" ");
+			}
+
+			/*
+			 * YYYY-MM-DD HH:MM:SS.S (HHH)-> YYMMDD/HHMMfHHH
+			 * 2009-10-22 16:00:00.0 (5)-> 091022/1600f005
+			 * 0123456789 0123456789
+			 */
+			aDattim = inputStringArray[0].substring(2, 4)
+					+ inputStringArray[0].substring(5, 7)
+					+ inputStringArray[0].substring(8, 10) + "/"
+					+ inputStringArray[1].substring(0, 2)
+					+ inputStringArray[1].substring(3, 5) + str2;
+		}
+		/*
+		 * Process time that does NOT contain forecast hour info
+		 */
+		else {
+			inputStringArray = aTime.split(" ");
+
+			/*
+			 * YYYY-MM-DD HH:MM:SS.S -> YYMMDD/HHMM
+			 * 2009-01-20 02:25:00.0 -> 090120/0225
+			 * 0123456789 0123456789
+			 */
+			aDattim = inputStringArray[0].substring(2, 4)
+					+ inputStringArray[0].substring(5, 7)
+					+ inputStringArray[0].substring(8, 10) + "/"
+					+ inputStringArray[1].substring(0, 2)
+					+ inputStringArray[1].substring(3, 5);
+		}
+		return aDattim;
+	}
+	
 }

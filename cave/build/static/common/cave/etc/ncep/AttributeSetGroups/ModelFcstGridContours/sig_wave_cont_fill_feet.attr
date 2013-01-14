@@ -8,6 +8,7 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  mul(HTSGW,3.28) ! kntv(wnd)
 TYPE   =    c/f		! b
@@ -23,4 +24,3 @@ TITLE  =   5/-1/~ SIG WAVE HEIGHT (ft) and NWW3 10m WIND   =S!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1
