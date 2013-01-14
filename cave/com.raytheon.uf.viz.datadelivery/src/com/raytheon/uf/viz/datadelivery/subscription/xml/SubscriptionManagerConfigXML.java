@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.common.xml.ColumnXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
@@ -42,6 +43,9 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 10, 2012            mpduff     Initial creation
+ * Jan 07, 2013 1437       bgonzale   Set default sort column and direction. Added
+ *                                    getColumn(String), setSorColumn(String, SortDirection),
+ *                                    and removeColumn(ColumnXML).
  * 
  * </pre>
  * 
@@ -85,11 +89,58 @@ public class SubscriptionManagerConfigXML implements ISerializableObject {
         columnList.add(col);
     }
 
+    /**
+     * Remove the columnXML from the configuration.
+     * 
+     * @param columnXML
+     */
+    public void removeColumn(ColumnXML columnXML) {
+        columnList.remove(columnXML);
+    }
+
     private void createDefault() {
         String[] titles = DataDeliveryUtils.getColumnTitles(TABLE_TYPE.SUBSCRIPTION);
         for (String title : titles) {
             ColumnXML col = new ColumnXML(title, true);
             this.addColumn(col);
+        }
+        // set default sort column
+        if (!columnList.isEmpty()) {
+            columnList.get(0).setSortColumn(true);
+            columnList.get(0).setSortAsc(true);
+        }
+    }
+
+    /**
+     * Get the column with the given columnName.
+     * 
+     * @param columnName
+     * @return Column if found; null otherwise.
+     */
+    public ColumnXML getColumn(String columnName) {
+        for (ColumnXML column : columnList) {
+            if (column.getName().equals(columnName)) {
+                return column;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set the named column to the current sort column with the given direction.
+     * 
+     * @param columnName
+     * @param sortDirection
+     */
+    public void setSortColumn(String columnName, SortDirection sortDirection) {
+        boolean isSortAsc = SortDirection.ASCENDING.equals(sortDirection);
+        for (ColumnXML column : columnList) {
+            if (column.getName().equals(columnName)) {
+                column.setSortColumn(true);
+                column.setSortAsc(isSortAsc);
+            } else {
+                column.setSortColumn(false);
+            }
         }
     }
 }
