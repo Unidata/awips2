@@ -45,7 +45,7 @@
     <Method name="Alias">
         <Field abbreviation="PC"/>
     </Method>
-    <Method name="Or" models="ETA GFS212">
+    <Method name="Or" models="ETA GFS212 GFS201 GFS160 GFS161 GFS254">
         <Field abbreviation="TP6hr"/>
         <Field abbreviation="TP12hr"/>
     </Method>
