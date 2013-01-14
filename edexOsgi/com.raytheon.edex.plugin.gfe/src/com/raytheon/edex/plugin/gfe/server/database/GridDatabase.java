@@ -49,8 +49,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
@@ -73,6 +71,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/19/08                njensen     Added retrieval of discrete
  * 05/04/12     #574       dgilling    Update class to better match AWIPS1.
+ * 01/14/13     #1469      bkowal      The hdf5 data directory is no longer included
+ *                                     in the gfeBaseDataDir.
  * 
  * </pre>
  * 
@@ -95,9 +95,7 @@ public abstract class GridDatabase {
     protected boolean valid;
 
     static {
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        gfeBaseDataDir = env.getEnvValue("HDF5DIR") + File.separator + "gfe"
-                + File.separator;
+        gfeBaseDataDir = "gfe" + File.separator;
     }
 
     /**
