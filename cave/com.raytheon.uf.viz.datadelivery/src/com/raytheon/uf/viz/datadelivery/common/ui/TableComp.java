@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jun 27, 2012   702    jpiatt       Updates for subscription groups.
  * Aug 15, 2012   430    jpiatt       Modified sort.
  * Aug 30, 2012  1120    jpiatt       Added clickSort flag.
+ * Jan 07, 2013  1437    bgonzale     updateSortDirection method now returns direction.
  * 
  * </pre>
  * 
@@ -252,13 +253,14 @@ public abstract class TableComp extends Composite implements
      *            Data that contains the sort data that will be changed.
      * @param clickSort
      *            Only change column sort direction on click
+     * @return SortDirection returns the determined sort direction.
      */
-    public void updateSortDirection(TableColumn tc, ISortTable tableData,
+    public SortDirection updateSortDirection(TableColumn tc,
+            ISortTable tableData,
             boolean clickSort) {
+        SortDirection sortDirection = SortDirection.ASCENDING;
 
         if (!configChange) {
-            SortDirection sortDirection = SortDirection.ASCENDING;
-
             if (sortedColumn != null
                     && tc.getText().equals(sortedColumn.getText())) {
 
@@ -291,6 +293,7 @@ public abstract class TableComp extends Composite implements
 
         sortedColumn = tc;
         tableData.setSortColumn(sortedColumn.getText());
+        return sortDirection;
     }
 
     /**
