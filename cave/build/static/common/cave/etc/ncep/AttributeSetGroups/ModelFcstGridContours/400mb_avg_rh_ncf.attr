@@ -7,6 +7,7 @@
 GLEVEL =  500:300 ! 500:300 !500:300 
 GVCORD =  pres ! pres !pres 
 SKIP   =    0
+FILTER=y
 SCALE  =   0
 GDPFUN =  lav(relh) ! lav(relh) !lav(relh) 
 TYPE   =    c ! c ! c
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ @  HEIGHTS AND 500-300mb RH$!0
 COLORS =  2
 MARKER =  2
 GRDLBL =  5
-FILTER =  1
