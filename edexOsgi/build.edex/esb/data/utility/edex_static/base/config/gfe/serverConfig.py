@@ -605,12 +605,16 @@ HRAP = ('HRAP', POLAR_STEREOGRAPHIC,
       (-119.036, 23.097), (-75.945396, 53.480095),
       (0.0, 0.0), 0.0, 0.0, (1, 1), (801, 881), 0.0, 0.0, -105.0)
 
+NDFD_Oceanic_10K = ('NDFD Oceanic 10km', MERCATOR,
+      (-230.094, -30.4192), (10.71, 67.03),
+      (0.0, 0.0), 0.0, 0.0, (1, 1), (2517, 1289), 0.0, -109.962, 0.0)
+
 # list of all projections
 allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
  Grid207, Grid208, Grid209, Grid210, Grid211, Grid212, Grid213, Grid214,
  Grid214AK, Grid215, Grid216, Grid217, Grid218, Grid219, Grid221, Grid222,
  Grid225, Grid226, Grid227, Grid228, Grid229, Grid230, Grid231, Grid232,
- Grid233, Grid234, Grid235, HRAP]
+ Grid233, Grid234, Grid235, HRAP, NDFD_Oceanic_10K]
 
 #---------------------------------------------------------------------------
 #
@@ -791,8 +795,10 @@ SITES = {
 #Special Sites - Updated NHC and OPC domains in OB9.3
     'US' : ([267, 159], (18.0, 9.5), (67.0, 40.0), 'EDT5EDT', Grid211, "other"),
     'FSL' : ([161, 145], (38.50, 27.00), (10.0, 9.0), 'MST7MDT', Grid211, "other"),
-    'NH1' : ([667, 461], (69.5, 4.5), (52.03125, 35.9375), 'EST5EDT', Grid204, "wfo"),
-    'NH2' : ([950, 289], (-33.0, -7.0), (148.276, 45.0), 'EST5EDT', Grid210, "wfo"),
+#    'NH1' : ([667, 461], (69.5, 4.5), (52.03125, 35.9375), 'EST5EDT', Grid204, "wfo"),
+#    'NH2' : ([950, 289], (-33.0, -7.0), (148.276, 45.0), 'EST5EDT', Grid210, "wfo"),
+    'NH1' = ([838, 577], (887.0, 121.0), (837.0, 576.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo") 
+    'NH2' = ([1188, 363], (1328.0, 365.0), (1187.0, 362.0), 'EST5EDT', NDFD_Oceanic_10K, "wfo") 
     'ONA' : ([244, 383], (68.9375, 19.5625), (15.1875, 23.875), 'EST5EDT', Grid211, "wfo"),
     'ONP' : ([396, 415], (8.1875, 21.5625), (24.6875, 25.875), 'PST8PDT', Grid211, "wfo"),
 
@@ -971,7 +977,7 @@ RTMA        = ('RTMA',         GRID,   '', YES,  NO,  1, 36)
 NamDNG5     = ('NamDNG5',      GRID,   '', NO,   NO,  2, 0)
 TPCProb     = ('TPCProb',      GRID,   '', NO,   NO, 30, 0)
 SREF        = ('SREF',         GRID,   '', NO,   NO,  3, 0)
-
+ENPwave     = ('ENPwave',      GRID,   '', NO,   NO,  2, 0)
 #---------------------------------------------------------------------------
 #
 #  D2D Model Database Version Specification
@@ -1117,6 +1123,7 @@ elif SID in CONUS_EAST_SITES:
                  ('HiResW-NMM-East', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+		 ('ENPWAVE253', 'ENPwave'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1166,6 +1173,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HiResW-NMM-West', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+		 ('ENPWAVE253', 'ENPwave'),
                ]
 
 if SID in GreatLake_SITES:
@@ -1390,6 +1398,7 @@ else:
 #        "WCwave4" : ["WCwave4"],
 #        "WNAwave10" : ["WNAwave10"],
 #        "WNAwave4" : ["WNAwave4"],
+#	 "ENPwave": ["ENPwave"],
         }
 
 #initialization skip certain model runs
@@ -1519,6 +1528,7 @@ localMOSParms = localHPCQPFParms = localRFCQPFParms = []
 localTCMParms = localSATParms = localGFS75Parms = localGFS190Parms = []
 localAKwave10Parms = localAKwave4Parms = localEPwave10Parms = localGlobalWaveParms = []
 localWCwave10Parms = localWCwave4Parms = localWNAwave10Parms = localWNAwave4Parms = []
+localENPwaveParms = []
 localGLWMParms = []     #####DCS3499
 localParms = localHIRESWarwParms = localHIRESWnmmParms = []    #######DCS3501
 #DR20634 localParms = localSPCParms = []
@@ -1595,7 +1605,7 @@ if not BASELINE and siteImport('localConfig'):
     localWCwave4Parms = getattr(localConfig, 'parmsWCwave4', localWCwave4Parms)
     localWNAwave10Parms = getattr(localConfig, 'parmsWNAwave10', localWNAwave10Parms)
     localWNAwave4Parms = getattr(localConfig, 'parmsWNAwave4', localWNAwave4Parms)
-
+    localENPwaveParms = getattr(localConfig, 'parmsENPwave', localENPwaveParms)
     #note that extraISCparms are not in the standard format. These
     #are a list of ([p, p, p, p], officeType)
     localISCExtraParms = getattr(localConfig, 'extraISCparms', localISCExtraParms)
@@ -1771,6 +1781,9 @@ TPCProbPARMS = [([prob34, prob50, prob64], TC1),
 # Cobb snow tool
 parmsNAM12 = [([SnowRatio], TC1)]
 parmsGFS40 = [([SnowRatio], TC1)]
+
+ENPwave_parms = [([WindWaveHeight, WaveHeight, SurfHeight, Wind], TC6),
+            ([Swell, Swell2, Period, Period2], TC6)]
 #---------------------------------------------------------------------------
 # Databases for a site.
 # list of (Database, [parms])
@@ -1826,6 +1839,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (RTMA, RTMAPARMS + localRTMAParms),
              (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
              (TPCProb, TPCProbPARMS + localTPCProbParms),
+	     (ENPwave, ENPwave_parms + localENPwaveParms),
              (Test, OFFICIALDBS + localParms)] + localDBs
 
 # Intersite coordination database parameter groupings, based on

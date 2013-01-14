@@ -48,6 +48,8 @@ import com.raytheon.viz.warnings.DateUtil;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 6, 2008				bwoodle	    Initial creation
+ * Dec 28 2012  DR15599     mgamazaychikov  Updated method getListCounties to fix the problem
+ * 											with generated list of counties.
  * 
  * </pre>
  * 
@@ -79,9 +81,6 @@ public class FipsUtil {
 
     /** Catch the Date portion of the UGC Header */
     private static final String DATEPATTERN = "\\-([0-9]{6}\\-)";
-
-    /** Parses a single county from a UGC Header, can be repeated */
-    private static final String SINGLECOUNTY = "(?:([A-Z]{3}[0-9]{3})\\-)|(?:([0-9]{3})\\-)";
 
     /** Another RE to Catch the Date portion of the UGC Header */
     private static final String DATESTR = "[0-9]{6}\\-";
@@ -324,8 +323,11 @@ public class FipsUtil {
             }
         }
 
+        /*
+         * DR15599 - use simplifyHeader to get the correct rval
+         */
         if (difference.size() > 0) {
-            rval = getUgc(difference);
+            rval = simplifyHeader(getUgc(difference));
         }
         rval = rval + dateStr;
         return rval;
@@ -353,15 +355,53 @@ public class FipsUtil {
             matchStr += "-";
         }
 
-        String currentState = "";
-        pattern = Pattern.compile(SINGLECOUNTY);
-        matcher = pattern.matcher(matchStr);
-        while (matcher.find()) {
-            if (matcher.group(1) != null && matcher.group(1).length() == 6) {
-                currentState = matcher.group(1).substring(0, 3);
-                rval.add(matcher.group(1));
-            } else {
-                rval.add(currentState + matcher.group(2));
+        /*
+         * DR15599 - completely re-did how rval is calculated. 
+         */
+        String[] lines = matchStr.split("[\n]");
+        matchStr = "";
+        for (String line : lines) {
+        	matchStr += line;
+        }
+
+        String[] ranges = matchStr.split("[-]");
+        List<String> curList = null;
+        String curState = null;
+        for (String range : ranges) {
+            if (Character.isLetter(range.charAt(0))) {
+                /*
+                 * range starts with a character - get the new 
+                 * state or marine zone name
+                 */
+                if (curState != null) {
+                    for (String zone: curList) {
+                    	rval.add(curState+zone);
+                    }
+                }
+                curState = range.substring(0, 3);
+                curList = new ArrayList<String>();
+                range = range.substring(3);
+            }
+            if (curList != null) {
+                if (range.contains(">")) {
+                    /*
+                     * get the full range of zones/counties
+                     */
+                    String left = range.substring(0, 3);
+                    String right = range.substring(4);
+                    int start = Integer.valueOf(left);
+                    int end = Integer.valueOf(right);
+                    for (int val = start; val <= end; ++val) {
+                        curList.add(FIPS_FORMAT.format(val));
+                    }
+                } else {
+                    curList.add(range);
+                }
+            }
+        }
+        if (curState != null) {
+            for (String zone: curList) {
+            	rval.add(curState+zone);
             }
         }
         return rval;

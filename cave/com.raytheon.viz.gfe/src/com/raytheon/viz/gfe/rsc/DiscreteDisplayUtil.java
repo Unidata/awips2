@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,8 +22,6 @@ package com.raytheon.viz.gfe.rsc;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
@@ -56,16 +54,17 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 /**
  * Utilities for displaying GFEResources correctly. Determines the fill color
  * and/or pattern for discrete data (Weather or Hazard grids).
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 9, 2009            njensen     Initial creation
- * 
+ * Jan 9, 2013  15648     ryu         Update colormap when new discrete colrmap is selected.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -73,8 +72,6 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 public class DiscreteDisplayUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteDisplayUtil.class);
-
-    private static Map<String, Map<String, RGB>> discreteParmToColorMap = new HashMap<String, Map<String, RGB>>();
 
     private static ColorMap defaultSpectrum;
 
@@ -96,22 +93,29 @@ public class DiscreteDisplayUtil {
         return defaultSpectrum;
     }
 
+    private static WeatherColorTable weatherColorTable;
+
+    private static Map<String, DiscreteColorTable> discreteColorTable;
+
     /**
      * Delete the discrete color map for parm. This should be done whenever the
      * color map in the resource is changed (to make getFillColor() load the new
      * color map), or when the parm is destroyed (to conserve storage).
-     * 
+     *
      * @param parm
      *            The discrete parm whose color map is to be deleted.
      */
-    public static void deleteParmColorMap(Parm parm) {
+    public static synchronized void deleteParmColorMap(Parm parm) {
+        if (discreteColorTable == null) {
+            discreteColorTable = new HashMap<String, DiscreteColorTable>();
+        }
         String compositeName = parm.getParmID().getCompositeName();
-        discreteParmToColorMap.put(compositeName, null);
+        discreteColorTable.remove(compositeName);
     }
 
     /**
      * Given a parm, build a ColorMapParameters object for it.
-     * 
+     *
      * @param aparm
      *            The parm for which color map parameters should be built.
      * @return the ColorMapParameters for the parm.
@@ -207,12 +211,9 @@ public class DiscreteDisplayUtil {
             float logFactor = prefs.getFloat(logFactorPref);
             colorMP.setLogFactor(logFactor);
         }
-        
+
         if (info.getGridType() == GridType.DISCRETE) {
             List<String> keys = info.getDiscreteKeys();
-            if (!keys.get(keys.size()-1).equalsIgnoreCase("LocalHazard")) {
-                keys.add("LocalHazard");
-            }
             DataMappingPreferences dataMap = new DataMappingPreferences();
             for (int i=0; i < keys.size(); i++) {
                 DataMappingEntry entry = new DataMappingEntry();
@@ -231,10 +232,6 @@ public class DiscreteDisplayUtil {
         deleteParmColorMap(aparm);
         return colorMP;
     }
-
-    private static WeatherColorTable weatherColorTable;
-
-    private static Map<String, DiscreteColorTable> discreteColorTable;
 
     public static List<ImageAttr> getFillAttributes(WxValue wxValue) {
 
@@ -275,7 +272,6 @@ public class DiscreteDisplayUtil {
             ColorMapParameters params = resource.getCapability(
                     ColorMapCapability.class).getColorMapParameters();
             IColorMap colorMap = params.getColorMap();
-
             colorTable = new DiscreteColorTable(parm, colorMap);
             discreteColorTable.put(compName, colorTable);
         }
