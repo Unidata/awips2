@@ -714,7 +714,6 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		wfo.setText(formatWfoStr(wbDlg.getWatchBox().getWFOs()));
 		createStateChkBoxes(wbDlg.getWatchBox().getStates());
 		
-		
 		stPane.layout();
 		stGrp.pack(true);
 		stGrp.layout();
@@ -732,6 +731,8 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		
 		WatchInfoDlg.this.getShell().pack(true);
 		WatchInfoDlg.this.getShell().layout();
+		WatchInfoDlg.this.getShell().redraw(0, 0, WatchInfoDlg.this.getShell().getSize().x,
+				WatchInfoDlg.this.getShell().getSize().y, true);
 	}
 
 	/**
