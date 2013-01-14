@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  *  02/20/12      #606       Greg Hull   Created
  *  04/13/12      #606       Greg Hull   add dumpInventory()
  *  05/18/12      #606       Greg Hull   add directory and summary
+ *  11/15/12      #950       Greg Hull   Don't treat empty inventory as an error.
  * 
  * </pre>
  * 
@@ -134,13 +135,9 @@ public class NcInventoryRequestMsgHandler implements IRequestHandler<NcInventory
 	//
 	public Object handleDirectoryRequest( NcInventoryRequestMsg dirRequest) throws Exception {
 
+		// can be empty but not null.
 		List<NcInventory> invList = NcInventory.getAllNcInventories();
 		
-		if( invList == null || invList.isEmpty() ) {
-			String errStr = "Error requesting NcInventory Directory. No NcInventories?? ";
-			throw new Exception( errStr );
-		}
-
 		NcInventoryDefinition invDefns[] = new NcInventoryDefinition[ invList.size() ];
 		
 		for( int s=0 ; s<invList.size() ; s++ ) {

@@ -6,14 +6,16 @@
     <autoUpdate>false</autoUpdate>
     <timeMatcher skipValue="0" numFrames="10"/>
     <displayList>
-        <displays xsi:type="NC-MapRenderableDisplay" zoomLevel="0.24" mapCenter="-96.5 38.5 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="NC-MapRenderableDisplay" zoomLevel="0.25" mapCenter="-96.5 38.5 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="NCMapDescriptor">
 	            <resource>
                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
                       <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                     </properties>
                     <resourceData xsi:type="LocatorResourceData" resourceName="OVERLAY/Locator/default" isEdited="false">
-                        <legendColor>RGB {255, 255, 255}</legendColor>
+                        <color>RGB {255, 255, 255}</color>
+                        <fontSize>14</fontSize>
+                        <fontName>Monospace</fontName>
                         <pos1LocatorSource>LATLON</pos1LocatorSource>
                         <pos1RoundToNearest>1</pos1RoundToNearest>
                         <pos1DisplayUnit>degrees</pos1DisplayUnit>
@@ -34,7 +36,6 @@
                         <pos5RoundToNearest>1</pos5RoundToNearest>
                         <pos5DisplayUnit>omit</pos5DisplayUnit>
                         <pos5DirectionUnit>omit</pos5DirectionUnit>
-                        <color>RGB {0, 255, 0}</color>
                     </resourceData>
                 </resource>            
                 <resource>
@@ -93,7 +94,7 @@
                                 <mapName>Canada</mapName>
                                 <table>mapdata.canada</table>
                                 <geomField>the_geom</geomField>
-                                <labelField>name_en</labelField>
+                                <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
                                 <lineStyle>SOLID</lineStyle>
@@ -165,7 +166,33 @@
   AXIS["Northing", NORTH]]</CRS>
                 </gridGeometry>
             </descriptor>
-            <predefinedAreaName>BasicWX_US</predefinedAreaName>
+	 		<initialArea areaName="BasicWX_US">
+	 		    <mapCenter>-96.5 38.5 0.0</mapCenter>
+	 		    <zoomLevel>0.25</zoomLevel>
+	 			<areaSource>PREDEFINED_AREA</areaSource>
+                <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 10000" rangeX="0 10000">
+                    <CRS>PROJCS["Polar_Stereographic", 
+  GEOGCS["WGS84", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Polar_Stereographic"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -103.0], 
+  PARAMETER["latitude_of_origin", 90.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+			</initialArea>
+
         </displays>
     </displayList>
 </rbdBundle>
