@@ -348,8 +348,8 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
         ReferencedEnvelope envelope = null;
         if(useDataSetSize){
             envelope = fullEnvelope;
-        }else if(areaComp.isEnvelopeValid()){
-            areaComp.getEnvelope();
+        } else {
+            envelope = areaComp.getEnvelope();
         }
         
         AreaXML area = new AreaXML();
