@@ -37,17 +37,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Record class for an aggregate result.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez     Initial creation
  * Nov 12, 2012            dhladky      Updates some things for stats
- *
+ * Jan 15, 2013 1487       djohnson     Increase length of grouping to 1024.
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -56,7 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AggregateRecord extends PersistableDataObject {
+public class AggregateRecord extends PersistableDataObject<Integer> {
     private static final long serialVersionUID = -4553588456131256014L;
 
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -77,6 +78,7 @@ public class AggregateRecord extends PersistableDataObject {
     private String eventType;
 
     @DynamicSerializeElement
+    @Column(length = 1024)
     private String grouping;
 
     @Column(nullable = false)

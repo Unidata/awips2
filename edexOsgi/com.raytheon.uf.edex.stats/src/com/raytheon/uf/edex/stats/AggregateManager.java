@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.edex.stats;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,11 +30,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.xml.bind.JAXBException;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
+import com.raytheon.uf.common.stats.StatsGrouping;
+import com.raytheon.uf.common.stats.StatsGroupingColumn;
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsEvent;
@@ -61,6 +69,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Nov 07, 2012   1317     mpduff      Updated Configuration Files.
  * Nov 28, 2012   1350     rjpeter     Simplied aggregation and added aggregation with current db aggregate records.
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
+ * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
  * </pre>
  * 
  * @author jsanchez
@@ -69,6 +78,17 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
 public class AggregateManager {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AggregateManager.class);
+
+    private static final Object[] EMPTY_OBJ_ARR = new Object[0];
+
+    private static final JAXBManager JAXB_MANAGER;
+    static {
+        try {
+            JAXB_MANAGER = new JAXBManager(StatsGroupingColumn.class);
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     /** In minutes */
     private int bucketInterval;
@@ -255,8 +275,6 @@ public class AggregateManager {
         Map<TimeRange, Multimap<String, Event>> rval = new HashMap<TimeRange, Multimap<String, Event>>();
         TimeRange timeRange = null;
         Multimap<String, Event> eventsByGroup = null;
-        final Object[] EMPTY_OBJ_ARR = new Object[0];
-        StringBuilder group = new StringBuilder();
 
         for (StatsRecord record : records) {
             if ((timeRange == null)
@@ -275,30 +293,11 @@ public class AggregateManager {
                 Event event = SerializationUtil.transformFromThrift(
                         Event.class, record.getEvent());
 
-                // determine group
-                boolean addDelim = false;
-                Iterator<Method> gMethodIter = statEvent.getGroupByMethods()
-                        .iterator();
-                Iterator<StatisticsGroup> gFieldNameIter = statEvent
-                        .getGroupList().iterator();
-                group.setLength(0);
-
-                while (gMethodIter.hasNext() && gFieldNameIter.hasNext()) {
-                    Method m = gMethodIter.next();
-                    String field = gFieldNameIter.next().getName();
-                    String gVal = String
-                            .valueOf(m.invoke(event, EMPTY_OBJ_ARR));
-
-                    if (addDelim) {
-                        group.append('-');
-                    } else {
-                        addDelim = true;
-                    }
-
-                    group.append(field).append(':').append(gVal);
+                String groupAsString = determineGroupRepresentationForEvent(
+                        statEvent, event);
+                if (groupAsString != null) {
+                    eventsByGroup.put(groupAsString, event);
                 }
-
-                eventsByGroup.put(group.toString(), event);
             } catch (Exception e) {
                 statusHandler
                         .error("Error processing event. Aggregation may be inaccurate. ",
@@ -307,6 +306,30 @@ public class AggregateManager {
         }
 
         return rval;
+    }
+
+    @VisibleForTesting
+    static String determineGroupRepresentationForEvent(
+            StatisticsEvent statEvent, Event event)
+            throws IllegalAccessException, InvocationTargetException,
+            JAXBException {
+        Iterator<Method> gMethodIter = statEvent.getGroupByMethods().iterator();
+        Iterator<StatisticsGroup> gFieldNameIter = statEvent.getGroupList()
+                .iterator();
+        List<StatsGrouping> groupings = new ArrayList<StatsGrouping>();
+
+        while (gMethodIter.hasNext() && gFieldNameIter.hasNext()) {
+            Method m = gMethodIter.next();
+            String field = gFieldNameIter.next().getName();
+            String gVal = String.valueOf(m.invoke(event, EMPTY_OBJ_ARR));
+
+            groupings.add(new StatsGrouping(field, gVal));
+        }
+
+        StatsGroupingColumn column = new StatsGroupingColumn();
+        column.setGroup(groupings);
+
+        return JAXB_MANAGER.marshalToXml(column);
     }
 
     /**
