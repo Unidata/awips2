@@ -45,68 +45,42 @@ import org.eclipse.swt.widgets.ToolItem;
  * 07/20/09      1995       bphillip    Initial release
  * 12/06/12      DR 15574   jzeng       Change the image of 
  * 										the icon when it is activated 
+ * 01/11/13      DR 15574   jzeng       delete all fields to local variables
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 public class ShowISCGridsAction extends AbstractHandler {
-	/*
-	 * non-active Image
-	 */
-	private Image orgImg = null;
-	/*
-	 * active Image
-	 */
-	private Image actImg = null;
-	/*
-	 * ImageDescriptor 
-	 */
-	private ImageDescriptor id = null;
-	/*
-	 * Tool item
-	 */
-	private ToolItem ti = null;
 	
-    @Override
+	@Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         boolean current = Message.inquireLastMessage(ShowISCGridsMsg.class).show();
-        /*
-         * Get toolItem
-         */
+     
         if (arg0.getTrigger() instanceof Event) {
-        	Event e = (Event) arg0.getTrigger();
-        	if ( e.widget instanceof ToolItem) {
-        			ti = (ToolItem) e.widget;                	
-        	}
+            Event e = (Event) arg0.getTrigger();
+            if ( e.widget instanceof ToolItem) {
+                ToolItem ti = (ToolItem) e.widget;
+                if (ti != null ){
+                    ImageDescriptor id;
+
+                    if (!current){
+                	    id = Activator.imageDescriptorFromPlugin(
+                	        Activator.PLUGIN_ID, "icons/isc1.gif" );
+                	} else {
+                	    id = Activator.imageDescriptorFromPlugin(
+                		    Activator.PLUGIN_ID, "icons/isc0.gif" );
+                	}
+                    
+                	if (id != null){
+                	    Image  img = id.createImage();
+                	    ti.setImage(img);
+                        img.dispose();
+                    }
+                }
+            }
         }
-        
-        /*
-         * Get Image when it is not activated
-         */
-        if (orgImg == null) {
-        	id = Activator.imageDescriptorFromPlugin(
-        		Activator.PLUGIN_ID, "icons/isc0.gif" );    	
-        	orgImg = id.createImage();
-        }
-        /*
-         * Get Image when it is activated
-         */
-        if (actImg == null) {
-        	id = Activator.imageDescriptorFromPlugin(
-        		Activator.PLUGIN_ID, "icons/isc1.gif" );    	
-        	actImg = id.createImage();
-        }
-        /*
-         * Change the image when it is active and 
-         * change it back when it is not activated
-         */
-        if (ti != null) {
-        	if (!current) 
-        		ti.setImage(actImg);
-        	else ti.setImage(orgImg);
-        }
-        
+       
         new ShowISCGridsMsg(!current).send();
         return null;
     }
