@@ -307,6 +307,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
  * 13Dec2012   1353         rferrel     Change to make edit cancel message not
  *                                       dispaly the red had kill job message.
+ * 31Dec2012   15651	    M.Gamazaychikov	Added an argument to re-factored PrintDisplay.print
+ * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method.
  * </pre>
  * 
  * @author lvenable
@@ -3538,7 +3540,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (textEditor.getEditable() == false) {
                     return;
                 }
-                if (event.keyCode == SWT.DEL || event.character == SWT.BS
+                if (event.keyCode == SWT.DEL || event.keyCode == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
                     // We need to capture the Delete, Backspace and Shift
@@ -4190,7 +4192,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void printAllText() {
         FontData fontData = textEditor.getFont().getFontData()[0];
-        PrintDisplay.print(textEditor.getText(), fontData, statusHandler);
+        PrintDisplay.print(textEditor.getText(), fontData, charWrapCol, statusHandler);
     }
 
     /**
@@ -4213,7 +4215,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData,
+            PrintDisplay.print(textEditor.getSelectionText(), fontData, charWrapCol,
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
@@ -5142,6 +5144,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         int rangeEnd = rangeStart + ranges[i + 1];
                         if (event.start > rangeStart && event.start < rangeEnd) {
                             event.doit = false;
+                            /*
+                             * DR15704 - this needs to be set so the rewrap is not called
+                             * when locked text gets editted.
+                             */
+                            userKeyPressed = false;
                             break;
                         }
                     }
@@ -5150,6 +5157,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 int ranges[] = textEditor.getRanges(event.start, length);
                 if (inEditMode && ranges != null && ranges.length != 0) {
                     event.doit = false;
+                    /*
+                     * DR15704 - this needs to be set so the rewrap is not called
+                     * when locked text gets editted.
+                     */
+                    userKeyPressed = false;
                 }
             }
         } catch (IllegalArgumentException e) {

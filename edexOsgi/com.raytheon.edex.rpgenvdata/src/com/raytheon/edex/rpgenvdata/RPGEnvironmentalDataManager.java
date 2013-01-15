@@ -84,6 +84,16 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
+/**
+* SOFTWARE HISTORY
+* 
+* Date         	Ticket#     Engineer    	Description
+* ------------ 	----------  ----------- 	--------------------------
+* 	??	               			??	    	Initial Creation
+* 1-3-2013		DR 15667 	M.Porricelli 	Made EnvironParamsLevelTable.xml
+*                                        	accessible from SITE level
+* 
+**/
 public class RPGEnvironmentalDataManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RPGEnvironmentalDataManager.class);
@@ -143,12 +153,23 @@ public class RPGEnvironmentalDataManager {
         LocalizationContext edexStaticBase = pathMgr.getContext(
                 LocalizationContext.LocalizationType.EDEX_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
-
-        File file = pathMgr.getFile(edexStaticBase, "rpgenvdata"
+        
+        LocalizationContext edexStaticSite = pathMgr.getContext(
+                LocalizationContext.LocalizationType.EDEX_STATIC,
+                LocalizationContext.LocalizationLevel.SITE);
+        
+        File basePathFile = pathMgr.getFile(edexStaticBase, "rpgenvdata"
+                + File.separator + "EnvironParamsLevelTable.xml");
+        File sitePathFile = pathMgr.getFile(edexStaticSite, "rpgenvdata"
                 + File.separator + "EnvironParamsLevelTable.xml");
 
-        Unmarshaller u = Configuration.getUnmashaller();
-        configuration = (Configuration) u.unmarshal(file);
+        if (sitePathFile.exists()) {
+            Unmarshaller u = Configuration.getUnmashaller();
+            configuration = (Configuration) u.unmarshal(sitePathFile);
+        } else {
+            Unmarshaller u = Configuration.getUnmashaller();
+            configuration = (Configuration) u.unmarshal(basePathFile);
+        }
 
         if (!validateConfiguration(configuration)) {
             configuration = null;
