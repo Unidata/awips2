@@ -1,5 +1,8 @@
 package com.raytheon.uf.common.time.util;
 
+import com.raytheon.uf.common.time.domain.TimePoints;
+import com.raytheon.uf.common.time.domain.api.ITimePoint;
+
 
 /**
  * 
@@ -27,7 +30,7 @@ class TimerImpl extends AbstractTimer {
      * {@inheritDoc}
      */
     @Override
-    protected long getCurrentTime() {
-        return TimeUtil.currentTimeMillis();
+    protected ITimePoint getCurrentTime() {
+        return TimePoints.fromMillis(TimeUtil.currentTimeMillis());
     }
 }
