@@ -411,7 +411,7 @@ IDS|DDPLUS	^(FOUS[67].) (....) (..)(..)(..)
 #	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 #
 # separate out svrwx lsr and GSM misc adm messages
-IDS|DDPLUS|HDS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
+IDS|DDPLUS	^(N[A-VYZ]....) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 IDS|DDPLUS	^(NWUS[01346-9].) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/misc_adm_messages/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
@@ -431,6 +431,10 @@ IDS|DDPLUS	^(R.{5}) (.{4}) (..)(..)(..)
 # TEXT    ^SMMX.*                   	/point/synoptic/Raw
 IDS|DDPLUS	^(SM[UCM][SNX]..) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/synoptic/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
+
+# DR 15716 - Add in SHUS products for fire weather obs (and others)
+IDS|DDPLUS	^(SHUS..) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/misc_sfc_obs/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
 # AWIPS1:	TEXT	^S[AP]US[78]0.*			/point/metar/Raw
 # AWIPS1:	TEXT	^S[AP]US4.*			/point/metar/Raw

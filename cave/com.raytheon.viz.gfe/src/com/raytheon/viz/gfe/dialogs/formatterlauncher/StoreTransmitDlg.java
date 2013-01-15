@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28May2010    2187       cjeanbap    Added StdTextProductFactory
  *                                      functionality.
  * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
+ * 10Jan2012    15564      mgamazaychikov Set the awipsWanPil based on productText data
  * </pre>
  * 
  * @author lvenable
@@ -387,7 +388,15 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         } else {
             req = new OUPRequest();
             OfficialUserProduct oup = new OfficialUserProduct();
-            String awipsWanPil = productIdTF.getText();
+            /*
+             * DR15564 - set the awipsWanPil based on productText data
+             */
+            String[] splitLines = productText.split("\n");
+            String[] firstLine = splitLines[0].split(" ");
+            String[] secondLine = splitLines[1].split(" ");
+            String cccc = firstLine[1];
+            String productNnnidXxxid = secondLine[0];
+            String awipsWanPil = cccc + productNnnidXxxid;
             oup.setAwipsWanPil(awipsWanPil);
             oup.setProductText(productText);
 
