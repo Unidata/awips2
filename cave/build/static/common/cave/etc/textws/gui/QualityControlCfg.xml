@@ -35,6 +35,7 @@
     <ImmediateCause>DM \ DAM FAILURE</ImmediateCause>
     <ImmediateCause>DM \ DAM BREAK</ImmediateCause>
     <ImmediateCause>RS \ RAIN AND SNOW MELT</ImmediateCause>
+    <ImmediateCause>RS \ RAIN AND MELTING SNOW</ImmediateCause>
     <productTypeMap>
         <item>
             <key>FFW</key>
