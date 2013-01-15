@@ -40,6 +40,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2012 740        djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Change to find more localization files.
+ * Jan 16, 2013 1487       djohnson     Avoid adding new localization files to baseline utility directories.
  * 
  * </pre>
  * 
@@ -131,21 +132,44 @@ public class TestPathManager extends PathManager {
             }
 
             if (foundFile == null
-                    || !foundFile.exists()
                     || foundFile.getAbsolutePath().startsWith(
                             savedLocalizationFileDir.getAbsolutePath())) {
                 return foundFile;
             }
-            // Make a copy in the savedFile folder, this way if any
-            // modifications are performed we don't mess with the file in
-            // the baseline
+
+            File savedFile = createTestIsolatedVersionOfLocalizationFile(
+                    context, fileName, foundFile);
+            return savedFile;
+        }
+
+        /**
+         * Creates a test isolated version of the localization file. Allows the
+         * file to be written to, and changes to be read back, without affecting
+         * the baselined version of the file.
+         * 
+         * @param context
+         *            the context
+         * @param fileName
+         *            the file path
+         * @param baselinedVersion
+         *            the file reference
+         * @return
+         */
+        private File createTestIsolatedVersionOfLocalizationFile(
+                LocalizationContext context, String fileName, File baselinedVersion) {
             File savedFileBaseDir = new File(savedLocalizationFileDir,
                     context.toPath());
             File savedFile = new File(savedFileBaseDir, fileName);
             savedFile.getParentFile().mkdirs();
 
             try {
-                FileUtil.copyFile(foundFile, savedFile);
+                if (baselinedVersion.exists()) {
+                    if (baselinedVersion.isDirectory()) {
+                        savedFile.mkdirs();
+                    } else {
+                        FileUtil.copyFile(baselinedVersion, savedFile);
+                    }
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
