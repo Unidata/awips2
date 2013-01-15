@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.LatencyRuleXML;
+import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRuleXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
@@ -65,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 18, 2012  1417       bgonzale   Changed value initialization in handleSave().
  * Jan 04, 2013  1420       mpduff     Remove code to apply rules changes to existing subscription,
  *                                     rules are only for future subscriptions.
+ * Jan 14, 2013   1286     djohnson    Rule operators are now used as objects.
  * 
  * </pre>
  * 
@@ -528,8 +530,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
 
             updateSelectionFields(field);
 
-            String operator = ruleXml.getRuleOperator();
-            operationCombo.select(operationCombo.indexOf(operator));
+            operationCombo.select(operationCombo.indexOf(OperatorAdapter
+                    .toString(ruleXml.getRuleOperator())));
 
             String value = ruleXml.getRuleValue();
             if (!value.isEmpty()) {
@@ -646,8 +648,8 @@ public class CreateEditRuleDlg extends CaveSWTDialog {
 
         boolean valid = false;
         String fieldName = fieldCombo.getItem(fieldCombo.getSelectionIndex());
-        String operator = operationCombo.getItem(operationCombo
-                .getSelectionIndex());
+        Operator operator = OperatorAdapter.fromString(operationCombo
+                .getItem(operationCombo.getSelectionIndex()));
 
         if (create) {
             valid = DataDeliveryGUIUtils.hasText(ruleNameText);
