@@ -45,7 +45,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008            njensen     Initial creation
+ * Nov 5, 2008             njensen      Initial creation
+ * Jan 8, 2013  1486       dgilling     Support changes to BaseGfePyController.
  * </pre>
  * 
  * @author njensen
@@ -120,7 +121,7 @@ public class ProcedureController extends BaseGfePyController {
     public Object executeProcedure(String procedureName,
             Map<String, Object> args) throws JepException {
         if (!isInstantiated(procedureName)) {
-            instantiatePythonTool(procedureName);
+            instantiatePythonScript(procedureName);
         }
         args.put(PyConstants.METHOD_NAME, "execute");
         args.put(PyConstants.MODULE_NAME, procedureName);
