@@ -86,6 +86,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * Oct 02, 2012   #1236    dgilling     Allow SimulatedTime to be set from
  *                                      the command line even if practice
  *                                      mode is off.
+ * Jan 09, 2013   #1442    rferrel      Changes to notify SimultedTime listeners.
  * 
  * </pre>
  * 
@@ -319,11 +320,13 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         }
 
         SimulatedTime systemTime = SimulatedTime.getSystemTime();
+        systemTime.notifyListeners(false);
         systemTime.setRealTime();
         systemTime.setFrozen(isFrozen);
         if (timeValue != 0) {
             systemTime.setTime(new Date(timeValue));
         }
+        systemTime.notifyListeners(true);
     }
 
     /**
