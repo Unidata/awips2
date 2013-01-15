@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.logging,
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
- com.raytheon.uf.common.auth;bundle-version="1.12.1174"
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.common.python;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
@@ -55,7 +56,6 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dissemination,
  com.raytheon.uf.common.message,
- com.raytheon.uf.common.python,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.viz.python.swt,
  com.raytheon.uf.viz.python.swt.widgets,

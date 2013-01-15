@@ -19,23 +19,13 @@
  **/
 package com.raytheon.viz.gfe;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PyConstants;
-import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.python.controller.PythonScriptController;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,28 +41,18 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008            njensen     Initial creation
+ * Jan 08, 2013  1486      dgilling    Refactor based on PythonScriptController.
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public abstract class BaseGfePyController extends PythonScript implements
-        ILocalizationFileObserver {
+public abstract class BaseGfePyController extends PythonScriptController {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(BaseGfePyController.class);
 
-    protected static final String INTERFACE = "interface";
-
     protected DataManager dataMgr;
-
-    protected final String pythonClassName;
-
-    protected Set<String> pendingRemoves = new HashSet<String>();
-
-    protected Set<String> pendingAdds = new HashSet<String>();
-
-    protected Set<String> pendingReloads = new HashSet<String>();
 
     /**
      * Constructor
@@ -92,41 +72,8 @@ public abstract class BaseGfePyController extends PythonScript implements
     protected BaseGfePyController(String filePath, String anIncludePath,
             ClassLoader classLoader, DataManager dataManager,
             String aPythonClassName) throws JepException {
-        super(filePath, anIncludePath, classLoader);
+        super(filePath, anIncludePath, classLoader, aPythonClassName);
         dataMgr = dataManager;
-        pythonClassName = aPythonClassName;
-    }
-
-    /**
-     * Convenience method for getting an argument map with moduleNames and
-     * classNames
-     * 
-     * @param moduleName
-     *            the name of the module
-     * @return an argument map
-     */
-    protected Map<String, Object> getStarterMap(String moduleName) {
-        HashMap<String, Object> args = new HashMap<String, Object>();
-        args.put(PyConstants.MODULE_NAME, moduleName);
-        args.put(PyConstants.CLASS_NAME, pythonClassName);
-        return args;
-    }
-
-    /**
-     * Checks if a module has the specified method
-     * 
-     * @param moduleName
-     *            the name of the module to check
-     * @param methodName
-     *            the method to look up
-     * @return if the method exists
-     * @throws JepException
-     */
-    public boolean hasMethod(String moduleName, String methodName)
-            throws JepException {
-        Map<String, Object> args = getStarterMap(moduleName);
-        args.put(PyConstants.METHOD_NAME, methodName);
-        return (Boolean) execute("hasMethod", INTERFACE, args);
     }
 
     /**
@@ -136,36 +83,11 @@ public abstract class BaseGfePyController extends PythonScript implements
      *            the name of the module to instantiate
      * @throws JepException
      */
-    public void instantiatePythonTool(String moduleName) throws JepException {
+    @Override
+    public void instantiatePythonScript(String moduleName) throws JepException {
         Map<String, Object> instanceMap = getStarterMap(moduleName);
         instanceMap.put("dbss", dataMgr);
         execute("instantiate", INTERFACE, instanceMap);
-    }
-
-    public boolean isInstantiated(String moduleName) throws JepException {
-        HashMap<String, Object> argMap = new HashMap<String, Object>(1);
-        argMap.put(PyConstants.MODULE_NAME, moduleName);
-        return (Boolean) execute("isInstantiated", INTERFACE, argMap);
-    }
-
-    /**
-     * Returns the names of the specified method's arguments
-     * 
-     * @param moduleName
-     *            the name of the module
-     * @param methodName
-     *            the name of the method
-     * @return the method arguments from the python
-     * @throws JepException
-     */
-    @SuppressWarnings(value = "unchecked")
-    public String[] getMethodArguments(String moduleName, String methodName)
-            throws JepException {
-        Map<String, Object> instanceMap = getStarterMap(moduleName);
-        instanceMap.put(PyConstants.METHOD_NAME, methodName);
-        List<String> list = (List<String>) execute("getMethodArgNames",
-                INTERFACE, instanceMap);
-        return list.toArray(new String[list.size()]);
     }
 
     /**
@@ -211,7 +133,7 @@ public abstract class BaseGfePyController extends PythonScript implements
     public List<FieldDefinition> getVarDictWidgets(String moduleName)
             throws JepException {
         if (!isInstantiated(moduleName)) {
-            instantiatePythonTool(moduleName);
+            instantiatePythonScript(moduleName);
         }
         List<FieldDefinition> fieldDefs = null;
         if (getVariableList(moduleName) != null) {
@@ -239,119 +161,4 @@ public abstract class BaseGfePyController extends PythonScript implements
         }
         return varDict;
     }
-
-    /**
-     * Gets formatted errors of failures to import smart tools from the initial
-     * scan
-     * 
-     * @return a list of error messages
-     * @throws JepException
-     */
-    @SuppressWarnings("unchecked")
-    protected List<String> getStartupErrors() throws JepException {
-        return (List<String>) execute("getStartupErrors", INTERFACE, null);
-    }
-
-    protected void reloadModule(String name) throws JepException {
-        HashMap<String, Object> argMap = new HashMap<String, Object>(1);
-        argMap.put(PyConstants.MODULE_NAME, name);
-        execute("reloadModule", INTERFACE, argMap);
-
-        // it was already initialized, need to get a new instance in the
-        // interpreter now that the module was reloaded
-        // if it wasn't already initialized, it's either a utility or will be
-        // initialized when it's first used
-        if (this.isInstantiated(name)) {
-            this.instantiatePythonTool(name);
-        }
-    }
-
-    @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-        File file = new File(message.getFileName());
-        String name = file.getName().replaceAll("\\.py.*", "");
-        FileChangeType changeType = message.getChangeType();
-        IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile lf = pm.getLocalizationFile(message.getContext(),
-                message.getFileName());
-
-        if (message.getChangeType() == FileChangeType.ADDED) {
-            if (lf != null) {
-                lf.getFile();
-            }
-            pendingAdds.add(name);
-        } else if (changeType == FileChangeType.DELETED) {
-            if (lf != null) {
-                File toDelete = lf.getFile();
-                toDelete.delete();
-            }
-            pendingRemoves.add(name);
-        } else if (changeType == FileChangeType.UPDATED) {
-            if (lf != null) {
-                lf.getFile();
-            }
-            pendingReloads.add(name);
-        }
-    }
-
-    /**
-     * Updates the modules in the interpreter that have been scheduled to be
-     * updated. This must be called from the correct thread to work.
-     */
-    public void processFileUpdates() {
-        for (String toolName : pendingRemoves) {
-            try {
-                removeModule(toolName);
-            } catch (JepException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error removing module "
-                        + toolName, e);
-            }
-        }
-        pendingRemoves.clear();
-
-        for (String toolName : pendingAdds) {
-            try {
-                addModule(toolName);
-            } catch (JepException e) {
-                String pythonErrMsg = PythonErrorExtractor.getPythonError(e,
-                        toolName);
-                if (pythonErrMsg == null) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error adding module " + toolName, e);
-                } else {
-                    statusHandler.error(pythonErrMsg, e);
-                }
-            }
-        }
-        pendingAdds.clear();
-
-        for (String toolName : pendingReloads) {
-            try {
-                reloadModule(toolName);
-            } catch (JepException e) {
-                String pythonErrMsg = PythonErrorExtractor.getPythonError(e,
-                        toolName);
-                if (pythonErrMsg == null) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error reloading module " + toolName + "\n", e);
-                } else {
-                    statusHandler.error(pythonErrMsg, e);
-                }
-            }
-        }
-        pendingReloads.clear();
-    }
-
-    protected void removeModule(String name) throws JepException {
-        HashMap<String, Object> argMap = new HashMap<String, Object>(1);
-        argMap.put(PyConstants.MODULE_NAME, name);
-        execute("removeModule", INTERFACE, argMap);
-    }
-
-    protected void addModule(String name) throws JepException {
-        HashMap<String, Object> argMap = new HashMap<String, Object>(1);
-        argMap.put(PyConstants.MODULE_NAME, name);
-        execute("addModule", INTERFACE, argMap);
-    }
-
 }
