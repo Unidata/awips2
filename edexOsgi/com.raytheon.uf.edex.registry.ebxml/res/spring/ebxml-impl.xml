@@ -43,5 +43,17 @@
 		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl" >
 		<property name="registryObjectDao" ref="registryDao"/>
 	</bean>
+	
+	<bean id="edexRegistryManager" class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager" />
+    
+    <bean id="registryHandler" class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
+        <property name="txManager" ref="edexRegistryManager"/>
+        <property name="lcmFactory" ref="edexRegistryManager"/>
+        <property name="queryFactory" ref="edexRegistryManager"/>
+    </bean>
+    
+    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
+        <constructor-arg ref="registryHandler" />
+    </bean>
 
 </beans>
