@@ -73,6 +73,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 
+ * 1/4/13		DR 15653	M.Porricelli Shift subgrid domain
+ *                                       westward like AWIPSI
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -128,6 +131,8 @@ public class GribSpatialCache {
     private FileDataList fileDataList;
 
     private long fileScanTime = 0;
+    
+    boolean shiftSubGridWest = false;
 
     /**
      * Gets the singleton instance of GribSpatialCache
@@ -300,8 +305,12 @@ public class GribSpatialCache {
             Coordinate subGridCenterGridCoord = MapUtil.latLonToGridCoordinate(
                     subGridCenterLatLon, PixelOrientation.CENTER,
                     referenceCoverage);
-
-            double xCenterPoint = subGridCenterGridCoord.x;
+            
+            double shiftX = 0;
+            if (shiftSubGridWest == true && modelName != "TPCSurgeProb")
+            	shiftX = subGridDef.getNx() / 5;
+  
+            double xCenterPoint = subGridCenterGridCoord.x - shiftX;
             double yCenterPoint = subGridCenterGridCoord.y;
 
             double xDistance = subGridDef.getNx() / 2;
@@ -310,6 +319,12 @@ public class GribSpatialCache {
                     - xDistance, yCenterPoint + yDistance);
             Coordinate upperRightPosition = new Coordinate(xCenterPoint
                     + xDistance, yCenterPoint - yDistance);
+            
+            // If the western edge of the subgrid is placed west of the full grid boundary
+            // (possibly when westward shifting above was done) it will be shifted back 
+            // to within the boundary, but the eastern edge should be shifted back also, by 
+            // a proportional amount
+            if (lowerLeftPosition.x < 0) upperRightPosition.x -= lowerLeftPosition.x;
 
             lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
                     lowerLeftPosition, PixelOrientation.CENTER,
@@ -599,7 +614,18 @@ public class GribSpatialCache {
                     .handleRequest(centerPointRequest);
             logger.info("Default sub grid location is wfo center point ["
                     + defaultCenterPoint.y + "/" + defaultCenterPoint.x + "]");
+            /* If we are getting the WFO center as the center point, it means that
+            // the site has not defined its own center in the site file
+            // defaultSubGridCenterPoint.xml (see previous If block).  
+            // Therefore, we will be shifting the domain westward to be similar to 
+            // AWIPSI default behavior, so set a flag here.  
+            // If the site *has* defined a center in defaultSubGridCenterPoint.xml, 
+            // we will use that as the true, intended center and will not shift the 
+            // domain further.
+            */
+            shiftSubGridWest = true;
         }
+        else shiftSubGridWest = false;
 
         return defaultCenterPoint;
     }

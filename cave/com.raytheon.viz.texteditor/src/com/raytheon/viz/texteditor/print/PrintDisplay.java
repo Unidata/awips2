@@ -43,6 +43,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 15, 2011 10557      rferrel     Initial creation
  * Jul 17, 2012 14274      rferrel     Now use eclipse Printer instead of awt.
  *                                      Text is printed using same font as the GUI
+ * Dec 31, 2012 15651	   mgamazaychikov	Added setFont method to scale font for printing
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class PrintDisplay {
     public static void print(final String printedText, final FontData fontData,
-            IUFStatusHandler statusHandler) {
+            int aLineWidth, IUFStatusHandler statusHandler) {
         PrinterData data = Printer.getDefaultPrinterData();
         if (data == null) {
             statusHandler.handle(Priority.PROBLEM,
@@ -66,9 +67,11 @@ public class PrintDisplay {
         }
 
         final Printer printer = new Printer(data);
-        PrintDisplay pd = new PrintDisplay(printer, printedText, fontData);
+        PrintDisplay pd = new PrintDisplay(printer, printedText, fontData, aLineWidth);
         pd.printJob();
     }
+    
+    private int lineWidth;
 
     private Printer printer;
 
@@ -102,10 +105,16 @@ public class PrintDisplay {
 
     int end;
 
-    private PrintDisplay(Printer printer, String text, FontData fontData) {
+    private PrintDisplay(Printer printer, String text, FontData fontData, int aWidth) {
         this.printer = printer;
         this.textToPrint = text;
         this.printerFontData = fontData;
+    	if (aWidth == -1) {
+    		this.lineWidth = 69;
+    	}
+    	else {
+    		this.lineWidth = aWidth;
+    	}
     }
 
     private void printJob() {
@@ -118,11 +127,43 @@ public class PrintDisplay {
         thread.start();
     }
 
-    private void printIt() {
+    protected void setFont() {
+    	/*
+    	 * get the original font size and set the gc font.
+    	 */
+    	float origFontSize = printerFontData.getHeight();
+        Font printerFont = new Font(printer, printerFontData);
+        gc.setFont(printerFont);
+        
+        /*
+         * Create a buffer for computing line width in pixels.
+         */
+        StringBuilder aBuffer = new StringBuilder(lineWidth);
+        for (int i = 0; i < lineWidth; i++) {
+        	aBuffer.append(' ');
+        }
+        /*
+         * Get the line width in pixels and the device's width in pixels
+         */
+        int lineWidthPixels = gc.stringExtent(aBuffer.toString()).x;
+    	int deviceWidthPixels = rightMargin - leftMargin;
+        printerFont.dispose();
+    	/*
+    	 * Scale the original font size;
+    	 */
+    	float fontSize = (float)deviceWidthPixels / (float)lineWidthPixels * (float)origFontSize;
+    	/*
+    	 * Set the printerFont Data font to the scaled font
+    	 */
+    	printerFontData.setHeight((int)(fontSize));
+    	gc.setFont(new Font(printer, printerFontData));
+	}
+
+	private void printIt() {
         if (printer.startJob("Text")) { // the string is the job name - shows up
                                         // in the printer's job list
             Rectangle clientArea = printer.getClientArea();
-            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+            Rectangle trim = printer.computeTrim(0, 0, 0, 0);            
             Point dpi = printer.getDPI();
 
             // one inch from left side of paper
@@ -145,12 +186,10 @@ public class PrintDisplay {
              * foreground color.
              */
             gc = new GC(printer);
-            Font printerFont = new Font(printer, printerFontData);
+            setFont();            
             Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
             Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
                     255));
-
-            gc.setFont(printerFont);
             gc.setForeground(printerForegroundColor);
             gc.setBackground(printerBackgroundColor);
             tabWidth = gc.stringExtent(tabs).x;
@@ -161,7 +200,7 @@ public class PrintDisplay {
             printer.endJob();
 
             // Cleanup graphics resources used in printing
-            printerFont.dispose();
+            
             printerForegroundColor.dispose();
             printerBackgroundColor.dispose();
             gc.dispose();

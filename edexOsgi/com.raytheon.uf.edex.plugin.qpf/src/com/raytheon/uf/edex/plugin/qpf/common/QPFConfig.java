@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/17/2009   1981       dhladky    Initial Creation.
- * 
+ * 01/07/2013	DR 15647   gzhang	  Use logger.warn for null earlyVilURI/earlyCZURI.		
  * </pre>
  * 
  * @author dhladky
@@ -372,8 +372,9 @@ public class QPFConfig {
         }
 
         if (earlyVilURI == null || earlyCZURI == null) {
-            throw new Exception("QPFConfig " + icao
-                    + ": Radar Record request failed, no previous data.");
+        	qpfgen.logger.warn("QPFConfig: No previous data for QPF. Check the RADAR OP Mode.");// DR 15647
+            //throw new Exception("QPFConfig " + icao
+                    //+ ": Radar Record request failed, no previous data.");
         }
 
         try {
@@ -518,8 +519,8 @@ public class QPFConfig {
             return true;
         } catch (Exception e) {
             qpfgen.logger
-                    .error("QPFConfig: Couldn't create all needed RadarRecords: "
-                            + e.getMessage());
+                    .error("QPFConfig: Some RadarRecords cannot be created: "
+                            + e.getMessage());// DR 15647
             return false;
         }
     }
