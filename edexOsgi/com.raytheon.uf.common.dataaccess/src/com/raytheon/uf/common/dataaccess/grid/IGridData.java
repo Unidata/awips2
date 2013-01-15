@@ -31,6 +31,12 @@ import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDe
  * An IGridData represents data that is gridded, ie rectangular (when not
  * projected) with a set x and y size.
  * 
+ * To get the data values out of the IGridData, use
+ * populateData(DataDestination) with a DataDestination in the format you are
+ * looking for. You can also use a {@link UnitConvertingDataDestination} to
+ * obtain the data in a specific unit.
+ * 
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
