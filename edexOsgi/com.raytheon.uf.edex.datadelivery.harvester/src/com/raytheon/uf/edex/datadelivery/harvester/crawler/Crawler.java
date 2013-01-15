@@ -154,8 +154,15 @@ public abstract class Crawler {
             File lockFileDir, String crawlType) {
         FileChannel channel = null;
         FileOutputStream fos = null;
+        // if lock file directories don't exist, create
+        if (!lockFileDir.exists()) {
+            lockFileDir.mkdirs();
+        }
+        
         File lockFile = new File(lockFileDir, crawlType + "-crawl.lock");
+        
         try {
+            // if lock file doesn't exist, create it
             if (!lockFile.exists()) {
                 lockFile.createNewFile();
             }
@@ -165,6 +172,7 @@ public abstract class Crawler {
             // Try acquiring the lock without blocking. This method returns
             // null or throws an exception if the file is already locked.
             FileLock lock = channel.tryLock();
+            
             if (lock == null) {
                 // Someone else has the lock
                 statusHandler
