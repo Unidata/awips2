@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe;
+package com.raytheon.uf.common.python;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -37,8 +37,8 @@ import jep.JepException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 2, 2011            wldougher     Initial creation
- * 
+ * Jun 2, 2011             wldougher   Initial creation
+ * Jan 8, 2013  1486       dgilling    Move to common python plugin.
  * </pre>
  * 
  * @author wldougher
