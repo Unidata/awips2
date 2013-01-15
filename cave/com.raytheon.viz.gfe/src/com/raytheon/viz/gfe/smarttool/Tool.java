@@ -60,6 +60,7 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2007            njensen     Initial creation
+ * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
  * 
  * </pre>
  * 
@@ -113,7 +114,7 @@ public class Tool {
 
         try {
             if (!tool.isInstantiated(toolName)) {
-                tool.instantiatePythonTool(toolName);
+                tool.instantiatePythonScript(toolName);
             }
         } catch (JepException e) {
             throw new SmartToolException("Error instantiating python tool "
@@ -137,7 +138,7 @@ public class Tool {
      * @return
      * @throws SmartToolException
      */
-    public Object[] getArgValues(String[] args, TimeRange gridTimeRange,
+    public Object[] getArgValues(List<String> args, TimeRange gridTimeRange,
             TimeRange toolTimeRange, ReferenceData editArea,
             MissingDataMode dataMode) throws SmartToolException {
 
@@ -441,8 +442,9 @@ public class Tool {
             // # PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
-            statusHandler.handle(Priority.DEBUG, "Running smartTool: " + toolName);
-            
+            statusHandler.handle(Priority.DEBUG, "Running smartTool: "
+                    + toolName);
+
             // Iterate over time range
             // Process each grid in the time range.
             int numberOfGrids = grids.length;
@@ -602,10 +604,13 @@ public class Tool {
                 try {
                     parmToEdit.startParmEdit(new Date[] { timeInfluence });
                 } catch (GFEOperationFailedException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error during start parm edit for " + toolName + " - already running." +
-                            		"  Please wait for the operation to complete and try again.", 
-                            e);
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error during start parm edit for "
+                                            + toolName
+                                            + " - already running."
+                                            + "  Please wait for the operation to complete and try again.",
+                                    e);
                     return;
                 }
                 startedParmEdit = true;
@@ -619,13 +624,13 @@ public class Tool {
                 }
             }
         }
-        String[] executeArgs = tool.getMethodArguments(toolName, "execute");
+        List<String> executeArgs = tool.getMethodArguments(toolName, "execute");
         Object gridResult = null;
         Object[] argValues = getArgValues(executeArgs, gridTimeRange,
                 toolTimeRange, editArea, dataMode);
         HashMap<String, Object> argMap = new HashMap<String, Object>();
-        for (int i = 0; i < executeArgs.length; i++) {
-            argMap.put(executeArgs[i], argValues[i]);
+        for (int i = 0; i < executeArgs.size(); i++) {
+            argMap.put(executeArgs.get(i), argValues[i]);
         }
 
         gridResult = tool.executeTool(parmToEdit, toolName, argMap);
@@ -697,13 +702,13 @@ public class Tool {
             ReferenceData editArea, MissingDataMode dataMode)
             throws SmartToolException, JepException {
         if (tool.hasMethod(toolName, methodName)) {
-            String[] prePostToolArgs = tool.getMethodArguments(toolName,
+            List<String> prePostToolArgs = tool.getMethodArguments(toolName,
                     methodName);
             Object[] prePostToolObjs = getArgValues(prePostToolArgs,
                     gridTimeRange, toolTimeRange, editArea, dataMode);
             HashMap<String, Object> prePostToolMap = new HashMap<String, Object>();
-            for (int i = 0; i < prePostToolArgs.length; i++) {
-                prePostToolMap.put(prePostToolArgs[i], prePostToolObjs[i]);
+            for (int i = 0; i < prePostToolArgs.size(); i++) {
+                prePostToolMap.put(prePostToolArgs.get(i), prePostToolObjs[i]);
             }
             tool.runToolMethod(toolName, methodName, prePostToolMap);
         }
