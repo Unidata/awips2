@@ -46,6 +46,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -84,6 +86,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2009            chammack     Initial creation
+ * Jan 14, 2013 1442       rferrel      Add Simulated Time Change Listener.
  * 
  * </pre>
  * 
@@ -127,6 +130,12 @@ public class BundleContributionItem extends ContributionItem {
 
     protected boolean performQuery = true;
 
+    /**
+     * A flag to indicate simulated time has changed and item's values needs to
+     * be refreshed the next time it is displayed.
+     */
+    private boolean timeChangeUpdate = false;
+
     public BundleContributionItem(CommonBundleMenuContribution contribution,
             VariableSubstitution[] includeSubstitutions) throws VizException {
         super(VariableSubstitutionUtil.processVariables(contribution.id,
@@ -165,6 +174,25 @@ public class BundleContributionItem extends ContributionItem {
                                 this.substitutions);
             }
         }
+
+        // The bundle persists for the life of CAVE; no need to remove the
+        // listener.
+        ISimulatedTimeChangeListener stcl = new ISimulatedTimeChangeListener() {
+
+            @Override
+            public void timechanged() {
+                // Updating the value here will generate a flood of requests for
+                // all bundles.
+                //
+                // This will force the update of the item's value the next time
+                // it is displayed.
+                //
+                // Any open widget using the bundle will need to handle the
+                // update.
+                timeChangeUpdate = true;
+            }
+        };
+        SimulatedTime.getSystemTime().addSimulatedTimeChangeListener(stcl);
     }
 
     /*
@@ -210,6 +238,22 @@ public class BundleContributionItem extends ContributionItem {
                 updateMenuText();
             }
         });
+    }
+
+    /**
+     * This allows a widget such as an open dialog to force the bundle to query
+     * for new values based on Simulated Time. Allows a widget to refresh its
+     * display after a user has modified Simulated Time.
+     */
+    public void refreshText() {
+        lastUsedTime = null;
+        if (pdoMapList != null && pdoMapList.size() > 0) {
+            URICatalog cat = URICatalog.getInstance();
+            for (BundleDataItem d : pdoMapList) {
+                cat.query(d.metadata);
+            }
+        }
+        timeChangeUpdate = false;
     }
 
     protected synchronized void updateMenuText() {
@@ -325,6 +369,11 @@ public class BundleContributionItem extends ContributionItem {
      * 
      */
     protected void onShow() {
+        if (timeChangeUpdate) {
+            refreshText();
+            return;
+        }
+
         if (performQuery) {
             if (!shownBefore) {
                 shownBefore = true;
@@ -438,7 +487,6 @@ public class BundleContributionItem extends ContributionItem {
                 URICatalog.getInstance().catalogAndQueryDataURI(d.metadata,
                         new BundleRefreshCallback(d.offset));
             }
-
         }
 
     }
