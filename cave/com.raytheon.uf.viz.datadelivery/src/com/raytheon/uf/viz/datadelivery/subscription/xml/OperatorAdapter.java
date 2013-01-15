@@ -19,8 +19,12 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.xml;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import com.google.common.collect.Maps;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OperatorTypes;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
@@ -35,7 +39,8 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 7, 2013    1420     mpduff      Initial creation.
+ * Jan 07, 2013   1420     mpduff      Initial creation.
+ * Jan 14, 2013   1286     djohnson    Add static versions of the conversion methods.
  * 
  * </pre>
  * 
@@ -44,32 +49,61 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  */
 
 public class OperatorAdapter extends XmlAdapter<String, Operator<?>> {
-    @Override
-    public Operator<?> unmarshal(String v) throws Exception {
-        for (OperatorTypes ot : OperatorTypes.values()) {
-            if (ot.toString().equals(v)) {
-                return ot;
-            }
-        }
 
-        for (NameOperationItems noi : NameOperationItems.values()) {
-            if (noi.toString().equals(v)) {
-                return noi;
-            }
+    private static final Map<String, Operator<?>> OPERATOR_MAP;
+    static {
+        Map<String, Operator<?>> map = Maps.newHashMap();
+        for (Operator<?> operator : NameOperationItems.values()) {
+            map.put(toString(operator), operator);
         }
-
-        for (TypeOperationItems toi : TypeOperationItems.values()) {
-            if (toi.toString().equals(v)) {
-                return toi;
-            }
+        for (Operator<?> operator : OperatorTypes.values()) {
+            map.put(toString(operator), operator);
         }
-
-        return null;
+        for (Operator<?> operator : TypeOperationItems.values()) {
+            map.put(toString(operator), operator);
+        }
+        OPERATOR_MAP = Collections.unmodifiableMap(map);
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public Operator<?> unmarshal(String v) throws Exception {
+        return fromString(v);
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
     @Override
     public String marshal(Operator<?> v) throws Exception {
-        return v.toString();
+        return toString(v);
+    }
+
+    /**
+     * Retrieve an {@link Operator} from its {@link String} representation.
+     * 
+     * @param asString
+     *            the string representation
+     * @return
+     */
+    public static Operator<?> fromString(String asString) {
+        return OPERATOR_MAP.get(asString);
+    }
+
+    /**
+     * Retrieve the {@link String} representation of an {@link Operator}
+     * instance.
+     * 
+     * @param operator
+     *            the operator
+     * @return the {@link String} representation
+     */
+    public static String toString(Operator<?> operator) {
+        return operator.toString();
     }
 
 }

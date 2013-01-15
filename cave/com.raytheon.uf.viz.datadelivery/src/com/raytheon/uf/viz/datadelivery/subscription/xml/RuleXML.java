@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
 import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2012   1420     mpduff      Initial creation.
+ * Jan 14, 2013   1286     djohnson    Correct string conversion of units and use {@link Operator}.
  * 
  * </pre>
  * 
@@ -68,7 +69,7 @@ public abstract class RuleXML {
 
     /** Rule operator */
     @XmlElement
-    protected String ruleOperator;
+    protected Operator ruleOperator;
 
     /** Rule value */
     @XmlElement
@@ -121,7 +122,7 @@ public abstract class RuleXML {
      * 
      * @return the ruleOperator
      */
-    public String getRuleOperator() {
+    public Operator getRuleOperator() {
         return ruleOperator;
     }
 
@@ -131,7 +132,7 @@ public abstract class RuleXML {
      * @param ruleOperator
      *            The operator value of the rule
      */
-    public void setRuleOperator(String ruleOperator) {
+    public void setRuleOperator(Operator ruleOperator) {
         this.ruleOperator = ruleOperator;
     }
 
@@ -192,38 +193,29 @@ public abstract class RuleXML {
             unit = getRuleUnit();
         }
 
-        OperatorAdapter oa = new OperatorAdapter();
-        Operator oper = null;
-        try {
-            oper = oa.unmarshal(ruleOperator);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return false;
-        }
-
         // If Data Name
         if (OpsNetFieldNames.NAME.toString().equals(ruleField)) {
 
             String dsName = sub.getDataSetName();
 
-            return oper.evaluate(dsName, ruleValue);
+            return ruleOperator.evaluate(dsName, ruleValue);
         }
 
         // If Data Type
         if (OpsNetFieldNames.TYPE.toString().equals(ruleField)) {
             String dsType = sub.getDataSetType().toString();
 
-            return oper.evaluate(ruleValue, dsType);
+            return ruleOperator.evaluate(ruleValue, dsType);
         }
 
         // If Data Size
         if (OpsNetFieldNames.SIZE.toString().equals(ruleField)) {
             long dsSizeKb = sub.getDataSetSize(); // Size in KB
             long ruleValueInt = Integer.parseInt(ruleValue);
-            DataSizeUnit dsUnit = DataSizeUnit.valueOf(unit);
+            DataSizeUnit dsUnit = DataSizeUnit.fromString(ruleUnit);
             ruleValueInt = dsUnit.toKB(ruleValueInt);
 
-            return oper.evaluate(Long.valueOf(dsSizeKb),
+            return ruleOperator.evaluate(Long.valueOf(dsSizeKb),
                     Long.valueOf(ruleValueInt));
         }
 
@@ -231,7 +223,7 @@ public abstract class RuleXML {
         if (OpsNetFieldNames.FREQUENCY.toString().equals(ruleField)) {
             // Calculate frequency
             int ruleValueInt = Integer.parseInt(this.ruleValue);
-            if (unit.equalsIgnoreCase("Mins")) {
+            if (FreqUnitOptions.MIN.getOperation().equalsIgnoreCase(unit)) {
                 ruleValueInt /= 60;
             }
             int freq = 0;
@@ -246,7 +238,8 @@ public abstract class RuleXML {
                 freq = val - tmp;
             }
 
-            if (oper.evaluate(Long.valueOf(freq), Long.valueOf(ruleValueInt))) {
+            if (ruleOperator.evaluate(Long.valueOf(freq),
+                    Long.valueOf(ruleValueInt))) {
                 return true;
             }
         }
