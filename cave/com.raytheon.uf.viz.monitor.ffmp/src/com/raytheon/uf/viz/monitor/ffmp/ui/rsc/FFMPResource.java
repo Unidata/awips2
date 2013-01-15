@@ -81,6 +81,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -152,6 +153,7 @@ import com.vividsolutions.jts.geom.Point;
  * 31 July  2012 14517         mpduff      Fix for blanking map on update.
  * 14 Sep 2012   1048         njensen      Code cleanup
  * 07 Dec 2012   1353         rferrel      Changes for non-blocking FFMPSplash dialog.
+ * 10 Jan 2103   1475         dhladky      Some cleanup
  * 
  * </pre>
  * 
@@ -2070,6 +2072,7 @@ public class FFMPResource extends
     private void drawSquare(PixelCoverage pc, IGraphicsTarget target)
             throws VizException {
 
+    	//target.drawLine(lines)
         target.drawLine(pc.getLl().x, pc.getLl().y, 0.0, pc.getUl().x, pc
                 .getUl().y, 0.0, getCapability(ColorableCapability.class)
                 .getColor(), getCapability(OutlineCapability.class)
@@ -2455,10 +2458,6 @@ public class FFMPResource extends
                 cwaBasins.clear();
 
                 try {
-                    // String aggrHuc = "HUC0";
-                    // if (phuc.equals("COUNTY")) {
-                    // aggrHuc = phuc;
-                    // }
                     // use the envelopes from HUC0 to speed processing
                     // if necessary
                     Map<Long, Envelope> envMap = hucGeomFactory.getEnvelopes(
@@ -2472,7 +2471,7 @@ public class FFMPResource extends
                         }
                     }
                 } catch (Exception e) {
-                    statusHandler.handle(Priority.WARN, "Domain: " + cwa
+                    statusHandler.handle(Priority.DEBUG, "Domain: " + cwa
                             + " Outside of site: " + getSiteKey() + " area...");
                 }
             }
@@ -2901,7 +2900,7 @@ public class FFMPResource extends
                         descriptor, 0.0f);
                 if (req.shaded) {
                     localShadedShape = req.target.createShadedShape(false,
-                            descriptor, true);
+                            descriptor.getGridGeometry(), true);
                 }
 
                 JTSCompiler jtsCompiler2 = new JTSCompiler(localShadedShape,
@@ -3550,7 +3549,7 @@ public class FFMPResource extends
 
         synchronized (tableTime) {
             Date recentTime = getMostRecentTime();
-            long time = new Double(recentTime.getTime() - (1000 * 3600)
+            long time = new Double(recentTime.getTime() - (TimeUtil.MILLIS_PER_HOUR)
                     * getTime()).longValue();
             Date date = new Date();
             date.setTime(time);
@@ -3724,7 +3723,7 @@ public class FFMPResource extends
                 Date oldestCurrentTime = getResourceData().getAvailableTimes()[0]
                         .getRefTime();
                 Date oldestTime = new Date(oldestCurrentTime.getTime()
-                        - (1000 * 3600 * 24));
+                        - (TimeUtil.MILLIS_PER_HOUR * 24));
 
                 SortedSet<Date> keys = monitor.getAvailableUris(getSiteKey(),
                         getDataKey(), getPrimarySource(), oldestTime).keySet();
@@ -3771,7 +3770,7 @@ public class FFMPResource extends
                     - getTableTime().getTime();
 
             sliderTime = Math
-                    .floor(4 * (offset.doubleValue() / (1000 * 3600)) + .25) / 4;
+                    .floor(4 * (offset.doubleValue() / (TimeUtil.MILLIS_PER_HOUR)) + .25) / 4;
             // sliderTime = Math.floor(((offset.doubleValue() / (1000 * 3600)) +
             // .005) * 100) / 100;
             setTime(sliderTime);
@@ -4010,7 +4009,7 @@ public class FFMPResource extends
 
             this.qpeSourceExpiration = monitor.getSourceConfig()
                     .getSource(resourceData.getPrimarySource())
-                    .getExpirationMinutes(getSiteKey()) * 60 * 1000;
+                    .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
         }
         return qpeSourceExpiration;
     }
@@ -4033,7 +4032,7 @@ public class FFMPResource extends
                 source = FFMPSourceConfigurationManager.getInstance()
                         .getSource(getResourceData().sourceName);
             }
-            qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * 60 * 1000;
+            qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
         }
         return qpfSourceExpiration;
     }
@@ -4056,12 +4055,12 @@ public class FFMPResource extends
                 SourceXML source = getProduct().getGuidanceSourcesByType(
                         guidSrc).get(0);
                 guidSourceExpiration = source
-                        .getExpirationMinutes(getSiteKey()) * 60 * 1000;
+                        .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
 
             } else {
                 guidSourceExpiration = monitor.getSourceConfig()
                         .getSource(resourceData.getPrimarySource())
-                        .getExpirationMinutes(getSiteKey()) * 60 * 1000;
+                        .getExpirationMinutes(getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE;
             }
         }
 
@@ -4266,7 +4265,7 @@ public class FFMPResource extends
 
         }
 
-        return 3600 * 24 * 1000;
+        return 24 * TimeUtil.MILLIS_PER_HOUR;
     }
 
     /**
@@ -4281,7 +4280,7 @@ public class FFMPResource extends
             if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
                 try {
                     Date startDate = new Date(getMostRecentTime().getTime()
-                            - (6 * 3600 * 1000));
+                            - (6 * TimeUtil.MILLIS_PER_HOUR));
                     FFMPMonitor.getInstance().startLoad(this, startDate,
                             LOADER_TYPE.TERTIARY);
                 } catch (VizException e) {
