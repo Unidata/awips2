@@ -38,6 +38,8 @@ import com.raytheon.edex.msg.PracticeDataURINotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.NoPluginException;
@@ -65,6 +67,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * 02/28/08     966         chammack    Refactored to support generalized listeners
  * 05/08/08     1127        randerso    Changed to implement INotificationObserver
  * 10/06/08     1433        chammack    Updated to use VizStatus
+ * 01/14/2013   1442        rferrel     Filter out simulated time "future" alerts.
  * </pre>
  * 
  * @author bphillip
@@ -233,6 +236,27 @@ public class ProductAlertObserver implements INotificationObserver {
                 // collection for future messages
                 Collection<AlertMessage> messagesToProc = messages;
                 messages = new ConcurrentLinkedQueue<AlertMessage>();
+                SimulatedTime time = SimulatedTime.getSystemTime();
+                if (!time.isRealTime()) {
+                    // Filter out any "future" alerts.
+                    long simTime = time.getTime().getTime();
+                    Iterator<AlertMessage> iter = messagesToProc.iterator();
+                    while (iter.hasNext()) {
+                        AlertMessage message = iter.next();
+                        Map<String, Object> attribs = new HashMap<String, Object>(
+                                message.decodedAlert);
+                        DataTime messageTime = (DataTime) attribs
+                                .get("dataTime");
+                        if (messageTime != null
+                                && (simTime < messageTime.getRefTime()
+                                        .getTime())) {
+                            iter.remove();
+                        }
+                    }
+                    if (messagesToProc.isEmpty()) {
+                        return Status.OK_STATUS;
+                    }
+                }
 
                 try {
                     observer.alertArrived(messagesToProc);
