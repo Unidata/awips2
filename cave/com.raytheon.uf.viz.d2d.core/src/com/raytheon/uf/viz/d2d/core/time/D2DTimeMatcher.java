@@ -828,19 +828,23 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
      */
     public void changeTimeMatchBasis(AbstractVizResource<?, ?> resource) {
         if (timeMatchBasis != resource) {
-            TimeMatchingConfiguration config = getConfiguration(resource
-                    .getLoadProperties());
-            TimeCache timeCache = getTimeCache(resource);
             if (timeMatchBasis != null) {
+                TimeMatchingConfiguration config = getConfiguration(timeMatchBasis
+                        .getLoadProperties());
                 config.setTimeMatchBasis(false);
+                TimeCache timeCache = getTimeCache(timeMatchBasis);
                 timeCache.setTimes(null, null);
                 timeMatchBasis
                         .unregisterListener(timeMatchBasisDisposeListener);
             }
 
             timeMatchBasis = resource;
+
             if (timeMatchBasis != null) {
+                TimeMatchingConfiguration config = getConfiguration(timeMatchBasis
+                        .getLoadProperties());
                 config.setTimeMatchBasis(true);
+                TimeCache timeCache = getTimeCache(timeMatchBasis);
                 timeCache.setTimes(null, null);
                 timeMatchBasis.registerListener(timeMatchBasisDisposeListener);
             }
