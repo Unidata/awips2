@@ -50,7 +50,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -216,8 +216,7 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         display.getDescriptor().getResourceList().add(pair);
         Bundle b = new Bundle();
         b.setDisplays(new AbstractRenderableDisplay[] { display });
-        new MenuLoader(b, (AbstractEditor) EditorUtil.getActiveEditor())
-                .schedule();
+        new BundleProductLoader(EditorUtil.getActiveVizContainer(), b).schedule();
     }
 
     /**

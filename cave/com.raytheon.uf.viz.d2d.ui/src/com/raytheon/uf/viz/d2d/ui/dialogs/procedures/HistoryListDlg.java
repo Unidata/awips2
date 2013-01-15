@@ -47,8 +47,6 @@ import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.HistoryList.IHistoryListener;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.UiUtil;
-import com.raytheon.viz.ui.actions.LoadSerializedXml;
-import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -331,28 +329,22 @@ public class HistoryListDlg extends CaveSWTDialog {
     }
 
     private void loadAlterBundle(Bundle b) {
-        try {
-            String editorName = null;
+        String editorName = null;
 
-            if (b.getDisplays().length > 0) {
-                editorName = DescriptorMap.getEditorId(b.getDisplays()[0]
-                        .getDescriptor().getClass().getName());
-            }
-
-            AbstractEditor editor = UiUtil.createOrOpenEditor(editorName,
-                    b.getDisplays());
-
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                pane.getRenderableDisplay().getDescriptor().getResourceList()
-                        .clear();
-            }
-
-            LoadSerializedXml.loadTo(editor, b);
-            HistoryList.getInstance().addBundle(b);
-        } catch (VizException e) {
-            final String err = "Error loading bundle";
-            statusHandler.handle(Priority.PROBLEM, err, e);
+        if (b.getDisplays().length > 0) {
+            editorName = DescriptorMap.getEditorId(b.getDisplays()[0]
+                    .getDescriptor().getClass().getName());
         }
+
+        AbstractEditor editor = UiUtil.createOrOpenEditor(editorName,
+                b.getDisplays());
+
+        for (IDisplayPane pane : editor.getDisplayPanes()) {
+            pane.getRenderableDisplay().getDescriptor().getResourceList()
+                    .clear();
+        }
+
+        ProcedureLoadJob.getInstance().enqueue(b, editor);
     }
 
     /**
@@ -378,10 +370,7 @@ public class HistoryListDlg extends CaveSWTDialog {
                 return;
             }
 
-            LoadSerializedXml.loadTo(editor, b);
-            Bundle currBundle = SaveBundle.extractCurrentBundle();
-
-            HistoryList.getInstance().refreshLatestBundle(currBundle);
+            ProcedureLoadJob.getInstance().enqueue(b, editor);
         } catch (VizException e) {
             statusHandler.handle(Priority.SIGNIFICANT, "Error loading bundle",
                     e);
