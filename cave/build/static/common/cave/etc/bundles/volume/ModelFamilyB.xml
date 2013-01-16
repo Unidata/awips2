@@ -56,7 +56,7 @@ ModFamB| |N|Conv: Storm Init Family| |OTHER | | \
                     <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+		    <resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
                                 <constraint constraintValue="msl-P, msl-P2" constraintType="IN"/>
@@ -188,7 +188,7 @@ ModFamB| |N|Conv: Storm Init Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="muCape, PBE" constraintType="IN"/>
@@ -322,7 +322,7 @@ ModFamB| |N|Conv: Storm Init Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="NBE, cCin" constraintType="IN"/>
@@ -488,7 +488,7 @@ ModFamB| |N|Conv: Storm Init Family| |OTHER | | \
 			<loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
 				<resourceType>PLAN_VIEW</resourceType>
 			</loadProperties>
-			<resourceData xsi:type="bestResResourceData" productIdentifierKey="modelInfo.parameterAbbreviation" retrieveData="false">
+			<resourceData xsi:type="bestResResourceData" productIdentifierKey="info.parameter.abbreviation" retrieveData="false">
 				<metadataMap>
 					<mapping key="info.parameter.abbreviation">
 						<constraint constraintValue="DivFn, qDiv" constraintType="IN"/>
