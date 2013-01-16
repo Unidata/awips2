@@ -1,5 +1,9 @@
 package com.raytheon.uf.viz.datadelivery.utils;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
@@ -13,7 +17,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 08, 2013  1420       mpduff     Initial creation.
+ * Jan 08, 2013 1420       mpduff       Initial creation.
+ * Jan 14, 2013 1286       djohnson     Add lookup map via string version.
  * 
  * </pre>
  * 
@@ -201,4 +206,23 @@ public enum DataSizeUnit {
      * @return converted value
      */
     public abstract long convert(long l, DataSizeUnit ds);
+
+    private static final Map<String, DataSizeUnit> LOOKUP_MAP;
+    static {
+        Map<String, DataSizeUnit> map = new HashMap<String, DataSizeUnit>();
+        for (DataSizeUnit unit : DataSizeUnit.values()) {
+            map.put(unit.getUnit(), unit);
+        }
+        LOOKUP_MAP = Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Retrieve the {@link DataSizeUnit} for its string representation.
+     * 
+     * @param asString
+     * @return
+     */
+    public static DataSizeUnit fromString(String asString) {
+        return LOOKUP_MAP.get(asString);
+    }
 }

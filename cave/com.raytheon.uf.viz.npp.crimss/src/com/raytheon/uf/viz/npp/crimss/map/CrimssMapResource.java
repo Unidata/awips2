@@ -54,7 +54,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.npp.crimss.CrimssNSharpResourceData;
-import com.raytheon.viz.ui.MenuLoader;
+import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
@@ -218,7 +218,7 @@ public class CrimssMapResource extends
                 display.cloneDisplay());
         Bundle b = new Bundle();
         b.setDisplays(new AbstractRenderableDisplay[] { display });
-        Job j = new MenuLoader(b, editor);
+        Job j = new BundleProductLoader(editor, b);
         j.schedule();
     }
 
