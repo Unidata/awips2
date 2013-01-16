@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -71,7 +72,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * @version 1.0
  */
 public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
-        IForceApplyPromptDisplayText {
+        IForceApplyPromptDisplayText, IRulesUpdateListener {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -128,9 +129,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     /** OK button */
     private Button okBtn;
 
+    /** Available bandwidth modified flag */
     private boolean availableBandwidthModified;
 
+    /** Available bandwidth spinner widget */
     private Spinner availBandwidthSpinner;
+
+    /** The system latency tab */
+    private SystemLatencyTab lTab;
+
+    /** The system priority tab */
+    private SystemPriorityTab pTab;
 
     /**
      * Constructor.
@@ -141,6 +150,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     public SystemManagementDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.NONE);
         setText("Data Delivery System Management");
+        SystemRuleManager.getInstance().registerAsListener(this);
 
     }
 
@@ -179,6 +189,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         createSeparator(false);
         createBottomButtons();
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        SystemRuleManager.getInstance().deregisterAsListener(this);
     }
 
     /**
@@ -283,7 +304,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         priorityComp.setLayout(gl);
         priorityComp.setLayoutData(gd);
         priorityTab.setControl(priorityComp);
-        SystemPriorityTab pTab = new SystemPriorityTab(priorityComp);
+        pTab = new SystemPriorityTab(priorityComp);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -296,7 +317,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         latencyComp.setLayout(gl);
         latencyComp.setLayoutData(gd);
         latencyTab.setControl(latencyComp);
-        SystemLatencyTab lTab = new SystemLatencyTab(latencyComp);
+        lTab = new SystemLatencyTab(latencyComp);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -309,6 +330,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         routingComp.setLayoutData(gd);
         routingTab.setControl(routingComp);
         SystemRoutingTab rTab = new SystemRoutingTab(routingComp);
+
+        lTab.loadList();
+        pTab.loadList();
     }
 
     /**
@@ -465,5 +489,18 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
             throw new IllegalArgumentException(
                     "Don't know how to handle option [" + option + "]");
         }
+    }
+
+    @Override
+    public void update() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                if (!shell.isDisposed()) {
+                    lTab.loadList();
+                    pTab.loadList();
+                }
+            }
+        });
     }
 }
