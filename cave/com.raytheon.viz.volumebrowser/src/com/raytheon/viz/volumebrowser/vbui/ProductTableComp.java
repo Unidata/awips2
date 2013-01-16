@@ -24,8 +24,10 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionException;
@@ -90,6 +92,7 @@ import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
@@ -114,6 +117,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Jun 8, 2009  #2161      lvenable     Initial creation
  * Mar 27, 2012 #14506     Qinglu Lin   For cross section plot along a line of 
  *                                      latitude, swap xStart and xEnd.
+ * Jan 16, 2013 #1492      rferrel      Changes for non-blocking InventoryDlg.
  * 
  * </pre>
  * 
@@ -189,6 +193,11 @@ public class ProductTableComp extends Composite {
      * Array of Product Table Data.
      */
     protected ArrayList<ProductTableData> tableDataArray;
+
+    /**
+     * Open Inventory dialogs.
+     */
+    Map<String, InventoryDlg> inventoryDlgMap = new HashMap<String, InventoryDlg>();
 
     /**
      * Constructor.
@@ -751,7 +760,21 @@ public class ProductTableComp extends Composite {
 
     private void displayInventotyForProduct(TableItem tableItem) {
         ProductTableData tableData = getProductData(tableItem);
-        InventoryDlg inventoryDlg = new InventoryDlg(getShell(), tableData);
+        String name = tableData.getName();
+        InventoryDlg inventoryDlg = inventoryDlgMap.get(name);
+        if (inventoryDlg == null) {
+            inventoryDlg = new InventoryDlg(getShell(), tableData);
+            inventoryDlgMap.put(name, inventoryDlg);
+            inventoryDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        inventoryDlgMap.remove(returnValue.toString());
+                    }
+                }
+            });
+        }
         inventoryDlg.open();
     }
 
