@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
+import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OperatorTypes;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
 import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
@@ -46,7 +47,8 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 3, 2013    1420     mpduff      Initial creation.
+ * Jan 03, 2013    1420    mpduff      Initial creation.
+ * Jan 14, 2013 1286       djohnson    Use the rule operator as an {@link Operator}.
  * 
  * </pre>
  * 
@@ -70,7 +72,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue("GFS");
         rule.setRuleField(OpsNetFieldNames.NAME.getFieldName());
-        rule.setRuleOperator(NameOperationItems.LIKE.getOperation());
+        rule.setRuleOperator(NameOperationItems.LIKE);
 
         assertTrue("Matches Data Set Name failed", rule.matches(sub, null));
     }
@@ -80,7 +82,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue("GFS2");
         rule.setRuleField(OpsNetFieldNames.NAME.getFieldName());
-        rule.setRuleOperator(NameOperationItems.LIKE.getOperation());
+        rule.setRuleOperator(NameOperationItems.LIKE);
 
         assertFalse("Matches Data Set Name false positive",
                 rule.matches(sub, null));
@@ -91,7 +93,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue("GRID,OBS");
         rule.setRuleField(OpsNetFieldNames.TYPE.getFieldName());
-        rule.setRuleOperator(TypeOperationItems.IN.getOperation());
+        rule.setRuleOperator(TypeOperationItems.IN);
 
         assertTrue("Matches Data Type In Failed", rule.matches(sub, null));
     }
@@ -101,7 +103,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue("FAKE");
         rule.setRuleField(OpsNetFieldNames.TYPE.getFieldName());
-        rule.setRuleOperator(TypeOperationItems.NOT_IN.getOperation());
+        rule.setRuleOperator(TypeOperationItems.NOT_IN);
 
         assertTrue("Matches Data Type Not In Failed", rule.matches(sub, null));
     }
@@ -111,7 +113,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
-        rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
+        rule.setRuleOperator(OperatorTypes.EQUAL);
         rule.setRuleUnit(DataSizeUnit.KB.getUnit());
 
         assertTrue("Matches Dataset Size Equals Failed",
@@ -123,7 +125,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
-        rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
+        rule.setRuleOperator(OperatorTypes.EQUAL);
         rule.setRuleUnit(DataSizeUnit.MB.getUnit());
 
         sub.setDataSetSize(1024 * 100);
@@ -136,7 +138,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(100));
         rule.setRuleField(OpsNetFieldNames.SIZE.getFieldName());
-        rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
+        rule.setRuleOperator(OperatorTypes.EQUAL);
         rule.setRuleUnit(DataSizeUnit.GB.getUnit());
 
         sub.setDataSetSize(100 * 1024 * 1024);
@@ -151,7 +153,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(60));
         rule.setRuleField(OpsNetFieldNames.FREQUENCY.getFieldName());
-        rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
+        rule.setRuleOperator(OperatorTypes.EQUAL);
         rule.setRuleUnit(FreqUnitOptions.MIN.getOperation());
 
         Set<Integer> cycles = new TreeSet<Integer>();
@@ -167,7 +169,7 @@ public class RuleXMLTest {
         LatencyRuleXML rule = new LatencyRuleXML();
         rule.setRuleValue(String.valueOf(1));
         rule.setRuleField("Dataset Frequency");
-        rule.setRuleOperator(OperatorTypes.EQUAL.getOperation());
+        rule.setRuleOperator(OperatorTypes.EQUAL);
         rule.setRuleUnit(FreqUnitOptions.HOURS.getOperation());
 
         Set<Integer> cycles = new TreeSet<Integer>();

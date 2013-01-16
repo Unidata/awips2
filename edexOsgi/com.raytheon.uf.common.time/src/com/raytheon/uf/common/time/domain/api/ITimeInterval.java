@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.system;
+package com.raytheon.uf.common.time.domain.api;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
+import com.raytheon.uf.common.time.domain.ITimeIntervalTypeAdapter;
 
 /**
- * Operator interface.
+ * Represents a specific interval in time.
  * 
  * <pre>
  * 
@@ -32,40 +32,44 @@ import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 07, 2013            mpduff      Initial creation
- * Jan 14, 2013            djohnson    Specify JAXB adapter on the interface.
+ * Jan 14, 2013 1286       djohnson     Initial creation
  * 
  * </pre>
  * 
- * @author mpduff
+ * @author djohnson
  * @version 1.0
  */
-@XmlJavaTypeAdapter(value = OperatorAdapter.class)
-public interface Operator<T> {
-    /**
-     * Evaluate whether the operator would return true when comparing operandOne
-     * to operandTwo.
-     * 
-     * <pre>
-     * <code>
-     *   OperatorTypes operator = OperatorTypes.GREATER_THAN;
-     *   long operandOne = 1;
-     *   long operandTwo = 2;
-     *   
-     *   boolean result = operator.evaluate(operandOne, operandTwo); // Returns false
-     * </code>
-     * </pre>
-     * 
-     * @param operandOne
-     * @param operandTwo
-     * @return true or false
-     */
-    boolean evaluate(T operandOne, T operandTwo);
+@XmlJavaTypeAdapter(value = ITimeIntervalTypeAdapter.class)
+public interface ITimeInterval {
 
     /**
-     * Get the name.
+     * Return the start {@link ITimePoint} of the {@link ITimeInterval}.
      * 
-     * @return the name
+     * @return the time point the interval started
      */
-    String name();
+    ITimePoint getStart();
+
+    /**
+     * Return the end {@link ITimePoint} of the {@link ITimeInterval}.
+     * 
+     * @return the time point the interval ended
+     */
+    ITimePoint getEnd();
+
+    /**
+     * Check whether an {@link ITimePoint} falls within the
+     * {@link ITimeInterval}.
+     * 
+     * @param timePoint
+     *            the time point
+     * @return true if the interval contains the point
+     */
+    boolean containsTimePoint(ITimePoint timePoint);
+
+    /**
+     * Retrieve the duration of the {@link ITimeInterval}.
+     * 
+     * @return the duration
+     */
+    IDuration getDuration();
 }
