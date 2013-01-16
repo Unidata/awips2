@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -216,17 +217,17 @@ class OpenDAPRequestBuilder extends RequestBuilder {
      */
     public String processEnsemble() {
 
-        StringBuilder buf = new StringBuilder();
-
-        if (getRetrievalAttribute().getParameter().getEnsemble() != null) {
-            buf.append("["
-                    + (getRetrievalAttribute().getParameter().getEnsemble() - 1)
-                    + "]");
+        if (getRetrievalAttribute().getEnsemble() != null) {
+            Ensemble e = getRetrievalAttribute().getEnsemble();
+            int[] range = e.getSelectedRange();
+            if (range[0] == range[1]) {
+                return "[" + range[0] + "]";
+            } else {
+                return "[" + range[0] + ":" + range[1] + "]";
+            }
         } else {
-            buf.append("");
+            return "";
         }
-
-        return buf.toString();
     }
 
     @Override
