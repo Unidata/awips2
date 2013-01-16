@@ -100,6 +100,8 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 04, 2012 1420       mpduff       Add Latency to PriorityComp.
  * Jan 11, 2013 1453       djohnson     Sets cycle times on construction.
+ * Jan 14, 2013 1286       djohnson     Check that message to display is not null or empty, and 
+ *                                      only send notification of subscription creation on OK status.
  * </pre>
  * 
  * @author mpduff
@@ -557,17 +559,21 @@ public class CreateSubscriptionDlgPresenter {
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(final IJobChangeEvent event) {
-                            subscriptionNotificationService
-                                    .sendCreatedSubscriptionNotification(
-                                            subscription, username);
 
                             final IStatus status = event.getResult();
-                            if (status.getMessage() != null) {
+
+                            final boolean subscriptionCreated = status.isOK();
+                            if (subscriptionCreated) {
+                                sendSubscriptionNotification(subscription,
+                                        username);
+                            }
+
+                            if (!Strings.isNullOrEmpty(status.getMessage())) {
                                 guiThreadTaskExecutor.runAsync(new Runnable() {
                                     @Override
                                     public void run() {
                                         if (!view.isDisposed()) {
-                                            if (status.isOK()) {
+                                            if (subscriptionCreated) {
                                                 view.displayPopup(
                                                         CREATED_TITLE,
                                                         status.getMessage());
