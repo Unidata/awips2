@@ -32,6 +32,8 @@ import javax.xml.bind.Unmarshaller;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -89,6 +91,12 @@ public class SystemRuleManager {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SystemRuleManager.class);
 
+    /** Latency Rules Localization File */
+    private LocalizationFile latencyRulesLocFile;
+
+    /** Priority Rules Localization File */
+    private LocalizationFile priorityRulesLocFile;
+
     /** JAXB context */
     private JAXBContext jax;
 
@@ -101,11 +109,21 @@ public class SystemRuleManager {
     /** Bandwidth service */
     private IBandwidthService bandwidthService;
 
+    /** Latency Rules XML object */
+    private LatencyRulesXML latencyRules;
+
+    /** Priority Rules XML object */
+    private PriorityRulesXML priorityRules;
+
+    private final List<IRulesUpdateListener> listeners = new ArrayList<IRulesUpdateListener>();
+
     /**
      * Constructor.
      */
     private SystemRuleManager() {
         createContext();
+        loadLatencyRules();
+        loadPriorityRules();
     }
 
     /**
@@ -144,7 +162,7 @@ public class SystemRuleManager {
      * @throws JAXBException
      */
     public List<String> getPriorityRuleNames() {
-        return getPriorityRules().getRuleNames();
+        return getPriorityRules(false).getRuleNames();
     }
 
     /**
@@ -154,8 +172,8 @@ public class SystemRuleManager {
      *            the name of the rule
      * @return the PriorityRuleXML object
      */
-    public PriorityRuleXML loadPriorityRule(String name) {
-        PriorityRulesXML priorityRules = getPriorityRules();
+    public PriorityRuleXML getPriorityRule(String name) {
+        PriorityRulesXML priorityRules = getPriorityRules(false);
         for (PriorityRuleXML rule : priorityRules.getRules()) {
             if (rule.getRuleName().equals(name)) {
                 return rule;
@@ -172,8 +190,8 @@ public class SystemRuleManager {
      *            the name of the rule
      * @return the LatencyRuleXML object
      */
-    public LatencyRuleXML loadLatencyRule(String name) {
-        LatencyRulesXML latencyRules = getLatencyRules();
+    public LatencyRuleXML getLatencyRule(String name) {
+        LatencyRulesXML latencyRules = getLatencyRules(false);
         for (LatencyRuleXML rule : latencyRules.getRules()) {
             if (rule.getRuleName().equals(name)) {
                 return rule;
@@ -190,7 +208,7 @@ public class SystemRuleManager {
      * @throws JAXBException
      */
     public List<String> getLatencyRuleNames() {
-        return getLatencyRules().getRuleNames();
+        return getLatencyRules(false).getRuleNames();
     }
 
     /**
@@ -203,15 +221,22 @@ public class SystemRuleManager {
     public boolean savePriorityRules(PriorityRulesXML xmlObj) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile priorityRulesLocFile = pm.getLocalizationFile(context,
-                this.PRIORITY_RULE_FILE);
-
         try {
-            marshaller.marshal(xmlObj, priorityRulesLocFile.getFile());
-            priorityRulesLocFile.save();
-            return true;
+            // If site, then write out, otherwise save it as site.
+            if (priorityRulesLocFile.getContext().getLocalizationLevel()
+                    .equals(LocalizationLevel.SITE)) {
+                marshaller.marshal(xmlObj, priorityRulesLocFile.getFile());
+                return priorityRulesLocFile.save();
+            } else {
+                LocalizationContext context = pm.getContext(
+                        LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+
+                priorityRulesLocFile = pm.getLocalizationFile(context,
+                        this.PRIORITY_RULE_FILE);
+                addPriorityRulesFileObserver();
+                marshaller.marshal(xmlObj, priorityRulesLocFile.getFile());
+                return priorityRulesLocFile.save();
+            }
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         } catch (LocalizationOpFailedException e) {
@@ -231,15 +256,22 @@ public class SystemRuleManager {
     public boolean saveLatencyRules(LatencyRulesXML xmlObj) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile latencyRulesLocFile = pm.getLocalizationFile(context,
-                this.LATENCY_RULE_FILE);
-
         try {
-            marshaller.marshal(xmlObj, latencyRulesLocFile.getFile());
-            latencyRulesLocFile.save();
-            return true;
+            // If site, then write out, otherwise save it as site.
+            if (latencyRulesLocFile.getContext().getLocalizationLevel()
+                    .equals(LocalizationLevel.SITE)) {
+                marshaller.marshal(xmlObj, latencyRulesLocFile.getFile());
+                return latencyRulesLocFile.save();
+            } else {
+                LocalizationContext context = pm.getContext(
+                        LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+
+                latencyRulesLocFile = pm.getLocalizationFile(context,
+                        this.LATENCY_RULE_FILE);
+                addLatencyRulesFileObserver();
+                marshaller.marshal(xmlObj, latencyRulesLocFile.getFile());
+                return latencyRulesLocFile.save();
+            }
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         } catch (LocalizationOpFailedException e) {
@@ -256,7 +288,7 @@ public class SystemRuleManager {
      *            the rule name to delete
      */
     public void deleteLatencyRule(String ruleName) {
-        LatencyRulesXML latencyRules = getLatencyRules();
+        LatencyRulesXML latencyRules = getLatencyRules(false);
 
         for (LatencyRuleXML rule : latencyRules.getRules()) {
             if (rule.getRuleName().equals(ruleName)) {
@@ -274,7 +306,7 @@ public class SystemRuleManager {
      *            the rule name to delete
      */
     public void deletePriorityRule(String ruleName) {
-        PriorityRulesXML priorityRules = getPriorityRules();
+        PriorityRulesXML priorityRules = getPriorityRules(false);
 
         for (PriorityRuleXML rule : priorityRules.getRules()) {
             if (rule.getRuleName().equals(ruleName)) {
@@ -293,7 +325,7 @@ public class SystemRuleManager {
      * @return true if updated
      */
     public boolean updateRule(LatencyRuleXML rule) {
-        LatencyRulesXML rulesXml = getLatencyRules();
+        LatencyRulesXML rulesXml = getLatencyRules(false);
         boolean saved = rulesXml.updateRule(rule);
         if (saved) {
             return saveLatencyRules(rulesXml);
@@ -310,7 +342,7 @@ public class SystemRuleManager {
      * @return true if updated
      */
     public boolean updateRule(PriorityRuleXML rule) {
-        PriorityRulesXML rulesXml = getPriorityRules();
+        PriorityRulesXML rulesXml = getPriorityRules(false);
         boolean saved = rulesXml.updateRule(rule);
         if (saved) {
             saved = savePriorityRules(rulesXml);
@@ -331,7 +363,7 @@ public class SystemRuleManager {
      * @return true if updated
      */
     public boolean saveRule(PriorityRuleXML rule) {
-        PriorityRulesXML rulesXml = getPriorityRules();
+        PriorityRulesXML rulesXml = getPriorityRules(false);
         boolean saved = rulesXml.addRule(rule);
         if (saved) {
             saved = savePriorityRules(rulesXml);
@@ -352,7 +384,7 @@ public class SystemRuleManager {
      * @return true if updated
      */
     public boolean saveRule(LatencyRuleXML rule) {
-        LatencyRulesXML rulesXml = getLatencyRules();
+        LatencyRulesXML rulesXml = getLatencyRules(false);
         boolean saved = rulesXml.addRule(rule);
         if (saved) {
             saved = saveLatencyRules(rulesXml);
@@ -368,19 +400,23 @@ public class SystemRuleManager {
     /**
      * Get the latency rules.
      * 
+     * @param reread
+     *            true to reread the file from disk
+     * 
      * @return The latency rules xml object
      */
-    private LatencyRulesXML getLatencyRules() {
-        LocalizationFile lfile = getRules(this.LATENCY_RULE_FILE);
-
-        LatencyRulesXML latencyRules = new LatencyRulesXML();
-        if (lfile != null && lfile.exists()) {
-            try {
-                latencyRules = (LatencyRulesXML) unmarshaller.unmarshal(lfile
-                        .getFile());
-            } catch (JAXBException e) {
-                statusHandler
-                        .handle(Priority.ERROR, e.getLocalizedMessage(), e);
+    private LatencyRulesXML getLatencyRules(boolean reread) {
+        if (latencyRules == null || reread) {
+            if (this.latencyRulesLocFile != null
+                    && latencyRulesLocFile.exists()) {
+                try {
+                    latencyRules = (LatencyRulesXML) unmarshaller
+                            .unmarshal(latencyRulesLocFile.getFile());
+                } catch (JAXBException e) {
+                    statusHandler.handle(Priority.ERROR,
+                            e.getLocalizedMessage(), e);
+                    latencyRules = new LatencyRulesXML();
+                }
             }
         }
 
@@ -390,34 +426,26 @@ public class SystemRuleManager {
     /**
      * Get the priority rules
      * 
+     * @param reread
+     *            true to reread the file from disk
+     * 
      * @return The priority rules xml object
      */
-    private PriorityRulesXML getPriorityRules() {
-        LocalizationFile lfile = getRules(this.PRIORITY_RULE_FILE);
-
-        PriorityRulesXML priorityRules = new PriorityRulesXML();
-        if (lfile != null && lfile.exists()) {
-            try {
-                priorityRules = (PriorityRulesXML) unmarshaller.unmarshal(lfile
-                        .getFile());
-            } catch (JAXBException e) {
-                statusHandler
-                        .handle(Priority.ERROR, e.getLocalizedMessage(), e);
+    private PriorityRulesXML getPriorityRules(boolean reread) {
+        if (priorityRules == null || reread)
+            if (this.priorityRulesLocFile != null
+                    && priorityRulesLocFile.exists()) {
+                try {
+                    priorityRules = (PriorityRulesXML) unmarshaller
+                            .unmarshal(priorityRulesLocFile.getFile());
+                } catch (JAXBException e) {
+                    statusHandler.handle(Priority.ERROR,
+                            e.getLocalizedMessage(), e);
+                    priorityRules = new PriorityRulesXML();
+                }
             }
-        }
-        return priorityRules;
-    }
 
-    /**
-     * Get the rules files
-     * 
-     * @param name
-     *            Rules file name to get
-     * @return The localization file
-     */
-    private LocalizationFile getRules(String name) {
-        IPathManager pm = PathManagerFactory.getPathManager();
-        return pm.getStaticLocalizationFile(name);
+        return priorityRules;
     }
 
     /**
@@ -442,7 +470,7 @@ public class SystemRuleManager {
      * @return
      */
     public int getLatency(Subscription sub, Set<Integer> cycleTimes) {
-        LatencyRulesXML rulesXml = this.getLatencyRules();
+        LatencyRulesXML rulesXml = this.getLatencyRules(false);
         int latency = 999;
         boolean found = false;
         for (LatencyRuleXML rule : rulesXml.getRules()) {
@@ -471,7 +499,7 @@ public class SystemRuleManager {
      * @return
      */
     public int getPriority(Subscription sub, Set<Integer> cycleTimes) {
-        PriorityRulesXML rulesXml = this.getPriorityRules();
+        PriorityRulesXML rulesXml = this.getPriorityRules(false);
         int priority = 3;
         boolean found = false;
         for (PriorityRuleXML rule : rulesXml.getRules()) {
@@ -545,5 +573,88 @@ public class SystemRuleManager {
             int bandwidth) {
         return getInstance().bandwidthService
                 .setBandwidthForNetworkInKilobytes(network, bandwidth);
+    }
+
+    /**
+     * Read the latency rules file.
+     */
+    private void loadLatencyRules() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        this.latencyRulesLocFile = pm
+                .getStaticLocalizationFile(this.LATENCY_RULE_FILE);
+        addLatencyRulesFileObserver();
+        getLatencyRules(true);
+    }
+
+    /**
+     * Load the priority rules file.
+     */
+    private void loadPriorityRules() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        this.priorityRulesLocFile = pm
+                .getStaticLocalizationFile(this.PRIORITY_RULE_FILE);
+        addPriorityRulesFileObserver();
+        getPriorityRules(true);
+    }
+
+    /**
+     * Add a file observer to the latency rules file to get notified when the
+     * file changes.
+     */
+    private void addLatencyRulesFileObserver() {
+        latencyRulesLocFile
+                .addFileUpdatedObserver(new ILocalizationFileObserver() {
+                    @Override
+                    public void fileUpdated(FileUpdatedMessage message) {
+                        loadLatencyRules();
+                        fireUpdates();
+                    }
+                });
+    }
+
+    /**
+     * Add a file observer to the priority rules file to get notified when the
+     * file changes.
+     */
+    private void addPriorityRulesFileObserver() {
+        priorityRulesLocFile
+                .addFileUpdatedObserver(new ILocalizationFileObserver() {
+                    @Override
+                    public void fileUpdated(FileUpdatedMessage message) {
+                        loadPriorityRules();
+                        fireUpdates();
+                    }
+                });
+    }
+
+    /**
+     * Notify the listeners the files changed.
+     */
+    private void fireUpdates() {
+        for (IRulesUpdateListener listener : listeners) {
+            listener.update();
+        }
+    }
+
+    /**
+     * Register as a listener for rules file changes.
+     * 
+     * @param listener
+     */
+    public void registerAsListener(IRulesUpdateListener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregister as a listener for rules files changed.
+     * 
+     * @param listener
+     */
+    public void deregisterAsListener(IRulesUpdateListener listener) {
+        if (listeners.contains(listener)) {
+            listeners.remove(listener);
+        }
     }
 }
