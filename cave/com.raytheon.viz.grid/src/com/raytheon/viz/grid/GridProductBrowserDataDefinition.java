@@ -47,9 +47,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -127,6 +130,48 @@ public class GridProductBrowserDataDefinition extends
     @Override
     public GridResourceData getResourceData() {
         return new GridResourceData();
+    }
+
+    @Override
+    public void constructResource(String[] selection, ResourceType type) {
+        GridInventory inventory = getInventory();
+        if (inventory == null) {
+            super.constructResource(selection, type);
+            return;
+        }
+        if (type != null) {
+            loadProperties.setResourceType(type);
+        }
+        HashMap<String, RequestConstraint> parameters = getProductParameters(
+                selection, order);
+        List<String> ensembles = null;
+        try {
+            ensembles = inventory.getEnsembles(parameters);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        if (ensembles != null && ensembles.size() > 1) {
+            Collections.sort(ensembles);
+            List<ResourcePair> pairs = new ArrayList<ResourcePair>();
+            for (String ensemble : ensembles) {
+                ResourcePair pair = new ResourcePair();
+                resourceData = getResourceData();
+                HashMap<String, RequestConstraint> newParameters = new HashMap<String, RequestConstraint>(
+                        parameters);
+                newParameters.put(GridConstants.ENSEMBLE_ID,
+                        new RequestConstraint(ensemble));
+                resourceData.setMetadataMap(newParameters);
+                pair.setResourceData(resourceData);
+                pair.setLoadProperties(loadProperties);
+                pair.setProperties(new ResourceProperties());
+                pairs.add(pair);
+            }
+            constructResource(pairs);
+        } else {
+            resourceData = getResourceData();
+            resourceData.setMetadataMap(parameters);
+            constructResource();
+        }
     }
 
     @Override
