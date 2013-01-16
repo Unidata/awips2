@@ -26,6 +26,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
@@ -102,6 +103,8 @@ public class DataSizeUtils {
     /** Number of forecast hours */
     private int numFcstHours = 0;
 
+    private int numEnsembleMembers = 0;
+
     /** Envelope */
     private ReferencedEnvelope envelope = null;
 
@@ -153,6 +156,7 @@ public class DataSizeUtils {
     public long getDataSetSizeInBytes() {
         long l = numRequestedGrids
                 * numFcstHours
+                * numEnsembleMembers
                 * dataSet.getServiceType().getRequestBytesPerParameterPerLevel(
                         numberOfGridCells);
         return l;
@@ -181,8 +185,15 @@ public class DataSizeUtils {
                     long numCells = griddedCov.getGridCoverage().getNx()
                             * griddedCov.getGridCoverage().getNy();
                     // Default to 1 forecast hour if not a gridded data set
-                    long fcstHrs = dataSet instanceof GriddedDataSet ? ((GriddedDataSet) dataSet)
-                            .getForecastHours().size() : 1;
+                    long numEns = 1;
+                    long fcstHrs = 1;
+                    if (dataSet instanceof GriddedDataSet) {
+                        GriddedDataSet gDataSet = (GriddedDataSet) dataSet;
+                        fcstHrs = gDataSet.getForecastHours().size();
+                        if (gDataSet.getEnsemble() != null) {
+                            numEns = gDataSet.getEnsemble().getMemberCount();
+                        }
+                    }
                     Map<String, Parameter> paramMap = dataSet.getParameters();
 
                     // get the number of grids available
@@ -196,7 +207,8 @@ public class DataSizeUtils {
                         numGridsAvailable += (numLevels > 0 ? numLevels : 1);
                     }
 
-                    fullSize = fcstHrs
+                    fullSize = numEns
+                            * fcstHrs
                             * numGridsAvailable
                             * dataSet.getServiceType()
                                     .getRequestBytesPerParameterPerLevel(
@@ -294,5 +306,14 @@ public class DataSizeUtils {
         }
 
         this.numRequestedGrids = numGrids;
+    }
+
+    public void setNumEnsembleMembers(Ensemble ensemble) {
+        if (ensemble == null) {
+            this.numEnsembleMembers = 1;
+        } else {
+            this.numEnsembleMembers = ensemble.getSelectedMemberCount();
+        }
+
     }
 }
