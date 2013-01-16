@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <latencyRules>
-    <latencyRule>
+    <rule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="latencyRuleXML">
         <ruleField>Dataset Frequency</ruleField>
         <ruleName>Hourly-Products</ruleName>
         <ruleOperator>&lt;=</ruleOperator>
         <ruleUnit>Hrs</ruleUnit>
         <ruleValue>1</ruleValue>
         <latency>40</latency>
-    </latencyRule>
-    <latencyRule>
+    </rule>
+    <rule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="latencyRuleXML">
         <ruleField>Dataset Frequency</ruleField>
         <ruleName>MultiHour-Products</ruleName>
         <ruleOperator>&gt;</ruleOperator>
         <ruleUnit>Hrs</ruleUnit>
         <ruleValue>1</ruleValue>
         <latency>115</latency>
-    </latencyRule>
+    </rule>
 </latencyRules>
