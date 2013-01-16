@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
 import com.raytheon.uf.viz.datadelivery.system.OpsNetFieldNames;
@@ -54,11 +52,6 @@ import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class RuleXML {
-
-    /** Status Handler */
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RuleXML.class);
-
     /** Rule name */
     @XmlElement
     protected String ruleName;
