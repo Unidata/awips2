@@ -263,10 +263,7 @@ public class SystemLatencyTab {
                         ruleDlg = new CreateEditRuleDlg(parentComp.getShell(),
                                 create, ruleName, LATENCY_TYPE);
                     }
-                    boolean reloadFlag = (Boolean) ruleDlg.open();
-                    if (reloadFlag) {
-                        loadList();
-                    }
+                    ruleDlg.open();
                 } else {
                     ruleDlg.bringToTop();
                 }
