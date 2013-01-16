@@ -243,6 +243,10 @@ public class Subscription implements ISerializableObject, Serializable {
     @DynamicSerializeElement
     private ArrayList<Parameter> parameter;
 
+    @XmlElement
+    @DynamicSerializeElement
+    private Ensemble ensemble;
+
     @XmlAttribute
     @DynamicSerializeElement
     private boolean deleted;
@@ -920,4 +924,13 @@ public class Subscription implements ISerializableObject, Serializable {
     public int getLatencyInMinutes() {
         return latencyInMinutes;
     }
+
+    public Ensemble getEnsemble() {
+        return ensemble;
+    }
+
+    public void setEnsemble(Ensemble ensemble) {
+        this.ensemble = ensemble;
+    }
+
 }
