@@ -22,14 +22,15 @@ package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
@@ -265,13 +266,14 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
      * @param parm
      * @return
      */
-    protected HashMap<DataTime, ArrayList<Level>> getGridDuplicates(
+    protected Map<DataTime, List<Level>> getGridDuplicates(
             String name,
-            Parameter parm, ArrayList<DataTime> times, ArrayList<Level> levels,
+            Parameter parm, List<DataTime> times, List<Level> levels,
+            List<String> ensembleMembers,
             GriddedCoverage cov) {
 
         return RetrievalGeneratorUtilities.findGridDuplicates(name, times,
-                levels,
+                levels, ensembleMembers,
                 parm, cov.getRequestGridCoverage());
     }
 
@@ -285,6 +287,13 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
 
         List<Retrieval> retrievals = new ArrayList<Retrieval>();
         Subscription sub = bundle.getSubscription();
+
+        if (sub.getEnsemble() != null && !sub.getEnsemble().hasSelection()) {
+            // TODO remove this once the UI allows you to make an ensemble
+            // selection.
+            sub.getEnsemble()
+                    .setSelectedMembers(sub.getEnsemble().getMembers());
+        }
 
         int sfactor = getSizingFactor(getDimensionalSize(sub.getCoverage()));
         sub = removeDuplicates(sub);
@@ -319,6 +328,13 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
                 return Collections.emptyList();
             }
 
+            List<Ensemble> ensembles = null;
+            if (sub.getEnsemble() == null) {
+                ensembles = Arrays.asList((Ensemble) null);
+            } else {
+                ensembles = sub.getEnsemble().split(1);
+            }
+
             for (List<Integer> timeSequence : subTime.getTimeSequences(sfactor)) {
 
                 for (Parameter param : sub.getParameter()) {
@@ -332,9 +348,11 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
                                 sub.getTime());
 
                         for (Time time : times) {
-                            Retrieval retrieval = getRetrieval(sub, bundle,
-                                    param, paramLevels, time);
-                            retrievals.add(retrieval);
+                            for (Ensemble ensemble : ensembles) {
+                                Retrieval retrieval = getRetrieval(sub, bundle,
+                                        param, paramLevels, time, ensemble);
+                                retrievals.add(retrieval);
+                            }
                         }
 
                     } else {
@@ -350,9 +368,12 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
                             // and time
                             for (Time time : times) {
                                 for (Levels level : levels) {
-                                    Retrieval retrieval = getRetrieval(sub,
-                                            bundle, param, level, time);
-                                    retrievals.add(retrieval);
+                                    for (Ensemble ensemble : ensembles) {
+                                        Retrieval retrieval = getRetrieval(sub,
+                                                bundle, param, level, time,
+                                                ensemble);
+                                        retrievals.add(retrieval);
+                                    }
                                 }
                             }
                         }
@@ -375,7 +396,7 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
      * @return
      */
     private Retrieval getRetrieval(Subscription sub, SubscriptionBundle bundle,
-            Parameter param, Levels level, Time time) {
+            Parameter param, Levels level, Time time, Ensemble ensemble) {
 
         Retrieval retrieval = new Retrieval();
         retrieval.setSubscriptionName(sub.getName());
@@ -404,6 +425,7 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
         lparam.setLevels(level);
         att.setTime(time);
         att.setParameter(lparam);
+        att.setEnsemble(ensemble);
         att.setSubName(retrieval.getSubscriptionName());
         att.setPlugin(pt.getPlugin());
         att.setProvider(sub.getProvider());
@@ -488,7 +510,6 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
         param.setBaseType(origParm.getBaseType());
         param.setDataType(origParm.getDataType());
         param.setDefinition(origParm.getDefinition());
-        param.setEnsemble(origParm.getEnsemble());
         param.setFillValue(origParm.getFillValue());
         param.setLevelType(origParm.getLevelType());
         param.setMissingValue(origParm.getMissingValue());
@@ -536,6 +557,13 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
 
         int sfactor = getSizingFactor(getDimensionalSize(sub.getCoverage()));
 
+        List<String> ensembles = null;
+        if (sub.getEnsemble() != null && sub.getEnsemble().hasSelection()) {
+            ensembles = sub.getEnsemble().getSelectedMembers();
+        } else {
+            ensembles = Arrays.asList((String) null);
+        }
+
         for (List<Integer> timeSequence : sub.getTime().getTimeSequences(
                 sfactor)) {
 
@@ -557,14 +585,14 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
                     ArrayList<Level> levels = ResponseProcessingUtilities
                             .getOpenDAPGridLevels(param.getLevels());
 
-                    HashMap<DataTime, ArrayList<Level>> dups = getGridDuplicates(
+                    Map<DataTime, List<Level>> dups = getGridDuplicates(
                             sub.getName(),
-                            param, times, levels,
+ param, times, levels, ensembles,
                             (GriddedCoverage) sub.getCoverage());
 
                     for (int i = 0; i < times.size(); i++) {
                         DataTime dtime = times.get(i);
-                        ArrayList<Level> levDups = dups.get(dtime);
+                        List<Level> levDups = dups.get(dtime);
 
                         if (levDups != null) {
                             // single level, remove the time
@@ -594,14 +622,14 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
                                     .getOpenDAPGridLevels(level);
                         }
 
-                        HashMap<DataTime, ArrayList<Level>> dups = getGridDuplicates(
-                                sub.getName(),
-                                param, times, plevels,
+                        Map<DataTime, List<Level>> dups = getGridDuplicates(
+                                sub.getName(), param, times, plevels,
+                                ensembles,
                                 ((GriddedCoverage) sub.getCoverage()));
 
                         for (int i = 0; i < times.size(); i++) {
                             DataTime dtime = times.get(i);
-                            ArrayList<Level> levDups = dups.get(dtime);
+                            List<Level> levDups = dups.get(dtime);
 
                             if (levDups != null) {
 
