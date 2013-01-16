@@ -52,6 +52,8 @@ final class OpenDAPParseUtility {
 
     private static final Pattern QUOTES_PATTERN = Pattern.compile("\"");
 
+    private static final Pattern COMMA_PATTERN = Pattern.compile(",");
+
     /** Singleton instance of this class */
     private static OpenDAPParseUtility instance = null;
 
@@ -252,35 +254,16 @@ final class OpenDAPParseUtility {
      */
     public Ensemble parseEnsemble(AttributeTable table) {
 
-        String stime = serviceConfig.getConstantValue("TIMEINIT");
-        String slength = serviceConfig.getConstantValue("LENGTH");
         String sname = serviceConfig.getConstantValue("NAME");
-        int size = new Integer(trim(table.getAttribute(
-                serviceConfig.getConstantValue("SIZE")).getValueAt(0)))
-                .intValue();
-        String name = null;
-        String length = null;
-        String tinit = null;
-
-        if (table.getAttribute(slength) != null) {
-            length = table.getAttribute(slength).getValueAt(0);
-        }
+        Ensemble ens = new Ensemble();
 
         if (table.getAttribute(sname) != null) {
-            name = table.getAttribute(sname).getValueAt(0);
+            String name = trim(table.getAttribute(sname).getValueAt(0));
+            String[] members = COMMA_PATTERN.split(name);
+            ens.setMembers(Arrays.asList(members));
         }
-
-        if (table.getAttribute(stime) != null) {
-            tinit = table.getAttribute(stime).getValueAt(0);
-        }
-
-        Ensemble ens = new Ensemble();
-        ens.setSize(size);
-        ens.setLength(length);
-        ens.setName(name);
-        ens.setInit(tinit);
-
         return ens;
+
     }
 
     /**
