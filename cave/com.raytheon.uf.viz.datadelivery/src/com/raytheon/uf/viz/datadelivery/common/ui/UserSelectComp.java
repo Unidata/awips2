@@ -413,6 +413,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 u.setEnvelope(groupDefinition.getEnvelope());
                 u.setNumFcstHours(subscription.getTime()
                         .getSelectedTimeIndices().size());
+                u.setNumEnsembleMembers(subscription.getEnsemble());
                 u.determineNumberRequestedGrids(subscription.getParameter());
 
                 Coverage cov = new GriddedCoverage();
