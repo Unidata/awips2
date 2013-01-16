@@ -1067,7 +1067,7 @@ public class TestDgdriv {
 		//}
 
 		if (file != null)
-			filename = file.getAbsolutePath();
+			filename = file.getPath();
 		return filename;
 	}
 	
