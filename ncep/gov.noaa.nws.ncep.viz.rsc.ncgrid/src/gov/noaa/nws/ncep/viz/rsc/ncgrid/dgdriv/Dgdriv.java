@@ -1552,7 +1552,7 @@ public class Dgdriv {
 		//}
 
 		if (file != null)
-			filename = file.getAbsolutePath();
+			filename = file.getPath();
 		return filename;
 	}
 	
