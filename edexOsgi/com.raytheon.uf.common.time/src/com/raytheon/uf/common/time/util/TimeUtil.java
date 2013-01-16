@@ -28,6 +28,8 @@ import java.util.TimeZone;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.domain.TimePoints;
+import com.raytheon.uf.common.time.domain.api.ITimePoint;
 
 /**
  * Utilities for time, some extracted from Util.
@@ -63,9 +65,11 @@ public class TimeUtil {
      * 
      */
     private static class NullClock extends AbstractTimer {
+        private static final ITimePoint CONSTANT_TIME = TimePoints
+                .fromMillis(1L);
         @Override
-        protected long getCurrentTime() {
-            return 1;
+        protected ITimePoint getCurrentTime() {
+            return CONSTANT_TIME;
         }
     }
 
