@@ -28,9 +28,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    01/10/13                      bkowal         Initial Creation.
-#    
+#    01/17/13        #1490         bkowal         The location of pypies.cfg is
+#                                                 now retrieved from the environment.
 # 
-#
 
 import os, ConfigParser
 
@@ -46,7 +46,7 @@ class PypiesConfigurationManager:
         self.__loadConfig()
 
     def __initConfigLocation(self):        
-        self.__configLoc = '/awips2/pypies/conf/pypies.cfg'
+        self.__configLoc = os.environ["PYPIES_CFG"]
         if not os.path.exists(self.__configLoc):
             print "Unable to find pypies.cfg at ", self.__configLoc
             self.__configLoc = None
