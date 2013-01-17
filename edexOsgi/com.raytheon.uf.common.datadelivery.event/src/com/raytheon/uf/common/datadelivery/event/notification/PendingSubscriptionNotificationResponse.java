@@ -20,26 +20,37 @@
 package com.raytheon.uf.common.datadelivery.event.notification;
 
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
  * PendingSubscriptionNotificationResponse object.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 20, 2012            mpduff     Initial creation
- *
+ * Jan 17, 2013 1501       djohnson     Allow a response to specify the subscription handler.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 @DynamicSerialize
 public class PendingSubscriptionNotificationResponse extends
         BaseSubscriptionNotificationResponse<InitialPendingSubscription> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IBaseSubscriptionHandler<InitialPendingSubscription> getSubscriptionHandler() {
+        return DataDeliveryHandlers.getPendingSubscriptionHandler();
+    }
 
 }
