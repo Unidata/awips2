@@ -73,6 +73,18 @@ function createEnvironment()
       echo "ERROR: Unable to place qpid in the ${env_name} environment."
       return 1
    fi
+   # /awips2/pypies
+   cp -r /awips2/pypies ${EDEX_ENV_DIR}/${env_name}
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Unable to place pypies in the ${env_name} environment."
+      return 1
+   fi 
+   # /awips2/httpd-pypies
+   cp -r /awips2/httpd_pypies ${EDEX_ENV_DIR}/${env_name}
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Unable to place httpd_pypies in the ${env_name} environment."
+      return 1
+   fi
 
    # 3) Update the links in: data/pg_tblspc
    pushd . > /dev/null 2>&1
@@ -106,7 +118,7 @@ function createEnvironment()
       exit 1
    fi
 
-   # 5) Re-configure: Edex, QPID, and PostgreSQL
+   # 5) Re-configure: Edex, QPID, PostgreSQL, and Pypies
    /awips2/java/bin/java -jar ${UTILITIES}/Wes2BridgeManager.jar "${config_file}"
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to configure the ${env_name} environment."
