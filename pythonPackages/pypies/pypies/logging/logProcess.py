@@ -30,7 +30,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/20/10                      njensen       Initial Creation.
-#    
+#    01/17/13        1490          bkowal        Retrieves the logging tcp port
+#                                                from configuration instead of
+#                                                using the default.
 # 
 #
 
@@ -116,7 +118,7 @@ class LogRecordSocketReceiver(SocketServer.ThreadingTCPServer):
     allow_reuse_address = 1
 
     def __init__(self, host='localhost',
-                 port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+                 port=logCfg.getLoggingPort(),
                  handler=LogRecordStreamHandler):
         SocketServer.ThreadingTCPServer.__init__(self, (host, port), handler)
         self.abort = 0
