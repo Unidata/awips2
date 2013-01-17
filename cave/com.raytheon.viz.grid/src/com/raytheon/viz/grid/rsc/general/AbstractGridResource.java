@@ -823,7 +823,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         Unit<?> unit = data.getDataUnit();
         if (stylePreferences != null) {
             Unit<?> styleUnit = stylePreferences.getDisplayUnits();
-            if (unit != null && unit.isCompatible(styleUnit)) {
+            if (unit != null && styleUnit != null
+                    && unit.isCompatible(styleUnit)) {
                 value = (float) unit.getConverterTo(styleUnit).convert(value);
                 unit = styleUnit;
                 unitString = stylePreferences.getDisplayUnitLabel();
