@@ -65,6 +65,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 23, 2012 1286       djohnson    Hook into bandwidth management.
  * Nov 20, 2012 1286       djohnson    Implement IDisplay.
  * Jan 04, 2013 1420       mpduff      Remove applying of rules.
+ * Jan 17, 2013 1501       djohnson    Close the dialog when force apply occurs, 
+ *                                     and check whether changes have already been applied when OK is pressed.
  * 
  * </pre>
  * 
@@ -437,21 +439,26 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
                 sb.append("Would you like to change the bandwidth anyways?.");
                 int response = DataDeliveryUtils.showMessage(getShell(),
                         SWT.YES | SWT.NO, "Bandwidth Amount", sb.toString());
+                boolean forceApplied = false;
                 if (response == SWT.YES) {
-                    boolean forceApplied = SystemRuleManager
+                    forceApplied = SystemRuleManager
                             .forceSetAvailableBandwidth(Network.OPSNET,
                                     bandwidth);
-                    if (!forceApplied) {
+                    if (forceApplied) {
+                        availableBandwidthModified = false;
+                    } else {
                         statusHandler
                                 .handle(Priority.ERROR,
                                         "Bandwidth Change",
                                         "Unable to change the bandwidth for network "
                                                 + Network.OPSNET
                                                 + ".  Please check the server for details.");
-                        return false;
+
                     }
                 }
-                return false;
+                return forceApplied;
+            } else {
+                availableBandwidthModified = false;
             }
         }
 
