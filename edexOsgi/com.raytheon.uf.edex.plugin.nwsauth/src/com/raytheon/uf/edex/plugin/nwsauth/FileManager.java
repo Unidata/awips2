@@ -19,9 +19,11 @@
  **/
 package com.raytheon.uf.edex.plugin.nwsauth;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.bind.JAXBException;
 
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Uses localization data to determine role/permissions. Intentionally
@@ -51,7 +54,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 09, 2013 1412       djohnson   Moved file writing from viz plugin to server-side.
+ * Jan 09, 2013 1412       djohnson     Moved file writing from viz plugin to server-side.
+ * Jan 17, 2013 1412       djohnson     Check files for having been modified each time data is requested, 
+ *                                      in case they were written by another member of the cluster.
  * 
  * </pre>
  * 
@@ -69,14 +74,22 @@ class FileManager {
 
     private final String ROLE_DIR = "roles";
 
-    private final Map<String, NwsRoleData> roleDataMap = new HashMap<String, NwsRoleData>();
+    private final AtomicLong lastReadTime = new AtomicLong(-1L);
+
+    /**
+     * Application name -> Role Data.
+     */
+    private final ConcurrentMap<String, NwsRoleData> roleDataMap = new ConcurrentHashMap<String, NwsRoleData>();
 
     /**
      * Application name -> LocalizationFile map.
      */
-    private final Map<String, LocalizationFile> roleFileMap = new HashMap<String, LocalizationFile>();
+    private final ConcurrentMap<String, LocalizationFile> roleFileMap = new ConcurrentHashMap<String, LocalizationFile>();
 
-    private FileManager() {
+    /**
+     * Package-level visibility so tests can create new instances.
+     */
+    FileManager() {
         readXML();
     }
 
@@ -117,29 +130,52 @@ class FileManager {
 
     private void readXML() {
         try {
-            getJaxbManager();
-
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext[] contexts = new LocalizationContext[2];
-            contexts[0] = pm.getContext(LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.BASE);
-            contexts[1] = pm.getContext(LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.SITE);
-            LocalizationFile[] roleFiles = pm.listFiles(contexts, ROLE_DIR,
-                    new String[] { ".xml" }, false, true);
-
+            LocalizationFile[] roleFiles = getUserRoleLocalizationFiles();
+            boolean needToReadFiles = false;
             for (LocalizationFile lf : roleFiles) {
-                NwsRoleData roleData = lf.jaxbUnmarshal(NwsRoleData.class,
-                        getJaxbManager());
+                final long fileLastModified = lf.getFile().lastModified();
+                final long lastTimeFilesWereRead = lastReadTime.get();
 
-                if (roleData != null) {
-                    this.roleDataMap.put(roleData.getApplication(), roleData);
-                    this.roleFileMap.put(roleData.getApplication(), lf);
+                if (fileLastModified > lastTimeFilesWereRead) {
+                    needToReadFiles = true;
+                    break;
                 }
             }
+
+            if (needToReadFiles) {
+                for (LocalizationFile lf : roleFiles) {
+                    final long fileLastModified = lf.getFile().lastModified();
+                    final long lastTimeFilesWereRead = lastReadTime.get();
+
+                    if (fileLastModified < lastTimeFilesWereRead) {
+                        continue;
+                    }
+                    NwsRoleData roleData = lf.jaxbUnmarshal(NwsRoleData.class,
+                            getJaxbManager());
+
+                    if (roleData != null) {
+                        final String application = roleData.getApplication();
+                        this.roleDataMap.put(application, roleData);
+                        this.roleFileMap.put(application, lf);
+                    }
+                }
+            }
+            lastReadTime.set(TimeUtil.currentTimeMillis());
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
+    }
+
+    private LocalizationFile[] getUserRoleLocalizationFiles() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext[] contexts = new LocalizationContext[2];
+        contexts[0] = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+        contexts[1] = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+        LocalizationFile[] roleFiles = pm.listFiles(contexts, ROLE_DIR,
+                new String[] { ".xml" }, false, true);
+        return roleFiles;
     }
 
     private JAXBManager getJaxbManager() throws JAXBException {
@@ -154,13 +190,15 @@ class FileManager {
      * @return
      */
     public Map<String, NwsRoleData> getRoleDataMap() {
+        readXML();
         return roleDataMap;
     }
 
     /**
      * @param roleDataWithChanges
      */
-    public void writeApplicationRoleData(Map<String, NwsRoleData> roleDataWithChanges) {
+    public void writeApplicationRoleData(
+            Map<String, NwsRoleData> roleDataWithChanges) {
         for (Entry<String, NwsRoleData> entry : roleDataWithChanges.entrySet()) {
             final String application = entry.getKey();
             roleDataMap.put(application, entry.getValue());
