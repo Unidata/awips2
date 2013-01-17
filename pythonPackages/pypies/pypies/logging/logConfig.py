@@ -28,7 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/13/11                      njensen       Initial Creation.
-#    
+#    01/17/13        1490          bkowal        The logging tcp port is now configurable
 # 
 #
 
@@ -51,6 +51,7 @@ class LogConfig:
             self.pypiesLogger = self.__getDefaultLogger()
             self.minutesLogger = self.pypiesLogger
             self.hoursLogger = self.pypiesLogger
+            self.loggingPort = logging.handlers.DEFAULT_TCP_LOGGING_PORT
     
     def __configure(self, configurationManager):
         scp = configurationManager.getConfiguration()
@@ -59,7 +60,9 @@ class LogConfig:
         logFileDir = scp.get('handler_pypiesHandler', 'logFileDir')
         if not os.path.exists(logFileDir):
             os.makedirs(logFileDir)
-        logging.config.fileConfig(configurationManager.getConfigurationLocation())    
+        logging.config.fileConfig(configurationManager.getConfigurationLocation())
+        
+        self.loggingPort = int(scp.get('tcp_logger', 'logging_port'))    
     
     def __getDefaultLogger(self):
         import logging, logging.handlers
@@ -81,5 +84,7 @@ class LogConfig:
     
     def getHoursLogger(self):
         return self.hoursLogger
-
+    
+    def getLoggingPort(self):
+        return self.loggingPort
 
