@@ -29,7 +29,7 @@ INITLOG_ARGS=""
 # work correctly with a thread-based MPM; notably PHP will refuse to start.
 
 # Find the httpd-pypies installation.
-HTTPD_PYPIES_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-httpd-pypies`
+HTTPD_PYPIES_INSTALL="/awips2/httpd_pypies"
 
 # Path to the apachectl script, server binary, and short-form for messages.
 apachectl=${HTTPD_PYPIES_INSTALL}/usr/sbin/apachectl
@@ -40,6 +40,9 @@ lockfile=${LOCKFILE-${HTTPD_PYPIES_INSTALL}/var/lock/subsys/httpd}
 RETVAL=0
 PYTHON_INSTALL="/awips2/python"
 loggingCmd="${PYTHON_INSTALL}/bin/python -u ${PYTHON_INSTALL}/lib/python2.7/site-packages/pypies/logging/logProcess.py"
+
+# pypies configuration location
+export PYPIES_CFG=/awips2/pypies/conf/pypies.cfg
 
 # Add to LD_LIBRARY_PATH, if necessary.
 PYTHON_LIB_DIR="${PYTHON_INSTALL}/lib"
