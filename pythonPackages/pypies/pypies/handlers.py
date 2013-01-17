@@ -30,6 +30,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/17/10                      njensen       Initial Creation.
 #    01/11/13                      bkowal        Pypies will now read the hdf5 root from configuration
+#    01/17/13        1490          bkowal        Relocated the configuration of pypies
 # 
 #
 
@@ -37,14 +38,13 @@ from werkzeug import Request, Response, ClosingIterator
 import time, logging, os
 import pypies
 from pypies import IDataStore
-import pypies.config.pypiesConfigurationManager
 import dynamicserialize
 from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.request import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.response import *
 
 logger = pypies.logger
 timeMap = pypies.timeMap
-hdf5Dir = None
+hdf5Dir = pypies.hdf5Dir
 
 from pypies.impl import H5pyDataStore
 datastore = H5pyDataStore.H5pyDataStore()
@@ -61,26 +61,6 @@ datastoreMap = {
     RepackRequest: (datastore.repack, "RepackRequest"),
     CopyRequest: (datastore.copy, "CopyRequest")           
 }
-
-pypiesConfigurationManager = pypies.config.pypiesConfigurationManager.PypiesConfigurationManager()
-if (pypiesConfigurationManager.hasConfigurationBeenLoaded()):
-    configLocation = pypiesConfigurationManager.getConfigurationLocation()
-    infoMessage = 'using ' + configLocation + ' for pypies config'
-    logger.info(infoMessage)
-
-    # determine the edex hdf5 root
-    scp = pypiesConfigurationManager.getConfiguration()
-    hdf5Dir = scp.get('edex_data', 'hdf5dir')
-    # add a trailing directory separator (when necessary)
-    if (not hdf5Dir.endswith('/')):
-        hdf5Dir = hdf5Dir + '/'
-        
-    if not os.path.exists(hdf5Dir):
-       os.makedirs(hdf5Dir)
-    infoMessage = 'using hdf5 directory: ' + hdf5Dir
-    logger.info(infoMessage)
-
-# TODO: error and halt when configuration cannot be loaded       
 
 @Request.application
 def pypies_response(request):
