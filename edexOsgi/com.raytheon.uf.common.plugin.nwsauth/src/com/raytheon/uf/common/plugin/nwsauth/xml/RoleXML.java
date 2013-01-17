@@ -117,4 +117,19 @@ public class RoleXML implements ISerializableObject {
     public void addPermission(String permission) {
         this.permissionList.add(permission);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("roleId:").append(this.getRoleId());
+        sb.append("\nroleDescription:").append(this.getRoleDescription());
+        sb.append("\npermissionList:").append(this.getPermissionList());
+
+        return sb.toString();
+    }
 }
