@@ -471,7 +471,7 @@ public class VerticalSubsetTab extends SubsetTab implements
      * @param dataSet
      *            The DataSetMetaData object
      */
-    public void populate(ArrayList<VerticalXML> vertList, DataSet dataSet) {
+    public void populate(List<VerticalXML> vertList, DataSet dataSet) {
         this.dataSet = dataSet;
         createExpandBarItems();
 
