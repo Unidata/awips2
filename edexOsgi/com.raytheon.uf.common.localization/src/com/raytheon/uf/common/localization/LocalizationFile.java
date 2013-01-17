@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.uf.common.localization.FileLocker.Type;
 import com.raytheon.uf.common.localization.ILocalizationAdapter.ListResponse;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -80,6 +82,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      This was added as part of an effort to improve 
  *                                      localization performance but caused updated 
  *                                      files on the server not to be retrieved.
+ * Jan 17, 2013 1412        djohnson    Add jaxbMarshal.
  * </pre>
  * 
  * @author njensen
@@ -633,6 +636,25 @@ public final class LocalizationFile implements Comparable<LocalizationFile> {
         }
 
         return null;
+    }
+
+    /**
+     * Marshal the specified object into this file.
+     * 
+     * @param obj
+     *            the object to marshal
+     * 
+     * @param jaxbManager
+     *            the jaxbManager
+     */
+    public void jaxbMarshal(Object obj, JAXBManager jaxbManager) throws LocalizationException{
+        try {
+            String xml = jaxbManager.marshalToXml(obj);
+            write(xml.getBytes());
+        } catch (JAXBException e) {
+            throw new LocalizationException(
+                    "Unable to marshal the object to the file.", e);
+        }
     }
 
     @Override
