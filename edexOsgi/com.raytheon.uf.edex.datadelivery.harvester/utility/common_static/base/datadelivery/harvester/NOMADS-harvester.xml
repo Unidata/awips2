@@ -45,9 +45,9 @@
         <ignore>\.das$</ignore> 
         <ignore>\.dds$</ignore>
         <ignore>help$</ignore>
-        <ignore>fens_all</ignore>
-        <ignore>cmcens_all</ignore>
-        <ignore>gep_all</ignore>
+        <ignore>fens\d\d\d</ignore>
+        <ignore>cmcens[cp]\d\d</ignore>
+        <ignore>ge[cp]\d\d</ignore>
 		<!-- seed scan once a day at 12z -->
 		<seedScan>0 0 12 * * ?</seedScan>
 		<!-- main scan every 12 minutes -->
