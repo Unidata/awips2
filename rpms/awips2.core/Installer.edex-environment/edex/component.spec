@@ -117,6 +117,7 @@ POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgresql/scripts/init.d/e
 QPID_INITD="${RPM_PROJECT}/awips2.qpid/SOURCES/qpidd"
 QUEUE_SH="${RPM_PROJECT}/awips2.qpid/SOURCES/queueCreator.sh"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex-base/scripts/init.d/edex_camel"
+HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \
@@ -135,6 +136,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${EDEX_INITD} \
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp ${HTTPD_PYPIES_INITD} \
    %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
