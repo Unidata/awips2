@@ -165,7 +165,7 @@ public class TestPathManager extends PathManager {
             try {
                 if (baselinedVersion.exists()) {
                     if (baselinedVersion.isDirectory()) {
-                        savedFile.mkdirs();
+                        FileUtil.copyDirectory(baselinedVersion, savedFile);
                     } else {
                         FileUtil.copyFile(baselinedVersion, savedFile);
                     }
