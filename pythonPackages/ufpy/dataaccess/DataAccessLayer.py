@@ -1,4 +1,4 @@
-##
+# #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -16,7 +16,7 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##
+# #
 
 
 #
@@ -39,7 +39,7 @@ if sys.modules.has_key('jep'):
     import JepRouter
     router = JepRouter    
 else:
-    #router = ThriftClientRouter()
+    # router = ThriftClientRouter()
     import exceptions
     raise exceptions.NotImplementedError("Must use inside a JVM until ThriftClient support is added")
     
@@ -50,14 +50,11 @@ def getAvailableTimes(request):
 def getData(request, times):
     return router.getData(request, times)
 
-def getLatCoords(gridRequest):
-    return router.getLatCoords(gridRequest)
-
-def getLonCoords(gridRequest):
-    return router.getLonCoords(gridRequest)
+def getLatLonCoords(gridRequest):
+    return router.getLatLonCoords(gridRequest)
 
 def getAvailableLocationNames(geometryRequest):
-    return router.getAvailableLocaitonNames(geometryRequest)
+    return router.getAvailableLocationNames(geometryRequest)
 
 def newGeometryRequest():
     return router.newGeometryRequest()
