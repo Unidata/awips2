@@ -260,8 +260,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
         derivedRequest = new DerivedParameterRequest(derivedRequest);
         for (Object param : derivedRequest.getBaseParams()) {
             records.add((SatelliteRecord) param);
-            hdf5Files.add(HDF5Util.findHDF5Location((SatelliteRecord) param)
-                    .getAbsoluteFile());
+            hdf5Files.add(HDF5Util.findHDF5Location((SatelliteRecord) param));
             datasets.add(getDataset(((SatelliteRecord) param).getDataURI(),
                     dataset));
         }
