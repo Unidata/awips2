@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.LatencyRuleXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.OperatorAdapter;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRuleXML;
@@ -45,7 +46,6 @@ import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils.SubscriptionPriority;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
-import com.raytheon.uf.viz.datadelivery.utils.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -67,7 +67,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 18, 2012  1417       bgonzale   Changed value initialization in handleSave().
  * Jan 04, 2013  1420       mpduff     Remove code to apply rules changes to existing subscription,
  *                                     rules are only for future subscriptions.
- * Jan 14, 2013   1286     djohnson    Rule operators are now used as objects.
+ * Jan 14, 2013  1286       djohnson   Rule operators are now used as objects.
+ * Jan 17, 2013  1357       mpduff     Moved DataSizeUnit.
  * 
  * </pre>
  * 
