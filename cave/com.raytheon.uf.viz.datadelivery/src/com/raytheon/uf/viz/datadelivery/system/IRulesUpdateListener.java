@@ -17,44 +17,28 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.retrieval.util;
-
-import com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup;
+package com.raytheon.uf.viz.datadelivery.system;
 
 /**
- * Makes parser created XML not write out in test
+ * Rules file update notifier interface.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 10, 2013            djohnson     Initial creation
- *
+ * Jan 16, 2013   1420     mpduff      Initial creation
+ * 
  * </pre>
- *
- * @author djohnson
- * @version 1.0	
+ * 
+ * @author mpduff
+ * @version 1.0
  */
 
-public class NullXmlWriter implements LevelXmlWriter, ParameterXmlWriter {
-
+public interface IRulesUpdateListener {
     /**
-     * {@inheritDoc}
+     * Update rules.
      */
-    @Override
-    public void writeParameterXml(ParameterLookup pl, String modelName)
-            throws Exception {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void writeLevelXml(LevelLookup ll, String modelName)
-            throws Exception {
-    }
-
+    void update();
 }
