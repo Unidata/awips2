@@ -20,8 +20,11 @@
 package com.raytheon.uf.viz.stats.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,7 +51,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.stats.GraphDataRequest;
 import com.raytheon.uf.common.stats.GraphDataResponse;
 import com.raytheon.uf.common.stats.data.GraphData;
-import com.raytheon.uf.common.stats.util.DataViewUtils;
+import com.raytheon.uf.common.stats.util.DataView;
+import com.raytheon.uf.common.stats.util.UnitUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,6 +73,7 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2012     728    mpduff      Initial creation.
+ * Jan 17, 2013    1357    mpduff      Add ability to change units.
  * Jan 18, 2013    1386    mpduff      Change menu text.
  * 
  * </pre>
@@ -144,6 +149,14 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /** Data view combo */
     private Combo viewCombo;
 
+    /** Menu item map */
+    private final Map<String, MenuItem> menuItemMap = new HashMap<String, MenuItem>();
+
+    /** The currently displayed unit */
+    private String displayUnit;
+
+    private UnitUtils unitUtils;
+
     /**
      * Constructor.
      * 
@@ -205,6 +218,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         groupComp.setLayout(gl);
         groupComp.setLayoutData(gd);
 
+        displayCanvas.setCallback(groupComp);
+
         gd = new GridData(SWT.FILL, SWT.DEFAULT, false, true);
         gl = new GridLayout(2, false);
         Composite ctrlComp = new Composite(leftComp, SWT.NONE);
@@ -221,11 +236,11 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         graphLabel.setText("Graph: ");
 
         List<String> viewList = new ArrayList<String>();
-        viewList.add(DataViewUtils.DataView.AVG.getView());
-        viewList.add(DataViewUtils.DataView.MIN.getView());
-        viewList.add(DataViewUtils.DataView.MAX.getView());
-        viewList.add(DataViewUtils.DataView.SUM.getView());
-        viewList.add(DataViewUtils.DataView.COUNT.getView());
+        viewList.add(DataView.AVG.getView());
+        viewList.add(DataView.MIN.getView());
+        viewList.add(DataView.MAX.getView());
+        viewList.add(DataView.SUM.getView());
+        viewList.add(DataView.COUNT.getView());
 
         gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
         viewCombo = new Combo(dataComp, SWT.READ_ONLY);
@@ -372,6 +387,58 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
                 displayCanvas.redraw();
             }
         });
+
+        // Set up the display units menu choices
+        MenuItem unitsMI = new MenuItem(graphMenu, SWT.CASCADE);
+        unitsMI.setText("Display Units");
+
+        unitUtils = new UnitUtils(graphData.getEventType(),
+                graphData.getDataType());
+        String displayUnit = graphData.getDisplayUnit();
+        unitUtils.setUnitType(displayUnit);
+        unitUtils.setDisplayUnit(displayUnit);
+        Set<String> units = unitUtils.getUnitOptions();
+
+        Menu unitsMenu = new Menu(graphMenu);
+        unitsMI.setMenu(unitsMenu);
+
+        for (String unit : units) {
+            MenuItem mi = new MenuItem(unitsMenu, SWT.CHECK);
+            mi.setText(unit);
+            if (unit.equals(graphData.getDisplayUnit())) {
+                mi.setSelection(true);
+            }
+            mi.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    handleUnitsSelection(e);
+                }
+            });
+
+            menuItemMap.put(unit, mi);
+        }
+    }
+
+    /**
+     * Handle the unit selection event.
+     * 
+     * @param e
+     *            The selection event
+     */
+    private void handleUnitsSelection(SelectionEvent e) {
+        MenuItem m = (MenuItem) e.getSource();
+        for (Entry<String, MenuItem> es : menuItemMap.entrySet()) {
+            MenuItem mi = es.getValue();
+            if (es.getKey().equals(m.getText())) {
+                m.setSelection(true);
+                displayUnit = m.getText();
+                unitUtils.setDisplayUnit(displayUnit);
+                graphData.setDisplayUnit(displayUnit);
+                displayCanvas.redraw();
+            } else {
+                mi.setSelection(false);
+            }
+        }
     }
 
     /**
@@ -517,7 +584,6 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         default:
             return;
         }
-
         GraphDataRequest request = new GraphDataRequest();
         request.setGrouping(this.groupList);
         request.setCategory(this.category);
@@ -526,7 +592,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         request.setField(dataTypeID);
         TimeRange newTimeRange = new TimeRange(newStart, newEnd);
         request.setTimeRange(newTimeRange);
-        request.setTimeStep(5);
+        request.setTimeStep((int) graphData.getTimeStep());
         try {
             GraphDataResponse response = (GraphDataResponse) ThriftClient
                     .sendRequest(request);
@@ -545,7 +611,6 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
             }
 
             this.graphData = localGraphData;
-            this.displayCanvas.setGraphData(graphData);
             this.displayCanvas.redraw();
         } catch (VizException e) {
             this.statusHandler.handle(Priority.ERROR, "Error Requesting Data",
@@ -557,7 +622,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
      * Handler for data view combo box change.
      */
     private void handleDataViewChange() {
-        String view = viewCombo.getText();
+        String viewStr = viewCombo.getText();
+        DataView view = DataView.fromString(viewStr);
         this.displayCanvas.setView(view);
         this.displayCanvas.redraw();
     }
@@ -630,5 +696,13 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
      */
     public void setDataType(String dataTypeID) {
         this.dataTypeID = dataTypeID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UnitUtils getUnitUtils() {
+        return this.unitUtils;
     }
 }

@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
  * Jan 07, 2013 1451       djohnson    Add newGmtCalendar() and time constants.
+ * Jan 17, 2013 1357       mpduff      Change MILLIS_PER_MONTH to MILLIS_PER_30_DAYS
  * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
  * Jan 22, 2013 1519       djohnson    Add MINUTES_PER_DAY.
  * 
@@ -121,10 +122,7 @@ public final class TimeUtil {
 
     public static final long MILLIS_PER_WEEK = MILLIS_PER_DAY * DAYS_PER_WEEK;
 
-    /**
-     * Note: This constant assumes a month of 30 days.
-     */
-    public static final long MILLIS_PER_MONTH = MILLIS_PER_DAY * 30;
+    public static final long MILLIS_PER_30_DAYS = MILLIS_PER_DAY * 30;
 
     /**
      * Note: This constant does not take into account leap years.
