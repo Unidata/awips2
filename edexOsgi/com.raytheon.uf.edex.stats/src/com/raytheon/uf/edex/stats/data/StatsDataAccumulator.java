@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.stats.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,8 +33,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.StatsGrouping;
 import com.raytheon.uf.common.stats.StatsGroupingColumn;
@@ -43,7 +40,6 @@ import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsBin;
 import com.raytheon.uf.common.stats.data.StatsData;
 import com.raytheon.uf.common.stats.data.StatsLabelData;
-import com.raytheon.uf.common.stats.util.UnitUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,6 +58,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2012    728     mpduff      Initial creation
  * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
+ * Jan 17, 2013   1357     mpduff      Remove unit conversions, add time step, other cleanup.
  * 
  * </pre>
  * 
@@ -74,8 +71,12 @@ public class StatsDataAccumulator {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(StatsDataAccumulator.class);
 
+    /**
+     * Constant.
+     */
     private static final String COLON = ":";
 
+    /** JaxB manager instance. */
     private static final JAXBManager JAXB_MANAGER;
     static {
         try {
@@ -166,8 +167,6 @@ public class StatsDataAccumulator {
         // Loop backwards over the data
         StatsLabelData prevLabelData = null;
         StatsLabelData statsLabelData = null;
-        UnitUtils unitUtils = new UnitUtils(eventType, dataType);
-        unitUtils.setDisplayUnit(displayUnit);
 
         for (int i = groups.size() - 1; i >= 0; i--) {
             String group = groups.get(i);
@@ -179,7 +178,7 @@ public class StatsDataAccumulator {
             prevLabelData = statsLabelData;
         }
 
-        gather(unitUtils, groups);
+        gather(groups);
 
         // StatsLabelData is created and holds all the keys
         GraphData graphData = new GraphData();
@@ -188,8 +187,10 @@ public class StatsDataAccumulator {
         graphData.setStatsDataMap(statsDataMap);
         graphData.setTimeRange(timeRange);
         graphData.setKeys(new ArrayList<String>(this.statsDataMap.keySet()));
-        graphData.setUnitUtils(unitUtils);
         graphData.setKeySequence(groups);
+        graphData.setTimeStep(this.timeStep);
+        graphData.setEventType(eventType);
+        graphData.setDataType(dataType);
 
         return graphData;
     }
@@ -203,7 +204,7 @@ public class StatsDataAccumulator {
      *            List of groups
      */
     @VisibleForTesting
-    void createStatsDataMap(UnitUtils unitUtils, List<String> groups) {
+    void createStatsDataMap(List<String> groups) {
         Map<String, String> keySequenceMap = new LinkedHashMap<String, String>();
         for (String key : groups) {
             keySequenceMap.put(key, "");
@@ -249,7 +250,7 @@ public class StatsDataAccumulator {
 
                 if (!statsDataMap.containsKey(builtKey)) {
                     statsDataMap.put(builtKey, new StatsData(builtKey,
-                            timeStep, this.timeRange, unitUtils));
+                            timeStep, this.timeRange));
                 }
 
                 statsDataMap.get(builtKey).addRecord(record);
@@ -289,21 +290,17 @@ public class StatsDataAccumulator {
      * @param groups
      *            List of groups
      */
-    @SuppressWarnings("unchecked")
-    private void gather(UnitUtils unitUtils, List<String> groups) {
-        createStatsDataMap(unitUtils, groups);
+    private void gather(List<String> groups) {
+        createStatsDataMap(groups);
         calculateBins();
+        Map<Long, StatsBin> newMap = new TreeMap<Long, StatsBin>();
         for (String key : statsDataMap.keySet()) {
-            Map<Long, StatsBin> newMap = Collections.emptyMap();
-            try {
-                newMap = SerializationUtil.transformFromThrift(Map.class,
-                        SerializationUtil.transformToThrift(bins));
-            } catch (SerializationException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Error serializing/deserializing StatsBin data.  Skipping...",
-                                e);
+            // Copy the bins object
+            for (long lkey : bins.keySet()) {
+                StatsBin sb = new StatsBin(bins.get(lkey));
+                newMap.put(lkey, sb);
             }
+
             StatsData data = statsDataMap.get(key);
             data.setBins(newMap);
             data.accumulate();
