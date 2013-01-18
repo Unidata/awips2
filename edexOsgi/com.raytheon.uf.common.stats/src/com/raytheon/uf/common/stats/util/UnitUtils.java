@@ -19,125 +19,113 @@
  **/
 package com.raytheon.uf.common.stats.util;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.units.DataSizeUnit;
 
 /**
  * Utility class for data size conversions. KB vs MB vs GB
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012    728     mpduff      Initial creation.
- *
+ * Jan 17, 2013   1357     mpduff      Refactored to use DataSizeUnit and TimeUnit.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 @DynamicSerialize
 public class UnitUtils implements ISerializableObject {
-    /** Bytes per Kilobyte */
-    private static final double BYTES_PER_KILOBYTE = 1024.0;
-
     /** Different unit types for statistics */
     public static enum UnitTypes {
         DATA_SIZE, TIME, COUNT
     }
 
     /**
-     * Data Size Conversions
+     * Time Conversions.
      */
-    public static enum DataSize {
-        KB("KB", BYTES_PER_KILOBYTE), MB("MB", BYTES_PER_KILOBYTE
-                * BYTES_PER_KILOBYTE), GB("GB", BYTES_PER_KILOBYTE
-                * BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE);
+    public static enum TimeConversion {
+        MS("ms", "MILLISECONDS"), Second("Seconds", "SECONDS"), Minute(
+                "Minutes", "MINUTES"), Hour("Hours", "HOURS");
 
         private final String unit;
 
-        private final double conversion;
+        private final String fullUnit;
 
-        private static Set<String> dataUnits;
+        private TimeUnit timeUnit;
 
-        private DataSize(String unit, double conversion) {
+        private TimeConversion(String unit, String fullUnit) {
             this.unit = unit;
-            this.conversion = conversion;
-            populateSet();
-        }
-
-        private static void populateSet() {
-            dataUnits = new HashSet<String>();
-            dataUnits.add("KB");
-            dataUnits.add("MB");
-            dataUnits.add("GB");
+            this.fullUnit = fullUnit;
+            timeUnit = TimeUnit.valueOf(fullUnit);
         }
 
         public String getDataUnit() {
             return unit;
         }
 
-        public double getConversion() {
-            return conversion;
+        public String getFullUnit() {
+            return fullUnit;
         }
 
-        public static Set<String> getDataUnits() {
-            return dataUnits;
+        public TimeUnit getTimeUnit() {
+            return timeUnit;
+        }
+
+        public static TimeConversion getInstance(String unit) {
+            return TIME_UNIT_LOOKUP.get(unit);
         }
     }
 
     /**
-     * Time Conversions.
+     * Data size unit lookup map.
      */
-    public static enum TimeConversion {
-        MS("ms", 1), Second("seconds", TimeUtil.MILLIS_PER_SECOND), Minute(
-                "minutes", TimeUtil.MILLIS_PER_MINUTE), Hour("hours",
-                TimeUtil.MILLIS_PER_HOUR);
-
-        private static Set<String> dataUnits;
-
-        private final String unit;
-
-        private final double conversion;
-
-        private TimeConversion(String unit, double conversion) {
-            this.unit = unit;
-            this.conversion = conversion;
-            populateSet();
+    private static final Map<String, DataSizeUnit> DATA_SIZE_UNIT_LOOKUP;
+    static {
+        DataSizeUnit[] values = DataSizeUnit.values();
+        Map<String, DataSizeUnit> map = new LinkedHashMap<String, DataSizeUnit>(
+                values.length);
+        for (DataSizeUnit dataSize : values) {
+            map.put(dataSize.getUnit(), dataSize);
         }
+        DATA_SIZE_UNIT_LOOKUP = Collections.unmodifiableMap(map);
+    }
 
-        private static void populateSet() {
-            dataUnits = new HashSet<String>();
-            dataUnits.add("seconds");
-            dataUnits.add("ms");
-            dataUnits.add("minutes");
-            dataUnits.add("hours");
+    /**
+     * Time unit lookup map.
+     */
+    private static final Map<String, TimeConversion> TIME_UNIT_LOOKUP;
+    static {
+        TimeConversion[] values = TimeConversion.values();
+        Map<String, TimeConversion> map = new LinkedHashMap<String, TimeConversion>(
+                values.length);
+        for (TimeConversion timeConversion : values) {
+            map.put(timeConversion.getDataUnit(), timeConversion);
         }
-
-        public String getDataUnit() {
-            return unit;
-        }
-
-        public double getConversion() {
-            return conversion;
-        }
-
-        public static Set<String> getDataUnits() {
-            return dataUnits;
-        }
+        TIME_UNIT_LOOKUP = Collections.unmodifiableMap(map);
     }
 
     /** The event type */
+    @DynamicSerializeElement
     private String eventType;
 
     /** The data type */
+    @DynamicSerializeElement
     private String dataType;
 
     /** The display unit */
@@ -148,10 +136,6 @@ public class UnitUtils implements ISerializableObject {
     @DynamicSerializeElement
     private UnitTypes unitType;
 
-    /** Copnversion factor */
-    @DynamicSerializeElement
-    private double conversion = 1;
-
     /**
      * Constructor
      */
@@ -161,7 +145,7 @@ public class UnitUtils implements ISerializableObject {
 
     /**
      * Constructor
-     *
+     * 
      * @param eventType
      *            event type
      * @param dataType
@@ -172,38 +156,6 @@ public class UnitUtils implements ISerializableObject {
         this.dataType = dataType;
         // Default to count
         this.unitType = UnitTypes.COUNT;
-    }
-
-    /**
-     * The largest value of the data set. This is used to determine which
-     * conversion to use if one is not specified.
-     *
-     * @param value
-     *            Largest value of the data set
-     *
-     * @return The conversion factor
-     */
-    public void setConversion(double value) {
-        // Which unit type is it?
-        if (unitType == UnitTypes.COUNT) {
-            conversion = 1;
-        } else if (unitType == UnitTypes.DATA_SIZE) {
-            if (value < DataSize.MB.getConversion()) {
-                conversion = DataSize.KB.getConversion();
-            } else if (value < DataSize.GB.getConversion()) {
-                conversion = DataSize.MB.getConversion();
-            } else if (value >= DataSize.GB.getConversion()) {
-                conversion = DataSize.GB.getConversion();
-            }
-        } else if (unitType == UnitTypes.TIME) {
-            if (value < TimeUtil.MILLIS_PER_MINUTE) {
-                conversion = TimeUtil.MILLIS_PER_SECOND;
-            } else if (value < TimeUtil.MILLIS_PER_HOUR) {
-                conversion = TimeUtil.MILLIS_PER_MINUTE;
-            } else {
-                conversion = TimeUtil.MILLIS_PER_SECOND;
-            }
-        }
     }
 
     /**
@@ -218,15 +170,6 @@ public class UnitUtils implements ISerializableObject {
      */
     public String getDataType() {
         return dataType;
-    }
-
-    /**
-     * Get the conversion
-     *
-     * @return
-     */
-    public double getConversion() {
-        return conversion;
     }
 
     /**
@@ -252,36 +195,140 @@ public class UnitUtils implements ISerializableObject {
     }
 
     /**
-     * Set the display unit.
-     *
      * @param displayUnit
+     *            the displayUnit to set
      */
     public void setDisplayUnit(String displayUnit) {
         this.displayUnit = displayUnit;
+        setUnitType(displayUnit);
+    }
 
-        // Determine the unitType
-        if (DataSize.getDataUnits().contains(displayUnit)) {
-            unitType = UnitTypes.DATA_SIZE;
-        } else if (TimeConversion.getDataUnits().contains(displayUnit)) {
-            unitType = UnitTypes.TIME;
+    /**
+     * @param eventType
+     *            the eventType to set
+     */
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    /**
+     * @param dataType
+     *            the dataType to set
+     */
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    /**
+     * Set the unit type based on the display unit.
+     * 
+     * @param displayUnit
+     *            The display unit
+     */
+    public void setUnitType(String displayUnit) {
+        if (TIME_UNIT_LOOKUP.containsKey(displayUnit)) {
+            this.setUnitType(UnitTypes.TIME);
+        } else if (DATA_SIZE_UNIT_LOOKUP.containsKey(displayUnit)) {
+            this.setUnitType(UnitTypes.DATA_SIZE);
+        }
+    }
+
+    /**
+     * Get the available units for the provided unit type.
+     * 
+     * @param type
+     *            The type of unit
+     * @return The available units
+     */
+    @VisibleForTesting
+    public Set<String> getUnitOptions(UnitTypes type) {
+        Set<String> units = Collections.emptySet();
+
+        switch (type) {
+        case DATA_SIZE:
+            units = DATA_SIZE_UNIT_LOOKUP.keySet();
+            break;
+        case TIME:
+            units = TIME_UNIT_LOOKUP.keySet();
+            // units = TimeConversion.getDataUnits();
+            break;
+        case COUNT:
+            units = new HashSet<String>();
+            units.add("Count");
+            break;
+        default:
+            break;
         }
 
-        if (unitType == UnitTypes.DATA_SIZE) {
-            if (displayUnit.equals(DataSize.KB.getDataUnit())) {
-                conversion = DataSize.KB.getConversion();
-            } else if (displayUnit.equals(DataSize.MB.getDataUnit())) {
-                conversion = DataSize.MB.getConversion();
-            } else if (displayUnit.equals(DataSize.GB.getDataUnit())) {
-                conversion = DataSize.GB.getConversion();
+        return units;
+    }
+
+    /**
+     * Convert the value in original units to displayUnits.
+     * 
+     * @param unit
+     *            original unit
+     * @param value
+     *            in bytes
+     * @return converted value
+     */
+    @VisibleForTesting
+    public double convertDataSizeValue(DataSizeUnit unit, double value) {
+        DataSizeUnit ds = DataSizeUnit.fromString(displayUnit);
+        if (ds != null) {
+            if (ds == DataSizeUnit.BYTE) {
+                return unit.toByte((long) value);
+            } else if (ds == DataSizeUnit.KB) {
+                return unit.toKB((long) value);
+            } else if (ds == DataSizeUnit.MB) {
+                return unit.toMB((long) value);
+            } else if (ds == DataSizeUnit.GB) {
+                return unit.toGB((long) value);
             }
-        } else if (unitType == UnitTypes.TIME) {
-            if (displayUnit.equals(TimeConversion.MS.getDataUnit())) {
-                conversion = 1;
-            } else if (displayUnit.equals(TimeConversion.Second.getDataUnit())) {
-                conversion = TimeUtil.MILLIS_PER_SECOND;
-            } else if (displayUnit.equals(TimeConversion.Minute.getDataUnit())) {
-                conversion = TimeUtil.MILLIS_PER_MINUTE;
-            }
+
+            return value;
         }
+
+        return value;
+    }
+
+    /**
+     * Convert a time from one unit to the display unit.
+     * 
+     * @param unit
+     *            Originating unit
+     * @param value
+     *            value to convert
+     * @return value converted to display unit
+     */
+    @VisibleForTesting
+    public long convertTimeValue(TimeConversion unit, long value) {
+        TimeConversion outputTc = TimeConversion.getInstance(displayUnit);
+        return outputTc.getTimeUnit().convert(value, unit.getTimeUnit());
+    }
+
+    /**
+     * Convert the provided value. Time types expect source units to be ms and
+     * data size units to be Bytes.
+     * 
+     * @param value
+     * @param view
+     * @param displayUnit
+     * @return The converted value
+     */
+    public double convertValue(double value) {
+        if (getUnitType() == UnitTypes.TIME) {
+            return convertTimeValue(TimeConversion.MS, (long) value);
+        } else {
+            return convertDataSizeValue(DataSizeUnit.BYTE, value);
+        }
+
+    }
+
+    /**
+     * Get the different unit options for the provided unit type.
+     */
+    public Set<String> getUnitOptions() {
+        return this.getUnitOptions(this.unitType);
     }
 }

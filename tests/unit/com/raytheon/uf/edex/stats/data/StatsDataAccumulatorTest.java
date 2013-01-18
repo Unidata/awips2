@@ -153,7 +153,7 @@ public class StatsDataAccumulatorTest {
         acc.setDataType(dataType);
         acc.setupGroupings();
 
-        acc.createStatsDataMap(unitUtils, acc.groups);
+        acc.createStatsDataMap(acc.groups);
 
         Set<String> expectedSet = new HashSet<String>();
         expectedSet.add("owner0:nomads");
