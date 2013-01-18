@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.event.notification;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -27,17 +28,18 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
  * Base abstract class for the subscription notification response.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 20, 2012    1157    mpduff      Initial creation
- *
+ * Jan 17, 2013 1501       djohnson     Allow a response to specify the subscription handler.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -85,4 +87,11 @@ public abstract class BaseSubscriptionNotificationResponse<T extends Subscriptio
         this.subscription = subscription;
     }
 
+    /**
+     * Get the subscription handler that corresponds to the subscription type
+     * for this notification.
+     * 
+     * @return the subscription handler
+     */
+    public abstract IBaseSubscriptionHandler<T> getSubscriptionHandler();
 }

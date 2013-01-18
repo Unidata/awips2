@@ -32,7 +32,7 @@ if [ -e "${LOGFILE}" ]
 then
 	tail -1200 $LOGFILE > $TEMPNAME
 	mv $TEMPNAME $LOGFILE
-fi	
+fi
 
 #
 echo "------------------------------ " >> $LOGFILE
@@ -42,18 +42,10 @@ echo "------------------------------ " >> $LOGFILE
 Dte=`date -u `
 echo Starting alarm_whfs at  $Dte >> $LOGFILE
 
-Dte=`date -u`
-echo Invoking roc_checker  at $Dte >> $LOGFILE
-
 $WHFS_LOCAL_BIN_DIR/run_roc_checker
 
-# TODO re-enabled report_alarm if needed
+$WHFS_LOCAL_BIN_DIR/run_report_alarm
 
-#Dte=`date -u`
-#echo Invoking report_alarm at $Dte >> $LOGFILE
-
-#$WHFS_LOCAL_BIN_DIR/run_report_alarm
-
-#Dte=`date -u `
-#echo Completed alarm_whfs at  $Dte >> $LOGFILE
+Dte=`date -u `
+echo Completed alarm_whfs at  $Dte >> $LOGFILE
 
