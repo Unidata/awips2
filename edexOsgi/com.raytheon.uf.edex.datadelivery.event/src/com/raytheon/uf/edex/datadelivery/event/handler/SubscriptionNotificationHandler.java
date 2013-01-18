@@ -25,17 +25,18 @@ import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNo
 import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Subscription Notification Handler.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2012            mpduff     Initial creation.
@@ -44,13 +45,15 @@ import com.raytheon.uf.common.status.UFStatus;
  * Aug 31, 2012    1128    mpduff     Set priority and category from request.
  * Sep 06, 2012     687    mpduff     Send a SubscriptionNotificationResponse object.
  * Sep 24, 2012    1157    mpduff     Changed to use BaseSubscriptionNotificationRequest.
+ * Jan 17, 2013 1501       djohnson     If a subscription is still in the registry, use it for the notification response.
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 
-public class SubscriptionNotificationHandler<T extends Subscription> extends AbstractHandler implements
+public class SubscriptionNotificationHandler<T extends Subscription> extends
+        AbstractHandler implements
         IRequestHandler<BaseSubscriptionNotificationRequest<T>> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -60,7 +63,7 @@ public class SubscriptionNotificationHandler<T extends Subscription> extends Abs
 
     /**
      * Constructor
-     *
+     * 
      * @param uri
      *            the jms uri to send the response
      */
@@ -70,7 +73,7 @@ public class SubscriptionNotificationHandler<T extends Subscription> extends Abs
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
      * (com.raytheon.uf.common.serialization.comm.IServerRequest)
@@ -87,9 +90,21 @@ public class SubscriptionNotificationHandler<T extends Subscription> extends Abs
 
         storeAndSend(record, uri);
 
-        BaseSubscriptionNotificationResponse<T> response = request.getResponse();
+        BaseSubscriptionNotificationResponse<T> response = request
+                .getResponse();
         response.setMessage(request.getMessage());
-        response.setSubscription(request.getSubscription());
+
+        final IBaseSubscriptionHandler<T> subscriptionHandler = response
+                .getSubscriptionHandler();
+        final T requestSubscription = request.getSubscription();
+        final T registryVersion = subscriptionHandler
+                .getByName(requestSubscription.getName());
+
+        // If the subscription is still in the registry, use that version which
+        // will reflect any updates that have occurred since the notification
+        // was sent, otherwise pass along the one provided with the request
+        response.setSubscription((registryVersion != null) ? registryVersion
+                : requestSubscription);
 
         send(response, uri);
 
