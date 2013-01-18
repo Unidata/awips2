@@ -17,26 +17,33 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Response for approved pending subscriptions.
- * 
+ * Pending subscription notification request object.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 20, 2012 1413       bgonzale    Initial creation.
+ * Sep 20, 2012            mpduff     Initial creation
+ *
  * </pre>
- * 
- * @author bgonzale
+ *
+ * @author mpduff
  * @version 1.0
  */
 @DynamicSerialize
-public class ApprovedPendingSubscriptionNotificationResponse extends
-        SubscriptionNotificationResponse {
+public class PendingSubscriptionNotificationRequest extends
+        BaseSubscriptionNotificationRequest<InitialPendingSubscription> {
+
+    @Override
+    public BaseSubscriptionNotificationResponse<InitialPendingSubscription> getResponse() {
+        return new PendingSubscriptionNotificationResponse();
+    }
 }
