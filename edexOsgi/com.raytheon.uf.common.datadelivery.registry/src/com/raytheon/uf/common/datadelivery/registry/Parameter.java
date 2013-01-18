@@ -94,10 +94,6 @@ public class Parameter implements ISerializableObject, Serializable {
 
     @XmlAttribute
     @DynamicSerializeElement
-    private Integer ensemble;
-
-    @XmlAttribute
-    @DynamicSerializeElement
     private String baseType;
 
     @XmlElements({ @XmlElement(name = "levelType", type = DataLevelType.class) })
@@ -124,7 +120,6 @@ public class Parameter implements ISerializableObject, Serializable {
         this.dataType = copy.dataType;
         this.missingValue = copy.missingValue;
         this.fillValue = copy.fillValue;
-        this.ensemble = copy.ensemble;
         this.baseType = copy.baseType;
 
         // deep copy
@@ -263,14 +258,6 @@ public class Parameter implements ISerializableObject, Serializable {
 
     public Levels getLevels() {
         return levels;
-    }
-
-    public void setEnsemble(Integer ensemble) {
-        this.ensemble = ensemble;
-    }
-
-    public Integer getEnsemble() {
-        return ensemble;
     }
 
     public void setFillValue(String fillValue) {
