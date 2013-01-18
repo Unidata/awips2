@@ -27,13 +27,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXBException;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
+import com.raytheon.uf.common.stats.StatsGrouping;
+import com.raytheon.uf.common.stats.StatsGroupingColumn;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsBin;
 import com.raytheon.uf.common.stats.data.StatsData;
@@ -44,33 +49,41 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Accumulates the statistics data.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2012    728     mpduff      Initial creation
- *
+ * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 
 public class StatsDataAccumulator {
-    private static final Pattern COLON_PATTERN = Pattern.compile(":");
-
-    private static final Pattern DASH_PATTERN = Pattern.compile("-");
-
-    private static final String COLON = ":";
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(StatsDataAccumulator.class);
+
+    private static final String COLON = ":";
+
+    private static final JAXBManager JAXB_MANAGER;
+    static {
+        try {
+            JAXB_MANAGER = new JAXBManager(StatsGroupingColumn.class);
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     /** List of records */
     private AggregateRecord[] records;
@@ -108,7 +121,7 @@ public class StatsDataAccumulator {
 
     /**
      * Set the AggregateRecord[]
-     *
+     * 
      * @param records
      *            array of AggregateRecord objects
      */
@@ -122,28 +135,27 @@ public class StatsDataAccumulator {
     @VisibleForTesting
     public void setupGroupings() {
         for (AggregateRecord aggRec : records) {
-            String grouping = aggRec.getGrouping();
-            String[] groupString = DASH_PATTERN.split(grouping);
-            String group;
-            String member;
-            for (String grp : groupString) {
-                String[] parts = COLON_PATTERN.split(grp);
-                group = parts[0];
-                member = parts[1];
-                if (!groupMemberMap.containsKey(group)) {
-                    groupMemberMap.put(group, new TreeSet<String>());
-                }
+            StatsGroupingColumn columnValue = unmarshalGroupingColumnFromRecord(aggRec);
 
-                groupMemberMap.get(group).add(member);
+            final List<StatsGrouping> groups = columnValue.getGroup();
+            if (CollectionUtil.isNullOrEmpty(groups)) {
+                continue;
+            }
+            for (StatsGrouping group : groups) {
+                final String groupName = group.getName();
+                if (!groupMemberMap.containsKey(groupName)) {
+                    groupMemberMap.put(groupName, Sets.<String> newTreeSet());
+                }
+                groupMemberMap.get(groupName).add(group.getValue());
             }
         }
 
-        groups = new ArrayList<String>(groupMemberMap.keySet());
+        groups = Lists.newArrayList(groupMemberMap.keySet());
     }
 
     /**
      * Get the GraphData object
-     *
+     * 
      * @param groups
      *            List of groups
      * @return The GraphData object
@@ -184,7 +196,7 @@ public class StatsDataAccumulator {
 
     /**
      * Create the StatsDataMap keys
-     *
+     * 
      * @param unitUtils
      *            UnitUtils object
      * @param groups
@@ -202,21 +214,25 @@ public class StatsDataAccumulator {
             if (record.getEventType().equals(eventType)
                     && record.getField().equals(dataType)) {
 
+                StatsGroupingColumn columnValue = unmarshalGroupingColumnFromRecord(record);
+
+                final List<StatsGrouping> columnValueGroups = columnValue
+                        .getGroup();
+                if (CollectionUtil.isNullOrEmpty(columnValueGroups)) {
+                    continue;
+                }
+
                 // Have a matching record
                 for (String key : keySequenceMap.keySet()) {
                     keySequenceMap.put(key, "");
                 }
-                String[] groupings = DASH_PATTERN.split(record.getGrouping());
 
-                for (String grouping : groupings) {
-                    String[] parts = COLON_PATTERN.split(grouping);
-                    String group = parts[0];
-                    String groupMember = parts[1];
+                for (StatsGrouping group : columnValueGroups) {
 
                     for (String key : keySequenceMap.keySet()) {
-                        if (group.equals(key)) {
+                        if (group.getName().equals(key)) {
                             keySequenceMap.put(key, keySequenceMap.get(key)
-                                    .concat(groupMember + COLON));
+                                    .concat(group.getValue() + COLON));
                             break;
                         }
                     }
@@ -243,8 +259,31 @@ public class StatsDataAccumulator {
     }
 
     /**
+     * Unmarshals the {@link StatsGroupingColumn} from the
+     * {@link AggregateRecord}.
+     * 
+     * @param record
+     *            the aggregate record
+     * @return the unmarshalled column, or an empty column if unable to
+     *         unmarshal
+     */
+    private static StatsGroupingColumn unmarshalGroupingColumnFromRecord(
+            AggregateRecord record) {
+        String groupingXmlAsString = record.getGrouping();
+        try {
+            return (StatsGroupingColumn) JAXB_MANAGER
+                    .unmarshalFromXml(groupingXmlAsString);
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to unmarshal stats grouping column, returning empty record, xml:\n"
+                            + groupingXmlAsString, e);
+            return new StatsGroupingColumn();
+        }
+    }
+
+    /**
      * Gather the data together in each bin.
-     *
+     * 
      * @param unitUtils
      *            UnitUtils object
      * @param groups
@@ -323,7 +362,7 @@ public class StatsDataAccumulator {
 
     /**
      * Set the display units.
-     *
+     * 
      * @param displayUnit
      *            the displayUnit to set
      */
@@ -333,7 +372,7 @@ public class StatsDataAccumulator {
 
     /**
      * TimeStep in minutes
-     *
+     * 
      * @param timeStep
      */
     public void setTimeStep(int timeStep) {

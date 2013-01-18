@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -64,6 +65,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 23, 2012 1286       djohnson    Hook into bandwidth management.
  * Nov 20, 2012 1286       djohnson    Implement IDisplay.
  * Jan 04, 2013 1420       mpduff      Remove applying of rules.
+ * Jan 17, 2013 1501       djohnson    Close the dialog when force apply occurs, 
+ *                                     and check whether changes have already been applied when OK is pressed.
  * 
  * </pre>
  * 
@@ -71,7 +74,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * @version 1.0
  */
 public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
-        IForceApplyPromptDisplayText {
+        IForceApplyPromptDisplayText, IRulesUpdateListener {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -128,9 +131,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     /** OK button */
     private Button okBtn;
 
+    /** Available bandwidth modified flag */
     private boolean availableBandwidthModified;
 
+    /** Available bandwidth spinner widget */
     private Spinner availBandwidthSpinner;
+
+    /** The system latency tab */
+    private SystemLatencyTab lTab;
+
+    /** The system priority tab */
+    private SystemPriorityTab pTab;
 
     /**
      * Constructor.
@@ -141,6 +152,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     public SystemManagementDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.NONE);
         setText("Data Delivery System Management");
+        SystemRuleManager.getInstance().registerAsListener(this);
 
     }
 
@@ -179,6 +191,17 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         createSeparator(false);
         createBottomButtons();
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        SystemRuleManager.getInstance().deregisterAsListener(this);
     }
 
     /**
@@ -283,7 +306,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         priorityComp.setLayout(gl);
         priorityComp.setLayoutData(gd);
         priorityTab.setControl(priorityComp);
-        SystemPriorityTab pTab = new SystemPriorityTab(priorityComp);
+        pTab = new SystemPriorityTab(priorityComp);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -296,7 +319,7 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         latencyComp.setLayout(gl);
         latencyComp.setLayoutData(gd);
         latencyTab.setControl(latencyComp);
-        SystemLatencyTab lTab = new SystemLatencyTab(latencyComp);
+        lTab = new SystemLatencyTab(latencyComp);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);
@@ -309,6 +332,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         routingComp.setLayoutData(gd);
         routingTab.setControl(routingComp);
         SystemRoutingTab rTab = new SystemRoutingTab(routingComp);
+
+        lTab.loadList();
+        pTab.loadList();
     }
 
     /**
@@ -413,21 +439,26 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
                 sb.append("Would you like to change the bandwidth anyways?.");
                 int response = DataDeliveryUtils.showMessage(getShell(),
                         SWT.YES | SWT.NO, "Bandwidth Amount", sb.toString());
+                boolean forceApplied = false;
                 if (response == SWT.YES) {
-                    boolean forceApplied = SystemRuleManager
+                    forceApplied = SystemRuleManager
                             .forceSetAvailableBandwidth(Network.OPSNET,
                                     bandwidth);
-                    if (!forceApplied) {
+                    if (forceApplied) {
+                        availableBandwidthModified = false;
+                    } else {
                         statusHandler
                                 .handle(Priority.ERROR,
                                         "Bandwidth Change",
                                         "Unable to change the bandwidth for network "
                                                 + Network.OPSNET
                                                 + ".  Please check the server for details.");
-                        return false;
+
                     }
                 }
-                return false;
+                return forceApplied;
+            } else {
+                availableBandwidthModified = false;
             }
         }
 
@@ -465,5 +496,18 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
             throw new IllegalArgumentException(
                     "Don't know how to handle option [" + option + "]");
         }
+    }
+
+    @Override
+    public void update() {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                if (!shell.isDisposed()) {
+                    lTab.loadList();
+                    pTab.loadList();
+                }
+            }
+        });
     }
 }
