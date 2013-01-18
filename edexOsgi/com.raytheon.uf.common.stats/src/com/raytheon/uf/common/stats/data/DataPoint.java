@@ -20,10 +20,6 @@
 package com.raytheon.uf.common.stats.data;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,7 +27,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.stats.util.DataViewUtils;
+import com.raytheon.uf.common.stats.util.DataView;
+import com.raytheon.uf.common.stats.util.UnitUtils.UnitTypes;
 
 /**
  * Class holding an x,y data point and other associated information for the
@@ -43,7 +40,8 @@ import com.raytheon.uf.common.stats.util.DataViewUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 7, 2012            mpduff     Initial creation
+ * Sep  7, 2012            mpduff      Initial creation
+ * Jan 17, 2013    1357    mpduff      Moved sample code out of this class.
  * 
  * </pre>
  * 
@@ -55,36 +53,11 @@ import com.raytheon.uf.common.stats.util.DataViewUtils;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class DataPoint implements Comparable<DataPoint> {
-    /** Date Format object */
-    private final ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sTemp = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-            sTemp.setTimeZone(TimeZone.getTimeZone("GMT"));
-            return sTemp;
-        }
-    };
-
-    /** Decimal Format object */
-    private final ThreadLocal<DecimalFormat> decFormat = new ThreadLocal<DecimalFormat>() {
-        @Override
-        protected DecimalFormat initialValue() {
-            DecimalFormat format = new DecimalFormat("########.#");
-            return format;
-        }
-    };
-
     /**
      * X value - millis
      */
     @DynamicSerializeElement
     private long x;
-
-    /**
-     * Text display for the sampling of this point
-     */
-    @DynamicSerializeElement
-    protected String sampleText;
 
     /** Min value */
     @DynamicSerializeElement
@@ -102,33 +75,15 @@ public class DataPoint implements Comparable<DataPoint> {
     @DynamicSerializeElement
     private BigDecimal sum = new BigDecimal(0);
 
+    @DynamicSerializeElement
+    private UnitTypes unitType;
+
     /** Constructor */
     public DataPoint() {
         sum = sum.setScale(1, BigDecimal.ROUND_HALF_UP);
         min = min.setScale(1, BigDecimal.ROUND_HALF_UP);
         max = max.setScale(1, BigDecimal.ROUND_HALF_UP);
         count = count.setScale(1, BigDecimal.ROUND_HALF_UP);
-    }
-
-    /**
-     * @param sampleText
-     *            the sampleText to set
-     */
-    public void setSampleText(String sampleText) {
-        this.sampleText = sampleText;
-    }
-
-    /**
-     * Get the sample text for this point object
-     * 
-     * @return the sample text string
-     */
-    public String getSampleText(String view) {
-        SimpleDateFormat dateFormat = sdf.get();
-        DecimalFormat decimalFormat = decFormat.get();
-
-        return dateFormat.format(new Date(x)) + "Z, "
-                + decimalFormat.format(getValue(view));
     }
 
     /**
@@ -259,19 +214,34 @@ public class DataPoint implements Comparable<DataPoint> {
     }
 
     /**
+     * @return the unitType
+     */
+    public UnitTypes getUnitType() {
+        return unitType;
+    }
+
+    /**
+     * @param unitType
+     *            the unitType to set
+     */
+    public void setUnitType(UnitTypes unitType) {
+        this.unitType = unitType;
+    }
+
+    /**
      * Get the value for the provided data view type.
      * 
      * @param view
      *            the view type
      */
-    public double getValue(String view) {
-        if (view.equals(DataViewUtils.DataView.AVG.getView())) {
+    public double getValue(DataView view) {
+        if (view.equals(DataView.AVG)) {
             return getAvg();
-        } else if (view.equals(DataViewUtils.DataView.MIN.getView())) {
+        } else if (view.equals(DataView.MIN)) {
             return getMin();
-        } else if (view.equals(DataViewUtils.DataView.MAX.getView())) {
+        } else if (view.equals(DataView.MAX)) {
             return getMax();
-        } else if (view.equals(DataViewUtils.DataView.SUM.getView())) {
+        } else if (view.equals(DataView.SUM)) {
             return getSum();
         } else {
             return getCount();
