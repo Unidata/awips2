@@ -61,17 +61,18 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
 
 /**
  * The Graph Data Structure.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012     728     mpduff      Initial creation
- *
+ * Oct 03, 2012     728    mpduff      Initial creation.
+ * Jan 18, 2013    1386    mpduff      Change menu text.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -145,7 +146,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent Shell
      * @param callback
@@ -315,7 +316,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         fileMenuItem.setMenu(fileMenu);
 
         saveMI = new MenuItem(fileMenu, SWT.NONE);
-        saveMI.setText("&Save\tCtrl+S");
+        saveMI.setText("&Save Graph Image\tCtrl+S");
         saveMI.setAccelerator(SWT.CTRL + 'S');
         saveMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -375,7 +376,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Create the canvas.
-     *
+     * 
      * @param comp
      *            Composite holding the canvas
      */
@@ -395,7 +396,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the GraphData object.
-     *
+     * 
      * @param graphData
      */
     public void setGraphData(GraphData graphData) {
@@ -412,7 +413,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the title.
-     *
+     * 
      * @param title
      */
     public void setTitle(String title) {
@@ -421,7 +422,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the graph title.
-     *
+     * 
      * @param graphTitle
      */
     public void setGraphTitle(String graphTitle) {
@@ -443,7 +444,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /**
      * Captures the canvas and saves the result into a file in a format
      * determined by the filename extension .
-     *
+     * 
      * @param control
      *            The control to save
      * @param fileName
@@ -480,7 +481,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Request the graph be redrawn with a new time range.
-     *
+     * 
      * @param parameter
      *            The amount of time to move
      */
@@ -596,7 +597,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the groups.
-     *
+     * 
      * @param groupList
      *            List of groups
      */
@@ -606,7 +607,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the category.
-     *
+     * 
      * @param category
      */
     public void setCategory(String category) {
@@ -615,7 +616,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the event type.
-     *
+     * 
      * @param typeID
      */
     public void setEventType(String typeID) {
@@ -624,7 +625,7 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
 
     /**
      * Set the data type id.
-     *
+     * 
      * @param dataTypeID
      */
     public void setDataType(String dataTypeID) {
