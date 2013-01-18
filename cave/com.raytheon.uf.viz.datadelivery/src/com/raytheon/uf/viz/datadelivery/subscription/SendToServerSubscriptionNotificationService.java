@@ -26,11 +26,11 @@ import com.raytheon.uf.common.datadelivery.event.notification.PendingSubscriptio
 import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationRequest;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * Implementation of {@link ISubscriptionNotificationService} that sends the
@@ -42,7 +42,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 4, 2013  1441       djohnson     Initial creation
+ * Jan 04, 2013 1441       djohnson     Initial creation
+ * Jan 17, 2013 1501       djohnson     Route to datadelivery.
  * 
  * </pre>
  * 
@@ -207,8 +208,7 @@ public class SendToServerSubscriptionNotificationService implements
      */
     @Override
     public void sendSubscriptionActivatedNotification(
-            Subscription subscription,
-            String username) {
+            Subscription subscription, String username) {
         SubscriptionNotificationRequest req = new SubscriptionNotificationRequest();
         req.setUserId(username);
         req.setCategory("Subscription");
@@ -223,8 +223,7 @@ public class SendToServerSubscriptionNotificationService implements
      */
     @Override
     public void sendSubscriptionDeactivatedNotification(
-            Subscription subscription,
-            String username) {
+            Subscription subscription, String username) {
         SubscriptionNotificationRequest req = new SubscriptionNotificationRequest();
         req.setUserId(username);
         req.setCategory("Subscription");
@@ -241,8 +240,9 @@ public class SendToServerSubscriptionNotificationService implements
      */
     private void sendRequest(BaseSubscriptionNotificationRequest<?> req) {
         try {
-            ThriftClient.sendRequest(req);
-        } catch (VizException e) {
+            RequestRouter
+                    .route(req, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
