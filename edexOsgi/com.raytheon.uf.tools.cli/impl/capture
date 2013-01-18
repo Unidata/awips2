@@ -12,6 +12,7 @@ REMOTE_SERVERS_TO_CHECK="dx1f dx3 dx4"
 
 # Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
 RUN_JSTACK="Y"
+JSTACK_ITERATIONS="15"
 RUN_JMAP="Y"
 RUN_QPID_STAT="Y"
 MOVE_ALL_HS_ERR_PID="Y"
@@ -19,6 +20,7 @@ MOVE_ALL_HS_ERR_PID="Y"
 GRAB_REMOTE_TOP="Y"
 GRAB_REMOTE_VMSTAT="Y"
 GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
+GRAB_SCREENSHOT='Y'
 EDEX_MODE="N"
 FORCE="N"
 TGZ_OUTPUT="Y"
@@ -38,6 +40,9 @@ usage() {
    echo
    echo -e "-g {grep string}\tdefault [$grepString]"
    echo "  The grep string used to find the processes"
+   echo
+   echo -e "-screen {y/n}\t\tdefault [$GRAB_SCREENSHOT]"
+   echo "  Screen print the current workstation (local user must be running capture)"
    echo
    echo -e "-s {y/n}\t\tdefault [$RUN_JSTACK]"
    echo "  Run jstack to grab the thread stack information"
@@ -115,6 +120,18 @@ checkYes() {
    fi
 }
 
+# runs import to grab screen shot of users desktop
+grabScreenShot() {
+   if [ "$GRAB_SCREENSHOT" == "y" ]; then
+      echo "Capturing screen shot of desktop"
+      t1=`date "+%Y%m%d %H:%M:%S"`
+      echo "${t1}: Capturing screen shot of desktop" >> $processFile
+      import -window root -display :0.0 ${dataPath}/screenShot_0.png > ${dataPath}/screenShot_0.log 2>&1 &
+      import -window root -display :0.1 ${dataPath}/screenShot_1.png > ${dataPath}/screenShot_1.log 2>&1 &
+      import -window root -display :0.2 ${dataPath}/screenShot_2.png > ${dataPath}/screenShot_2.log 2>&1 &
+   fi
+}
+
 # runs ssh command to grab top on a remote server, requires auto login to be setup
 grabRemoteTop() {
    if [ "$GRAB_REMOTE_TOP" == "y" ]; then
@@ -142,7 +159,6 @@ grabRemoteVmstat() {
       done
    fi
 }
-
 
 checkForProcsAsOtherUsers() {
    if [ ! -z "$procs" ]; then
@@ -213,39 +229,104 @@ reasonForCapture() {
    echo $reason >> ${dataPath}/capture_reason.log
 }
 
-# runs jstack in background
+# for a specified pid run jstack a specified number of times in a row
 runJstack() {
    local pid="$1"
-   shift 1
-   local options=$@
-   local prePath="${dataPath}/pid_${pid}_"
-   local t1=`date "+%Y%m%d %H:%M:%S"`
-   local cmd="/awips2/java/bin/jstack $options $pid"
-   echo "${t1}: Running command: ${cmd} >> ${prePath}jstack.log 2>&1 &" >> $processFile
-   if [ "$ACCUM" = "y" ]; then
-      echo >> ${prePath}jstack.log
-      echo >> ${prePath}jstack.log
-      echo "Running for $t1" >> ${prePath}jstack.log
+   local numIterations="$2"
+   local options="-l"
+   
+   if [ "$FORCE" == "y" ]; then
+      options="${options} -F"
    fi
-   $cmd >> ${prePath}jstack.log 2>&1 &
+
+   local cmd="/awips2/java/bin/jstack"
+   local count=1
+   local prePath="${dataPath}/pid_${pid}_"
+   local log=""
+   while [ "$count" -le "$numIterations" ]; do
+      t1=`date "+%Y%m%d %H:%M:%S"`
+      log="${prePath}jstack_${count}.log"
+
+      echo "${t1}: Running command: ${cmd} ${options} ${pid} >> ${log} 2>&1" >> $processFile
+      echo "Running for $t1" >> $log
+      ${cmd} ${options} ${pid} >> ${log} 2>&1
+
+      if [[ "$?" != "0" && $FORCE != "y" ]]; then
+         t1=`date "+%Y%m%d %H:%M:%S"`
+         echo "${t1}: jstack for $pid failed to connect, rerunning with -F" >> $processFile
+         ${cmd} ${options} -F ${pid} >> ${log} 2>&1
+      fi
+      let "count+=1"
+   done
 }
 
-# runs jmap in background
+# Launchs a background process for each PID to pull jstacks
+launchJstacks() {
+   # grab all jstacks
+   if [ "${RUN_JSTACK}" == "y" ]; then
+      if [ ! -z ${cavePid} ]; then
+         echo "Capturing thread stack for pid $cavePid"
+      else 
+         echo "Capturing all process thread stacks"
+      fi
+
+      local count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         runJstack ${pids[$count]} ${JSTACK_ITERATIONS} &
+         let "count+=1"
+      done
+   fi
+}
+
+# runs jmap in background, if it fails will run again with -F
 runJmap() {
    local pid=$1
-   shift 1
-   local options=$@
    local prePath="${dataPath}/pid_${pid}_"
+   local options=""
+
+   if [ "$FORCE" == "y" ]; then
+      options="${options} -F"
+   fi
+
    local t1=`date "+%Y%m%d %H:%M:%S"`
+   local log="${prePath}dump.log"
+   local dumpPath="${prePath}dump"
+
    if [ "$ACCUM" = "y" ]; then
       # accum needs to change hprof by date
       local t2=`date "+%Y%m%d_%H%M%S"`
-      local cmd="/awips2/java/bin/jmap -dump:format=b,file=${prePath}dump_${t2}.hprof $options $pid"
+      dumpPath="${dumpPath}_${t2}.hprof"
    else
-      local cmd="/awips2/java/bin/jmap -dump:format=b,file=${prePath}dump.hprof $options $pid"
+      dumpPath="${dumpPath}.hprof"
    fi
-   echo "${t1}: Running command: $cmd >> ${prePath}dump.log 2>&1 &" >> $processFile
-   $cmd >> ${prePath}dump.log 2>&1 &
+
+   local cmd="/awips2/java/bin/jmap -dump:format=b,file=${dumpPath}"
+   echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1 &" >> $processFile
+   $cmd $options $pid >> $log 2>&1 &
+
+   if [[ "$?" != "0" && $FORCE != "y" ]]; then
+      t1=`date "+%Y%m%d %H:%M:%S"`
+      echo "${t1}: jmap for $pid failed to connect, rerunning with -F" >> $processFile
+      $cmd $options -F $pid >> $log 2>&1 &
+   fi
+}
+
+# Launchs a background process for each PID to pull jmap
+launchJmaps() {
+   # grab all jmaps
+   if [ "$RUN_JMAP" == "y" ]; then
+      if [ ! -z ${cavePid} ]; then
+         echo "Capturing process heap dump for pid $cavePid"
+      else 
+         echo "Capturing all Heap Dumps"
+      fi
+
+      local count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         runJmap ${pids[$count]} &
+         let "count+=1"
+      done
+   fi
 }
 
 # runs qpid-stat 
@@ -253,14 +334,25 @@ runQpidStat() {
    local qpidHost=cp1f 
    local prePath="${dataPath}/"
    local t1=`date "+%Y%m%d %H:%M:%S"`
-   local cmd="/awips2/python/bin/qpid-stat -q -Smsg -L100 ${qpidHost}" 
-   echo "${t1}: Running command: $cmd >> ${prepath}qpid-stat.log 2>&1 &" >> $processFile
+   local cmd="/awips2/python/bin/qpid-stat -q -Smsg -L500 ${qpidHost}" 
+   local log="${prepath}qpid-stat-queues.log"
+   echo "${t1}: Running command: $cmd >> $log 2>&1 &" >> $processFile
    if [ "$ACCUM" = "y" ]; then
-	echo >> ${prePath}qpid-stat.log
-	echo >> ${prePath}qpid-stat.log
-	echo "Running for $t1" >> ${prePath}qpid-stat.log
+	echo >> $log
+	echo >> $log
+	echo "Running for $t1" >> $log
    fi
-   $cmd >> ${prePath}qpid-stat.log 2>&1 &
+   $cmd >> $log 2>&1 &
+
+   log="${prepath}qpid-stat-sessions.log"
+   cmd="/awips2/python/bin/qpid-stat -s -Smsg -L500 ${qpidHost}" 
+   echo "${t1}: Running command: $cmd >> $log 2>&1 &" >> $processFile
+   if [ "$ACCUM" = "y" ]; then
+	echo >> $log
+	echo >> $log
+	echo "Running for $t1" >> $log
+   fi
+   $cmd >> $log 2>&1 &
 }
 
 # runs versions.sh to grab version info
@@ -291,6 +383,7 @@ while [ ! -z "$1" ]; do
       -e) EDEX_MODE="Y"; edexProcs[$edexProcCount]="$1"; shift 1; let "edexProcCount+=1";;
       -a) ACCUM="$1"; shift 1;;
       -v) GRAB_REMOTE_VMSTAT="$1"; shift 1;;
+      -screen) GRAB_SCREENSHOT="$1"; shift 1;;
       -h|*) usage;;
    esac
 done
@@ -308,6 +401,7 @@ checkYes EDEX_MODE $EDEX_MODE
 checkYes TGZ_OUTPUT $TGZ_OUTPUT
 checkYes ACCCUM $ACCCUM
 checkYes RUN_VERSIONS $RUN_VERSIONS
+checkYes GRAB_SCREENSHOT $GRAB_SCREENSHOT
 
 # if PID mode don't grab other hs_err_pids
 if [ ! -z $cavePid ]; then
@@ -383,7 +477,7 @@ if [ "$EDEX_MODE" == "y" ]; then
    grepString="${grepString}) "
 fi
 
-procs=`ps -ef | grep -E "$grepString" | grep -v "grep"`
+procs=`ps -ef | grep -E "$grepString" | grep -v "grep" | grep -v "cave.sh"`
 
 if [ ! -z "$cavePid" ]; then
    # limit cave procs to the requested PID
@@ -398,11 +492,6 @@ echo "" >> $processFile
 echo "" >> $processFile
 
 checkForProcsAsOtherUsers
-
-# get reason for running capture
-if [ "$reason" != "n" ]; then
-   reasonForCapture &
-fi
 
 if [ ! -z "${myProcs}" ]; then
    t1=`date "+%Y%m%d %H:%M:%S"`
@@ -424,38 +513,9 @@ if [ ! -z "${myProcs}" ]; then
    done
    IFS=$PREV_IFS
 
-   # doing each item in its own loop so we can grab all data for a given type at once
+   launchJstacks
 
-   # grab all jstacks
-   if [ "${RUN_JSTACK}" == "y" ]; then
-      if [ ! -z ${cavePid} ]; then
-         echo "Capturing thread stack for pid $cavePid"
-      else 
-         echo "Capturing all process thread stacks"
-      fi
-
-      count=0
-      while [ "$count" -lt "$numProcs" ]; do
-         if [ "$FORCE" == "y" ]; then
-            runJstack ${pids[$count]} -l -F
-         else
-            runJstack ${pids[$count]} -l
-         fi
-         bPids[$count]=$!
-         let "count+=1"
-      done
-
-      count=0
-      while [ "$count" -lt "$numProcs" ]; do
-         wait ${bPids[$count]}
-         if [ "$?" != "0" ]; then
-            t1=`date "+%Y%m%d %H:%M:%S"`
-            echo "${t1}: jstack for ${pids[$count]} failed to connect, rerunning with -F" >> $processFile
-            runJstack ${pids[$count]} -l -F
-         fi
-         let "count+=1"
-      done
-   fi
+   launchJmaps
 
    runQpidStat
 
@@ -463,36 +523,6 @@ if [ ! -z "${myProcs}" ]; then
 
    grabRemoteVmstat
 
-   # grab all jmaps
-   if [ "$RUN_JMAP" == "y" ]; then
-      if [ ! -z ${cavePid} ]; then
-         echo "Capturing process heap dump for pid $cavePid"
-      else 
-         echo "Capturing all Heap Dumps"
-      fi
-
-      count=0
-      while [ "$count" -lt "$numProcs" ]; do
-         if [ "$FORCE" == "y" ]; then
-            runJmap ${pids[$count]} -F
-         else
-            runJmap ${pids[$count]}
-         fi
-         bPids[$count]=$!
-         let "count+=1"
-      done
-
-      count=0
-      while [ "$count" -lt "$numProcs" ]; do
-         wait ${bPids[$count]}
-         if [ "$?" != "0" ]; then
-            t1=`date "+%Y%m%d %H:%M:%S"`
-            echo "${t1}: jmap for ${pids[$count]} failed to connect, rerunning with -F" >> $processFile
-            runJmap ${pids[$count]} -F
-         fi
-         let "count+=1"
-      done
-   fi
 else
    t1=`date "+%Y%m%d %H:%M:%S"`
    echo "*** NO processes found for user $user, capturing limited data to $dataPath"
@@ -502,6 +532,14 @@ else
    runQpidStat
    grabRemoteTop
    grabRemoteVmstat
+fi
+
+# grab screen shot, spawns background process for each screen
+grabScreenShot
+
+# get reason for running capture
+if [ "$reason" != "n" ]; then
+   reasonForCapture &
 fi
 
 # move all hs_err_pid from user's home directory to capture directory
