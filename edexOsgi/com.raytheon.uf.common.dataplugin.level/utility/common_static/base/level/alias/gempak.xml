@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="GEMPAK">
+	<alias base="MB">PRES</alias>
+	<alias base="LYRMB">PRES</alias>
+	<alias base="K">THTA</alias>
+	<alias base="LYRK">THTA</alias>
+	<alias base="TMPL">TMPL</alias>
+	<alias base="SFC">NONE</alias>
+	<alias base="TROP">TROP</alias>
+	<alias base="MSL">NONE</alias>
+	<alias base="MAXW">MWSL</alias>
+	<alias base="FHAG">HGHT</alias>
+	<alias base="LYRSIG">SGMA</alias>
+	<alias base="SIG">SGMA</alias>
+	<alias base="FH">HGHT</alias>
+	<alias base="BLS">DPTH</alias>
+	<alias base="EA">NONE</alias>
+	<alias base="VPT">POTV</alias>
+	<alias base="LYRFHAG">HGHT</alias>
+	<alias base="LYRBL">PRES</alias>
+	<alias base="MEPT">MTHE</alias>
+	<alias base="EL">EHLT</alias>
+	<alias base="CBL">CLDL</alias>
+	<alias base="CTL">CLDT</alias>
+	<alias base="CCTL">CCTL</alias>
+	<alias base="LCL">LCLV</alias>
+	<alias base="CCL">CCLY</alias>
+	<alias base="CLG">CEIL</alias>
+	<alias base="PBL">PLBL</alias>
+	<alias base="PV">POTV</alias>
+	<alias base="LCBL">LCBL</alias>
+	<alias base="MCBL">MCBL</alias>
+	<alias base="HCBL">HCBL</alias>
+	<alias base="HYB">HYBL</alias>
+	<alias base="ADCL">LCLV</alias>
+	<alias base="NTAT">TOPA</alias>
+	<alias base="SEAB">SEAB</alias>
+	<alias base="ETA">ELVL</alias>
+	<alias base="MLD">DPTH</alias>
+	<alias base="BSS">DPTH</alias>
+	<alias base="LCY">LCLY</alias>
+	<alias base="MCY">MCLY</alias>
+	<alias base="HCY">HCLY</alias>
+</aliasList>
