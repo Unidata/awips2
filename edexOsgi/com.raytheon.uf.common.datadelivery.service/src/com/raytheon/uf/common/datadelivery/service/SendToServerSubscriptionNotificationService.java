@@ -17,13 +17,8 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.subscription;
+package com.raytheon.uf.common.datadelivery.service;
 
-import com.raytheon.uf.common.datadelivery.event.notification.ApprovedPendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.DeniedPendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.PendingSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationRequest;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
