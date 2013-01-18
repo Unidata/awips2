@@ -23,15 +23,19 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -47,15 +51,24 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.google.common.base.Strings;
 import com.raytheon.uf.common.stats.data.DataPoint;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.data.StatsData;
-import com.raytheon.uf.common.stats.util.DataViewUtils;
+import com.raytheon.uf.common.stats.util.DataView;
+import com.raytheon.uf.common.stats.util.UnitUtils;
+import com.raytheon.uf.common.stats.util.UnitUtils.TimeConversion;
+import com.raytheon.uf.common.stats.util.UnitUtils.UnitTypes;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.stats.display.ScaleManager;
 
@@ -68,7 +81,12 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * <<<<<<< HEAD
  * Oct 3, 2012     728     mpduff      Initial creation
+ * =======
+ * Oct 03, 2012     728    mpduff      Initial creation.
+ * Jan 17, 2013    1357    mpduff      Added mouse listeners.
+ * >>>>>>> Issue #1357 - Remaining stats items implemented.
  * 
  * </pre>
  * 
@@ -103,6 +121,15 @@ public class StatsDisplayCanvas extends Canvas {
         protected DecimalFormat initialValue() {
             DecimalFormat tmp = new DecimalFormat("####.##");
             return tmp;
+        }
+    };
+
+    /** Decimal Format object */
+    private final ThreadLocal<DecimalFormat> decFormat = new ThreadLocal<DecimalFormat>() {
+        @Override
+        protected DecimalFormat initialValue() {
+            DecimalFormat format = new DecimalFormat("########.#");
+            return format;
         }
     };
 
@@ -185,17 +212,14 @@ public class StatsDisplayCanvas extends Canvas {
     /** Tooltip shell */
     private Shell tooltip;
 
-    /** Graph Data object */
-    private GraphData graphData;
+    /** Data View, avg, min, max, etc. */
+    private DataView view = DataView.AVG;
 
-    /** Smallest value in the data set */
-    private double minValue;
+    /** Group selection callback */
+    private IGroupSelection groupCallback;
 
-    /** Largest value in the data set */
-    private double maxValue;
-
-    private String view = DataViewUtils.DataView.AVG.getView(); // Defaults to
-                                                                // average
+    /** Hide dataset dialog */
+    private HideDlg hideDlg;
 
     /**
      * Constructor
@@ -214,8 +238,7 @@ public class StatsDisplayCanvas extends Canvas {
         this.callback = callback;
         this.graphTitle = graphTitle;
 
-        this.graphData = callback.getGraphData();
-        TimeRange tr = graphData.getTimeRange();
+        TimeRange tr = callback.getGraphData().getTimeRange();
         String start = titleDateFormat.get().format(tr.getStart());
         String end = titleDateFormat.get().format(tr.getEnd());
 
@@ -256,6 +279,13 @@ public class StatsDisplayCanvas extends Canvas {
             @Override
             public void mouseMove(MouseEvent e) {
                 handleMouseMoveEvent(e);
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                handleMouseDownEvent(e);
             }
         });
     }
@@ -342,8 +372,7 @@ public class StatsDisplayCanvas extends Canvas {
         List<Date> dateList = new ArrayList<Date>();
 
         SimpleDateFormat sdf = axisFormat.get();
-
-        TimeRange tr = graphData.getTimeRange();
+        TimeRange tr = callback.getGraphData().getTimeRange();
         dateList.add(tr.getStart()); // Add the first date
 
         long milliRange = tr.getDuration();
@@ -356,13 +385,15 @@ public class StatsDisplayCanvas extends Canvas {
         long startMillis = tr.getStart().getTime();
         StringBuilder buffer = new StringBuilder();
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = TimeUtil.newGmtCalendar();
         for (long i = tr.getStart().getTime(); i <= tr.getEnd().getTime(); i += TimeUtil.MILLIS_PER_HOUR) {
             cal.setTimeInMillis(i);
             int[] tickArray = {
-                    (int) (GRAPH_BORDER + (i - startMillis) / millisPerPixelX),
+                    Math.round(GRAPH_BORDER + (i - startMillis)
+                            / millisPerPixelX),
                     GRAPH_BORDER + GRAPH_HEIGHT,
-                    (int) (GRAPH_BORDER + (i - startMillis) / millisPerPixelX),
+                    Math.round(GRAPH_BORDER + (i - startMillis)
+                            / millisPerPixelX),
                     GRAPH_BORDER + GRAPH_HEIGHT + height };
             if (cal.get(Calendar.HOUR_OF_DAY) == 0
                     && cal.get(Calendar.MINUTE) == 0) {
@@ -372,9 +403,11 @@ public class StatsDisplayCanvas extends Canvas {
             }
             int hour = cal.get(Calendar.HOUR_OF_DAY);
 
+            // Draw the tick marks
             if ((numHours / 24 <= 7) || (hour % 6) == 0) {
                 gc.drawPolyline(tickArray);
 
+                // Draw grid lines
                 if (callback.drawGridLines()) {
                     boolean draw = false;
                     if (numHours <= 6) {
@@ -387,19 +420,20 @@ public class StatsDisplayCanvas extends Canvas {
 
                     if (draw) {
                         int[] gridLine = new int[] {
-                                (int) (GRAPH_BORDER + (i - startMillis)
+                                Math.round(GRAPH_BORDER + (i - startMillis)
                                         / millisPerPixelX),
                                 GRAPH_BORDER + GRAPH_HEIGHT,
-                                (int) (GRAPH_BORDER + (i - startMillis)
+                                Math.round(GRAPH_BORDER + (i - startMillis)
                                         / millisPerPixelX), GRAPH_BORDER };
                         gc.drawPolyline(gridLine);
                     }
                 }
             }
 
+            // Save the Zero hour for later
             if (hour == 0) {
-                dateLocationList.add((int) (GRAPH_BORDER + (i - startMillis)
-                        / millisPerPixelX));
+                dateLocationList.add(Math.round(GRAPH_BORDER
+                        + (i - startMillis) / millisPerPixelX));
                 if (!dateList.contains(cal.getTime())) {
                     dateList.add(cal.getTime());
                 }
@@ -409,13 +443,15 @@ public class StatsDisplayCanvas extends Canvas {
             int hr = cal.get(Calendar.HOUR_OF_DAY);
             int minute = cal.get(Calendar.MINUTE);
 
+            // Draw the tick marks
             if ((numHours <= 24) || (hour % 6 == 0 && numHours <= 168)) {
                 if (numHours <= 3) {
                     for (int j = 0; j < TimeUtil.MINUTES_PER_HOUR; j += 15) {
 
                         buffer.setLength(0);
-                        int x = (int) (GRAPH_BORDER + (i - startMillis + j
-                                * TimeUtil.MILLIS_PER_MINUTE)
+                        int x = Math.round(GRAPH_BORDER
+                                + (i - startMillis + j
+                                        * TimeUtil.MILLIS_PER_MINUTE)
                                 / millisPerPixelX);
                         if (numHours == 1
                                 || (numHours == 3 && (j == 0 || j == 30))) {
@@ -434,13 +470,13 @@ public class StatsDisplayCanvas extends Canvas {
 
                             if (callback.drawGridLines()) {
                                 int[] gridLineArray = {
-                                        (int) (GRAPH_BORDER + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
-                                                * j)
-                                                / millisPerPixelX),
+                                        Math.round(GRAPH_BORDER
+                                                + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
+                                                        * j) / millisPerPixelX),
                                         GRAPH_BORDER + GRAPH_HEIGHT,
-                                        (int) (GRAPH_BORDER + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
-                                                * j)
-                                                / millisPerPixelX),
+                                        Math.round(GRAPH_BORDER
+                                                + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
+                                                        * j) / millisPerPixelX),
                                         GRAPH_BORDER };
                                 if (hr == 0 && minute == 0) {
                                     gc.setLineWidth(3);
@@ -460,19 +496,20 @@ public class StatsDisplayCanvas extends Canvas {
                             }
                         }
 
+                        // Minor tick marks
                         int[] minorTickArray = {
-                                (int) (GRAPH_BORDER + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
-                                        * j)
-                                        / millisPerPixelX),
+                                Math.round(GRAPH_BORDER
+                                        + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
+                                                * j) / millisPerPixelX),
                                 GRAPH_BORDER + GRAPH_HEIGHT,
-                                (int) (GRAPH_BORDER + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
-                                        * j)
-                                        / millisPerPixelX),
+                                Math.round(GRAPH_BORDER
+                                        + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
+                                                * j) / millisPerPixelX),
                                 GRAPH_BORDER + GRAPH_HEIGHT + height - 5 };
                         gc.drawPolyline(minorTickArray);
                     }
                 } else {
-                    int x = (int) (GRAPH_BORDER + (i - startMillis)
+                    int x = Math.round(GRAPH_BORDER + (i - startMillis)
                             / millisPerPixelX);
                     String hrStr = (hr < 10) ? ZERO.concat(String.valueOf(hr))
                             : String.valueOf(hr);
@@ -485,10 +522,10 @@ public class StatsDisplayCanvas extends Canvas {
                                 || (numHours == TimeUtil.HOURS_PER_WEEK && hr == 0)) {
 
                             int[] gridLineArray = {
-                                    (int) (GRAPH_BORDER + (i - startMillis)
+                                    Math.round(GRAPH_BORDER + (i - startMillis)
                                             / millisPerPixelX),
                                     GRAPH_BORDER + GRAPH_HEIGHT,
-                                    (int) (GRAPH_BORDER + (i - startMillis)
+                                    Math.round(GRAPH_BORDER + (i - startMillis)
                                             / millisPerPixelX), GRAPH_BORDER };
                             gc.setLineWidth(1);
                             gc.drawPolyline(gridLineArray);
@@ -497,7 +534,7 @@ public class StatsDisplayCanvas extends Canvas {
                     }
                 }
             } else if (numHours == 336 && hour == 0) {
-                int x = (int) (GRAPH_BORDER + (i - startMillis)
+                int x = Math.round(GRAPH_BORDER + (i - startMillis)
                         / millisPerPixelX);
                 buffer.append(cal.get(Calendar.MONTH) + 1);
                 buffer.append("/");
@@ -509,10 +546,10 @@ public class StatsDisplayCanvas extends Canvas {
                     // show every other line
                     if (showLine) {
                         int[] gridLineArray = {
-                                (int) (GRAPH_BORDER + (i - startMillis)
+                                Math.round(GRAPH_BORDER + (i - startMillis)
                                         / millisPerPixelX),
                                 GRAPH_BORDER + GRAPH_HEIGHT,
-                                (int) (GRAPH_BORDER + (i - startMillis)
+                                Math.round(GRAPH_BORDER + (i - startMillis)
                                         / millisPerPixelX), GRAPH_BORDER };
                         gc.setLineWidth(1);
                         gc.drawPolyline(gridLineArray);
@@ -523,7 +560,7 @@ public class StatsDisplayCanvas extends Canvas {
 
             } else if (numHours == 720) {
                 if (cal.get(Calendar.DAY_OF_MONTH) % 2 == 0 && hour == 0) {
-                    int x = (int) (GRAPH_BORDER + (i - startMillis)
+                    int x = Math.round(GRAPH_BORDER + (i - startMillis)
                             / millisPerPixelX);
                     buffer.append(cal.get(Calendar.MONTH) + 1);
                     buffer.append("/");
@@ -533,10 +570,10 @@ public class StatsDisplayCanvas extends Canvas {
                     if (callback.drawGridLines()) {
                         if (showLine) {
                             int[] gridLineArray = {
-                                    (int) (GRAPH_BORDER + (i - startMillis)
+                                    Math.round(GRAPH_BORDER + (i - startMillis)
                                             / millisPerPixelX),
                                     GRAPH_BORDER + GRAPH_HEIGHT,
-                                    (int) (GRAPH_BORDER + (i - startMillis)
+                                    Math.round(GRAPH_BORDER + (i - startMillis)
                                             / millisPerPixelX), GRAPH_BORDER };
                             gc.setLineWidth(1);
                             gc.drawPolyline(gridLineArray);
@@ -588,14 +625,21 @@ public class StatsDisplayCanvas extends Canvas {
         gc.drawPolyline(yAxis);
 
         Map<String, RGB> groupSettings = callback.getGroupSettings();
-
+        GraphData graphData = callback.getGraphData();
         double minVal = graphData.getMinValue(groupSettings.keySet(), view);
         double maxVal = graphData.getMaxValue(groupSettings.keySet(), view);
+        if (view != DataView.COUNT) {
+            UnitUtils uu = callback.getUnitUtils();
+            minVal = uu.convertValue(minVal);
+            maxVal = uu.convertValue(maxVal);
+        }
+
+        setScaleValues(minVal, maxVal);
+
         int numberTicks = 4;
         double inc = 5;
         double minScaleVal = 0;
         double maxScaleVal = 10;
-        scalingManager = new ScaleManager(minVal, maxVal);
         numberTicks = scalingManager.getMajorTickCount();
         inc = scalingManager.getMajorTickIncrement();
 
@@ -632,12 +676,15 @@ public class StatsDisplayCanvas extends Canvas {
      *            The Graphics Context
      */
     private void drawYAxisLabel(GC gc) {
-        String unit = this.graphData.getDisplayUnit();
+        GraphData graphData = callback.getGraphData();
+        String unit = graphData.getDisplayUnit();
         StringBuilder yAxisLabel = new StringBuilder(graphTitle);
 
-        if (unit != null && !unit.equalsIgnoreCase(COUNT) && unit.length() > 0
-                && !view.equals(DataViewUtils.DataView.COUNT.getView())) {
+        if (!Strings.isNullOrEmpty(unit) && !unit.equalsIgnoreCase(COUNT)
+                && !view.equals(DataView.COUNT)) {
             yAxisLabel.append(" (").append(unit).append(")");
+        } else if (view.equals(DataView.COUNT)) {
+            yAxisLabel.append(" Counts");
         }
 
         gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -667,6 +714,8 @@ public class StatsDisplayCanvas extends Canvas {
         double maxScaleVal = scalingManager.getMaxScaleValue();
         double minScaleVal = scalingManager.getMinScaleValue();
         Map<String, RGB> groupSettings = callback.getGroupSettings();
+        UnitUtils uu = callback.getUnitUtils();
+        GraphData graphData = callback.getGraphData();
 
         for (String key : graphData.getKeysWithData()) {
             if (groupSettings.containsKey(key)) {
@@ -692,30 +741,28 @@ public class StatsDisplayCanvas extends Canvas {
                         int lastYpix = -999;
                         for (DataPoint point : dataList) {
                             long x = point.getX();
-                            double y;
+                            double y = point.getValue(view);
 
-                            if (view.equals(DataViewUtils.DataView.AVG
-                                    .getView())) {
-                                y = point.getAvg();
-                            } else if (view.equals(DataViewUtils.DataView.MIN
-                                    .getView())) {
-                                y = point.getMin();
-                            } else if (view.equals(DataViewUtils.DataView.MAX
-                                    .getView())) {
-                                y = point.getMax();
-                            } else if (view.equals(DataViewUtils.DataView.SUM
-                                    .getView())) {
-                                y = point.getSum();
-                            } else {
-                                y = point.getCount();
+                            if (view != DataView.COUNT) {
+                                y = uu.convertValue(y);
                             }
+
+                            int xPix = 0;
                             int yPix = y2pixel(minScaleVal, maxScaleVal, y);
-                            int xPix = (int) ((x - startMillis)
-                                    / millisPerPixelX + GRAPH_BORDER);
+
+                            long diff = x - startMillis;
+                            if (diff == 0) {
+                                xPix = Math
+                                        .round((x / millisPerPixelX + GRAPH_BORDER));
+                            } else {
+                                xPix = Math
+                                        .round((diff / millisPerPixelX + GRAPH_BORDER));
+                            }
 
                             if (xPix > GRAPH_BORDER + GRAPH_WIDTH) {
-                                break;
+                                continue;
                             }
+
                             pointList.add(xPix);
                             pointList.add(yPix);
                             Rectangle rect = new Rectangle(xPix - 3, yPix - 3,
@@ -730,6 +777,7 @@ public class StatsDisplayCanvas extends Canvas {
                             lastYpix = yPix;
                         }
 
+                        // Draw each rectangle
                         for (int i = 0; i < rectangleMap.get(key).size(); i++) {
                             Rectangle rect = rectangleMap.get(key).get(i);
                             gc.setForeground(color);
@@ -759,7 +807,7 @@ public class StatsDisplayCanvas extends Canvas {
     private int y2pixel(double yMin, double yMax, double y) {
         double yDiff = yMax - yMin;
         double yValue = (GRAPH_HEIGHT / yDiff) * (y - yMin);
-        return (int) (GRAPH_HEIGHT - Math.round(yValue) + GRAPH_BORDER);
+        return Math.round(GRAPH_HEIGHT - Math.round(yValue) + GRAPH_BORDER);
     }
 
     /**
@@ -778,6 +826,8 @@ public class StatsDisplayCanvas extends Canvas {
         if (graphData == null) {
             return;
         }
+
+        UnitUtils uu = callback.getUnitUtils();
         for (String key : graphData.getKeys()) {
             int idx = 0;
             if (rectangleMap.containsKey(key)) {
@@ -791,7 +841,24 @@ public class StatsDisplayCanvas extends Canvas {
                             sb.append(key).append(colon);
                             DataPoint point = graphData.getStatsData(key)
                                     .getData().get(idx);
-                            sb.append(point.getSampleText(view));
+                            double value = point.getValue(view);
+
+                            if (!view.equals(DataView.COUNT.getView())) {
+                                if (uu.getUnitType() == UnitTypes.DATA_SIZE) {
+                                    value = uu.convertDataSizeValue(
+                                            DataSizeUnit.BYTE, value);
+                                } else if (uu.getUnitType() == UnitTypes.TIME) {
+                                    value = uu.convertTimeValue(
+                                            TimeConversion.MS, (long) value);
+                                }
+                            }
+
+                            SimpleDateFormat dateFormat = titleDateFormat.get();
+                            DecimalFormat decimalFormat = decFormat.get();
+
+                            sb.append(dateFormat.format(new Date(point.getX())))
+                                    .append("Z, ");
+                            sb.append(decimalFormat.format(value));
                         }
                     }
                     idx++;
@@ -808,6 +875,99 @@ public class StatsDisplayCanvas extends Canvas {
                 this.tooltip.dispose();
             }
         }
+    }
+
+    private void setScaleValues(double minVal, double maxVal) {
+        scalingManager = new ScaleManager(minVal, maxVal);
+    }
+
+    private void handleMouseDownEvent(MouseEvent e) {
+        if (e.button == 3) {
+            GraphData graphData = callback.getGraphData();
+            if (graphData == null) {
+                return;
+            }
+
+            int x = e.x;
+            int y = e.y;
+            List<String> keyList = new ArrayList<String>();
+            for (String key : graphData.getKeys()) {
+                if (rectangleMap.containsKey(key)) {
+                    for (Rectangle rect : rectangleMap.get(key)) {
+                        if (callback.getGroupSettings().containsKey(key)) {
+                            // if true then data are on the graph
+                            if (rect.contains(x, y)) {
+                                keyList.add(key);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!keyList.isEmpty()) {
+                showPopup(keyList);
+            }
+        }
+    }
+
+    private void showPopup(final List<String> inputList) {
+        // Remove the tooltip if it is up
+        if (tooltip != null && !tooltip.isDisposed()) {
+            tooltip.dispose();
+        }
+
+        // Remove any duplicate entries
+        Set<String> set = new HashSet<String>(inputList);
+        final List<String> keyList = new ArrayList<String>(set);
+        Collections.sort(keyList);
+
+        Menu menu = new Menu(this.getShell(), SWT.POP_UP);
+
+        if (keyList.size() == 1) {
+            MenuItem selectAll = new MenuItem(menu, SWT.NONE);
+            selectAll.setText("Hide " + keyList.get(0));
+            selectAll.addListener(SWT.Selection, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    handleHide(keyList);
+                }
+            });
+        } else if (keyList.size() > 1) {
+            MenuItem hideAll = new MenuItem(menu, SWT.NONE);
+            hideAll.setText("Hide All Data At Point");
+            hideAll.addListener(SWT.Selection, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    handleHide(keyList);
+                }
+            });
+
+            new MenuItem(menu, SWT.SEPARATOR);
+
+            MenuItem hideGraphDlgMI = new MenuItem(menu, SWT.NONE);
+            hideGraphDlgMI.setText("Hide Graph Lines...");
+            hideGraphDlgMI.addListener(SWT.Selection, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    showHideDlg(keyList);
+                }
+            });
+        }
+
+        // We need to make the menu visible
+        menu.setVisible(true);
+    }
+
+    private void handleHide(List<String> keyList) {
+        groupCallback.setItemsOff(keyList);
+        redraw();
+    }
+
+    private void showHideDlg(List<String> keyList) {
+        if (hideDlg == null || hideDlg.isDisposed()) {
+            this.hideDlg = new HideDlg(getShell(), keyList, groupCallback);
+        }
+        hideDlg.open();
     }
 
     /**
@@ -856,22 +1016,20 @@ public class StatsDisplayCanvas extends Canvas {
     }
 
     /**
-     * Set the graph data.
-     * 
-     * @param graphData
-     *            The GraphData object
-     */
-    public void setGraphData(GraphData graphData) {
-        this.graphData = graphData;
-    }
-
-    /**
-     * Set the view type.
-     * 
      * @param view
      *            The view type
      */
-    public void setView(String view) {
+    public void setView(DataView view) {
         this.view = view;
+    }
+
+    /**
+     * Set the group selection callback.
+     * 
+     * @param groupCallback
+     *            The group callback
+     */
+    public void setCallback(IGroupSelection groupCallback) {
+        this.groupCallback = groupCallback;
     }
 }
