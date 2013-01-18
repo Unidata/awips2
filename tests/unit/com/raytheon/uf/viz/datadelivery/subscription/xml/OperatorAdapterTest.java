@@ -46,7 +46,7 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * @author djohnson
  * @version 1.0
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({ "rawtypes" })
 public class OperatorAdapterTest {
 
     @Test
@@ -66,9 +66,9 @@ public class OperatorAdapterTest {
 
     private void verifyOperatorsUnmarshalAsSameOperator(Operator... operators) {
         for (Operator operator : operators) {
-            assertThat(operator,
-                    is(sameInstance(OperatorAdapter.fromString(OperatorAdapter
-                            .toString(operator)))));
+            Operator expected = OperatorAdapter.fromString(OperatorAdapter
+                    .toString(operator));
+            assertThat(operator, is(sameInstance(expected)));
         }
     }
 

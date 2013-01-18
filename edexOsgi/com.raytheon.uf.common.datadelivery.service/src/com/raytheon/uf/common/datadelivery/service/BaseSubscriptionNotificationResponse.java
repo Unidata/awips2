@@ -17,88 +17,81 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Base abstract class for the subscription notification request.
- *
+ * Base abstract class for the subscription notification response.
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 20, 2012    1157    mpduff      Initial creation
- *
+ * Jan 17, 2013 1501       djohnson     Allow a response to specify the subscription handler.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 @DynamicSerialize
-public abstract class BaseSubscriptionNotificationRequest<T extends Subscription>
-        implements IServerRequest, ISerializableObject {
+public abstract class BaseSubscriptionNotificationResponse<T extends Subscription>
+        implements ISerializableObject, IServerRequest {
 
     @DynamicSerializeElement
     private String message;
 
     @DynamicSerializeElement
-    private String userId;
-
-    @DynamicSerializeElement
     private T subscription;
 
-    @DynamicSerializeElement
-    private String category;
-
-    @DynamicSerializeElement
-    private int priority;
+    /**
+     * @param message
+     *            the message to set
+     */
 
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * @return the message
+     */
+
     public String getMessage() {
-        return this.message;
+        return message;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getUserId() {
-        return this.userId;
-    }
+    /**
+     * @return the subscription
+     */
 
     public T getSubscription() {
-        return this.subscription;
+        return subscription;
     }
+
+    /**
+     * @param subscription
+     *            the subscription to set
+     */
 
     public void setSubscription(T subscription) {
         this.subscription = subscription;
     }
 
-    public String getCategory() {
-        return this.category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public int getPriority() {
-        return this.priority;
-    }
-
-    public abstract BaseSubscriptionNotificationResponse<T> getResponse();
+    /**
+     * Get the subscription handler that corresponds to the subscription type
+     * for this notification.
+     * 
+     * @return the subscription handler
+     */
+    public abstract IBaseSubscriptionHandler<T> getSubscriptionHandler();
 }
