@@ -21,8 +21,10 @@ package com.raytheon.uf.viz.stats.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,17 +46,18 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
 /**
  * Stats Selection Manager Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 18, 2012            lvenable     Initial creation
- *
+ * Oct 18, 2012            lvenable    Initial creation
+ * Jan 17, 2013  1357      mpduff      Added selection state handling.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -74,7 +77,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parentShell
      * @param graphData
      * @param callback
@@ -202,7 +205,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
 
     /**
      * Check the path of the item.
-     *
+     * 
      * @param item
      * @param checked
      * @param grayed
@@ -232,7 +235,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
 
     /**
      * Check or uncheck the items in the TreeItem
-     *
+     * 
      * @param item
      * @param checked
      */
@@ -251,6 +254,7 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
     private void populateTree() {
         Map<String, List<String>> grpMemberMap = graphData
                 .getGroupAndNamesMap();
+        Map<String, Boolean> stateMap = callback.getStates();
 
         for (String key : grpMemberMap.keySet()) {
             TreeItem treeItem = new TreeItem(selectionTree, SWT.NONE);
@@ -262,7 +266,25 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
                 TreeItem subTreeItem = new TreeItem(treeItem, SWT.NONE);
                 subTreeItem.setText(subKey);
 
-                subTreeItem.setChecked(true);
+                subTreeItem.setChecked(stateMap.get(subKey));
+            }
+        }
+
+        // Determine group checkbox setting, unchecked, grayed, checked
+        TreeItem[] children = selectionTree.getItems();
+        Set<Boolean> selectionSet = new HashSet<Boolean>();
+        for (TreeItem item : children) {
+            item.setChecked(true);
+            for (TreeItem subItem : item.getItems()) {
+                selectionSet.add(subItem.getChecked());
+            }
+
+            if (selectionSet.contains(Boolean.TRUE)
+                    && selectionSet.contains(Boolean.FALSE)) {
+                item.setChecked(true);
+                item.setGrayed(true);
+            } else if (!selectionSet.contains(Boolean.TRUE)) {
+                item.setChecked(false);
             }
         }
     }
@@ -314,6 +336,5 @@ public class SelectionManagerDlg extends CaveSWTDialogBase {
         } else {
             callback.setSelections(selectionMap);
         }
-
     }
 }
