@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Slider;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
-import com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
