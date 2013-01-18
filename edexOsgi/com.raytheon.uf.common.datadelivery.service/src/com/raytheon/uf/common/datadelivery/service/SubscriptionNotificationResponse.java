@@ -17,33 +17,39 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Pending subscription notification request object.
- *
+ * SubscriptionNotificationResponse object.
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2012            mpduff     Initial creation
- *
+ * Jun 25, 2012            mpduff     Initial creation.
+ * Aug 21, 2012     712    mpduff     Add a Subscription Object.
+ * Jan 17, 2013 1501       djohnson     Allow a response to specify the subscription handler.
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 @DynamicSerialize
-public class PendingSubscriptionNotificationRequest extends
-        BaseSubscriptionNotificationRequest<InitialPendingSubscription> {
+public class SubscriptionNotificationResponse extends
+        BaseSubscriptionNotificationResponse<Subscription>{
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public BaseSubscriptionNotificationResponse<InitialPendingSubscription> getResponse() {
-        return new PendingSubscriptionNotificationResponse();
+    public IBaseSubscriptionHandler<Subscription> getSubscriptionHandler() {
+        return DataDeliveryHandlers.getSubscriptionHandler();
     }
 }
