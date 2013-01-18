@@ -186,6 +186,9 @@ public class GriddedSubsetManagerDlg
 
         time.setSelectedTimeIndices(fcstIndices);
         subscription.setTime(time);
+
+        subscription.setEnsemble(dataSet.getEnsemble());
+
         return subscription;
     }
 
@@ -270,7 +273,7 @@ public class GriddedSubsetManagerDlg
         // Get the temporal data
         int numFcstHours = this.timingTabControls.getSelectedFcstHours().length;
         dataSize.setNumFcstHours(numFcstHours);
-
+        dataSize.setNumEnsembleMembers(dataSet.getEnsemble());
         // Get the Areal data
         ReferencedEnvelope envelope = this.spatialTabControls.getEnvelope();
 
