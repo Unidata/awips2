@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Thrift Request for approving pending subscriptions.
+ * Response for approved pending subscriptions.
  * 
  * <pre>
  * 
@@ -37,17 +37,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * @version 1.0
  */
 @DynamicSerialize
-public class ApprovedPendingSubscriptionNotificationRequest extends
-        SubscriptionNotificationRequest {
-
-    /**
-     * Default Constructor.
-     */
-    public ApprovedPendingSubscriptionNotificationRequest() {
-    }
-
-    @Override
-    public SubscriptionNotificationResponse getResponse() {
-        return new ApprovedPendingSubscriptionNotificationResponse();
-    }
+public class ApprovedPendingSubscriptionNotificationResponse extends
+        SubscriptionNotificationResponse {
 }
