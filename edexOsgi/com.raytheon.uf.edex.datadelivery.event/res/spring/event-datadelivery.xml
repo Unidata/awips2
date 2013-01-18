@@ -24,19 +24,19 @@
         <constructor-arg type="java.lang.String" value="jms-generic:topic:notify.msg" />
     </bean>
    <bean factory-bean="handlerRegistry" factory-method="register">
-     <constructor-arg value="com.raytheon.uf.common.datadelivery.event.notification.SubscriptionNotificationRequest"/>
+     <constructor-arg value="com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationRequest"/>
      <constructor-arg ref="subscriptionNotificationHandler"/>
     </bean>
    <bean factory-bean="handlerRegistry" factory-method="register">
-     <constructor-arg value="com.raytheon.uf.common.datadelivery.event.notification.ApprovedPendingSubscriptionNotificationRequest"/>
+     <constructor-arg value="com.raytheon.uf.common.datadelivery.service.ApprovedPendingSubscriptionNotificationRequest"/>
      <constructor-arg ref="subscriptionNotificationHandler"/>
     </bean>
    <bean factory-bean="handlerRegistry" factory-method="register">
-     <constructor-arg value="com.raytheon.uf.common.datadelivery.event.notification.DeniedPendingSubscriptionNotificationRequest"/>
+     <constructor-arg value="com.raytheon.uf.common.datadelivery.service.DeniedPendingSubscriptionNotificationRequest"/>
      <constructor-arg ref="subscriptionNotificationHandler"/>
     </bean>
    <bean factory-bean="handlerRegistry" factory-method="register">
-     <constructor-arg value="com.raytheon.uf.common.datadelivery.event.notification.PendingSubscriptionNotificationRequest"/>
+     <constructor-arg value="com.raytheon.uf.common.datadelivery.service.PendingSubscriptionNotificationRequest"/>
      <constructor-arg ref="subscriptionNotificationHandler"/>
     </bean>
 	
