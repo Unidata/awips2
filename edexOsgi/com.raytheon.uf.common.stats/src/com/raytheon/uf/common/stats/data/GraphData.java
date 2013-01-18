@@ -33,7 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.StatisticsEvent;
-import com.raytheon.uf.common.stats.util.UnitUtils;
+import com.raytheon.uf.common.stats.util.DataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -43,17 +43,18 @@ import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * Data object for the statistics graph.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012     728     mpduff      Initial creation
- *
+ * Oct 03, 2012    728     mpduff      Initial creation
+ * Jan 17, 2013   1357     mpduff      Add timestep.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -96,8 +97,17 @@ public class GraphData {
     @DynamicSerializeElement
     private String displayUnit;
 
-    /** UnitUtils object */
-    private UnitUtils unitUtils;
+    /** Timestep value */
+    @DynamicSerializeElement
+    private long timeStep;
+
+    /** Event Type value */
+    @DynamicSerializeElement
+    private String eventType;
+
+    /** Data Type value */
+    @DynamicSerializeElement
+    private String dataType;
 
     /**
      * Constructor.
@@ -130,7 +140,7 @@ public class GraphData {
 
     /**
      * Add an AggregateRecord.
-     *
+     * 
      * @param record
      */
     public void addRecord(AggregateRecord record) {
@@ -148,7 +158,7 @@ public class GraphData {
 
     /**
      * Get a list of group memebers.
-     *
+     * 
      * @return
      */
     public List<String> getGroupMembers() {
@@ -160,7 +170,7 @@ public class GraphData {
 
     /**
      * Get the smallest value in the data set.
-     *
+     * 
      * @return
      */
     public double getMinValue() {
@@ -177,7 +187,7 @@ public class GraphData {
 
     /**
      * Get the largest value in the data set.
-     *
+     * 
      * @return
      */
     public double getMaxValue() {
@@ -194,10 +204,10 @@ public class GraphData {
 
     /**
      * Get the smallest value in the data set.
-     *
+     * 
      * @return
      */
-    public double getMinValue(Set<String> visibleDataSet, String view) {
+    public double getMinValue(Set<String> visibleDataSet, DataView view) {
         if (visibleDataSet.isEmpty()) {
             return 0;
         }
@@ -217,10 +227,10 @@ public class GraphData {
 
     /**
      * Get the largest value in the data set.
-     *
+     * 
      * @return
      */
-    public double getMaxValue(Set<String> visibleDataSet, String view) {
+    public double getMaxValue(Set<String> visibleDataSet, DataView view) {
         if (visibleDataSet.isEmpty()) {
             return 1;
         }
@@ -239,7 +249,7 @@ public class GraphData {
 
     /**
      * Get the time range for this object.
-     *
+     * 
      * @return
      */
     public TimeRange getTimeRange() {
@@ -248,7 +258,7 @@ public class GraphData {
 
     /**
      * Set the TimeRange
-     *
+     * 
      * @param timeRange
      */
     public void setTimeRange(TimeRange timeRange) {
@@ -257,7 +267,7 @@ public class GraphData {
 
     /**
      * Set the key sequence
-     *
+     * 
      * @param keySequence
      */
     public void setKeySequence(List<String> keySequence) {
@@ -270,7 +280,7 @@ public class GraphData {
 
     /**
      * Get the key sequence.
-     *
+     * 
      * @return
      */
     public List<String> getKeySequence() {
@@ -279,7 +289,7 @@ public class GraphData {
 
     /**
      * Get a list of all keys.
-     *
+     * 
      * @return the keys
      */
     public List<String> getKeys() {
@@ -288,7 +298,7 @@ public class GraphData {
 
     /**
      * Get a list of keys that contain data.
-     *
+     * 
      * @return the keys with data
      */
     public List<String> getKeysWithData() {
@@ -305,7 +315,7 @@ public class GraphData {
 
     /**
      * Set the StatsLabelData object
-     *
+     * 
      * @param statsLabelData
      */
     public void setStatsLabelData(StatsLabelData statsLabelData) {
@@ -315,7 +325,7 @@ public class GraphData {
 
     /**
      * Get the StatsLabelData
-     *
+     * 
      * @return
      */
     public StatsLabelData getStatsLabelData() {
@@ -324,7 +334,7 @@ public class GraphData {
 
     /**
      * Get the group and names map.
-     *
+     * 
      * @return
      */
     public Map<String, List<String>> getGroupAndNamesMap() {
@@ -333,12 +343,12 @@ public class GraphData {
 
     /**
      * Get the units from the event object
-     *
+     * 
      * @param eventId
      *            Event id
      * @param field
      *            data field
-     *
+     * 
      * @return The units
      */
     @VisibleForTesting
@@ -397,7 +407,7 @@ public class GraphData {
 
     /**
      * Set the StatsData map.
-     *
+     * 
      * @param statsDataMap
      */
     public void setStatsDataMap(Map<String, StatsData> statsDataMap) {
@@ -405,18 +415,47 @@ public class GraphData {
     }
 
     /**
-     * @return the unitUtils
+     * @return the timeStep
      */
-    public UnitUtils getUnitUtils() {
-        return unitUtils;
+    public long getTimeStep() {
+        return timeStep;
     }
 
     /**
-     * @param unitUtils
-     *            the unitUtils to set
+     * @param timeStep
+     *            the timeStep to set
      */
-    public void setUnitUtils(UnitUtils unitUtils) {
-        this.unitUtils = unitUtils;
-        this.unitUtils.setConversion(this.getMaxValue());
+    public void setTimeStep(long timeStep) {
+        this.timeStep = timeStep;
+    }
+
+    /**
+     * @return the eventType
+     */
+    public String getEventType() {
+        return eventType;
+    }
+
+    /**
+     * @param eventType
+     *            the eventType to set
+     */
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    /**
+     * @return the dataType
+     */
+    public String getDataType() {
+        return dataType;
+    }
+
+    /**
+     * @param dataType
+     *            the dataType to set
+     */
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 }
