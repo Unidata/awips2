@@ -37,6 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
@@ -179,7 +180,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
      * @param dataDateFormat
      * @return
      */
-    private Map<String, Parameter> getParameters(DAS das, DataSet dataSet,
+    private Map<String, Parameter> getParameters(DAS das,
+            GriddedDataSet dataSet,
             GriddedDataSetMetaData gdsmd, Link link, Collection collection,
             String dataDateFormat) {
 
@@ -336,7 +338,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         if (das.getAttributeTable(ens) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(ens);
-                gdsmd.setEnsemble(OpenDAPParseUtility.getInstance().parseEnsemble(at));
+                dataSet.setEnsemble(OpenDAPParseUtility.getInstance()
+                        .parseEnsemble(at));
             } catch (Exception en) {
                 logParsingException(ens, "Ensemble", collectionName, url);
             }
@@ -413,11 +416,6 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     parm.setLevels(getLevels(type, collectionName, gdsmd, dz,
                             levMin, levMax));
                     parm.addLevelType(type);
-
-                    // set if an ensemble member
-                    if (gdsmd.getEnsemble() != null) {
-                        parm.setEnsemble(gdsmd.getEnsemble().getSize());
-                    }
 
                     parameters.put(name, parm);
 
