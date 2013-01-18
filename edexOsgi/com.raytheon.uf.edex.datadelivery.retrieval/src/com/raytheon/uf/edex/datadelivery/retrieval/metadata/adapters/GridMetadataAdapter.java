@@ -20,6 +20,8 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
@@ -60,11 +62,18 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
         Level[] levels = getLevels(attXML);
         int size = levels.length;
 
+        List<String> ensembles = null;
+        if (attXML.getEnsemble() != null && attXML.getEnsemble().hasSelection()) {
+            ensembles = attXML.getEnsemble().getSelectedMembers();
+            size *= ensembles.size();
+        } else {
+            ensembles = Arrays.asList((String) null);
+        }
+
         if (attXML.getTime().getSelectedTimeIndices() != null) {
             if (levels.length > 1
                     || attXML.getTime().getSelectedTimeIndices().size() > 1) {
-                size = levels.length
-                        * attXML.getTime().getSelectedTimeIndices().size();
+                size *= attXML.getTime().getSelectedTimeIndices().size();
             }
         }
 
@@ -80,20 +89,21 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
         }
 
         if (attXML.getTime().getSelectedTimeIndices() != null) {
-
-            for (int i = 0; i < attXML.getTime().getSelectedTimeIndices()
-                    .size(); i++) {
-                for (int j = 0; j < levels.length; j++) {
-                    int bin = (levels.length * i) + j;
-                    pdos[bin] = populateGridRecord(attXML.getSubName(),
-                            attXML.getParameter(),
-                            levels[j], gridCoverage);
+            int bin = 0;
+            for (String ensemble : ensembles) {
+                for (int i = 0; i < attXML.getTime().getSelectedTimeIndices()
+                        .size(); i++) {
+                    for (int j = 0; j < levels.length; j++) {
+                        pdos[bin++] = populateGridRecord(attXML.getSubName(),
+                                attXML.getParameter(), levels[j], ensemble,
+                                gridCoverage);
+                    }
                 }
             }
         } else {
 
             pdos[0] = populateGridRecord(attXML.getSubName(),
-                    attXML.getParameter(), levels[0],
+                    attXML.getParameter(), levels[0], ensembles.get(0),
                     gridCoverage);
 
         }
@@ -108,10 +118,9 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
      * @return
      */
     private GridRecord populateGridRecord(String name, Parameter parm,
-            Level level,
-            GridCoverage gridCoverage) {
+            Level level, String ensembleId, GridCoverage gridCoverage) {
         return ResponseProcessingUtilities.getGridRecord(name, parm, level,
-                gridCoverage);
+                ensembleId, gridCoverage);
     }
 
     /**
