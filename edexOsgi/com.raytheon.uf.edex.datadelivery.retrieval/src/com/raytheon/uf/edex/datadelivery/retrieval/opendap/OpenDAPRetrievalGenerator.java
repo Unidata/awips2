@@ -288,13 +288,6 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
         List<Retrieval> retrievals = new ArrayList<Retrieval>();
         Subscription sub = bundle.getSubscription();
 
-        if (sub.getEnsemble() != null && !sub.getEnsemble().hasSelection()) {
-            // TODO remove this once the UI allows you to make an ensemble
-            // selection.
-            sub.getEnsemble()
-                    .setSelectedMembers(sub.getEnsemble().getMembers());
-        }
-
         int sfactor = getSizingFactor(getDimensionalSize(sub.getCoverage()));
         sub = removeDuplicates(sub);
 
