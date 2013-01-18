@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,13 +35,18 @@ import java.util.TreeSet;
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Ordering;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -77,6 +83,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 04, 2013 1299       djohnson     Add logging of invalid forecast hour information if it occurs again.
  * Jan 04, 2013 1420       mpduff       Pass cycles in for rules.
+ * Jan 18, 2013 1414       bsteffen     Add ensemble tab.
  * 
  * </pre>
  * 
@@ -115,6 +122,8 @@ public class GriddedSubsetManagerDlg
 
     private DataSetMetaData metaData;
 
+    private GriddedEnsembleSubsetTab ensembleTab;
+
     /**
      * Constructor.
      * 
@@ -148,6 +157,82 @@ public class GriddedSubsetManagerDlg
      */
     public GriddedSubsetManagerDlg(Shell shell, GriddedDataSet dataSet) {
         super(shell, dataSet);
+    }
+
+    @Override
+    protected void createGridTabs(TabFolder tabFolder) {
+        super.createGridTabs(tabFolder);
+        Ensemble e = dataSet.getEnsemble();
+        if (e != null && e.getMembers() != null) {
+            TabItem ensembleTabItem = new TabItem(tabFolder, SWT.NONE, 2);
+            Composite ensembleComp = new Composite(tabFolder, SWT.NONE);
+            ensembleComp.setLayout(new GridLayout(1, false));
+            ensembleComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT,
+                    true, false));
+            ensembleTabItem.setControl(ensembleComp);
+            ensembleTab = new GriddedEnsembleSubsetTab(ensembleComp,
+                    dataSet.getEnsemble());
+            ensembleTab.addListener(this);
+            ensembleTabItem.setText(ensembleTab.getName());
+        }
+    }
+
+    @Override
+    protected Collection<String> getInvalidTabs() {
+        Collection<String> invalidTabs = super.getInvalidTabs();
+        if (ensembleTab != null && !ensembleTab.isValid()) {
+            invalidTabs.add(ensembleTab.getName());
+        }
+        return invalidTabs;
+    }
+
+    @Override
+    protected void populateSubsetXML(SubsetXML<SpecificDateTimeXML> subset) {
+        super.populateSubsetXML(subset);
+        if (ensembleTab != null) {
+            ensembleTab.populateSubsetXML(subset);
+        }
+    }
+
+    @Override
+    protected void loadFromSubsetXML(SubsetXML<SpecificDateTimeXML> subsetXml) {
+        super.loadFromSubsetXML(subsetXml);
+        if (ensembleTab != null) {
+            ensembleTab.loadFromSubsetXML(subsetXml);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg
+     * #loadFromSubscription
+     * (com.raytheon.uf.common.datadelivery.registry.Subscription)
+     */
+    @Override
+    protected void loadFromSubscription(Subscription subscription) {
+        super.loadFromSubscription(subscription);
+        if (ensembleTab != null) {
+            ensembleTab.loadFromSubscription(subscription);
+        }
+    }
+
+    @Override
+    protected boolean isDirty() {
+        boolean modified = super.isDirty();
+        if (!modified && ensembleTab != null) {
+            modified = ensembleTab.isModified();
+        }
+        return modified;
+    }
+
+    @Override
+    protected void setClean() {
+        super.setClean();
+        if (ensembleTab != null) {
+            ensembleTab.setModified(false);
+        }
     }
 
     /**
@@ -187,7 +272,9 @@ public class GriddedSubsetManagerDlg
         time.setSelectedTimeIndices(fcstIndices);
         subscription.setTime(time);
 
-        subscription.setEnsemble(dataSet.getEnsemble());
+        if (ensembleTab != null) {
+            ensembleTab.populateSubscription(subscription);
+        }
 
         return subscription;
     }
@@ -196,7 +283,7 @@ public class GriddedSubsetManagerDlg
      * {@inheritDoc}
      */
     @Override
-    protected SpecificDateTimeXML getTimeXml() {
+    protected SpecificDateTimeXML getTimeXmlFromSubscription() {
         SpecificDateTimeXML timeXml = new SpecificDateTimeXML();
         Time time = this.subscription.getTime();
         List<Integer> cycleTimes = time.getCycleTimes();
@@ -273,7 +360,12 @@ public class GriddedSubsetManagerDlg
         // Get the temporal data
         int numFcstHours = this.timingTabControls.getSelectedFcstHours().length;
         dataSize.setNumFcstHours(numFcstHours);
-        dataSize.setNumEnsembleMembers(dataSet.getEnsemble());
+        if (ensembleTab != null) {
+            dataSize.setNumEnsembleMembers(ensembleTab
+                    .getEnsembleWithSelection());
+        } else {
+            dataSize.setNumEnsembleMembers(dataSet.getEnsemble());
+        }
         // Get the Areal data
         ReferencedEnvelope envelope = this.spatialTabControls.getEnvelope();
 
