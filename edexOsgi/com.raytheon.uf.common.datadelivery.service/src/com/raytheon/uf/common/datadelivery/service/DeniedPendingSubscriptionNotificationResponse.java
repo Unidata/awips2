@@ -17,15 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
-import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * PendingSubscriptionNotificationResponse object.
+ * Response for denied pending subscriptions.
  * 
  * <pre>
  * 
@@ -33,24 +31,46 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2012            mpduff     Initial creation
- * Jan 17, 2013 1501       djohnson     Allow a response to specify the subscription handler.
- * 
+ * Dec 20, 2012 1413       bgonzale    Initial creation.
  * </pre>
  * 
- * @author mpduff
+ * @author bgonzale
  * @version 1.0
  */
 @DynamicSerialize
-public class PendingSubscriptionNotificationResponse extends
-        BaseSubscriptionNotificationResponse<InitialPendingSubscription> {
+public class DeniedPendingSubscriptionNotificationResponse extends
+        SubscriptionNotificationResponse {
+    /**
+     * Id of the denied subscription.
+     */
+    @DynamicSerializeElement
+    private String id;
 
     /**
-     * {@inheritDoc}
+     * Default constructor.
      */
-    @Override
-    public IBaseSubscriptionHandler<InitialPendingSubscription> getSubscriptionHandler() {
-        return DataDeliveryHandlers.getPendingSubscriptionHandler();
+    public DeniedPendingSubscriptionNotificationResponse() {
     }
 
+    /**
+     * Initialization constructor.
+     */
+    public DeniedPendingSubscriptionNotificationResponse(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 }
