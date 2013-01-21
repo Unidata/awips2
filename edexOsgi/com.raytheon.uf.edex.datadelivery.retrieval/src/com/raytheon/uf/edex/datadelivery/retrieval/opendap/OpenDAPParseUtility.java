@@ -21,8 +21,13 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.UnitLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.datadelivery.retrieval.util.ConnectionUtil;
 
 import dods.dap.AttributeTable;
+import dods.dap.DArray;
+import dods.dap.DConnect;
+import dods.dap.DataDDS;
+import dods.dap.PrimitiveVector;
 
 /**
  * Constants for working with OpenDAP. This class should remain package-private,
@@ -43,12 +48,13 @@ import dods.dap.AttributeTable;
  * Nov 09, 2012    1163     dhladky     Made pre-load for service config
  * Nov 19, 2012    1166     djohnson    Clean up JAXB representation of registry objects.
  * Jan 08, 2013    1466     dhladky     NCOM dataset name parsing fix.
+ * Jan 18, 2013    1513     dhladky     Level Lookup improvements.
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-final class OpenDAPParseUtility {
+public final class OpenDAPParseUtility {
 
     private static final Pattern QUOTES_PATTERN = Pattern.compile("\"");
 
@@ -336,7 +342,35 @@ final class OpenDAPParseUtility {
         return QUOTES_PATTERN.matcher(val).replaceAll(
                 serviceConfig.getConstantValue("BLANK"));
     }
-
     
+    /**
+     * Parse out the levels from the dods
+     * @param url
+     * @param lev
+     * @return
+     */
+    public List<Double> parseLevels(String url, String lev) {
+
+        List<Double> levels = null;
+
+        try {
+            DConnect connect = ConnectionUtil.getDConnect(url + "?" + lev);
+            DataDDS data = connect.getData(null);
+            DArray array = (DArray) data.getVariable(lev);
+            PrimitiveVector pm = array.getPrimitiveVector();
+            double[] values = (double[]) pm.getInternalStorage();
+            levels = new ArrayList<Double>();
+            for (double value : values) {
+                levels.add(value);
+            }
+
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Error downloading/parsing levels: "
+                    + url, e);
+        }
+        
+        return levels;
+
+    }
 
 }
