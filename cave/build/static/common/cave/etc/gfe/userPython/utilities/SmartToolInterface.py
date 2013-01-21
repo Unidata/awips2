@@ -30,6 +30,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/21/08                      njensen        Initial Creation.
+#    01/17/13         1486         dgilling       Re-factor based on 
+#                                                 RollbackMasterInterface.
 #    
 # 
 #
@@ -37,19 +39,17 @@
 
 import sys
 import Exceptions
-import MasterInterface
-from com.raytheon.uf.common.localization import PathManagerFactory
+import RollbackMasterInterface
 
 
-class SmartToolInterface(MasterInterface.MasterInterface):
+class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
     
     def __init__(self, scriptPath):
-        MasterInterface.MasterInterface.__init__(self)
-        self.importModules(scriptPath)
+        super(SmartToolInterface, self).__init__(scriptPath)
+        self.importModules()
         self.parmToModuleMap = {'variableElement' : set()}
         for script in self.scripts:
             self.__mapDisplayList(script)
-        self.pathMgr = PathManagerFactory.getPathManager()
                     
     def __mapDisplayList(self, script):
         if hasattr(sys.modules[script], "WeatherElementEdited"):
@@ -137,20 +137,21 @@ class SmartToolInterface(MasterInterface.MasterInterface):
         return argList
     
     def addModule(self, moduleName):        
-        MasterInterface.MasterInterface.addModule(self, moduleName)
+        super(SmartToolInterface, self).addModule(moduleName)
         self.__mapDisplayList(moduleName)
         
     def reloadModule(self, moduleName):
-        if sys.modules.has_key(moduleName):
-            self.__removeModuleFromMap(moduleName)
-        MasterInterface.MasterInterface.reloadModule(self, moduleName)
+        self.__removeModuleFromMap(moduleName)
+        super(SmartToolInterface, self).reloadModule(moduleName)
         self.__mapDisplayList(moduleName)
         
     def removeModule(self, moduleName):
-        MasterInterface.MasterInterface.removeModule(self, moduleName)
+        super(SmartToolInterface, self).removeModule(moduleName)
         self.__removeModuleFromMap(moduleName)
-        if self.pathMgr.getStaticLocalizationFile("gfe/userPython/smartTools/" + moduleName + ".py") is not None:
-            self.addModule(moduleName)
+        # in-case we removed just an override, let's
+        # check to see if another script with the same name exists
+        if sys.modules.has_key(moduleName):
+            self.__mapDisplayList(moduleName)
     
     def __removeModuleFromMap(self, moduleName):
         for parm in self.parmToModuleMap:
@@ -158,13 +159,6 @@ class SmartToolInterface(MasterInterface.MasterInterface):
             if moduleName in toolList:
                 toolList.remove(moduleName)
                 self.parmToModuleMap[parm] = toolList
-    
-    def getStartupErrors(self):
-        from java.util import ArrayList
-        errorList = ArrayList()
-        for err in self.getImportErrors():
-            errorList.add(str(err))
-        return errorList
     
     def runTool(self, moduleName, className, methodName, **kwargs):
         try:

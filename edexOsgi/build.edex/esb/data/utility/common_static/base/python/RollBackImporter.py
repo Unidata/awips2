@@ -17,24 +17,24 @@ class RollBackImporter:
             if match is not None:
                 level = match.group(1)
                 if level != 'base':
-                    LogStream.logEvent("IMPORTING:", name, result)
+#                    LogStream.logDebug("IMPORTING:", name, result)
                     self.newModules[result.__name__] = 1
-                else:
-                    LogStream.logDebug("IGNORING BASE:", name, result)
-            else:
-                LogStream.logDebug("IGNORING NON-LOCALIZED:", name, result)
-        else:
-            LogStream.logDebug("IGNORING BUILTIN:", name, result)
+#                else:
+#                    LogStream.logDebug("IGNORING BASE:", name, result)
+#            else:
+#                LogStream.logDebug("IGNORING NON-LOCALIZED:", name, result)
+#        else:
+#            LogStream.logDebug("IGNORING BUILTIN:", name, result)
         return result
 
     def rollback(self):
         for modname in self.newModules.keys():
             if not self.previousModules.has_key(modname):
                 # Force reload when modname next imported
-                LogStream.logEvent("UNLOADING:", modname, sys.modules[modname])
+#                LogStream.logDebug("UNLOADING:", modname, sys.modules[modname])
                 del(sys.modules[modname])
-            else:
-                LogStream.logDebug("SKIPPING PRELOADED:", modname)
+#            else:
+#                LogStream.logDebug("SKIPPING PRELOADED:", modname)
 
         self.newModules = {}
                 
