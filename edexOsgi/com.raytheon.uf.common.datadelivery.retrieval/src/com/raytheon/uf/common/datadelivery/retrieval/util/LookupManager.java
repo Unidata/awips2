@@ -42,7 +42,9 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
+
 
 /**
  * Lookup table manager
@@ -54,6 +56,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2011    357      dhladky     Initial creation
  * Oct 27, 2012   1163     dhladky     Improved, dynamically create files, Added Units
+ * Jan 18, 2013   1513     dhladky     Level lookup refit.
  * 
  * </pre>
  * 
@@ -381,10 +384,9 @@ public class LookupManager {
      * @throws Exception
      */
     public void modifyLevelLookups(String modelName, double dz, float min,
-            float max) throws Exception {
+            float max, List<Double> levs) throws Exception {
 
         LevelLookup ll = null;
-        List<Double> levs = null;
 
         if (levelLookupExists(modelName)) {
             ll = getLevelsFromFile(modelName);
@@ -397,25 +399,33 @@ public class LookupManager {
             ll = new LevelLookup();
         }
 
-        if (levs == null) {
+        boolean gen = false;
+
+        
+        if (CollectionUtil.isNullOrEmpty(levs)) {
             ll.setLevelXml(new ArrayList<Double>());
             levs = ll.getLevelXml();
+            gen = true;
+        } else {
+            ll.setLevelXml(levs);
         }
 
-        int diff = (int) (max - min);
-        int total = (int) Math.abs((diff / dz));
-        // These add simple place holder level
-        // identifiers. It is up to the admin
-        // to add the real values
-        if (diff < 0) {
-            for (int i = 0; i <= total; i++) {
-                double lev = max + i * dz;
-                levs.add(lev);
-            }
-        } else {
-            for (int i = 0; i <= total; i++) {
-                double lev = min + i * dz;
-                levs.add(lev);
+        if (gen) {
+            int diff = (int) (max - min);
+            int total = (int) Math.abs((diff / dz));
+            // These add simple place holder level
+            // identifiers. It is up to the admin
+            // to add the real values
+            if (diff < 0) {
+                for (int i = 0; i <= total; i++) {
+                    double lev = max + i * dz;
+                    levs.add(lev);
+                }
+            } else {
+                for (int i = 0; i <= total; i++) {
+                    double lev = min + i * dz;
+                    levs.add(lev);
+                }
             }
         }
 
@@ -551,4 +561,6 @@ public class LookupManager {
 
         return unitXml;
     }
+    
+    
 }
