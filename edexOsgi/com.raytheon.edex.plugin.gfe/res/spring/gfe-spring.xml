@@ -108,7 +108,7 @@
 		<route id="gfeVtecChangeNotification">
 			<from uri="jms-generic:topic:edex.alerts.vtec"/>
 			<doTry>
-			    <bean ref="serializationUtil" method="transformFromThrift" />
+				<bean ref="serializationUtil" method="transformFromThrift" />
 				<bean ref="vtecChangeListener" method="handleNotification" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
@@ -130,7 +130,7 @@
 			</doTry>
 		</route>
 	</camelContext>
-	
+
 	<!-- Beans to define a custom jms connection which will allow a durable subscription -->
 	<bean id="gfeNotifyConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
        <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
