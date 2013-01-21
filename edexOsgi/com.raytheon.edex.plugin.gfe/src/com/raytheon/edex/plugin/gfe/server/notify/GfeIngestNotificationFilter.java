@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.gfe.server.notify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,10 +53,13 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotificatio
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
@@ -71,6 +73,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2011            dgilling     Initial creation
  * Sep 19, 2012			   jdynina		DR 15442 fix
+ * Jan 18, 2013      #1504 randerso     Moved D2D to GFE parameter name translation from
+ *                                      D2DParmIdCache to GfeIngestNotificationFilter
  * 
  * </pre>
  * 
@@ -80,7 +84,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 public class GfeIngestNotificationFilter {
 
-    private static final transient IUFStatusHandler handler = UFStatus
+    private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeIngestNotificationFilter.class);
 
     private SmartInitQueue smartInitQueue = null;
@@ -106,8 +110,7 @@ public class GfeIngestNotificationFilter {
         }
     }
 
-    public void filterGridRecords(List<GridRecord> gridRecords,
-            Date arrivalTime)
+    public void filterGridRecords(List<GridRecord> gridRecords, Date arrivalTime)
             throws Exception {
         StringBuilder initNameBuilder = new StringBuilder(120);
 
@@ -126,7 +129,8 @@ public class GfeIngestNotificationFilter {
             try {
                 config = IFPServerConfigManager.getServerConfig(site);
             } catch (GfeConfigurationException e) {
-                handler.error("Unable to retrieve site config for " + site, e);
+                statusHandler.error("Unable to retrieve site config for "
+                        + site, e);
                 continue;
             }
             for (GridRecord grid : gridRecords) {
@@ -152,24 +156,30 @@ public class GfeIngestNotificationFilter {
                     }
 
                     String abbrev = grid.getParameter().getAbbreviation();
-                    String level = GridTranslator.getShortLevelName(
-grid
-                            .getLevel().getMasterLevel().getName(), grid
-                            .getLevel().getLevelonevalue(), grid.getLevel()
-                            .getLeveltwovalue());
-                    ParmID parmID = new ParmID(abbrev, dbId, level);
+                    String gfeParmName = null;
+                    try {
+                        gfeParmName = ParameterMapper.getInstance()
+                                .lookupAlias(abbrev, "gfeParamName");
+                    } catch (MultipleMappingException e) {
+                        statusHandler.handle(Priority.WARN,
+                                e.getLocalizedMessage(), e);
+                        gfeParmName = e.getArbitraryMapping();
+                    }
 
-                    if (!gridInv.containsKey(parmID)) {
-                        gridInv.put(parmID, new ArrayList<TimeRange>());
+                    String level = GridTranslator.getShortLevelName(grid
+                    ParmID parmID = new ParmID(gfeParmName, dbId, level);
+
+                    List<TimeRange> trs = gridInv.get(parmID);
+                    if (trs == null) {
+                        trs = new ArrayList<TimeRange>();
+                        gridInv.put(parmID, trs);
                     }
                     TimeRange validPeriod = grid.getDataTime().getValidPeriod();
                     if (validPeriod.getDuration() > 0) {
-                        gridInv.get(parmID).add(validPeriod);
+                        trs.add(validPeriod);
                     } else {
-                        gridInv.get(parmID).add(
-                                new TimeRange(grid.getDataTime()
-                                        .getValidPeriod().getStart(),
-                                        3600 * 1000));
+                        trs.add(new TimeRange(grid.getDataTime()
+                                .getValidPeriod().getStart(), 3600 * 1000));
                     }
 
                     List<String> siteInitModules = config.initModels(gfeModel);
@@ -201,23 +211,20 @@ grid
 
             // DR 15442 - move last for loop out of the for loop at line 110
             for (ParmID parmId : gridInv.keySet()) {
-                Map<TimeRange, List<GridDataHistory>> hist = new HashMap<TimeRange, List<GridDataHistory>>();
                 try {
                     List<TimeRange> trs = gridInv.get(parmId);
-                    Collections.sort(trs);
                     for (TimeRange time : trs) {
                         List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
                         histList.add(new GridDataHistory(
-                                GridDataHistory.OriginType.INITIALIZED,
-                                parmId, time, null, (WsId) null));
+                                GridDataHistory.OriginType.INITIALIZED, parmId,
+                                time, null, (WsId) null));
+                        Map<TimeRange, List<GridDataHistory>> hist = new HashMap<TimeRange, List<GridDataHistory>>();
                         hist.put(time, histList);
+                        guns.add(new GridUpdateNotification(parmId, time, hist,
+                                null, parmId.getDbId().getSiteId()));
                     }
-                    guns.add(new GridUpdateNotification(parmId,
-                            new TimeRange(trs.get(0).getStart(), trs.get(
-                                    trs.size() - 1).getEnd()), hist, null,
-                            parmId.getDbId().getSiteId()));
                 } catch (Exception e) {
-                    handler.error("Unable to retrieve grid history for "
+                    statusHandler.error("Unable to retrieve grid history for "
                             + parmId.toString(), e);
                 }
             }
@@ -225,7 +232,8 @@ grid
             try {
                 sendNotifications(guns);
             } catch (Exception e) {
-                handler.error("Unable to send grib ingest notifications", e);
+                statusHandler.error("Unable to send grib ingest notifications",
+                        e);
             }
 
             smartInitQueue.addInits(inits.values());
@@ -233,8 +241,7 @@ grid
     }
 
     public void filterSatelliteRecords(List<SatelliteRecord> records,
-            Date arrivalTime)
-            throws Exception {
+            Date arrivalTime) throws Exception {
         StringBuilder initNameBuilder = new StringBuilder(120);
 
         Set<String> activeSites = GFESiteActivation.getInstance()
@@ -249,7 +256,8 @@ grid
             try {
                 config = IFPServerConfigManager.getServerConfig(site);
             } catch (GfeConfigurationException e) {
-                handler.error("Error retrieiving site config for " + site, e);
+                statusHandler.error(
+                        "Error retrieiving site config for " + site, e);
                 continue;
             }
 
@@ -298,8 +306,8 @@ grid
             try {
                 sendNotifications(guns);
             } catch (Exception e) {
-                handler.error("Unable to send satellite ingest notifications",
-                        e);
+                statusHandler.error(
+                        "Unable to send satellite ingest notifications", e);
             }
 
             smartInitQueue.addInits(inits.values());
