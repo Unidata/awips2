@@ -62,7 +62,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="satelliteDecoder" method="decode" />
-					<to uri="directvm:persistIndexAlert" />
+						<to uri="directvm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
