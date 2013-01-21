@@ -98,11 +98,11 @@ public class EdexLogHandler implements IUFStatusHandler {
      */
     @Override
     public void handle(UFStatus status) {
-		handle(status, this.category);
-	}
+        handle(status, this.category);
+    }
 
-	@Override
-	public void handle(UFStatus status, String category) {
+    @Override
+    public void handle(UFStatus status, String category) {
         Priority p = status.getPriority();
         String statusMsg = status.getMessage();
         if (category != null) {
@@ -154,11 +154,14 @@ public class EdexLogHandler implements IUFStatusHandler {
 
     @Override
     public void handle(Priority p, String msg) {
-		handle(p, this.category, msg);
-	}
+        handle(p, this.category, msg);
+    }
 
-	@Override
-	public void handle(Priority p, String category, String msg) {
+    @Override
+    public void handle(Priority p, String category, String msg) {
+        // msg has been null if someone does e.getLocalizedMessage()
+        // and it is null which causes null pointer exception
+        msg = String.valueOf(msg);
         if (category != null) {
             StringBuilder sb = new StringBuilder(msg.length() + 64);
             sb.append(category);
@@ -197,13 +200,13 @@ public class EdexLogHandler implements IUFStatusHandler {
 
     @Override
     public void handle(Priority p, String msg, Throwable t) {
-		handle(p, category, msg, t);
-	}
+        handle(p, category, msg, t);
+    }
 
-	@Override
-	public void handle(Priority p, String category, String msg, Throwable t) {
-		// msg has been null if someone does e.getLocalizedMessage()
-		// and it is null which causes null pointer exception
+    @Override
+    public void handle(Priority p, String category, String msg, Throwable t) {
+        // msg has been null if someone does e.getLocalizedMessage()
+        // and it is null which causes null pointer exception
         msg = String.valueOf(msg);
         if (category != null) {
             StringBuilder sb = new StringBuilder(msg.length() + 64);
@@ -249,21 +252,21 @@ public class EdexLogHandler implements IUFStatusHandler {
     }
 
     @Override
-	public void debug(String category, String message) {
-		if (this.clazzLogger.isDebugEnabled()) {
-			handle(Priority.DEBUG, category, message);
-		}
-	}
+    public void debug(String category, String message) {
+        if (this.clazzLogger.isDebugEnabled()) {
+            handle(Priority.DEBUG, category, message);
+        }
+    }
 
-	@Override
+    @Override
     public void info(String message) {
         handle(Priority.INFO, message);
     }
 
-	@Override
-	public void info(String category, String message) {
-		handle(Priority.INFO, category, message);
-	}
+    @Override
+    public void info(String category, String message) {
+        handle(Priority.INFO, category, message);
+    }
 
     @Override
     public void warn(String message) {
@@ -271,38 +274,38 @@ public class EdexLogHandler implements IUFStatusHandler {
     }
 
     @Override
-	public void warn(String category, String message) {
-		handle(Priority.WARN, category, message);
-	}
+    public void warn(String category, String message) {
+        handle(Priority.WARN, category, message);
+    }
 
-	@Override
+    @Override
     public void error(String message) {
         handle(Priority.ERROR, message);
     }
 
     @Override
-	public void error(String category, String message) {
-		handle(Priority.ERROR, category, message);
-	}
+    public void error(String category, String message) {
+        handle(Priority.ERROR, category, message);
+    }
 
-	@Override
+    @Override
     public void error(String message, Throwable throwable) {
         handle(Priority.ERROR, message, throwable);
     }
 
     @Override
-	public void error(String category, String message, Throwable throwable) {
-		handle(Priority.ERROR, category, message, throwable);
-	}
+    public void error(String category, String message, Throwable throwable) {
+        handle(Priority.ERROR, category, message, throwable);
+    }
 
-	@Override
+    @Override
     public void fatal(String message, Throwable throwable) {
         handle(Priority.FATAL, message, throwable);
     }
 
-	@Override
-	public void fatal(String category, String message, Throwable throwable) {
-		handle(Priority.FATAL, category, message, throwable);
-	}
+    @Override
+    public void fatal(String category, String message, Throwable throwable) {
+        handle(Priority.FATAL, category, message, throwable);
+    }
 
 }
