@@ -89,6 +89,7 @@ import dods.dap.DAS;
  * Dec 12, 2012 supplement dhladky      Restored operation of ensembles.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
+ * Jan 18, 2013 1513       dhladky      Level look up improvements.
  * 
  * </pre>
  * 
@@ -135,8 +136,10 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 // create new default lookups
                 if (levelType.equals(LevelType.MB)
                         || levelType.equals(LevelType.SEAB)) {
+
+                    List<Double> levelList = OpenDAPParseUtility.getInstance().parseLevels(gdsmd.getUrl(), serviceConfig.getConstantValue("LEV"));
                     LookupManager.getInstance().modifyLevelLookups(
-                            collectionName, dz, levMin, levMax);
+                            collectionName, dz, levMin, levMax, levelList);
                 }
             }
 
@@ -654,12 +657,12 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             }
 
             DAS das = (DAS) link.getLinks().get(DAP_TYPE.DAS.getDapType());
-            dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
-                    collection, dataDateFormat));
-
+            // set url first, used for level lookups
             gdsmd.setUrl(link.getUrl().replace(
                     serviceConfig.getConstantValue("META_DATA_SUFFIX"),
                     serviceConfig.getConstantValue("BLANK")));
+            dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
+                    collection, dataDateFormat));
             Time dataSetTime = gdsmd.getTime();
             if (dataSetTime == null) {
                 throw new IllegalStateException(
