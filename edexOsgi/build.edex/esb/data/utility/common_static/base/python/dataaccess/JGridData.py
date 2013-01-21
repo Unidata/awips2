@@ -69,10 +69,14 @@ class JGridData(IGridData, JData.JData):
             unitObj = UnitFormat.getUCUMInstance().parseObject(unit)
             converter = self.jobj.getUnit().getConverterTo(unitObj)
             unitDest = UnitConvertingDataDestination(converter, dest)
-            filledDest = self.jobj.populateDataDestination(unitDest)
-            pnfa = PythonNumpyFloatArray(filledDest.getWrappedDestination().getFloatArray())
+            filledDest = self.jobj.populateData(unitDest)
+            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
+            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
+            pnfa = PythonNumpyFloatArray(filledDest.getWrappedDestination().getArray(), nx, ny)
         else:
-            filledDest = self.jobj.populateDataDestination(dest)
-            pnfa = PythonNumpyFloatArray(dest.getFloatArray())
+            filledDest = self.jobj.populateData(dest)
+            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0);
+            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1);
+            pnfa = PythonNumpyFloatArray(dest.getArray(), nx, ny)
         return pnfa.__numpy__[0]
         
