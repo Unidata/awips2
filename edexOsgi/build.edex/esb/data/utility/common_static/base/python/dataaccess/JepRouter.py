@@ -1,4 +1,4 @@
-##
+# #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -16,7 +16,7 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##
+# #
 
 
 #
@@ -39,6 +39,8 @@ from ufpy.dataaccess import IGeometryRequest, IGridRequest
 from com.raytheon.uf.common.dataaccess import DataAccessLayer as JavaDataAccessLayer
 from com.raytheon.uf.common.dataaccess.impl import DefaultGridRequest, DefaultGeometryRequest
 from com.raytheon.uf.common.time import DataTime as JavaDataTime
+from com.raytheon.uf.common.geospatial import LatLonReprojection
+from com.raytheon.uf.common.python import PythonNumpyFloatArray
 
 import jep
 import DataTime
@@ -73,15 +75,17 @@ def getData(request, times):
         data.append(wrapper(jd))
     return data
 
-def getLatCoords(gridRequest):
-    # TODO need to request the GridGeometry, then translate it into lat/lons
-    # Ben has ideas about how to do this fast
-    pass
-
-def getLonCoords(gridRequest):
-    # TODO need to request the GridGeometry, then translate it into lat/lons
-    # Ben has ideas about how to do this fast
-    pass
+def getLatLonCoords(gridRequest):
+    '''
+        @return: a tuple where the first element is a numpy array of lons, and the second element is a numpy array of lats
+    '''
+    gridGeometry = JavaDataAccessLayer.getGridGeometry(gridRequest.toJavaObj())
+    latlons = LatLonReprojection.getLatLons(gridGeometry)
+    nx = gridGeometry.getGridRange().getSpan(0)
+    ny = gridGeometry.getGridRange().getSpan(1)
+    latndarray = PythonNumpyFloatArray(latlons.getLats(), nx, ny).__numpy__[0]
+    lonndarray = PythonNumpyFloatArray(latlons.getLons(), nx, ny).__numpy__[0]
+    return (lonndarray, latndarray)
 
 def getAvailableLocationNames(geometryRequest):
     return JavaDataAccessLayer.getAvailableLocationNames(geometryRequest.toJavaObj())
