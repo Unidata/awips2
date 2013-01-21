@@ -41,7 +41,7 @@
 		<crawlDir>/awips2/crawl</crawlDir>
 		<dateFormat>HHddMMMyyyy</dateFormat>
 		<ignore>ruc</ignore>
-		<ignore>rap32</ignore>
+		<ignore>rap_f</ignore>
         <ignore>\.das$</ignore> 
         <ignore>\.dds$</ignore>
         <ignore>help$</ignore>
