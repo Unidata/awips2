@@ -58,7 +58,6 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
@@ -112,6 +111,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 02, 2013 1441       djohnson   Add ability to delete groups.
  * Jan 03, 2013 1437       bgonzale   Moved configuration file management code to SubscriptionManagerConfigDlg
  *                                    and SubscriptionConfigurationManager.
+ * Jan 21, 2013 1501       djohnson   Only send notification if subscription was actually activated/deactivated,
+ *                                    remove race condition of GUI thread updating the table after notification.
  * </pre>
  * 
  * @author mpduff
@@ -864,34 +865,23 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                                         SWT.OK, sub.getName() + " Activated",
                                         response.getMessageToDisplay());
                             }
-                            updatedList.add(sub);
 
-                            if (activate) {
-                                subscriptionNotificationService
-                                        .sendSubscriptionActivatedNotification(
-                                                sub,
-                                                username);
-
-                            } else {
-                                subscriptionNotificationService
-                                        .sendSubscriptionDeactivatedNotification(
-                                                sub, username);
-
+                            if (!response.isAllowFurtherEditing()) {
+                                if (activate) {
+                                    subscriptionNotificationService
+                                            .sendSubscriptionActivatedNotification(
+                                                    sub, username);
+                                } else {
+                                    subscriptionNotificationService
+                                            .sendSubscriptionDeactivatedNotification(
+                                                    sub, username);
+                                }
                             }
                         } catch (RegistryHandlerException e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error processing request.", e);
                         }
                     }
-
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (isDisposed() == false) {
-                                tableComp.updateTable(updatedList);
-                            }
-                        }
-                    });
                 }
             }
         } catch (VizException e) {
