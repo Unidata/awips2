@@ -24,9 +24,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -107,8 +106,11 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * Apr 7, 2009            randerso     Initial creation
  * Jun 3, 2011  8919      rferrel      Determine grid's VisMode based
  *                                     on imageOnEdit
- * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
+ * 08/20/2012    #1082    randerso     Moved calcStepTimes to AbstractParmManager for
  *                                     use in PngWriter
+ * 11/30/2012   #1328     mschenke     Made GFE use descriptor for time matching
+ *                                     and time storage and manipulation
+ * 01/22/2013    #1518    randerso     Removed use of Map with Parms as keys
  * 
  * </pre>
  * 
@@ -256,8 +258,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
     private ArrayList<GridBar> gridBarList;
 
-    private Map<Parm, GridBar> parmToGridBar;
-
     private Rectangle selection;
 
     private MenuManager menuMgr;
@@ -294,7 +294,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
         dataMgr = gridManager.getDataManager();
 
         gridBarList = new ArrayList<GridBar>();
-        parmToGridBar = new HashMap<Parm, GridBar>();
 
         Parm[] displayedParms = gridManager.getDataManager().getParmManager()
                 .getDisplayedParms();
@@ -684,10 +683,13 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         if (deletions != null) {
             for (Parm parm : deletions) {
-                GridBar gridBar = parmToGridBar.remove(parm);
-                if (gridBar != null) {
-                    gridBarList.remove(gridBar);
-                    gridBar.dispose();
+                Iterator<GridBar> iter = gridBarList.iterator();
+                while (iter.hasNext()) {
+                    GridBar gridBar = iter.next();
+                    if (gridBar.getParm().equals(parm)) {
+                        iter.remove();
+                        gridBar.dispose();
+                    }
                 }
             }
         }
@@ -695,11 +697,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
         if (additions != null) {
             for (Parm parm : additions) {
                 if (!parm.getGridInfo().isTimeIndependentParm()) {
-                    if (!parmToGridBar.containsKey(parm)) {
-                        GridBar gridBar = new GridBar(this, parm, gridManager);
-                        gridBarList.add(gridBar);
-                        parmToGridBar.put(parm, gridBar);
-                    }
+                    GridBar gridBar = new GridBar(this, parm, gridManager);
+                    gridBarList.add(gridBar);
                 }
             }
         }
