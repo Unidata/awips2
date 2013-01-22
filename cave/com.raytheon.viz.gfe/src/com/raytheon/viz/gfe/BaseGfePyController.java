@@ -163,7 +163,6 @@ public abstract class BaseGfePyController extends PythonScriptController {
         }
         return varDict;
     }
-    }
 
     /**
      * Runs the python garbage collector. This should be run at the end of a
@@ -179,4 +178,5 @@ public abstract class BaseGfePyController extends PythonScriptController {
             statusHandler.handle(Priority.PROBLEM,
                     "Error garbage collecting GFE python interpreter", e);
         }
+}
 }
