@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Nov 09, 2012 1322       djohnson    Add SECONDS_PER_MINUTE.
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
  * Jan 07, 2013 1451       djohnson    Add newGmtCalendar() and time constants.
+ * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
  * 
  * </pre>
  * 
@@ -67,6 +68,7 @@ public class TimeUtil {
     private static class NullClock extends AbstractTimer {
         private static final ITimePoint CONSTANT_TIME = TimePoints
                 .fromMillis(1L);
+
         @Override
         protected ITimePoint getCurrentTime() {
             return CONSTANT_TIME;
@@ -96,6 +98,8 @@ public class TimeUtil {
     public static final int HOURS_PER_DAY = 24;
 
     private static final int DAYS_PER_WEEK = 7;
+
+    public static final int HOURS_PER_WEEK = HOURS_PER_DAY * DAYS_PER_WEEK;
 
     // Util.java has a few of these constants, but that is located in an EDEX
     // plugin and this is a more appropriate place for them anyways
