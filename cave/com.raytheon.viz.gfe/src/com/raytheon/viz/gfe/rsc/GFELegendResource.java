@@ -23,13 +23,11 @@ import static com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode.IMAGE
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -37,6 +35,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -65,6 +64,7 @@ import com.raytheon.viz.gfe.PreferenceInitializer;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
+import com.raytheon.viz.gfe.core.msgs.INewModelAvailableListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.ShowQuickViewDataMsg;
@@ -83,13 +83,18 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 03/17/2008              chammack    Initial Creation.
  * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
  * 07/10/2012   15186      ryu         Clean up initInternal per Ron
+ * 11/30/2012   #1328      mschenke    Made GFE use descriptor for time matching
+ *                                     and time storage and manipulation
+ * 01/22/2013   #1518      randerso    Removed use of Map with Parms as keys,
+ *                                     really just needed a list anyway.
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
 public class GFELegendResource extends
-        AbstractLegendResource<GFELegendResourceData> implements IMessageClient {
+        AbstractLegendResource<GFELegendResourceData> implements
+        IMessageClient, INewModelAvailableListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFELegendResource.class);
 
@@ -117,8 +122,6 @@ public class GFELegendResource extends
     };
 
     private class GFELegendInputHandler extends InputAdapter {
-
-        private boolean inDrag;
 
         ResourcePair mouseDownRsc = null;
 
@@ -158,10 +161,9 @@ public class GFELegendResource extends
                         if (rsc.getResource() instanceof GFEResource) {
                             GFEResource gfeRsc = (GFEResource) rsc
                                     .getResource();
-                            DataManager
-                                    .getCurrentInstance()
-                                    .getSpatialDisplayManager()
-                                    .makeVisible(gfeRsc.getParm(),
+                            GFELegendResource.this.dataManager
+                                    .getSpatialDisplayManager().makeVisible(
+                                            gfeRsc.getParm(),
                                             !props.isVisible(), false);
 
                         } else {
@@ -173,8 +175,7 @@ public class GFELegendResource extends
                 } else if (mouseButton == 2) {
                     if (rsc.getResource() instanceof GFEResource) {
                         GFEResource gfeRsc = (GFEResource) rsc.getResource();
-                        ISpatialDisplayManager sdm = DataManager
-                                .getCurrentInstance()
+                        ISpatialDisplayManager sdm = GFELegendResource.this.dataManager
                                 .getSpatialDisplayManager();
                         Parm parm = gfeRsc.getParm();
 
@@ -242,7 +243,6 @@ public class GFELegendResource extends
         }.run();
     }
 
-    @SuppressWarnings("unchecked")
     public GFELegendResource(DataManager dataManager,
             GFELegendResourceData resourceData, LoadProperties loadProps) {
         super(resourceData, loadProps);
@@ -257,30 +257,11 @@ public class GFELegendResource extends
         } catch (Exception e) {
             mode = LegendMode.GRIDS;
         }
-
-        Message.registerInterest(this, ShowQuickViewDataMsg.class);
     }
 
     protected void addSpaces(StringBuilder sb, int numSpace) {
         for (int i = 0; i < numSpace; i++) {
             sb.append(" ");
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#finalize()
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void finalize() throws Throwable {
-        // FIXME: this needs to be a dispose method.
-        Message.unregisterInterest(this, ShowQuickViewDataMsg.class);
-
-        if (font != null) {
-            font.dispose();
-            font = null;
         }
     }
 
@@ -319,26 +300,21 @@ public class GFELegendResource extends
     }
 
     /**
-     * Gets an ordered collection of Parms to display for the legend.
+     * Gets an ordered list of Parm/ResourcePair pairs to display for the
+     * legend.
      * 
      * @param descriptor
-     * @param parmRscMap
-     *            optional map to create Parm->ResourcePair mapping for parms
-     *            returned
      * @return
      */
-    protected Collection<Parm> getLegendOrderedParms(IDescriptor descriptor,
-            Map<Parm, ResourcePair> parmRscMap) {
-        List<Parm> parms = new ArrayList<Parm>();
+    protected List<Pair<Parm, ResourcePair>> getLegendOrderedParms(
+            IDescriptor descriptor) {
+        List<Pair<Parm, ResourcePair>> parms = new ArrayList<Pair<Parm, ResourcePair>>();
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() instanceof GFEResource) {
                 Parm parm = ((GFEResource) rp.getResource()).getParm();
                 if (qvGrid == null
                         || (qvGrid != null && qvGrid.getParm() == parm)) {
-                    parms.add(parm);
-                    if (parmRscMap != null) {
-                        parmRscMap.put(parm, rp);
-                    }
+                    parms.add(new Pair<Parm, ResourcePair>(parm, rp));
                     if (qvGrid != null) {
                         break;
                     }
@@ -346,8 +322,14 @@ public class GFELegendResource extends
             }
         }
 
-        Collections.sort(parms);
-        Collections.reverse(parms);
+        Collections.sort(parms, new Comparator<Pair<Parm, ResourcePair>>() {
+
+            @Override
+            public int compare(Pair<Parm, ResourcePair> o1,
+                    Pair<Parm, ResourcePair> o2) {
+                return o2.getFirst().compareTo(o1.getFirst());
+            }
+        });
         return parms;
     }
 
@@ -362,8 +344,7 @@ public class GFELegendResource extends
                 .getActivatedParm();
         StringBuilder labelBuilder = new StringBuilder();
 
-        Map<Parm, ResourcePair> parmRscMap = new HashMap<Parm, ResourcePair>();
-        Collection<Parm> parms = getLegendOrderedParms(descriptor, parmRscMap);
+        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(descriptor);
         Parm qvParm = null;
         if (qvGrid != null) {
             qvParm = qvGrid.getParm();
@@ -374,11 +355,12 @@ public class GFELegendResource extends
         ParmID topoID = dataManager.getTopoManager().getCompositeParmID();
 
         // Topmost resources: GFE Parms
-        for (Parm parm : parms) {
+        for (Pair<Parm, ResourcePair> pair : parms) {
+            Parm parm = pair.getFirst();
             ParmID parmId = parm.getParmID();
             DatabaseID dbId = parmId.getDbId();
             StringBuilder sb = new StringBuilder();
-            ResourcePair rp = parmRscMap.get(parm);
+            ResourcePair rp = pair.getSecond();
             GFEResource rsc = (GFEResource) rp.getResource();
             LegendData ld = new LegendData();
             ResourceProperties props = rp.getProperties();
@@ -435,33 +417,27 @@ public class GFELegendResource extends
 
                 // get the model name
                 labelBuilder.setLength(0);
-                labelBuilder.append(dbId.getModelName());
+                labelBuilder.append(dbId.getShortModelId());
 
-                boolean iscTyped = false;
-                if (dataManager.getParmManager().iscMode()
-                        && dbId.equals(dataManager.getParmManager()
-                                .getMutableDatabase())) {
+                // FIXME this is from A1 and is not consistent with the code in
+                // getLongestFields
 
-                    ParmID iscPID = dataManager.getParmManager().getISCParmID(
-                            parmId);
-                    if (iscPID.isValid()) {
-                        // vparms (i.e. temp hazards) can't get here
-                        String iscStr = "+" + iscPID.getDbId().getDbType()
-                                + iscPID.getDbId().getModelName();
-                        labelBuilder.append(iscStr);
-                        iscTyped = true;
-                    }
-                }
+                // if (_showISCMode && _quickViewGrid == GridID()
+                // && _grids[i].gridID().parm()->parmID().databaseID() ==
+                // _dbss->dataManager()->parmMgr()->mutableDatabase())
+                // {
+                // unsigned int mpos = 0;
+                // if (modelText.found(' ', mpos))
+                // {
+                // ParmID iscPID =
+                // _dbss->dataManager()->parmMgr()->getISCParmID(
+                // _grids[i].gridID().parm()->parmID());
+                // TextString iscStr = "+" + iscPID.databaseID().type() +
+                // iscPID.databaseID().model();
+                // modelText.insertBefore(mpos, iscStr);
+                // }
+                // }
 
-                if (!iscTyped) {
-                    String type = dbId.getDbType();
-                    if ((type != null) && (type.length() > 0)) {
-                        labelBuilder.append("_");
-                        labelBuilder.append(type);
-                    }
-                }
-
-                labelBuilder.append(" (" + dbId.getSiteId() + ")");
                 sb.append(labelBuilder.toString());
                 diff = lengths[3] - labelBuilder.length();
                 addSpaces(sb, diff + 1);
@@ -562,16 +538,14 @@ public class GFELegendResource extends
      * @param descriptor
      * @return
      */
-    private int[] getLongestFields(Collection<Parm> parms) {
+    private int[] getLongestFields(List<Pair<Parm, ResourcePair>> parms) {
         // Iterator<ResourcePair> rl = descriptor.getResourceList().iterator();
         int[] sz = new int[4];
         StringBuilder labelBuilder = new StringBuilder();
         // synchronized (rl) {
         // while (rl.hasNext()) {
-        for (Parm parm : parms) {
-            // AbstractVizResource<?, ?> resource = rl.next().getResource();
-            // if (resource instanceof GFEResource) {
-            // Parm parm = ((GFEResource) resource).getParm();
+        for (Pair<Parm, ResourcePair> pair : parms) {
+            Parm parm = pair.getFirst();
             ParmID parmId = parm.getParmID();
             sz[0] = Math.max(sz[0], parmId.getParmName().length());
             sz[1] = Math.max(sz[1], parmId.getParmLevel().length());
@@ -580,52 +554,33 @@ public class GFELegendResource extends
 
             DatabaseID dbId = parmId.getDbId();
             labelBuilder.setLength(0);
-            labelBuilder.append(dbId.getModelName());
+            labelBuilder.append(dbId.getShortModelId());
 
-            boolean iscTyped = false;
-            if (dataManager.getParmManager().iscMode()
-                    && dbId.equals(dataManager.getParmManager()
-                            .getMutableDatabase())) {
+            // FIXME this is A1 code and is not consistent with the code in
+            // getLegendDataGrids
 
-                ParmID iscPID = dataManager.getParmManager().getISCParmID(
-                        parmId);
-                if (iscPID.isValid()) {
-                    // vparms (i.e. temp hazards) can't get here
-                    String iscStr = "+" + iscPID.getDbId().getDbType()
-                            + iscPID.getDbId().getModelName();
-                    labelBuilder.append(iscStr);
-                    iscTyped = true;
-                }
-            }
-
-            if (!iscTyped) {
-                String type = dbId.getDbType();
-                if ((type != null) && (type.length() > 0)) {
-                    labelBuilder.append("_");
-                    labelBuilder.append(type);
-                }
-            }
-
-            labelBuilder.append(" (" + dbId.getSiteId() + ")");
-            // TODO: FIXME
             // if (showIscMode
             // && ids[i].gridID().parm()->parmID().databaseID() ==
             // _dbss->dataManager()->parmMgr()->mutableDatabase())
             // label += "+VISC";
-            sz[3] = Math.max(sz[3], labelBuilder.length());
 
-            // }
+            sz[3] = Math.max(sz[3], labelBuilder.length());
         }
-        // }
 
         return sz;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
+
+        this.dataManager.getParmManager().removeNewModelAvailableListener(this);
+        Message.unregisterInterest(this, ShowQuickViewDataMsg.class);
+
         if (font != null) {
             font.dispose();
+            font = null;
         }
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -633,9 +588,14 @@ public class GFELegendResource extends
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
+
+        Message.registerInterest(this, ShowQuickViewDataMsg.class);
+        this.dataManager.getParmManager().addNewModelAvailableListener(this);
+
         int fontNum = 3;
         if (GFEPreference.contains("SELegend_font")) {
             fontNum = GFEPreference.getIntPreference("SELegend_font");
@@ -687,6 +647,11 @@ public class GFELegendResource extends
         if (message instanceof ShowQuickViewDataMsg) {
             qvGrid = ((ShowQuickViewDataMsg) message).getGridId();
         }
+    }
+
+    @Override
+    public void newModelAvailable(DatabaseID additions) {
+        issueRefresh();
     }
 
 }
