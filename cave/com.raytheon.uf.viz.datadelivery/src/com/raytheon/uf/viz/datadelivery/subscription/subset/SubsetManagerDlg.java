@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -137,9 +138,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubsetManagerDlg.class);
 
-    /** Tab test map */
-    private final Map<String, String> tabTextMap = new HashMap<String, String>();
-
     /** Subset Name text box */
     private Text nameText;
 
@@ -180,15 +178,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Edit flag */
     private boolean create = true;
 
-    /** Flag for vertical levels/parameters dirty */
-    private boolean verticalParameterDirty = false;
-
-    /** Flag for vertical date/cycle/forecast dirty. */
-    private boolean dateDirty = false;
-
-    /** Flag for spatial dirty */
-    private boolean spatialDirty = false;
-
     /** Subscription object */
     protected Subscription subscription;
 
@@ -201,14 +190,11 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Subset manager constant */
     private final String DD_SUBSET_MANAGER = "Data Delivery Subset Manager - ";
 
-    /** Priority Tab constant */
-    private final String VERTICAL_TAB = "verticalTab";
+    private final String VERTICAL_TAB = "Vertical Levels/Parameters";
 
-    /** Latency Tab constant */
-    private final String TIMING_TAB = "timingTab";
+    private final String TIMING_TAB = "Forecast Hours";
 
-    /** Routing Tab constant */
-    private final String SPATIAL_TAB = "spatialTab";
+    private final String SPATIAL_TAB = "Spatial";
 
     private final ISubscriptionService subscriptionService = DataDeliveryServices
             .getSubscriptionService();
@@ -291,14 +277,17 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      */
     @Override
     protected void initializeComponents(Shell shell) {
-        getTabText();
 
         createTabFolder();
         createInfoComp();
         createButtons();
 
         if (loadDataSet) {
-            populate();
+            if (subsetXml != null) {
+                loadFromSubsetXML(subsetXml);
+            } else if (subscription != null) {
+                loadFromSubscription(subscription);
+            }
         }
 
         shell.addShellListener(new ShellAdapter() {
@@ -357,13 +346,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         // shell.setMinimumSize(shell.getSize());
     }
 
-    /** Get a map of tab text values */
-    private void getTabText() {
-        tabTextMap.put(VERTICAL_TAB, "Vertical Levels/Parameters");
-        tabTextMap.put(TIMING_TAB, "Forecast Hours");
-        tabTextMap.put(SPATIAL_TAB, "Spatial");
-    }
-
     /** Create the tabs */
     private void createTabs(TabFolder tabFolder) {
         createGridTabs(tabFolder);
@@ -376,12 +358,12 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /** Create the grid tab */
-    private void createGridTabs(TabFolder tabFolder) {
+    protected void createGridTabs(TabFolder tabFolder) {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
 
         TabItem verticalTab = new TabItem(tabFolder, SWT.NONE);
-        verticalTab.setText(tabTextMap.get(VERTICAL_TAB));
+        verticalTab.setText(VERTICAL_TAB);
         verticalTab.setData("valid", false);
         Composite vertComp = new Composite(tabFolder, SWT.NONE);
         vertComp.setLayout(gl);
@@ -393,7 +375,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         gl = new GridLayout(1, false);
 
         TabItem timingTab = new TabItem(tabFolder, SWT.NONE);
-        timingTab.setText(tabTextMap.get(TIMING_TAB));
+        timingTab.setText(TIMING_TAB);
         timingTab.setData("valid", false);
         Composite timingComp = new Composite(tabFolder, SWT.NONE);
         timingComp.setLayout(gl);
@@ -407,7 +389,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         gl = new GridLayout(1, false);
 
         TabItem spatialTab = new TabItem(tabFolder, SWT.NONE);
-        spatialTab.setText(tabTextMap.get(SPATIAL_TAB));
+        spatialTab.setText(SPATIAL_TAB);
         Composite spatialComp = new Composite(tabFolder, SWT.NONE);
         spatialComp.setLayout(gl);
         spatialComp.setLayoutData(gd);
@@ -710,37 +692,43 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             return false;
         }
 
-        // Don't get the last tab, saved subsets
-        Map<String, Boolean> tabsValidMap = new HashMap<String, Boolean>();
+        Collection<String> invalidTabs = getInvalidTabs();
+
+        if (!invalidTabs.isEmpty()) {
+            StringBuilder message = new StringBuilder(
+                    "The following tabs do not have valid entries:\n\n");
+            for (String tab : invalidTabs) {
+                message.append(tab + "\n");
+            }
+            DataDeliveryUtils.showMessage(shell, getStyle(), "Invalid Entries",
+                    message.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    protected Collection<String> getInvalidTabs() {
+        Collection<String> invalidTabs = new ArrayList<String>(3);
 
         // Get the tabs to validate
         // TODO Hardcoding the tabs for now, fix this later
 
         // Validate the vertical tab
-        tabsValidMap.put(VERTICAL_TAB, vTab.isValid());
+        if (!vTab.isValid()) {
+            invalidTabs.add(VERTICAL_TAB);
+        }
 
-        tabsValidMap.put(TIMING_TAB, timingTabControls.isValid());
+        if (!timingTabControls.isValid()) {
+            invalidTabs.add(TIMING_TAB);
+        }
 
         // Next is spatial subset tab
-        tabsValidMap.put(SPATIAL_TAB, spatialTabControls.isValid());
-
-        StringBuilder buf = new StringBuilder(
-                "The following tabs do not have valid entries:\n\n");
-        boolean showMsg = false;
-        for (String tab : tabsValidMap.keySet()) {
-            if (!tabsValidMap.get(tab)) {
-                buf.append(tabTextMap.get(tab) + "\n");
-                showMsg = true;
-            }
+        if (!spatialTabControls.isValid()) {
+            invalidTabs.add(SPATIAL_TAB);
         }
 
-        if (showMsg) {
-            DataDeliveryUtils.showMessage(shell, getStyle(), "Invalid Entries",
-                    buf.toString());
-            return false;
-        }
-
-        return true;
+        return invalidTabs;
     }
 
     /**
@@ -806,6 +794,15 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         }
 
         SubsetXML<TIMEXML> subset = new SubsetXML<TIMEXML>();
+        populateSubsetXML(subset);
+
+        // Have all the info, now save the file
+        SubsetFileManager.getInstance().saveSubset(subset, this.shell);
+        setClean();
+        subsetTab.enableButtons(nameText);
+    }
+
+    protected void populateSubsetXML(SubsetXML<TIMEXML> subset) {
         subset.setBaseSubsetName(nameText.getText());
         subset.setDatasetName(dataSet.getDataSetName());
         subset.setProviderName(dataSet.getProviderName());
@@ -821,12 +818,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         // finally the date/cycle/forecast data
         TIMEXML time = timingTabControls.getSaveInfo();
         subset.setTime(time);
-
-        // Have all the info, now save the file
-        SubsetFileManager.getInstance().saveSubset(subset, this.shell);
-
-        setClean();
-        subsetTab.enableButtons(nameText);
     }
 
     /**
@@ -844,58 +835,36 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         SubsetXML<TIMEXML> loadedSubsetXml = (SubsetXML<TIMEXML>) SubsetFileManager
                 .getInstance().loadSubset(subsetName);
 
-        updateSelections(loadedSubsetXml);
+        loadFromSubsetXML(loadedSubsetXml);
     }
 
-    /**
-     * Populate the dialog controls.
-     */
-    private void populate() {
-        if (subsetXml == null) {
-            if (subscription == null) {
-                return;
-            }
-            populateSubset();
-        }
-
-        AreaXML area = subsetXml.getArea();
-        spatialTabControls.setDataSet(this.dataSet);
-        spatialTabControls.populate(area);
-
+    protected void loadFromSubsetXML(SubsetXML<TIMEXML> subsetXml) {
         ArrayList<VerticalXML> vertList = subsetXml.getVerticalList();
         vTab.populate(vertList, dataSet);
 
         TIMEXML time = subsetXml.getTime();
         this.timingTabControls.populate(time, dataSet);
-        this.nameText.setText(subsetXml.getBaseSubsetName());
+
+        if (this.subsetXml == subsetXml) {
+            // only populate area and name if subsetXml is loading from initial
+            // load, not from the saved subsets tab.
+            AreaXML area = subsetXml.getArea();
+            spatialTabControls.setDataSet(this.dataSet);
+            spatialTabControls.populate(area);
+
+            this.nameText.setText(subsetXml.getBaseSubsetName());
+        }
     }
 
-    /**
-     * Update selections with from the loadedSubsetXML object.
-     */
-    private void updateSelections(SubsetXML<TIMEXML> loadedSubsetXml) {
-        ArrayList<VerticalXML> vertList = loadedSubsetXml.getVerticalList();
-        vTab.updateSettings(vertList);
-
-        TIMEXML time = loadedSubsetXml.getTime();
-        timingTabControls.updateSettings(time);
-    }
-
-    /**
-     * Populate the subset object.
-     */
-    private void populateSubset() {
-        subsetXml = new SubsetXML<TIMEXML>();
-        subsetXml.setDatasetName(this.dataSet.getDataSetName());
-        subsetXml.setProviderName(this.dataSet.getProviderName());
-        subsetXml.setSubsetName(this.subscription.getName());
+    protected void loadFromSubscription(Subscription subscription) {
+        this.nameText.setText(this.subscription.getName());
 
         // Cycle time
-        TIMEXML timeXml = getTimeXml();
+        TIMEXML timeXml = getTimeXmlFromSubscription();
 
         timeXml.setLatestData(true);
 
-        subsetXml.setTime(timeXml);
+        this.timingTabControls.populate(timeXml, dataSet);
 
         // Area
         AreaXML area = new AreaXML();
@@ -911,7 +880,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             area.setEnvelope(envelope);
         }
 
-        subsetXml.setArea(area);
+        spatialTabControls.setDataSet(this.dataSet);
+        spatialTabControls.populate(area);
 
         // Vertical/Parameters
         Map<String, VerticalXML> levelMap = new HashMap<String, VerticalXML>();
@@ -946,9 +916,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             }
         }
 
-        for (VerticalXML v : levelMap.values()) {
-            subsetXml.addVertical(v);
-        }
+        ArrayList<VerticalXML> vertList = new ArrayList<VerticalXML>(
+                levelMap.values());
+        vTab.populate(vertList, dataSet);
     }
 
     /**
@@ -956,25 +926,22 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * 
      * @return The time object
      */
-    protected abstract TIMEXML getTimeXml();
+    protected abstract TIMEXML getTimeXmlFromSubscription();
 
     /**
      * If any mods have been made to the composite selections, set dirty true.
      */
-    private boolean isDirty() {
+    protected boolean isDirty() {
 
-        verticalParameterDirty = vTab.isDirty();
-        if (verticalParameterDirty) {
+        if (vTab.isDirty()) {
             return true;
         }
 
-        dateDirty = timingTabControls.isDirty();
-        if (dateDirty) {
+        if (timingTabControls.isDirty()) {
             return true;
         }
 
-        spatialDirty = spatialTabControls.isSpatialDirty();
-        if (spatialDirty) {
+        if (spatialTabControls.isSpatialDirty()) {
             return true;
         }
 
@@ -984,7 +951,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /**
      * Reset the dirty flags.
      */
-    private void setClean() {
+    protected void setClean() {
         vTab.setClean();
         timingTabControls.setDirty(false);
         spatialTabControls.setSpatialDirty(false);
