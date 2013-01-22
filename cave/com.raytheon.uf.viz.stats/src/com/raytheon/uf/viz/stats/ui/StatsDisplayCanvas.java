@@ -61,17 +61,17 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
 
 /**
  * Statistics graph canvas.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 3, 2012     728     mpduff      Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -199,7 +199,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Constructor
-     *
+     * 
      * @param parent
      *            Parent composite
      * @param callback
@@ -262,7 +262,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Initialize drawing settings.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -280,7 +280,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Draw on the canvas.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -327,7 +327,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Draw the X axis.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -364,7 +364,8 @@ public class StatsDisplayCanvas extends Canvas {
                     GRAPH_BORDER + GRAPH_HEIGHT,
                     (int) (GRAPH_BORDER + (i - startMillis) / millisPerPixelX),
                     GRAPH_BORDER + GRAPH_HEIGHT + height };
-            if (cal.get(Calendar.HOUR_OF_DAY) == 0) {
+            if (cal.get(Calendar.HOUR_OF_DAY) == 0
+                    && cal.get(Calendar.MINUTE) == 0) {
                 gc.setLineWidth(3);
             } else {
                 gc.setLineWidth(1);
@@ -406,9 +407,12 @@ public class StatsDisplayCanvas extends Canvas {
             buffer.setLength(0); // Clear the buffer
             int y = GRAPH_BORDER + GRAPH_HEIGHT + 20;
             int hr = cal.get(Calendar.HOUR_OF_DAY);
+            int minute = cal.get(Calendar.MINUTE);
+
             if ((numHours <= 24) || (hour % 6 == 0 && numHours <= 168)) {
                 if (numHours <= 3) {
-                    for (int j = 0; j < 60; j += 15) {
+                    for (int j = 0; j < TimeUtil.MINUTES_PER_HOUR; j += 15) {
+
                         buffer.setLength(0);
                         int x = (int) (GRAPH_BORDER + (i - startMillis + j
                                 * TimeUtil.MILLIS_PER_MINUTE)
@@ -417,11 +421,12 @@ public class StatsDisplayCanvas extends Canvas {
                                 || (numHours == 3 && (j == 0 || j == 30))) {
                             String hrStr = (hr < 10) ? ZERO.concat(String
                                     .valueOf(hr)) : String.valueOf(hr);
-                            if (j == 0) {
+                            if (minute == 0) {
                                 buffer.append(hrStr).append(COLON)
                                         .append(MINUTE_00);
                             } else {
-                                buffer.append(hrStr).append(COLON).append(j);
+                                buffer.append(hrStr).append(COLON)
+                                        .append(minute);
                             }
                             int adjustment = buffer.length() * fontAveWidth / 2
                                     - 1;
@@ -437,9 +442,24 @@ public class StatsDisplayCanvas extends Canvas {
                                                 * j)
                                                 / millisPerPixelX),
                                         GRAPH_BORDER };
+                                if (hr == 0 && minute == 0) {
+                                    gc.setLineWidth(3);
+                                }
                                 gc.drawPolyline(gridLineArray);
+                                gc.setLineWidth(1);
+                            }
+                            minute += 15;
+                            // Roll the minutes and hours, account for rolling
+                            // to the next hour/minute
+                            if (minute >= TimeUtil.MINUTES_PER_HOUR) {
+                                minute = 0;
+                                hr++;
+                                if (hr == TimeUtil.HOURS_PER_DAY) {
+                                    hr = 0;
+                                }
                             }
                         }
+
                         int[] minorTickArray = {
                                 (int) (GRAPH_BORDER + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
                                         * j)
@@ -462,7 +482,7 @@ public class StatsDisplayCanvas extends Canvas {
 
                     if (callback.drawGridLines()) {
                         if ((numHours == 24 && hr % 6 == 0)
-                                || (numHours == 168 && hr == 0)) {
+                                || (numHours == TimeUtil.HOURS_PER_WEEK && hr == 0)) {
 
                             int[] gridLineArray = {
                                     (int) (GRAPH_BORDER + (i - startMillis)
@@ -556,7 +576,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Draw the Y axis.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -607,7 +627,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Draw the YAxis label.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -639,7 +659,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Draw the data on the canvas.
-     *
+     * 
      * @param gc
      *            The Graphics Context
      */
@@ -727,7 +747,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Y Value to pixel conversion.
-     *
+     * 
      * @param yMin
      *            The smallest y value
      * @param yMax
@@ -744,7 +764,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Mouse move event hanler.
-     *
+     * 
      * @param e
      *            MouseEvent object
      */
@@ -792,7 +812,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Show the "tooltip" mouseover.
-     *
+     * 
      * @param parent
      * @param x
      * @param y
@@ -824,7 +844,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.eclipse.swt.widgets.Widget#dispose()
      */
     @Override
@@ -837,7 +857,7 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Set the graph data.
-     *
+     * 
      * @param graphData
      *            The GraphData object
      */
@@ -847,7 +867,9 @@ public class StatsDisplayCanvas extends Canvas {
 
     /**
      * Set the view type.
-     * @param view The view type
+     * 
+     * @param view
+     *            The view type
      */
     public void setView(String view) {
         this.view = view;
