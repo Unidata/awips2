@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.gfe.cache.d2dparms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,15 +41,18 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
+import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.mapping.MultipleMappingException;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
@@ -62,6 +66,10 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * 01/08/09     1674       bphillip    Initial creation
  * 11/05/12     #1310      dgilling    Modify cache to listen to plugin
  *                                     purged topic.
+ * 01/18/13     #1504      randerso    Moved D2D to GFE parameter name translation from 
+ *                                     D2DParmIdCache toGfeIngestNotificationFilter. 
+ *                                     Added code to match wind components and send 
+ *                                     GridUpdateNotifications.
  * </pre>
  * 
  * @author bphillip
@@ -77,8 +85,19 @@ public class D2DParmIdCache {
     private static final Pattern RangeFilter = Pattern
             .compile("(.*?)\\d{1,2}hr");
 
+    private static final Map<String, String> WIND_COMP_PARMS;
+    static {
+        WIND_COMP_PARMS = new HashMap<String, String>();
+        WIND_COMP_PARMS.put("uw", "vw");
+        WIND_COMP_PARMS.put("vw", "uw");
+        WIND_COMP_PARMS.put("ws", "wd");
+        WIND_COMP_PARMS.put("wd", "ws");
+    }
+
     /** Map containing the ParmIDs */
-    private Map<String, Set<String>> parmIds;
+    private Map<DatabaseID, Set<ParmID>> parmIds;
+
+    private Map<ParmID, Set<TimeRange>> windComps;
 
     private static D2DParmIdCache instance;
 
@@ -93,7 +112,8 @@ public class D2DParmIdCache {
      * Constructs a new D2DParmIdCache
      */
     public D2DParmIdCache() {
-        parmIds = new HashMap<String, Set<String>>();
+        parmIds = new HashMap<DatabaseID, Set<ParmID>>();
+        windComps = new HashMap<ParmID, Set<TimeRange>>();
     }
 
     /**
@@ -140,53 +160,18 @@ public class D2DParmIdCache {
     }
 
     private void putParmIDInternal(ParmID parmId) {
+        DatabaseID dbId = parmId.getDbId();
         synchronized (parmIds) {
+            Set<ParmID> dbParms = parmIds.get(dbId);
             // Add the database entry to the map if it does not exist
-            if (!parmIds.containsKey(parmId.getDbId().toString())) {
-                parmIds.put(parmId.getDbId().toString(), new HashSet<String>());
+            if (dbParms == null) {
+                dbParms = new HashSet<ParmID>();
+                parmIds.put(dbId, dbParms);
             }
-            // Insert the ParmID into the map
-            String parmStr = parmId.toString();
-            // Ensure that the staticTopo parameter has the correct
-            // capitalization, or the smart init scripts will not be able to
-            // find it
-            String parmName = parmId.getParmName();
-            if (parmName.equalsIgnoreCase("staticTopo")) {
-                parmStr = parmStr.replace("statictopo", "staticTopo");
-            } else if (parmName.equalsIgnoreCase("staticspacing")) {
-                parmStr = parmStr.replace("staticspacing", "staticSpacing");
-            } else if (parmName.equalsIgnoreCase("staticXspacing")) {
-                parmStr = parmStr.replace("staticxspacing", "staticXspacing");
-            } else if (parmName.equalsIgnoreCase("staticYspacing")) {
-                parmStr = parmStr.replace("staticyspacing", "staticYspacing");
-            } else if (parmName.equalsIgnoreCase("staticCoriolis")) {
-                parmStr = parmStr.replace("staticcoriolis", "staticCoriolis");
-            } else {
-                String gfeParamName = null;
-                try {
-                    gfeParamName = ParameterMapper.getInstance().lookupAlias(
-                            parmId.getParmName(), "gfeParamName");
-                } catch (MultipleMappingException e) {
-                    statusHandler.handle(Priority.WARN,
-                            e.getLocalizedMessage(), e);
-                    gfeParamName = e.getArbitraryMapping();
-                }
-                parmStr = parmStr.replaceFirst(
-                        parmId.getParmName(),
-                        gfeParamName);
-            }
-            parmIds.get(parmId.getDbId().toString()).add(parmStr);
-        }
-    }
 
-    /**
-     * Places a parmId into the cache
-     * 
-     * @param parmId
-     *            String representation of a ParmID
-     */
-    public void putParmID(String parmId) {
-        putParmID(new ParmID(parmId));
+            // Insert the ParmID into the map
+            dbParms.add(parmId);
+        }
     }
 
     /**
@@ -209,18 +194,10 @@ public class D2DParmIdCache {
      * @return The ParmIDs in the given DatabaseID
      */
     public List<ParmID> getParmIDs(DatabaseID dbId) {
-        Set<String> parmStrings = null;
+        List<ParmID> parms = Collections.emptyList();
         synchronized (parmIds) {
             if (parmIds.containsKey(dbId.toString())) {
-                parmStrings = new HashSet<String>(parmIds.get(dbId.toString()));
-            }
-        }
-
-        List<ParmID> parms = Collections.emptyList();
-        if (parmStrings != null) {
-            parms = new ArrayList<ParmID>(parmStrings.size());
-            for (String parmStr : parmStrings) {
-                parms.add(new ParmID(parmStr));
+                parms = new ArrayList<ParmID>(parmIds.get(dbId));
             }
         }
         return parms;
@@ -244,14 +221,9 @@ public class D2DParmIdCache {
      * @return The list of DatabaseIDs
      */
     public List<DatabaseID> getDatabaseIDs() {
-        Set<String> dbStrs;
+        List<DatabaseID> dbIds = null;
         synchronized (parmIds) {
-            dbStrs = new HashSet<String>(parmIds.keySet());
-        }
-
-        List<DatabaseID> dbIds = new ArrayList<DatabaseID>(dbStrs.size());
-        for (String dbId : dbStrs) {
-            dbIds.add(new DatabaseID(dbId));
+            dbIds = new ArrayList<DatabaseID>(parmIds.keySet());
         }
         return dbIds;
     }
@@ -382,6 +354,19 @@ public class D2DParmIdCache {
             for (DatabaseID dbId : dbsToRemove) {
                 GridParmManager.removeDbFromMap(dbId);
             }
+            // purge the windComps
+            List<ParmID> wcToRemove = new ArrayList<ParmID>();
+            synchronized (windComps) {
+                for (ParmID id : windComps.keySet()) {
+                    if (dbsToRemove.contains(id.getDbId())) {
+                        wcToRemove.add(id);
+                    }
+                }
+                for (ParmID id : wcToRemove) {
+                    windComps.remove(id);
+                }
+            }
+
             statusHandler.handle(Priority.EVENTA,
                     "Total time to build D2DParmIdCache for " + siteID
                             + " took " + (System.currentTimeMillis() - start)
@@ -397,7 +382,7 @@ public class D2DParmIdCache {
     public long getSize() {
         long size = 0;
         synchronized (parmIds) {
-            for (Set<String> parms : parmIds.values()) {
+            for (Set<ParmID> parms : parmIds.values()) {
                 size += parms.size();
             }
         }
@@ -408,6 +393,65 @@ public class D2DParmIdCache {
             throws GfeConfigurationException, PluginException {
         if (pluginName.equals("grid")) {
             buildCache(null);
+        }
+    }
+
+    public void processGridUpdateNotification(GridUpdateNotification gun) {
+        ParmID parmId = gun.getParmId();
+
+        String otherCompName = WIND_COMP_PARMS.get(parmId.getParmName());
+        if (otherCompName == null) {
+            // if it's not a wind component just add it to the cache
+            putParmID(parmId);
+        } else {
+            Set<TimeRange> windTrs = null;
+            synchronized (windComps) {
+                // add this parms times to windComps map
+                Set<TimeRange> trs = windComps.get(parmId);
+                if (trs == null) {
+                    trs = new HashSet<TimeRange>();
+                    windComps.put(parmId, trs);
+                }
+                trs.addAll(gun.getHistories().keySet());
+
+                // get the other components times
+                ParmID otherCompId = new ParmID(otherCompName,
+                        parmId.getDbId(), parmId.getParmLevel());
+                Set<TimeRange> otherTrs = windComps.get(otherCompId);
+
+                // if we have both components
+                if (otherTrs != null) {
+                    // find times where we have both components
+                    windTrs = new HashSet<TimeRange>(trs);
+                    windTrs.retainAll(otherTrs);
+
+                    // remove the matching times since we don't need them
+                    // anymore
+                    trs.removeAll(windTrs);
+                    otherTrs.removeAll(windTrs);
+                }
+            }
+
+            // if we found any matching times for both components
+            if (windTrs != null && !windTrs.isEmpty()) {
+                // add the wind parmId to the cache
+                ParmID windId = new ParmID("wind", parmId.getDbId(),
+                        parmId.getParmLevel());
+                putParmID(windId);
+
+                // create GridUpdateNotifications for the wind parm
+                Map<TimeRange, List<GridDataHistory>> history = new HashMap<TimeRange, List<GridDataHistory>>();
+                ArrayList<GridUpdateNotification> guns = new ArrayList<GridUpdateNotification>(
+                        windTrs.size());
+                for (TimeRange tr : windTrs) {
+                    history.put(tr, Arrays.asList(new GridDataHistory(
+                            GridDataHistory.OriginType.INITIALIZED, windId, tr,
+                            null, (WsId) null)));
+                    guns.add(new GridUpdateNotification(windId, tr, history,
+                            null, windId.getDbId().getSiteId()));
+                }
+                SendNotifications.send(guns);
+            }
         }
     }
 }

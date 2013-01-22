@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
