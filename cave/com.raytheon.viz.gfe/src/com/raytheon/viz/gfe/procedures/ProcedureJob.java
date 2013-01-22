@@ -57,6 +57,7 @@ import com.raytheon.viz.gfe.jobs.AsyncProgressJob;
  * ------------ ---------- ----------- --------------------------
  * Oct 8, 2009             njensen     Initial creation
  * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
+ * Jan 18, 2013 1509       njensen     Garbage collect after running procedure
  * 
  * </pre>
  * 
@@ -396,6 +397,7 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
             statusHandler.handle(Priority.PROBLEM, "Error executing procedure "
                     + procedureName, e);
         } finally {
+            controller.garbageCollect();
             progressJob.done(pjStatus);
         }
     }
