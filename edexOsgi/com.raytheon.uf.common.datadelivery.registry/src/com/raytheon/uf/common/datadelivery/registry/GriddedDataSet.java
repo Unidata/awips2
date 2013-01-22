@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -59,6 +60,10 @@ public abstract class GriddedDataSet extends DataSet {
     @DynamicSerializeElement
     protected Set<Integer> forecastHours = new HashSet<Integer>();
 
+    @DynamicSerializeElement
+    @XmlElement
+    private Ensemble ensemble;
+
     /**
      * @return the cycles
      */
@@ -89,6 +94,14 @@ public abstract class GriddedDataSet extends DataSet {
         this.forecastHours = forecastHours;
     }
 
+    public Ensemble getEnsemble() {
+        return ensemble;
+    }
+
+    public void setEnsemble(Ensemble ensemble) {
+        this.ensemble = ensemble;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -100,6 +113,15 @@ public abstract class GriddedDataSet extends DataSet {
             GriddedDataSet other = (GriddedDataSet) toCombine;
             this.getCycles().addAll(other.getCycles());
             this.getForecastHours().addAll(other.getForecastHours());
+            if (this.getEnsemble() != null) {
+                List<String> mine = this.getEnsemble().getSelectedMembers();
+                List<String> theirs = other.getEnsemble().getSelectedMembers();
+                if (mine == null) {
+                    ensemble.setSelectedMembers(theirs);
+                } else if (theirs != null) {
+                    mine.addAll(theirs);
+                }
+            }
         }
     }
 }
