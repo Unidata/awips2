@@ -21,11 +21,11 @@ package com.raytheon.uf.edex.datadelivery.event.handler;
 
 import java.util.Calendar;
 
-import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationRequest;
-import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationRequest;
+import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;

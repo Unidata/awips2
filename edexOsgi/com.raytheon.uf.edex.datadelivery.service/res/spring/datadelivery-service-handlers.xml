@@ -12,13 +12,24 @@
         <constructor-arg ref="datadeliveryAuthorization" />
     </bean>
 
-    <bean id="subscriptionDeleteService"
+    <bean id="subscriptionDeleteServiceHandler"
         class="com.raytheon.uf.edex.datadelivery.service.services.SubscriptionDeleteHandler" />
+
+    <bean id="groupDefinitionServiceHandler"
+        class="com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionServiceHandler">
+        <constructor-arg ref="subscriptionNotificationService" />
+    </bean>
 
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg
             value="com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest" />
-        <constructor-arg ref="subscriptionDeleteService" />
+        <constructor-arg ref="subscriptionDeleteServiceHandler" />
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest" />
+        <constructor-arg ref="groupDefinitionServiceHandler" />
     </bean>
 
 </beans>
