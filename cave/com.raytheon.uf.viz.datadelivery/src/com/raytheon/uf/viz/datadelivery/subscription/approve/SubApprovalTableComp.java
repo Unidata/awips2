@@ -33,14 +33,14 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.datadelivery.event.notification.ApprovedPendingSubscriptionNotificationResponse;
-import com.raytheon.uf.common.datadelivery.event.notification.BaseSubscriptionNotificationResponse;
-import com.raytheon.uf.common.datadelivery.event.notification.DeniedPendingSubscriptionNotificationResponse;
-import com.raytheon.uf.common.datadelivery.event.notification.PendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.service.ApprovedPendingSubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.DeniedPendingSubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.PendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
