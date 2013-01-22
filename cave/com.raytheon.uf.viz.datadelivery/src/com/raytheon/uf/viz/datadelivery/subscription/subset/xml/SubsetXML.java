@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
@@ -65,6 +66,9 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
 
     @XmlElement(name = "area", type = AreaXML.class)
     protected AreaXML area;
+
+    @XmlElement
+    protected Ensemble ensemble;
     
     @XmlElements({ @XmlElement(name = "vertical", type = VerticalXML.class) })
     protected ArrayList<VerticalXML> verticalList = new ArrayList<VerticalXML>();
@@ -84,6 +88,21 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
      */
     public void setSubsetName(String subsetName) {
         this.subsetName = subsetName;
+    }
+
+    /**
+     * @return the ensemble
+     */
+    public Ensemble getEnsemble() {
+        return ensemble;
+    }
+
+    /**
+     * @param ensemble
+     *            the ensemble to set
+     */
+    public void setEnsemble(Ensemble ensemble) {
+        this.ensemble = ensemble;
     }
 
     /**
