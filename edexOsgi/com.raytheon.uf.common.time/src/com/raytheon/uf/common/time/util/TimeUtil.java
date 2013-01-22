@@ -45,14 +45,14 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Nov 21, 2012  728       mpduff      Added MILLIS_PER_MONTH.
  * Jan 07, 2013 1451       djohnson    Add newGmtCalendar() and time constants.
  * Jan 22, 2013 1484       mpduff      Add HOURS_PER_WEEK.
+ * Jan 22, 2013 1519       djohnson    Add MINUTES_PER_DAY.
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
-public class TimeUtil {
+public final class TimeUtil {
 
     /**
      * A clock that does not really return the current time. Useful when you
@@ -96,6 +96,12 @@ public class TimeUtil {
     public static final int MINUTES_PER_HOUR = 60;
 
     public static final int HOURS_PER_DAY = 24;
+
+    public static final int HOURS_PER_HALF_DAY = HOURS_PER_DAY / 2;
+
+    public static final int HOURS_PER_QUARTER_DAY = HOURS_PER_HALF_DAY / 2;
+
+    public static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
 
     private static final int DAYS_PER_WEEK = 7;
 
@@ -384,5 +390,11 @@ public class TimeUtil {
             calendar.set(field, calendar.getActualMaximum(field));
         }
         return calendar;
+    }
+
+    /**
+     * Disabled constructor.
+     */
+    private TimeUtil() {
     }
 }
