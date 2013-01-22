@@ -9,13 +9,13 @@ import com.raytheon.uf.common.datadelivery.event.notification.DeleteNotification
 import com.raytheon.uf.common.datadelivery.event.notification.DeleteNotificationResponse;
 import com.raytheon.uf.common.datadelivery.event.notification.GetNotificationRequest;
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
 import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
 
 /**
@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2012            jsanchez     Initial creation
+ * Jan 22, 2013 1501       djohnson     Route requests to datadelivery.
  * 
  * </pre>
  * 
@@ -115,10 +116,10 @@ public class NotificationHandler implements INotificationObserver {
             request.setUsername(username);
             request.setHours(hours);
             request.setMaxResults(maxResults);
-            ArrayList<NotificationRecord> response = (ArrayList<NotificationRecord>) ThriftClient
-                    .sendRequest(request);
+            ArrayList<NotificationRecord> response = (ArrayList<NotificationRecord>) RequestRouter
+                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
             return response;
-        } catch (VizException e) {
+        } catch (Exception e) {
             statusHandler.error(
                     "Error trying to retrieve notifications from database", e);
         }
@@ -139,10 +140,10 @@ public class NotificationHandler implements INotificationObserver {
         try {
             DeleteNotificationRequest request = new DeleteNotificationRequest();
             request.setIds(ids);
-            DeleteNotificationResponse response = (DeleteNotificationResponse) ThriftClient
-                    .sendRequest(request);
+            DeleteNotificationResponse response = (DeleteNotificationResponse) RequestRouter
+                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
             rowsDeleted = response.getRowsDeleted();
-        } catch (VizException e) {
+        } catch (Exception e) {
             statusHandler.error(
                     "Error trying to delete notification(s) from database", e);
         }
