@@ -167,6 +167,9 @@ public class GfeIngestNotificationFilter {
                     }
 
                     String level = GridTranslator.getShortLevelName(grid
+                            .getLevel().getMasterLevel().getName(), grid
+                            .getLevel().getLevelonevalue(), grid.getLevel()
+                            .getLeveltwovalue());
                     ParmID parmID = new ParmID(gfeParmName, dbId, level);
 
                     List<TimeRange> trs = gridInv.get(parmID);
@@ -228,7 +231,7 @@ public class GfeIngestNotificationFilter {
                             + parmId.toString(), e);
                 }
             }
-            
+
             try {
                 sendNotifications(guns);
             } catch (Exception e) {
