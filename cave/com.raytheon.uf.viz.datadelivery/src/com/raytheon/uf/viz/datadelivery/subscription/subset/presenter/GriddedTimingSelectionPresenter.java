@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset.presenter;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.getMaxLatency;
+
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -44,6 +44,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Sep 27, 2012  1202      bgonzale   Set selectionDate to date and cycle.
  * Oct 11, 2012  1263      jpiatt     Modified for cancel flag.
  * Jan 04, 2013  1420      mpduff     Add the dataset object.
+ * Jan 22, 2013  1519      djohnson   Use DataDeliveryUtils.getMaxLatency().
  * 
  * </pre>
  * 
@@ -173,7 +174,7 @@ public class GriddedTimingSelectionPresenter {
             }
 
             DataDeliveryGUIUtils.latencyValidChk(view.getLatency(),
-                    getMaxLatency());
+                    getMaxLatency(dataSet));
 
             // parse off the date/cycle time selected
             String[] parts = selection.split(" - ");
@@ -186,29 +187,6 @@ public class GriddedTimingSelectionPresenter {
         }
 
         return true;
-    }
-
-    /**
-     * Max latency value in minutes.
-     * 
-     * @return
-     */
-    private int getMaxLatency() {
-        List<Integer> cycleList = new ArrayList<Integer>(dataSet.getCycles());
-        Collections.sort(cycleList);
-
-        int max = 0;
-
-        for (int i = 0; i < cycleList.size(); i++) {
-            if (i + 1 <= cycleList.size()) {
-                int tempMax = cycleList.get(i + 1) - cycleList.get(i);
-                if (tempMax > max) {
-                    max = tempMax;
-                }
-            }
-        }
-
-        return max * 60;
     }
 
     /**

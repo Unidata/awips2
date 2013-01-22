@@ -76,6 +76,7 @@ public class OpenDapGriddedDataSetFixture extends
         obj.setDataSetName("dataSetName" + seedValue);
         obj.setDataSetType(DataType.GRID);
         obj.setForecastHours(CollectionUtil.asSet(0));
+        obj.setTime(TimeFixture.INSTANCE.get(seedValue));
         // TODO: ParameterFixture
         obj.setParameters(Collections.<String, Parameter> emptyMap());
         obj.setProviderName(ProviderFixture.INSTANCE.get(seedValue).getName());
