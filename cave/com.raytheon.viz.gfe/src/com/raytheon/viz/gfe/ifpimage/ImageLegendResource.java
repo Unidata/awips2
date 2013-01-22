@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.ifpimage;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -42,7 +42,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.rsc.GFELegendResource;
@@ -62,6 +61,10 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Jul 10, 2012  15186     ryu          Set legend font
  * Aug 20, 2012  #1078     dgilling     Fix handling of ImageLegend_color
  *                                      setting.
+ * Nov 30, 2012  #1328     mschenke     Made GFE use descriptor for time matching
+ *                                      and time storage and manipulation
+ * Jan 22, 2013  #1518     randerso     Removed use of Map with Parms as keys,
+ *                                      really just needed a list anyway.
  * 
  * </pre>
  * 
@@ -100,9 +103,8 @@ public class ImageLegendResource extends GFELegendResource {
 
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
-        Map<Parm, ResourcePair> parmRscMap = new HashMap<Parm, ResourcePair>();
-        Collection<Parm> parms = getLegendOrderedParms(descriptor, parmRscMap);
-        LegendData[] data = makeLegend(parms, parmRscMap);
+        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(descriptor);
+        LegendData[] data = makeLegend(parms);
 
         LegendEntry[] entries = new LegendEntry[data.length];
         for (int i = 0; i < entries.length; ++i) {
@@ -113,15 +115,15 @@ public class ImageLegendResource extends GFELegendResource {
         return entries;
     }
 
-    private LegendData[] makeLegend(Collection<Parm> parms,
-            Map<Parm, ResourcePair> parmRscMap) {
+    private LegendData[] makeLegend(List<Pair<Parm, ResourcePair>> parms) {
         FramesInfo currInfo = descriptor.getFramesInfo();
         DataTime curTime = currInfo.getCurrentFrame();
 
         // loop through the grids
         List<LegendData> legendData = new ArrayList<LegendData>();
-        for (Parm parm : parms) {
-            ResourcePair rp = parmRscMap.get(parm);
+        for (Pair<Parm, ResourcePair> pair : parms) {
+            Parm parm = pair.getFirst();
+            ResourcePair rp = pair.getSecond();
             GFEResource rsc = (GFEResource) rp.getResource();
             String parmName = parm.getParmID().getParmName();
             ResourceProperties props = rp.getProperties();
@@ -150,7 +152,6 @@ public class ImageLegendResource extends GFELegendResource {
 
             // get the units for the time string
             String units = rsc.getParm().getGridInfo().getUnitString();
-            IGridData[] gd = new IGridData[0];
 
             Locale locale = Locale.getDefault();
             String lang = getLanguage();
