@@ -17,13 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.event.notification;
+package com.raytheon.uf.common.datadelivery.service;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Response for denied pending subscriptions.
+ * Thrift Request for approving pending subscriptions.
  * 
  * <pre>
  * 
@@ -38,39 +37,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class DeniedPendingSubscriptionNotificationResponse extends
-        SubscriptionNotificationResponse {
-    /**
-     * Id of the denied subscription.
-     */
-    @DynamicSerializeElement
-    private String id;
+public class ApprovedPendingSubscriptionNotificationRequest extends
+        SubscriptionNotificationRequest {
 
     /**
-     * Default constructor.
+     * Default Constructor.
      */
-    public DeniedPendingSubscriptionNotificationResponse() {
+    public ApprovedPendingSubscriptionNotificationRequest() {
     }
 
-    /**
-     * Initialization constructor.
-     */
-    public DeniedPendingSubscriptionNotificationResponse(String id) {
-        this.id = id;
-    }
-
-    /**
-     * @return the id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public SubscriptionNotificationResponse getResponse() {
+        return new ApprovedPendingSubscriptionNotificationResponse();
     }
 }
