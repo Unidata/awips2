@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Sep 06, 2012     687    mpduff     Send a SubscriptionNotificationResponse object.
  * Sep 24, 2012    1157    mpduff     Changed to use BaseSubscriptionNotificationRequest.
  * Jan 17, 2013 1501       djohnson     If a subscription is still in the registry, use it for the notification response.
+ * Jan 21, 2013 1501       djohnson     Throw an exception if subscription is not provided on the request.
  * </pre>
  * 
  * @author mpduff
@@ -97,6 +98,13 @@ public class SubscriptionNotificationHandler<T extends Subscription> extends
         final IBaseSubscriptionHandler<T> subscriptionHandler = response
                 .getSubscriptionHandler();
         final T requestSubscription = request.getSubscription();
+
+        if (requestSubscription == null) {
+            throw new IllegalArgumentException(
+                    "Unable to send a notification for a null subscription!",
+                    new NullPointerException("requestSubscription"));
+        }
+
         final T registryVersion = subscriptionHandler
                 .getByName(requestSubscription.getName());
 
