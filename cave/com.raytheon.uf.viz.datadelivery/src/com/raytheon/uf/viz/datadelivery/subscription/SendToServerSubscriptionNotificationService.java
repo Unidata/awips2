@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1441       djohnson     Initial creation
  * Jan 17, 2013 1501       djohnson     Route to datadelivery.
+ * Jan 21, 2013 1501       djohnson     Include subscription on all requests.
  * 
  * </pre>
  * 
@@ -182,6 +183,7 @@ public class SendToServerSubscriptionNotificationService implements
         req.setCategory("Subscription Approval Denied");
         req.setPriority(2);
         req.setId(subscription.getId());
+        req.setSubscription(subscription);
 
         sendRequest(req);
     }
@@ -214,6 +216,7 @@ public class SendToServerSubscriptionNotificationService implements
         req.setCategory("Subscription");
         req.setPriority(3);
         req.setMessage(subscription.getName() + " Activated");
+        req.setSubscription(subscription);
 
         sendRequest(req);
     }
@@ -229,6 +232,7 @@ public class SendToServerSubscriptionNotificationService implements
         req.setCategory("Subscription");
         req.setPriority(3);
         req.setMessage(subscription.getName() + " Deactivated");
+        req.setSubscription(subscription);
 
         sendRequest(req);
     }
