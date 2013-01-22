@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.raytheon.uf.common.datadelivery.service
+Bundle-SymbolicName: com.raytheon.uf.common.datadelivery.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.persistence
+Require-Bundle: 
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0",
+ com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174"
+Export-Package: 
+ com.raytheon.uf.common.datadelivery.service
+
+

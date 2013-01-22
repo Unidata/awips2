@@ -73,6 +73,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  *                                      to use IFPClient
  * 02/23/12     #346       dgilling    Implement a dispose method.
  * 03/01/12     #346       dgilling    Re-order dispose method.
+ * 01/21/12     #1504      randerso    Cleaned up old debug logging to improve performance
  * 
  * </pre>
  * 
@@ -411,6 +412,7 @@ public class DbParm extends Parm {
         // normal mode
         if (normal) {
             Arrays.sort(grids);
+
             // Now replace the existing grids with the new ones
             replaceGrids(affectedTimeRange, grids);
 
@@ -757,10 +759,10 @@ public class DbParm extends Parm {
 
         List<LockRequest> lreq = new ArrayList<LockRequest>(timesToSave.size());
         for (int i = 0; i < timesToSave.size(); i++) {
-            String msg = "Reverting " + getParmID() + " tr="
-                    + timesToSave.get(i);
-            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
-                    + msg));
+            // String msg = "Reverting " + getParmID() + " tr="
+            // + timesToSave.get(i);
+            // statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+            // + msg));
 
             boolean success = true;
             IGridData[] grids = null;
