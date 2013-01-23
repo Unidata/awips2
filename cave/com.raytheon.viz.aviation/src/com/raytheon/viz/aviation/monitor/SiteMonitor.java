@@ -64,6 +64,8 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * Apr 30, 2012 14717      zhao         Indicators turn gray when Metar is outdated
  * 20JUL2012    14570      gzhang/zhao  Modified for highlighting correct time groups in TAF Viewer
  * 11AUG2012    14570      zhao         Added 'cat' to alert_key_map
+ * 02Jan2013    15606      gzhang		Remove GridData widthHint so button/label size change with GUI
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -235,7 +237,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
     protected Label createLabel(Composite parentComp, String text) {
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
         text = " " + text.trim() + " ";
-        GridData gd = new GridData(35, SWT.DEFAULT);
+        GridData gd = new GridData(15, SWT.DEFAULT);// GridData(35 // DR 15606
         Label lbl = new Label(parentComp, SWT.CENTER);
         configMgr.setDefaultFontAndColors(lbl, text, gd);
         lbl.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));

@@ -6,6 +6,7 @@
 ## VERSION AWIPS II 1.1 -- 2-29-2012 OB12.2.1-4               ##
 ## VERSION AWIPS II 1.2 -- 4-20-2012                          ##
 ##        BY QINGLU LIN    7-31-2012 DR 15217 use roundAndPad ##
+##           Qinglu Lin   12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
 ################################################################
 ##
 ###################################################################
@@ -142,12 +143,12 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ##
 #if(${action}=="EXP" || ${action}=="CAN")
 ...THE ${eventType} WARNING FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
  ${expcanHLTag}...
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE ${eventType} WARNING FOR ##
-#headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelareas} true true true false true)
  ${expcanHLTag}...
 #end
 ############################
@@ -360,7 +361,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
 ...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
+#headlineLocList(${areas} true true true false true)
 ...##
 ########### END NEW HEADLINE CODE ####################
 #####################################################################
