@@ -476,8 +476,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     .getColorMapParameters();
             data.convert(params.getImageUnit());
             GriddedImageDisplay2 imageRenderable = new GriddedImageDisplay2(
-                    data.getScalarData(), gridGeometry, this, "2D");
-            imageRenderable.init(target);
+                    data.getScalarData(), gridGeometry, this);
             renderable = imageRenderable;
             break;
         case BARB:
@@ -730,7 +729,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected boolean projectRenderable(IRenderable renderable,
             CoordinateReferenceSystem crs) throws VizException {
         if (renderable instanceof GriddedImageDisplay2) {
-            ((GriddedImageDisplay2) renderable).reproject();
+            ((GriddedImageDisplay2) renderable).project(descriptor
+                    .getGridGeometry());
             return true;
         } else if (renderable instanceof AbstractGriddedDisplay<?>) {
             ((AbstractGriddedDisplay<?>) renderable).reproject();
