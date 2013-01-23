@@ -31,6 +31,7 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
@@ -61,6 +62,8 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Jul 10, 2012  15186     ryu          Set legend font
  * Aug 20, 2012  #1078     dgilling     Fix handling of ImageLegend_color
  *                                      setting.
+ * Jan 22, 2013  #1518     randerso     Removed use of Map with Parms as keys,
+ *                                      really just needed a list anyway.
  * 
  * </pre>
  * 
@@ -103,7 +106,7 @@ public class ImageLegendResource extends GFELegendResource {
                 .getSpatialEditorTime();
         DataTime dt = new DataTime(date);
 
-        Parm[] parms = orderParms(descriptor);
+        List<Pair<Parm, ResourcePair>> parms = orderParms(descriptor);
 
         LegendData[] data = makeLegend(parms, dt);
 
@@ -116,13 +119,14 @@ public class ImageLegendResource extends GFELegendResource {
         return entries;
     }
 
-    private LegendData[] makeLegend(Parm[] parms, DataTime curTime) {
+    private LegendData[] makeLegend(List<Pair<Parm, ResourcePair>> parms,
+            DataTime curTime) {
         // loop through the grids
         List<LegendData> legendData = new ArrayList<LegendData>();
-        for (int i = parms.length - 1; i >= 0; i--) {
-            Parm parm = parms[i];
+        for (Pair<Parm, ResourcePair> pair : parms) {
+            Parm parm = pair.getFirst();
             String parmName = parm.getParmID().getParmName();
-            ResourcePair rp = this.parmToRscMap.get(parm);
+            ResourcePair rp = pair.getSecond();
             GFEResource rsc = (GFEResource) rp.getResource();
             ResourceProperties props = rp.getProperties();
             LegendData data = new LegendData();
