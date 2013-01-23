@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
+import java.awt.Toolkit;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,15 +30,17 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -72,6 +75,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 20, 2008  #875      bphillip     Implemented Dialog functionality
  * Sep 20, 2012  #1190     dgilling     Use new WsId.getHostName() method.
  * Nov 12, 2012  #1298     rferrel      Code cleanup for non-blocking dialog.
+ * Jan 10, 2013  #DR15572  jzeng        add getWindowMax() and getMaxWidth(String str) 
+ *                                      and adjustDlg(String str), 
+ *                                      change gridInfoText from Label to Text
+ *                                      to make sure the info get displayed inside the screen
+ *                                      and can be scrolled.
  * 
  * </pre>
  * 
@@ -97,8 +105,15 @@ public class GridInfoDialog extends CaveJFACEDialog implements
             "ISC History", "Weather Element Info", "Weather Element State",
             "Locks", "Data Distribution" };
 
-    private Label gridInfoText;
-
+    // set gridInfoText to be Text
+    private Text gridInfoText;
+    
+    // width of the screen
+    private int WidthofScreen;
+    
+    // width of the grouplist
+    private final int WidthofGroup = 240;
+    
     private SimpleDateFormat gmtFormatter;
 
     public GridInfoDialog(Shell parent, Parm parm, Date clickTime) {
@@ -112,6 +127,8 @@ public class GridInfoDialog extends CaveJFACEDialog implements
 
         gmtFormatter = new SimpleDateFormat("MMM dd yy HH:mm:ss zzz");
         gmtFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        //make sure there is enough space for the group list
+        WidthofScreen = this.getWindowMax() - WidthofGroup; 
     }
 
     @Override
@@ -120,7 +137,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         GridLayout layout = (GridLayout) top.getLayout();
         layout.numColumns = 2;
         layout.makeColumnsEqualWidth = false;
-
+        
         initializeComponents();
 
         return top;
@@ -141,11 +158,51 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         // composite2.setLayoutData(layoutData);
         // composite2.setLayout(new GridLayout(1, true));
 
-        gridInfoText = new Label(top, SWT.NONE);
+        gridInfoText = new Text(top, SWT.NONE | SWT.H_SCROLL);
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gridInfoText.setEditable(false);
+        gridInfoText.setBackground(group.getBackground());
         gridInfoText.setLayoutData(layoutData);
     }
 
+    /*
+	 * To get the width of the screen
+	 */
+	private int getWindowMax(){
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		return toolkit.getScreenSize().width;
+	}
+	
+	/*
+	 * adjust the width of the dialog
+	 */
+	private void adjustDlg(String infoText){
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		int maxLength = getMaxWidth(infoText);
+		if ( maxLength > WidthofScreen ) {
+			gd.widthHint = WidthofScreen;
+			gridInfoText.setLayoutData(gd);
+		} else {
+        	gridInfoText.setLayoutData(gd);
+    	}
+		gridInfoText.setText(infoText);
+	}
+	
+	/*
+	 * get the maximum width of the info
+	 */
+	private int getMaxWidth(String textInfo){
+		String[] splits = textInfo.split("\\n");
+		GC gc = new GC (gridInfoText);
+		FontMetrics fm = gc.getFontMetrics ();
+		int acw = fm.getAverageCharWidth ();
+		int maxStr = 0;
+		for (String str : splits){
+			maxStr = Math.max(maxStr, str.length());
+		}
+		return maxStr*acw;		
+	}
+	
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         super.createButton(parent, Window.CANCEL, "Cancel", false);
@@ -194,19 +251,19 @@ public class GridInfoDialog extends CaveJFACEDialog implements
         String choice = b.getText();
 
         if (choice.equalsIgnoreCase("Grid Info")) {
-            gridInfoText.setText(getGridInfo());
+        	adjustDlg(getGridInfo());
         } else if (choice.equalsIgnoreCase("Grid History")) {
-            gridInfoText.setText(getGridHistory());
+            adjustDlg(getGridHistory());
         } else if (choice.equalsIgnoreCase("ISC History")) {
-            gridInfoText.setText(getISCHistory());
+            adjustDlg(getISCHistory());
         } else if (choice.equalsIgnoreCase("Weather Element Info")) {
-            gridInfoText.setText(getWEInfo());
+        	adjustDlg(getWEInfo());
         } else if (choice.equalsIgnoreCase("Weather Element State")) {
-            gridInfoText.setText(getWEState());
+            adjustDlg(getWEState());
         } else if (choice.equalsIgnoreCase("Locks")) {
-            gridInfoText.setText(getLockInfo());
+        	adjustDlg(getLockInfo());
         } else if (choice.equalsIgnoreCase("Data Distribution")) {
-            gridInfoText.setText(getDataDistribution());
+            adjustDlg(getDataDistribution());
         } else {
             gridInfoText.setText("");
         }
