@@ -294,9 +294,8 @@ public class LocalizationStreamHandler
             return new AuthorizationResponse(true);
         } else if (request instanceof LocalizationStreamPutRequest) {
             LocalizationContext context = request.getContext();
-            LocalizationLevel level = context.getLocalizationLevel();
             String fileName = request.getFileName();
-            return getAuthorizationResponse(user, context, level, fileName,
+            return getAuthorizationResponse(user, context, fileName,
                     request.getMyContextName());
         }
         return new AuthorizationResponse(true);

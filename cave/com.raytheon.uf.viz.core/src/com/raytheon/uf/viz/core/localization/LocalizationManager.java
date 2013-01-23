@@ -777,7 +777,7 @@ public class LocalizationManager implements IPropertyChangeListener {
                 }
             } catch (VizException e) {
                 throw new LocalizationOpFailedException(
-                        "Error storing file contents to server: "
+                        "Error uploading file contents to localization server: "
                                 + e.getLocalizedMessage(), e);
             }
 
