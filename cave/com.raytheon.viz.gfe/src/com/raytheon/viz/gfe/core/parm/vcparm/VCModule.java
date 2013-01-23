@@ -72,6 +72,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Oct 17, 2011            dgilling     Initial creation
  * Jun 20, 2012  #766      dgilling     Refactor to improve
  *                                      performance.
+ * Jan 22, 2013  #1515     dgilling     Fix ClassCastException in 
+ *                                      getMethodArgs().
  * 
  * </pre>
  * 
@@ -189,8 +191,9 @@ public class VCModule {
         parmMgr.getVCModulePool().enqueue(req);
 
         Object result = req.getResult();
-        String[] argNames = (String[]) result;
-        return Arrays.asList(argNames);
+        @SuppressWarnings("unchecked")
+        List<String> argNames = (List<String>) result;
+        return argNames;
     }
 
     public Collection<ParmID> dependentParms() {
