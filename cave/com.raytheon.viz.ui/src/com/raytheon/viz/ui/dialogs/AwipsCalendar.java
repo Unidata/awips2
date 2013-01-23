@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.ui.dialogs;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -33,80 +34,108 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
+
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.viz.ui.widgets.TimeEntry;
 
 /**
  * Awips Calendar Date Selection Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 9, 2012            mpduff     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
 
 public class AwipsCalendar extends CaveSWTDialogBase {
 
-    /** The date selection calendar class */
+    /** The date selection calendar widget */
     private DateTime calendar;
 
-    /** The hour selection spinner class */
-    private Spinner hourSpinner;
+    /** the time selection widget */
+    private TimeEntry timeEntry;
 
-    /** The showHour flag */
-    private boolean showHour = true;
+    private int timeFieldCount;
 
-    /** The showHour flag */
     private Date date = null;
 
-    /**
-     * Constructor.
-     *
-     * @param parentShell
-     * @param showHour
-     */
-    public AwipsCalendar(Shell parentShell, boolean showHour) {
-        super(parentShell, SWT.DIALOG_TRIM);
-        setText("Calendar");
-        this.showHour = showHour;
-    }
+    private TimeZone timeZone;
 
     /**
      * Constructor.
-     *
+     * 
      * @param parentShell
      */
     public AwipsCalendar(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM);
-        setText("Calendar");
-
-
+        this(parentShell, null, 0);
     }
 
     /**
      * Constructor.
-     *
+     * 
      * @param parentShell
-     * @param d Date to preset the calendar widget
-     * @param showHour true to display the hour spinner
+     * @param timeFieldCount
+     *            number of time fields to display
+     * 
+     *            <pre>
+     *   0 - do not display time field 
+     *   1 - display hours 
+     *   2 - display hours and minutes 
+     *   3 - display hours, minutes, and seconds
+     * </pre>
      */
-    public AwipsCalendar(Shell parentShell, Date d, boolean showHour) {
+    public AwipsCalendar(Shell parentShell, int timeFieldCount) {
+        this(parentShell, null, timeFieldCount);
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     * @param d
+     *            Date to preset the calendar widget
+     * @param timeFieldCount
+     *            number of time fields to display
+     * 
+     *            <pre>
+     *   0 - do not display time field 
+     *   1 - display hours 
+     *   2 - display hours and minutes
+     *   3 - display hours, minutes, and seconds
+     * </pre>
+     */
+    public AwipsCalendar(Shell parentShell, Date d, int timeFieldCount) {
         super(parentShell, SWT.DIALOG_TRIM);
         setText("Calendar");
         this.date = d;
-        this.showHour = showHour;
+        if (timeFieldCount < 0 || timeFieldCount > 3) {
+            throw new IllegalArgumentException(
+                    "timeFieldCount must be 0, 1, 2, or 3");
+        }
+        this.timeFieldCount = timeFieldCount;
+        this.timeZone = TimeZone.getTimeZone("GMT");
+    }
+
+    /**
+     * The time zone used for displaying the time field
+     * 
+     * @param timeZone
+     */
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -114,47 +143,51 @@ public class AwipsCalendar extends CaveSWTDialogBase {
     @Override
     protected void initializeComponents(Shell shell) {
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = TimeUtil.newCalendar(this.timeZone);
         if (date != null) {
             cal.setTime(date);
         }
 
+        GridLayout layout = new GridLayout(2, false);
+        shell.setLayout(layout);
 
-        if (showHour) {
-            createTopWidgets(cal.get(Calendar.HOUR_OF_DAY));
+        if (timeFieldCount > 0) {
+            Label lbl = new Label(shell, SWT.NONE);
+            GridData layoutData = new GridData(SWT.LEFT, SWT.CENTER, true,
+                    false);
+            lbl.setLayoutData(layoutData);
+            TimeZone tz = cal.getTimeZone();
+            String tzId = "Z";
+            if (tz.getRawOffset() != 0) {
+                SimpleDateFormat sdf = new SimpleDateFormat("z");
+                sdf.setTimeZone(tz);
+                // date below is not used
+                // we just want to get the tz abbreviation
+                tzId = sdf.format(new Date());
+            }
+
+            if (timeFieldCount == 1) {
+                lbl.setText("Select Hour (" + tzId + ") and Date: ");
+            } else {
+                lbl.setText("Select Time (" + tzId + ") and Date: ");
+            }
+
+            timeEntry = new TimeEntry(shell, timeFieldCount);
+            layoutData = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+            timeEntry.setLayoutData(layoutData);
+            timeEntry.setTime(cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
         }
 
-        calendar = new DateTime(shell, SWT.CALENDAR | SWT.BORDER_SOLID);
-        calendar.setDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        calendar = new DateTime(shell, SWT.CALENDAR | SWT.BORDER);
+        GridData layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT, false,
+                false);
+        layoutData.horizontalSpan = 2;
+        calendar.setLayoutData(layoutData);
+        calendar.setDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH));
 
         createButtons();
-    }
-
-    /**
-     * Create the top widgets
-     */
-    private void createTopWidgets(int hour) {
-        GridLayout gl = new GridLayout(2, false);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-
-        Composite top = new Composite(shell, SWT.NONE);
-        top.setLayout(gl);
-        top.setLayoutData(gd);
-
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        Label lbl = new Label(top, SWT.NONE);
-        lbl.setLayoutData(gd);
-        lbl.setText("Select Hour (Z) and Date: ");
-
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-
-        hourSpinner = new Spinner(top, SWT.BORDER | SWT.RIGHT);
-        hourSpinner.setLayoutData(gd);
-        hourSpinner.setMinimum(0);
-        hourSpinner.setMaximum(23);
-        hourSpinner.setSelection(hour);
-        hourSpinner.setIncrement(1);
-        hourSpinner.setPageIncrement(1);
     }
 
     /**
@@ -165,6 +198,7 @@ public class AwipsCalendar extends CaveSWTDialogBase {
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         GridLayout gl = new GridLayout(3, false);
         Composite btnComp = new Composite(shell, SWT.NONE);
         btnComp.setLayout(gl);
@@ -196,31 +230,40 @@ public class AwipsCalendar extends CaveSWTDialogBase {
      * Event handler action for OK button
      */
     private void handleOk() {
-        Calendar selectedDate = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
+        Calendar selectedDate = Calendar.getInstance(this.timeZone);
         selectedDate.set(Calendar.YEAR, calendar.getYear());
         selectedDate.set(Calendar.MONTH, calendar.getMonth());
         selectedDate.set(Calendar.DAY_OF_MONTH, calendar.getDay());
-        if (showHour) {
-            selectedDate.set(Calendar.HOUR_OF_DAY,
-                    Integer.parseInt(hourSpinner.getText()));
+        if (timeFieldCount > 0) {
+            selectedDate.set(Calendar.HOUR_OF_DAY, timeEntry.getHours());
+            selectedDate.set(Calendar.MINUTE, timeEntry.getMinutes());
+            selectedDate.set(Calendar.SECOND, timeEntry.getSeconds());
         } else {
             selectedDate.set(Calendar.HOUR_OF_DAY, 0);
+            selectedDate.set(Calendar.MINUTE, 0);
+            selectedDate.set(Calendar.SECOND, 0);
         }
-        selectedDate.set(Calendar.MINUTE, 0);
-        selectedDate.set(Calendar.SECOND, 0);
         selectedDate.set(Calendar.MILLISECOND, 0);
-        this.setReturnValue(selectedDate);
+
+        this.setReturnValue(selectedDate.getTime());
     }
 
     /**
      * Main
-     *
+     * 
      * @param args
      */
     public static void main(String[] args) {
-        AwipsCalendar ac = new AwipsCalendar(new Shell());
-        ac.open();
+        AwipsCalendar ac = new AwipsCalendar(new Shell(), 1);
+        ac.setTimeZone(TimeZone.getDefault());
+        Date date = (Date) ac.open();
+        if (date == null) {
+            System.out.println("null");
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss'Z'");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            System.out.println(sdf.format(date));
+        }
     }
-
 }
