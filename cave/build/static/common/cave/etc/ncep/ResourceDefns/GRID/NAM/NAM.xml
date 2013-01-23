@@ -8,6 +8,7 @@
     <resourceParameters>
 GDFILE=nam
 pluginName=grid
+eventName=%
     </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

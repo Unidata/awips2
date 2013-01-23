@@ -19,5 +19,5 @@
         further_licensing_information.
     -->
 <requestPatterns xmlns:ns2="group">
-    <regex>^FAUS2[789] KKCI.*</regex>
+    <regex>^FAUS(2[89]|30) KKCI.*</regex>
 </requestPatterns>

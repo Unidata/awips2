@@ -7,6 +7,7 @@
     <resourceParameters>
 GDFILE=hireswNmmE
 pluginName=grid
+eventName=%
     </resourceParameters>
     <filterLabels>Forecast</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
