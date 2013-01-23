@@ -32,9 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TimeZone;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -65,7 +63,6 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
-import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -101,6 +98,8 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  *                                     execution.
  * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
  *                                     use in PngWriter
+ * 01/22/2013    #1515     dgilling    Increase default size of VCModule thread pool
+ *                                     to decrease UI hang-ups waiting for results.
  * 
  * </pre>
  * 
@@ -281,7 +280,7 @@ public abstract class AbstractParmManager implements IParmManager {
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
         vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
-                this.dataManager, vcModules.size(), Boolean.TRUE);
+                this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
