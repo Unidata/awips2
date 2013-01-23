@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Oct 30, 2012            skorolev    Changed HashMap to Map
  * Nov 11, 2012 1297       skorolev    Added initiateProdArray
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
+ * Dec  7, 2012 #1351      skorolev    Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -104,9 +105,8 @@ public class FogZoneTableDlg extends ZoneTableDlg {
         if (fogThreshDlg == null) {
             fogThreshDlg = new FogMonDispThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.FOG, DataUsageKey.DISPLAY);
-            fogThreshDlg.open();
-            fogThreshDlg = null;
         }
+        fogThreshDlg.open();
     }
 
     /*
@@ -142,7 +142,8 @@ public class FogZoneTableDlg extends ZoneTableDlg {
 					nominalTime = obData.getLatestNominalTime();
 				}                
                 FogDataGenerator fdg = new FogDataGenerator();
-                Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog.getAlgorithmData(nominalTime));
+                Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog
+                        .getAlgorithmData(nominalTime));
                 obData.setFogAlgCellType(fogAlgCellType);
                 this.updateTableDlg(obData.getObHourReports(nominalTime));
             }

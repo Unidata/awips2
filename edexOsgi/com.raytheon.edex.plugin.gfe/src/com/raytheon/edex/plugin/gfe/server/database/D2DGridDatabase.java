@@ -41,8 +41,8 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
-import com.raytheon.edex.plugin.grib.util.ParameterInfo;
+import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
+import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -108,12 +108,12 @@ public class D2DGridDatabase extends VGridDatabase {
             .getNamedHandler("GFEPerformanceLogger");
 
     /** The remap object used for resampling grids */
-    private Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
+    private final Map<Integer, RemapGrid> remap = new HashMap<Integer, RemapGrid>();
 
     /** The destination GridLocation (The local GFE grid coverage) */
     private GridLocation outputLoc;
 
-    private List<ParmID> parms;
+    private final List<ParmID> parms;
 
     public static final String GRID_LOCATION_CACHE_KEY = "GfeLocations";
 
@@ -174,14 +174,14 @@ public class D2DGridDatabase extends VGridDatabase {
      */
     private void loadParms() {
         String gribModelName = config.d2dModelNameMapping(dbId.getModelName());
-        Collection<String> parmNames = new HashSet<String>(GribParamInfoLookup
+        Collection<String> parmNames = new HashSet<String>(GridParamInfoLookup
                 .getInstance().getParmNames(gribModelName));
 
         // first see if we can make wind...
         if ((parmNames.contains("uw")) && (parmNames.contains("vw"))) {
-            List<String> uLevels = GribParamInfoLookup.getInstance()
+            List<String> uLevels = GridParamInfoLookup.getInstance()
                     .getParameterInfo(gribModelName, "uw").getLevels();
-            List<String> vLevels = GribParamInfoLookup.getInstance()
+            List<String> vLevels = GridParamInfoLookup.getInstance()
                     .getParameterInfo(gribModelName, "vw").getLevels();
             for (String level : uLevels) {
                 if (vLevels.contains(level)) {
@@ -191,9 +191,9 @@ public class D2DGridDatabase extends VGridDatabase {
             parmNames.remove("uw");
             parmNames.remove("vw");
         } else if ((parmNames.contains("ws")) && (parmNames.contains("wd"))) {
-            List<String> sLevels = GribParamInfoLookup.getInstance()
+            List<String> sLevels = GridParamInfoLookup.getInstance()
                     .getParameterInfo(gribModelName, "ws").getLevels();
-            List<String> dLevels = GribParamInfoLookup.getInstance()
+            List<String> dLevels = GridParamInfoLookup.getInstance()
                     .getParameterInfo(gribModelName, "wd").getLevels();
             for (String level : sLevels) {
                 if (dLevels.contains(level)) {
@@ -206,7 +206,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         // Now do all the scalars
         for (String parmName : parmNames) {
-            List<String> levels = GribParamInfoLookup.getInstance()
+            List<String> levels = GridParamInfoLookup.getInstance()
                     .getParameterInfo(gribModelName, parmName).getLevels();
             if (levels.isEmpty()) {
                 levels = Arrays.asList("Dflt");
@@ -248,7 +248,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public boolean isParmInfoDefined(ParmID id) {
         String mappedModel = config.d2dModelNameMapping(id.getDbId()
                 .getModelName());
-        return GribParamInfoLookup.getInstance().getParameterInfo(mappedModel,
+        return GridParamInfoLookup.getInstance().getParameterInfo(mappedModel,
                 id.getParmName().toLowerCase()) != null;
     }
 
@@ -261,18 +261,18 @@ public class D2DGridDatabase extends VGridDatabase {
                 .getModelName());
 
         if (id.getParmName().equalsIgnoreCase("wind")) {
-            List<TimeRange> modelTimes = GribParamInfoLookup
+            List<TimeRange> modelTimes = GridParamInfoLookup
                     .getInstance()
                     .getParameterTimes(mappedModel, id.getDbId().getModelDate());
             TimeConstraints tc = getTimeConstraints(modelTimes);
 
             // first try getting u-component attributes
-            ParameterInfo atts = GribParamInfoLookup.getInstance()
+            ParameterInfo atts = GridParamInfoLookup.getInstance()
                     .getParameterInfo(mappedModel, "uw");
 
             // if not found try wind speed
             if (atts == null) {
-                atts = GribParamInfoLookup.getInstance().getParameterInfo(
+                atts = GridParamInfoLookup.getInstance().getParameterInfo(
                         mappedModel, "ws");
             }
             float minV = 0;
@@ -286,7 +286,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
         }
 
-        ParameterInfo atts = GribParamInfoLookup.getInstance()
+        ParameterInfo atts = GridParamInfoLookup.getInstance()
                 .getParameterInfo(mappedModel, id.getParmName());
 
         if (atts == null) {
@@ -308,7 +308,7 @@ public class D2DGridDatabase extends VGridDatabase {
 
             boolean rateParm = false;
             // List<TimeRange> times = this.getGridInventory(id).getPayload();
-            List<TimeRange> times = GribParamInfoLookup
+            List<TimeRange> times = GridParamInfoLookup
                     .getInstance()
                     .getParameterTimes(mappedModel, id.getDbId().getModelDate());
             TimeConstraints tc = getTimeConstraints(times);
@@ -394,7 +394,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
             List<TimeRange> timeRanges) {
 
-        List<IGridSlice> data = new ArrayList<IGridSlice>();
+        List<IGridSlice> data = new ArrayList<IGridSlice>(timeRanges.size());
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
         for (TimeRange tr : timeRanges) {
             GridParmInfo gpi = getGridParmInfo(id).getPayload();
@@ -415,7 +415,7 @@ public class D2DGridDatabase extends VGridDatabase {
     public ServerResponse<List<IGridSlice>> getGridData(ParmID id,
             List<TimeRange> timeRanges, boolean convertUnit) {
 
-        List<IGridSlice> data = new ArrayList<IGridSlice>();
+        List<IGridSlice> data = new ArrayList<IGridSlice>(timeRanges.size());
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
         for (TimeRange tr : timeRanges) {
             GridParmInfo gpi = getGridParmInfo(id).getPayload();
@@ -429,6 +429,7 @@ public class D2DGridDatabase extends VGridDatabase {
                                 + " TimeRange: " + tr, e);
             }
         }
+
         sr.setPayload(data);
         return sr;
     }
@@ -536,7 +537,7 @@ public class D2DGridDatabase extends VGridDatabase {
         long t2 = System.currentTimeMillis();
 
         float fillV = Float.MAX_VALUE;
-        ParameterInfo atts = GribParamInfoLookup.getInstance()
+        ParameterInfo atts = GridParamInfoLookup.getInstance()
                 .getParameterInfo(
                         config.d2dModelNameMapping(parmId.getDbId()
                                 .getModelName()), parmId.getParmName());
@@ -550,7 +551,7 @@ public class D2DGridDatabase extends VGridDatabase {
             RemapGrid remap = getOrCreateRemap(d2dRecord.getLocation());
             retVal = remap.remap(bdata, fillV, gpi.getMaxValue(),
                     gpi.getMinValue(), gpi.getMinValue());
-            if (convertUnit && d2dRecord != null) {
+            if (convertUnit && (d2dRecord != null)) {
                 convertUnits(d2dRecord, retVal, gpi.getUnitObject());
             }
         } catch (Exception e) {
@@ -651,14 +652,14 @@ public class D2DGridDatabase extends VGridDatabase {
 
         String mappedModel = config.d2dModelNameMapping(dbId.getModelName());
 
-        if (uRecord != null && vRecord != null) {
+        if ((uRecord != null) && (vRecord != null)) {
             // Gets the raw grid data from the D2D grib HDF5 files
             Grid2DFloat uData = getRawGridData(uRecord);
             Grid2DFloat vData = getRawGridData(vRecord);
 
             // Resample the data to fit the desired region
             float fillV = Float.MAX_VALUE;
-            ParameterInfo pa = GribParamInfoLookup.getInstance()
+            ParameterInfo pa = GridParamInfoLookup.getInstance()
                     .getParameterInfo(mappedModel, "uw");
             if (pa != null) {
                 fillV = pa.getFillValue();
@@ -688,14 +689,14 @@ public class D2DGridDatabase extends VGridDatabase {
                         "Unable to retrieve wind grids from D2D database", e);
             }
 
-            if (sRecord != null && dRecord != null) {
+            if ((sRecord != null) && (dRecord != null)) {
                 // Gets the raw grid data from the D2D grib HDF5 files
                 Grid2DFloat sData = getRawGridData(sRecord);
                 Grid2DFloat dData = getRawGridData(dRecord);
 
                 // Resample the data to fit the desired region
                 float fillV = Float.MAX_VALUE;
-                ParameterInfo pa = GribParamInfoLookup.getInstance()
+                ParameterInfo pa = GridParamInfoLookup.getInstance()
                         .getParameterInfo(mappedModel, "ws");
                 if (pa != null) {
                     fillV = pa.getFillValue();
@@ -794,7 +795,7 @@ public class D2DGridDatabase extends VGridDatabase {
     private List<TimeRange> getTimeRange(ParmID id, List<TimeRange> inventory)
             throws GfeException {
         String parmName = id.getParmName();
-        List<TimeRange> times = GribParamInfoLookup
+        List<TimeRange> times = GridParamInfoLookup
                 .getInstance()
                 .getParameterTimes(
                         config.d2dModelNameMapping(id.getDbId().getModelName()),
@@ -914,8 +915,8 @@ public class D2DGridDatabase extends VGridDatabase {
         // no-op
     }
 
-    public static boolean isNonAccumDuration(ParmID id, List<TimeRange> times)
-            throws GfeConfigurationException {
+    public static boolean isNonAccumDuration(ParmID id,
+            Collection<TimeRange> times) throws GfeConfigurationException {
         boolean isAccum = false;
         try {
             isAccum = IFPServerConfigManager
@@ -925,14 +926,19 @@ public class D2DGridDatabase extends VGridDatabase {
         } catch (GfeConfigurationException e) {
             throw e;
         }
-        boolean isDuration = false;
-        for (TimeRange time : times) {
-            if (time.getDuration() > 0) {
-                isDuration = true;
-                break;
+
+        if (!isAccum) {
+            boolean isDuration = false;
+            for (TimeRange time : times) {
+                if (time.getDuration() > 0) {
+                    isDuration = true;
+                    break;
+                }
             }
+            return isDuration;
         }
-        return !isAccum && isDuration;
+
+        return !isAccum;
     }
 
 }

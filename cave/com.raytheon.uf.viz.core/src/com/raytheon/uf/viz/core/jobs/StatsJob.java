@@ -74,32 +74,41 @@ public class StatsJob extends Job {
         runningThread = Thread.currentThread();
         run = true;
         while (run) {
-            System.out.println();
             NetworkTraffic total = stats.getTotalTrafficStats();
             long sentInLastMinute = total.getBytesSent() - lastSent;
             long receivedInLastMinute = total.getBytesReceived() - lastReceived;
             long requestCountInLastMinute = total.getRequestCount()
                     - lastRequestCount;
 
-            System.out.println("Last minute sent " + requestCountInLastMinute
-                    + " messages for a total of "
-                    + NetworkStatistics.toString(sentInLastMinute)
-                    + " sent and "
-                    + NetworkStatistics.toString(receivedInLastMinute)
-                    + " received");
+            boolean printed = false;
+            if (sentInLastMinute != 0.0 || receivedInLastMinute != 0.0
+                    || requestCountInLastMinute != 0.0) {
+                printed = true;
+                System.out.println();
+                System.out.println("Last minute sent "
+                        + requestCountInLastMinute
+                        + " messages for a total of "
+                        + NetworkStatistics.toString(sentInLastMinute)
+                        + " sent and "
+                        + NetworkStatistics.toString(receivedInLastMinute)
+                        + " received");
+            }
             lastSent = total.getBytesSent();
             lastReceived = total.getBytesReceived();
             lastRequestCount = total.getRequestCount();
-            System.out.println("Total sent " + total.getRequestCount()
-                    + " messages for a total of "
-                    + NetworkStatistics.toString(lastSent) + " sent and "
-                    + NetworkStatistics.toString(lastReceived) + " received");
-            NetworkTraffic[] mapped = stats.getMappedTrafficStats();
-            for (NetworkTraffic nt : mapped) {
-                System.out.println(nt);
-            }
+            if (printed) {
+                System.out.println("Total sent " + total.getRequestCount()
+                        + " messages for a total of "
+                        + NetworkStatistics.toString(lastSent) + " sent and "
+                        + NetworkStatistics.toString(lastReceived)
+                        + " received");
+                NetworkTraffic[] mapped = stats.getMappedTrafficStats();
+                for (NetworkTraffic nt : mapped) {
+                    System.out.println(nt);
+                }
 
-            System.out.println();
+                System.out.println();
+            }
 
             try {
                 Thread.sleep(60 * 1000);
