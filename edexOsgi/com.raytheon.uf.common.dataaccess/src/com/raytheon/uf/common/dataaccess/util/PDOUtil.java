@@ -29,10 +29,11 @@ import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 
 /**
@@ -64,6 +65,21 @@ public final class PDOUtil {
 	 */
     private PDOUtil() {
     }
+    
+    private static IDataStore getDataStore(PluginDataObject pdo){
+        final String pluginName = pdo.getPluginName();
+        final IPersistable persistable = (IPersistable) pdo;
+
+        IHDFFilePathProvider pathProvider = pdo.getHDFPathProvider();
+        String satelliteHDF5Path = pathProvider.getHDFPath(pluginName,
+                persistable);
+        String satelliteHDF5File = pathProvider.getHDFFileName(pluginName,
+                persistable);
+        File file = new File(pluginName + IPathManager.SEPARATOR
+                + satelliteHDF5Path + IPathManager.SEPARATOR
+                + satelliteHDF5File);
+        return DataStoreFactory.getDataStore(file);
+    }
 
     /**
      * Retrieves the IDataRecords associated with the provided PluginDataObject.
@@ -77,20 +93,15 @@ public final class PDOUtil {
      */
     public static IDataRecord[] getDataRecords(PluginDataObject pdo)
             throws FileNotFoundException, StorageException {
-        final String pluginName = pdo.getPluginName();
-        final IPersistable persistable = (IPersistable) pdo;
-
-        IHDFFilePathProvider pathProvider = pdo.getHDFPathProvider();
-        String satelliteHDF5Path = pathProvider.getHDFPath(pluginName,
-                persistable);
-        String satelliteHDF5File = pathProvider.getHDFFileName(pluginName,
-                persistable);
-        File file = new File(pluginName + IPathManager.SEPARATOR
-                + satelliteHDF5Path + IPathManager.SEPARATOR
-                + satelliteHDF5File);
-        IDataStore dataStore = DataStoreFactory.getDataStore(file);
-
+        IDataStore dataStore = getDataStore(pdo);
         return dataStore.retrieve(pdo.getDataURI());
+    }
+
+    public static IDataRecord getDataRecords(PluginDataObject pdo,
+            String dataset, Request request)
+            throws FileNotFoundException, StorageException {
+        IDataStore dataStore = getDataStore(pdo);
+        return dataStore.retrieve(pdo.getDataURI(), dataset, request);
     }
 
     /**
