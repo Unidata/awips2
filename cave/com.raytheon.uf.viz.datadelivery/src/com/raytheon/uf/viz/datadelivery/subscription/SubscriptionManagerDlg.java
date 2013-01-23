@@ -114,6 +114,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  *                                    and SubscriptionConfigurationManager.
  * Jan 21, 2013 1501       djohnson   Only send notification if subscription was actually activated/deactivated,
  *                                    remove race condition of GUI thread updating the table after notification.
+ * Jan 22, 2013  1520      mpduff     Removed menu accelerators.
  * </pre>
  * 
  * @author mpduff
@@ -317,7 +318,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         fileMenuItem.setMenu(fileMenu);
 
         MenuItem newMI = new MenuItem(fileMenu, SWT.NONE);
-        newMI.setText("&New Subscription...");
+        newMI.setText("New Subscription...");
         newMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -326,7 +327,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         });
 
         MenuItem groupMI = new MenuItem(fileMenu, SWT.NONE);
-        groupMI.setText("&New Group...");
+        groupMI.setText("New Group...");
         groupMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -358,7 +359,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         MenuItem exitMI = new MenuItem(fileMenu, SWT.NONE);
-        exitMI.setText("&Exit");
+        exitMI.setText("Exit");
         exitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -376,7 +377,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         settingsMenuItem.setMenu(settingsMenu);
 
         MenuItem configureMI = new MenuItem(settingsMenu, SWT.NONE);
-        configureMI.setText("&Configure Table...");
+        configureMI.setText("Configure Table...");
         configureMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -385,7 +386,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         });
 
         tooltipMI = new MenuItem(settingsMenu, SWT.CHECK);
-        tooltipMI.setText("&Tooltips");
+        tooltipMI.setText("Tooltips");
         tooltipMI.setSelection(false);
         tooltipMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -403,7 +404,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         helpMenuItem.setMenu(helpMenu);
 
         MenuItem helpNotTableMI = new MenuItem(helpMenu, SWT.NONE);
-        helpNotTableMI.setText("&About Subscription Manager...");
+        helpNotTableMI.setText("About Subscription Manager...");
         helpNotTableMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -423,7 +424,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         editMenuItem.setMenu(editMenu);
 
         MenuItem editMI = new MenuItem(editMenu, SWT.NONE);
-        editMI.setText("&Edit Subscription...");
+        editMI.setText("Edit Subscription...");
         editMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -432,7 +433,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         });
 
         MenuItem copyMI = new MenuItem(editMenu, SWT.NONE);
-        copyMI.setText("&Copy Subscription...");
+        copyMI.setText("Copy Subscription...");
         copyMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -441,7 +442,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         });
 
         MenuItem deleteMI = new MenuItem(editMenu, SWT.NONE);
-        deleteMI.setText("&Delete Subscription");
+        deleteMI.setText("Delete Subscription");
         deleteMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -591,8 +592,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         String msg = user.uniqueId()
                 + " is not authorized to create subscriptions";
         try {
-            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 DataBrowserAction action = new DataBrowserAction();
                 Map<String, String> params = new HashMap<String, String>();
                 ExecutionEvent ee = new ExecutionEvent(null, params, null, null);
@@ -622,8 +623,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 + permission;
 
         try {
-            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 if (create) {
                     if (createGroupDlg == null) {
                         createGroupDlg = new CreateGroupDefinitionDlg(
@@ -744,8 +745,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 + permission;
 
         try {
-            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 String message = null;
 
                 if (selectionCount > 1) {
@@ -831,8 +832,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 + " Subscriptions\nPermission: " + permission;
 
         try {
-            if (DataDeliveryServices.getPermissionsService().checkPermission(user, msg, permission)
-                    .isAuthorized()) {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 final List<Subscription> updatedList = new ArrayList<Subscription>();
 
                 int count = tableComp.getTable().getSelectionCount();
@@ -1055,10 +1056,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             String msg = user.uniqueId()
                     + " is not authorized to access Subscription Approval";
 
-            return DataDeliveryServices.getPermissionsService().checkPermissions(user, msg,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW)
+            return DataDeliveryServices
+                    .getPermissionsService()
+                    .checkPermissions(user, msg,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW)
                     .isAuthorized();
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -1088,8 +1091,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
             for (Subscription subscription : subscriptions) {
                 subscriptionNotificationService
-                        .sendDeletedSubscriptionNotification(
-                        subscription, username);
+                        .sendDeletedSubscriptionNotification(subscription,
+                                username);
             }
         } catch (RegistryHandlerException e) {
             exceptions.add(e);
