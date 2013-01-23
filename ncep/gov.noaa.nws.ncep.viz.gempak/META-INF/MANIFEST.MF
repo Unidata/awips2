@@ -4,8 +4,6 @@ Bundle-Name: Gempak Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.gempak;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.gempak.Activator
-Eclipse-BuddyPolicy: registered, ext, global
-Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core;bundle-version="1.12.1142",
@@ -15,8 +13,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.alerts,
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
- com.raytheon.uf.common.parameter;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.sun.jna,
  org.geotools;bundle-version="2.6.4",
  org.apache.log4j;bundle-version="1.0.0"
@@ -25,10 +21,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.gempak,
  gov.noaa.nws.ncep.viz.gempak.grid.jna,
  gov.noaa.nws.ncep.viz.gempak.grid.inv,
- gov.noaa.nws.ncep.viz.gempak.grid.mapper,
- gov.noaa.nws.ncep.viz.gempak.grid.units,
  gov.noaa.nws.ncep.viz.gempak.util
 Import-Package: com.raytheon.uf.common.derivparam.tree,
- gov.noaa.nws.ncep.edex.common.ncinventory,
- gov.noaa.nws.ncep.common.log.logger,
- com.raytheon.uf.common.serialization
+ gov.noaa.nws.ncep.edex.common.ncinventory
