@@ -60,8 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     uses the font.
  * Feb 03, 2012 14317      mhuang      Make alarm display window wider
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
- * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow. Added DO_NOT_BLOCK.
- * Dec 31, 2012 15651	   mgamazaychikov	Added an argument to re-factored PrintDisplay.print 
+ * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.Added DO_NOT_BLOCK. 
  * 
  * </pre>
  * 
@@ -199,7 +198,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
                 }
 
                 PrintDisplay.print(lines.toString(), text.getFont()
-                        .getFontData()[0], -1, UFStatus
+                        .getFontData()[0], UFStatus
                         .getHandler(AlarmDisplayWindow.class));
             }
         });
@@ -208,7 +207,7 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 PrintDisplay.print(text.getText(),
-                        text.getFont().getFontData()[0], -1,
+                        text.getFont().getFontData()[0], 
                         UFStatus.getHandler(AlarmDisplayWindow.class));
             }
         });
