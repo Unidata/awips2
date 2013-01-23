@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tree representation of the purge rules. Each Node can contain a PurgeRule as
- * well as a collection of other Nodes. Each Node should be a specific purge key
- * value based on the PurgeRuleSet keys. A given set of key/value pairs will
- * return the most significant purge key that matches.
+ * Tree representation of the purge rules. Each Node can contain a List of
+ * PurgeRule as well as a collection of other Nodes. Each Node should be a
+ * specific purge key value based on the PurgeRuleSet keys. A given set of
+ * key/value pairs will return the most significant purge key that matches.
  * 
  * <pre>
  * 
@@ -54,7 +54,7 @@ public class PurgeRuleTree {
             for (PurgeRule rule : rules) {
                 PurgeNode curNode = root;
                 List<String> values = rule.getKeyValues();
-                if (values != null) {
+                if ((values != null) && !values.isEmpty()) {
                     // descend purge tree
                     for (String val : values) {
                         Map<String, PurgeNode> childNodes = curNode

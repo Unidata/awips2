@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NotificationFilter>
+    <userFilter selfInclude="false" allUsers="false">
+        <user>dhladky</user>
+    </userFilter>
+    <priority>Priority1</priority>
+    <priority>Priority2</priority>
+    <priority>Priority3</priority>
+    <priority>Priority4</priority>
+    <priority>Priority5</priority>
+    <subscriptionList>Dave HD GFS SFC</subscriptionList>
+    <subscriptionList>TEST NAM subset dave</subscriptionList>
+</NotificationFilter>

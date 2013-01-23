@@ -51,7 +51,6 @@ public class SafeSeasAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        System.out.println("Activating/Action for Safeseas...");
 
         SafeSeasMonitor monitor = SafeSeasMonitor.getInstance();
         if (monitor.getZoneDialog() == null
