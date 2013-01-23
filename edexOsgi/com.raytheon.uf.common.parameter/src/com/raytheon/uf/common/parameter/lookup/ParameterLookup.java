@@ -33,7 +33,6 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.parameter.Parameter;
@@ -65,12 +64,9 @@ public class ParameterLookup {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParameterLookup.class);
 
-    private static ParameterLookup instance;
+    private static final ParameterLookup instance = new ParameterLookup();
 
     public static ParameterLookup getInstance() {
-        if (instance == null) {
-            instance = new ParameterLookup();
-        }
         return instance;
     }
 
@@ -106,18 +102,9 @@ public class ParameterLookup {
         }
         if (unmarshaller != null) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationContext commonStaticBase = pathMgr.getContext(
-                    LocalizationContext.LocalizationType.COMMON_STATIC,
-                    LocalizationContext.LocalizationLevel.BASE);
 
-            LocalizationContext commonStaticSite = pathMgr.getContext(
-                    LocalizationContext.LocalizationType.COMMON_STATIC,
-                    LocalizationContext.LocalizationLevel.SITE);
-
-            LocalizationFile[] files = pathMgr.listFiles(
-                    new LocalizationContext[] { commonStaticSite,
-                            commonStaticBase }, "parameter"
-                            + IPathManager.SEPARATOR + "definition",
+            LocalizationFile[] files = pathMgr.listStaticFiles("parameter"
+                    + IPathManager.SEPARATOR + "definition",
                     new String[] { ".xml" }, true, true);
 
             for (LocalizationFile file : files) {
@@ -141,9 +128,11 @@ public class ParameterLookup {
                         }
                     }
                 } else {
-                    statusHandler.error("Error reading parameter defintions: "
+                    statusHandler.error("Error reading parameter definitions: "
                             + file.getName() + " was a "
-                            + obj.getClass().getSimpleName());
+                            + obj.getClass().getSimpleName()
+                            + " but was expecting "
+                            + ParameterList.class.getSimpleName());
                 }
             }
         }

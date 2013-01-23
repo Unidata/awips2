@@ -233,7 +233,9 @@ public class GLMesh2DStrips extends AbstractGLMesh {
             mt.transform(p3, 0, r3, 0, 1);
             r3 = worldToPixel(r3);
         }
-        if (r1 == null || r3 == null) {
+        if (r1 == null || r3 == null || Double.isNaN(r1[0])
+                || Double.isNaN(r1[1]) || Double.isNaN(r3[0])
+                || Double.isNaN(r3[1])) {
             // if the image has some points outside the valid range of the
             // screen then give up optimizing and assume the max number of
             // points.
@@ -243,6 +245,9 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         double[] r2 = new double[p2.length];
         mt.transform(p2, 0, r2, 0, 1);
         r2 = worldToPixel(r2);
+        if (Double.isNaN(r2[0]) || Double.isNaN(r2[1])) {
+            return (int) Math.ceil(maxNumDivs);
+        }
         double[] interp2 = { (r1[0] + r3[0]) / 2, (r1[1] + r3[1]) / 2 };
         double dX = r2[0] - interp2[0];
         double dY = r2[1] - interp2[1];
