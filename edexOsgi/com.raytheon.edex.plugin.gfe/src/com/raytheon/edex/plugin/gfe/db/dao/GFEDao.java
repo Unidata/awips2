@@ -57,7 +57,6 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -83,10 +82,12 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
@@ -106,8 +107,10 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/07/09     #2763      njensen     Refactored queryByD2DParmId
  * 09/10/12     DR15137    ryu         Changed for MOSGuide D2D mxt/mnt grids for consistency
  *                                     with A1.
- * 10/10/12     #1260       randerso   Added check to ensure db can be created before 
+ * 10/10/12     #1260      randerso    Added check to ensure db can be created before 
  *                                     adding it to the inventory
+ * 01/21/12     #1504      randerso    Back ported change to use ParameterMapper into 13.1.2
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -733,11 +736,15 @@ public class GFEDao extends DefaultPluginDao {
                 throw new DataAccessLayerException(
                         "Error occurred looking up model name mapping", e);
             }
-            String abbreviation = DataFieldTableLookup.getInstance()
-                    .lookupDataName(id.getParmName());
-            if (abbreviation == null) {
-                abbreviation = id.getParmName();
+            String abbreviation = null;
+            try {
+                abbreviation = ParameterMapper.getInstance().lookupBaseName(
+                        id.getParmName(), "gfeParamName");
+            } catch (MultipleMappingException e) {
+                statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+                abbreviation = e.getArbitraryMapping();
             }
+
             abbreviation = abbreviation.toLowerCase();
             Criterion abbrevCrit = Restrictions
                     .and(baseCrit,
@@ -984,8 +991,14 @@ public class GFEDao extends DefaultPluginDao {
                     (String) objArr[1], (Double) objArr[2], (Double) objArr[3]);
             if (!levelName.equals(LevelFactory.UNKNOWN_LEVEL)) {
                 String abbrev = (String) objArr[0];
-                abbrev = DataFieldTableLookup.getInstance().lookupCdlName(
-                        abbrev);
+                try {
+                    abbrev = ParameterMapper.getInstance().lookupAlias(abbrev,
+                            "gfeParamName");
+                } catch (MultipleMappingException e) {
+                    statusHandler.handle(Priority.WARN,
+                            e.getLocalizedMessage(), e);
+                    abbrev = e.getArbitraryMapping();
+                }
                 ParmID newParmId = new ParmID(abbrev, dbId, levelName);
                 parmIds.add(newParmId);
             }
