@@ -50,7 +50,6 @@ import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.DefiningConversion;
-import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
@@ -271,9 +270,9 @@ public class MapUtil {
     }
 
     /**
-     * Construct a native envelope from the grid domain represented
-     * by the lower left and the upper right corners.
-     *
+     * Construct a native envelope from the grid domain represented by the lower
+     * left and the upper right corners.
+     * 
      * @param ll
      *            lower left of the grid envelope
      * @param ur
@@ -281,10 +280,10 @@ public class MapUtil {
      * @param gloc
      *            grid location object
      * @return a native envelope
-     *
+     * 
      */
-    public static GeneralEnvelope convertToNativeEnvelope(
-            Coordinate ll, Coordinate ur, ISpatialObject gloc) {
+    public static GeneralEnvelope convertToNativeEnvelope(Coordinate ll,
+            Coordinate ur, ISpatialObject gloc) {
         GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
         generalEnvelope.setCoordinateReferenceSystem(gloc.getCrs());
 
@@ -293,9 +292,9 @@ public class MapUtil {
         double minY = Double.POSITIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
 
-        for (Coordinate p : new Coordinate[]{ll, ur}) {
+        for (Coordinate p : new Coordinate[] { ll, ur }) {
             Coordinate translated = gridCoordinateToNative(p,
-        			PixelOrientation.CENTER, gloc);
+                    PixelOrientation.CENTER, gloc);
             double x = translated.x;
             double y = translated.y;
 
@@ -1325,196 +1324,103 @@ public class MapUtil {
     }
 
     /**
-     * Computes the bounding bounding box in grid coordinates given the screen
-     * geometry
+     * Find the intersection between source envelope and target envelope in the
+     * target envelope CRS. The simplified idea of what happens is that
+     * sourceEnvelope is projected to the targetEnvelope CRS and a simple
+     * rectangle intersection is performed. There is quite a bit of special
+     * handling code for projections that do not line up well and therefore do
+     * not work using the simple case but the idea is conceptually the same.
      * 
-     * @param screenGeometry
-     * @return the bounding envelope
+     * @param sourceEnvelope
+     * @param targetEnvelope
+     * @return
+     * @throws TransformException
      */
-    public static synchronized Envelope[] computeEnvelopes(
-            GridGeometry2D screenGeometry, GridGeometry2D dataGeometry) {
-        GridEnvelope dataRange = dataGeometry.getGridRange();
-        GridEnvelope screenRange = screenGeometry.getGridRange();
+    public static ReferencedEnvelope reprojectAndIntersect(
+            Envelope sourceEnvelope, Envelope targetEnvelope)
+            throws TransformException {
         try {
-            MathTransform gridToLL = dmtFactory.createConcatenatedTransform(
-                    dataGeometry.getGridToCRS(),
-                    getTransformToLatLon(dataGeometry
-                            .getCoordinateReferenceSystem()));
+            // Use referenced envelope to go from source crs into target crs.
+            ReferencedEnvelope sourceRefEnvelope = new ReferencedEnvelope(
+                    sourceEnvelope);
+            ReferencedEnvelope targetRefEnvelope = new ReferencedEnvelope(
+                    targetEnvelope);
+            ReferencedEnvelope sourceInTargetCRS = null;
+            try {
+                sourceInTargetCRS = sourceRefEnvelope.transform(
+                        targetEnvelope.getCoordinateReferenceSystem(), true,
+                        200);
+            } catch (TransformException e) {
+                // If the corners of the source envelope are invalid in the
+                // target crs then the referenced envelope fails so this is the
+                // backup plan. This is known to hit when projecting ab
+                // Equidistant cyclindrical envelope that extends to the south
+                // pole onto a north polar stereographic CRS.
 
-            MathTransform llToScreen = dmtFactory.createConcatenatedTransform(
-                    getTransformFromLatLon(screenGeometry
-                            .getCoordinateReferenceSystem()), screenGeometry
-                            .getGridToCRS().inverse());
-            // Convert screen to grid
+                // transform target to source space.
+                ReferencedEnvelope targetInSourceCRS = targetRefEnvelope
+                        .transform(
+                                sourceEnvelope.getCoordinateReferenceSystem(),
+                                true, 200);
+                // intersect the transformed envelope with the source envelope
+                // Hopefully this intersection will eliminate the
+                // invalid points in the original source envelope.
+                sourceInTargetCRS = new ReferencedEnvelope(
+                        sourceRefEnvelope.intersection(targetInSourceCRS),
+                        sourceRefEnvelope.getCoordinateReferenceSystem());
+                // transform the intersection back to target space, now it is
+                // hopefully a subgrid.
+                sourceInTargetCRS = sourceInTargetCRS.transform(
+                        targetEnvelope.getCoordinateReferenceSystem(), true,
+                        200);
 
-            int minX = dataRange.getLow(0);
-            int maxX = dataRange.getHigh(0);
-            int minY = dataRange.getLow(1);
-            int maxY = dataRange.getHigh(1);
+            }
+            // with both enenvelopes in target space, perform a simple
+            // intersection.
+            ReferencedEnvelope result = new ReferencedEnvelope(
+                    sourceInTargetCRS.intersection(targetRefEnvelope),
+                    targetEnvelope.getCoordinateReferenceSystem());
 
-            int minScreenX = screenRange.getLow(0);
-            int maxScreenX = screenRange.getHigh(0);
-            int minScreenY = screenRange.getLow(1);
-            int maxScreenY = screenRange.getHigh(1);
+            // Attempt to add extra space to the interesection near the border
+            // of the source envelope. This is similar to what
+            // ReferencedEnvelope does when it uses CRS.transform where it
+            // checks the extrema of each axis. For the projected CRSs that we
+            // use we don't set an axis axtrema so those checks don't accomplish
+            // anything. Checking the target envelope extrema
+            // accomplishes the same thing. This is known to expand the envelope
+            // when a polar stereographic source is projected onto a worldwide
+            // equidistant cylindrical target.
+            MathTransform mt = CRS.findMathTransform(
+                    targetEnvelope.getCoordinateReferenceSystem(),
+                    sourceEnvelope.getCoordinateReferenceSystem());
+            double[] xTestPoints = { targetEnvelope.getMinimum(0),
+                    targetEnvelope.getMedian(0), targetEnvelope.getMaximum(0) };
+            double[] yTestPoints = { targetEnvelope.getMinimum(1),
+                    targetEnvelope.getMedian(1), targetEnvelope.getMaximum(1) };
 
-            int uMaxX = minX;
-            int uMinX = maxX;
-            int uMaxY = minY;
-            int uMinY = maxY;
-
-            int[] ul = new int[] { -2, -1 };
-            int[] ur = new int[] { -1, -1 };
-            int[] lr = new int[] { -1, -2 };
-            int[] ll = new int[] { -2, -2 };
-
-            double minURDist = Double.POSITIVE_INFINITY;
-            double minULDist = Double.POSITIVE_INFINITY;
-            double minLRDist = Double.POSITIVE_INFINITY;
-            double minLLDist = Double.POSITIVE_INFINITY;
-
-            double[] in = new double[2];
-            double[] out = new double[2];
-            boolean pointFound = false;
-
-            double xInc = Math.max((maxX - minX) / 200.0, 1.0);
-            double startX = minX, startY = minY;
-            double yInc = Math.max((maxY - minY) / 200.0, 1.0);
-            for (int x = (int) startX; x <= maxX; startX += xInc, x = (int) startX) {
-                for (int y = (int) startY; y <= maxY; startY += yInc, y = (int) startY) {
-                    in[0] = x;
-                    in[1] = y;
-
-                    gridToLL.transform(in, 0, out, 0, 1);
-                    if (out[0] > 180.0) {
-                        out[0] = -(360.0 - out[0]);
-                    }
-                    in[0] = out[0];
-                    in[1] = out[1];
-                    llToScreen.transform(in, 0, out, 0, 1);
-
-                    // Are we in the bounds of the screen?
-                    if (out[0] >= minScreenX && out[0] <= maxScreenX
-                            && out[1] >= minScreenY && out[1] <= maxScreenY) {
-                        pointFound = true;
-                        // This spot is on the screen.
-                        if (x > uMaxX) {
-                            uMaxX = x;
-                        }
-                        if (x < uMinX) {
-                            uMinX = x;
-                        }
-                        if (y > uMaxY) {
-                            uMaxY = y;
-                        }
-                        if (y < uMinY) {
-                            uMinY = y;
-                        }
-                    } else if (!pointFound) {
-                        // In this case, no points have been found to be on the
-                        // screen yet so we are going to assume the screen is
-                        // contained inside a 1 square grid cell and compute the
-                        // grid bounding box around the screen
-
-                        // is this point usable for UL?
-                        if (out[0] <= minScreenX && out[1] <= minScreenY) {
-                            double dist = Math
-                                    .sqrt(Math.pow(
-                                            (Math.abs(out[0] - minScreenX)), 2)
-                                            + Math.pow(
-                                                    Math.abs(out[1]
-                                                            - minScreenY), 2));
-                            if (dist < minULDist) {
-                                minULDist = dist;
-                                ul[0] = x;
-                                ul[1] = y;
+            for (double xTestPoint : xTestPoints) {
+                for (double yTestPoint : yTestPoints) {
+                    DirectPosition2D edge = new DirectPosition2D(xTestPoint,
+                            yTestPoint);
+                    if (!result.contains(edge)) {
+                        try {
+                            DirectPosition2D tmp = new DirectPosition2D();
+                            mt.transform(edge, tmp);
+                            if (sourceRefEnvelope.contains(tmp)) {
+                                result.expandToInclude(edge.x, edge.y);
                             }
-                        }
-
-                        // is this point usable for UR?
-                        else if (out[0] >= maxScreenX && out[1] <= minScreenY) {
-                            double dist = Math
-                                    .sqrt(Math.pow(
-                                            (Math.abs(out[0] - maxScreenX)), 2)
-                                            + Math.pow(
-                                                    Math.abs(out[1]
-                                                            - minScreenY), 2));
-                            if (dist < minURDist) {
-                                minURDist = dist;
-                                ur[0] = x;
-                                ur[1] = y;
-                            }
-                        }
-
-                        // is this point usable for LR?
-                        else if (out[0] >= maxScreenX && out[1] >= maxScreenY) {
-                            double dist = Math
-                                    .sqrt(Math.pow(
-                                            (Math.abs(out[0] - maxScreenX)), 2)
-                                            + Math.pow(
-                                                    Math.abs(out[1]
-                                                            - maxScreenY), 2));
-                            if (dist < minLRDist) {
-                                minLRDist = dist;
-                                lr[0] = x;
-                                lr[1] = y;
-                            }
-                        }
-
-                        // is this point usable for LL?
-                        else if (out[0] <= minScreenX && out[1] >= maxScreenY) {
-                            double dist = Math
-                                    .sqrt(Math.pow(
-                                            (Math.abs(out[0] - minScreenX)), 2)
-                                            + Math.pow(
-                                                    Math.abs(out[1]
-                                                            - maxScreenY), 2));
-                            if (dist < minLLDist) {
-                                minLLDist = dist;
-                                ll[0] = x;
-                                ll[1] = y;
-                            }
+                        } catch (Exception ex) {
+                            ;// ignore, can't expand the envelope.
                         }
                     }
                 }
-                startY = minY;
             }
 
-            Envelope[] llEnv = new Envelope[1];
-
-            GeneralEnvelope env = new GeneralEnvelope(2);
-            env.setCoordinateReferenceSystem(dataGeometry
-                    .getCoordinateReferenceSystem());
-
-            if (!pointFound) {
-                // Should we do ur and ll or lr and ul?
-                // Maybe calculate with has the smalled dist to points?
-                // for now just use ur and ll
-                uMinX = Math.min(ll[0], ur[0]);
-                uMaxX = Math.max(ll[0], ur[0]);
-                uMinY = Math.min(ll[1], ur[1]);
-                uMaxY = Math.max(ll[1], ur[1]);
-            }
-
-            // We need a certain amount of spacing between start and end for
-            // contouring to look good
-            if (uMaxX - uMinX < 4) {
-                uMaxX += 2;
-                uMinX -= 2;
-            }
-
-            if (uMaxY - uMinY < 4) {
-                uMaxY += 2;
-                uMinY -= 2;
-            }
-
-            env.setRange(0, uMinX, uMaxX);
-            env.setRange(1, uMinY, uMaxY);
-            llEnv[0] = env;
-            return llEnv;
-        } catch (Exception e) {
-            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
+            return result;
+        } catch (FactoryException e) {
+            throw new TransformException(
+                    "Error performing envelope transformation", e);
         }
-        return null;
     }
 
     /**

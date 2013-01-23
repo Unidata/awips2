@@ -88,7 +88,7 @@ public class NwsUserManager implements IUserManager {
     @Override
     public List<IPermission> getPermissions(String application) {
         // TODO: Should this pass through to EDEX to get this stuff?
-        return FileManager.getInstance().getPermissions(application);
+        return NwsRoleDataManager.getInstance().getPermissions(application);
     }
 
     /**
@@ -97,6 +97,6 @@ public class NwsUserManager implements IUserManager {
     @Override
     public List<IRole> getRoles(String application) {
         // TODO: Should this pass through to EDEX to get this stuff?
-        return FileManager.getInstance().getRoles(application);
+        return NwsRoleDataManager.getInstance().getRoles(application);
     }
 }

@@ -479,9 +479,7 @@ public class PlotGriddedPrecipResource extends
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
-                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this,
-                        target.getViewType());
-                gridDisplay.init(target);
+                gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this);
                 // gridDisplay.setColorMapParameters(getCapability(
                 // ColorMapCapability.class).getColorMapParameters());
             }

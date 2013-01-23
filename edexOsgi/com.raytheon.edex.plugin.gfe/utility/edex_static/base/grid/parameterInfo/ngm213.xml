@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gridParamInfo xmlns:ns2="group">
+  <valtimeMINUSreftime>
+    <fcst>21600</fcst>
+    <fcst>43200</fcst>
+    <fcst>64800</fcst>
+    <fcst>86400</fcst>
+    <fcst>108000</fcst>
+    <fcst>129600</fcst>
+    <fcst>151200</fcst>
+    <fcst>172800</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>pvv</short_name>
+    <long_name>Pressure vertical velocity</long_name>
+    <units>Pa/s</units>
+    <udunits>pascal/second</udunits>
+    <uiname>Pvv</uiname>
+    <valid_range>-2.5</valid_range>
+    <valid_range>2.5</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>9</n3D>
+    <levelsDesc>MB 850 700 500 400 300 250 200 150 100</levelsDesc>
+    <levels>
+      <level>MB850</level>
+      <level>MB700</level>
+      <level>MB500</level>
+      <level>MB400</level>
+      <level>MB300</level>
+      <level>MB250</level>
+      <level>MB200</level>
+      <level>MB150</level>
+      <level>MB100</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>tp</short_name>
+    <long_name>total precipitation</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/second</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>cp</short_name>
+    <long_name>convective precipitation</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>convPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>

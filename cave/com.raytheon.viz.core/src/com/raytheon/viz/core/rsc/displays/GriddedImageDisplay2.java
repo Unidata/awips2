@@ -19,48 +19,40 @@
  **/
 package com.raytheon.viz.core.rsc.displays;
 
-import java.awt.Rectangle;
 import java.nio.Buffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.IDataPreparer;
-import com.raytheon.uf.viz.core.data.prep.CMDataPreparerManager;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.tile.BufferTileImageCreator;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable;
 
 /**
- * TODO Add Description
+ * 
+ * Gridded Buffer object, just a convenience class for thing already using it.
+ * Just extends {@link TileSetRenderable} and uses the
+ * {@link BufferTileImageCreator} as the {@link TileImageCreator} for the
+ * {@link TileSetRenderable}. Also projects on construction as convenience so
+ * creators don't have to
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 27, 2008            randerso     Initial creation
- * Feb 01, 2011 #4237      ekladstrup   Rewrite to extend AbstractTileSet
+ * Dec 11, 2012            mschenke     Initial creation
+ * 
  * </pre>
  * 
- * @author randerso
- * @version 2.0
+ * @author mschenke
+ * @version 1.0
  */
-
-public class GriddedImageDisplay2 extends AbstractTileSet {
-
-    private Buffer data;
-
-    private DataType dataType = null;
-
-    private static enum DataType {
-        BYTE, FLOAT, INT, SHORT
-    }
+public class GriddedImageDisplay2 extends TileSetRenderable {
 
     /**
      * 
@@ -75,12 +67,13 @@ public class GriddedImageDisplay2 extends AbstractTileSet {
      */
     public GriddedImageDisplay2(int size, Buffer data,
             GridGeometry2D gridGeometry,
-            AbstractVizResource<?, ? extends IMapDescriptor> rsc,
-            String viewType) throws VizException {
-        super(1, size, gridGeometry, rsc, viewType);
-        this.setMapDescriptor(rsc.getDescriptor());
-        this.data = data;
-        setDataType();
+            AbstractVizResource<?, ? extends IMapDescriptor> rsc)
+            throws VizException {
+        super(rsc.getCapability(ImagingCapability.class), gridGeometry,
+                new BufferTileImageCreator(data, gridGeometry.getGridRange2D()
+                        .getBounds(),
+                        rsc.getCapability(ColorMapCapability.class)), 1, size);
+        project(rsc.getDescriptor().getGridGeometry());
     }
 
     /**
@@ -93,166 +86,9 @@ public class GriddedImageDisplay2 extends AbstractTileSet {
      * @throws VizException
      */
     public GriddedImageDisplay2(Buffer data, GridGeometry2D gridGeometry,
-            AbstractVizResource<?, ? extends IMapDescriptor> rsc,
-            String viewType) throws VizException {
-        super(1, 512, gridGeometry, rsc, viewType);
-        this.setMapDescriptor(rsc.getDescriptor());
-        this.data = data;
-        setDataType();
-    }
-
-    private void setDataType() {
-        Object arr = data.array();
-
-        if (arr instanceof byte[]) {
-            dataType = DataType.BYTE;
-        } else if (arr instanceof float[]) {
-            dataType = DataType.FLOAT;
-        } else if (arr instanceof int[]) {
-            dataType = DataType.INT;
-        } else if (arr instanceof short[]) {
-            dataType = DataType.SHORT;
-        }
-    }
-
-    @Override
-    protected void preloadDataObject(int level) throws StorageException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean hasDataPreloaded(int level) {
-        // TODO Auto-generated method stub
-        if (level == 1) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected IImage createTile(IGraphicsTarget target, int level, int i, int j)
+            AbstractVizResource<?, ? extends IMapDescriptor> rsc)
             throws VizException {
-
-        if (dataType == null) {
-            throw new VizException("Unsupported buffer type used");
-        }
-
-        // tile bounds
-        Rectangle rect = this.tileSet.getTileSet().get(level)[i][j]
-                .getRectangle();
-        // total width
-        int width = gridGeometry[level].getGridRange().getSpan(0);
-        IImage image = null;
-        switch (dataType) {
-        case BYTE: {
-            throw new VizException("Unsupported buffer type used (BYTE)");
-            // image = createByteTile(target, rect, width, i, j);
-            // break;
-        }
-        case FLOAT: {
-            image = createFloatTile(target, rect, width, i, j);
-            break;
-        }
-        case INT: {
-            throw new VizException("Unsupported buffer type used (INT)");
-            // image = createIntTile(target, rect, width, i, j);
-            // break;
-        }
-        case SHORT: {
-            // throw new VizException("Unsupported buffer type used (SHORT)");
-            image = createShortTile(target, rect, width, i, j);
-            break;
-        }
-        }
-        return image;
+        this(512, data, gridGeometry, rsc);
     }
 
-    private IImage createShortTile(IGraphicsTarget target, Rectangle rect,
-            int width, int i, int j) {
-        // buffer to copy into
-        short[] dest = new short[rect.width * rect.height];
-        ShortBuffer srcBuff = (ShortBuffer) data;
-
-        short[] tmp = new short[rect.width];
-        int initSize = tileSize * j * width;
-
-        for (int r = 0; r < rect.height; r++) {
-            int curY = (r * width) + initSize;
-            synchronized (this) {
-                srcBuff.position(curY + rect.x);
-
-                srcBuff.get(tmp);
-            }
-
-            for (int destIndex = r * rect.width; destIndex < (r * rect.width)
-                    + rect.width; ++destIndex) {
-                dest[destIndex] = tmp[destIndex - (r * rect.width)];
-            }
-        }
-
-        ShortBuffer destBuff = ShortBuffer.wrap(dest);
-
-        return generateImage(destBuff, target, rect);
-    }
-
-    private IImage createIntTile(IGraphicsTarget target, Rectangle rect,
-            int width, int i, int j) {
-        return null;
-    }
-
-    private IImage createFloatTile(IGraphicsTarget target, Rectangle rect,
-            int width, int i, int j) {
-
-        // buffer to copy into
-        FloatBuffer destBuff = FloatBuffer.allocate(rect.width * rect.height);
-        FloatBuffer srcBuff = (FloatBuffer) data;
-
-        float[] tmp = new float[rect.width];
-        int initSize = tileSize * j * width;
-
-        for (int r = 0; r < rect.height; r++) {
-            int curY = (r * width) + initSize;
-            synchronized (this) {
-                srcBuff.position(curY + rect.x);
-
-                srcBuff.get(tmp);
-            }
-
-            destBuff.put(tmp);
-        }
-
-        return generateImage(destBuff, target, rect);
-    }
-
-    private IImage createByteTile(IGraphicsTarget target, Rectangle rect,
-            int width, int i, int j) {
-        return null;
-    }
-
-    protected IImage generateImage(Buffer tileData, IGraphicsTarget target,
-            Rectangle rect) {
-
-        // create image at i,j index
-        int[] dims = { rect.width, rect.height };
-        IDataPreparer preparer = CMDataPreparerManager.getDataPreparer(
-                tileData, rect, dims);
-
-        return target.initializeRaster(preparer,
-                rsc.getCapability(ColorMapCapability.class)
-                        .getColorMapParameters());
-    }
-
-    @Override
-    public void cancelRequest(int level, int i, int j) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
-     * @return the data
-     */
-    public Buffer getData() {
-        return data;
-    }
 }

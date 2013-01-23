@@ -1,0 +1,125 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
+
+	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
+		<constructor-arg ref="jmsIngestGribConfig" />
+		<property name="taskExecutor" ref="gribThreadPool" />
+	</bean>
+	
+	<bean id="jmsIngestGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+		factory-bean="jmsConfig" factory-method="copy">
+	</bean>
+	
+	<bean id="gribThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="4" />
+		<property name="maxPoolSize" value="4" />
+	</bean>
+
+	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
+
+	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter">
+		<constructor-arg value="${edex.home}/data/tmp/"/>
+	</bean>
+
+	<bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
+
+	<bean id="largeFileLockRelease" class="com.raytheon.edex.plugin.grib.GribLockRelease" />
+
+    <bean id="gribDecodeCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="grib-decode"/>
+  	</bean>
+
+	<bean id="gribPostProcessor"
+		class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
+		factory-method="getInstance" />
+		
+	<bean id="gridToGribConverter"
+		class="com.raytheon.edex.plugin.grib.GridToGribConverter" factory-method="getInstance" />
+		
+		<bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
+		factory-method="getInstance" depends-on="gridRegistered" />
+  	
+    <bean id="gribModelLookup"
+		class="com.raytheon.edex.plugin.grib.util.GribModelLookup"
+		factory-method="getInstance" /> 
+		
+    <bean id="gribSpatialCache"
+		class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
+		factory-method="getInstance" depends-on="gridcoveragelookup"/>
+
+	<camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
+		
+	 	<route id="gribFileConsumerRoute">
+	 		<from ref="gribFileEndpoint" />
+	 			<bean ref="fileToString" />
+	 			<setHeader headerName="pluginName">
+	 				<constant>grid</constant> 
+				</setHeader>
+				<to uri="ingest-grib:queue:Ingest.Grib" />
+		</route>
+	
+		<!-- Begin Grib Decode Route -->
+		<route id="gribIngestRoute">
+			<from uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=4&amp;destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>grid</constant>
+			</setHeader>
+			<!--  strategyRef is needed because of camel bug https://issues.apache.org/activemq/browse/CAMEL-3333,
+			 without the strategy it uses the original message in the multicast and it loses the largeFileLock header -->
+			<split strategyRef="useLatestAggregationStrategy">
+				<method bean="gribSplitter" method="split" />
+				<choice>
+					<when>
+						<simple>${header.CamelSplitSize} == 1</simple>
+						<doTry>
+							<pipeline>
+								<bean ref="stringToFile" />
+								<bean ref="largeFileChecker" />
+								<bean ref="gribDecoder" method="decode" />
+								<bean ref="gribSplitter" method="clean" />
+								<!-- send for processing -->
+								<bean ref="gribPostProcessor" method="process" />
+								<multicast parallelProcessing="false">
+									<!-- send to persistence -->
+									<to uri="directvm:persistIndexAlert" />
+									<!-- send to transform -->
+									<to uri="directvm:gridToGrib"/>
+								</multicast>
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+							</doCatch>
+							<doFinally>
+								<bean ref="largeFileLockRelease" />
+							</doFinally>
+						</doTry>
+					</when>
+					<otherwise>
+						<to uri="ingest-grib:queue:Ingest.Grib" />
+					</otherwise>
+				</choice>
+			</split>
+		</route>
+		
+		<route id="gridToGrib">
+			<from uri="directvm:gridToGrib"/>
+			<bean ref="gridToGribConverter" method="convert"/>
+			<bean ref="index" method="index"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <to uri="vm:stageNotification"/> 
+		</route>
+
+	</camelContext>
+</beans>
