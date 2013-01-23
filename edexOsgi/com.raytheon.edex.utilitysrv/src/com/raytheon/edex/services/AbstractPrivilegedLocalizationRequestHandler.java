@@ -19,13 +19,16 @@
  **/
 package com.raytheon.edex.services;
 
-import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
@@ -51,87 +54,85 @@ import com.raytheon.uf.edex.auth.roles.IRoleStorage;
  */
 public abstract class AbstractPrivilegedLocalizationRequestHandler<T extends AbstractPrivilegedRequest>
         extends AbstractPrivilegedRequestHandler<T> {
-    
+
+    private static final String PATH_SEPARATOR = IPathManager.SEPARATOR;
+
+    private static final String SEPARATOR = ".";
+
+    private static final String ROLE_PREFIX = "com.raytheon.localization";
+
     private static final String APPLICATION = "Localization";
 
     protected AuthorizationResponse getAuthorizationResponse(IUser user,
-            LocalizationContext context, LocalizationLevel level,
-            String fileName, String myContextName)
+            LocalizationContext context, String fileName, String myContextName)
             throws AuthorizationException {
         String contextName = context.getContextName();
-
+        LocalizationLevel level = context.getLocalizationLevel();
+        LocalizationType type = context.getLocalizationType();
+        boolean contextsMatch = (myContextName != null && myContextName
+                .equals(contextName));
         if (level.isSystemLevel()) {
             return new AuthorizationResponse(false,
                     "Modification to system level configuration is prohibited.");
-        } else if (myContextName != null
-                && myContextName.equals(contextName)
-                && (context.getLocalizationLevel() == LocalizationLevel.USER || context
-                        .getLocalizationLevel() == LocalizationLevel.WORKSTATION)) {
-            // If context names match and we are user or workstation file
-            // request, that is ok
+        } else if (level == LocalizationLevel.USER && contextsMatch) {
+            // Don't prevent users from modifying own files
             return new AuthorizationResponse(true);
         }
 
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
         IRoleStorage roleStorage = manager.getRoleStorage();
-        String roleId = "";
+        String[] permissions = roleStorage
+                .getAllDefinedPermissions(APPLICATION);
+        Set<String> definedPermissions = new HashSet<String>();
+        for (String permission : permissions) {
+            definedPermissions.add(permission.toLowerCase());
+        }
 
+        String absoluteRoleId = buildRoleId(level, type, contextName, fileName);
         // First round check com.raytheon.localization.level
         // Second round check com.raytheon.localization.level.name
         for (int i = 0; i < 2; ++i) {
-            roleId = "com.raytheon.localization."
-                    + context.getLocalizationLevel().name()
-                    + "/" + context.getLocalizationType().name();
-            if (i > 0) {
-                if (contextName != null) {
-                    roleId += "." + contextName;
-                } else {
-                    // We already checked this case
-                    break;
-                }
-            }
-            
+            String contextNameToUse = i > 0 ? contextName : null;
+            String roleId = buildRoleId(level, type, contextNameToUse, fileName);
+
             // check most specific to least specific
             // com.raytheon.localization.<level>.(<specificLevel>.)/type/path/name/
-            int minIndex = roleId.length();
-            roleId += File.separator + fileName;
-            int index = roleId.length();
-
-            while (index > minIndex) {
-                roleId = roleId.substring(0, index);
-
-                if (roleStorage.isAuthorized(roleId, user.uniqueId().toString(), APPLICATION)) {
+            int minLength = roleId.length() - fileName.length() - 1;
+            do {
+                if (roleStorage.isAuthorized(roleId,
+                        user.uniqueId().toString(), APPLICATION)) {
                     return new AuthorizationResponse(true);
+                } else if (definedPermissions.contains(roleId.toLowerCase())) {
+                    // User not authorized and this roleId is explicitly defined
+                    return notAuthorized(user, absoluteRoleId);
                 }
 
-                index = roleId.lastIndexOf(File.separator, index - 1);
-            }
-            
-            roleId = "com.raytheon.localization."
-                + context.getLocalizationLevel().name();
-            if (i > 0) {
-                if (contextName != null) {
-                    roleId += "." + contextName;
-                } else {
-                    // We already checked this case
-                    break;
-                }
-            }
-
-            // com.raytheon.localization.<level>.(<specificLevel>)
-            if (roleStorage.isAuthorized(roleId, user.uniqueId().toString(), APPLICATION)) {
-                return new AuthorizationResponse(true);
-            }
-
-            // com.raytheon.localization.<level>.(<specificLevel>.)/type
-            roleId += "/" + context.getLocalizationType().name();
-
-            if (roleStorage.isAuthorized(roleId, user.uniqueId().toString(), APPLICATION)) {
-                return new AuthorizationResponse(true);
-            }
-            
+                roleId = roleId.substring(0,
+                        roleId.lastIndexOf(PATH_SEPARATOR, roleId.length()));
+            } while (roleId.length() >= minLength);
         }
-        
+
+        if (level == LocalizationLevel.WORKSTATION && contextsMatch) {
+            // If no rule found and user is attempting to modify workstation
+            // they are using, default to allow
+            return new AuthorizationResponse(true);
+        }
+
+        return notAuthorized(user, absoluteRoleId);
+    }
+
+    private String buildRoleId(LocalizationLevel level, LocalizationType type,
+            String contextName, String fileName) {
+        String roleId = ROLE_PREFIX + SEPARATOR + level;
+        if (contextName != null) {
+            roleId += SEPARATOR + contextName;
+        }
+        roleId += PATH_SEPARATOR + type;
+        roleId += PATH_SEPARATOR + fileName;
+        return roleId;
+    }
+
+    private AuthorizationResponse notAuthorized(IUser user, String roleId) {
         return new AuthorizationResponse(false, "User, " + user.uniqueId()
                 + ", is not authorized to perform request needing role: "
                 + roleId);
