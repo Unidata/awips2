@@ -843,7 +843,7 @@ public class StatsDisplayCanvas extends Canvas {
                                     .getData().get(idx);
                             double value = point.getValue(view);
 
-                            if (!view.equals(DataView.COUNT.getView())) {
+                            if (!view.equals(DataView.COUNT)) {
                                 if (uu.getUnitType() == UnitTypes.DATA_SIZE) {
                                     value = uu.convertDataSizeValue(
                                             DataSizeUnit.BYTE, value);
