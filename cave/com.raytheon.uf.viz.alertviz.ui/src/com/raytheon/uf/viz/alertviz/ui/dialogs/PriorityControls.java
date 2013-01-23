@@ -62,6 +62,8 @@ import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
  * 24 Mar 2011	5853	   cjeanbap    Check AlertMetadata for Null.
  * 08 Sep 2012  13528     Xiaochuan    Run setNewConfig to update priorities
  * 									   setting.
+ * 14 Dec 2012  4827	  Xiaochuan	   Set toolTip on changeActionBtn.
+ * 	
  * </pre>
  * 
  * @author lvenable
@@ -781,7 +783,8 @@ public class PriorityControls {
                 String selectedFileName = selectedFile.getName();
                 saveNeeded = !selectedFileName.equals(actionFile);
                 alertMetadata.setPythonScript(selectedFileName);
-                actionChk.setToolTipText(selectedFileName);
+                changeActionBtn.setToolTipText(selectedFileName);
+                
             } else {
                 alertMetadata.setAudioFile(null);
                 alertMetadata.setAudioEnabled(false);
