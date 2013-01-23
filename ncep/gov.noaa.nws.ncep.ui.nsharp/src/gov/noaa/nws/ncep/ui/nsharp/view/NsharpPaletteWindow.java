@@ -101,7 +101,7 @@ DisposeListener, IPartListener{
 	private static NsharpConstants.SPCGraph leftGraph = NsharpConstants.SPCGraph.EBS;
 	private static NsharpConstants.SPCGraph rightGraph = NsharpConstants.SPCGraph.STP;
 	private boolean spcGpCreated = false;
-	public  static NsharpPaletteWindow getInstance() {
+	public static NsharpPaletteWindow getInstance() {
 		if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
 			if(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId().equals(D2D5Pane.ID_PERSPECTIVE))
 				return d2dInstance;
@@ -279,7 +279,7 @@ DisposeListener, IPartListener{
 		if(rsc!= null && rsc.getSpcGraphsPaneRsc()!=null) {
 			rsc.getSpcGraphsPaneRsc().setGraphs(leftGraph, rightGraph);
 		}
-		
+
 	}
 	public void setAndOpenMb(String msg) {
 		if (mb != null) {
@@ -312,12 +312,12 @@ DisposeListener, IPartListener{
 		NsharpConfigStore configStore = configMgr.retrieveNsharpConfigStoreFromFs();
 		NsharpGraphProperty graphConfigProperty = configStore.getGraphProperty();
 		paneConfigurationName = graphConfigProperty.getPaneConfigurationName();
-		/*try {
-		//	NsharpGridInventory.getInstance().initInventory(false);
+		try {
+			NsharpGridInventory.getInstance().initInventory(false);
 		} catch (VizException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 	}
 
@@ -1048,7 +1048,7 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-		
+
 		if(paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR))
 			createSPCGp();
 		
@@ -1082,7 +1082,7 @@ DisposeListener, IPartListener{
 		}
 		else{
 			effBulkShearBtn.setEnabled( false );
-		}
+	}
 		effBulkShearBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {  
 				if(leftGraph != NsharpConstants.SPCGraph.EBS && rightGraph != NsharpConstants.SPCGraph.EBS){

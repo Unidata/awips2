@@ -2,6 +2,9 @@
 ## sigwx alert for thunderstorms with wind and/or hail under
 ## severe limits
 ## county list needs to be sortable by state/parts of state/
+##
+##           Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
+##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
 
@@ -26,7 +29,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 
 THE NATIONAL WEATHER SERVICE IN ${officeLoc} HAS ISSUED A SPECIAL WEATHER STATEMENT EFFECTIVE ##
-#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR #headlineLocList(${areas} true true true false).
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR #headlineLocList(${areas} true true true false true).
 
 #if(${stormType} == "line")
   #set ($type1 = "THUNDERSTORMS")
