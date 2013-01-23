@@ -28,8 +28,6 @@ Export-Package: gov.noaa.nws.ncep.viz.ui.perspectives;uses:="org.eclipse.ui,org.
 Import-Package: com.raytheon.uf.viz.core.maps.display,
  com.raytheon.viz.alerts.observers,
  gov.noaa.nws.ncep.viz.gempak.grid.inv,
- gov.noaa.nws.ncep.viz.gempak.grid.mapper,
- gov.noaa.nws.ncep.viz.gempak.grid.units,
  gov.noaa.nws.ncep.viz.resourceManager,
  gov.noaa.nws.ncep.viz.resources,
  gov.noaa.nws.ncep.viz.rsc.ncgrid,
