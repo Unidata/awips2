@@ -63,7 +63,7 @@ public class NwsNotAuthHandler implements INotAuthHandler {
                 + request.getClass();
         UFStatus.getHandler(NwsNotAuthHandler.class).handle(Priority.PROBLEM,
                 message);
-        return null;
+        throw new VizException(message);
     }
 
     /*
@@ -82,7 +82,7 @@ public class NwsNotAuthHandler implements INotAuthHandler {
         }
         UFStatus.getHandler(NwsNotAuthHandler.class).handle(Priority.PROBLEM,
                 message);
-        return null;
+        throw new VizException(message);
     }
 
 }
