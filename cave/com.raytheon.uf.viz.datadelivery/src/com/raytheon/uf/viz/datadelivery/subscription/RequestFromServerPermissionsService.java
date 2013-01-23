@@ -19,13 +19,13 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
-import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
+import java.rmi.RemoteException;
+
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.datadelivery.service.BasePrivilegedDataDeliveryService;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1441       djohnson     Initial creation
  * Jan 21, 2013 1441       djohnson     Use RequestRouter.
+ * Feb 26, 2013 1643       djohnson     Extends base class.
  * 
  * </pre>
  * 
@@ -47,7 +48,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public class RequestFromServerPermissionsService implements IPermissionsService {
+public class RequestFromServerPermissionsService extends
+        BasePrivilegedDataDeliveryService<DataDeliveryAuthRequest> implements
+        IPermissionsService {
 
     /**
      * Adapts the {@link DataDeliveryAuthRequestAdapter} to match the
@@ -81,27 +84,6 @@ public class RequestFromServerPermissionsService implements IPermissionsService 
         @Override
         public boolean hasPermission(DataDeliveryPermission permission) {
             return (isAuthorized()) ? response.isAuthorized(permission) : false;
-        }
-    }
-
-    /**
-     * Send an authorization request. Private because the method of constructing
-     * an authorization request and processing the response should remain
-     * isolated to this utility class.
-     * 
-     * @param request
-     *            The request object
-     * @return DataDeliveryAuthReqeust object
-     * @throws VizException
-     */
-    private DataDeliveryAuthRequest sendAuthorizationRequest(
-            DataDeliveryAuthRequest request) throws VizException {
-        try {
-            return (DataDeliveryAuthRequest) ((SuccessfulExecution) RequestRouter
-                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER))
-                    .getResponse();
-        } catch (Exception e) {
-            throw new VizException(e);
         }
     }
 
@@ -165,8 +147,13 @@ public class RequestFromServerPermissionsService implements IPermissionsService 
         request.addRequestedPermissions(permissions);
         request.setNotAuthorizedMessage(notAuthorizedMessage);
 
-        DataDeliveryAuthRequest r = sendAuthorizationRequest(request);
 
-        return new DataDeliveryAuthRequestAdapter(r);
+        try {
+            DataDeliveryAuthRequest r = sendRequest(request,
+                    DataDeliveryAuthRequest.class);
+            return new DataDeliveryAuthRequestAdapter(r);
+        } catch (RemoteException e) {
+            throw new VizException(e);
+        }
     }
 }
