@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="gridDataAccessFactory" class="com.raytheon.uf.common.dataplugin.grid.dataaccess.GridDataAccessFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="grid"/>
+		<constructor-arg value="com.raytheon.uf.common.dataaccess.grid.IGridRequest"/>
+		<constructor-arg ref="gridDataAccessFactory"/>
+	</bean>	
+	
+</beans>
