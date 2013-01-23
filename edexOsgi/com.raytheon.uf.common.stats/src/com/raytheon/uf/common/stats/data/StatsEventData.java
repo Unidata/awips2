@@ -26,17 +26,18 @@ import java.util.Map;
 
 /**
  * Stats Event helper object.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2012    728      mpduff      Initial creation
- *
+ * Nov 08, 2012    728     mpduff      Initial creation.
+ * Jan 23, 2013   1523     mpduff      Fix list length.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -136,7 +137,7 @@ public class StatsEventData {
 
     /**
      * Get the group list
-     *
+     * 
      * @return
      */
     public String[] getGroups() {
@@ -145,16 +146,16 @@ public class StatsEventData {
 
     /**
      * Get the attribute list
-     *
+     * 
      * @return
      */
     public String[] getAttributes() {
-        return attributeList.toArray(new String[groupList.size()]);
+        return attributeList.toArray(new String[attributeList.size()]);
     }
 
     /**
      * Get the group name from the display name.
-     *
+     * 
      * @param displayName
      * @return
      */
