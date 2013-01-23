@@ -24,9 +24,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.RWLArrayList;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -74,6 +72,10 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  * Jun 25, 2012  #766      dgilling     Cleanup error logging so we
  *                                      don't spam alertViz in practice
  *                                      mode.
+ * Jan 22, 2013  #1515     dgilling     Handle Parm notifications on 
+ *                                      separate thread to prevent backup
+ *                                      in ParmListener's notification job 
+ *                                      pool.
  * 
  * </pre>
  * 
@@ -93,6 +95,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
     private List<VCInventory> vcInventory;
 
+    private final ExecutorService notificationWorkers;
+
     /**
      * Constructor for Virtual Calculated Parm.
      * 
@@ -111,17 +115,14 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
         // Need to check that the above call to mod.getGpi() did not fail
         if (!mod.isValid()) {
-            //statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
-            //        this.mod.getErrorString());
-            Activator
-            .getDefault()
-            .getLog()
-            .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
-                    "Can't get GPI: " + this.mod.getErrorString()));
+            statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
+                    this.mod.getErrorString());
         }
 
         // set the parm type
         // setParmType(Parm::VCPARM);
+
+        notificationWorkers = Executors.newSingleThreadExecutor();
 
         // Determine dependent parms, and register for their ParmClient
         // notifications, determine initial inventory
@@ -141,6 +142,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
         for (Parm reg : registeredParms()) {
             unregisterPC(reg);
         }
+
+        notificationWorkers.shutdownNow();
     }
 
     /*
@@ -153,41 +156,51 @@ public class VCParm extends VParm implements IParmListChangedListener,
      */
     @Override
     public void gridDataChanged(final ParmID parmId, final TimeRange validTime) {
-        synchronized (this) {
-            if (disposed) {
-                return;
-            }
-        }
+        Runnable onNotificationTask = new Runnable() {
 
-        // statusHandler.handle(Priority.DEBUG, "gridDataChanged for: " + parmId
-        // + " " + validTime);
+            @Override
+            public void run() {
+                synchronized (VCParm.this) {
+                    if (disposed) {
+                        return;
+                    }
+                }
 
-        for (VCInventory inv : this.vcInventory) {
-            for (DepParmInv dpi : inv.getDepParmInv()) {
-                if (dpi.getParmID().equals(parmId)) {
-                    for (TimeRange tr : dpi.getTimes()) {
-                        if (tr.getStart().equals(validTime.getStart())) {
-                            this.grids.acquireReadLock();
-                            try {
-                                for (IGridData grid : this.grids) {
-                                    if (inv.getGridTimeRange().equals(
-                                            grid.getGridTime())) {
-                                        grid.depopulate();
-                                        gridDataHasChanged(grid,
-                                                getDisplayAttributes()
-                                                        .getDisplayMask(),
-                                                false);
-                                        return;
+                // statusHandler.handle(Priority.DEBUG, "gridDataChanged for: "
+                // + parmId
+                // + " " + validTime);
+
+                for (VCInventory inv : vcInventory) {
+                    for (DepParmInv dpi : inv.getDepParmInv()) {
+                        if (dpi.getParmID().equals(parmId)) {
+                            for (TimeRange tr : dpi.getTimes()) {
+                                if (tr.getStart().equals(validTime.getStart())) {
+                                    grids.acquireReadLock();
+                                    try {
+                                        for (IGridData grid : grids) {
+                                            if (inv.getGridTimeRange().equals(
+                                                    grid.getGridTime())) {
+                                                grid.depopulate();
+                                                gridDataHasChanged(
+                                                        grid,
+                                                        getDisplayAttributes()
+                                                                .getDisplayMask(),
+                                                        false);
+                                                return;
+                                            }
+                                        }
+                                    } finally {
+                                        grids.releaseReadLock();
                                     }
                                 }
-                            } finally {
-                                this.grids.releaseReadLock();
                             }
                         }
                     }
                 }
             }
-        }
+        };
+
+        notificationWorkers.submit(onNotificationTask);
     }
 
     /*
@@ -202,22 +215,31 @@ public class VCParm extends VParm implements IParmListChangedListener,
     @Override
     public void parmListChanged(final Parm[] parms, Parm[] deletions,
             Parm[] additions) {
+        Runnable onNotificationTask = new Runnable() {
 
-        // forcing access to the disposed variable and subsequent
-        // registration/unregistation of listeners through this synchronized
-        // block seems to prevent VCParm objects being leaked through outdated
-        // listener list copies
-        synchronized (this) {
-            if (disposed) {
-                return;
+            @Override
+            public void run() {
+                // forcing access to the disposed variable and subsequent
+                // registration/unregistation of listeners through this
+                // synchronized
+                // block seems to prevent VCParm objects being leaked through
+                // outdated
+                // listener list copies
+                synchronized (VCParm.this) {
+                    if (disposed) {
+                        return;
+                    }
+
+                    // statusHandler.handle(Priority.DEBUG,
+                    // "ParmListChangedMsg received: ");
+                    // System.out.println("ParmListChangedMsg received: "
+                    // + getParmID().toString());
+                    registerParmClients(parms, true);
+                }
             }
+        };
 
-            // statusHandler.handle(Priority.DEBUG,
-            // "ParmListChangedMsg received: ");
-            // System.out.println("ParmListChangedMsg received: "
-            // + getParmID().toString());
-            registerParmClients(parms, true);
-        }
+        notificationWorkers.submit(onNotificationTask);
     }
 
     /*
@@ -239,13 +261,21 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // + getParmID().toString());
         // System.out.println("ParmInventoryChanged notification for: "
         // + getParmID().toString());
-        synchronized (this) {
-            if (disposed) {
-                return;
-            }
-        }
+        Runnable onNotificationTask = new Runnable() {
 
-        recalcInventory(true);
+            @Override
+            public void run() {
+                synchronized (VCParm.this) {
+                    if (disposed) {
+                        return;
+                    }
+                }
+
+                recalcInventory(true);
+            }
+        };
+
+        notificationWorkers.submit(onNotificationTask);
     }
 
     /*
@@ -464,14 +494,15 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // get list of dependent parms
         List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
         if (!mod.isValid()) {
-            //statusHandler.handle(Priority.EVENTB,
-            //        "Error getting dependent WeatherElements: ",
-            //        mod.getErrorString());
-            Activator
-            .getDefault()
-            .getLog()
-            .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
-                    "Error getting dependent WeatherElements: " + this.mod.getErrorString()));
+            statusHandler.handle(Priority.EVENTB,
+                    "Error getting dependent WeatherElements: ",
+                    mod.getErrorString());
+            // Activator
+            // .getDefault()
+            // .getLog()
+            // .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
+            // "Error getting dependent WeatherElements: "
+            // + this.mod.getErrorString()));
         }
 
         // get list of currently registered parms
