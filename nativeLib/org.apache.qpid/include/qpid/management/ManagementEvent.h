@@ -23,7 +23,7 @@
  */
 
 #include "qpid/management/ManagementObject.h"
-#include <qpid/framing/Buffer.h>
+#include "qpid/types/Variant.h"
 #include <string>
 
 namespace qpid {
@@ -32,16 +32,20 @@ namespace management {
 class ManagementAgent;
 
 class ManagementEvent : public ManagementItem {
-public:
-    typedef void (*writeSchemaCall_t)(qpid::framing::Buffer&);
+ public:
+    static const uint8_t MD5_LEN = 16;
+    //typedef void (*writeSchemaCall_t)(qpid::framing::Buffer&);
+    typedef void (*writeSchemaCall_t)(std::string&);
     virtual ~ManagementEvent() {}
 
     virtual writeSchemaCall_t getWriteSchemaCall(void) = 0;
+    //virtual mapEncodeSchemaCall_t getMapEncodeSchemaCall(void) = 0;
     virtual std::string& getEventName() const = 0;
     virtual std::string& getPackageName() const = 0;
     virtual uint8_t* getMd5Sum() const = 0;
     virtual uint8_t getSeverity() const = 0;
-    virtual void encode(qpid::framing::Buffer&) const = 0;
+    virtual void encode(std::string&) const = 0;
+    virtual void mapEncode(qpid::types::Variant::Map&) const = 0;
 };
 
 }}

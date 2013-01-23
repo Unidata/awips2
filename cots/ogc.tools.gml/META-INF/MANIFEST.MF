@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ogc.tools.gml
+Bundle-SymbolicName: ogc.tools.gml
+Bundle-Version: 1.0.2
+Bundle-ClassPath: ogc-tools-gml-jts-1.0.2.jar
+Export-Package: org.jvnet.ogc.gml.v_3_1_1,
+ org.jvnet.ogc.gml.v_3_1_1.jts
+Require-Bundle: org.geotools;bundle-version="2.6.4",
+ net.opengis;bundle-version="1.0.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

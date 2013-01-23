@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Header: /cvsroot/ebxmlrr/omar/misc/samples/minDB/SubmitObjectsRequest_AssociationTypeScheme.xml,v 1.18 2007/05/25 17:18:52 farrukh_najmi Exp $ -->
+<SubmitObjectsRequest id="urn:oasis:names:tc:ebxml-regrep:request:id" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:4.0" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0" xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0  ../../xsd/lcm.xsd">
+    <rim:RegistryObjectList>
+        <rim:RegistryObject xsi:type="rim:ClassificationSchemeType" lid="urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType" id="urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType" isInternal="true" nodeType="urn:oasis:names:tc:ebxml-regrep:NodeType:UniqueCode">
+            <rim:Name>
+                <rim:LocalizedString value="AssociationType"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="AssociationType.desc"/>
+            </rim:Description>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith" code="AffiliatedWith" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith">
+                <rim:Name>
+                    <rim:LocalizedString value="AffiliatedWith"/>
+                </rim:Name>
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith:EmployeeOf" code="EmployeeOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith:EmployeeOf">
+                    <rim:Name>
+                        <rim:LocalizedString value="EmployeeOf"/>
+                    </rim:Name>
+                </rim:ClassificationNode>
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith:MemberOf" code="MemberOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:AffiliatedWith:MemberOf">
+                    <rim:Name>
+                        <rim:LocalizedString value="MemberOf"/>
+                    </rim:Name>
+                </rim:ClassificationNode>
+            </rim:ClassificationNode>
+            
+            <!--TODO: Should the following OWL-S types be canonical??-->
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Annotates" code="Annotates" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Annotates">
+                <rim:Name>
+                    <rim:LocalizedString value="Annotates"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Presents" code="Presents" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Presents">
+                <rim:Name>
+                    <rim:LocalizedString value="Presents"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Supports" code="Supports" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Supports">
+                <rim:Name>
+                    <rim:LocalizedString value="Supports"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:DescribedBy" code="DescribedBy" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:DescribedBy">
+                <rim:Name>
+                    <rim:LocalizedString value="DescribedBy"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:OperatesOn" code="OperatesOn" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:OperatesOn">
+                <rim:Name>
+                    <rim:LocalizedString value="OperatesOn"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            
+            
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:RelatedTo" code="RelatedTo" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:RelatedTo">
+                <rim:Name>
+                    <rim:LocalizedString value="RelatedTo"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:SourceOf" code="SourceOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:SourceOf">
+                <rim:Name>
+                    <rim:LocalizedString value="SourceOf"/>
+                </rim:Name>        
+                <rim:ExternalLink lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:SourceOf:source" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:SourceOf:source" registryObject="urn:oasis:names:tc:ebxml-regrep:AssociationType:SourceOf">
+                    <rim:ExternalRef xlink:href="http://dublincore.org/documents/dcmi-terms/#source"/>
+                </rim:ExternalLink>                    
+                
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasCatalogedMetadata" code="HasCatalogedMetadata" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasCatalogedMetadata">
+                    <rim:Name>
+                        <rim:LocalizedString value="HasCatalogedMetadata"/>
+                    </rim:Name>        
+                </rim:ClassificationNode>
+            </rim:ClassificationNode>
+            
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasFederationMember" code="HasFederationMember" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasFederationMember">
+                <rim:Name>
+                    <rim:LocalizedString value="HasFederationMember"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" code="HasMember" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember">
+                <rim:Name>
+                    <rim:LocalizedString value="HasMember"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasComment" code="HasComment" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasComment">
+                <rim:Name>
+                    <rim:LocalizedString value="HasComment"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasRole" code="HasRole" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasRole">
+                <rim:Name>
+                    <rim:LocalizedString value="HasRole"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasSubmittingOrganization" code="HasSubmittingOrganization" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasSubmittingOrganization">
+                <rim:Name>
+                    <rim:LocalizedString value="HasSubmittingOrganization"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasParent" code="HasParent" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasParent">
+                <rim:Name>
+                    <rim:LocalizedString value="HasParent"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:ExternallyLinks" code="ExternallyLinks" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:ExternallyLinks">
+                <rim:Name>
+                    <rim:LocalizedString value="ExternallyLinks"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Contains" code="Contains" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Contains">
+                <rim:Name>
+                    <rim:LocalizedString value="Contains"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:EquivalentTo" code="EquivalentTo" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:EquivalentTo">
+                <rim:Name>
+                    <rim:LocalizedString value="EquivalentTo"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Extends" code="Extends" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Extends">
+                <rim:Name>
+                    <rim:LocalizedString value="Extends"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Implements" code="Implements" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Implements">
+                <rim:Name>
+                    <rim:LocalizedString value="Implements"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Imports" code="Imports" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Imports">
+                <rim:Name>
+                    <rim:LocalizedString value="Imports"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Includes" code="Includes" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Includes">
+                <rim:Name>
+                    <rim:LocalizedString value="Includes"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:InstanceOf" code="InstanceOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:InstanceOf">
+                <rim:Name>
+                    <rim:LocalizedString value="InstanceOf"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Supersedes" code="Supersedes" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Supersedes">
+                <rim:Name>
+                    <rim:LocalizedString value="Supersedes"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Uses" code="Uses" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Uses">
+                <rim:Name>
+                    <rim:LocalizedString value="Uses"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:Replaces" code="Replaces" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:Replaces">
+                <rim:Name>
+                    <rim:LocalizedString value="Replaces"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:SubmitterOf" code="SubmitterOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:SubmitterOf">
+                <rim:Name>
+                    <rim:LocalizedString value="SubmitterOf"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:ResponsibleFor" code="ResponsibleFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:ResponsibleFor">
+                <rim:Name>
+                    <rim:LocalizedString value="ResponsibleFor"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:OwnerOf" code="OwnerOf" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:OwnerOf">
+                <rim:Name>
+                    <rim:LocalizedString value="OwnerOf"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:OffersService" code="OffersService" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:OffersService">
+                <rim:Name>
+                    <rim:LocalizedString value="OffersService"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:ContentManagementServiceFor" code="ContentManagementServiceFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:ContentManagementServiceFor">
+                <rim:Name>
+                    <rim:LocalizedString value="ContentManagementServiceFor"/>
+                </rim:Name>
+            </rim:ClassificationNode>
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor" code="InvocationControlFileFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor">
+                <rim:Name>
+                    <rim:LocalizedString value="InvocationControlFileFor"/>
+                </rim:Name>
+                
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:CatalogingControlFileFor" code="CatalogingControlFileFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:CatalogingControlFileFor">
+                    <rim:Name>
+                        <rim:LocalizedString value="CatalogingControlFileFor"/>
+                    </rim:Name>
+                </rim:ClassificationNode>
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:ValidationControlFileFor" code="ValidationControlFileFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:ValidationControlFileFor">
+                    <rim:Name>
+                        <rim:LocalizedString value="ValidationControlFileFor"/>
+                    </rim:Name>
+                </rim:ClassificationNode>
+                <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:FilteringControlFileFor" code="FilteringControlFileFor" id="urn:oasis:names:tc:ebxml-regrep:AssociationType:InvocationControlFileFor:FilteringControlFileFor">
+                    <rim:Name>
+                        <rim:LocalizedString value="FilteringControlFileFor"/>
+                    </rim:Name>
+                </rim:ClassificationNode>
+                
+                
+            </rim:ClassificationNode>
+        </rim:RegistryObject>
+    </rim:RegistryObjectList>
+</SubmitObjectsRequest>
