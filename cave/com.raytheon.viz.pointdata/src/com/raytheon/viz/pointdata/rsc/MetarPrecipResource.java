@@ -157,7 +157,11 @@ public class MetarPrecipResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        List<RenderablePrecipData> precips = data.get(paintProps.getDataTime());
+        DataTime time = paintProps.getDataTime();
+        if (time == null) {
+            return;
+        }
+        List<RenderablePrecipData> precips = getPrecipData(time);
         if (precips == null) {
             dataProcessJob.schedule();
             return;
@@ -199,6 +203,19 @@ public class MetarPrecipResource extends
         }
 
         target.drawStrings(strings);
+    }
+
+    private List<RenderablePrecipData> getPrecipData(DataTime time) {
+        List<RenderablePrecipData> currData = null;
+        synchronized (data) {
+            currData = data.get(time);
+        }
+        if (currData != null) {
+            synchronized (currData) {
+                return new ArrayList<RenderablePrecipData>(currData);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -262,7 +279,7 @@ public class MetarPrecipResource extends
         Double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
-        List<RenderablePrecipData> precips = data.get(descriptor
+        List<RenderablePrecipData> precips = getPrecipData(descriptor
                 .getTimeForResource(this));
 
         if (precips == null || precips.isEmpty()) {
@@ -299,12 +316,14 @@ public class MetarPrecipResource extends
     private void processReproject() {
         if (reproject) {
             reproject = false;
-            for (List<RenderablePrecipData> dataList : data.values()) {
-                for (RenderablePrecipData precip : dataList) {
-                    Coordinate latLon = precip.getLatLon();
-                    double[] px = descriptor.worldToPixel(new double[] {
-                            latLon.x, latLon.y });
-                    precip.string.setCoordinates(px[0], px[1], px[2]);
+            synchronized (data) {
+                for (List<RenderablePrecipData> dataList : data.values()) {
+                    for (RenderablePrecipData precip : dataList) {
+                        Coordinate latLon = precip.getLatLon();
+                        double[] px = descriptor.worldToPixel(new double[] {
+                                latLon.x, latLon.y });
+                        precip.string.setCoordinates(px[0], px[1], px[2]);
+                    }
                 }
             }
         }
@@ -312,10 +331,12 @@ public class MetarPrecipResource extends
     }
 
     private void processRemoves() {
-        while (!removes.isEmpty()) {
-            DataTime toRemove = removes.poll();
-            this.dataTimes.remove(toRemove);
-            this.data.remove(toRemove);
+        synchronized (data) {
+            while (!removes.isEmpty()) {
+                DataTime toRemove = removes.poll();
+                this.dataTimes.remove(toRemove);
+                this.data.remove(toRemove);
+            }
         }
     }
 
@@ -354,10 +375,13 @@ public class MetarPrecipResource extends
                 // No need to reprocess times after the earliest update.
                 continue;
             }
-            Iterator<RenderablePrecipData> iter = entry.getValue().iterator();
-            while (iter.hasNext()) {
-                if (newStations.contains(iter.next().getStationName())) {
-                    iter.remove();
+            synchronized (entry.getValue()) {
+                Iterator<RenderablePrecipData> iter = entry.getValue()
+                        .iterator();
+                while (iter.hasNext()) {
+                    if (newStations.contains(iter.next().getStationName())) {
+                        iter.remove();
+                    }
                 }
             }
             addData(time, container.getBasePrecipData(time));
@@ -393,6 +417,9 @@ public class MetarPrecipResource extends
             }
             int curIndex = frameInfo.getFrameIndex();
             int count = frameInfo.getFrameCount();
+            if (times.length != count) {
+                System.out.println("Uh oh");
+            }
             // This will generate the number series 0, -1, 1, -2, 2, -3, 3...
             for (int i = 0; i < count / 2 + 1; i = i < 0 ? -i : -i - 1) {
                 int index = (count + curIndex + i) % count;
@@ -417,27 +444,31 @@ public class MetarPrecipResource extends
                 }
             }
         }
-        // This will only happen if frames were removed while we were processing
-        // DOn't leave any half created frames
-        for (DataTime time : baseOnly) {
-            this.dataTimes.remove(time);
-            this.data.remove(time);
+
+        synchronized (data) {
+            // This will only happen if frames were removed while we were
+            // processing. Don't leave any half created frames
+            for (DataTime time : baseOnly) {
+                this.dataTimes.remove(time);
+                this.data.remove(time);
+            }
         }
     }
 
     private void addData(DataTime time, List<PrecipData> precips) {
         if (precips.isEmpty()) {
             if (!dataTimes.contains(time)) {
-                List<RenderablePrecipData> newPrecips = Collections.emptyList();
-                data.put(time, newPrecips);
+                synchronized (data) {
+                    List<RenderablePrecipData> newPrecips = Collections
+                            .emptyList();
+                    data.put(time, newPrecips);
+                }
                 dataTimes.add(time);
             }
         }
         if (data.containsKey(time)) {
             precips = new ArrayList<PrecipData>(precips);
-            for (RenderablePrecipData pData : data.get(time)) {
-                precips.add(pData);
-            }
+            precips.addAll(getPrecipData(time));
         }
         Collections.sort(precips, new Comparator<PrecipData>() {
 
@@ -480,9 +511,11 @@ public class MetarPrecipResource extends
             data.distValue = bestDist;
             newPrecips.add(data);
         }
-        data.put(time, newPrecips);
-        if (!dataTimes.contains(time)) {
-            dataTimes.add(time);
+        synchronized (data) {
+            data.put(time, newPrecips);
+            if (!dataTimes.contains(time)) {
+                dataTimes.add(time);
+            }
         }
         issueRefresh();
     }
