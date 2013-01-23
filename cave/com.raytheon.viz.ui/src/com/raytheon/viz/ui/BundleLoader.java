@@ -204,7 +204,7 @@ public class BundleLoader extends Job {
         if (containerPanes.length != bundleDisplays.length) {
             boolean success = ensureOneToOne(container, bundle);
             containerPanes = container.getDisplayPanes();
-            if (success) {
+            if (success == false) {
                 throw new VizException("Unable to load "
                         + bundleDisplays.length
                         + " displays onto container with "
