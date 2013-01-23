@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>AVIATION</inventoryName>
-    <inventoryParameters>pluginName,info.ensembleId,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,eventName,dataTime</inventoryParameters>
     <baseConstraints>
-        <mapping key="info.datasetId">
+        <mapping key="modelName">
             <constraint constraintValue="aviation" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
-            <constraint constraintValue="grid" constraintType="EQUALS"/>
+            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
         </mapping>
-        <mapping key="info.ensembleId">
+        <mapping key="eventName">
             <constraint constraintValue="%" constraintType="LIKE"/>
         </mapping>
     </baseConstraints>
