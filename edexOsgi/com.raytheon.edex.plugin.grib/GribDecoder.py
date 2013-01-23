@@ -592,19 +592,19 @@ class GribDecoder():
                 
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
-                typeEnsemble = Integer(pdsTemplate[15]).intValue()
-                perturbationNumber = Integer(pdsTemplate[16]).intValue()
+                typeEnsemble = Integer(pdsTemplate[15])
+                perturbationNumber = Integer(pdsTemplate[16])
                 pdsFields['numForecasts'] = Integer(pdsTemplate[17])
                 if(typeEnsemble == 0):
-                     pdsFields['ensembleId'] = "ctlh" + str(perturbationNumber);
+                     pdsFields['ensembleId'] = "ctlh" + perturbationNumber;
                 elif(typeEnsemble == 1):
-                     pdsFields['ensembleId'] = "ctll" + str(perturbationNumber);
+                     pdsFields['ensembleId'] = "ctll" + perturbationNumber;
                 elif(typeEnsemble == 2):
-                     pdsFields['ensembleId'] = "n" + str(perturbationNumber);
+                     pdsFields['ensembleId'] = "n" + perturbationNumber;
                 elif(typeEnsemble == 3):
-                     pdsFields['ensembleId'] = "p" + str(perturbationNumber);
+                     pdsFields['ensembleId'] = "p" + perturbationNumber;
                 else:
-                    pdsFields['ensembleId'] = str(typeEnsemble) + "." + str(perturbationNumber);
+                    pdsFields['ensembleId'] = typeEnsemble + "." + perturbationNumber;
                 
                 if pdsTemplateNumber == 11:
                     endTime = GregorianCalendar(pdsTemplate[18], pdsTemplate[19] - 1, pdsTemplate[20], pdsTemplate[21], pdsTemplate[22], pdsTemplate[23])

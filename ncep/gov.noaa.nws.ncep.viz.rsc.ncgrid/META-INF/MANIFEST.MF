@@ -66,6 +66,4 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.sun.jna,
  com.sun.jna.ptr,
  gov.noaa.nws.ncep.common.log.logger,
- gov.noaa.nws.ncep.viz.gempak.grid.inv,
- gov.noaa.nws.ncep.viz.gempak.grid.mapper,
- gov.noaa.nws.ncep.viz.gempak.grid.units
+ gov.noaa.nws.ncep.viz.gempak.grid.inv

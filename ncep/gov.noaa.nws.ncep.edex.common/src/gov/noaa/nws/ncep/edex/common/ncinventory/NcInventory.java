@@ -281,7 +281,6 @@ public class NcInventory {
 	        // get the dao and the record class for this plugin and use them
 			// to create a DatabaseQuery.
 	        //	        
-			
 	        CoreDao dao = PluginFactory.getInstance().getPluginDao( 
 	        		inventoryDefn.getPluginName() );
 	        String recordClassStr = PluginFactory.getInstance().getPluginRecordClassName( 
@@ -309,6 +308,7 @@ public class NcInventory {
 	        List<?> queryResults = dao.queryByCriteria( dbQuery );
 	        
 	        if( !queryResults.isEmpty() ) {
+	        	
 	            for( Object queryRslt : queryResults ) {
 	            	// if there is only one parameter then the results will be an
 	            	// Object, otherwise it will be an array of Objects.
@@ -327,12 +327,7 @@ public class NcInventory {
 		                Object rsltArray[] = (Object[])queryRslt;
 
 		                for( int p=0 ; p<distinctFields.size() ; p++ ) {
-		                	if (rsltArray[p] != null) {
-		                		rsltMap.put( distinctFields.get(p), rsltArray[p] );
-		                	}
-		                	else {
-		                		rsltMap.put( distinctFields.get(p), "" );
-		                	}
+		                	rsltMap.put( distinctFields.get(p), rsltArray[p] );
 		                }
 		            	
 	            	}
