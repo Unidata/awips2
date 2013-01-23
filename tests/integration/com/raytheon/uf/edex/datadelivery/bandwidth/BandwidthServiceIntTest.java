@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 20, 2012 1286       djohnson     Add tests for proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add tests for getting bandwidth graph data.
  * Feb 20, 2013 1543       djohnson     Use WFO bandwidth manager.
+ * Feb 26, 2013 1643       djohnson     BandwidthService extends reusable class.
  * 
  * </pre>
  * 
@@ -97,7 +98,7 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
     private final BandwidthService service = new BandwidthService() {
         @Override
-        protected Object sendRequest(IBandwidthRequest request)
+        protected Object getResponseFromServer(IBandwidthRequest request)
                 throws Exception {
             // Serialize and deserialize each call, this makes sure the dynamic
             // serialize annotations are correct as well
