@@ -124,6 +124,9 @@
         <deploy.war
         	web.project.dir="gov.noaa.nws.ncep.edex.purgeutil"
         	war.name="purgeWeb" />
+		<deploy.war
+			web.project.dir="com.raytheon.uf.edex.registry.ebxml"
+			war.name="registryEbxml" />
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 

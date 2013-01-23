@@ -459,16 +459,12 @@ public class FreezingLevel {
         }
 
         // Gets the most recent record of it's type
-        String sql = "select datauri from grib where modelinfo_id = (select id from grib_models where parameterabbreviation = \'"
+        String sql = "select grid.datauri from grid, grid_info, level where grid.info_id = grid_info.id and grid_info.level_id = level.id and grid_info.parameter_abbreviation = \'"
                 + paramName
-                + "\' and modelname = \'"
+                + "\' and grid_info.datasetId = \'"
                 + model
-                + "\' and level_id = (select id from level where masterlevel_name = 'MB' and levelonevalue = '"
-                + level
-                + "\'"
-                + " limit 1)) and reftime='"
-                + refTimeStr + "' and forecasttime=0"
-                + " order by reftime desc, forecasttime desc limit 1";
+                + "\' and level.masterlevel_name = 'MB' and level.levelonevalue = '"
+                + level + "\' and grid.reftime=\'" + refTimeStr + "\' and grid.forecasttime=0 order by grid.reftime desc limit 1";
         return sql;
     }
 }

@@ -84,7 +84,7 @@ public class GhgSaveDeleteFilterDlg extends CaveSWTDialog {
      */
     public GhgSaveDeleteFilterDlg(Shell parent, String[] names,
             boolean saveFilter) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
         namesArray = names;
         this.saveFilter = saveFilter;
@@ -141,6 +141,7 @@ public class GhgSaveDeleteFilterDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         filterNameTF = new Text(filterComp, SWT.BORDER);
         filterNameTF.setLayoutData(gd);
+        filterNameTF.setEnabled(saveFilter);
     }
 
     /**
