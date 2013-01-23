@@ -250,7 +250,6 @@ public class UnitUtils implements ISerializableObject {
             break;
         case TIME:
             units = TIME_UNIT_LOOKUP.keySet();
-            // units = TimeConversion.getDataUnits();
             break;
         case COUNT:
             units = new HashSet<String>();
