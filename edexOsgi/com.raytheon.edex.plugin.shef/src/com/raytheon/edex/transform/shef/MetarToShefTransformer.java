@@ -80,6 +80,10 @@ public class MetarToShefTransformer extends
     private static final int P1_MIN  = 50;
     private static final int P2_MAX  =  5;
 
+    private static String cfgFileName="metar.cfg";
+    private static String cmdLnOptions="";
+    private static boolean refreshOptions=true;
+
     /**
      * Construct an instance of this transformer.
      * @param cmdLine Command line options that may be used if these
@@ -410,5 +414,25 @@ public class MetarToShefTransformer extends
             }
         }
         return sb;
+    }
+
+    public final byte[] transformMetar(MetarRecord report, Headers headers)
+    throws TransformerException {
+    	if (refreshOptions) {
+    		logger.info("Metar to SHEF now use config file: "+cfgFileName+" with options:"+cmdLnOptions);
+    		options.setCfgFileName(cfgFileName);
+ 			options.updateCommandLine(cmdLnOptions);
+    		options.updateOptions();
+    		refreshOptions=false;
+    	}
+    	configureArchiveDir();
+
+    	return transformReport(report, headers);
+    }
+
+    public static void setCfgNOption (String cfg, String options){
+    	cfgFileName=cfg;
+    	cmdLnOptions=options;
+    	refreshOptions=true;
     }
 }
