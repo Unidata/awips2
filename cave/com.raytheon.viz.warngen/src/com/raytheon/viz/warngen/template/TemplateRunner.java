@@ -131,7 +131,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * Nov 30, 2012   15571    Qinglu Lin  For NEW, assigned simulatedTime to TMLtime; For COR, used stormLocs 
  *                                     in oldWarn.
  * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
- *                                     while loc is null.  
+ *                                     while loc is null.
+ * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.                                  
+ *                                   
  * </pre>
  * 
  * @author njensen
@@ -790,7 +792,7 @@ public class TemplateRunner {
         String text = script.toString();
         WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
                 selectedAction, text, config.getAutoLockText());
-        String handledText = handler.handle(text, areas, cancelareas);
+        String handledText = handler.handle(text, areas, cancelareas, selectedAction);
 
         return handledText;
     }
