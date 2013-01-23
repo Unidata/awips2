@@ -129,7 +129,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
 
     private void initializeComponents() {
 
-    	if (names.size() == 0 && !saveType) {
+        if (names.size() == 0 && !saveType) {
             Label label = new Label(top, SWT.CENTER);
             label.setText("No groups available for deletion.");
             return;
@@ -151,7 +151,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
                 }
             }
         });
-        
+
         String[] items = names.toArray(new String[names.size()]);
         Arrays.sort(items);
         groupList.setItems(items);
@@ -160,8 +160,8 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
         groupList.setLayoutData(data);
         groupField = new Text(top, SWT.BORDER);
         data = new GridData(GridData.FILL_HORIZONTAL);
-        groupField.setEnabled(saveType);
         groupField.setLayoutData(data);
+        groupField.setEnabled(saveType);
         groupField.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent arg0) {
                 selectedItem = groupField.getText().trim();
@@ -216,7 +216,7 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
     protected void okPressed() {
         boolean ok = true;
         String groupName = getSelectedItem();
-        
+
         if (!FileUtil.isValidFilename(groupName)) {
             MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_ERROR
                     | SWT.OK);
@@ -225,21 +225,21 @@ public class WeatherElementGroupDialog extends CaveJFACEDialog {
                     + FileUtil.VALID_FILENAME_CHARS);
             mb.open();
             ok = false;
-        } else if (protectedNames.contains(groupName)){
-        	statusHandler.handle(Priority.SIGNIFICANT, "Weather Element Group "
+        } else if (protectedNames.contains(groupName)) {
+            statusHandler.handle(Priority.SIGNIFICANT, "Weather Element Group "
                     + getSelectedItem() + " is protected or an invalid name.");
             ok = false;
-        } else if (!saveType){
-        	MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_QUESTION
-        			| SWT.OK | SWT.CANCEL);
+        } else if (!saveType) {
+            MessageBox mb = new MessageBox(super.getShell(), SWT.ICON_QUESTION
+                    | SWT.OK | SWT.CANCEL);
             mb.setText("Item Delete");
             mb.setMessage(getSelectedItem() + " will be Deleted.");
 
             if (mb.open() == SWT.CANCEL) {
                 ok = false;
             }
-        } 
-        
+        }
+
         if (ok) {
             super.okPressed();
         }

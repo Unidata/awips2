@@ -26,18 +26,19 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg.DialogType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Abstract dialog class that is the foundation for the Monitor and Display
@@ -49,7 +50,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg.DialogType
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 6, 2009             lvenable     Initial creation
- * Jun 17, 2010 5551,5548  skorolev     Add "Open" and "Help" menu items
+ * Jun 17, 2010 5551,5548  skorolev     Add "Open" and "Help" menu itemsec
+ * Dec 6, 2012 #1351       skorolev     Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -57,16 +59,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.LoadSaveDeleteSelectDlg.DialogType
  * @version 1.0
  */
 
-public abstract class MonitorDisplayThreshDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    protected Shell shell;
-
-    /**
-     * The display control.
-     */
-    protected Display display;
+public abstract class MonitorDisplayThreshDlg extends CaveSWTDialog {
 
     /**
      * Tab folder.
@@ -74,19 +67,29 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
     protected TabFolder tabFolder;
 
     /**
-     * Return value for the open method.
-     */
-    private Boolean returnValue = false;
-
-    /**
      * Application name.
      */
-    protected CommonConfig.AppName appName;
+    protected AppName appName;
 
     /**
      * Display type (Monitor/Display).
      */
     protected DataUsageKey displayType;
+
+    /** File menu Open **/
+    private LoadSaveDeleteSelectDlg openDlg;
+
+    /** File menu Save **/
+    private LoadSaveDeleteSelectDlg saveDlg;
+
+    /** File menu Save As **/
+    private LoadSaveDeleteSelectDlg saveAsDlg;
+
+    /** File menu Select **/
+    private LoadSaveDeleteSelectDlg selectDlg;
+
+    /** File menu Delete **/
+    private LoadSaveDeleteSelectDlg deleteDlg;
 
     /**
      * Constructor.
@@ -98,70 +101,64 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
      * @param displayType
      *            Display type.
      */
-    public MonitorDisplayThreshDlg(Shell parent, CommonConfig.AppName appName,
+    public MonitorDisplayThreshDlg(Shell parent, AppName appName,
             DataUsageKey displayType) {
-        super(parent, 0);
-
-        this.appName = appName;
-        this.displayType = displayType;
-    }
-
-    /**
-     * Open method used to display the dialog.
-     * 
-     * @return True/False.
-     */
-    public Object open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
-
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 2;
-        mainLayout.marginWidth = 2;
-        mainLayout.verticalSpacing = 2;
-        shell.setLayout(mainLayout);
-        shell.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         // Set the dialog title
-
         StringBuilder sb = new StringBuilder();
         sb.append(appName.name()).append(": ");
-
         if (displayType == DataUsageKey.MONITOR) {
             sb.append("Configure Monitor Thresholds");
         } else {
             sb.append("Configure Display Thresholds");
         }
+        setText(sb.toString());
+        this.appName = appName;
+        this.displayType = displayType;
+    }
 
-        shell.setText(sb.toString());
+    // Create the main layout for the shell.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
+    @Override
+    protected Layout constructShellLayout() {
+        GridLayout mainLayout = new GridLayout(1, false);
+        mainLayout.marginHeight = 2;
+        mainLayout.marginWidth = 2;
+        mainLayout.verticalSpacing = 2;
+        return mainLayout;
+    }
 
-        // Initialize all of the controls and layouts
-        initializeComponents();
-
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return returnValue;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.DEFAULT, true, false);
     }
 
     /**
      * Initialize the components on the display.
      */
-    private void initializeComponents() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
         createMenu();
-
         createTabFolder();
-
         createTabItems();
-
         createCommitChangesButton();
     }
 
@@ -175,8 +172,6 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
         createHelpMenu(menuBar);
         shell.setMenuBar(menuBar);
     }
-
-
 
     /**
      * Create the File menu.
@@ -212,7 +207,7 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
         exitMI.setText("Exit");
         exitMI.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -223,10 +218,10 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
      * @param menuBar
      *            Menu bar.
      */
-    private void createHelpMenu(Menu menuBar) {     
+    private void createHelpMenu(Menu menuBar) {
         MenuItem helpMenuItem = new MenuItem(menuBar, SWT.CASCADE);
         helpMenuItem.setText("&Help");
-     // TODO Should be enhanced in the future versions.
+        // TODO Should be enhanced in the future versions.
     }
 
     /**
@@ -246,7 +241,7 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
                 menuOpenAction();
             }
         });
-        
+
         MenuItem saveAsMI = new MenuItem(fileMenu, SWT.NONE);
         saveAsMI.setText("Save As...");
         saveAsMI.addSelectionListener(new SelectionAdapter() {
@@ -278,24 +273,26 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
                 menuDeleteAction();
             }
         });
-
         new MenuItem(fileMenu, SWT.SEPARATOR);
     }
 
+    /**
+     * Creates the Monitor menu items under the File menu
+     * 
+     * @param fileMenu
+     */
     private void createMonitorFileMenuItems(Menu fileMenu) {
-        /*
-         * Create the Display menu items under the File menu
-         */
         MenuItem saveMI = new MenuItem(fileMenu, SWT.NONE);
         saveMI.setText("Save");
         saveMI.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
+                menuSaveAction();
             }
         });
     }
 
     /**
-     * Create the tab folder for the threshold tabs.
+     * Creates the tab folder for the threshold tabs.
      */
     private void createTabFolder() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -319,26 +316,43 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
         commitBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 commitChangeAction();
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Menu Delete Action.
+     */
     protected void menuDeleteAction() {
-        AbstractThresholdMgr atm = getThresholdMgr();
 
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.DELETE, atm.getDisplayThresholdPath(), atm
-                        .getDefaultFileName(DataUsageKey.DISPLAY));
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
+        if (deleteDlg == null) {
+            AbstractThresholdMgr atm = getThresholdMgr();
+            deleteDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.DELETE,
+                    atm.getDisplayThresholdPath(),
+                    atm.getDefaultFileName(DataUsageKey.DISPLAY));
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doDelete(fileName);
+                    }
+                }
+            });
 
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
         }
+        deleteDlg.open();
+    }
 
+    /**
+     * Deletes file.
+     * 
+     * @param fileName
+     */
+    protected void doDelete(LocalizationFile fileName) {
+        AbstractThresholdMgr atm = getThresholdMgr();
         boolean deletedUserSelected = atm.deleteFile(fileName);
-
         if (deletedUserSelected == true) {
             reloadThresholds();
         }
@@ -349,30 +363,39 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
      */
     protected void menuLoadDefaultAction() {
         AbstractThresholdMgr atm = getThresholdMgr();
-
         atm.loadDefaultDisplayThreshold();
-
         reloadThresholds();
     }
 
+    /**
+     * Menu SaveAs Action.
+     */
     protected void menuSaveAsAction() {
-        AbstractThresholdMgr atm = getThresholdMgr();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.SAVE_AS, atm.getDisplayThresholdPath(), atm
-                        .getDefaultFileName(DataUsageKey.DISPLAY));
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (saveAsDlg == null) {
+            AbstractThresholdMgr atm = getThresholdMgr();
+            saveAsDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.SAVE_AS,
+                    atm.getDisplayThresholdPath(),
+                    atm.getDefaultFileName(DataUsageKey.DISPLAY));
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doSaveAs(fileName);
+                    }
+                }
+            });
         }
+        saveAsDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Saves file as ...
+     * 
+     * @param fileName
+     */
+    protected void doSaveAs(LocalizationFile fileName) {
+        AbstractThresholdMgr atm = getThresholdMgr();
         atm.saveAsDisplayThresholds(fileName.getFile().getName());
     }
 
@@ -381,23 +404,31 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
      * Display thresholds.
      */
     protected void menuSelectAsDefaultAction() {
-        AbstractThresholdMgr atm = getThresholdMgr();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.SELECT_DEFAULT, atm.getDisplayThresholdPath(), atm
-                        .getDefaultFileName(DataUsageKey.DISPLAY));
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (selectDlg == null) {
+            AbstractThresholdMgr atm = getThresholdMgr();
+            selectDlg = new LoadSaveDeleteSelectDlg(shell,
+                    DialogType.SELECT_DEFAULT, atm.getDisplayThresholdPath(),
+                    atm.getDefaultFileName(DataUsageKey.DISPLAY));
+            selectDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doSelect(fileName);
+                    }
+                }
+            });
         }
+        selectDlg.open();
+    }
 
-        System.out.println("Selected file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out.println("Selected file name = "
-                + fileName.getFile().getName());
-
+    /**
+     * Selects default file.
+     * 
+     * @param fileName
+     */
+    protected void doSelect(LocalizationFile fileName) {
+        AbstractThresholdMgr atm = getThresholdMgr();
         atm.setDefaultDisplayFileName(fileName.getFile().getName());
     }
 
@@ -406,40 +437,64 @@ public abstract class MonitorDisplayThreshDlg extends Dialog {
      */
     protected void menuSaveAction() {
         AbstractThresholdMgr atm = getThresholdMgr();
-
         atm.saveMonitorThresholds();
     }
+
     /**
      * Method used for opening threshold file to be used for the Display
      * thresholds.
      */
     protected void menuOpenAction() {
-        AbstractThresholdMgr atm = getThresholdMgr();
-
-        LoadSaveDeleteSelectDlg lsDlg = new LoadSaveDeleteSelectDlg(shell,
-                DialogType.OPEN, atm.getDisplayThresholdPath(), null);
-        LocalizationFile fileName = (LocalizationFile) lsDlg.open();
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (openDlg == null) {
+            AbstractThresholdMgr atm = getThresholdMgr();
+            openDlg = new LoadSaveDeleteSelectDlg(shell, DialogType.OPEN,
+                    atm.getDisplayThresholdPath(), null);
+            openDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        doOpen(fileName);
+                    }
+                }
+            });
         }
+        openDlg.open();
+    }
+
+    /**
+     * Opens file.
+     * 
+     * @param fileName
+     */
+    protected void doOpen(LocalizationFile fileName) {
+        AbstractThresholdMgr atm = getThresholdMgr();
         atm.loadDisplayThreashold(fileName.getFile().getName());
         reloadThresholds();
-        System.out.println("Opened file absolute path= "
-                + fileName.getFile().getAbsolutePath());
-        System.out
-                .println("Opened file name = " + fileName.getFile().getName());
-
     }
+
+    // Abstract method for creating the tab items in the tab folder.
+
     /**
-     * Abstract method for creating the tab items in the tab folder.
+     * Creates Table Items.
      */
     protected abstract void createTabItems();
 
+    /**
+     * Commit Change Action.
+     */
     protected abstract void commitChangeAction();
 
+    /**
+     * Reloads Thresholds.
+     */
     protected abstract void reloadThresholds();
 
+    /**
+     * Gets Threshold Manager.
+     * 
+     * @return manager
+     */
     protected abstract AbstractThresholdMgr getThresholdMgr();
-    
+
 }

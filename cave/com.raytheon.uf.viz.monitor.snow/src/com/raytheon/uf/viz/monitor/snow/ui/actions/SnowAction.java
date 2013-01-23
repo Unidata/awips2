@@ -59,7 +59,6 @@ public class SnowAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        System.out.println("Activating/Action for SNOW...");
 
         SnowMonitor snow = SnowMonitor.getInstance();
         if (snow.getZoneDialog() == null || snow.getZoneDialog().isDisposed()) {

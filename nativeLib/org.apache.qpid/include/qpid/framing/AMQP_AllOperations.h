@@ -441,18 +441,28 @@ class AMQP_AllOperations {
     bool active,
     const Uuid& clusterId,
     uint8_t storeState,
-    const Uuid& shutdownId) = 0;
+    const Uuid& shutdownId,
+    const string& firstConfig) = 0;
     
     virtual void ready(const string& url) = 0;
     
-    virtual void configChange(const string& current) = 0;
+    virtual void configChange(const string& members,
+    const string& joined,
+    const string& left) = 0;
     
     virtual void messageExpired(uint64_t id) = 0;
     
     virtual void errorCheck(uint8_t type,
     const SequenceNumber& frameSeq) = 0;
     
+    virtual void timerWakeup(const string& name) = 0;
+    
+    virtual void timerDrop(const string& name) = 0;
+    
     virtual void shutdown(const Uuid& shutdownId) = 0;
+    
+    virtual void deliverToQueue(const string& queue,
+    const string& message) = 0;
     }; // class ClusterHandler
     
     
@@ -466,13 +476,22 @@ class AMQP_AllOperations {
         virtual ~ClusterConnectionHandler() {}
         // Protocol methods
     
-    virtual void announce(uint32_t ssf) = 0;
+    virtual void announce(const string& managementId,
+    uint32_t ssf,
+    const string& authid,
+    bool nodict,
+    const string& username,
+    const string& initialFrames) = 0;
     
     virtual void deliverClose(    ) = 0;
     
     virtual void deliverDoOutput(uint32_t limit) = 0;
     
     virtual void abort(    ) = 0;
+    
+    virtual void shadowSetUser(const string& userId) = 0;
+    
+    virtual void shadowPrepare(const string& managementId) = 0;
     
     virtual void consumerState(const string& name,
     bool blocked,
@@ -520,6 +539,7 @@ class AMQP_AllOperations {
     
     virtual void shadowReady(uint64_t memberId,
     uint64_t connectionId,
+    const string& managementId,
     const string& userName,
     const string& fragment,
     uint32_t sendMax) = 0;
@@ -541,6 +561,15 @@ class AMQP_AllOperations {
     
     virtual void addQueueListener(const string& queue,
     uint32_t consumer) = 0;
+    
+    virtual void managementSetupState(uint64_t objectNum,
+    uint16_t bootSequence,
+    const Uuid& brokerId,
+    const string& vendor,
+    const string& product,
+    const string& instance) = 0;
+    
+    virtual void config(const string& encoded) = 0;
     }; // class ClusterConnectionHandler
     
     
