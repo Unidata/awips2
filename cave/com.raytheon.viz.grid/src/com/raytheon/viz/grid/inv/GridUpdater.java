@@ -298,7 +298,7 @@ public class GridUpdater implements IAlertObserver {
             }
         }
         myUpdates.addAll(datauris);
-        ProductAlertObserver.processDerivedAlerts(datauris);
+        ProductAlertObserver.processDataURIAlerts(datauris);
     }
 
     /**
