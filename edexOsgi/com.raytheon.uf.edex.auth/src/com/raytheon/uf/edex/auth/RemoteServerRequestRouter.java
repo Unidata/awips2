@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012 1322       djohnson     Initial creation
+ * Dec 03, 2012 1377       djohnson     Add thrift on to destination url.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class RemoteServerRequestRouter implements IRequestRouter {
      *            the http address to be used to connect to the remote server
      */
     public RemoteServerRequestRouter(String httpAddress) {
-        this.httpAddress = httpAddress;
+        this.httpAddress = httpAddress + "/thrift";
     }
 
     /**

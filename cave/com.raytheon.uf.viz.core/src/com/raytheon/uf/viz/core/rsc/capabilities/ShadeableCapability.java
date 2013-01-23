@@ -44,6 +44,9 @@ public class ShadeableCapability extends AbstractCapability {
     @XmlAttribute(required = false)
     private String shadingField;
 
+    @XmlAttribute(required = false)
+    private float opacity = 1.0f;
+
     private String[] availableShadingFields;
 
     public String[] getAvailableShadingFields() {
@@ -74,10 +77,22 @@ public class ShadeableCapability extends AbstractCapability {
         }
     }
 
+    public float getOpacity() {
+        return opacity;
+    }
+
+    public void setOpacity(float opacity) {
+        if (this.opacity != opacity) {
+            this.opacity = opacity;
+            this.capabilityChanged();
+        }
+    }
+
     @Override
     public AbstractCapability clone() {
         ShadeableCapability sc = new ShadeableCapability();
         sc.shadingField = shadingField;
+        sc.opacity = opacity;
         sc.availableShadingFields = availableShadingFields;
         return sc;
     }

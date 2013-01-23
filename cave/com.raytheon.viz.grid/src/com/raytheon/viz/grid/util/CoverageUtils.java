@@ -79,7 +79,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 public class CoverageUtils implements IAlertObserver {
     private static CoverageUtils instance;
 
-    private final Map<String, Set<GridCoverage>> coverageCache = new HashMap<String, Set<GridCoverage>>();
+    private final Map<String, Set<UniqueIdGridCoverageWrapper>> coverageCache = new HashMap<String, Set<UniqueIdGridCoverageWrapper>>();
 
     private boolean hasPerformedBulkQuery = false;
 
@@ -105,7 +105,8 @@ public class CoverageUtils implements IAlertObserver {
      */
     public Collection<GridCoverage> getCoverages(String datasetId)
             throws VizException {
-        Collection<GridCoverage> rval = coverageCache.get(datasetId);
+        Collection<UniqueIdGridCoverageWrapper> rval = coverageCache
+                .get(datasetId);
 
         if (rval == null) {
             DbQueryRequest query = new DbQueryRequest();
@@ -139,17 +140,21 @@ public class CoverageUtils implements IAlertObserver {
                 String resultId = (String) map
                         .get(GridInfoConstants.DATASET_ID);
                 GridCoverage coverage = requestedLocations.get(locationId);
-                Set<GridCoverage> set = coverageCache.get(resultId);
+                Set<UniqueIdGridCoverageWrapper> set = coverageCache
+                        .get(resultId);
                 if (set == null) {
-                    set = new HashSet<GridCoverage>();
+                    set = new HashSet<UniqueIdGridCoverageWrapper>();
                     coverageCache.put(resultId, set);
                 }
-                set.add(coverage);
+                set.add(new UniqueIdGridCoverageWrapper(coverage));
             }
             rval = coverageCache.get(datasetId);
         }
-
-        return rval;
+        List<GridCoverage> finalSet = new ArrayList<GridCoverage>(rval.size());
+        for (UniqueIdGridCoverageWrapper wrapper : rval) {
+            finalSet.add(wrapper.getGridCoverage());
+        }
+        return finalSet;
     }
 
     /**
@@ -161,12 +166,12 @@ public class CoverageUtils implements IAlertObserver {
      */
     public void setCoverage(String modelName, GridCoverage coverage) {
         if (modelName != null && coverage != null) {
-            Set<GridCoverage> set = coverageCache.get(modelName);
+            Set<UniqueIdGridCoverageWrapper> set = coverageCache.get(modelName);
             if (set == null) {
-                set = new HashSet<GridCoverage>();
+                set = new HashSet<UniqueIdGridCoverageWrapper>();
                 coverageCache.put(modelName, set);
             }
-            set.add(coverage);
+            set.add(new UniqueIdGridCoverageWrapper(coverage));
         }
     }
 
@@ -326,11 +331,61 @@ public class CoverageUtils implements IAlertObserver {
                     .get(GridConstants.DATASET_ID);
             GridCoverage coverage = (GridCoverage) alertMessage.decodedAlert
                     .get(GridConstants.LOCATION);
-            Set<GridCoverage> set = coverageCache.get(datasetId);
+            Set<UniqueIdGridCoverageWrapper> set = coverageCache.get(datasetId);
             if (set != null && coverage != null) {
-                set.add(coverage);
+                set.add(new UniqueIdGridCoverageWrapper(coverage));
             }
         }
+    }
+
+    // This class exists so that two coverages that are otherwise equal can be
+    // stored together in a set if they have different IDs.
+    private static class UniqueIdGridCoverageWrapper {
+        private final GridCoverage gridCoverage;
+
+        public UniqueIdGridCoverageWrapper(GridCoverage gridCoverage) {
+            super();
+            this.gridCoverage = gridCoverage;
+        }
+
+        public GridCoverage getGridCoverage() {
+            return gridCoverage;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result
+                    + ((gridCoverage == null) ? 0 : gridCoverage.hashCode());
+            result = prime
+                    * result
+                    + ((gridCoverage.getId() == null) ? 0 : gridCoverage
+                            .getId().hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            UniqueIdGridCoverageWrapper other = (UniqueIdGridCoverageWrapper) obj;
+            if (gridCoverage == null) {
+                if (other.gridCoverage != null)
+                    return false;
+            } else if (!gridCoverage.equals(other.gridCoverage)) {
+                return false;
+            } else if (!gridCoverage.getId().equals(
+                    other.getGridCoverage().getId())) {
+                return false;
+            }
+            return true;
+        }
+
     }
 
 }

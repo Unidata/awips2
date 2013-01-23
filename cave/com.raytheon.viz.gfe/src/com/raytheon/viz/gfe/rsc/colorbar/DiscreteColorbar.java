@@ -210,12 +210,11 @@ public class DiscreteColorbar implements IColorBarDisplay,
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-
-        if (parm == null) {
+        DataTime currentTime = paintProps.getDataTime();
+        if (parm == null || currentTime == null) {
             return;
         }
 
-        DataTime currentTime = paintProps.getDataTime();
         IGridData gridData = parm.overlappingGrid(currentTime.getRefTime());
         boolean currentIscMode = parm.getDataManager().getParmManager()
                 .iscMode();

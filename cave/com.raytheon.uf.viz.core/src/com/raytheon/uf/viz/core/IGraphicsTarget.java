@@ -23,7 +23,9 @@ package com.raytheon.uf.viz.core;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -84,18 +86,94 @@ public interface IGraphicsTarget extends IImagingExtension {
      * the target may want to switch default to a different style before drawing
      */
     public static enum LineStyle {
-        DEFAULT, SOLID, DASHED, DASHED_LARGE, DOTTED, DASH_DOTTED,
+        DEFAULT, //
+        SOLID, //
+        DASHED(4, (short) 0xAAAA), //
+        DASHED_LARGE(4, (short) 0xEEEE), //
+        DOTTED(1, (short) 0xAAAA), //
+        DASH_DOTTED(1, (short) 0xE4E4),
         // Task 69 : Added for NMAP
-        SHORT_DASHED, // GEMPAK line type 2
-        MEDIUM_DASHED, // GEMPAK line type 3
-        LONG_DASH_SHORT_DASH, // GEMPAK line type 4
-        LONG_DASHED, // GEMPAK line type 5
-        LONG_DASH_THREE_SHORT_DASHES, // GEMPAK line type 6
-        LONG_DASH_DOT, // GEMPAK line type 7
-        LONG_DASH_THREE_DOTS, // GEMPAK line type 8
-        MEDIUM_DASH_DOT, // GEMPAK line type 9
-        DOTS
-        // GEMPAK line type 10
+        SHORT_DASHED(8, (short) 0xAAAA), // GEMPAK line type 2
+        MEDIUM_DASHED(3, (short) 0xF8F8), // GEMPAK line type 3
+        LONG_DASH_SHORT_DASH(3, (short) 0xFC38), // GEMPAK line type 4
+        LONG_DASHED(3, (short) 0xFCFC), // GEMPAK line type 5
+        LONG_DASH_THREE_SHORT_DASHES(3, (short) 0xFDB6), // GEMPAK line type 6
+        LONG_DASH_DOT(2, (short) 0xFFE4), // GEMPAK line type 7
+        LONG_DASH_THREE_DOTS(2, (short) 0xFC92), // GEMPAK line type 8
+        MEDIUM_DASH_DOT(2, (short) 0xFF88), // GEMPAK line type 9
+        DOTS(1, (short) 0x8888); // GEMPAK line type 10
+
+        private final int factor;
+
+        private final short pattern;
+
+        LineStyle() {
+            this.factor = 0;
+            this.pattern = 0;
+        }
+
+        LineStyle(int factor, short pattern) {
+            if (factor < 1) {
+                this.factor = 1;
+            } else if (factor > 255) {
+                this.factor = 255;
+            } else {
+                this.factor = factor;
+            }
+            this.pattern = pattern;
+        }
+
+        public int getFactor() {
+            return factor;
+        }
+
+        public short getPattern() {
+            return pattern;
+        }
+
+        public int[] getSWTLineStyle() {
+            if (this.factor == 0 || this.pattern == 0) {
+                return null;
+            } else {
+                List<Integer> dashPattern = new ArrayList<Integer>();
+
+                int p = this.pattern & 0xFFFF;
+
+                // strip trailing 0s
+                int prevLsb = p & 1;
+                while (prevLsb == 0) {
+                    p >>= 1;
+                    prevLsb = p & 1;
+                }
+
+                int count = 0;
+                int sum = 0;
+                while (p != 0) {
+                    int lsb = p & 1;
+                    if (lsb != prevLsb) {
+                        dashPattern.add(count * factor);
+                        sum += count;
+                        count = 0;
+                        prevLsb = lsb;
+                    }
+                    count++;
+                    p >>= 1;
+                }
+                if (prevLsb == 1 & count > 0) {
+                    dashPattern.add(count * factor);
+                    sum += count;
+                }
+                if (sum < 16) {
+                    dashPattern.add((16 - sum) * factor);
+                }
+
+                int[] array = new int[dashPattern.size()];
+                for (int i = 0; i < dashPattern.size(); i++) {
+                    array[i] = dashPattern.get(i);
+                }
+                return array;
+            }
+        }
     }
 
     public static enum PointStyle {
@@ -730,8 +808,6 @@ public interface IGraphicsTarget extends IImagingExtension {
      * @return
      */
     public IView getView();
-
-    /**
 
     /**
      * Use drawStrings(DrawableString parameters)

@@ -40,8 +40,12 @@
     <None Include="AWIPSII.wxs">
       <SubType>Designer</SubType>
     </None>
-    <None Include="AWIPSII_JAVA.wxs" />
-    <None Include="AWIPSII_PYTHON.wxs" />
+    <None Include="AWIPSII_JAVA.wxs">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="AWIPSII_PYTHON.wxs">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

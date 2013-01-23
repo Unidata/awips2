@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.derivparam.tree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,18 +28,23 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher;
+import com.raytheon.uf.viz.derivparam.inv.TimeAndSpaceMatcher.MatchResult;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
 /**
  * 
  * Or LevelNodes will return data for each requested time for the first node
- * which has data. For time queries it simply returns all times available for
- * any node that it has.
+ * which has data. For availability queries it simply returns all unique
+ * TimeAndSpaces for any node that it has. TimeAndSpaces that only differ by
+ * time range are not considered unique, in such cases only the TimeAndSpace
+ * from the first node will be returned.
  * 
  * <pre>
  * 
@@ -192,9 +198,31 @@ public class OrLevelNode extends AbstractDerivedDataNode {
     public Set<TimeAndSpace> getAvailability(
             Map<AbstractRequestableNode, Set<TimeAndSpace>> availability)
             throws VizException {
+        // Do not return two identical TimeAndSpaces that are different only by
+        // time range. For cases where two nodes have times that only differ by
+        // range then only the first time should be returned.
+        TimeAndSpaceMatcher matcher = new TimeAndSpaceMatcher();
+        matcher.setIgnoreRange(true);
         Set<TimeAndSpace> myAvailability = new HashSet<TimeAndSpace>();
         for (AbstractRequestableNode node : nodes) {
-            myAvailability.addAll(availability.get(node));
+            HashSet<TimeAndSpace> nodeAvail = new HashSet<TimeAndSpace>(
+                    availability.get(node));
+
+            // find the times that match ignoring range.
+            Collection<MatchResult> matches = matcher.match(myAvailability,
+                    nodeAvail).values();
+            for (MatchResult match : matches) {
+                ISpatialObject space1 = match.get1().getSpace();
+                ISpatialObject space2 = match.get2().getSpace();
+                // if the spaces are equal then remove the new time so it is not
+                // added. This will remove identical times and times that match
+                // ignoring range.
+                if (space1.equals(space2)) {
+                    nodeAvail.remove(match.get2());
+                }
+            }
+            // Add the TimeAndSpace objects that are new.
+            myAvailability.addAll(nodeAvail);
         }
         return myAvailability;
     }

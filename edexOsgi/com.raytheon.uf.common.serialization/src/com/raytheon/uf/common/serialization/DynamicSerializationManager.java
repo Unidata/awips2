@@ -50,6 +50,7 @@ import net.sf.cglib.beans.BeanMap;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.CalendarSerializer;
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.DateSerializer;
@@ -64,6 +65,7 @@ import com.raytheon.uf.common.serialization.adapters.GridGeometry2DAdapter;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.serialization.adapters.JTSEnvelopeAdapter;
 import com.raytheon.uf.common.serialization.adapters.PointAdapter;
+import com.raytheon.uf.common.serialization.adapters.ReferencedEnvelopeAdapter;
 import com.raytheon.uf.common.serialization.adapters.StackTraceElementAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -139,6 +141,8 @@ public class DynamicSerializationManager {
         registerAdapter(Envelope.class, new JTSEnvelopeAdapter());
         registerAdapter(GridGeometry2D.class, new GridGeometry2DAdapter());
         registerAdapter(GeneralGridGeometry.class, new GridGeometryAdapter());
+        registerAdapter(ReferencedEnvelope.class,
+                new ReferencedEnvelopeAdapter());
         registerAdapter(EnumSet.class, new EnumSetAdapter());
         registerAdapter(StackTraceElement.class, new StackTraceElementAdapter());
         registerAdapter(Duration.class,

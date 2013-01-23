@@ -315,6 +315,10 @@ public class MpeRUCFreezingLevel {
      * Process the MPE freezing Levels
      */
     public void processMpeRuc() {
+        if (!AppsDefaults.getInstance().setAppContext(this)) {
+            return;
+        }
+
         Integer forecastHour = null;
         HashMap<String, HashMap<Integer, FreezingLevelXML>> freezingTimeMap = new HashMap<String, HashMap<Integer, FreezingLevelXML>>();
         LinkedHashMap<String, Coordinate> freezingStations = new LinkedHashMap<String, Coordinate>();
