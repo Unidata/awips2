@@ -1,26 +1,26 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 
 /**
- * This package is associated with the classes that describe the Color bar at the 
- * top of the Spatial Editor window. 
+ * This package is associated with the classes that describe the Color bar at the
+ * top of the Spatial Editor window.
  */
 package com.raytheon.viz.gfe.rsc.colorbar;
 
@@ -53,13 +53,20 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
+import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.colortable.ColorEntry;
 import com.raytheon.viz.gfe.colortable.ColorTable.ImageAttr;
+import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.griddata.DiscreteGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
@@ -75,7 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a colorbar for continuous (scalar and vector) elements
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -84,14 +91,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 20, 2008            dglazesk    Updated for the new ColorMap interface
  * Aug 20, 2012      1079  randerso    Changed to display all discrete values for
  *                                     non-overlapping discretes
- * 
+ * Jan 9, 2013  15661      ryu         Set font for drawing regular Wx/discrete parm labels.
+ * Jan 10, 2013  15548     ryu         Update colorbar when new discrete colormap is selected
+ *
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1.0
  */
 public class DiscreteColorbar implements IColorBarDisplay,
-        IGridDataChangedListener {
+        IGridDataChangedListener, IColorMapParametersListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteColorbar.class);
 
@@ -126,9 +135,11 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     private boolean lastIscMode;
 
+    private ColorMapParameters cmParams;
+
     /**
      * Constructor for the Discrete Color Bar
-     * 
+     *
      * @param parm
      *            The parm
      * @param colorbarResource
@@ -143,16 +154,31 @@ public class DiscreteColorbar implements IColorBarDisplay,
         this.lastIscMode = parm.getDataManager().getParmManager().iscMode();
 
         parm.getListeners().addGridChangedListener(this);
+        cmParams = getColorMapParameters();
+        cmParams.addListener(this);
+    }
+
+    private ColorMapParameters getColorMapParameters() {
+        DataManager dataManager = parm.getDataManager();
+        ISpatialDisplayManager spatialDisplayManager = dataManager
+                .getSpatialDisplayManager();
+        ResourcePair resourcePair = spatialDisplayManager
+                .getResourcePair(parm);
+        AbstractVizResource<?, ?> resource = resourcePair.getResource();
+        ColorMapParameters params = resource.getCapability(
+                ColorMapCapability.class).getColorMapParameters();
+        return params;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#dispose()
      */
     @Override
     public void dispose() {
         parm.getListeners().removeGridChangedListener(this);
+        cmParams.removeListener(this);
     }
 
     @Override
@@ -160,9 +186,14 @@ public class DiscreteColorbar implements IColorBarDisplay,
         lastTime = null;
     }
 
+    @Override
+    public void colorMapChanged() {
+        lastTime = null;
+    }
+
     /**
      * Gets the Discrete Color map.
-     * 
+     *
      * @return Returns the color map used for the discrete data.
      */
     public static ColorMap getFallbackColorMap() {
@@ -171,7 +202,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
@@ -396,7 +427,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
      * Labels that do not fit their designated band on the bar will be
      * truncated. Pickup value text will always be displayed in full, so any
      * text it overlaps will not be drawn.
-     * 
+     *
      * @param target
      *            The graphics target on which to draw
      * @param colorTable
@@ -517,6 +548,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
                             true);
                     dstring.setText(truncatedLabel, seColorBarTextColor);
                     dstring.setCoordinates(labelLoc, center);
+                    dstring.font = colorbarResource.getColorbarWxLabelFont();
                     target.drawStrings(dstring);
                 }
             }
@@ -526,7 +558,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Draws the colorbar once colors and patterns have been decided.
-     * 
+     *
      * @param target
      *            The graphics target on which to draw.
      * @param pixelExtent
@@ -626,7 +658,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#getValueAt(double[],
      * int)
