@@ -33,10 +33,8 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -50,7 +48,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -73,7 +70,6 @@ import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -368,7 +364,7 @@ public class ContourSupport {
                 float min = Float.POSITIVE_INFINITY;
                 float max = Float.NEGATIVE_INFINITY;
                 for (float f : data1D) {
-                    if (f != Util.GRID_FILL_VALUE) {
+                    if (f != Util.GRID_FILL_VALUE && !Float.isNaN(f)) {
                         min = Math.min(min, f);
                         max = Math.max(max, f);
                     }
@@ -640,136 +636,24 @@ public class ContourSupport {
             GeneralGridGeometry imageGridGeometry) throws VizException {
         GeneralEnvelope env = new GeneralEnvelope(2);
         try {
-            GridGeometry2D mapGeometry2D = GridGeometry2D.wrap(mapGridGeometry);
             GridGeometry2D imageGeometry2D = GridGeometry2D
                     .wrap(imageGridGeometry);
-            // Start with a grid envelope in screen space0
-            GridEnvelope2D screenGridEnvelope = new GridEnvelope2D(
-                    (int) Math.floor(workingExtent.getMinX()),
-                    (int) Math.floor(workingExtent.getMinY()),
-                    (int) Math.ceil(workingExtent.getWidth()),
-                    (int) Math.ceil(workingExtent.getHeight()));
-            // intersect with mapGeometry so we only have points on the actual
-            // display
-            screenGridEnvelope = new GridEnvelope2D(
-                    screenGridEnvelope.intersection(mapGeometry2D
-                            .getGridRange2D()));
-            // convert from screen grid space to screen crs space.
-            Envelope2D screenCRSEnvelope = mapGeometry2D
-                    .gridToWorld(screenGridEnvelope);
-            // Use referenced envelope to go from screen crs into image crs.
-            ReferencedEnvelope screenRefEnvelope = new ReferencedEnvelope(
-                    screenCRSEnvelope);
-            try {
-                screenRefEnvelope = screenRefEnvelope.transform(
-                        imageGridGeometry.getCoordinateReferenceSystem(), true,
-                        200);
-            } catch (TransformException e) {
-                // If the corners of the screen envelope are invalid in the
-                // source crs then the referenced envelope fails so this is the
-                // backup plan. This is known to hit when displaying North Polar
-                // Stereographic data on a Equidistant cyclindrical projection
-                // that extends to the south pole.
 
-                // Start with the full image envelope
-                ReferencedEnvelope imageRefEnvelope = new ReferencedEnvelope(
-                        imageGeometry2D.getEnvelope2D());
-                // transform to screen space.
-                imageRefEnvelope = imageRefEnvelope.transform(
-                        screenRefEnvelope.getCoordinateReferenceSystem(), true,
-                        200);
-                // intersect the transformed envelope with the visible portion
-                // of screen. Hopefully this intersection will eliminate the
-                // invalid points in the original screen envelope.
-                Envelope intersectingEnv = screenRefEnvelope
-                        .intersection(imageRefEnvelope);
-                screenRefEnvelope = new ReferencedEnvelope(intersectingEnv,
-                        screenRefEnvelope.getCoordinateReferenceSystem());
-                // transform the intersection back to image space, now it is
-                // hopefully a subgrid.
-                screenRefEnvelope = screenRefEnvelope.transform(
-                        imageGridGeometry.getCoordinateReferenceSystem(), true,
-                        200);
-            }
-            // Convert from image crs to image grid space.
-            GridEnvelope2D screenImageGridEnvelope = imageGeometry2D
-                    .worldToGrid(new Envelope2D(screenRefEnvelope));
-            // intersection to limit to grid cells within the image.
-            screenImageGridEnvelope = new GridEnvelope2D(
-                    screenImageGridEnvelope.intersection(imageGeometry2D
-                            .getGridRange2D()));
-            // Referenced envelope does an almost perfect transformation.
-            // Unfortunately, it has been observed that when the screen is polar
-            // stereographic and the image is equidistant cylindrical that the
-            // referenced envelope algorithm can miss several rows of data near
-            // the pole. An envelope expansion has been added here to
-            // check every edge of the subgrid to see if the next image cell is
-            // on the screen, if it is then additional rows or columns are
-            // added.
-            MathTransform transform = TransformFactory.gridCellToGridCell(
-                    imageGridGeometry, PixelInCell.CELL_CENTER,
-                    mapGridGeometry, PixelInCell.CELL_CENTER);
-            DirectPosition2D center = new DirectPosition2D(
-                    screenImageGridEnvelope.getCenterX(),
-                    screenImageGridEnvelope.getCenterY());
-            // this loop checks first in the x direction then in the y direction
-            for (int ordinate : new int[] { 0, 1 }) {
-                // loop over every row or column on the top or left and check
-                // the center point, if it can be transformed to screen space
-                // and is on the screen then add the whole row or column and try
-                // the next one. Choosing just the center point is arbitrary,
-                // but it catches all known cases.
-                for (int i = screenImageGridEnvelope.getLow(ordinate); i > imageGeometry2D
-                        .getGridRange2D().getLow(ordinate); i -= 1) {
-                    DirectPosition2D imageCell = center.clone();
-                    imageCell.setOrdinate(ordinate, i);
-                    DirectPosition2D screenCell = new DirectPosition2D();
-                    try {
-                        transform.transform(imageCell, screenCell);
-                    } catch (TransformException e) {
-                        // exception probably means we are outside valid range.
-                        break;
-                    }
-                    if (workingExtent.contains(screenCell.getCoordinate())) {
-                        screenImageGridEnvelope.add(imageCell);
-                    } else {
-                        break;
-                    }
-                }
-                // same thing only this time on the bottom and right.
-                for (int i = screenImageGridEnvelope.getHigh(ordinate); i > imageGeometry2D
-                        .getGridRange2D().getHigh(ordinate); i -= 1) {
-                    DirectPosition2D imageCell = center.clone();
-                    imageCell.setOrdinate(ordinate, i);
-                    DirectPosition2D screenCell = new DirectPosition2D();
-                    try {
-                        transform.transform(imageCell, screenCell);
-                    } catch (TransformException e) {
-                        // exception probably means we are outside valid range.
-                        break;
-                    }
-                    if (workingExtent.contains(screenCell.getCoordinate())) {
-                        screenImageGridEnvelope.add(imageCell);
-                    } else {
-                        break;
-                    }
-                }
-            }
+            org.opengis.geometry.Envelope subgridCRSEnvelope = MapUtil
+                    .reprojectAndIntersect(mapGridGeometry.getEnvelope(),
+                            imageGridGeometry.getEnvelope());
+
+            GridEnvelope2D subgridEnv = imageGeometry2D
+                    .worldToGrid(new Envelope2D(subgridCRSEnvelope));
             // Add a 1 pixel border since worldToGrid is only guaranteed to
             // include a cell if the cell center is in the envelope but we want
             // to include the data in the subgrid if even a tiny bit of the edge
             // overlaps.
-            screenImageGridEnvelope.grow(1, 1);
-            // intersection to limit to grid cells within the image.
-            screenImageGridEnvelope = new GridEnvelope2D(
-                    screenImageGridEnvelope.intersection(imageGeometry2D
-                            .getGridRange2D()));
-            if (!screenImageGridEnvelope.isEmpty()) {
+            subgridEnv.grow(1, 1);
+            if (!subgridEnv.isEmpty()) {
                 // Convert GridEnvelope to general envelope.
-                env.setRange(0, screenImageGridEnvelope.getLow(0),
-                        screenImageGridEnvelope.getHigh(0));
-                env.setRange(1, screenImageGridEnvelope.getLow(1),
-                        screenImageGridEnvelope.getHigh(1));
+                env.setRange(0, subgridEnv.getMinX(), subgridEnv.getMaxX());
+                env.setRange(1, subgridEnv.getMinY(), subgridEnv.getMaxY());
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN,

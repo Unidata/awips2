@@ -605,13 +605,6 @@
                 </reference>
             </activeWhen>
 		</handler>
-		<handler class="com.raytheon.viz.gfe.gridmanager.action.GFEFrameTool"
-			commandId="com.raytheon.viz.ui.tools.looping.frameTool">
-			<activeWhen>
-				<reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-			</activeWhen>
-		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.LoadEditArea"
 			commandId="com.raytheon.viz.gfe.actions.EditArea">
             <activeWhen>

@@ -33,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.dialogs.KillJobsOnExitDialog;
 import com.raytheon.viz.gfe.dialogs.SaveParameterDialog;
@@ -91,7 +92,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         window = this.getSite().getWorkbenchWindow();
         view = parent;
 
-        dataManager = DataManager.getInstance(window);
+        dataManager = DataManagerUIFactory.getInstance(window);
         if (dataManager == null) {
             return;
         }
@@ -107,7 +108,6 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
                 .setColor(BGColorMode.EDITOR, RGBColors.getRGBColor(colorName));
 
         // Causes the GridManger to redraw on initialization.
-        DataManager.fireChangeListener();
         refresh();
     }
 
