@@ -203,7 +203,7 @@ public class RadarUpdater implements IAlertObserver {
                         "Unable to generate updates for derived product", e);
             }
         }
-        ProductAlertObserver.processDerivedAlerts(datauris);
+        ProductAlertObserver.processDataURIAlerts(datauris);
     }
 
     private CacheKey getCacheKey(RadarRequestableLevelNode rNode) {
