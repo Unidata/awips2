@@ -19,14 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
-import java.rmi.RemoteException;
-
-import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
-import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
+import com.raytheon.uf.common.auth.req.BaseServerService;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
-import com.raytheon.uf.common.serialization.ExceptionWrapper;
-import com.raytheon.uf.common.serialization.comm.RequestRouter;
-import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
  * Base class for services that send requests to the data delivery server.
@@ -38,32 +33,21 @@ import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
+ * Jan 23, 2013 1643       djohnson     Break out reusable service handler code.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class BaseDataDeliveryService<T extends AbstractPrivilegedRequest> {
+public class BaseDataDeliveryService<T extends IServerRequest> extends
+        BaseServerService<T> {
 
     /**
-     * Send a request to the data delivery server.
-     * 
-     * @param request
-     * @return
-     * @throws Exception
+     * Constructor.
      */
-    protected Object sendRequest(T request) throws Exception {
-        Object object = RequestRouter.route(request,
-                DataDeliveryConstants.DATA_DELIVERY_SERVER);
-        if (object instanceof SuccessfulExecution) {
-            SuccessfulExecution response = (SuccessfulExecution) object;
-            return response.getResponse();
-        } else {
-            throw new RemoteException("Error communicating with the server!",
-                    ExceptionWrapper
-                            .unwrapThrowable(((ServerErrorResponse) object)
-                                    .getException()));
-        }
+    protected BaseDataDeliveryService() {
+        super(DataDeliveryConstants.DATA_DELIVERY_SERVER);
     }
+
 }

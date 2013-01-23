@@ -41,12 +41,6 @@
         <entry key="Retrievals-5" value-ref="subscriptionRetrievalAgentPrototype" />
     </util:map>
     
-    <bean id="registerNcfBandwidthManagerServiceRouter" factory-bean="requestRouterRegistry"
-        factory-method="register">
-        <constructor-arg ref="ncfBandwidthManagerServiceKey" />
-        <constructor-arg ref="ncfBandwidthManagerServiceRouter" />
-    </bean>
-
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
