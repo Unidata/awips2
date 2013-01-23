@@ -29,18 +29,12 @@ import java.util.Set;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
@@ -107,8 +101,8 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
     /** Menu bar */
     private Menu menuBar;
 
-    /** Save Menu Item */
-    private MenuItem saveMI;
+    // /** Save Menu Item */
+    // private MenuItem saveMI;
 
     /** Exit Menu item */
     private MenuItem exitMI;
@@ -330,15 +324,15 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
 
-        saveMI = new MenuItem(fileMenu, SWT.NONE);
-        saveMI.setText("&Save Graph Image\tCtrl+S");
-        saveMI.setAccelerator(SWT.CTRL + 'S');
-        saveMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                saveGraph();
-            }
-        });
+        // saveMI = new MenuItem(fileMenu, SWT.NONE);
+        // saveMI.setText("&Save Graph Image\tCtrl+S");
+        // saveMI.setAccelerator(SWT.CTRL + 'S');
+        // saveMI.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent event) {
+        // saveGraph();
+        // }
+        // });
 
         exitMI = new MenuItem(fileMenu, SWT.NONE);
         exitMI.setText("&Quit\tCtrl+Q");
@@ -496,55 +490,55 @@ public class StatsGraphDlg extends CaveSWTDialog implements IStatsDisplay,
         this.graphTitle = graphTitle;
     }
 
-    /**
-     * Open a file dialog for saving the canvas.
-     */
-    private void saveGraph() {
-        FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-        String filename = dialog.open();
-        if (filename == null) {
-            return;
-        }
-        saveCanvas(filename);
-    }
+    // /**
+    // * Open a file dialog for saving the canvas.
+    // */
+    // private void saveGraph() {
+    // FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+    // String filename = dialog.open();
+    // if (filename == null) {
+    // return;
+    // }
+    // saveCanvas(filename);
+    // }
 
-    /**
-     * Captures the canvas and saves the result into a file in a format
-     * determined by the filename extension .
-     * 
-     * @param control
-     *            The control to save
-     * @param fileName
-     *            The name of the image to be saved
-     */
-    public void saveCanvas(String filename) {
-        StringBuilder sb = new StringBuilder();
-        Display display = displayCanvas.getDisplay();
-        Image image = new Image(display, displayCanvas.getBounds().width,
-                displayCanvas.getBounds().height);
-        GC gc = new GC(image);
-
-        displayCanvas.drawCanvas(gc);
-
-        /* Default to PNG */
-        int style = SWT.IMAGE_PNG;
-
-        if ((filename.endsWith(".jpg") == true) || filename.endsWith("jpeg")) {
-            style = SWT.IMAGE_JPEG;
-        } else if (filename.endsWith(".bmp") == true) {
-            style = SWT.IMAGE_BMP;
-        } else {
-            filename += ".png";
-        }
-
-        ImageLoader loader = new ImageLoader();
-        loader.data = new ImageData[] { image.getImageData() };
-        loader.save(filename, style);
-
-        sb.setLength(0);
-        image.dispose();
-        gc.dispose();
-    }
+    // /**
+    // * Captures the canvas and saves the result into a file in a format
+    // * determined by the filename extension .
+    // *
+    // * @param control
+    // * The control to save
+    // * @param fileName
+    // * The name of the image to be saved
+    // */
+    // public void saveCanvas(String filename) {
+    // StringBuilder sb = new StringBuilder();
+    // Display display = displayCanvas.getDisplay();
+    // Image image = new Image(display, displayCanvas.getBounds().width,
+    // displayCanvas.getBounds().height);
+    // GC gc = new GC(image);
+    //
+    // displayCanvas.drawCanvas(gc);
+    //
+    // /* Default to PNG */
+    // int style = SWT.IMAGE_PNG;
+    //
+    // if ((filename.endsWith(".jpg") == true) || filename.endsWith("jpeg")) {
+    // style = SWT.IMAGE_JPEG;
+    // } else if (filename.endsWith(".bmp") == true) {
+    // style = SWT.IMAGE_BMP;
+    // } else {
+    // filename += ".png";
+    // }
+    //
+    // ImageLoader loader = new ImageLoader();
+    // loader.data = new ImageData[] { image.getImageData() };
+    // loader.save(filename, style);
+    //
+    // sb.setLength(0);
+    // image.dispose();
+    // gc.dispose();
+    // }
 
     /**
      * Request the graph be redrawn with a new time range.
