@@ -299,12 +299,14 @@ public class HydroDisplayManager {
 
             // Get the Grib data
             Map<String, RequestConstraint> reqMap = new HashMap<String, RequestConstraint>();
-            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(GridConstants.GRID));
+            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                    GridConstants.GRID));
             reqMap.put(GridConstants.PARAMETER_ABBREVIATION,
                     new RequestConstraint(paramAbr));
             reqMap.put("dataTime.refTime",
                     new RequestConstraint(sdf.format(date)));
-            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-" + rfc));
+            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-"
+                    + rfc));
 
             try {
                 LayerProperty lp = new LayerProperty();
@@ -465,12 +467,14 @@ public class HydroDisplayManager {
 
             // Get the Grib data
             Map<String, RequestConstraint> reqMap = new HashMap<String, RequestConstraint>();
-            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(GridConstants.GRID));
+            reqMap.put(GridConstants.PLUGIN_NAME, new RequestConstraint(
+                    GridConstants.GRID));
             reqMap.put(GridConstants.PARAMETER_ABBREVIATION,
                     new RequestConstraint(paramAbr));
             reqMap.put("dataTime.refTime",
                     new RequestConstraint(sdf.format(date)));
-            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-" + rfc));
+            reqMap.put(GridConstants.DATASET_ID, new RequestConstraint("FFG-"
+                    + rfc));
 
             try {
                 LayerProperty lp = new LayerProperty();
@@ -725,9 +729,8 @@ public class HydroDisplayManager {
                 loopProps.setFwdFrameTime(frameRate);
                 loopProps.setLooping(true);
 
-                md.getTimeMatcher().changeTimeMatchBasis(timeLapseRsc);
                 try {
-                    md.getTimeMatcher().redoTimeMatching(md);
+                    md.redoTimeMatching();
                 } catch (VizException e) {
                     e.printStackTrace();
                 }

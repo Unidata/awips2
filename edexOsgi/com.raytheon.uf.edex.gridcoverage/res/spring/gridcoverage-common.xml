@@ -22,7 +22,7 @@
 	<bean id="gridcoveragelookup"
 		class="com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup"
 		factory-method="getInstance"
-		depends-on="serializeServer,getGridCoverageHandlerRegistered,queryDataRegistered,registerRequestServiceRouter"
+		depends-on="serializeServer,getGridCoverageHandlerRegistered,queryDataRegistered,registerRequestServiceRouter,authFactory"
 		lazy-init="true" />
 
 	<bean id="gridcoverageRegistered" factory-bean="dbPluginRegistry"
