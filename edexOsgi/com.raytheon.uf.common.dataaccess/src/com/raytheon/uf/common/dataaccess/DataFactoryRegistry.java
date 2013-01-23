@@ -85,6 +85,7 @@ public class DataFactoryRegistry {
      */
     public IDataFactory<?, ?> register(String datatype,
             Class<IDataRequest<?>> requestType, IDataFactory<?, ?> factory) {
+        datatype = datatype.toLowerCase();
         Map<Class<IDataRequest<?>>, IDataFactory<?, ?>> requestTypeMap = datatypeMap
                 .get(datatype);
         if (requestTypeMap == null) {
@@ -109,7 +110,7 @@ public class DataFactoryRegistry {
     @SuppressWarnings("unchecked")
     public <R extends IDataRequest<D>, D extends IData> IDataFactory<R, D> getFactory(
             R request) {
-        String datatype = request.getDatatype();
+        String datatype = request.getDatatype().toLowerCase();
         if (datatype != null) {
             Map<Class<IDataRequest<?>>, IDataFactory<?, ?>> requestTypeMap = datatypeMap
                     .get(datatype);

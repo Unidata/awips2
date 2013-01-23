@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Dec 30, 2009 3424       zhao         use ObMultiHrsReports for obs data archive
  * Oct 30, 2012 1297       skorolev     Changed HashMap to Map
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
+ * Dec 7,  2012 #1351      skorolev     Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -127,9 +128,8 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         if (ssThreshDlg == null) {
             ssThreshDlg = new SSDispMonThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.SAFESEAS, DataUsageKey.DISPLAY);
-            ssThreshDlg.open();
-            ssThreshDlg = null;
         }
+        ssThreshDlg.open();
     }
 
     /*

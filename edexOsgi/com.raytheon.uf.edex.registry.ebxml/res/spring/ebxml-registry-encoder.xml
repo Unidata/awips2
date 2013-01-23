@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="registryEncoderType"
+        class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders$Type"
+        factory-method="valueOf">
+        <constructor-arg value="${com.raytheon.uf.common.registry.ebxml.encoding.type}" />
+    </bean>
+
+    <bean id="registryEncoder" class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders"
+        factory-method="ofType">
+        <constructor-arg ref="registryEncoderType" />
+    </bean>
+
+    <bean name="registryUtilInitializer"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.registry.ebxml.RegistryUtil.setEncoderStrategy" />
+        <property name="arguments">
+            <list>
+                <ref bean="registryEncoder" />
+            </list>
+        </property>
+    </bean>
+</beans>

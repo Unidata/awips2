@@ -21,11 +21,9 @@
 package com.raytheon.edex.plugin.grib.spatial;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,10 +35,10 @@ import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.GribModelLookup;
-import com.raytheon.edex.plugin.grib.util.GridModel;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.awipstools.GetWfoCenterPoint;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.Corner;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
@@ -124,6 +122,12 @@ public class GribSpatialCache {
      */
     private Map<String, SubGridDef> subGridDefMap;
 
+    /**
+     * Map of coverage id to the number of columns in world wrap or -1 for no
+     * wrapping.
+     */
+    private Map<Integer, Integer> worldWrapMap;
+
     private FileDataList fileDataList;
 
     private long fileScanTime = 0;
@@ -151,6 +155,7 @@ public class GribSpatialCache {
         definedSubGridMap = new HashMap<String, SubGrid>();
         subGridCoverageMap = new HashMap<String, GridCoverage>();
         subGridDefMap = new HashMap<String, SubGridDef>();
+        worldWrapMap = new HashMap<Integer, Integer>();
         scanFiles();
     }
 
@@ -173,41 +178,6 @@ public class GribSpatialCache {
             rval = GridCoverageLookup.getInstance()
                     .getCoverage(coverage, false);
         }
-        return rval;
-    }
-
-    /**
-     * For a grib model name return all GridCoverages that are defined in the
-     * gribModels file for that model. For models which use subgrids this will
-     * return the subgridded coverages. For models that are not defined or
-     * models that do not specify a specific grid this will return an empty
-     * list.
-     * 
-     * @param modelName
-     * @return
-     */
-    public List<GridCoverage> getGridsForModel(String modelName) {
-        List<GridCoverage> rval = new ArrayList<GridCoverage>();
-        if (modelName != null) {
-            GridModel model = GribModelLookup.getInstance().getModelByName(
-                    modelName);
-            if (model != null) {
-                for (String coverageName : model.getAllGrids()) {
-                    GridCoverage coverage = getGridByName(coverageName);
-                    if (coverage != null) {
-                        rval.add(coverage);
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < rval.size(); i++) {
-            GridCoverage subGrid = getSubGridCoverage(modelName, rval.get(i));
-            if (subGrid != null) {
-                rval.remove(i);
-                rval.add(i, subGrid);
-            }
-        }
-
         return rval;
     }
 
@@ -356,11 +326,6 @@ public class GribSpatialCache {
             // a proportional amount
             if (lowerLeftPosition.x < 0) upperRightPosition.x -= lowerLeftPosition.x;
 
-            lowerLeftPosition.x = Math.min(Math.max(0, lowerLeftPosition.x), referenceCoverage.getNx() - 1);
-            lowerLeftPosition.y = Math.min(Math.max(0, lowerLeftPosition.y), referenceCoverage.getNy() - 1);
-            upperRightPosition.x = Math.min(Math.max(0, upperRightPosition.x), referenceCoverage.getNx() - 1);
-            upperRightPosition.y = Math.min(Math.max(0, upperRightPosition.y), referenceCoverage.getNy() - 1);
-
             lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
                     lowerLeftPosition, PixelOrientation.CENTER,
                     referenceCoverage);
@@ -368,35 +333,77 @@ public class GribSpatialCache {
                     upperRightPosition, PixelOrientation.CENTER,
                     referenceCoverage);
 
-            SubGrid subGrid = new SubGrid();
-            subGrid.setLowerLeftLon(lowerLeftPosition.x);
-            subGrid.setLowerLeftLat(lowerLeftPosition.y);
-            subGrid.setUpperRightLon(upperRightPosition.x);
-            subGrid.setUpperRightLat(upperRightPosition.y);
-
-            // verify numbers in -180 -> 180 range
-            subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid
-                    .getLowerLeftLon()));
-            subGrid.setUpperRightLon(MapUtil.correctLon(subGrid
-                    .getUpperRightLon()));
-
-            GridCoverage subGridCoverage = coverage.trim(subGrid);
-
-            if (subGridCoverage != null) {
+            return trim(modelName, coverage, lowerLeftPosition, upperRightPosition);
+        } else {
+            Integer wrapCount = worldWrapMap.get(coverage.getId());
+            if (wrapCount == null) {
+                wrapCount = GridGeometryWrapChecker.checkForWrapping(coverage
+                        .getGridGeometry());
+                worldWrapMap.put(coverage.getId(), wrapCount);
+            }
+            if(wrapCount > 0 && wrapCount < coverage.getNx()){
+                // make sure that there is data going around the world only
+                // once, if the data starts another iteration around the world,
+                // subgrid it to cut off the extra data. This mostly hits to
+                // remove one redundant column.
+                Coordinate upperRightPosition = new Coordinate(wrapCount - 1, 0);
+                upperRightPosition = MapUtil.gridCoordinateToLatLon(upperRightPosition,
+                        PixelOrientation.CENTER, coverage);
                 try {
-                    subGridCoverage = insert(subGridCoverage);
-                } catch (Exception e) {
-                    logger.error(e.getLocalizedMessage(), e);
+                    Coordinate lowerLeftPosition = new Coordinate(
+                            coverage.getLowerLeftLon(),
+                            coverage.getLowerLeftLat());
+                    return trim(modelName, coverage, lowerLeftPosition,
+                            upperRightPosition);
+                } catch (GridCoverageException e) {
+                    logger.error(
+                            "Failed to generate sub grid for world wide grid: "
+                                    + modelName, e);
                     return false;
                 }
-                subGridCoverageMap.put(subGridKey(modelName, coverage),
-                        subGridCoverage);
-                definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
+            }else{
+                return false;
             }
-            return true;
-        } else {
-            return false;
         }
+    }
+
+    /**
+     * Final step of subgrid generation, based off the two Coordinates generate
+     * a subgrid coverage, insert it into the db and add it to caches.
+     * 
+     * @param modelName
+     * @param coverage
+     * @param lowerLeft
+     * @param upperRight
+     * @return true on success, false if something went wrong, so no subgrid is
+     *         available. This method will log errors and return false
+     */
+    private boolean trim(String modelName, GridCoverage coverage,
+            Coordinate lowerLeft, Coordinate upperRight) {
+        SubGrid subGrid = new SubGrid();
+        subGrid.setLowerLeftLon(lowerLeft.x);
+        subGrid.setLowerLeftLat(lowerLeft.y);
+        subGrid.setUpperRightLon(upperRight.x);
+        subGrid.setUpperRightLat(upperRight.y);
+
+        // verify numbers in -180 -> 180 range
+        subGrid.setLowerLeftLon(MapUtil.correctLon(subGrid.getLowerLeftLon()));
+        subGrid.setUpperRightLon(MapUtil.correctLon(subGrid.getUpperRightLon()));
+
+        GridCoverage subGridCoverage = coverage.trim(subGrid);
+
+        if (subGridCoverage != null) {
+            try {
+                subGridCoverage = insert(subGridCoverage);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage(), e);
+                return false;
+            }
+            subGridCoverageMap.put(subGridKey(modelName, coverage),
+                    subGridCoverage);
+            definedSubGridMap.put(subGridKey(modelName, coverage), subGrid);
+        }
+        return true;
     }
 
     /**

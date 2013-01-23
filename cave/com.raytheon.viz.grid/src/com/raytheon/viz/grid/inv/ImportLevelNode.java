@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.grid.inv;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,6 +31,7 @@ import java.util.TreeSet;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -108,12 +111,26 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
                         continue;
                     }
                 }
+                Collection<GridCoverage> spaces = null;
+                ISpatialObject space = time.getSpace();
+                if (space.equals(TimeAndSpace.SPACE_AGNOSTIC)) {
+                    spaces = CoverageUtils.getInstance().getCoverages(
+                            sourceNodeModelName);
+                } else if (space instanceof GridCoverage) {
+                    spaces = Arrays.asList((GridCoverage) space);
+                } else {
+                    throw new IllegalArgumentException(
+                            "Grid ImportLevelNode cannot import data into this space: "
+                                    + String.valueOf(space));
+                }
 
-                AbstractRequestableData result = new ImportRequestableData(
-                        beforeData, afterData, time.getTime());
-                result.setSpace(time.getSpace());
-                modifyRequest(result);
-                results.add(result);
+                for (GridCoverage coverage : spaces) {
+                    AbstractRequestableData result = new ImportRequestableData(
+                            beforeData, afterData, time.getTime());
+                    result.setSpace(coverage);
+                    modifyRequest(result);
+                    results.add(result);
+                }
             }
         }
         return results;

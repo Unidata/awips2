@@ -9,7 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.2",
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174"
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.plugin.nwsauth,
  com.raytheon.uf.common.plugin.nwsauth.exception,
  com.raytheon.uf.common.plugin.nwsauth.user,
