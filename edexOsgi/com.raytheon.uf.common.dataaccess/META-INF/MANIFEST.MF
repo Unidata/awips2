@@ -12,7 +12,9 @@ Require-Bundle: com.raytheon.uf.common.time;visibility:=reexport,
  com.raytheon.uf.common.dataplugin.level;visibility:=reexport,
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174"
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.dataaccess.exception,
  com.raytheon.uf.common.dataaccess.geom,
