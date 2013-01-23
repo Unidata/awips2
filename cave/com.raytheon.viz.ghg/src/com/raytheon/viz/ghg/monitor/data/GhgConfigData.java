@@ -81,6 +81,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                     named filters.
  * 18Jun2008    1157       MW Fegan    Use clone of default filter.
  * 20Jun2008    1157       MW Fegan    Add resetting to default alerts.
+ * 28Nov2012    1353       rferrel     Sort the list of filter names for dialog display.
  * 
  * </pre>
  * 
@@ -750,10 +751,12 @@ public final class GhgConfigData {
     }
 
     /**
-     * Returns a list of the filter names.
+     * Returns a sorted list of the filter names.
      */
     public String[] getFilterNames() {
-        return filters.keySet().toArray(new String[] {});
+        String[] names = filters.keySet().toArray(new String[] {});
+        Arrays.sort(names);
+        return names;
     }
 
     /**
