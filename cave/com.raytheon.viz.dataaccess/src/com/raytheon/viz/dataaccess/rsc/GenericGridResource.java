@@ -24,6 +24,9 @@ import java.nio.Buffer;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -34,9 +37,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 
@@ -128,9 +128,24 @@ public class GenericGridResource extends
     public String getName() {
         if (this.noData) {
             return NODATA_LEGEND_TEXT;
+        }else if(this.dataTime == null){
+            return GENERIC_GRID_LEGEND_TEXT;
+        } else {
+            StringBuilder legend = new StringBuilder(GENERIC_GRID_LEGEND_TEXT);
+            IGridData gridData = resourceData.getGridData();
+            if (gridData != null) {
+                if (gridData.getParameter() != null) {
+                    legend.append(" ");
+                    legend.append(gridData.getParameter());
+                }
+                if (gridData.getLevel() != null) {
+                    legend.append(" ");
+                    legend.append(gridData.getLevel());
+                }
+            }
+            legend.append(this.dataTime.getLegendString());
+            return legend.toString();
         }
-
-        return GENERIC_GRID_LEGEND_TEXT + this.dataTime.getLegendString();
     }
 
     @Override
