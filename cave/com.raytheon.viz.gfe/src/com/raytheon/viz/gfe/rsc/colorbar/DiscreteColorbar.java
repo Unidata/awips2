@@ -82,7 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a colorbar for continuous (scalar and vector) elements
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -91,11 +91,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 20, 2008            dglazesk    Updated for the new ColorMap interface
  * Aug 20, 2012      1079  randerso    Changed to display all discrete values for
  *                                     non-overlapping discretes
- * Jan 9, 2013  15661      ryu         Set font for drawing regular Wx/discrete parm labels.
- * Jan 10, 2013  15548     ryu         Update colorbar when new discrete colormap is selected
- *
+ * Jan  9, 2013     15661  ryu         Set font for drawing regular Wx/discrete parm labels.
+ * Jan 10, 2013     15548  ryu         Update colorbar when new discrete colormap is selected
+ * Jan 23, 2013     #1524  randerso    Fix missing discrete color bar and error when clicking 
+ *                                     on discrete color bar when no grid exists
+ * 
  * </pre>
- *
+ * 
  * @author chammack
  * @version 1.0
  */
@@ -139,7 +141,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Constructor for the Discrete Color Bar
-     *
+     * 
      * @param parm
      *            The parm
      * @param colorbarResource
@@ -162,8 +164,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
         DataManager dataManager = parm.getDataManager();
         ISpatialDisplayManager spatialDisplayManager = dataManager
                 .getSpatialDisplayManager();
-        ResourcePair resourcePair = spatialDisplayManager
-                .getResourcePair(parm);
+        ResourcePair resourcePair = spatialDisplayManager.getResourcePair(parm);
         AbstractVizResource<?, ?> resource = resourcePair.getResource();
         ColorMapParameters params = resource.getCapability(
                 ColorMapCapability.class).getColorMapParameters();
@@ -172,7 +173,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#dispose()
      */
     @Override
@@ -193,7 +194,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Gets the Discrete Color map.
-     *
+     * 
      * @return Returns the color map used for the discrete data.
      */
     public static ColorMap getFallbackColorMap() {
@@ -202,7 +203,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
@@ -210,7 +211,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        DataTime currentTime = paintProps.getDataTime();
+        DataTime currentTime = paintProps.getFramesInfo().getCurrentFrame();
         if (parm == null || currentTime == null) {
             return;
         }
@@ -426,7 +427,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
      * Labels that do not fit their designated band on the bar will be
      * truncated. Pickup value text will always be displayed in full, so any
      * text it overlaps will not be drawn.
-     *
+     * 
      * @param target
      *            The graphics target on which to draw
      * @param colorTable
@@ -557,7 +558,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Draws the colorbar once colors and patterns have been decided.
-     *
+     * 
      * @param target
      *            The graphics target on which to draw.
      * @param pixelExtent
@@ -657,34 +658,42 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#getValueAt(double[],
      * int)
      */
     @Override
     public WxValue getValueAt(double[] coord, int mouseButton) {
-        PixelExtent lastExtent = colorbarResource.getExtent();
-        float fractionX = (float) ((coord[0] - lastExtent.getMinX()) / (lastExtent
-                .getMaxX() - lastExtent.getMinX()));
-        int index = (int) (gridKeys.size() * fractionX);
-        if (index >= gridKeys.size()) {
-            index = gridKeys.size() - 1;
-        }
+        WxValue retVal = null;
+        if (!gridKeys.isEmpty()) {
+            PixelExtent lastExtent = colorbarResource.getExtent();
+            float fractionX = (float) ((coord[0] - lastExtent.getMinX()) / (lastExtent
+                    .getMaxX() - lastExtent.getMinX()));
+            int index = (int) (gridKeys.size() * fractionX);
+            if (index >= gridKeys.size()) {
+                index = gridKeys.size() - 1;
+            }
 
-        switch (parm.getGridInfo().getGridType()) {
-        case DISCRETE: {
-            DiscreteWxValue castedVal = (DiscreteWxValue) gridKeys.get(index);
-            return new DiscreteWxValue(castedVal.getDiscreteKey(), parm);
+            switch (parm.getGridInfo().getGridType()) {
+            case DISCRETE: {
+                DiscreteWxValue castedVal = (DiscreteWxValue) gridKeys
+                        .get(index);
+                retVal = new DiscreteWxValue(castedVal.getDiscreteKey(), parm);
+                break;
+            }
+            case WEATHER: {
+                WeatherWxValue castedVal = (WeatherWxValue) gridKeys.get(index);
+                retVal = new WeatherWxValue(castedVal.getWeatherKey(), parm);
+
+                break;
+            }
+            default:
+                throw new IllegalArgumentException(
+                        "getValueAt does not support type: "
+                                + parm.getGridInfo().getGridType());
+            }
         }
-        case WEATHER: {
-            WeatherWxValue castedVal = (WeatherWxValue) gridKeys.get(index);
-            return new WeatherWxValue(castedVal.getWeatherKey(), parm);
-        }
-        default:
-            throw new IllegalArgumentException(
-                    "getValueAt does not support type: "
-                            + parm.getGridInfo().getGridType());
-        }
+        return retVal;
     }
 }
