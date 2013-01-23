@@ -323,20 +323,22 @@ public abstract class ContourRenderable implements IRenderable {
                                             .isLooping() && retries < 10);
 
                             if (cg != null) {
-                                // Dispose old wireframe shapes
-                                if (contourGroup[i] != null
-                                        && contourGroup[i].posValueShape != null) {
-                                    contourGroup[i].posValueShape.dispose();
-                                }
+                                if (cg != contourGroup[i]) {
+                                    // Dispose old wireframe shapes
+                                    if (contourGroup[i] != null
+                                            && contourGroup[i].posValueShape != null) {
+                                        contourGroup[i].posValueShape.dispose();
+                                    }
 
-                                if (contourGroup[i] != null
-                                        && contourGroup[i].negValueShape != null) {
-                                    contourGroup[i].negValueShape.dispose();
-                                }
+                                    if (contourGroup[i] != null
+                                            && contourGroup[i].negValueShape != null) {
+                                        contourGroup[i].negValueShape.dispose();
+                                    }
 
-                                contourGroup[i] = cg;
-                                contourGroup[i].posValueShape.compile();
-                                contourGroup[i].negValueShape.compile();
+                                    contourGroup[i] = cg;
+                                    contourGroup[i].posValueShape.compile();
+                                    contourGroup[i].negValueShape.compile();
+                                }
                             } else {
                                 target.setNeedsRefresh(true);
                             }

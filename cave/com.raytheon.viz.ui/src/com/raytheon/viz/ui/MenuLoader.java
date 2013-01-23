@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -94,9 +95,10 @@ public class MenuLoader extends Job {
 
             /**
              * Update the frame count based on what has been listed in the
-             * bundle if we don't have a time match basis already
+             * bundle if we don't have times already loaded
              */
-            if (existingDescriptor.getTimeMatcher().getTimeMatchBasis() == null) {
+            FramesInfo info = existingDescriptor.getFramesInfo();
+            if (info.getFrameCount() == 0) {
                 existingDescriptor.setNumberOfFrames(loadFrom.getDescriptor()
                         .getNumberOfFrames());
             }

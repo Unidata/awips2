@@ -8,19 +8,15 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.apache.commons.logging,
- org.geotools,
  javax.measure,
- org.apache.commons.lang,
  javax.persistence,
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
  com.raytheon.uf.edex.menus;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.satellite,
  com.raytheon.edex.plugin.satellite.dao,
- com.raytheon.edex.plugin.satellite.notify,
  com.raytheon.edex.util.satellite
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.uengine.tasks.query,
+Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.awipstools,
- com.raytheon.uf.common.localization,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.awipstools

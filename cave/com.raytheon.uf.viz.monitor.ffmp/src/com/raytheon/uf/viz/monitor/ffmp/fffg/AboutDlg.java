@@ -30,15 +30,33 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog; 
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class AboutDlg extends CaveSWTDialog{
+/**
+ * Displays the FFFG About information
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Nov 29, 2012 1353       rferrel     Made dialog non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author rferrel
+ * @version 1.0
+ */
+public class AboutDlg extends CaveSWTDialog {
 
     /**
      * The label object.
      */
 
-     private Label aboutLbl;
+    private Label aboutLbl;
+
     /**
      * Constructor.
      * 
@@ -46,12 +64,13 @@ public class AboutDlg extends CaveSWTDialog{
      *            Parent shell.
      */
     public AboutDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("About ForcedFFG");
-   }
+    }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -60,14 +79,13 @@ public class AboutDlg extends CaveSWTDialog{
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
-        
         // Initialize layout
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 100;
 
-        aboutLbl=new Label(shell,SWT.None);
-	    aboutLbl.setLayoutData(gd);
+        aboutLbl = new Label(shell, SWT.None);
+        aboutLbl.setLayoutData(gd);
 
         // Add a close button
         Composite centeredComp = new Composite(shell, SWT.NONE);
@@ -88,21 +106,22 @@ public class AboutDlg extends CaveSWTDialog{
 
         populateDlg();
 
-}
- 
+    }
+
     private void populateDlg() {
-        String aboutText = "  The ForceFFG GUI was closely followed FFMP, LSR,\n"+
-        					"  ForcedFFG applications and was based on input from\n"+
-        					"  the AWIPS User Interface Working Group.  Visit \n"+
-        					"  http://www.nws.noaa.gov/mdl/ffmp/ for more details\n"+
-        					"  regarding this ForcedFFG GUI.";
+        String aboutText = "  The ForceFFG GUI was closely followed FFMP, LSR,\n"
+                + "  ForcedFFG applications and was based on input from\n"
+                + "  the AWIPS User Interface Working Group.  Visit \n"
+                + "  http://www.nws.noaa.gov/mdl/ffmp/ for more details\n"
+                + "  regarding this ForcedFFG GUI.";
 
         this.aboutLbl.setText(aboutText);
         this.shell.pack();
     }
+
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
      */
     @Override
@@ -111,4 +130,3 @@ public class AboutDlg extends CaveSWTDialog{
 
     }
 }
-
