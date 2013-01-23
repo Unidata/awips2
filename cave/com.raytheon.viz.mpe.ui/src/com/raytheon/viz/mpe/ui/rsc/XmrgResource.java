@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2008            randerso     Initial creation
  * Sep 5, 2012    15079    snaples      Updated interrogate method to handle values without rounding errors.
+ * Jan 7, 2013  15483      wkwock       Fix the "Radar coverage field" error
  * </pre>
  * 
  * @author randerso
@@ -789,8 +790,16 @@ public class XmrgResource extends
             break;
 
         case Index:
+        	List<MPERadarLoc> radars= MPEDataManager.getInstance().getRadars();
+            for (int k=dmPref.getEntries().size();k<radars.size()+2;k++){
+                DataMappingEntry dme = new DataMappingEntry();
+                dme.setPixelValue((double) (k));
+                dme.setDisplayValue(Double.MAX_VALUE);
+                dmPref.addEntry(dme);
+            }
+
             int j = 2;
-            for (MPERadarLoc radar : MPEDataManager.getInstance().getRadars()) {
+            for (MPERadarLoc radar : radars) {
                 dmPref.getEntries().get(j++).setLabel(radar.getId());
             }
             while (j < dmPref.getEntries().size()) {

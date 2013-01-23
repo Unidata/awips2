@@ -3,11 +3,11 @@
     <inventoryName>NAM_00</inventoryName>
     <inventoryParameters>pluginName,dataTime</inventoryParameters>
     <baseConstraints>
-        <mapping key="info.datasetId">
+        <mapping key="modelName">
             <constraint constraintValue="nam" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
-            <constraint constraintValue="grid" constraintType="EQUALS"/>
+            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>
