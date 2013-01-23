@@ -6,6 +6,7 @@
     <resourceParameters>
 GDFILE=rap
 pluginName=grid
+eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Regional</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
