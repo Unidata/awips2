@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
@@ -37,6 +38,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
+ * Jan  8, 2013    15664   Qinglu Lin   Updated body().
  * 
  * </pre>
  * 
@@ -49,7 +51,10 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
      */
     @Override
     public void body() {
-        headlines();
+    	if (action != WarningAction.COR)
+    		headlines();
+    	else
+    		super.body();
     }
 
     /**

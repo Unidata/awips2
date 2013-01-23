@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>NAM</inventoryName>
-    <inventoryParameters>pluginName,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,info.secondaryId,dataTime</inventoryParameters>
     <baseConstraints>
         <mapping key="info.datasetId">
             <constraint constraintValue="nam" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
             <constraint constraintValue="grid" constraintType="EQUALS"/>
+        </mapping>
+        <mapping key="info.secondaryId">
+            <constraint constraintValue="%" constraintType="LIKE"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>
