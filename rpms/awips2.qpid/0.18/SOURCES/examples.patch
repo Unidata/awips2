@@ -1,0 +1,96 @@
+From 4acdbf975c076c2c49e7e2436065ca7d18dfab20 Mon Sep 17 00:00:00 2001
+From: rajith <rajith@redhat.com>
+Date: Wed, 16 Jun 2010 16:37:11 -0400
+Subject: [PATCH 02/52] These two files are not present in upstream and we currently carry them as a patch.
+ The reason being that the run_example.sh is tailored specific for the linux env.
+ Including the example.log4j depends on how the release artefacts will look like for the 0.7 qpid release.
+
+---
+ qpid/java/client/example/bin/run_example.sh |   43 +++++++++++++++++++++++++++
+ qpid/java/client/example/example.log4j      |   27 +++++++++++++++++
+ 2 files changed, 70 insertions(+), 0 deletions(-)
+ create mode 100644 qpid/java/client/example/bin/run_example.sh
+ create mode 100644 qpid/java/client/example/example.log4j
+
+diff --git a/qpid/java/client/example/bin/run_example.sh b/qpid/java/client/example/bin/run_example.sh
+new file mode 100644
+index 0000000..5bd0e99
+--- /dev/null
++++ b/qpid/java/client/example/bin/run_example.sh
+@@ -0,0 +1,43 @@
++#!/bin/bash
++
++#
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++#
++
++# set the CLASSPATH
++QPID_DEPS=`find /usr/share/java/qpid-deps/*.jar | tr '\n' ":"`
++QPID_JARS=`find /usr/share/java -name 'qpid-client*.jar' -or -name 'qpid-common*.jar' | tr '\n' ":"`
++LOG4J="/usr/share/java/log4j.jar"
++QPID_CLASSPATH=$QPID_DEPS$LOG4J:$QPID_JARS
++
++# compile the samples
++javac -cp  "$QPID_CLASSPATH" -sourcepath "$PWD" -d . `find $PWD -name '*.java'`
++
++# Add output classes to CLASSPATH
++QPID_CLASSPATH="$PWD:$QPID_CLASSPATH"
++
++
++# Check if the user supplied a sample classname
++if test "'x$1'" = "'x'"
++then
++    echo "No sample classname specified"
++    exit;
++else
++    java -cp $QPID_CLASSPATH -Dlog4j.configuration=example.log4j "$@"
++fi
++
+diff --git a/qpid/java/client/example/example.log4j b/qpid/java/client/example/example.log4j
+new file mode 100644
+index 0000000..50b4ed2
+--- /dev/null
++++ b/qpid/java/client/example/example.log4j
+@@ -0,0 +1,27 @@
++#
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++#
++
++log4j.logger.org.apache.qpid=WARN, console
++log4j.additivity.org.apache.qpid=false
++
++
++log4j.appender.console=org.apache.log4j.ConsoleAppender
++log4j.appender.console.Threshold=all
++log4j.appender.console.layout=org.apache.log4j.PatternLayout
++log4j.appender.console.layout.ConversionPattern=%t %d %p [%c{4}] %m%n
