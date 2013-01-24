@@ -99,7 +99,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
                 actionXML = createActionASCII(request);
             } else if (requestType.equalsIgnoreCase("image")) {
                 actionXML = createActionImage(request);
-            } else if (requestType.equalsIgnoreCase("grib")) {
+            } else if (requestType.equalsIgnoreCase("grid")) {
                 actionXML = createActionGrib(request);
             } else if (requestType.equalsIgnoreCase("radar")) {
                 actionXML = createActionRadar(request);
@@ -200,7 +200,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
                 dataURI = makeImageDataURI(request);
             } else if (type.equalsIgnoreCase("ascii")) {
                 dataURI = makeAsciiDataURI(request);
-            } else if (type.equalsIgnoreCase("grib")) {
+            } else if (type.equalsIgnoreCase("grid")) {
                 dataURI = makeGribDataURI(request);
             } else if (type.equalsIgnoreCase("radar")) {
                 dataURI = makeRadarDataURI(request);
@@ -1563,7 +1563,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
             }
         }
         StringBuffer dataUri = new StringBuffer();
-        dataUri.append("/grib");
+        dataUri.append("/grid");
         dataUri.append("/").append(".+?");
         dataUri.append("/").append(".+?");
         dataUri.append("/").append(".+?");

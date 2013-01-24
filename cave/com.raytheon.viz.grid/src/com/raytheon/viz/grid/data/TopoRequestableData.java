@@ -27,21 +27,21 @@ import javax.measure.unit.SI;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
- * TODO Add Description
+ * requestable data that queries the topo datastore and transforms the data into
+ * the correct coverage.
  * 
  * <pre>
  * 
@@ -82,7 +82,7 @@ public class TopoRequestableData extends AbstractRequestableData {
      */
     @Override
     public FloatDataRecord getDataValue(Object arg) throws VizException {
-        GridCoverage coverage = CoverageUtils.getInstance().getCoverage(source);
+        GridCoverage coverage = (GridCoverage) this.getSpace();
         FloatDataRecord rval = topoCache.get(coverage);
 
         if (rval == null) {

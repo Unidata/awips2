@@ -66,8 +66,7 @@ public class GLColorMapDataFormatFactory {
             break;
         }
         case FLOAT: {
-            // dataFormat = new GLFloatDataFormat();
-            dataFormat = new GLHalfFloatDataFormat();
+            dataFormat = new GLFloatDataFormat();
         }
         }
         return dataFormat;

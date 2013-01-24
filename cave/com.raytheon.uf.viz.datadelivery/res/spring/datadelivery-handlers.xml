@@ -1,0 +1,101 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+    <!-- Creation of the handlers -->
+
+    <bean name="SubscriptionHandler"
+        class="com.raytheon.uf.viz.datadelivery.handlers.VizSubscriptionHandler" />
+        
+    <bean name="PendingSubscriptionHandler"
+        class="com.raytheon.uf.viz.datadelivery.handlers.VizPendingSubscriptionHandler" />
+
+    <bean name="GroupDefinitionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GroupDefinitionHandler" />
+
+    <bean name="ProviderHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ProviderHandler" />
+        
+    <bean name="DataSetNameHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetNameHandler" />
+
+    <bean name="ParameterHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterHandler" />                
+
+    <bean name="ParameterLevelHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.ParameterLevelHandler" />
+
+    <bean name="DataSetMetaDataHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetMetaDataHandler" />
+     
+    <bean name="GriddedDataSetMetaDataHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.GriddedDataSetMetaDataHandler" />
+
+    <bean name="DataSetHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.DataSetHandler" />
+        
+    <!-- The actual registering of the handlers -->
+    
+    <bean id="registryObjectHandlerRegistry" class="com.raytheon.uf.common.registry.handler.RegistryObjectHandlers" factory-method="getInstance"/>
+    
+    <bean id="registerSubscriptionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler" />
+        <constructor-arg ref="SubscriptionHandler" />
+    </bean>
+    
+    <bean id="registerPendingSubscriptionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler" />
+        <constructor-arg ref="PendingSubscriptionHandler" />
+    </bean>
+    
+    <bean id="registerGroupDefinitionHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IGroupDefinitionHandler" />
+        <constructor-arg ref="GroupDefinitionHandler" />
+    </bean>
+    
+    <bean id="registerProviderHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IProviderHandler" />
+        <constructor-arg ref="ProviderHandler" />
+    </bean>
+    
+    <bean id="registerDataSetNameHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetNameHandler" />
+        <constructor-arg ref="DataSetNameHandler" />
+    </bean>
+
+    <bean id="registerParameterHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IParameterHandler" />
+        <constructor-arg ref="ParameterHandler" />
+    </bean>
+
+    <bean id="registerParameterLevelHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IParameterLevelHandler" />
+        <constructor-arg ref="ParameterLevelHandler" />
+    </bean>
+
+    <bean id="registerDataSetMetaDataHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler" />
+        <constructor-arg ref="DataSetMetaDataHandler" />
+    </bean>
+    
+    <bean id="registerGriddedDataSetMetaDataHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IGriddedDataSetMetaDataHandler" />
+        <constructor-arg ref="GriddedDataSetMetaDataHandler" />
+    </bean>
+
+    <bean id="registerDataSetHandler" factory-bean="registryObjectHandlerRegistry" factory-method="registerHandler">
+        <constructor-arg value="com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler" />
+        <constructor-arg ref="DataSetHandler" />
+    </bean>
+    
+        <!-- Used to consolidate the dependency clauses of beans that rely upon data delivery registry handlers -->
+    <bean id="registerDataDeliveryHandlers" class="java.lang.String"
+        depends-on="registerSubscriptionHandler,registerPendingSubscriptionHandler,
+        registerGroupDefinitionHandler,
+        registerProviderHandler,registerDataSetNameHandler,registerParameterHandler,
+        registerParameterLevelHandler,registerDataSetMetaDataHandler,
+        registerGriddedDataSetMetaDataHandler,registerDataSetHandler" />
+    
+</beans>

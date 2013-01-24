@@ -60,7 +60,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
-import org.eclipse.swt.custom.PopupList;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -99,9 +98,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -303,6 +304,10 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      Do not use changed BBB from OUPResponse.
  * 17OCT2012   1229         rferrel     Changes for non-blocking SWTMessageBox.
  * 05Nov2012   15560        S. Naples   Added check to see if we are in edit mode before capturing keys.
+ * 28Nov2012   14842	    M.Gamazaychikov	Re-wrote processPopup method
+ * 13Dec2012   1353         rferrel     Change to make edit cancel message not
+ *                                       dispaly the red had kill job message.
+ * 10JAN2012   15704		M.Gamazaychikov Added setting userKeyPressed to false in verifyText method
  * </pre>
  * 
  * @author lvenable
@@ -395,10 +400,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     };
 
     private static final int PAGE_SCROLL_LINES = 20;
-
-    private static final int MIN_WIDTH = 760;
-
-    private static final int MIN_HEIGHT = 635;
 
     private static final int EDITOR_WIDTH = 80;
 
@@ -1106,6 +1107,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private static final String[] popupItems = { "Select All", "Cut", "Copy",
             "Paste" };
+    
+    private static final boolean[] isPopItemDefault = { true, false, true,
+        false };
 
     private boolean warnGenFlag = false;
 
@@ -1245,10 +1249,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 @Override
                 public void shellClosed(ShellEvent event) {
                     if (inEditMode) {
-                        cancelDoClose = true;
-                        cancelEditor(true);
-                        bringToTop();
                         event.doit = false;
+                        cancelDoClose = true;
+                        bringToTop();
+                        cancelEditor(true);
                         return;
                     }
 
@@ -3532,10 +3536,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
             public void verifyKey(VerifyEvent event) {
                 // Ignore edit keys when not in edit mode.
-            	if (textEditor.getEditable() == false){
-            		return;
-            	}
-                if (event.keyCode == SWT.DEL || event.character == SWT.BS
+                if (textEditor.getEditable() == false) {
+                    return;
+                }
+                if (event.keyCode == SWT.DEL || event.keyCode == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
                     // We need to capture the Delete, Backspace and Shift
@@ -3635,7 +3639,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
 
                 if (e.button == 3) {
-                    processPopup(e.x, e.y);
+                	processPopup();
                 }
             }
 
@@ -3648,33 +3652,48 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     /**
      * Process the user choice from the popup list.
+     * DR14842 - re-written
      */
-    private void processPopup(int x, int y) {
-        PopupList popupList = new PopupList(shell);
-        popupList.setMinimumWidth(50);
-        if (isEditMode()) {
-            popupList.setItems(popupItems);
-        } else {
-            popupList.setItems(new String[] { "Select All", "Copy" });
-        }
-        popupList.select(popupItems[0]);
-
-        Point p = Display.getCurrent().map(textEditor, null, x, y);
-        String choice = popupList.open(new Rectangle(p.x + 10, p.y + 10, 100,
-                200));
-        if (choice != null) {
-            if (popupItems[0].equals(choice)) {
-                textEditor.selectAll();
-            } else if (popupItems[1].equals(choice)) {
-                cutText();
-            } else if (popupItems[2].equals(choice)) {
-                copyText();
-            } else if (popupItems[3].equals(choice)) {
-                pasteText();
-            }
-            textEditor.update();
-        }
-    }
+	private void processPopup() {
+		Menu menu = new Menu(shell, SWT.POP_UP);
+		List<String> items = Arrays.asList(popupItems);
+		for (String pi : popupItems) {
+			MenuItem mi = new MenuItem(menu, SWT.PUSH);
+			mi.setText(pi);
+			if (isEditMode()) {
+				mi.setEnabled(true);
+			} else {
+				mi.setEnabled(isPopItemDefault[items.indexOf(pi)]);
+			}
+			mi.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					handleSelection(event);
+				}
+			});
+		}
+		menu.setVisible(true);
+	}
+    
+    /**
+     * Handle the selection from the popup menu 
+     * @param event
+     */
+	protected void handleSelection(Event event) {
+		MenuItem item = (MenuItem) event.widget;
+		String choice = item.getText();
+		if (choice != null) {
+			if (popupItems[0].equals(choice)) {
+				textEditor.selectAll();
+			} else if (popupItems[1].equals(choice)) {
+				cutText();
+			} else if (popupItems[2].equals(choice)) {
+				copyText();
+			} else if (popupItems[3].equals(choice)) {
+				pasteText();
+			}
+			textEditor.update();
+		}
+	}
 
     /**
      * creates the bar containing the script runner controls.
@@ -4195,7 +4214,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String tmpText = textEditor.getText();
             Point point = textEditor.getSelection();
             FontData fontData = textEditor.getFont().getFontData()[0];
-            PrintDisplay.print(textEditor.getSelectionText(), fontData,
+            PrintDisplay.print(textEditor.getSelectionText(), fontData, 
                     statusHandler);
             textEditor.setText(tmpText);
             textEditor.setSelection(point);
@@ -4422,7 +4441,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     public void hideDialog() {
-        if (disposeOnExit == true) {
+        if (disposeOnExit == false) {
+            hide();
             return;
         }
 
@@ -4589,7 +4609,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend, true)) {
+                if ((inEditMode || resend)
+                        && saveEditedProduct(false, resend, true)) {
                     inEditMode = false;
                 }
 
@@ -4635,7 +4656,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             .getText()));
                 }
                 updateTextEditor(body);
-                if ((inEditMode || resend) && saveEditedProduct(false, resend, false)) {
+                if ((inEditMode || resend)
+                        && saveEditedProduct(false, resend, false)) {
                     inEditMode = false;
                 }
                 SendPracticeProductRequest req = new SendPracticeProductRequest();
@@ -5121,6 +5143,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         int rangeEnd = rangeStart + ranges[i + 1];
                         if (event.start > rangeStart && event.start < rangeEnd) {
                             event.doit = false;
+                            /*
+                             * DR15704 - this needs to be set so the rewrap is not called
+                             * when locked text gets editted.
+                             */
+                            userKeyPressed = false;
                             break;
                         }
                     }
@@ -5129,6 +5156,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 int ranges[] = textEditor.getRanges(event.start, length);
                 if (inEditMode && ranges != null && ranges.length != 0) {
                     event.doit = false;
+                    /*
+                     * DR15704 - this needs to be set so the rewrap is not called
+                     * when locked text gets editted.
+                     */
+                    userKeyPressed = false;
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -6790,7 +6822,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     statusHandler.handle(p, response.getMessage());
                 } else {
                     // no failure
-                    // As of DR 15418, nothing is done with response.getChangedBBB()
+                    // As of DR 15418, nothing is done with
+                    // response.getChangedBBB()
                 }
 
                 Thread.interrupted();

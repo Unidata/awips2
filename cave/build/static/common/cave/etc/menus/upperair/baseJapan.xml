@@ -61,12 +61,12 @@
 	    </contribute>
 
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Tungchiang (RCMJ)" id="raobTungchiang"
+	                menuText="Tungchiang (595530) (RCMJ)" id="raobTungchiang"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="595530"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Taipei (RCSS)" id="raobTaipei"
+	                menuText="Taipei (589680) (RCSS)" id="raobTaipei"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="589680"/>
 	    </contribute>
