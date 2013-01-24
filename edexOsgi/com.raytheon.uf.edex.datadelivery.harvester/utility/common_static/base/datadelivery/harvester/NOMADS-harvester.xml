@@ -45,7 +45,7 @@
         <ignore>\.das$</ignore> 
         <ignore>\.dds$</ignore>
         <ignore>help$</ignore>
-        <ignore>fens\d\d\d</ignore>
+        <ignore>fens\d\d\d_</ignore>
         <ignore>cmcens[cp]\d\d</ignore>
         <ignore>ge[cp]\d\d</ignore>
 		<!-- seed scan once a day at 12z -->
