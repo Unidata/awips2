@@ -30,7 +30,6 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
 import com.raytheon.uf.common.pointdata.accumulate.AccumDataRequestMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -39,7 +38,8 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamField;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
 
 /**
- * TODO Add Description
+ * Carries out the Accum derived parameter method by sending an accum request to
+ * edex.
  * 
  * <pre>
  * 
@@ -65,12 +65,10 @@ public class PointAccumRequestableData extends AbstractRequestableData {
     public PointAccumRequestableData(
             List<AbstractRequestableData> idRequesters,
             AbstractRequestableData timeRequester, DerivParamMethod method,
-            LayerProperty property) throws VizException {
+            String plugin) throws VizException {
         this.idRequesters = idRequesters;
         this.timeRequester = timeRequester;
         this.request = new AccumDataRequestMessage();
-        String plugin = property.getEntryQueryParameters(false)
-                .get("pluginName").getConstraintValue();
         int index = method.getFields().size() - 1;
         int minutes = ((DerivParamConstantField) method.getFields()
                 .get(index--)).getValue().intValue();

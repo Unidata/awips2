@@ -11,8 +11,9 @@ GDFILE  nww3 ! gfs
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0/-1;1
+FILTER=y
 SCALE  =   0
-GDPFUN =  mul(HTSGW,3.28) !sm5s(mul(1e-2,pmsl))
+GDPFUN =  mul(HTSGW,3.28) !sm5s(pmsl)
 TYPE   =    p               !c
 CINT   =    0		!4
 LINE   =    		!20//2/1
@@ -26,4 +27,3 @@ TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (ft) with GFS PMSL!0
 COLORS =  1
 MARKER =  0
 GRDLBL =                                                                         
-FILTER =  no

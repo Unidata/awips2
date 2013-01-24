@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.esb.camel.spring;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,6 +29,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -40,6 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2010            njensen     Initial creation
+ * Sep 19, 2012 1195       djohnson    Allow 0..n other modes to be included.
  * 
  * </pre>
  * 
@@ -52,37 +56,65 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class EdexMode extends DefaultEdexMode {
 
     @XmlAttribute(name = "name")
+    @XmlID
     private String name;
 
     @XmlElements( { @XmlElement(name = "include", type = String.class) })
-    private ArrayList<String> includeList;
+    private final List<String> includeList;
 
-    private ArrayList<Pattern> compiledIncludes;
+    private final List<Pattern> compiledIncludes;
 
     @XmlElements( { @XmlElement(name = "exclude", type = String.class) })
-    private ArrayList<String> excludeList;
+    private final List<String> excludeList;
 
-    private ArrayList<Pattern> compiledExcludes;
+    private final List<Pattern> compiledExcludes;
 
-    private boolean inited = false;
+    @XmlElements({ @XmlElement(name = "includeMode") })
+    @XmlIDREF
+    private final List<EdexMode> includedModes;
+
+    private boolean inited;
+
+    @XmlAttribute
+    private boolean template;
 
     public EdexMode() {
-        includeList = new ArrayList<String>();
-        compiledIncludes = new ArrayList<Pattern>();
-        excludeList = new ArrayList<String>();
-        compiledExcludes = new ArrayList<Pattern>();
+        this(new ArrayList<String>(), new ArrayList<String>(),
+                new ArrayList<EdexMode>());
+    }
+
+    // @VisibleForTesting
+    EdexMode(List<String> includeList, List<String> excludeList,
+            List<EdexMode> includedModes) {
+        this.includeList = includeList;
+        compiledIncludes = new ArrayList<Pattern>(includeList.size());
+        this.excludeList = excludeList;
+        compiledExcludes = new ArrayList<Pattern>(excludeList.size());
+        this.includedModes = includedModes;
     }
 
     /**
      * Compiles the patterns
      */
     public void init() {
+
+        for (EdexMode includedMode : includedModes) {
+            if (!includedMode.isInited()) {
+                includedMode.init();
+            }
+        }
+
         for (String s : includeList) {
             compiledIncludes.add(Pattern.compile(s));
         }
 
         for (String s : excludeList) {
             compiledExcludes.add(Pattern.compile(s));
+        }
+
+        for (EdexMode includedMode : includedModes) {
+            compiledIncludes.addAll(includedMode.compiledIncludes);
+            compiledExcludes.addAll(includedMode.compiledExcludes);
         }
         inited = true;
     }
@@ -100,23 +132,22 @@ public class EdexMode extends DefaultEdexMode {
                     .substring(filename.lastIndexOf(File.separator) + 1);
         }
 
+        // If we explicitly exclude the pattern, just return false
+        for (Pattern p : compiledExcludes) {
+            if (p.matcher(filename).find()) {
+                return false;
+            }
+        }
+
         boolean matches = false;
+
         // default to include * if no include regexes are present
-        if (compiledIncludes.size() == 0) {
+        if (compiledIncludes.isEmpty()) {
             matches = true;
         } else {
             for (Pattern p : compiledIncludes) {
                 if (p.matcher(filename).find()) {
                     matches = true;
-                    break;
-                }
-            }
-        }
-
-        if (matches) {
-            for (Pattern p : compiledExcludes) {
-                if (p.matcher(filename).find()) {
-                    matches = false;
                     break;
                 }
             }
@@ -148,6 +179,26 @@ public class EdexMode extends DefaultEdexMode {
 
     public void setInited(boolean inited) {
         this.inited = inited;
+    }
+
+    /**
+     * Return whether or not the mode is a template mode. Template modes cannot
+     * be booted.
+     * 
+     * @return the template
+     */
+    public boolean isTemplate() {
+        return template;
+    }
+
+    /**
+     * Set whether the mode is a template or not.
+     * 
+     * @param template
+     *            true to denote a template mode
+     */
+    public void setTemplate(boolean template) {
+        this.template = template;
     }
 
 }

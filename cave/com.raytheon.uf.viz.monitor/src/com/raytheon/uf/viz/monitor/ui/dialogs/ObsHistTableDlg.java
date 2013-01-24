@@ -38,7 +38,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.xml.HistConfigXML;
@@ -50,10 +50,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
- * Aug 6, 2010  6877      skorolev     Rewrote with using CaveSWTDialog
+ * Apr 6,  2009            lvenable     Initial creation
+ * Aug 6,  2010  6877      skorolev     Rewrote with using CaveSWTDialog
+ * Nov 29, 2012  1351      skorolev     Clean up code. Changes for non-blocking dialog.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -61,26 +63,54 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class ObsHistTableDlg extends CaveSWTDialog {
 
-    private final CommonConfig.AppName appName;
+    /** Monitor name **/
+    private final AppName appName;
 
+    /** Station ID **/
     private final String stationId;
 
+    /** Visible columns XML file **/
     private HistConfigXML visColsXML;
 
+    /**     **/
     private ObsHistTableComp obsHistTable;
 
+    /** Observation type **/
     private final ObsHistType obsType;
 
+    /** Table data **/
     private final TableData tableData;
 
+    /** Latitude **/
     private final double lat;
 
+    /** Longitude **/
     private final double lon;
 
+    /** Observation history configuration dialog **/
+    private ObsHistConfigDlg obsHistConfigDlg;
+
+    /** Dialog ID **/
+    protected String dlgId;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param tableData
+     * @param appName
+     * @param stationID
+     * @param lat
+     * @param lon
+     * @param obsType
+     * @param dlgId
+     *            dialog ID
+     */
     protected ObsHistTableDlg(Shell parent, TableData tableData,
-            String stationID, double lat, double lon,
-            CommonConfig.AppName appName, ObsHistType obsType) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+            AppName appName, String stationID, double lat, double lon,
+            ObsHistType obsType, String dlgId) {
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
+                | CAVE.INDEPENDENT_SHELL);
         setText(appName.name() + ":24-Hour Observation History Table");
         this.tableData = tableData;
         this.appName = appName;
@@ -88,6 +118,7 @@ public class ObsHistTableDlg extends CaveSWTDialog {
         this.lat = lat;
         this.lon = lon;
         this.obsType = obsType;
+        this.dlgId = dlgId;
     }
 
     /*
@@ -104,6 +135,9 @@ public class ObsHistTableDlg extends CaveSWTDialog {
         createObsHistTable();
     }
 
+    /**
+     * Creates Obs History Table.
+     */
     private void createObsHistTable() {
         obsHistTable = new ObsHistTableComp(shell, tableData, appName, obsType);
         if (visColsXML != null) {
@@ -116,6 +150,9 @@ public class ObsHistTableDlg extends CaveSWTDialog {
         obsHistTable.pack();
     }
 
+    /**
+     * Creates Top Controls.
+     */
     private void createTopControls() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite controlComp = new Composite(shell, SWT.NONE);
@@ -146,24 +183,39 @@ public class ObsHistTableDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                setReturnValue(dlgId);
+                close();
             }
         });
     }
 
+    /**
+     * Opens Configuration dialog.
+     */
     private void configAction() {
-        ObsHistConfigDlg obsHistConfigDlg = new ObsHistConfigDlg(shell,
-                appName, obsHistTable, obsType);
+        if (obsHistConfigDlg == null) {
+            obsHistConfigDlg = new ObsHistConfigDlg(shell, appName,
+                    obsHistTable, obsType);
+        }
         obsHistConfigDlg.open();
     }
 
+    /**
+     * Gets formated coordinates.
+     * 
+     * @return formated lat, lon
+     */
     private String getFormattedLatLon() {
         String format = "(%.2f, %.2f)";
         return String.format(format, lat, lon);
     }
 
+    /**
+     * Gets user file if exist.
+     * 
+     * @return visible Columns XML
+     */
     private HistConfigXML getHistConfigFile() {
-        // Open user file if exist.
         visColsXML = null;
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
@@ -180,6 +232,11 @@ public class ObsHistTableDlg extends CaveSWTDialog {
         return visColsXML;
     }
 
+    /**
+     * Gets history file path.
+     * 
+     * @return path
+     */
     private String getHistPath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="GEMPAK">
+	<alias base="WGH">HGHT5</alias>
+	<alias base="AV">AVOR</alias>
+	<alias base="CRAIN">WXTR</alias>
+	<alias base="CFRZR">WXTZ</alias>
+	<alias base="CICEP">WXTP</alias>
+	<alias base="CSNOW">WXTS</alias>
+	<alias base="CWAT">CWTR</alias>
+	<alias base="CAPE">CAPE</alias>
+	<alias base="CIn">CINH</alias>
+	<alias base="CDCON">CCLD</alias>
+	<alias base="CP1hr">C01M</alias>
+	<alias base="CP3hr">C03M</alias>
+	<alias base="CP6hr">C06M</alias>
+	<alias base="CP9hr">C09M</alias>
+	<alias base="CP12hr">C12M</alias>
+	<alias base="CPRAT">C12M</alias>
+	<alias base="DpT">DWPK</alias>
+	<alias base="DpD">DPDK</alias>
+	<alias base="WVDIR">DRCTWW</alias>
+	<alias base="SWDIR">DRCTSW</alias>
+	<alias base="EPT">THTE</alias>
+	<alias base="EVP">EVAP</alias>
+	<alias base="GH">HGHT</alias>
+	<alias base="GeH">DIST</alias>
+	<alias base="HIdx">HEAT</alias>
+	<alias base="HCDC">CLDH</alias>
+	<alias base="ICETK">ICET</alias>
+	<alias base="MIXR">MIXR</alias>
+	<alias base="LAPR">LAPS</alias>
+	<alias base="LCDC">CLDL</alias>
+	<alias base="LgSP1hr">S01M</alias>
+	<alias base="LgSP3hr">S03M</alias>
+	<alias base="LHF">FXLH</alias>
+	<alias base="MnT">TMNK</alias>
+	<alias base="WVPER">PERDWW</alias>
+	<alias base="SWPER">PERDSW</alias>
+	<alias base="MCDC">CLDM</alias>
+	<alias base="MxT">TMXK</alias>
+	<alias base="PLI">LIFT</alias>
+	<alias base="P">PRES</alias>
+	<alias base="PMSL">PMSL</alias>
+	<alias base="EMSP">EMSL</alias>
+	<alias base="MMSP">MMSL</alias>
+	<alias base="PoT">THTA</alias>
+	<alias base="PR">PCPR</alias>
+	<alias base="PRESA">PRESA</alias>
+	<alias base="DIRPW">DRCTPW</alias>
+	<alias base="PERPW">PERDPW</alias>
+	<alias base="CPOFP">POPZ</alias>
+	<alias base="CPOZP">POPF</alias>
+	<alias base="PVORT">PVOR</alias>
+	<alias base="PEVAP">PEVAP</alias>
+	<alias base="PEVPR">PEVP</alias>
+	<alias base="PW">PWTR</alias>
+	<alias base="RH">RELH</alias>
+	<alias base="SATD">SATD</alias>
+	<alias base="DIRSW">DRCTSW</alias>
+	<alias base="PERSW">PERDSW</alias>
+	<alias base="SWELL">HGHTSW</alias>
+	<alias base="WVHGT">HGHTWW</alias>
+	<alias base="SCP">SCVR</alias>
+	<alias base="SnD">SNDM</alias>
+	<alias base="SH">SPFH</alias>
+	<alias base="SHF">FXSH</alias>
+	<alias base="TSOIL">SLTK</alias>
+	<alias base="Heli">HLCY</alias>
+	<alias base="SLI">LIFT</alias>
+	<alias base="T">TMPK</alias>
+	<alias base="Ta">TMPKA</alias>
+	<alias base="ThP">TSTM</alias>
+	<alias base="TCC">CLD</alias>
+	<alias base="TP1hr">P01M</alias>
+	<alias base="TP3hr">P03M</alias>
+	<alias base="TP6hr">P06M</alias>
+	<alias base="TP9hr">P09M</alias>
+	<alias base="TP12hr">P12M</alias>
+	<alias base="TP18hr">P18M</alias>
+	<alias base="TP24hr">P24M</alias>
+	<alias base="TP48hr">P48M</alias>
+	<alias base="USTM">USTRM</alias>
+	<alias base="VSTM">VSTRM</alias>
+	<alias base="uW">UREL</alias>
+	<alias base="vW">VREL</alias>
+	<alias base="VAPP">VAPR</alias>
+	<alias base="VWSH">VWSH</alias>
+	<alias base="PVV">OMEG</alias>
+	<alias base="Vis">VSBY</alias>
+	<alias base="VPT">THTV</alias>
+	<alias base="VTMP">TVRK</alias>
+	<alias base="WEASD">SWEM</alias>
+	<alias base="WMIXE">ENRG</alias>
+	<alias base="WD">DRCT</alias>
+	<alias base="WS">SPED</alias>
+	<alias base="WGS">GUST</alias>
+</aliasList>

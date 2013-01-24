@@ -35,6 +35,8 @@ import org.eclipse.ui.PlatformUI;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            mpduff     Initial creation
+ * Dec 06, 2012 1353       rferrel     Changes for non blocking GetAppsDefaults.
+ *                                      Changes for non blocking SHEFAppsDefaultsDlg.
  * 
  * </pre>
  * 
@@ -43,6 +45,9 @@ import org.eclipse.ui.PlatformUI;
  */
 
 public class AppsDefaultsAction extends AbstractHandler {
+    private GetAppsDefaults gad;
+
+    private SHEFAppsDefaultsDlg dlg;
 
     /*
      * (non-Javadoc)
@@ -57,11 +62,15 @@ public class AppsDefaultsAction extends AbstractHandler {
                 .getShell();
         String action = event.getParameter("Action");
         if (action.equals("gad")) {
-            GetAppsDefaults gad = new GetAppsDefaults(shell);
+            if (gad == null) {
+                gad = new GetAppsDefaults(shell);
+            }
             gad.open();
         } else {
-            SHEFAppsDefaultsDlg dlg = new SHEFAppsDefaultsDlg(shell);
-            dlg.open();            
+            if (dlg == null) {
+                dlg = new SHEFAppsDefaultsDlg(shell);
+            }
+            dlg.open();
         }
         return null;
     }

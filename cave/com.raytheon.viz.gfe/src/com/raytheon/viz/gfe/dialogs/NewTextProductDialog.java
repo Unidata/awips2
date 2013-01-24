@@ -45,13 +45,14 @@ import com.raytheon.viz.gfe.textproduct.TextProductUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * Dialog for the define new text products
+ * Dialog for the define new text products.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#    Engineer    Description
  * ------------  ---------- ----------- --------------------------
  * Sept 25, 2008 1562       askripsky   Initial creation.
+ * Nov 12, 2012  1298       rferrel     Changes for non-blocking dialog.
  * </pre>
  * 
  * @author askripsky
@@ -62,9 +63,9 @@ public class NewTextProductDialog extends CaveJFACEDialog {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(NewTextProductDialog.class);
 
-    public static final int CANCEL_ID = 1;
+    private final int CANCEL_ID = 1;
 
-    public static final int OK_ID = 2;
+    private final int OK_ID = 2;
 
     private String title;
 
@@ -99,7 +100,7 @@ public class NewTextProductDialog extends CaveJFACEDialog {
         super(parentShell);
 
         this.title = title;
-        this.setShellStyle(SWT.DIALOG_TRIM);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         this.validator = validator;
     }
 
@@ -289,7 +290,6 @@ public class NewTextProductDialog extends CaveJFACEDialog {
 
     private void initNameSelectionEntry() {
         nameSelectionText = new Text(comp, SWT.BORDER);
-        // nameSelectionText.setTextLimit(50);
         nameSelectionText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
                 true, true));
     }
