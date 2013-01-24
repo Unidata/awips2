@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.viz.core.auth;
 
+import java.util.List;
+
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
+import com.raytheon.uf.common.auth.user.IPermission;
+import com.raytheon.uf.common.auth.user.IRole;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 
@@ -32,6 +36,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            mschenke     Initial creation
+ * Nov 06, 2012 1302       djohnson     Add ability to get roles/permissions for an application.
  * 
  * </pre>
  * 
@@ -46,7 +51,7 @@ public interface IUserManager {
      * 
      * @return
      */
-    public IUser getUserObject();
+    IUser getUserObject();
 
     /**
      * Update the user object with the authentication data update
@@ -54,7 +59,7 @@ public interface IUserManager {
      * @param user
      * @param authData
      */
-    public void updateUserObject(IUser user, IAuthenticationData authData);
+    void updateUserObject(IUser user, IAuthenticationData authData);
 
     /**
      * Get the handler for UserNotAuthenticated and UserNotAuthorized response
@@ -62,5 +67,22 @@ public interface IUserManager {
      * 
      * @return
      */
-    public INotAuthHandler getNotAuthHandler();
+    INotAuthHandler getNotAuthHandler();
+
+    /**
+     * Get the list of permissions.
+     * 
+     * @param application
+     *            the application
+     * 
+     * @return the permissions
+     */
+    List<IPermission> getPermissions(String application);
+
+    /**
+     * Get the list of roles.
+     * 
+     * @return the list of roles
+     */
+    List<IRole> getRoles(String application);
 }

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <isEnabled>true</isEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>UKMET</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
 GDFILE=ukmet
-pluginName=ncgrib
+pluginName=grid
 eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global</filterLabels>

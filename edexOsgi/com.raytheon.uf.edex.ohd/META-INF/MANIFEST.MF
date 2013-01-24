@@ -5,16 +5,11 @@ Bundle-SymbolicName: com.raytheon.uf.edex.ohd
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.db.dao,
- com.raytheon.edex.exception,
- com.raytheon.edex.plugin.grib.dao,
- com.raytheon.edex.plugin.shef,
- com.raytheon.edex.util,
+Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.common.dataplugin.binlightning,
- com.raytheon.uf.common.dataplugin.grib,
+ com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.shef.util,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.edex.core,
@@ -30,9 +25,7 @@ Export-Package: com.raytheon.uf.edex.ohd,
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.mpe;bundle-version="1.11.15",
  com.raytheon.uf.common.hydro;bundle-version="1.11.15",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- org.geotools;bundle-version="2.6.4",
- com.raytheon.edex.plugin.shef,
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.monitor
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.parameter;bundle-version="1.0.0"

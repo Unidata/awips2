@@ -7,8 +7,9 @@
 GLEVEL =  0
 GVCORD =  none
 SKIP   =    0
+FILTER=y
 SCALE  =   0
-GDPFUN =  sm5s(mul(1e-2,pmsl))
+GDPFUN =  sm5s(pmsl)
 TYPE   =    c
 CINT   =    4
 LINE   =    20//3
@@ -22,4 +23,3 @@ TITLE  =   5/-1/~ MEAN SEA LEVEL PRESSURE
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

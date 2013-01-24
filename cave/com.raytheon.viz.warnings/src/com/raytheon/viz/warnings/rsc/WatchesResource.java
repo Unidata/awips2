@@ -221,29 +221,45 @@ public class WatchesResource extends AbstractWWAResource {
 
                 if (watchact != WarningAction.NEW) {
                     AbstractWarningRecord createShape = null;
+                    if (watchact == null || watchact.toString() == null) {
+                        createShape = watchrec;
+                    }
                     for (String entryKey : entryMap.keySet()) {
                         WarningEntry entry = entryMap.get(entryKey);
                         AbstractWarningRecord rec = entry.record;
 
-                        if (rec.getPhensig().equals(watchrec.getPhensig())
-                                && rec.getOfficeid().equals(
-                                        watchrec.getOfficeid())
-                                && rec.getEtn().equals(watchrec.getEtn())) {
-                            int recSize = rec.getUgczones().size();
-                            if (!entry.partialCancel) {
-                                if (watchact == WarningAction.EXP
-                                        || watchact == WarningAction.CAN) {
-                                    entry.partialCancel = true;
-                                    entry.record.setEndTime((Calendar) watchrec
-                                            .getStartTime().clone());
-                                } else if (watchact == WarningAction.CON
-                                        && recSize > watchSize
-                                        && watchrec.getStartTime().after(
-                                                rec.getStartTime())) {
-                                    entry.partialCancel = true;
-                                    entry.record.setEndTime((Calendar) watchrec
-                                            .getStartTime().clone());
-                                    createShape = watchrec;
+                        // checks for any possible null pointer exceptions in
+                        // the following block of code, since there is the
+                        // possibility of null values
+                        if (rec.getPhensig() != null
+                                && watchrec.getPhensig() != null
+                                && rec.getOfficeid() != null
+                                && watchrec.getOfficeid() != null
+                                && rec.getUgczones() != null
+                                && rec.getStartTime() != null
+                                && watchrec.getStartTime() != null) {
+                            if (rec.getPhensig().equals(watchrec.getPhensig())
+                                    && rec.getOfficeid().equals(
+                                            watchrec.getOfficeid())
+                                    && rec.getEtn().equals(watchrec.getEtn())) {
+                                int recSize = rec.getUgczones().size();
+                                if (!entry.partialCancel) {
+                                    if (watchact == WarningAction.EXP
+                                            || watchact == WarningAction.CAN) {
+                                        entry.partialCancel = true;
+                                        entry.record
+                                                .setEndTime((Calendar) watchrec
+                                                        .getStartTime().clone());
+                                    } else if (watchact == WarningAction.CON
+                                            && recSize > watchSize
+                                            && watchrec.getStartTime().after(
+                                                    rec.getStartTime())) {
+                                        entry.partialCancel = true;
+                                        entry.record
+                                                .setEndTime((Calendar) watchrec
+                                                        .getStartTime().clone());
+                                        createShape = watchrec;
+                                    }
                                 }
                             }
                         }

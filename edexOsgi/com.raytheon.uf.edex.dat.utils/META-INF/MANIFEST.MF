@@ -5,24 +5,16 @@ Bundle-SymbolicName: com.raytheon.uf.edex.dat.utils
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.plugin.grib,
- com.raytheon.edex.plugin.grib.dao,
- com.raytheon.uf.common.dataplugin.ffmp,
- com.raytheon.uf.common.dataplugin.ffmp.dao,
- com.raytheon.uf.common.dataplugin.grib,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataplugin.radar.util,
+Import-Package: com.raytheon.uf.common.dataplugin.ffmp,
+ com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.scan.data,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.menus,
- com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.common.monitor.xml,
- com.raytheon.uf.common.status,
- com.raytheon.uf.common.ohd
+ com.raytheon.uf.common.status
 Export-Package: com.raytheon.uf.edex.dat.utils
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.2",
- org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.dataplugin.ffmp;bundle-version="1.12.2",
  com.raytheon.uf.common.monitor;bundle-version="1.12.2",
  org.apache.commons.logging;bundle-version="1.0.4",
- com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0"

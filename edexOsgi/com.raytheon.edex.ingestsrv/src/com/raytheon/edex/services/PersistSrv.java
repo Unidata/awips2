@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2008            chammack     Initial creation
  * 02/06/09     1990       bphillip    Refactored to use plugin specific daos
+ * Nov 02, 2012 1302       djohnson    Remove unused method, fix formatting.
  * </pre>
  * 
  * @author chammack
@@ -53,7 +54,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  */
 public class PersistSrv {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private static final PersistSrv instance = new PersistSrv();
 
@@ -64,7 +65,6 @@ public class PersistSrv {
     private PersistSrv() {
     }
 
-    @SuppressWarnings("unchecked")
     public PluginDataObject[] persist(PluginDataObject[] pdo) {
 
         if (pdo == null || pdo.length == 0) {
