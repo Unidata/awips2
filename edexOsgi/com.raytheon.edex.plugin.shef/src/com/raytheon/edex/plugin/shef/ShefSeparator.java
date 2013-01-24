@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                      correctly parse multiple SHEF formats
  * 12/03/2008               chammack    Camel refactor
  * 12/xx/2010               jkorman     Complete rewrite.
+ * 11/29/2012               lbousaidi   fixed the decoding issue when the shef starts
+ *                                      with :
  * </pre>
  * 
  * @author bphillip
@@ -615,9 +617,6 @@ public class ShefSeparator extends AbstractRecordSeparator {
     private static String removeInternalComments(String dataLine) {
         String s = null;
         if (dataLine != null) {
-            if (dataLine.startsWith(":")) {
-                s = new String();
-            } else {
                 StringBuilder buffer = new StringBuilder(dataLine.length());
                 boolean inComment = false;
                 for (int i = 0; i < dataLine.length(); i++) {
@@ -630,8 +629,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                         inComment = !inComment;
                     }
                 }
-                s = buffer.toString();
-            }
+                s = buffer.toString();           
         } else {
             s = new String();
         }

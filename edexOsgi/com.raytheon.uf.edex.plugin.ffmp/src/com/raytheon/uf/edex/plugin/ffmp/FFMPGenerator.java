@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
@@ -168,7 +169,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** checks for initial load **/
     public ArrayList<String> loadedData = new ArrayList<String>();
-    
+
     /** thread the productkeys **/
     public ConcurrentHashMap<String, ArrayList<String>> productKeys = new ConcurrentHashMap<String, ArrayList<String>>();
 
@@ -678,20 +679,20 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     sites.add(siteKey);
                 }
-                
+
                 int i = 0;
                 if (sites != null) {
                     // set the latch keys
                     ArrayList<String> lsites = new ArrayList<String>();
-                    for (String site: sites) {
+                    for (String site : sites) {
                         lsites.add(site);
                     }
-                    
+
                     productKeys.put(ffmpProduct.getSourceName(), lsites);
                 }
-                
+
                 for (String productKey : sites) {
-                    
+
                     FFMPRecord ffmpRec = new FFMPRecord();
                     ffmpRec.setSourceName(ffmpProduct.getSourceName());
                     ffmpRec.setDataKey(dataKey);
@@ -704,7 +705,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     ffmpRec.constructDataURI();
 
                     if (ffmpRec != null) {
-                        
+
                         if (ffmp.isFFTI()) {
                             fftiDone = false;
                             if (!fftiSources.contains(ffmp.getFFTISource())) {
@@ -712,22 +713,25 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                                         generator, ffmpRec,
                                         ffmp.getFFTISource());
                                 fftiSources.add(ffmp.getFFTISource());
-                                //System.out.println("Adding source to FFTISources!!!!!!!!!!!!"+ffmpRec.getSourceName());
+                                // System.out.println("Adding source to FFTISources!!!!!!!!!!!!"+ffmpRec.getSourceName());
                                 ffti.processFFTI();
                             }
                         }
                         // this is a threaded process!!!!!!!!!!!
-                        // Added this to speed the processing of mosaiced sources.
-                        // Before all processing was in line to the source thread.
+                        // Added this to speed the processing of mosaiced
+                        // sources.
+                        // Before all processing was in line to the source
+                        // thread.
                         // This caused slowness in the overall processing.
                         // By allowing the mosaic components to be concurrently
-                        // processed it has drastically sped up overall FFMP performance.
+                        // processed it has drastically sped up overall FFMP
+                        // performance.
                         processDataContainer(ffmpRec, productKey);
                         ffmpRecords.add(ffmpRec);
                     }
                     i++;
                 }
-                
+
                 while (productKeys.size() > 0) {
                     // wait for all threads to finish before returning
                     try {
@@ -1049,10 +1053,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         for (String rfc : filter.getRFC()) {
             // get a hash of the sources and their grib ids
-            HashMap<String, Integer> sources = FFMPUtils.getFFGModelInfo(rfc);
+            Set<String> sources = FFMPUtils.getFFGParameters(rfc);
             if (sources != null) {
                 if (sources.size() > 0) {
-                    for (String source : sources.keySet()) {
+                    for (String source : sources) {
 
                         SourceXML sourceXml = getSourceConfig().getSource(
                                 source);
@@ -1061,8 +1065,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                             String plugin = getSourceConfig().getSource(source)
                                     .getPlugin();
-                            uris.add(FFMPUtils.getFFGDataURI(
-                                    sources.get(source), plugin));
+                            uris.add(FFMPUtils.getFFGDataURI(rfc, source,
+                                    plugin));
                         }
                     }
                 }
@@ -1202,7 +1206,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         filter.setValidTime(new Date(System.currentTimeMillis()));
         filter.reset();
     }
-    
+
     /**
      * Process this data container
      * 
@@ -1213,9 +1217,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      */
     public void processDataContainer(FFMPRecord ffmpRec, String productKey) {
 
-        this.getProcessExecutor().execute(new ProcessDataContainer(ffmpRec, productKey));
+        this.getProcessExecutor().execute(
+                new ProcessDataContainer(ffmpRec, productKey));
     }
-    
+
     /**
      * Inner class to thread writing of BuddyFiles
      * 
@@ -1225,6 +1230,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     private class ProcessDataContainer implements Runnable {
 
         private FFMPRecord ffmpRec;
+
         private String productKey;
 
         public void run() {
@@ -1254,7 +1260,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             String sourceSiteDataKey = null;
             FFMPDataContainer fdc = null;
             boolean write = true;
-            
+
             try {
                 // write out the fast loader buddy file
 
@@ -1278,7 +1284,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             .getTime()
                             - (3600 * 1000 * 6));
                 }
-               
+
                 // deal with setting of needed HUCS
                 ArrayList<String> hucs = template.getTemplateMgr()
                         .getHucLevels();
@@ -1379,7 +1385,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         SOURCE_TYPE.GUIDANCE.getSourceType())) {
                     // only write last one
                     write = false;
-                    
+
                     if (!ffmpData.containsKey(sourceSiteDataKey)) {
                         ffmpData.put(sourceSiteDataKey, fdc);
                     } else {
@@ -1397,13 +1403,15 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         "Failed Processing FFMPDataContainer" + e.getMessage());
 
             } finally {
-                // moved writing here to remain safe from possible race condition between processing threads
+                // moved writing here to remain safe from possible race
+                // condition between processing threads
                 if (productKeys != null) {
                     if (productKeys.containsKey(ffmpRec.getSourceName())) {
-                        productKeys.get(ffmpRec.getSourceName()).remove(productKey);
-                        //System.out.println("Removed productKey: "+productKey);
+                        productKeys.get(ffmpRec.getSourceName()).remove(
+                                productKey);
+                        // System.out.println("Removed productKey: "+productKey);
                         if (productKeys.get(ffmpRec.getSourceName()).size() == 0) {
-                            //System.out.println("Removed source: "+ffmpRec.getSourceName()+" now writing");
+                            // System.out.println("Removed source: "+ffmpRec.getSourceName()+" now writing");
                             productKeys.remove(ffmpRec.getSourceName());
                             // last one, allow write
                             write = true;
@@ -1417,7 +1425,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         backDate = new Date((System.currentTimeMillis())
                                 - (3600 * 1000 * 6));
                     }
-                    
+
                     fdc.purge(backDate);
 
                     if (write) {
@@ -1487,7 +1495,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @param huc
      * @param wfo
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     private FFMPBasinData readLoaderBuddyFile(String sourceSiteDataKey,
             String huc, String wfo, Date backDate) throws IOException {
@@ -1498,27 +1506,24 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         BufferedInputStream is = null;
 
         try {
-            is = new BufferedInputStream(
-                    new FileInputStream(file));
+            is = new BufferedInputStream(new FileInputStream(file));
             DynamicSerializationManager dsm = DynamicSerializationManager
                     .getManager(SerializationType.Thrift);
             basinData = (FFMPBasinData) dsm.deserialize(is);
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Serialization Error Reading buddy file: "
-                            + e.getMessage());
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Serialization Error Reading buddy file: "
+                                    + e.getMessage());
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR,
-                    "IO Error Reading buddy file: "
-                            + e.getMessage());
+                    "IO Error Reading buddy file: " + e.getMessage());
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "General Error Reading buddy file: "
-                            + e.getMessage());
+                    "General Error Reading buddy file: " + e.getMessage());
         } catch (Throwable t) {
             statusHandler.handle(Priority.ERROR,
-                    "Bogus Thrift Error Reading buddy file: "
-                            + t.getMessage());
+                    "Bogus Thrift Error Reading buddy file: " + t.getMessage());
         } finally {
             if (is != null) {
                 is.close();
@@ -1876,8 +1881,8 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             statusHandler.handle(Priority.ERROR,
                     "Unable to locate file " + f.getName(), fnfe);
         } catch (SerializationException se) {
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to serialize file " + f.getName(), se);
+            statusHandler.handle(Priority.ERROR, "Unable to serialize file "
+                    + f.getName(), se);
         } catch (IOException ioe) {
             statusHandler.handle(Priority.ERROR,
                     "IO problem reading file " + f.getName(), ioe);
@@ -1926,7 +1931,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
     public ConcurrentHashMap<String, FFTIData> getFFTIDataContainer() {
         return fftiData;
     }
-    
+
     /**
      * the executor runner
      * 

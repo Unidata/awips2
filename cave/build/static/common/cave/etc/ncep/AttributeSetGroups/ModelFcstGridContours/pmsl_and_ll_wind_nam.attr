@@ -8,8 +8,9 @@
 GLEVEL =  60:30!0 
 GVCORD =  pdly!none
 SKIP   =    0/1                                                                     
+FILTER=y
 SCALE  =   0
-GDPFUN =  mag(kntv(wnd))!sm5s(mul(1e-2,pmsl)) ! kntv(wnd@60:30%pdly)
+GDPFUN =  mag(kntv(wnd))!sm5s(pmsl) ! kntv(wnd@60:30%pdly)
 TYPE   =    c/f!c ! b
 CINT   =    5/20!4
 LINE   =    32/1/2/2!19//2
@@ -17,10 +18,9 @@ FINT   =    20;35;50;65
 FLINE  =   0;24;25;30;15
 HILO   =    0!20/H#;L#/1020-1070;900-1012
 HLSYM  =   0!1.5;1.5//22;22/3;3/hw
-CLRBAR =  1/V/LL!0
+!CLRBAR =  1/V/LL!0
 WIND   =    9/0.6/2/112
 TITLE  =   1/-1/~ PMSL, LL WIND   = (2nd Eta LVL 30-60 MB AGL; KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

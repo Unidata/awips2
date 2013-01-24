@@ -41,6 +41,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2010            wldougher     Initial creation
+ * Nov 09, 2012 1298       rferrel     Code clean up for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -49,11 +50,11 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class WrapLengthDialog extends CaveJFACEDialog {
-    private static final int MAX_COLUMNS = 255;
+    private final int MAX_COLUMNS = 255;
 
-    private static final int MIN_COLUMNS = 15;
+    private final int MIN_COLUMNS = 15;
 
-    private static final String MESSAGE = "Current Wrap Length: %d\n"
+    private final String MESSAGE = "Current Wrap Length: %d\n"
             + "Enter new Wrap Length";
 
     protected Label notice;
@@ -64,10 +65,6 @@ public class WrapLengthDialog extends CaveJFACEDialog {
 
     protected WrapLengthDialog(Shell parentShell) {
         super(parentShell);
-    }
-
-    protected WrapLengthDialog(Shell parentShell, boolean perspectiveSpecific) {
-        super(parentShell, perspectiveSpecific);
     }
 
     /**

@@ -117,9 +117,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			else {
 				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NCTEXT" );
 
-				File rbdFile = NcPathManager.getInstance().getStaticFile( 
-						NcPathConstants.DFLT_RBD );
-				RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+				RbdBundle rbd = RbdBundle.getDefaultRBD();
 				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
 				rbdLoader.addRBD( rbd, mapEditor );
 				VizApp.runSync( rbdLoader );

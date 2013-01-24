@@ -1,17 +1,15 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
+import java.io.File;
 import java.util.HashMap;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterHelpDialog;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilterAttrDialog;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilterDialog;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.swt.SWT;
@@ -21,13 +19,15 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -35,13 +35,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.jface.dialogs.MessageDialog;
-
-import com.raytheon.uf.viz.core.exception.VizException;
-
 
 /**
  *  UI for editing Point data resource attributes. 
@@ -61,6 +54,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 02/16/2012    #639       Q. Zhou     Changed density text listener. Changed density duration to 30. Adjusted field size.
  * 04/02/2012    #615       S. Gurung   Added code related to Conditional Filtering
  * 02/05/2012    #606       Greg Hull   Don't get level attr for non-sounding resources
+ * 12/25/2012    #947       Greg Hull   Allow pre-load conditional filter editing.
+ * 12/29/2012    #947       Greg Hull   Add unimplemented level type
  *
  * </pre>
  * 
@@ -76,16 +71,14 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 	private ConditionalFilter editedCondFilter = null;
 	
 	private Combo condFilterCombo = null;
+	private Button editBtn = null;
 	
 	private String pluginName = null;
 	
-	// not implemented yet
-	private Button clearPlotModelBtn = null;
-	private Combo selectPlotModelCombo = null;
-	
 	private boolean isSounding = false;
 	private Combo levelCombo = null;
-	private final String[] stdLevels = {"1000", "925", "850", "700", "500", "400", "300", "250", "200", "150", "100"}; //, "70", "50", "30", "20", "10", "7", "5", "3", "2", "1"};
+	private final String[] stdPressLevels = {"1000", "925", "850", "700", "500", "400", "300", "250", "200", "150", "100"}; //, "70", "50", "30", "20", "10", "7", "5", "3", "2", "1"};
+//	private final String[] stdHeightLevels = 
 
 	public EditPlotDataAttrsDialog(Shell parentShell, INatlCntrsResourceData r, Boolean apply) {
 		super(parentShell, r, apply);
@@ -95,7 +88,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 		}
 		isSounding = !((PlotResourceData)r).isSurfaceOnly();
 		pluginName = ((PlotResourceData)r).getPluginName();
-        
 	}
 
 	@Override
@@ -136,7 +128,8 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 		FormData fd = new FormData();
         fd.left = new FormAttachment( 0, 10 );
         fd.top = new FormAttachment( 0, 10 );
-        fd.right = new FormAttachment( 79, 0 );
+        fd.right = new FormAttachment( 100, 
+        								(isSounding ? -140: -10) );
         densityGrp.setLayoutData( fd );
 
         densityGrp.setLayout( new FormLayout() );
@@ -144,14 +137,14 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         final Slider densitySldr = new Slider( densityGrp, SWT.HORIZONTAL );
 		fd = new FormData();
         fd.left = new FormAttachment( 0, 10 );
-        fd.top = new FormAttachment( 0, 30 );
-        fd.right = new FormAttachment( 64, 0 );
+        fd.top = new FormAttachment( 0, 25 );
+        fd.right = new FormAttachment( 100, -135 );
         fd.bottom = new FormAttachment( 100, -10 );
         //fd.width = 120;
         densitySldr.setLayoutData( fd );
 
         int initSldrVal = Math.min( ((Integer)plotDensityAttr.getAttrValue()).intValue(), 30 );
-        densitySldr.setValues( initSldrVal, 1, 31, 1, 1, 2 );
+        densitySldr.setValues( initSldrVal, 1, 31, 1, 1, 5 );
         densitySldr.setToolTipText("Density of plot stations");
         
         final Label sparseLbl = new Label( densityGrp, SWT.NONE );
@@ -180,7 +173,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         
         densityTxt.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {            	
-            	
             		int ival;
             		try {
             			ival = Integer.parseInt( densityTxt.getText() );
@@ -188,7 +180,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
             		catch( NumberFormatException exc ) { 
             			ival = 10; //((Integer)plotDensityAttr.getAttrValue()).intValue();
             		}
-
             		if( ival < densitySldr.getMinimum() ) {
             			ival = densitySldr.getMinimum();
             			densityTxt.setText( Integer.toString( ival ) );
@@ -200,17 +191,15 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
             		}
 
             		densitySldr.setSelection( ival );
-
             		plotDensityAttr.setAttrValue( new Integer( ival ) );
             	}            	
-             
         });
        
         final Button plotAllBtn = new Button ( densityGrp, SWT.CHECK );
         plotAllBtn.setText("Plot All");
         plotAllBtn.setToolTipText("Plot every station unconditionally");
         fd = new FormData( );
-        fd.left = new FormAttachment( densityTxt, 32, SWT.RIGHT );
+        fd.left = new FormAttachment( densityTxt, 15, SWT.RIGHT );
         fd.bottom = new FormAttachment( densityTxt, 0, SWT.BOTTOM );
         fd.right = new FormAttachment( 100, -10 );
         plotAllBtn.setLayoutData(fd);
@@ -221,33 +210,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         		densityTxt.setText( Integer.toString( densitySldr.getSelection() ) );
         	}
         });
-
-//        densityTxt.addSelectionListener( new SelectionAdapter() {
-//        	public void widgetDefaultSelected(SelectionEvent e) {
-//        		int ival;
-//        		try {
-//        			ival = Integer.parseInt( densityTxt.getText() );
-//        		}
-//        		catch( NumberFormatException exc ) {
-//        			ival = ((Integer)plotDensityAttr.getAttrValue()).intValue();
-//        			densityTxt.setText( Integer.toString( ival ) );
-//        		}
-//
-//        		if( ival < densitySldr.getMinimum() ) {
-//        			ival = densitySldr.getMinimum();
-//        			densityTxt.setText( Integer.toString( ival ) );
-//        		}
-//        		else if( ival >= densitySldr.getMaximum() ) { // was > see below
-//        			//ival = densitySldr.getMaximum();
-//        			ival = densitySldr.getMaximum() - 1;  //TODO that is, 20, due to slider quirk
-//        			densityTxt.setText( Integer.toString( ival ) );
-//        		}
-//
-//        		densitySldr.setSelection( ival );
-//
-//        		plotDensityAttr.setAttrValue( new Integer( ival ) );
-//        	}
-//        });
 
         plotAllBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected(SelectionEvent e) {
@@ -282,6 +244,96 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 			plotDensityAttr.setAttrValue( new Integer( 99 ) );
         }
 
+        Group condFilterGrp = new Group ( topComp, SWT.SHADOW_NONE );
+        condFilterGrp.setText("Conditional Filter");
+		fd = new FormData();
+        fd.left = new FormAttachment( 0, 10 );
+        fd.top = new FormAttachment( densityGrp, 5, SWT.BOTTOM );
+        fd.right = new FormAttachment( 100, 
+        							   (isSounding ? -140: -10 ) );
+//        fd.right = new FormAttachment( densityGrp, 0, SWT.RIGHT );
+
+        condFilterGrp.setLayoutData( fd );
+
+        condFilterGrp.setLayout( new FormLayout() );
+                
+        condFilterCombo = new Combo(condFilterGrp, SWT.DROP_DOWN );
+    	fd = new FormData();
+        fd.top = new FormAttachment( 0, 10 );
+        fd.left = new FormAttachment( 0, 10 );
+        fd.right = new FormAttachment( 100, -100 );
+        fd.bottom = new FormAttachment( 100, -10 );
+
+        condFilterCombo.setLayoutData(fd);
+        
+        editBtn = new Button ( condFilterGrp, SWT.PUSH);
+        editBtn.setText(" Edit... ");
+        editBtn.setToolTipText("Edit Conditional Filter");
+        
+        fd = new FormData( );
+        fd.left = new FormAttachment( condFilterCombo, 10, SWT.RIGHT );
+        fd.bottom = new FormAttachment( condFilterCombo, 0, SWT.BOTTOM );
+//        fd.right = new FormAttachment( 100, -10 );
+        fd.width = 80;
+        editBtn.setLayoutData(fd);
+        
+        editBtn.addSelectionListener(new SelectionAdapter() {
+
+			public void widgetSelected(SelectionEvent e) {
+				
+				editConditionalFilter();
+			}
+
+		});
+        
+        condFilterCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				
+				ConditionalFilter cf = ConditionalFilterMngr.getInstance().
+				                     getConditionalFilter(pluginName, condFilterCombo.getText().trim());
+				if (cf == null) {
+					cf = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter( pluginName );
+				} 
+				else {
+					cf = cf.clone();
+				}
+
+				condFilterAttr.setAttrValue( cf );
+				editedCondFilter = cf;
+				editedRscAttrSet.setAttrValue("conditionalFilter", cf);
+			}
+		});
+        
+// Spaces are ok. Could restrict other characters in the name?.
+//        condFilterCombo.addVerifyListener( new VerifyListener() {			
+//			@Override
+//			public void verifyText(VerifyEvent e) {
+//				String newText = e.text;
+//				
+//				if( e.text.contains( File.separator ) ||
+//					e.text.contains( " " ) ) {
+//					e.doit = false;
+//				}
+//			}
+//		});
+        
+        condFilterCombo.addModifyListener( new ModifyListener( ) {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				editedCondFilter.setName( condFilterCombo.getText().trim() );
+//				editBtn.setText( " New... ");
+
+				for(int i = 0; i < condFilterCombo.getItems().length; i++) {
+					if( condFilterCombo.getItems()[i].equals(editedCondFilter.getName())) { 
+						editBtn.setText( " Edit... ");
+						break;
+					}
+				}
+
+			}
+		});
+
         if (isSounding) {
         	Group selLevelGrp = new Group ( topComp, SWT.SHADOW_NONE );
         	selLevelGrp.setText("Vertical Level");
@@ -290,23 +342,42 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 
         	fd = new FormData();
         	//fd.width = 70;
-        	fd.left = new FormAttachment( densityGrp, 10, SWT.RIGHT );
+        	fd.left = new FormAttachment( condFilterGrp, 10, SWT.RIGHT );
         	fd.right = new FormAttachment( 100, -10 );
         	fd.top = new FormAttachment( densityGrp, 0, SWT.TOP );
-        	fd.bottom = new FormAttachment( densityGrp, 0, SWT.BOTTOM );
+        	fd.bottom = new FormAttachment( condFilterGrp, 0, SWT.BOTTOM );
         	selLevelGrp.setLayoutData( fd );
+
+//        	Composiet vcoordComp = 
+        	Button presVcoordBtn = new Button( /*vcoordComp*/selLevelGrp, SWT.RADIO );
+        	presVcoordBtn.setText( "Pressure" );
+        	fd = new FormData();
+        	fd.left = new FormAttachment( 0, 10);
+        	fd.top = new FormAttachment( 0, 20 );
+        	presVcoordBtn.setLayoutData( fd );
+        	presVcoordBtn.setSelection( true );
+
+        	Button heightVcoordBtn = new Button( /*vcoordComp*/selLevelGrp, SWT.RADIO );
+        	heightVcoordBtn.setText( "Height" );
+        	fd = new FormData();
+        	fd.left = new FormAttachment( 0, 10);
+        	fd.top = new FormAttachment( presVcoordBtn, 8 );
+        	heightVcoordBtn.setLayoutData( fd );
+
+        	presVcoordBtn.setEnabled( false );
+        	heightVcoordBtn.setEnabled( false );
 
         	levelCombo = new Combo(selLevelGrp, SWT.DROP_DOWN );
         	// levelCombo.setSize( 40, 30 );
 
         	fd = new FormData(75, 25);
         	fd.left = new FormAttachment( 0, 10 );
-        	fd.right = new FormAttachment( 100, -10 );
-        	fd.top = new FormAttachment( 0, 20 );
+        	fd.right = new FormAttachment( 100, -25 );
+        	fd.top = new FormAttachment( heightVcoordBtn, 20, SWT.BOTTOM );
         	fd.bottom = new FormAttachment( 100, -10 );
         	levelCombo.setLayoutData( fd );
 
-        	levelCombo.setItems( stdLevels );
+        	levelCombo.setItems( stdPressLevels );
         	RscAttrValue ra = editedRscAttrSet.getRscAttr("levelKey");
         	String s = ra.getAttrValue().toString();
 
@@ -315,9 +386,9 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         	Label mblbl = new Label(selLevelGrp, SWT.NONE);
         	mblbl.setText("mb");
         	fd = new FormData();
-        	fd.left = new FormAttachment( levelCombo, 5, SWT.RIGHT );
-        	fd.bottom = new FormAttachment( levelCombo, -7, SWT.BOTTOM );
-        	fd.right = new FormAttachment( 100, -10 );
+        	fd.left = new FormAttachment( levelCombo, 3, SWT.RIGHT );
+        	fd.bottom = new FormAttachment( levelCombo, -2, SWT.BOTTOM );
+//        	fd.right = new FormAttachment( 100, -10 );
         	mblbl.setLayoutData( fd );
 
         	levelCombo.addSelectionListener(new SelectionAdapter() {
@@ -340,71 +411,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         	selLevelGrp.setVisible( isSounding );
         }
 
-        Group condFilterGrp = new Group ( topComp, SWT.SHADOW_NONE );
-        condFilterGrp.setText("Conditional Filter");
-		fd = new FormData();
-        fd.left = new FormAttachment( 0, 10 );
-        fd.top = new FormAttachment( densityGrp, 5, SWT.BOTTOM );
-        fd.right = new FormAttachment( 100, -5 );
-        condFilterGrp.setLayoutData( fd );
-
-        condFilterGrp.setLayout( new FormLayout() );
-        
-        Label filterLbl = new Label(condFilterGrp, SWT.NONE );
-        filterLbl.setText("Filter");
-        fd = new FormData();
-    	fd.left = new FormAttachment( 0, 8 );
-        fd.top = new FormAttachment( 0, 20 );
-        fd.right = new FormAttachment(8, -5 );
-        fd.bottom = new FormAttachment( 100, -10 );
-        filterLbl.setLayoutData(fd);
-        
-        condFilterCombo = new Combo(condFilterGrp, SWT.DROP_DOWN | SWT.READ_ONLY);
-    	fd = new FormData();
-    	fd.left = new FormAttachment( 7, 8 );
-        fd.top = new FormAttachment( 0, 15 );
-        fd.right = new FormAttachment(80, -5 );
-        fd.bottom = new FormAttachment( 100, -10 );
-        condFilterCombo.setLayoutData(fd);
-        
-        final Button editBtn = new Button ( condFilterGrp, SWT.PUSH);
-        editBtn.setText("Edit...");
-        editBtn.setToolTipText("Edit Conditional Filter");
-        if (!hasApplyBtn) {
-        	editBtn.setEnabled(false);
-        }
-        
-        fd = new FormData( );
-        fd.left = new FormAttachment( condFilterCombo, 20, SWT.RIGHT );
-        fd.bottom = new FormAttachment( condFilterCombo, 0, SWT.BOTTOM );
-        fd.right = new FormAttachment( 100, -10 );
-        editBtn.setLayoutData(fd);
-        
-        editBtn.addSelectionListener(new SelectionAdapter() {
-
-			public void widgetSelected(SelectionEvent e) {
-				
-				editConditionalFilter();
-			}
-
-		});
-        
-        condFilterCombo.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				
-				ConditionalFilter cf = ConditionalFilterMngr.getInstance().getConditionalFilter(pluginName, condFilterCombo.getText().trim());
-				if (cf == null) {
-					cf = new ConditionalFilter();
-					cf.setName("");
-					cf.setDescription("");
-					cf.setPlugin(pluginName);
-				} 
-				condFilterAttr.setAttrValue( cf );
-				editedCondFilter = cf;
-				editedRscAttrSet.setAttrValue("conditionalFilter", cf);
-			}
-		});
-        
         Group pltMdlComp = new Group ( topComp, SWT.SHADOW_NONE );
         pltMdlComp.setText("Edit Plot Model");
 
@@ -429,36 +435,70 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 				
 	@Override
 	public void initWidgets() {
-		String[] condFiltersArray = ConditionalFilterMngr.getInstance().getAllConditionalFiltersByPlugin(pluginName);
+		String[] condFiltersArray = ConditionalFilterMngr.getInstance().
+							  getAllConditionalFiltersByPlugin( pluginName );
 		condFilterCombo.setItems(condFiltersArray);  
+        condFilterCombo.setText( editedCondFilter.getName() );
+		editBtn.setText( " Edit... " );
         
         for(int i = 0; i < condFiltersArray.length; i++) {
 			if( condFiltersArray[i].equals(editedCondFilter.getName())) { 
 				condFilterCombo.select(i);
+				editBtn.setText( " Edit... ");
 				break;
 			}
 		}
-       
 	}
 	
 	private void editConditionalFilter() {
-		String condFilterName = condFilterCombo.getText();
-		if("".equals(condFilterName)) {
-			return; // nothing selected; sanity check
+		String condFilterName = condFilterCombo.getText().trim();
+
+		if( editedCondFilter == null ) {
+			editedCondFilter = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter( pluginName );
 		}
 
-		EditConditionalFilterAttrDialog editConditionalFilterDlg = new EditConditionalFilterAttrDialog(shell, editedCondFilter);
+		editedCondFilter.setName( condFilterName );
+		
+		// since we are editing the filter there are cases where the previous name might be mis-leading
+		// in these cases we will create a name based on the new filter.
+		Boolean renameFilter = ( condFilterName.isEmpty() ||
+								 condFilterName.equals( ConditionalFilterMngr.NullFilterName ) ||
+								 condFilterName.equals( editedCondFilter.getFilterAsString() ) );
+
+		EditConditionalFilterAttrDialog editConditionalFilterDlg = 
+			 	new EditConditionalFilterAttrDialog(shell, editedCondFilter);
 		
 		ConditionalFilter newConditionalFilter = (ConditionalFilter)editConditionalFilterDlg.open( 
-						shell.getLocation().x + shell.getSize().x + 10, 
-					      shell.getLocation().y );
+						                           shell.getLocation().x+50, shell.getLocation().y );
 		
 		if( newConditionalFilter != null ) {			
+			if( newConditionalFilter.getSize() == 0 ) {
+				condFilterName = ConditionalFilterMngr.NullFilterName;
+			}
+			else if( renameFilter ) {									
+				condFilterName = newConditionalFilter.getFilterAsString();					
+			}
+			// if the NoFilter or a saved filter was edited, then add an '*' to the name to indicate that
+			// it has been modified.
+			else if( ConditionalFilterMngr.getInstance().getConditionalFilter( pluginName, condFilterName) != null ) {
+				
+				condFilterName = condFilterName+"(E)";									
+			}
+
+			newConditionalFilter.setName( condFilterName );
+			condFilterCombo.setText( condFilterName );
+			condFilterCombo.setSelection( new Point(0,condFilterName.length()) );
+			condFilterCombo.setFocus();
+			
 			editedCondFilter = newConditionalFilter;
-			editedRscAttrSet.setAttrValue("conditionalFilter", newConditionalFilter);
+			editedRscAttrSet.setAttrValue("conditionalFilter", editedCondFilter );
 			rscData.setRscAttrSet( editedRscAttrSet );
             rscData.setIsEdited( true );
-            NmapUiUtils.getActiveNatlCntrsEditor().refresh();		
+
+// The user will need to click the apply button.
+//            if( hasApplyBtn ) {
+//            	NmapUiUtils.getActiveNatlCntrsEditor().refresh();
+//            }
 		}
 	}
 }

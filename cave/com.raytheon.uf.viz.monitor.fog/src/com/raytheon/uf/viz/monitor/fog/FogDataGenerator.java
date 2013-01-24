@@ -21,8 +21,10 @@ package com.raytheon.uf.viz.monitor.fog;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
+import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
@@ -36,156 +38,223 @@ import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
 /**
-* Generate Data for Fog Dialogs
-* 
-* <pre>
-* 
-* SOFTWARE HISTORY
-* 
-* Date         Ticket#     Engineer    Description
-* ------------ ----------  ----------- --------------------------
-* 12/07/09                  dhladky    Initial Creation.
-* 
-* </pre>
-* 
-* @author dhladky
-* 
-*/
+ * Generate Data for Fog Dialogs
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 12/07/09                  dhladky    Initial Creation.
+ * Oct.29, 2012 1297         skorolev   Changed HashMap to Map
+ * Oct.31, 2012 1297         skorolev   Clean code
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * 
+ */
 
 public class FogDataGenerator {
 
-        private CommonTableConfig ctc;
-        private FogThresholdMgr ftm;
-        
-        public FogDataGenerator()
-        {
-            ctc = CommonTableConfig.getInstance();
-            ftm = FogThresholdMgr.getInstance();
-            
-        }
-        
-        /**
-         * Generates the zone fog data for table
-         * @param tableData
-         * @return
-         */
-        public TableData generateZoneData(ObsData obsData, HashMap<String, FogRecord.FOG_THREAT> algThreats, Date date)
-        {
-            //TODO: in the future use the data passed to get the nominal time 
-            // closest for display in table and CAVE rendering.
-            TableData fogTableData = new TableData(CommonConfig.AppName.FOG);
-            if (obsData != null) {
-                for (String zone: obsData.getContainer().keySet()) {
-                    addZoneRow(zone, obsData.getArea(zone).getBestAreaReport(date), algThreats.get(zone), fogTableData);
-                }
+    private CommonTableConfig ctc;
+
+    private FogThresholdMgr ftm;
+
+    /**
+     * Generates Fog data
+     */
+    public FogDataGenerator() {
+        ctc = CommonTableConfig.getInstance();
+        ftm = FogThresholdMgr.getInstance();
+    }
+
+    /**
+     * Generates the zone fog data for table
+     * 
+     * @param obsData
+     * @param algThreats
+     * @param date
+     * @return fogTableData
+     */
+    public TableData generateZoneData(ObsData obsData,
+            Map<String, FogRecord.FOG_THREAT> algThreats, Date date) {
+        // TODO: in the future use the data passed to get the nominal time
+        // closest for display in table and CAVE rendering.
+        TableData fogTableData = new TableData(CommonConfig.AppName.FOG);
+        if (obsData != null) {
+            for (String zone : obsData.getContainer().keySet()) {
+                addZoneRow(zone, obsData.getArea(zone).getBestAreaReport(date),
+                        algThreats.get(zone), fogTableData);
             }
-
-            return fogTableData;
         }
 
-        /**
-         * Creates a Zone table row
-         * @param report
-         * @param td
-         */
-        private void addZoneRow(String zone, ObReport report, FogRecord.FOG_THREAT threat, TableData td)
-        {
-            TableRowData trd = new TableRowData(ctc.getTableColumnKeys(CommonConfig.AppName.FOG).length);
+        return fogTableData;
+    }
 
-            trd.setTableCellData(0, new TableCellData(zone,
-                    zone, CellType.AreaId, false));
-            
-            trd.setTableCellData(1, new TableCellData(new Float(report
-                    .getVisibility()).intValue(),ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS.getXmlKey(), report.getVisibility()), true));
+    /**
+     * Creates a Zone table row
+     * 
+     * @param zone
+     * @param report
+     * @param threat
+     * @param td
+     */
+    private void addZoneRow(String zone, ObReport report,
+            FogRecord.FOG_THREAT threat, TableData td) {
+        TableRowData trd = new TableRowData(
+                ctc.getTableColumnKeys(CommonConfig.AppName.FOG).length);
 
-            trd.setTableCellData(2, new TableCellData(report.getPresentWx(), zone, CellType.NotMonitored, false));
+        trd.setTableCellData(0, new TableCellData(zone, zone, CellType.AreaId,
+                false));
 
-            trd.setTableCellData(3, new TableCellData(new Float(report
-                    .getCeiling()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING.getXmlKey(), report.getCeiling()), true));
-           
-            trd.setTableCellData(4, new TableCellData(new Float(report
-                    .getWindDir()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM.getXmlKey(), report
-                            .getWindDir()), true));
-            
-            trd.setTableCellData(5, new TableCellData(new Float(report
-                    .getWindSpeed()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED.getXmlKey(), report
-                            .getWindSpeed()), true));
-            
-            trd.setTableCellData(6, new TableCellData(new Float(report
-                    .getMaxWindSpeed()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND.getXmlKey(), report
-                            .getMaxWindSpeed()), true));
-            
-            trd.setTableCellData(7, new TableCellData(new Float(report
-                    .getWindGust()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED.getXmlKey(), report
-                            .getWindGust()), true));
-            
-            trd.setTableCellData(8, new TableCellData(new Float(report
-                    .getTemperature()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_TEMP.getXmlKey(), report
-                            .getTemperature()), true));
-            
-            trd.setTableCellData(9, new TableCellData(new Float(report
-                    .getDewpoint()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_DEWPT.getXmlKey(), report
-                            .getDewpoint()), true));
-            
-            trd.setTableCellData(10, new TableCellData(new Float(report
-                    .getDewpointDepr()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_T_TD.getXmlKey(), report
-                            .getDewpointDepr()), true));
-            
-            trd.setTableCellData(11, new TableCellData(new Float(report
-                    .getRelativeHumidity()).intValue(), ftm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY.getXmlKey(),
-                            report.getRelativeHumidity()), true));
-       
-            trd.setTableCellData(12, new TableCellData("", zone, getAlgorithmCellType(threat), true));
+        trd.setTableCellData(
+                1,
+                new TableCellData(
+                        new Float(report.getVisibility()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_VIS
+                                        .getXmlKey(), report.getVisibility()),
+                        true));
 
-            td.addReplaceDataRow(trd);
+        trd.setTableCellData(2, new TableCellData(report.getPresentWx(), zone,
+                CellType.NotMonitored, false));
+
+        trd.setTableCellData(
+                3,
+                new TableCellData(
+                        new Float(report.getCeiling()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_CEILING
+                                        .getXmlKey(), report.getCeiling()),
+                        true));
+
+        trd.setTableCellData(
+                4,
+                new TableCellData(
+                        new Float(report.getWindDir()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_DIR_FROM
+                                        .getXmlKey(), report.getWindDir()),
+                        true));
+
+        trd.setTableCellData(
+                5,
+                new TableCellData(
+                        new Float(report.getWindSpeed()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_WIND_SPEED
+                                        .getXmlKey(), report.getWindSpeed()),
+                        true));
+
+        trd.setTableCellData(
+                6,
+                new TableCellData(
+                        new Float(report.getMaxWindSpeed()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_PEAK_WIND
+                                        .getXmlKey(), report.getMaxWindSpeed()),
+                        true));
+
+        trd.setTableCellData(
+                7,
+                new TableCellData(
+                        new Float(report.getWindGust()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_WIND_GUST_SPEED
+                                        .getXmlKey(), report.getWindGust()),
+                        true));
+
+        trd.setTableCellData(
+                8,
+                new TableCellData(
+                        new Float(report.getTemperature()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_TEMP
+                                        .getXmlKey(), report.getTemperature()),
+                        true));
+
+        trd.setTableCellData(
+                9,
+                new TableCellData(
+                        new Float(report.getDewpoint()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_DEWPT
+                                        .getXmlKey(), report.getDewpoint()),
+                        true));
+
+        trd.setTableCellData(
+                10,
+                new TableCellData(new Float(report.getDewpointDepr())
+                        .intValue(), ftm.getThresholdValueCellType(
+                        DataUsageKey.DISPLAY, zone,
+                        MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_T_TD
+                                .getXmlKey(), report.getDewpointDepr()), true));
+
+        trd.setTableCellData(
+                11,
+                new TableCellData(
+                        new Float(report.getRelativeHumidity()).intValue(),
+                        ftm.getThresholdValueCellType(
+                                DataUsageKey.DISPLAY,
+                                zone,
+                                MonitorConfigConstants.FogDisplay.FOG_DISP_METEO_REL_HUMIDITY
+                                        .getXmlKey(), report
+                                        .getRelativeHumidity()), true));
+
+        trd.setTableCellData(12, new TableCellData("", zone,
+                getAlgorithmCellType(threat), true));
+
+        td.addReplaceDataRow(trd);
+    }
+
+    /**
+     * Get threat cells type
+     * 
+     * @param threat
+     * @return type
+     */
+    public CellType getAlgorithmCellType(FogRecord.FOG_THREAT threat) {
+        CellType type = CellType.NotDetermined;
+        if (threat == FogRecord.FOG_THREAT.GREEN) {
+            type = CellType.G;
+        } else if (threat == FogRecord.FOG_THREAT.YELLOW) {
+            type = CellType.Y;
+        } else if (threat == FogRecord.FOG_THREAT.RED) {
+            type = CellType.R;
         }
-       
-        //*******************************************************************************************
-        //*******************************************************************************************
-        //*******************************************************************************************
-        //*******************************************************************************************
-        //*******************************************************************************************
-        
-        public TableData generateObsHistData(CommonConfig.AppName appName, CommonTableConfig.ObsHistType obsType)
-        {
-            TableData tData = new TableData(appName);
+        return type;
+    }
 
-            System.out.println("Creating data for: " + appName.name() + " and " + obsType.name());
-            
-            if (appName == CommonConfig.AppName.SAFESEAS)
-            {
-                // Create Safeseas Data        
-            }
-          
-            else if (appName == CommonConfig.AppName.FOG)
-            {
-                // Create Fog Data
-            }
-            
-            return tData;
+    /**
+     * Get threat types
+     * 
+     * @param map
+     * @return types
+     */
+    public Map<String, CellType> getAlgCellTypes(Map<String, FOG_THREAT> map) {
+        Map<String, CellType> types = new HashMap<String, CellType>();
+        for (String zone : map.keySet()) {
+            CellType type = getAlgorithmCellType(map.get(zone));
+            types.put(zone, type);
         }
-        
-        
-        public CellType getAlgorithmCellType(FogRecord.FOG_THREAT threat) {
-            CellType type = CellType.NotDetermined;
-            if (threat == FogRecord.FOG_THREAT.GREEN) {
-                type = CellType.G;
-            }
-            else if (threat == FogRecord.FOG_THREAT.YELLOW) {
-                type = CellType.Y;
-            }
-            else if (threat == FogRecord.FOG_THREAT.RED) {
-                type = CellType.R;
-            }
-            return type;
-        }
-       
-        public HashMap<String,CellType> getAlgCellTypes(HashMap<String, FogRecord.FOG_THREAT> algThreats) {
-        	HashMap<String,CellType> types = new HashMap<String,CellType>();
-        	for (String zone : algThreats.keySet()) {
-        		CellType type = getAlgorithmCellType(algThreats.get(zone));
-        		types.put(zone, type);
-        	}
-        	return types;
-        }
+        return types;
+    }
 }

@@ -27,7 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.edex.utility.ProtectedFiles;
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.localization.FileLocker;
+import com.raytheon.uf.common.localization.FileLocker.Type;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -168,6 +171,8 @@ public class LocalizationStreamHandler
 
     private Object handleStreamingGet(LocalizationStreamGetRequest request,
             File file) throws Exception {
+        // TODO: Copy file to tmp location named from request unique id and
+        // stream that file for the request to avoid put/delete/read issues
         FileInputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
@@ -213,8 +218,8 @@ public class LocalizationStreamHandler
         if (file.getParentFile().exists() == false) {
             file.getParentFile().mkdirs();
         }
-        File tmpFile = new File(file.getParentFile(), file.getName() + "."
-                + request.getId());
+        File tmpFile = new File(file.getParentFile(), "." + file.getName()
+                + "." + request.getId());
         if ((tmpFile.exists() == false) && (request.getOffset() != 0)) {
             throw new LocalizationException(
                     "Illegal state, request has offset set but file "
@@ -237,12 +242,10 @@ public class LocalizationStreamHandler
             tmpFile.createNewFile();
         }
         FileOutputStream outputStream = null;
-        Integer bytesWritten = 0;
 
         try {
             outputStream = new FileOutputStream(tmpFile, true);
             byte[] bytes = request.getBytes();
-            bytesWritten += bytes.length;
             outputStream.write(bytes);
         } finally {
             if (outputStream != null) {
@@ -251,26 +254,41 @@ public class LocalizationStreamHandler
             }
         }
         if (request.isEnd()) {
-            FileChangeType changeType = FileChangeType.UPDATED;
-            if (!file.exists()) {
-                changeType = FileChangeType.ADDED;
+            try {
+                FileLocker.lock(this, file, Type.WRITE);
+                FileChangeType changeType = FileChangeType.UPDATED;
+                if (!file.exists()) {
+                    changeType = FileChangeType.ADDED;
+                }
+
+                tmpFile.renameTo(file);
+
+                try {
+                    // attempt to generate checksum after change
+                    UtilityManager.writeChecksum(file);
+                } catch (Exception e) {
+                    // ignore, will be generated next time requested
+                }
+
+                long timeStamp = file.lastModified();
+
+                EDEXUtil.getMessageProducer().sendAsync(
+                        UtilityManager.NOTIFY_ID,
+                        new FileUpdatedMessage(request.getContext(), request
+                                .getFileName(), changeType, timeStamp));
+                return timeStamp;
+            } finally {
+                FileLocker.unlock(this, file);
             }
-
-            tmpFile.renameTo(file);
-            // tmpFile.delete();
-
-            EDEXUtil.getMessageProducer().sendAsync(
-                    UtilityManager.NOTIFY_ID,
-                    new FileUpdatedMessage(request.getContext(), request
-                            .getFileName(), changeType));
         }
 
-        return bytesWritten;
+        return tmpFile.lastModified();
     }
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            AbstractLocalizationStreamRequest request) {
+            AbstractLocalizationStreamRequest request)
+            throws AuthorizationException {
         if (request instanceof LocalizationStreamGetRequest) {
             // All gets are authorized
             return new AuthorizationResponse(true);
