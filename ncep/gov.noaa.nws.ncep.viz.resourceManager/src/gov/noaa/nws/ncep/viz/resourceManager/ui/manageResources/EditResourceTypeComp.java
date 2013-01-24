@@ -995,11 +995,7 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 			confirmDlg.open();
 		}
 		
-//		ResourceName newSeldRscName = new ResourceName();
-//		newSeldRscName.setRscCategory( seldRscDefn.getResourceCategory() );
-//		newSeldRscName.setRscType( seldRscDefn.getResourceDefnName() );		
-
-//		mngrControl.updateResourceSelections( newSeldRscName );
+		mngrControl.updateResourceSelections( null );
 		
 		return;
 	}

@@ -17,6 +17,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
@@ -1742,8 +1743,6 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		Text txtInfo;
 		Text txtSave;
 		
-		String dirLocal = ".";//-----directory ???
-		
 		boolean firCalledForSecondLine = false;
 		
 		SigmetAttrDlgSaveMsgDlg(Shell parShell) throws VizException {
@@ -1794,26 +1793,15 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		
 		@Override
 		public void okPressed() {// listener function of Save Button
-			try{
-				File f = new File(/*dirLocal*/PgenUtil.getWorkingDirectory()+File.separator+txtSave.getText());						
-				Writer output = new BufferedWriter(new FileWriter(f));
-			    try {
-			      //FileWriter always assumes default encoding is OK!
-			    	output.write( txtInfo.getText() );
-			    	output.flush();
-			    }catch(Exception ee){System.out.println(ee.getMessage());} finally {  output.close(); }												
-			}catch(Exception e){
-				System.out.println(e.getMessage());
-			}finally{ 				
+			FileTools.writeFile(PgenUtil.getPgenActivityTextProdPath()+File.separator+txtSave.getText(), 
+					txtInfo.getText());
+
 				setReturnCode(OK);
 				close();
 				SigmetAttrDlg.this.drawingLayer.removeSelected();
 		    	SigmetAttrDlg.this.close();
 				PgenUtil.setSelectingMode();
-			}
 			
-			//String fileName = "/usr1/gzhang/to11/workspace/build.edex/esb/data/utility/edex_static/base/ncep/shapefiles/firbnds/firbnds.shp";
-			//String[] labelAttr = new String[]{"FIR_ID"};		PgenUtil.loadShpFile(fileName, labelAttr, true);// test shapefile loading
 		}
 		
 		private String getFileContent(){

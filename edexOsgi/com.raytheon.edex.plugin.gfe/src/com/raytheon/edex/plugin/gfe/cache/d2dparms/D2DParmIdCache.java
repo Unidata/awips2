@@ -40,16 +40,15 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
-import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
+import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
@@ -60,7 +59,9 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 1/08/09      1674       bphillip    Initial creation
+ * 01/08/09     1674       bphillip    Initial creation
+ * 11/05/12     #1310      dgilling    Modify cache to listen to plugin
+ *                                     purged topic.
  * </pre>
  * 
  * @author bphillip
@@ -161,10 +162,18 @@ public class D2DParmIdCache {
             } else if (parmName.equalsIgnoreCase("staticCoriolis")) {
                 parmStr = parmStr.replace("staticcoriolis", "staticCoriolis");
             } else {
+                String gfeParamName = null;
+                try {
+                    gfeParamName = ParameterMapper.getInstance().lookupAlias(
+                            parmId.getParmName(), "gfeParamName");
+                } catch (MultipleMappingException e) {
+                    statusHandler.handle(Priority.WARN,
+                            e.getLocalizedMessage(), e);
+                    gfeParamName = e.getArbitraryMapping();
+                }
                 parmStr = parmStr.replaceFirst(
                         parmId.getParmName(),
-                        DataFieldTableLookup.getInstance().lookupCdlName(
-                                parmId.getParmName()));
+                        gfeParamName);
             }
             parmIds.get(parmId.getDbId().toString()).add(parmStr);
         }
@@ -328,19 +337,17 @@ public class D2DParmIdCache {
             IFPServerConfig config = IFPServerConfigManager
                     .getServerConfig(siteID);
             GFEDao dao = new GFEDao();
-            GribModelLookup modelLookup = GribModelLookup.getInstance();
             Set<ParmID> parmIds = new HashSet<ParmID>();
             long start = System.currentTimeMillis();
             List<String> d2dModels = config.getD2dModels();
             for (String d2dModelName : d2dModels) {
-                GridModel model = modelLookup.getModelByName(d2dModelName);
                 String gfeModel = config.gfeModelNameMapping(d2dModelName);
 
-                if ((model != null) && (gfeModel != null)) {
+                if ((d2dModelName != null) && (gfeModel != null)) {
                     List<DatabaseID> dbIds = null;
                     try {
-                        dbIds = dao.getD2DDatabaseIdsFromDb(model, gfeModel,
-                                siteID);
+                        dbIds = dao.getD2DDatabaseIdsFromDb(d2dModelName,
+                                gfeModel, siteID);
                     } catch (DataAccessLayerException e) {
                         throw new PluginException(
                                 "Unable to get D2D Database Ids from database!",
@@ -354,8 +361,8 @@ public class D2DParmIdCache {
 
                         for (int i = 0; i < versions; i++) {
                             try {
-                                parmIds.addAll(dao.getD2DParmIdsFromDb(model,
-                                        dbIds.get(i)));
+                                parmIds.addAll(dao.getD2DParmIdsFromDb(
+                                        d2dModelName, dbIds.get(i)));
                             } catch (DataAccessLayerException e) {
                                 throw new PluginException(
                                         "Error adding parmIds to D2DParmIdCache!!",
@@ -395,5 +402,12 @@ public class D2DParmIdCache {
             }
         }
         return size;
+    }
+
+    public void pluginPurged(String pluginName)
+            throws GfeConfigurationException, PluginException {
+        if (pluginName.equals("grid")) {
+            buildCache(null);
+        }
     }
 }

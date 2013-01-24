@@ -20,7 +20,7 @@
     -->
 <subGridDef>
    <modelNames>HPCGuide</modelNames>
-   <referenceModel>HPCGuide</referenceModel>
+   <referenceGrid>197</referenceGrid>
    <nx>1000</nx>
    <ny>689</ny>
    <!-- 
