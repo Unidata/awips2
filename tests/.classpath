@@ -70,5 +70,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.nwsauth"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.units"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.viz.stats"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
