@@ -1,0 +1,13 @@
+diff --git a/qpid/java/build.xml b/qpid/java/build.xml
+index a41cff4..06e8c8a 100644
+--- a/qpid/java/build.xml
++++ b/qpid/java/build.xml
+@@ -161,7 +161,7 @@
+     <touch file="${qpid.jar}"/>
+   </target>
+ 
+-  <target name="build" depends="retrieve-dependencies" description="build the project">
++  <target name="build" description="build the project">
+     <iterate target="build"/>
+     <antcall target="manifest"/>
+   </target>
