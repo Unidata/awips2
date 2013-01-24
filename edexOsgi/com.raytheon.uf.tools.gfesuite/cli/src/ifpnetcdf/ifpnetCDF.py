@@ -42,19 +42,27 @@ from ufpy.UsageOptionParser import UsageOptionParser
 
 def main():
     (options, args) = validateArgs()
+    for i in range(1,4):
+        print >> sys.stderr, "Attempt number: ", i
+        
+        try:
+            netCdfRequest = createRequest()
+            netCdfRequest.setArgString(netCdfRequest.getArgString() + " -h " + options.host + " -r " + str(options.port))
+            thriftClient = ThriftClient.ThriftClient(options.host, options.port, "/services")
+            serverResponse = thriftClient.sendRequest(netCdfRequest)
+        except Exception, e:
+            print >> sys.stderr, "Unhandled exception thrown during ifpnetCDF processing: \n", str(e)
+            sys.exit(1)
     
-    try:
-        netCdfRequest = createRequest()
-        netCdfRequest.setArgString(netCdfRequest.getArgString() + " -h " + options.host + " -r " + str(options.port))
-        thriftClient = ThriftClient.ThriftClient(options.host, options.port, "/services")
-        serverResponse = thriftClient.sendRequest(netCdfRequest)
-    except Exception, e:
-        print >> sys.stderr, "Unhandled exception thrown during ifpnetCDF processing: \n", str(e)
-        sys.exit(1)
-    
-    if (not serverResponse.isOkay()):
-        print >> sys.stderr, "Errors occurred during ifpnetCDF processing: ", serverResponse.message()
-        sys.exit(1)
+        if (serverResponse.isOkay()):
+            break
+        else:
+            print >> sys.stderr, "Errors occurred during ifpnetCDF processing: ", serverResponse.message()
+ 
+            if (i == 3):
+                print >> sys.stderr, "Final attempt failed - exiting"
+                sys.exit(1)
+ 
 
 def validateArgs():
     parser = UsageOptionParser(conflict_handler="resolve")

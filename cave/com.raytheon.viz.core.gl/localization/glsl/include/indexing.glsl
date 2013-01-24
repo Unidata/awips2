@@ -18,7 +18,7 @@ float capIndex(float index) {
  * 65504.0 is treated as NaN for half floats and -1 is returned as special case
  */
 float findFloatIndex(float rawValue, float cmapMin, float cmapMax) {
-	if ( rawValue == HALF_FLOAT_NaN ) {
+	if ( rawValue == HALF_FLOAT_NaN || rawValue != rawValue) {
 		return -1.0;
 	}
 	float index = ((rawValue - cmapMin) / abs(cmapMax-cmapMin));

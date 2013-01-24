@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ParameterLookup>
+    <parameterConfig AWIPS="uogrdsfc" GrADs="uogrdsfc"/>
+    <parameterConfig AWIPS="wtmpsfc" GrADs="wtmpsfc"/>
+    <parameterConfig AWIPS="saltysfc" GrADs="saltysfc"/>
+    <parameterConfig AWIPS="vogrdsfc" GrADs="vogrdsfc"/>
+    <parameterConfig AWIPS="dslmsfc" GrADs="dslmsfc"/>
+    <parameterConfig AWIPS="vogrddsl" GrADs="vogrddsl"/>
+</ParameterLookup>

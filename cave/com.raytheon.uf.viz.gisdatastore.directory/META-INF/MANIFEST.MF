@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Shapefile support for DataStoreResource
+Bundle-SymbolicName: com.raytheon.uf.viz.gisdatastore.directory;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.gisdatastore.directory.Activator
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.viz.ui
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.geotools,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.viz.gisdatastore,
+ com.raytheon.uf.viz.core,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.gisdatastore.directory.rsc

@@ -4,9 +4,12 @@
   xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:util="http://www.springframework.org/schema/util"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
   
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
@@ -172,16 +175,6 @@
 	
 	<bean id="siteAwareRegistry" class="com.raytheon.uf.edex.site.SiteAwareRegistry" factory-method="getInstance">
 	    <property name="routeId" value="siteActivationRoute"/>
-	</bean>
-	
-	<bean class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
-  		<constructor-arg><bean class="com.raytheon.uf.common.geospatial.util.JtsGeometryConverter"/></constructor-arg>
-  		<constructor-arg><value>com.vividsolutions.jts.geom.Geometry</value></constructor-arg>
-	</bean>
-	
-	<bean class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
-  		<constructor-arg><bean class="com.raytheon.uf.common.dataplugin.convert.UnitConverter"/></constructor-arg>
-  		<constructor-arg><value>javax.measure.unit.Unit</value></constructor-arg>
 	</bean>
 	
 	  <bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
@@ -360,4 +353,39 @@
 		</list>
 	</property>
    </bean>
+
+    <!-- Holds the registry of request routers by server key -->
+    <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry"
+        factory-method="getInstance" />
+    
+    <bean id="requestRouterRegistry"
+        class="com.raytheon.uf.common.serialization.comm.RequestRouter"
+        factory-method="getRouterRegistry" />
+    
+    <!-- Server Request routers -->
+    <bean id="serverPrivilegedRequestHandler"
+        class="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler">
+        <constructor-arg ref="handlerRegistry" />
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
+        <constructor-arg ref="serverPrivilegedRequestHandler" />
+    </bean>
+
+    <util:constant id="requestServerKey"
+        static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
+    
+    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
+        <!-- This bean will cause all RequestRouter.route(request) calls 
+            to be processed internally to EDEX -->
+    </bean>
+
+    <bean id="registerRequestServiceRouter" factory-bean="requestRouterRegistry"
+        factory-method="register">
+        <constructor-arg ref="requestServerKey" />
+        <constructor-arg ref="requestServiceRouter" />
+    </bean>
+    
 </beans>
