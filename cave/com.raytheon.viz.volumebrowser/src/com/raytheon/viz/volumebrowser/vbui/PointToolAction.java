@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
+import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.widget.MenuContributionItem;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 
@@ -52,6 +53,7 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  * Sep 25, 2012 1215       rferrel     Clicking anywhere on the Point button
  *                                      now opens the menu.
  * Sep 26, 2012 1216       rferrel     resetMenu method added.
+ * Jan 24, 2013 1516       rferrel     Change Active Data Selection prior to filling menus.
  * 
  * </pre>
  * 
@@ -60,21 +62,57 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  */
 
 public class PointToolAction extends Action implements IMenuCreator {
+
+    /**
+     * Menu to display the parentNode's children.
+     */
     private Menu menu;
 
-    private String pointNames;
+    /**
+     * Type of name to prepend to a point's name.
+     */
+    private final String pointNames;
 
-    private IPointNode parentNode;
+    /**
+     * The Data Selection type that requested the menu.
+     */
+    private final DataSelection dataSelection;
 
-    private PointsDataManager dataManager;
+    /**
+     * The group node associated with this action.
+     */
+    private final IPointNode parentNode;
 
-    public PointToolAction(String text, String pointNames) {
-        this(text, pointNames, null);
+    /**
+     * Manager to get point information.
+     */
+    private final PointsDataManager dataManager;
+
+    /**
+     * Constructor.
+     * 
+     * @param text
+     * @param pointNames
+     * @param dataSelection
+     */
+    public PointToolAction(String text, String pointNames,
+            DataSelection dataSelection) {
+        this(text, pointNames, dataSelection, null);
     }
 
-    public PointToolAction(String text, String pointNames, IPointNode parentNode) {
+    /**
+     * Private constructor used recursively to generate menus for groups.
+     * 
+     * @param text
+     * @param pointNames
+     * @param dataSelecion
+     * @param parentNode
+     */
+    private PointToolAction(String text, String pointNames,
+            DataSelection dataSelecion, IPointNode parentNode) {
         super(text, SWT.DROP_DOWN);
         this.pointNames = pointNames;
+        this.dataSelection = dataSelecion;
         this.parentNode = parentNode;
         this.dataManager = PointsDataManager.getInstance();
     }
@@ -93,7 +131,6 @@ public class PointToolAction extends Action implements IMenuCreator {
             getMenu(item.getParent());
         }
         menu.setVisible(true);
-        super.runWithEvent(event);
     }
 
     /*
@@ -118,6 +155,7 @@ public class PointToolAction extends Action implements IMenuCreator {
     @Override
     public Menu getMenu(Control parent) {
         if (menu == null) {
+            MenuItemManager.getInstance().setActiveDataSelection(dataSelection);
             menu = new Menu(parent);
             fillMenu(menu);
         }
@@ -134,7 +172,8 @@ public class PointToolAction extends Action implements IMenuCreator {
      */
     @Override
     public Menu getMenu(Menu parent) {
-        if (menu != null) {
+        if (menu == null) {
+            MenuItemManager.getInstance().setActiveDataSelection(dataSelection);
             menu = new Menu(parent);
             fillMenu(menu);
         }
@@ -159,6 +198,11 @@ public class PointToolAction extends Action implements IMenuCreator {
         }
     }
 
+    /**
+     * Populates the menu with the children of the parentNode.
+     * 
+     * @param menu
+     */
     private void fillMenu(final Menu menu) {
         List<IPointNode> nodes = dataManager.getChildren(parentNode);
 
@@ -166,8 +210,8 @@ public class PointToolAction extends Action implements IMenuCreator {
         for (IPointNode node : nodes) {
             if (node.isGroup()) {
                 if (dataManager.getChildren(node).size() > 0) {
-                    final PointToolAction submenu = new PointToolAction(""
-                            + node.getName(), pointNames, node);
+                    final PointToolAction submenu = new PointToolAction(
+                            node.getName(), pointNames, dataSelection, node);
                     submenu.menu = new Menu(menu);
                     menu.addDisposeListener(new DisposeListener() {
 
@@ -199,6 +243,9 @@ public class PointToolAction extends Action implements IMenuCreator {
         return this;
     }
 
+    /**
+     * This class the details for placing a point in the desired menu.
+     */
     private class TitleContributionItem extends ContributionItem {
 
         private String text;
@@ -216,13 +263,6 @@ public class PointToolAction extends Action implements IMenuCreator {
          */
         public void setText(String text) {
             this.text = text;
-        }
-
-        /**
-         * @return the text
-         */
-        public String getText() {
-            return text;
         }
 
         /*
