@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLTooling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os" xmlns="http://www.opensaml.org/xmltooling-config">
+
+    <!-- XACML 2.0 Policy Object Providers -->
+    <ObjectProviders>    
+     	
+     	<!--ActionAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:ActionAttributeDesignator">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		<!-- ActionAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:ActionAttributeDesignatorType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>    	
+     	
+		<!-- xacml:ActionMatchType -->
+        <ObjectProvider qualifiedName="xacml:ActionMatch">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:ActionMatchType -->
+        <ObjectProvider qualifiedName="xacml:ActionMatchType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+	
+		<!-- xacml:ActionsType -->
+        <ObjectProvider qualifiedName="xacml:Actions">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionsTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:ActionsType -->
+        <ObjectProvider qualifiedName="xacml:ActionsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionsTypeUnmarshaller"/>
+        </ObjectProvider>
+
+	  	<!-- xacml:ActionType -->
+        <ObjectProvider qualifiedName="xacml:Action">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:ActionType -->
+        <ObjectProvider qualifiedName="xacml:ActionType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ActionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ActionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ActionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+	    <!-- xacml:ApplyType -->
+        <ObjectProvider qualifiedName="xacml:Apply">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ApplyTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ApplyTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ApplyTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		<!-- xacml:ApplyType -->
+        <ObjectProvider qualifiedName="xacml:ApplyType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ApplyTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ApplyTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ApplyTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:AttributeAssignmentType -->
+        <ObjectProvider qualifiedName="xacml:AttributeAssignment">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeUnmarshaller"/>
+        </ObjectProvider>     
+
+ 		<!-- xacml:AttributeAssignmentType -->
+        <ObjectProvider qualifiedName="xacml:AttributeAssignmentType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeAssignmentTypeUnmarshaller"/>
+        </ObjectProvider>     
+
+		<!-- xacml:AttributeSelectorType  -->
+        <ObjectProvider qualifiedName="xacml:AttributeSelector">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		<!-- xacml:AttributeSelectorType  -->
+        <ObjectProvider qualifiedName="xacml:AttributeSelectorType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeSelectorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:AttributeValueType -->
+        <ObjectProvider qualifiedName="xacml:AttributeValue">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+         <!-- xacml:AttributeValueType -->
+        <ObjectProvider qualifiedName="xacml:AttributeValueType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeValueTypeUnmarshaller"/>
+        </ObjectProvider>
+	 
+		<!-- xacml:CombineParametersType -->
+        <ObjectProvider qualifiedName="xacml:CombinerParameters">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:CombineParametersType -->
+        <ObjectProvider qualifiedName="xacml:CombinerParametersType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>
+ 
+		<!-- xacml:CombineParameterType -->
+        <ObjectProvider qualifiedName="xacml:CombinerParameter">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:CombineParameterType -->
+        <ObjectProvider qualifiedName="xacml:CombinerParameterType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.CombinerParameterTypeUnmarshaller"/>
+        </ObjectProvider>
+      
+		<!-- xacml:ConditionType -->
+        <ObjectProvider qualifiedName="xacml:Condition">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ConditionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ConditionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ConditionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+         <ObjectProvider qualifiedName="xacml:ConditionType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ConditionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ConditionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ConditionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:ConditionType -->
+        <ObjectProvider qualifiedName="xacml:Description">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DescriptionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DescriptionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DescriptionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+         <ObjectProvider qualifiedName="xacml:DescriptionType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DescriptionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DescriptionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DescriptionTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!--EnvironmentAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentAttributeDesignator">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		<!-- EnvironmentAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentAttributeDesignatorType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>    	
+
+        <!-- xacml:EnvironmentMatchType -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentMatch">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:EnvironmentMatchType -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentMatchType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:EnvironmentsType -->
+        <ObjectProvider qualifiedName="xacml:Environments">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:EnvironmentsType -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentsTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:EnvironmentType -->
+        <ObjectProvider qualifiedName="xacml:Environment">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:EnvironmentType -->
+        <ObjectProvider qualifiedName="xacml:EnvironmentType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.EnvironmentTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:FunctionType -->
+        <ObjectProvider qualifiedName="xacml:Function">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.FunctionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.FunctionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.FunctionTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		 <!-- xacml:FunctionType -->
+        <ObjectProvider qualifiedName="xacml:FunctionType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.FunctionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.FunctionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.FunctionTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- ObligationsType -->       
+        <ObjectProvider qualifiedName="xacml:Obligations">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ObligationsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ObligationsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ObligationsTypeUnmarshaller"/>
+        </ObjectProvider>  
+        
+          <!-- ObligationsType -->       
+        <ObjectProvider qualifiedName="xacml:ObligationsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ObligationsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ObligationsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ObligationsTypeUnmarshaller"/>
+        </ObjectProvider>  
+        
+		<!-- ObligationType  -->      
+        <ObjectProvider qualifiedName="xacml:Obligation">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ObligationTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ObligationTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ObligationTypeUnmarshaller"/>
+        </ObjectProvider> 
+        
+        <!-- ObligationType  -->      
+        <ObjectProvider qualifiedName="xacml:ObligationType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ObligationTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ObligationTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ObligationTypeUnmarshaller"/>
+        </ObjectProvider>  
+                             
+         <!-- PolicyCombinerParametersType -->       
+        <ObjectProvider qualifiedName="xacml:PolicyCombinerParameters">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>  
+        
+    	<!-- PolicyCombinerParametersType -->       
+        <ObjectProvider qualifiedName="xacml:PolicyCombinerParametersType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicyCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>  
+        
+        <!-- xacml:PolicyDefaults-->
+        <ObjectProvider qualifiedName="xacml:PolicyDefaults">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DefaultsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:PolicyDefaults -->
+        <ObjectProvider qualifiedName="xacml:PolicyDefaultsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DefaultsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:PolicyIdReference -->
+        <ObjectProvider qualifiedName="xacml:PolicyIdReference">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:PolicyIdReference -->
+        <ObjectProvider qualifiedName="xacml:PolicyIdReferenceType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeUnmarshaller"/>
+        </ObjectProvider>
+     
+         <!-- PolicySetCombinerParametersType -->        
+        <ObjectProvider qualifiedName="xacml:PolicySetCombinerParameters">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider> 
+        
+          <!-- PolicySetCombinerParametersType -->        
+        <ObjectProvider qualifiedName="xacml:PolicySetCombinerParametersType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>  
+  
+  	    <!-- xacml:PolicySetDefaults-->
+        <ObjectProvider qualifiedName="xacml:PolicySetDefaults">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DefaultsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:PolicyDefaults -->
+        <ObjectProvider qualifiedName="xacml:PolicyDefaultsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.DefaultsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.DefaultsTypeUnmarshaller"/>
+        </ObjectProvider>
+  
+        <!-- xacml:PolicySetIdReference -->
+        <ObjectProvider qualifiedName="xacml:PolicySetIdReference">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:PolicySetIdReference -->
+        <ObjectProvider qualifiedName="xacml:PolicySetIdReferenceType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.IdReferenceTypeUnmarshaller"/>
+        </ObjectProvider>
+  
+        <!-- PolicySetType -->      
+        <ObjectProvider qualifiedName="xacml:PolicySet">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicySetTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetTypeUnmarshaller"/>
+        </ObjectProvider>    
+        
+         <!-- PolicySetType -->      
+        <ObjectProvider qualifiedName="xacml:PolicySetType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicySetTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicySetTypeUnmarshaller"/>
+        </ObjectProvider>     
+
+        <!-- PolicyType  -->       
+        <ObjectProvider qualifiedName="xacml:Policy">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicyTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicyTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicyTypeUnmarshaller"/>
+        </ObjectProvider>  
+        
+        <!-- PolicyType  -->       
+        <ObjectProvider qualifiedName="xacml:PolicyType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.PolicyTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.PolicyTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.PolicyTypeUnmarshaller"/>
+        </ObjectProvider>    
+        
+        <!-- xacml:ResourceAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:ResourceAttributeDesignator">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+		<!-- xacml:ResourceAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:ResourceAttributeDesignatorType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.AttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+         
+        <!-- xacml:ResourceMatchType -->
+        <ObjectProvider qualifiedName="xacml:ResourceMatch">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeUnmarshaller"/>
+        </ObjectProvider>       
+         
+
+		<!-- xacml:ResourceMatchType -->
+        <ObjectProvider qualifiedName="xacml:ResourceMatchType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourceMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+	
+        <!-- xacml:ResourcesType -->
+        <ObjectProvider qualifiedName="xacml:Resources">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourcesTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourcesTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourcesTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+         <!-- xacml:ResourcesType -->
+        <ObjectProvider qualifiedName="xacml:ResourcesType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourcesTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourcesTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourcesTypeUnmarshaller"/>
+        </ObjectProvider>        
+
+        <!-- xacml:ResourceType -->
+        <ObjectProvider qualifiedName="xacml:Resource">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourceTypeUnmarshaller"/>
+        </ObjectProvider>        
+        
+        <!-- xacml:ResourceType -->
+        <ObjectProvider qualifiedName="xacml:ResourceType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.ResourceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.ResourceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.ResourceTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:RuleCombinerParametersType  -->
+        <ObjectProvider qualifiedName="xacml:RuleCombinerParameters">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:RuleCombinerParametersType  -->
+        <ObjectProvider qualifiedName="xacml:RuleCombinerParametersType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.RuleCombinerParametersTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:RuleType -->
+        <ObjectProvider qualifiedName="xacml:Rule">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.RuleTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.RuleTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.RuleTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+         <!-- xacml:RuleType -->
+        <ObjectProvider qualifiedName="xacml:RuleType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.RuleTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.RuleTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.RuleTypeUnmarshaller"/>
+        </ObjectProvider>
+               
+        <!--SubjectAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:SubjectAttributeDesignator">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectAttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectAttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="com.raytheon.uf.edex.datadelivery.registry.acp.xacml.util.unmarshaller.SubjectAttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+	<!-- SubjectAttributeDesignator -->
+        <ObjectProvider qualifiedName="xacml:SubjectAttributeDesignatorType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectAttributeDesignatorTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectAttributeDesignatorTypeMarshaller"/>
+            <UnmarshallingClass className="com.raytheon.uf.edex.datadelivery.registry.acp.xacml.util.unmarshaller.SubjectAttributeDesignatorTypeUnmarshaller"/>
+        </ObjectProvider>
+
+        <!-- xacml:SubjectsType -->
+        <ObjectProvider qualifiedName="xacml:Subjects">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectsTypeUnmarshaller"/>
+        </ObjectProvider>    
+        
+         <!-- xacml:SubjectsType -->
+        <ObjectProvider qualifiedName="xacml:SubjectsType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectsTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectsTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectsTypeUnmarshaller"/>
+        </ObjectProvider>          
+
+        <!-- xacml:SubjectType -->
+        <ObjectProvider qualifiedName="xacml:Subject">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectTypeUnmarshaller"/>
+        </ObjectProvider>       
+
+		<!-- xacml:SubjectType -->
+        <ObjectProvider qualifiedName="xacml:SubjectType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectTypeUnmarshaller"/>
+        </ObjectProvider>       
+        
+        <!-- xacml:SubjectMatchType -->
+        <ObjectProvider qualifiedName="xacml:SubjectMatchType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+        <!-- xacml:SubjectMatchType -->
+        <ObjectProvider qualifiedName="xacml:SubjectMatch">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.SubjectMatchTypeUnmarshaller"/>
+        </ObjectProvider>
+        
+       
+
+        <!-- xacml:TargetType -->
+        <ObjectProvider qualifiedName="xacml:Target">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.TargetTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.TargetTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.TargetTypeUnmarshaller"/>
+        </ObjectProvider>   
+        
+          <!-- xacml:TargetType -->
+        <ObjectProvider qualifiedName="xacml:TargetType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.TargetTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.TargetTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.TargetTypeUnmarshaller"/>
+        </ObjectProvider>   
+
+        <!-- xacml:VariableDefinitionType -->
+        <ObjectProvider qualifiedName="xacml:VariableDefinition">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeUnmarshaller"/>
+        </ObjectProvider> 
+        
+         <!-- xacml:VariableDefinitionType -->
+        <ObjectProvider qualifiedName="xacml:VariableDefinitionType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.VariableDefinitionTypeUnmarshaller"/>
+        </ObjectProvider> 
+        
+        <!-- xacml:VariableReferenceType -->
+        <ObjectProvider qualifiedName="xacml:VariableReference">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeUnmarshaller"/>
+        </ObjectProvider> 
+          <!-- xacml:VariableReferenceType -->
+        <ObjectProvider qualifiedName="xacml:VariableReferenceType">
+            <BuilderClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeImplBuilder"/>
+            <MarshallingClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.xacml.policy.impl.VariableReferenceTypeUnmarshaller"/>
+        </ObjectProvider> 
+
+    </ObjectProviders>
+    
+ </XMLTooling>
+

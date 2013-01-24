@@ -1,5 +1,5 @@
 !
-! Restore File : pmsl_and_bl_wind
+! Restore File : mul(1e-2,pmsl)_and_bl_wind
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
@@ -10,8 +10,9 @@
 GLEVEL =  10!0
 GVCORD =  hght!none
 SKIP   =    0/1;-1
+FILTER=y
 SCALE  =   0
-GDPFUN =  mag(kntv(wnd))!sm5s(mul(1e-2,pmsl)) ! kntv(wnd@10%hght)
+GDPFUN =  mag(kntv(wnd))!sm5s(pmsl) ! kntv(wnd@10%hght)
 TYPE   =    c/f!c ! b
 CINT   =    5/20!4
 LINE   =    32/1/2/2!19//2
@@ -25,4 +26,3 @@ TITLE  =   1/-1/~ PMSL, BL WIND   = (10m, KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
-FILTER =  1

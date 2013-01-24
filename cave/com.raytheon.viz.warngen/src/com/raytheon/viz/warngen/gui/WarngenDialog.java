@@ -127,6 +127,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       but lock immediate cause, implemented in individual template.
  *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
  *                                       and in updateListSelected().
+ *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
+ *                                       to true in boxSelected().                                      
  * 
  * </pre>
  * 
@@ -1246,7 +1248,7 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void boxSelected() {
         boxEditable = !polygonLocked;
-        trackEditable = false;
+        trackEditable = true;
         warngenLayer.getStormTrackState().editable = trackEditable;
         warngenLayer.setBoxEditable(boxEditable);
         warngenLayer.issueRefresh();

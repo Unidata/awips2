@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,13 +36,21 @@ import org.apache.commons.lang.StringUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            rferrel     Initial creation
+ * Jul 13, 2012 740        djohnson    Add join.
+ * Nov 09, 2012 1322       djohnson    Add NEWLINE, createMessage.
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class StringUtil {
+public final class StringUtil {
+
+    public static final String NEWLINE = System.getProperty("line.separator");
+
+    private StringUtil() {
+
+    }
 
     /**
      * Splits a string using given separator characters; strings are trimmed and
@@ -74,5 +84,105 @@ public class StringUtil {
             }
         }
         return result;
+    }
+
+    /**
+     * Concatenate an array of object into a single string with each array
+     * element's toString() value separated by the joinCharacter.
+     * 
+     * @param portions
+     *            the array of objects
+     * @param joinCharacter
+     *            the character to join them with
+     * @return the concatenated string
+     */
+    public static <T> String join(final T[] portions, final char joinCharacter) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (CollectionUtil.isNullOrEmpty(portions)) {
+            return null;
+        }
+
+        for (T portion : portions) {
+            stringBuilder.append(portion);
+            stringBuilder.append(joinCharacter);
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Concatenate a collection of objects into a single string with each
+     * object's toString() value separated by the joinCharacter.
+     * 
+     * @param portions
+     *            the collections of objects
+     * @param joinCharacter
+     *            the character to join them with
+     * @return the concatenated string
+     */
+    public static <T> String join(final Collection<T> portions, final char joinCharacter) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (CollectionUtil.isNullOrEmpty(portions)) {
+            return null;
+        }
+
+        for (T portion : portions) {
+            stringBuilder.append(portion);
+            stringBuilder.append(joinCharacter);
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Creates a message based on the preamble and the provided iterables, each
+     * iterable will be displayed on its own line.
+     * 
+     * @param preamble
+     *            the preamble message, such as
+     *            <code>String preamble = "The following are numbers:"</code>
+     * @param iterables
+     *            the iterable to retrieve items from, such as<br>
+     *            <code>List&lt;String&gt; iterables = Arrays.asList("one", "two");</code>
+     * @return the message
+     */
+    public static String createMessage(String preamble, Iterable<?> iterables) {
+        return createMessage(preamble, iterables, 0);
+    }
+
+    /**
+     * Creates a message based on the preamble and the provided iterables, each
+     * iterable will be displayed on its own line.
+     * 
+     * @param preamble
+     *            the preamble message, such as
+     *            <code>String preamble = "The following are numbers:"</code>
+     * @param iterables
+     *            the iterable to retrieve items from, such as<br>
+     *            <code>List&lt;String&gt; iterables = Arrays.asList("one", "two");</code>
+     * @param iterableIndent
+     *            the number of spaces to indent each iterable
+     * @return the message
+     */
+    public static String createMessage(String preamble, Iterable<?> iterables,
+            int iterableIndent) {
+        StringBuilder msg = new StringBuilder(preamble)
+                .append(StringUtil.NEWLINE);
+        for (Iterator<?> iter = iterables.iterator(); iter.hasNext();) {
+            for (int i = 0; i < iterableIndent; i++) {
+                msg.append(' ');
+            }
+            msg.append(iter.next());
+
+            if (iter.hasNext()) {
+                msg.append(StringUtil.NEWLINE);
+            }
+        }
+
+        return msg.toString();
     }
 }
