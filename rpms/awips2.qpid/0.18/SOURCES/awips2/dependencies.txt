@@ -1,0 +1,13 @@
+org.apache.commons.cli/commons-cli-1.2.jar
+org.apache.commons.logging/commons-logging-1.1.1.jar
+org.slf4j/slf4j-log4j12-1.6.1.jar
+org.apache.ws.security/xalan-2.7.1.jar
+org.apache.commons.beanutils/commons-beanutils-1.8.3.jar
+org.apache.commons.digester/commons-digester-1.8.1.jar
+org.apache.commons.codec/commons-codec-1.4.jar
+org.apache.commons.lang/commons-lang-2.3.jar
+org.apache.commons.collections/commons-collections-3.2.jar
+org.apache.commons.configuration/commons-configuration-1.6.jar
+org.codehaus.jackson/jackson-core-asl-1.7.3.jar
+org.codehaus.jackson/jackson-mapper-asl-1.7.3.jar
+org.junit/mockito-all-1.9.0.jar
